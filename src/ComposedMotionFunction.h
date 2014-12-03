@@ -55,9 +55,9 @@ enum TMotionFunctionMode {
         mfmRamp //función de movimiento rampa
 };
 
-void __fastcall StrPrintMotionFunctionMode(AnsiString& S,
+void  StrPrintMotionFunctionMode(AnsiString& S,
         TMotionFunctionMode mfm);
-void __fastcall StrReadMotionFunctionMode(TMotionFunctionMode& mfm,
+void  StrReadMotionFunctionMode(TMotionFunctionMode& mfm,
         const AnsiString &S, int &i);
 AnsiString MotionFunctionModeToStr(TMotionFunctionMode mfm);
 TMotionFunctionMode StrToMotionFunctionMode(const AnsiString& S);
@@ -75,9 +75,9 @@ enum TSquareSynchronismMode {
         ssmDouTmin //MF1->T = MF1->Tmin; MF2->T = 2*MF2->Tmin;
 };
 
-void __fastcall StrPrintSquareSynchronismMode(AnsiString& S,
+void  StrPrintSquareSynchronismMode(AnsiString& S,
         TSquareSynchronismMode ssm);
-void __fastcall StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
+void  StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
         const AnsiString &S, int &i);
 AnsiString SquareSynchronismModeToStr(TSquareSynchronismMode ssm);
 TSquareSynchronismMode StrToSquareSynchronismMode(const AnsiString& S);
@@ -99,9 +99,9 @@ enum TRampSynchronismMode {
         rsmDouTv //MF1->T = MF1->Tv; MF2->T = 2*MF2->Tv;
 };
 
-void __fastcall StrPrintRampSynchronismMode(AnsiString& S,
+void  StrPrintRampSynchronismMode(AnsiString& S,
         TRampSynchronismMode rsm);
-void __fastcall StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
+void  StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
         const AnsiString &S, int &i);
 AnsiString RampSynchronismModeToStr(TRampSynchronismMode rsm);
 TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S);
@@ -346,7 +346,7 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee una instancia de función de movimiento compuesta en una cadena
-        static void __fastcall ReadInstance(TComposedMotionFunction* &CMF,
+        static void  ReadInstance(TComposedMotionFunction* &CMF,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------

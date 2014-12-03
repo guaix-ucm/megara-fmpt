@@ -8,8 +8,8 @@
 #ifndef MESSAGEINSTRUCTION_H
 #define MESSAGEINSTRUCTION_H
 
-#include "..\3_Lists\Vector.h"
-#include "..\B_RoboticPositioner\Instruction.h"
+#include "Vector.h"
+#include "Instruction.h"
 
 //---------------------------------------------------------------------------
 
@@ -65,13 +65,13 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //compara los identificadores de dos mensajes de instrucción
-        static int __fastcall CompareIds(const TMessageInstruction *MI1,
+        static int  CompareIds(const TMessageInstruction *MI1,
                 const TMessageInstruction *MI2);
         //imprime un mensaje de instrucción en una cadena
-        static void __fastcall Print(AnsiString &S,
+        static void  Print(AnsiString &S,
                 const TMessageInstruction *MI);
         //lee un mensaje de itnrucción en una cadena de texto
-        static void __fastcall Read(TMessageInstruction *MI,
+        static void  Read(TMessageInstruction *MI,
                 const AnsiString &S, int &i);
 
         //MÉTODOS PÚBLICOS:

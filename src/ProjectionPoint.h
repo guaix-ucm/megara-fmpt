@@ -9,8 +9,8 @@
 #define PROJECTIONPOINT_H
 
 #include "SkyPoint.h"
-#include "..\A_Arm\Figure.h"
-#include "..\3_Lists\PointersList.h"
+#include "Figure.h"
+#include "PointersList.h"
 
 //---------------------------------------------------------------------------
 
@@ -97,19 +97,19 @@ public:
     //MÉTODOS ESTÁTICOS DE LISTA:
 
     //imprime las propiedades de un punto de proyección en una cadena
-    static void __fastcall PrintRow(AnsiString &S,
+    static void  PrintRow(AnsiString &S,
                                     TProjectionPoint *PP);
-    static void __fastcall PrintCol(AnsiString &S,
+    static void  PrintCol(AnsiString &S,
                                     TProjectionPoint *PP);
-    static void __fastcall PrintAssigns(AnsiString &S,
+    static void  PrintAssigns(AnsiString &S,
                                         TProjectionPoint *PP);
 
     //lee las propiedades de un punto de proyección en una cadena
-    static void __fastcall ReadRow(TProjectionPoint *PP,
+    static void  ReadRow(TProjectionPoint *PP,
                                    const AnsiString &S, int &i);
-    static void __fastcall ReadCol(TProjectionPoint *PP,
+    static void  ReadCol(TProjectionPoint *PP,
                                    const AnsiString &S, int &i);
-    static void __fastcall ReadAssigns(TProjectionPoint *PP,
+    static void  ReadAssigns(TProjectionPoint *PP,
                                        const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:

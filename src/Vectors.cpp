@@ -8,7 +8,7 @@
 #include "Constants.h" //M_2PI
 #include "Scalars.h" //Scalars::RandomUniform
 #include "Vectors.h"
-#include "..\2_Strings\StrPR.h" //StrToFloat_
+#include "StrPR.h" //StrToFloat_
 
 //---------------------------------------------------------------------------
 

@@ -9,9 +9,9 @@
 #define EXCLUSIONAREA_H
 
 #include "RoboticPositioner.h"
-#include "..\0_VCL\vclemu.h"
-#include "..\3_Lists\ItemsList.h"
-#include "..\A_Arm\Barrier.h"
+#include "vclemu.h"
+#include "ItemsList.h"
+#include "Barrier.h"
 
 //Para determinar el estado de colisión de un EA con un RP adyacente,
 //se utilizará el método:
@@ -122,7 +122,7 @@ public:
         //dirección en memoria de la barrera
         //en formato texto
         AnsiString getBarrierAddressText(void) const {
-                return IntToHex(int(&Barrier), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&Barrier), 8);}
 
         AnsiString getEoText(void) const; void setEoText(const AnsiString&);
         AnsiString getEpText(void) const; void setEpText(const AnsiString&);
@@ -168,11 +168,11 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //compara los identificadores de dos EAs
-        static int __fastcall CompareIds(TExclusionArea *EA1,
+        static int  CompareIds(TExclusionArea *EA1,
                 TExclusionArea *EA2);
 
         //imprime el identificador de un EA
-        static void __fastcall PrintId(AnsiString &S, TExclusionArea *EA);
+        static void  PrintId(AnsiString &S, TExclusionArea *EA);
 
         //Los métodos estáticos:
         //      CompareIds
@@ -186,23 +186,23 @@ public:
         static AnsiString GetOriginsLabelsRow(void);
         //atraviesa las etiquetas de las propiedades de origen
         //en formato fila de texto
-        static void __fastcall TravelOriginsLabelsRow(const AnsiString&, int&);
+        static void  TravelOriginsLabelsRow(const AnsiString&, int&);
 
         //imprime los valores de las propiedades de orien de un EA
         //al final de una cadena de texto
         //en formato fila de texto
-        static void __fastcall PrintOriginsRow(AnsiString& S,
+        static void  PrintOriginsRow(AnsiString& S,
                 TExclusionArea *EA);
         //lee los valores de las propiedades de orien para un EA
         //desde la posición indicada de una cadena de texto
         //en formato fila de texto
-        static void __fastcall ReadOriginsRow(TExclusionArea *EA,
+        static void  ReadOriginsRow(TExclusionArea *EA,
                 const AnsiString& S, int &i);
 
         //lee una instancia del EA
         //desde la posición indicada de una cadena de texto
         //en formato de asignaciones
-        static void __fastcall ReadInstance(TExclusionArea* &B,
+        static void  ReadInstance(TExclusionArea* &B,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------

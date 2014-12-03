@@ -8,7 +8,7 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include "..\3_Lists\Vector.h"
+#include "Vector.h"
 
 //---------------------------------------------------------------------------
 
@@ -109,15 +109,15 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //imprime los puntos de una función en una cadena
-    static void __fastcall PrintPoints(AnsiString &S, const TFunction *F);
+    static void  PrintPoints(AnsiString &S, const TFunction *F);
     //lee una cadena en busca de los puntos de un afunción
-    static void __fastcall ReadPoints(TFunction *F, const AnsiString &S,
+    static void  ReadPoints(TFunction *F, const AnsiString &S,
                                       int &i);
 
     //imprime los puntos de una función en una cadena
-    static void __fastcall PrintTable(AnsiString &S, const TFunction *F);
+    static void  PrintTable(AnsiString &S, const TFunction *F);
     //lee una cadena en busca de los puntos de un afunción
-    static void __fastcall ReadTable(TFunction *F, const AnsiString &S,
+    static void  ReadTable(TFunction *F, const AnsiString &S,
                                      int &i);
 
     //MÉTODOS DE CONTRUCCIÓN COPIA Y DESTRUCCIÓN:

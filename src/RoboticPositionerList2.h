@@ -164,43 +164,43 @@ public:
     //MÉTODOS ESTÁTICOS DE LECTURA DE PROPIEDADES INDIVIDUALES:
 
     //lee xmin de una asignación
-    static void __fastcall ReadxminText(double &xmin, const AnsiString &S,
+    static void  ReadxminText(double &xmin, const AnsiString &S,
                                         int &i);
     //lee xmax de una asignación
-    static void __fastcall ReadxmaxText(double &xmax, const AnsiString &S,
+    static void  ReadxmaxText(double &xmax, const AnsiString &S,
                                         int &i);
     //lee ymin de una asignación
-    static void __fastcall ReadyminText(double &ymin, const AnsiString &S,
+    static void  ReadyminText(double &ymin, const AnsiString &S,
                                         int &i);
     //lee ymax de una asignación
-    static void __fastcall ReadymaxText(double &ymax, const AnsiString &S,
+    static void  ReadymaxText(double &ymax, const AnsiString &S,
                                         int &i);
 
     //lee I de una asignación
-    static void __fastcall ReadIText(int &I,  const AnsiString &S,
+    static void  ReadIText(int &I,  const AnsiString &S,
                                      int &i);
     //lee J de una asignación
-    static void __fastcall ReadJText(int &J, const AnsiString &S,
+    static void  ReadJText(int &J, const AnsiString &S,
                                      int &i);
 
     //MÉTODOS ESTÁTICOS DE CONJUNTOS DE PROPIEDADES:
 
     //imprime el intervalo de mapeo de un mapa de posicionadores
     //en una cadena de texto en formato de asignaciones
-    static void __fastcall PrintInterval(AnsiString &S,
+    static void  PrintInterval(AnsiString &S,
                                          const TRoboticPositionerList2 *RPL);
     //le el intervalo de mapeo de un mapa de posicionadores
     //en una cadena de texto en formato de asignaciones
-    static void __fastcall ReadInterval(TRoboticPositionerList2 *RPL,
+    static void  ReadInterval(TRoboticPositionerList2 *RPL,
                                         const AnsiString &S, int &i);
 
     //imprime las celdas de un mapa de posicionadores
     //en una cadena de texto en formato de asignaciones
-    static void __fastcall PrintCells(AnsiString &S,
+    static void  PrintCells(AnsiString &S,
                                       const TRoboticPositionerList2 *RPL);
     //lee las celdas de un mapa de posicionadores
     //en una cadena de texto en formato de asignaciones
-    static void __fastcall ReadCells(TRoboticPositionerList2 *RPL,
+    static void  ReadCells(TRoboticPositionerList2 *RPL,
                                      const AnsiString &S, int &i);
 
     //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:

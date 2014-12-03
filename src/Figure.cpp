@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------
 
 #include "Figure.h"
-#include "..\2_Strings\Strings.h"
-#include "..\1_Mathematics\Geometry.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "Strings.h"
+#include "Geometry.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ void TFigure::setColorText(const AnsiString& S)
 //      si F1->Color < F2->Color entonces CompareColor = -1
 //      si F1->Color > F2->Color entonces CompareColor = 1
 //      si F1->Color == F2->Color entonces CompareColor = 0
-int __fastcall TFigure::CompareColor(const TFigure *F1, const TFigure *F2)
+int  TFigure::CompareColor(const TFigure *F1, const TFigure *F2)
 {
     //el puntero F1 debería apuntar a una figura contruida
     if(F1 == NULL)
@@ -69,7 +69,7 @@ int __fastcall TFigure::CompareColor(const TFigure *F1, const TFigure *F2)
 
 //imprime las propiedades de un objeto en una cadena
 //en formato texto entre paréntesis
-void __fastcall TFigure::FigurePrint(AnsiString& S,
+void  TFigure::FigurePrint(AnsiString& S,
                                      TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
@@ -81,7 +81,7 @@ void __fastcall TFigure::FigurePrint(AnsiString& S,
 }
 //imprime las propiedades de un objeto en una cadena
 //en formato fila de texto
-void __fastcall TFigure::FigurePrintRow(AnsiString& S,
+void  TFigure::FigurePrintRow(AnsiString& S,
                                         TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
@@ -94,7 +94,7 @@ void __fastcall TFigure::FigurePrintRow(AnsiString& S,
 
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TFigure::FigureRead(TFigure* &F, const AnsiString& S, int& i)
+void  TFigure::FigureRead(TFigure* &F, const AnsiString& S, int& i)
 {
     //el índice i debe indicar una posición de la cadena S
     if(i<1 || S.Length()<i)
@@ -147,7 +147,7 @@ void __fastcall TFigure::FigureRead(TFigure* &F, const AnsiString& S, int& i)
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato fila de texto
-void __fastcall TFigure::FigureReadRow(TFigure* &F, const AnsiString& S, int& i)
+void  TFigure::FigureReadRow(TFigure* &F, const AnsiString& S, int& i)
 {
     //el índice i debe indicar una posición de la cadena S
     if(i<1 || S.Length()<i)
@@ -323,7 +323,7 @@ AnsiString TCircle::GetRowLabels(void)
 
 //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-int __fastcall TCircle::Comparex(const TCircle *C1,
+int  TCircle::Comparex(const TCircle *C1,
                                  const TCircle *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -340,7 +340,7 @@ int __fastcall TCircle::Comparex(const TCircle *C1,
         return 1;
     return 0;
 }
-int __fastcall TCircle::Comparey(const TCircle *C1,
+int  TCircle::Comparey(const TCircle *C1,
                                  const TCircle *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -357,7 +357,7 @@ int __fastcall TCircle::Comparey(const TCircle *C1,
         return 1;
     return 0;
 }
-int __fastcall TCircle::CompareR(const TCircle *C1,
+int  TCircle::CompareR(const TCircle *C1,
                                  const TCircle *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -377,7 +377,7 @@ int __fastcall TCircle::CompareR(const TCircle *C1,
 
 //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
-void __fastcall TCircle::Print(AnsiString& S, const TCircle *C)
+void  TCircle::Print(AnsiString& S, const TCircle *C)
 {
     //el puntero C debería apuntar a un círculo
     if(C == NULL)
@@ -385,7 +385,7 @@ void __fastcall TCircle::Print(AnsiString& S, const TCircle *C)
 
     S += C->getText();
 }
-void __fastcall TCircle::PrintRow(AnsiString& S, const TCircle *C)
+void  TCircle::PrintRow(AnsiString& S, const TCircle *C)
 {
     //el puntero C debería apuntar a un círculo
     if(C == NULL)
@@ -393,7 +393,7 @@ void __fastcall TCircle::PrintRow(AnsiString& S, const TCircle *C)
 
     S += C->getRowText();
 }
-void __fastcall TCircle::PrintAssigns(AnsiString& S, const TCircle *C)
+void  TCircle::PrintAssigns(AnsiString& S, const TCircle *C)
 {
     //el puntero C debería apuntar a un círculo
     if(C == NULL)
@@ -404,7 +404,7 @@ void __fastcall TCircle::PrintAssigns(AnsiString& S, const TCircle *C)
 
 //MÉTODOS ESTÁTICOS DE LECTURA:
 
-void __fastcall TCircle::Read(TCircle *C,
+void  TCircle::Read(TCircle *C,
                               const AnsiString& S, int& i)
 {
     //el puntero C debería apuntar a un círculo construido
@@ -486,7 +486,7 @@ void __fastcall TCircle::Read(TCircle *C,
     //asigna la variable tampón
     *C = _C;
 }
-void __fastcall TCircle::ReadRow(TCircle *C,
+void  TCircle::ReadRow(TCircle *C,
                                  const AnsiString& S, int& i)
 {
     //el puntero C debería apuntar a un círculo construido
@@ -578,7 +578,7 @@ void __fastcall TCircle::ReadRow(TCircle *C,
     //asigna la variable tampón
     *C = _C;
 }
-void __fastcall TCircle::ReadAssigns(TCircle *C,
+void  TCircle::ReadAssigns(TCircle *C,
                                      const AnsiString& S, int& i)
 {
 }
@@ -914,7 +914,7 @@ AnsiString TCircunference::GetRowLabels(void)
 
 //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-int __fastcall TCircunference::Comparex(const TCircunference *C1,
+int  TCircunference::Comparex(const TCircunference *C1,
                                         const TCircunference *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -931,7 +931,7 @@ int __fastcall TCircunference::Comparex(const TCircunference *C1,
         return 1;
     return 0;
 }
-int __fastcall TCircunference::Comparey(const TCircunference *C1,
+int  TCircunference::Comparey(const TCircunference *C1,
                                         const TCircunference *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -948,7 +948,7 @@ int __fastcall TCircunference::Comparey(const TCircunference *C1,
         return 1;
     return 0;
 }
-int __fastcall TCircunference::CompareR(const TCircunference *C1,
+int  TCircunference::CompareR(const TCircunference *C1,
                                         const TCircunference *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -968,7 +968,7 @@ int __fastcall TCircunference::CompareR(const TCircunference *C1,
 
 //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
-void __fastcall TCircunference::Print(AnsiString& S, const TCircunference *C)
+void  TCircunference::Print(AnsiString& S, const TCircunference *C)
 {
     //el puntero C debería apuntar a un círculo
     if(C == NULL)
@@ -976,7 +976,7 @@ void __fastcall TCircunference::Print(AnsiString& S, const TCircunference *C)
 
     S += C->getText();
 }
-void __fastcall TCircunference::PrintRow(AnsiString& S, const TCircunference *C)
+void  TCircunference::PrintRow(AnsiString& S, const TCircunference *C)
 {
     //el puntero C debería apuntar a un círculo
     if(C == NULL)
@@ -984,7 +984,7 @@ void __fastcall TCircunference::PrintRow(AnsiString& S, const TCircunference *C)
 
     S += C->getRowText();
 }
-void __fastcall TCircunference::PrintAssigns(AnsiString& S, const TCircunference *C)
+void  TCircunference::PrintAssigns(AnsiString& S, const TCircunference *C)
 {
     //el puntero C debería apuntar a un círculo
     if(C == NULL)
@@ -995,7 +995,7 @@ void __fastcall TCircunference::PrintAssigns(AnsiString& S, const TCircunference
 
 //MÉTODOS ESTÁTICOS DE LECTURA:
 
-void __fastcall TCircunference::Read(TCircunference *C,
+void  TCircunference::Read(TCircunference *C,
                                      const AnsiString& S, int& i)
 {
     //el puntero C debería apuntar a un círculo construido
@@ -1077,7 +1077,7 @@ void __fastcall TCircunference::Read(TCircunference *C,
     //asigna la variable tampón
     *C = _C;
 }
-void __fastcall TCircunference::ReadRow(TCircunference *C,
+void  TCircunference::ReadRow(TCircunference *C,
                                         const AnsiString& S, int& i)
 {
     //el puntero C debería apuntar a un círculo construido
@@ -1169,7 +1169,7 @@ void __fastcall TCircunference::ReadRow(TCircunference *C,
     //asigna la variable tampón
     *C = _C;
 }
-void __fastcall TCircunference::ReadAssigns(TCircunference *C,
+void  TCircunference::ReadAssigns(TCircunference *C,
                                             const AnsiString& S, int& i)
 {
 }
@@ -1396,14 +1396,14 @@ void TCircunference::Paint(TPloterShapes *PS)
 
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TContourFigure::ContourFigurePrint(AnsiString& S,
+void  TContourFigure::ContourFigurePrint(AnsiString& S,
                                                    TContourFigure *F)
 {
     TFigure::FigurePrint(S, (TFigure*)F);
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TContourFigure::ContourFigureRead(TContourFigure* &F,
+void  TContourFigure::ContourFigureRead(TContourFigure* &F,
                                                   const AnsiString& S, int& i)
 {
     try {
@@ -1480,7 +1480,7 @@ void TSegment::setRowText(const AnsiString& S)
 
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TSegment::Print(AnsiString& S, TContourFigure *O)
+void  TSegment::Print(AnsiString& S, TContourFigure *O)
 {
     //el puntero O debería apuntar a un segmento contruido
     if(O == NULL)
@@ -1490,7 +1490,7 @@ void __fastcall TSegment::Print(AnsiString& S, TContourFigure *O)
 }
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato línea de texto
-void __fastcall TSegment::PrintRow(AnsiString& S, TContourFigure *O)
+void  TSegment::PrintRow(AnsiString& S, TContourFigure *O)
 {
     //el puntero O debería apuntar a un segmento contruido
     if(O == NULL)
@@ -1501,7 +1501,7 @@ void __fastcall TSegment::PrintRow(AnsiString& S, TContourFigure *O)
 
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TSegment::Read(TContourFigure *O_,
+void  TSegment::Read(TContourFigure *O_,
                                const AnsiString& S, int& i)
 {
     //convierte a tipo concreto
@@ -1588,7 +1588,7 @@ void __fastcall TSegment::Read(TContourFigure *O_,
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato línea de texto
-void __fastcall TSegment::ReadRow(TContourFigure *O_,
+void  TSegment::ReadRow(TContourFigure *O_,
                                   const AnsiString& S, int& i)
 {
     //convierte a tipo concreto
@@ -2001,7 +2001,7 @@ void TArc::setRowText(const AnsiString& S)
 
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TArc::Print(AnsiString& S,
+void  TArc::Print(AnsiString& S,
                             TContourFigure *O)
 {
     //el puntero O debería apuntar a un segmento contruido
@@ -2012,7 +2012,7 @@ void __fastcall TArc::Print(AnsiString& S,
 }
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato línea de texto
-void __fastcall TArc::PrintRow(AnsiString& S, TContourFigure *O)
+void  TArc::PrintRow(AnsiString& S, TContourFigure *O)
 {
     //el puntero O debería apuntar a un segmento contruido
     if(O == NULL)
@@ -2023,7 +2023,7 @@ void __fastcall TArc::PrintRow(AnsiString& S, TContourFigure *O)
 
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void __fastcall TArc::Read(TContourFigure *_O,
+void  TArc::Read(TContourFigure *_O,
                            const AnsiString& S, int& i)
 {
     //convierte a tipo concreto
@@ -2153,7 +2153,7 @@ void __fastcall TArc::Read(TContourFigure *_O,
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato línea de texto
-void __fastcall TArc::ReadRow(TContourFigure *_O,
+void  TArc::ReadRow(TContourFigure *_O,
                               const AnsiString& S, int& i)
 {
     //convierte a tipo concreto

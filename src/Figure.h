@@ -9,8 +9,8 @@
 #define FIGURE_H
 
 //##include "..\5_Graphics\PloterShapes.h"
-#include "..\1_Mathematics\Vectors.h"
-#include "..\0_VCL\vclemu.h"
+#include "Vectors.h"
+#include "vclemu.h"
 
 //##include <QColor>
 
@@ -90,26 +90,26 @@ public:
         //      si F1->Color < F2->Color entonces CompareColor = -1
         //      si F1->Color > F2->Color entonces CompareColor = 1
         //      si F1->Color == F2->Color entonces CompareColor = 0
-        int __fastcall CompareColor(const TFigure *F1, const TFigure *F2);
+        int  CompareColor(const TFigure *F1, const TFigure *F2);
 
         //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
         //imprime un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall FigurePrint(AnsiString& S, TFigure *F);
+        static void  FigurePrint(AnsiString& S, TFigure *F);
         //imprime un objeto en una cadena de texto
         //en formato fila de texto
-        static void __fastcall FigurePrintRow(AnsiString& S, TFigure *F);
+        static void  FigurePrintRow(AnsiString& S, TFigure *F);
 
         //MÉTODOS ESTÁTICOS DE LECTURA:
 
         //lee un objeto en una cadena
         //en formato texto entre paréntesis
-        static void __fastcall FigureRead(TFigure* &F,
+        static void  FigureRead(TFigure* &F,
                 const AnsiString& S, int &i);
         //lee un objeto en una cadena
         //en formato fila de texto
-        static void __fastcall FigureReadRow(TFigure* &F,
+        static void  FigureReadRow(TFigure* &F,
                 const AnsiString& S, int &i);
 
         //ADVERTENCIA: si hay una figura descrita en la posición i
@@ -238,35 +238,35 @@ public:
         //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
         //compara la propiedad P.x de dos figuras
-        static int __fastcall Comparex(const TCircle*, const TCircle*);
+        static int  Comparex(const TCircle*, const TCircle*);
         //compara la propiedad P.Y de dos figuras
-        static int __fastcall Comparey(const TCircle*, const TCircle*);
+        static int  Comparey(const TCircle*, const TCircle*);
         //compara la propiedad R de dos figuras
-        static int __fastcall CompareR(const TCircle*, const TCircle*);
+        static int  CompareR(const TCircle*, const TCircle*);
 
         //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Print(AnsiString&, const TCircle*);
+        static void  Print(AnsiString&, const TCircle*);
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall PrintRow(AnsiString&, const TCircle*);
+        static void  PrintRow(AnsiString&, const TCircle*);
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato de asignaciones
-        static void __fastcall PrintAssigns(AnsiString&, const TCircle*);
+        static void  PrintAssigns(AnsiString&, const TCircle*);
 
         //MÉTODOS ESTÁTICOS DE LECTURA:
 
         //lee las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Read(TCircle*, const AnsiString&, int&);
+        static void  Read(TCircle*, const AnsiString&, int&);
         //lee las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall ReadRow(TCircle*, const AnsiString&, int&);
+        static void  ReadRow(TCircle*, const AnsiString&, int&);
         //lee las propiedades de un objeto en una cadena de texto
         //en formato de asignaciones
-        static void __fastcall ReadAssigns(TCircle*, const AnsiString&, int&);
+        static void  ReadAssigns(TCircle*, const AnsiString&, int&);
 
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
@@ -385,38 +385,38 @@ public:
         //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
         //compara la propiedad P.x de dos figuras
-        static int __fastcall Comparex(const TCircunference*,
+        static int  Comparex(const TCircunference*,
                 const TCircunference*);
         //compara la propiedad P.Y de dos figuras
-        static int __fastcall Comparey(const TCircunference*,
+        static int  Comparey(const TCircunference*,
                 const TCircunference*);
         //compara la propiedad R de dos figuras
-        static int __fastcall CompareR(const TCircunference*,
+        static int  CompareR(const TCircunference*,
                 const TCircunference*);
 
         //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Print(AnsiString&, const TCircunference*);
+        static void  Print(AnsiString&, const TCircunference*);
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall PrintRow(AnsiString&, const TCircunference*);
+        static void  PrintRow(AnsiString&, const TCircunference*);
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato de asignaciones
-        static void __fastcall PrintAssigns(AnsiString&, const TCircunference*);
+        static void  PrintAssigns(AnsiString&, const TCircunference*);
 
         //MÉTODOS ESTÁTICOS DE LECTURA:
 
         //lee las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Read(TCircunference*, const AnsiString&, int&);
+        static void  Read(TCircunference*, const AnsiString&, int&);
         //lee las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall ReadRow(TCircunference*, const AnsiString&, int&);
+        static void  ReadRow(TCircunference*, const AnsiString&, int&);
         //lee las propiedades de un objeto en una cadena de texto
         //en formato de asignaciones
-        static void __fastcall ReadAssigns(TCircunference*,
+        static void  ReadAssigns(TCircunference*,
                 const AnsiString&, int&);
 
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
@@ -503,11 +503,11 @@ public:
 
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall ContourFigurePrint(AnsiString& S,
+        static void  ContourFigurePrint(AnsiString& S,
                 TContourFigure *F);
         //lee las propiedades de un objeto en una cadenade texto
         //en formato fila de texto
-        static void __fastcall ContourFigureRead(TContourFigure* &F,
+        static void  ContourFigureRead(TContourFigure* &F,
                 const AnsiString& S, int &i);
 
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
@@ -561,18 +561,18 @@ public:
 
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Print(AnsiString&, TContourFigure*);
+        static void  Print(AnsiString&, TContourFigure*);
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall PrintRow(AnsiString&, TContourFigure*);
+        static void  PrintRow(AnsiString&, TContourFigure*);
 
         //lee las propiedades de un objeto en una cadenade texto
         //en formato texto entre paréntesis
-        static void __fastcall Read(TContourFigure*,
+        static void  Read(TContourFigure*,
                 const AnsiString&, int&);
         //lee las propiedades de un objeto en una cadenade texto
         //en formato línea de texto
-        static void __fastcall ReadRow(TContourFigure*,
+        static void  ReadRow(TContourFigure*,
                 const AnsiString&, int&);
 
         //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:
@@ -693,18 +693,18 @@ public:
 
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Print(AnsiString&, TContourFigure*);
+        static void  Print(AnsiString&, TContourFigure*);
         //imprime las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall PrintRow(AnsiString&, TContourFigure*);
+        static void  PrintRow(AnsiString&, TContourFigure*);
 
         //lee las propiedades de un objeto en una cadena de texto
         //en formato texto entre paréntesis
-        static void __fastcall Read(TContourFigure*,
+        static void  Read(TContourFigure*,
                 const AnsiString&, int&);
         //lee las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
-        static void __fastcall ReadRow(TContourFigure*,
+        static void  ReadRow(TContourFigure*,
                 const AnsiString&, int&);
 
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:

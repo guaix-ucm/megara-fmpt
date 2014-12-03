@@ -7,8 +7,8 @@
 
 #include "Actuator.h"
 #include "RoboticPositioner.h"
-#include "..\2_Strings\Strings.h"
-#include "..\1_Mathematics\Geometry.h"
+#include "Strings.h"
+#include "Geometry.h"
 
 //#include <values.h>
 
@@ -21,7 +21,7 @@ namespace Models {
 //TKnowledgeDegree
 //###########################################################################
 
-void __fastcall StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
+void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
 {
     switch(kd) {
     case kdPre: S += AnsiString("Pre"); break;
@@ -30,7 +30,7 @@ void __fastcall StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
     }
     throw EImposibleError("unknowledge value in type TKnowledgeValue");
 }
-void __fastcall StrReadKnowledgeDegree(TKnowledgeDegree& kd,
+void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
                                        const AnsiString &S, int &i)
 {
     //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
@@ -145,7 +145,7 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S)
 //TPorpose
 //###########################################################################
 
-void __fastcall StrPrintPorpose(AnsiString& S, TPorpose p)
+void  StrPrintPorpose(AnsiString& S, TPorpose p)
 {
     switch(p) {
     case pAll: S += AnsiString("All"); break;
@@ -155,7 +155,7 @@ void __fastcall StrPrintPorpose(AnsiString& S, TPorpose p)
     }
     throw EImposibleError("unknowledge value in type TPurpose");
 }
-void __fastcall StrReadPorpose(TPorpose& p, const AnsiString &S, int &i)
+void  StrReadPorpose(TPorpose& p, const AnsiString &S, int &i)
 {
     //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1083,7 +1083,7 @@ void TActuator::AssignSPM(void)
 //MÉTODOS ESTÁTICOS:
 
 //compara los identificadores de dos actuadores
-int __fastcall TActuator::CompareIds(TActuator *A1, TActuator *A2)
+int  TActuator::CompareIds(TActuator *A1, TActuator *A2)
 {
     //el puntero A1 debería apuntar a un actuador construido
     if(A1 == NULL)
@@ -1101,7 +1101,7 @@ int __fastcall TActuator::CompareIds(TActuator *A1, TActuator *A2)
 }
 
 //imprime el identificador de un actuador
-void __fastcall TActuator::PrintId(AnsiString &S, TActuator *A)
+void  TActuator::PrintId(AnsiString &S, TActuator *A)
 {
     //el puntero A debería apuntar a un actuador construido
     if(A == NULL)
@@ -1111,7 +1111,7 @@ void __fastcall TActuator::PrintId(AnsiString &S, TActuator *A)
 }
 
 //lee una instancia de actuador en una cadena
-void __fastcall TActuator::ReadInstance(TActuator* &A,
+void  TActuator::ReadInstance(TActuator* &A,
                                         const AnsiString& S, int &i)
 {
     //el puntero A debe apuntar a un actuador construido
@@ -1270,7 +1270,7 @@ AnsiString TActuator::GetOriginsLabelsRow(void)
 //atraviesa las etiquetas de las propiedades de origen
 //("Id", "x0", "y0", "thetaO1")
 //en formato fila de texto
-void __fastcall TActuator::TravelOriginsLabelsRow(const AnsiString& S, int& i)
+void  TActuator::TravelOriginsLabelsRow(const AnsiString& S, int& i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1333,7 +1333,7 @@ void __fastcall TActuator::TravelOriginsLabelsRow(const AnsiString& S, int& i)
 //imprime los valores de las propiedades de orien de un posicionador
 //(Id, x0, y0, thetaO1) al final de una cadena de texto
 //en formato fila de texto
-void __fastcall TActuator::PrintOriginsRow(AnsiString& S, TActuator *A)
+void  TActuator::PrintOriginsRow(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1344,7 +1344,7 @@ void __fastcall TActuator::PrintOriginsRow(AnsiString& S, TActuator *A)
 //lee los valores de las propiedades de orien de un posicionador
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void __fastcall TActuator::ReadOriginsRow(TActuator* &A,
+void  TActuator::ReadOriginsRow(TActuator* &A,
                                           const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -1431,7 +1431,7 @@ AnsiString TActuator::GetPositionP3LabelsRow(void)
 //atraviesa las etiquetas de las propiedades de posición
 //("Id", "x3", "y3")
 //en formato fila de texto
-void __fastcall TActuator::TravelPositionP3LabelsRow(const AnsiString& S, int& i)
+void  TActuator::TravelPositionP3LabelsRow(const AnsiString& S, int& i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1484,7 +1484,7 @@ void __fastcall TActuator::TravelPositionP3LabelsRow(const AnsiString& S, int& i
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) al final de una cadena de texto
 //en formato fila de texto
-void __fastcall TActuator::PrintPositionP3Row(AnsiString& S, TActuator *A)
+void  TActuator::PrintPositionP3Row(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1495,7 +1495,7 @@ void __fastcall TActuator::PrintPositionP3Row(AnsiString& S, TActuator *A)
 //lee los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void __fastcall TActuator::ReadPositionP3Row(TActuator* &A,
+void  TActuator::ReadPositionP3Row(TActuator* &A,
                                              const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,

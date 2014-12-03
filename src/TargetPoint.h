@@ -8,7 +8,7 @@
 #ifndef TARGETPOINT_H
 #define TARGETPOINT_H
 
-#include "..\C_FiberMOSModel\FiberMOSModel2.h"
+#include "FiberMOSModel2.h"
 //#include "..\3_Lists\ItemsList.h"
 
 //---------------------------------------------------------------------------
@@ -74,7 +74,7 @@ public:
 
         //compara los identificadores de los posicionadores
         //adscritos de dos puntos objetivo
-        static int __fastcall CompareIds(TTargetPoint *TPA1,
+        static int  CompareIds(TTargetPoint *TPA1,
                 TTargetPoint *TPA2);
         //este método debe ser apuntado en una lista de punteros
         //para permitir el funcionamiento de
@@ -86,11 +86,11 @@ public:
 
         //atraviesa las etiquetas de las propiedades
         //en una cadena de texto a partir de la posición i
-        static void __fastcall TravelLabels(const AnsiString& S, int& i);
+        static void  TravelLabels(const AnsiString& S, int& i);
 
         //lee los valores de las propiedades
         //en una cadena de texto a partir de la posición i
-        static void __fastcall ReadSeparated(int& Id, double& x, double& y, const AnsiString& S, int& i);
+        static void  ReadSeparated(int& Id, double& x, double& y, const AnsiString& S, int& i);
 
         //MÉTODOS DE CONSTRUCCIÓN Y DESTRUCCIÓN:
 

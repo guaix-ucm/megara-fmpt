@@ -5,7 +5,7 @@
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#include "..\0_VCL\Exceptions.h" //EImproperArgument
+#include "Exceptions.h" //EImproperArgument
 #include "Strings.h" //StrFill
 #include "StrPR.h"
 
@@ -790,7 +790,7 @@ void StrReadIntStr(AnsiString &I, const AnsiString &S, int &i)
 }
 //escudriña S a partir de i en busca de un número entero
 //e intenta convertirlo a entero mediante StrToInt
-void __fastcall StrReadInt(int &n, const AnsiString &S, int &i)
+void  StrReadInt(int &n, const AnsiString &S, int &i)
 {
         //ADVERTENCIA: S puede contener un valor en punto flotante,
         //por lo cual no vale leer solo la mantisa, pues debe advertirse
@@ -844,7 +844,7 @@ int StrToInt_(const AnsiString &S)
 }
 
 //imprime el valor de una variable double en una cadena de texto
-void __fastcall StrPrintFloat(AnsiString &S, double x)
+void  StrPrintFloat(AnsiString &S, double x)
 {
         S += FloatToStr(x);
 }
@@ -1006,7 +1006,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
 }
 //escudriña S a partir de i en busca de un número de punto flotante
 //e intenta convertirlo a double mediante StrToFloat
-void __fastcall StrReadFloat(double &x, const AnsiString &S, int &i)
+void  StrReadFloat(double &x, const AnsiString &S, int &i)
 {
         AnsiString F;
 
@@ -1061,7 +1061,7 @@ double StrToFloat_(const AnsiString &S)
 //lanza una excepción EImproperCall.
 //Si b==false y FalseBoolStrs[0] no está definido
 //lanza una excepción EImproperCall.
-void __fastcall StrPrintBool(AnsiString &S, bool b)
+void  StrPrintBool(AnsiString &S, bool b)
 {
         //la cadena TrueBoolStrs[0] debería contener al menos un caracter
         if(b && TrueBoolStrs.getCount()<1 && TrueBoolStrs[0].Length()<1)
@@ -1143,7 +1143,7 @@ void StrReadBoolStr(AnsiString &B, const AnsiString &S, int &i)
 }
 //escudriña S a partir de i en busca de un valor lógico
 //e intenta convertirlo a lógico mediante StrToBool
-void __fastcall StrReadBool(bool &b, const AnsiString &S, int &i)
+void  StrReadBool(bool &b, const AnsiString &S, int &i)
 {
         AnsiString F;
 
@@ -1164,7 +1164,7 @@ void __fastcall StrReadBool(bool &b, const AnsiString &S, int &i)
 //      lanza una excepción EImproperCall.
 //Si UseBoolStrs==true, B==false y FalseBoolStrs[0] no está definido
 //      lanza una excepción EImproperCall.
-AnsiString __fastcall BoolToStr_(bool B, bool UseBoolStrs)
+AnsiString  BoolToStr_(bool B, bool UseBoolStrs)
 {
         //si usa las cadenas TrueBoolStrs[0] o FalseBoolStrs[0]
         if(UseBoolStrs) {
@@ -1183,7 +1183,7 @@ AnsiString __fastcall BoolToStr_(bool B, bool UseBoolStrs)
 //Convierte un AnsiString a un valor lógico.
 //Si TrueBoolStrs[0] o FalseBoolStrs[0] no están definidos
 //lanza una excepción EImproperCall.
-bool __fastcall StrToBool_(const AnsiString S) {
+bool  StrToBool_(const AnsiString S) {
         //la cadena TrueBoolStrs[0] debería contener al menos un caracter
         if(TrueBoolStrs.getCount()<1 && TrueBoolStrs[0].Length()<1)
                 throw EImproperArgument("string TrueBoolStrs[0] should contain one character almost");
@@ -1203,7 +1203,7 @@ bool __fastcall StrToBool_(const AnsiString S) {
 }
 
 //imprime un punto en una cadena de texto
-void __fastcall StrPrintPoint(AnsiString &S, TPoint P)
+void  StrPrintPoint(AnsiString &S, TPoint P)
 {
         S = AnsiString("(")+IntToStr(P.x)+AnsiString(" ")+IntToStr(P.y)+AnsiString(")");
 }
@@ -1212,7 +1212,7 @@ void __fastcall StrPrintPoint(AnsiString &S, TPoint P)
 //      -1: si x1<x2 || (x1==x2 && y1<y2)
 //      1: si x1>x2 || (x1==x2 && y1>y2)
 //      0: si x1==x2 && y1==y2
-int __fastcall CompareDPoints(const TDoublePoint *P1, const TDoublePoint *P2)
+int  CompareDPoints(const TDoublePoint *P1, const TDoublePoint *P2)
 {
         //el puntero P1 deberí aapuntar a un punto construido
         if(P1 == NULL)
@@ -1229,7 +1229,7 @@ int __fastcall CompareDPoints(const TDoublePoint *P1, const TDoublePoint *P2)
         return 0;
 }
 //imprime un punto al final de una cadena de texto
-void __fastcall StrPrintDPoint(AnsiString &S, const TDoublePoint *P)
+void  StrPrintDPoint(AnsiString &S, const TDoublePoint *P)
 {
         //el puntero P debería apuntar a un punto construido
         if(P == NULL)
@@ -1239,7 +1239,7 @@ void __fastcall StrPrintDPoint(AnsiString &S, const TDoublePoint *P)
 }
 //intenta leer un punto a partir de la posición i de una cadena de texto
 //e intenta convertirlo a TDoublePoint mediante StrToFloat_
-void __fastcall StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
+void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
 {
         //el puntero P debería apuntar a un punto contruido
         if(P == NULL)
@@ -1382,7 +1382,7 @@ TDoublePoint StrToDPoint(const AnsiString &S)
 
 //intenta leer un rectángulo a partir de la posición i de una cadena de texto
 //e intenta convertirlo a TDoubleRect mediante StrToFloat_
-void __fastcall StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
+void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
 {
         //el punteroR debería apuntar a un rectángulo contruido
         if(R == NULL)
@@ -1875,7 +1875,7 @@ void ReadVector (TStringList *SL, const AnsiString &S, char c1, char c2)
 //lee la fecha-hora en una cadena de texto a partir de la posición indicada
 //en el formato "dd/mm/yyyy hh:mm:ss" en formato de 24h sin AM/PM
 //si S no contiene un dato válido, lanza EConvertError
-void __fastcall StrReadDateTime(QDateTime &DT,
+void  StrReadDateTime(QDateTime &DT,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,

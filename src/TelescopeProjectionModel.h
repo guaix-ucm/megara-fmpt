@@ -11,8 +11,8 @@
 #include "SkyPoint.h"
 #include "ProjectionPoint.h"
 #include "Tile.h"
-#include "..\A_Arm\Figure.h"
-#include "..\3_Lists\PointersList.h"
+#include "Figure.h"
+#include "PointersList.h"
 
 #include <math.h>
 
@@ -213,7 +213,7 @@ public:
     //función de dibujo externa adscrita
     //para actualizar la caja de pintura del plano focal
     //valor por defecto: NULL
-    void (__fastcall *PaintAll)(void);
+    void ( *PaintAll)(void);
 
     //PROPIDADES DE CONFIGURACIÓN:
 
@@ -299,12 +299,12 @@ public:
 
     //imprime las propiedades de configuración en una cadena de texto
     //en formato de asignaciones
-    static void __fastcall PrintAssigns(AnsiString &S,
+    static void  PrintAssigns(AnsiString &S,
                                         const TTelescopeProjectionModel *TPM);
 
     //lee las propiedades de configuración en una cadena de texto
     //en formato de asignaciones
-    static void __fastcall ReadAssigns(TTelescopeProjectionModel *TPM,
+    static void  ReadAssigns(TTelescopeProjectionModel *TPM,
                                        const AnsiString &S, int &i);
 
     //------------------------------------------------------------------

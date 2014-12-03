@@ -9,7 +9,7 @@
 #define FIBERMOSMODEL2_H
 
 #include "FiberMOSModel1.h"
-#include "..\B_RoboticPositioner\ExclusionArea.h"
+#include "ExclusionArea.h"
 
 //---------------------------------------------------------------------------
 

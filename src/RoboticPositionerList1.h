@@ -8,8 +8,8 @@
 #ifndef ROBOTICPOSITIONERLIST1_H
 #define ROBOTICPOSITIONERLIST1_H
 
-#include "..\B_RoboticPositioner\ExclusionArea.h"
-#include "..\3_Lists\PointersList.h"
+#include "ExclusionArea.h"
+#include "PointersList.h"
 
 //---------------------------------------------------------------------------
 
@@ -188,13 +188,13 @@ public:
 
         //dirección en memoria de la lista de elementos
         AnsiString getItemsAddressText(void) const {
-                return IntToHex(int(&Items), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&Items), 8);}
 /*        //dirección en memoria de la lista de posicionadores
         AnsiString getRoboticPositionersAddressText(void) const {
-                return IntToHex(int(&RoboticPositioners), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&RoboticPositioners), 8);}
         //dirección en memoria de la lista de áreas de exclusión
         AnsiString getExclusionAreasAddressText(void) const {
-                return IntToHex(int(&ExclusionAreas), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&ExclusionAreas), 8);}
   */
         //TOLERANCIAS EN FORMATO TEXTO:
 
@@ -269,7 +269,7 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee una instancia en una cadena
-        static void __fastcall ReadInstance(TRoboticPositionerList1* &RPL,
+        static void  ReadInstance(TRoboticPositionerList1* &RPL,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------

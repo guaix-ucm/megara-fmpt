@@ -6,8 +6,8 @@
 //---------------------------------------------------------------------------
 
 #include "RoboticPositionerList1.h"
-#include "..\2_Strings\Strings.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "Strings.h"
+#include "Scalars.h"
 
 //#include <values.h>
 
@@ -168,7 +168,7 @@ AnsiString TRoboticPositionerList1::getOText(void) const
 AnsiString TRoboticPositionerList1::getOriginsTableText(void) const
 {
         //guarda el valor de Print
-        void (__fastcall *PrintBak)(AnsiString&, TRoboticPositioner*);
+        void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
         PrintBak = Print;
 
         //apunta la lista de posicionadores con un puntero no constante para facilitar su escritura
@@ -254,7 +254,7 @@ AnsiString TRoboticPositionerList1::getPositionsP3TableText(void) const
 
         return S;*/
         //guarda el valor de Print
-        void (__fastcall *PrintBak)(AnsiString&, TRoboticPositioner*);
+        void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
         PrintBak = Print;
 
         //apunta la lista de posicionadores con un puntero no constante para facilitar su escritura
@@ -540,7 +540,7 @@ void TRoboticPositionerList1::setInstanceText(const AnsiString& S)
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia en una cadena
-void __fastcall TRoboticPositionerList1::ReadInstance(TRoboticPositionerList1* &RPL,
+void  TRoboticPositionerList1::ReadInstance(TRoboticPositionerList1* &RPL,
         const AnsiString& S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -1143,7 +1143,7 @@ void TRoboticPositionerList1::SortAdjacents(void)
                 double theta;
 
                 //compara los ángulos de dos pares
-                static int __fastcall Comparetheta(const TPair *P1, const TPair *P2) {
+                static int  Comparetheta(const TPair *P1, const TPair *P2) {
                         //el puntero P1 debe apuntar a un par construido
                         if(P1 == NULL)
                                 throw EImproperArgument("pointer P1 should point to bult pair");
@@ -1160,7 +1160,7 @@ void TRoboticPositionerList1::SortAdjacents(void)
                 }
 
                 //imprime el ángulo al final de una cadena
-                static void __fastcall Printtheta(AnsiString &S, const TPair *P) {
+                static void  Printtheta(AnsiString &S, const TPair *P) {
                         //el puntero P debe apuntar a un par construido
                         if(P == NULL)
                                 throw EImproperArgument("pointer P should point to bult pair");

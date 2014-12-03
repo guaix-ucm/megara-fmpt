@@ -6,8 +6,8 @@
 //---------------------------------------------------------------------------
 
 #include "Strings.h"
-#include "..\0_VCL\Exceptions.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "Exceptions.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 

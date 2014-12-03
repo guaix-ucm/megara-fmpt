@@ -8,7 +8,7 @@
 #ifndef MOTIONFUNCTION_H
 #define MOTIONFUNCTION_H
 
-#include "..\0_VCL\vclemu.h"
+#include "vclemu.h"
 
 //---------------------------------------------------------------------------
 

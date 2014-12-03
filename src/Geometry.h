@@ -10,7 +10,7 @@
 
 #include "Constants.h"
 #include "Vectors.h"
-#include "..\3_Lists\ItemsList.h"
+#include "ItemsList.h"
 
 using namespace Lists;
 

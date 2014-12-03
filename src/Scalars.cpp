@@ -7,7 +7,7 @@
 
 #include "Constants.h"
 #include "Scalars.h"
-#include "..\2_Strings\StrPR.h" //StrTravelLabel
+#include "StrPR.h" //StrTravelLabel
 
 #include <math.h> //funciones matemáticas variadas
 #include <stdlib.h> //rand
@@ -501,7 +501,7 @@ void TIdDouble::setText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS PARA LISTAS:
 
 //compara dos elementos
-int __fastcall TIdDouble::Compare(TIdDouble ID1, TIdDouble ID2)
+int  TIdDouble::Compare(TIdDouble ID1, TIdDouble ID2)
 {
     if(ID1.Value < ID2.Value)
         return -1;
@@ -513,25 +513,25 @@ int __fastcall TIdDouble::Compare(TIdDouble ID1, TIdDouble ID2)
 }
 
 //evalúa un elemento
-double __fastcall TIdDouble::Evaluate(TIdDouble ID)
+double  TIdDouble::Evaluate(TIdDouble ID)
 {
     return ID.Value;
 }
 
 //asigna un valor a un elemento
-void __fastcall TIdDouble::Assign(TIdDouble &ID, double _Value)
+void  TIdDouble::Assign(TIdDouble &ID, double _Value)
 {
     ID.Value = _Value;
 }
 
 //imprime un elemento en una cadena
-void __fastcall TIdDouble::Print(AnsiString &S, TIdDouble ID)
+void  TIdDouble::Print(AnsiString &S, TIdDouble ID)
 {
     S += AnsiString("(")+IntToStr(ID.Id)+AnsiString(": ")+FloatToStr(ID.Value)+AnsiString(")");
 }
 
 //escudriña una cadena en busca de un elemento
-void __fastcall TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
+void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -690,7 +690,7 @@ void __fastcall TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
 //MÉTODOS ESTÁTICOS PARA LISTAS DE PUNTEROS:
 
 //compara dos elementos
-int __fastcall TIdDouble::Compare(const TIdDouble *ID1, const TIdDouble *ID2)
+int  TIdDouble::Compare(const TIdDouble *ID1, const TIdDouble *ID2)
 {
     //el puntero ID1 debería apuntar a un double identificado construido
     if(ID1 == NULL)
@@ -707,7 +707,7 @@ int __fastcall TIdDouble::Compare(const TIdDouble *ID1, const TIdDouble *ID2)
 }
 
 //evalúa un elemento
-double __fastcall TIdDouble::Evaluate(const TIdDouble *ID)
+double  TIdDouble::Evaluate(const TIdDouble *ID)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
@@ -717,7 +717,7 @@ double __fastcall TIdDouble::Evaluate(const TIdDouble *ID)
 }
 
 //asigna un valor a un elemento
-void __fastcall TIdDouble::Assign(TIdDouble *ID, double _Value)
+void  TIdDouble::Assign(TIdDouble *ID, double _Value)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
@@ -727,7 +727,7 @@ void __fastcall TIdDouble::Assign(TIdDouble *ID, double _Value)
 }
 
 //imprime un elemento en una cadena
-void __fastcall TIdDouble::Print(AnsiString &S, const TIdDouble *ID)
+void  TIdDouble::Print(AnsiString &S, const TIdDouble *ID)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
@@ -737,7 +737,7 @@ void __fastcall TIdDouble::Print(AnsiString &S, const TIdDouble *ID)
 }
 
 //escudriña una cadena en busca de un elemento
-void __fastcall TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
+void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
@@ -950,7 +950,7 @@ void TInterval::setText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //imprime un intervalo en una cadena de texto
-void __fastcall TInterval::Print(AnsiString &S, const TInterval *I)
+void  TInterval::Print(AnsiString &S, const TInterval *I)
 {
     //el puntero I debería apuntar a un intervalo construido
     if(I == NULL)
@@ -973,7 +973,7 @@ void __fastcall TInterval::Print(AnsiString &S, const TInterval *I)
     }
 }
 //escanea una cadena de texto en busca de un intervalo
-void __fastcall TInterval::Read(TInterval *I, const AnsiString &S, int &i)
+void  TInterval::Read(TInterval *I, const AnsiString &S, int &i)
 {
     //el puntero I debería apuntar a un intervalo construido
     if(I == NULL)
@@ -1232,7 +1232,7 @@ void TPairIntegers::SetRowText(const AnsiString &S)
 //FUNCIONES ESTÁTICAS:
 
 //función de impresión de elementos tipo TPairIntegers
-void __fastcall TPairIntegers::Print(AnsiString &S, const TPairIntegers *PI)
+void  TPairIntegers::Print(AnsiString &S, const TPairIntegers *PI)
 {
         //el puntero PI debe apuntar a un par de enteros contruido
         if(PI == NULL)
@@ -1241,13 +1241,13 @@ void __fastcall TPairIntegers::Print(AnsiString &S, const TPairIntegers *PI)
         S += PI->Text;
 }
 //función de lectura de elementos tipo TPairIntegers
-void __fastcall TPairIntegers::Read(TPairIntegers *PI, const AnsiString &S, int &i)
+void  TPairIntegers::Read(TPairIntegers *PI, const AnsiString &S, int &i)
 {
         //FALTA
 }
 
 //función de impresión de elementos tipo TPairIntegers
-void __fastcall TPairIntegers::PrintRow(AnsiString &S, const TPairIntegers *PI)
+void  TPairIntegers::PrintRow(AnsiString &S, const TPairIntegers *PI)
 {
         //el puntero PI debe apuntar a un par de enteros contruido
         if(PI == NULL)
@@ -1256,7 +1256,7 @@ void __fastcall TPairIntegers::PrintRow(AnsiString &S, const TPairIntegers *PI)
         S += PI->RowText;
 }
 //función de lectura de elementos tipo TPairIntegers
-void __fastcall TPairIntegers::ReadRow(TPairIntegers *PI, const AnsiString &S, int &i)
+void  TPairIntegers::ReadRow(TPairIntegers *PI, const AnsiString &S, int &i)
 {
         //FALTA
 }
@@ -1306,7 +1306,7 @@ void TPair::setText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //imprime un par en una cadena de texto
-void __fastcall TPair::Print(AnsiString &S, const TPair *P)
+void  TPair::Print(AnsiString &S, const TPair *P)
 {
     //el puntero P debería apuntar a un par construido
     if(P == NULL)
@@ -1317,7 +1317,7 @@ void __fastcall TPair::Print(AnsiString &S, const TPair *P)
     S += ")";
 }
 //escanea una cadena de texto en busca de un par
-void __fastcall TPair::Read(TPair *P, const AnsiString &S, int &i)
+void  TPair::Read(TPair *P, const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1602,7 +1602,7 @@ void TPairIB::SetRowText(const AnsiString &S)
 //      si P1->x < P2->x devuelve -1
 //      si P1->x > P2->x devuelve 1
 //      si P1->x == P2->x devuelve 0
-int __fastcall TPairIB::Comparex(const TPairIB *P1, const TPairIB *P2)
+int  TPairIB::Comparex(const TPairIB *P1, const TPairIB *P2)
 {
         //el puntro P1 debería apuntar a un par GetLabels() contruido
         if(P1 == NULL)
@@ -1623,7 +1623,7 @@ int __fastcall TPairIB::Comparex(const TPairIB *P1, const TPairIB *P2)
 
 //imprime los valores de las propiedades de la clase
 //en formato texto entre paréntesis
-void __fastcall TPairIB::Print(AnsiString &S, const TPairIB *P)
+void  TPairIB::Print(AnsiString &S, const TPairIB *P)
 {
         //el puntero P debe apuntar a un par GetLabels()
         if(P == NULL)
@@ -1633,7 +1633,7 @@ void __fastcall TPairIB::Print(AnsiString &S, const TPairIB *P)
 }
 //lee los valores de las etiquetas de las propiedades de la clase
 //en formato textoentre paréntesis
-void __fastcall TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
+void  TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1724,7 +1724,7 @@ void __fastcall TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
 
 //imprime los valores de las propiedades de la clase
 //en formato fila de texto
-void __fastcall TPairIB::PrintRow(AnsiString &S, const TPairIB *P)
+void  TPairIB::PrintRow(AnsiString &S, const TPairIB *P)
 {
         //el puntero P debe apuntar a un par GetLabels() construido
         if(P == NULL)
@@ -1734,7 +1734,7 @@ void __fastcall TPairIB::PrintRow(AnsiString &S, const TPairIB *P)
 }
 //lee los valores de las etiquetas de las propiedades de la clase
 //en formato fila de texto
-void __fastcall TPairIB::ReadRow(TPairIB *P, const AnsiString &S, int &i)
+void  TPairIB::ReadRow(TPairIB *P, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1826,7 +1826,7 @@ AnsiString TPairIB::GetRowLabels(void)
 }
 //atraviesa las etiquetas de la clase
 //en formato fila de texto
-void __fastcall TPairIB::TravelRowLabels(const AnsiString &S,
+void  TPairIB::TravelRowLabels(const AnsiString &S,
         int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -2022,7 +2022,7 @@ void TPairID::SetRowText(const AnsiString &S)
 //      si P1->x < P2->x devuelve -1
 //      si P1->x > P2->x devuelve 1
 //      si P1->x == P2->x devuelve 0
-int __fastcall TPairID::Comparex(const TPairID *P1, const TPairID *P2)
+int  TPairID::Comparex(const TPairID *P1, const TPairID *P2)
 {
         //el puntro P1 debería apuntar a un par GetLabels() contruido
         if(P1 == NULL)
@@ -2043,7 +2043,7 @@ int __fastcall TPairID::Comparex(const TPairID *P1, const TPairID *P2)
 
 //imprime los valores de las propiedades de la clase
 //en formato texto entre paréntesis
-void __fastcall TPairID::Print(AnsiString &S, const TPairID *P)
+void  TPairID::Print(AnsiString &S, const TPairID *P)
 {
         //el puntero P debe apuntar a un par GetLabels()
         if(P == NULL)
@@ -2053,7 +2053,7 @@ void __fastcall TPairID::Print(AnsiString &S, const TPairID *P)
 }
 //lee los valores de las etiquetas de las propiedades de la clase
 //en formato textoentre paréntesis
-void __fastcall TPairID::Read(TPairID *P, const AnsiString &S, int &i)
+void  TPairID::Read(TPairID *P, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -2144,7 +2144,7 @@ void __fastcall TPairID::Read(TPairID *P, const AnsiString &S, int &i)
 
 //imprime los valores de las propiedades de la clase
 //en formato fila de texto
-void __fastcall TPairID::PrintRow(AnsiString &S, const TPairID *P)
+void  TPairID::PrintRow(AnsiString &S, const TPairID *P)
 {
         //el puntero P debe apuntar a un par GetLabels() construido
         if(P == NULL)
@@ -2154,7 +2154,7 @@ void __fastcall TPairID::PrintRow(AnsiString &S, const TPairID *P)
 }
 //lee los valores de las etiquetas de las propiedades de la clase
 //en formato fila de texto
-void __fastcall TPairID::ReadRow(TPairID *P, const AnsiString &S, int &i)
+void  TPairID::ReadRow(TPairID *P, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -2246,7 +2246,7 @@ AnsiString TPairID::GetRowLabels(void)
 }
 //atraviesa las etiquetas de la clase
 //en formato fila de texto
-void __fastcall TPairID::TravelRowLabels(const AnsiString &S,
+void  TPairID::TravelRowLabels(const AnsiString &S,
         int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -2442,7 +2442,7 @@ void TPairIS::SetRowText(const AnsiString &S)
 //      si IP1->x < IP2->x devuelve -1
 //      si IP1->x > IP2->x devuelve 1
 //      si IP1->x == IP2->x devuelve 0
-int __fastcall TPairIS::Comparex(const TPairIS *P1, const TPairIS *P2)
+int  TPairIS::Comparex(const TPairIS *P1, const TPairIS *P2)
 {
         //el puntro P1 debería apuntar a un par GetLabels() contruido
         if(P1 == NULL)
@@ -2473,7 +2473,7 @@ AnsiString TPairIS::GetLabels(void)
 }
 
 //función de impresión de pares
-void __fastcall TPairIS::Print(AnsiString &S, const TPairIS *P)
+void  TPairIS::Print(AnsiString &S, const TPairIS *P)
 {
         //el puntero P debe apuntar a un par GetLabels()
         if(P == NULL)
@@ -2482,7 +2482,7 @@ void __fastcall TPairIS::Print(AnsiString &S, const TPairIS *P)
         S += P->Text;
 }
 //función de lectura de pares
-void __fastcall TPairIS::Read(TPairIS *P, const AnsiString &S, int &i)
+void  TPairIS::Read(TPairIS *P, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -2580,7 +2580,7 @@ AnsiString TPairIS::GetRowLabels(void)
 }
 //función de atravesar las etiquetas
 //en formato fila de texto
-void __fastcall TPairIS::TravelRowLabels(const AnsiString &S,
+void  TPairIS::TravelRowLabels(const AnsiString &S,
         int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -2635,7 +2635,7 @@ void __fastcall TPairIS::TravelRowLabels(const AnsiString &S,
 
 //función de impresión de pares
 //en formato fila de texto
-void __fastcall TPairIS::PrintRow(AnsiString &S, const TPairIS *P)
+void  TPairIS::PrintRow(AnsiString &S, const TPairIS *P)
 {
         //el puntero P debe apuntar a un par GetLabels() construido
         if(P == NULL)
@@ -2645,7 +2645,7 @@ void __fastcall TPairIS::PrintRow(AnsiString &S, const TPairIS *P)
 }
 //función de lectura de pares
 //en formato fila de texto
-void __fastcall TPairIS::ReadRow(TPairIS *P, const AnsiString &S, int &i)
+void  TPairIS::ReadRow(TPairIS *P, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -2830,7 +2830,7 @@ void TTernIntegers::setRowText(const AnsiString &S)
 //      devuelve 1
 //si TI1->x == TI2.x
 //      devuelve 0
-int __fastcall TTernIntegers::Comparexs(const TTernIntegers *TI1,
+int  TTernIntegers::Comparexs(const TTernIntegers *TI1,
         const TTernIntegers *TI2)
 {
         //el puntero TI1 debe apuntar a una terna construida
@@ -2855,7 +2855,7 @@ AnsiString TTernIntegers::GetLabels(void)
         return AnsiString("(")+xLabel+AnsiString(", ")+yLabel+AnsiString(", ")+zLabel+AnsiString(")");
 }
 //función de impresión de elementos tipo TTernIntegers
-void __fastcall TTernIntegers::Print(AnsiString &S, const TTernIntegers *TI)
+void  TTernIntegers::Print(AnsiString &S, const TTernIntegers *TI)
 {
         //el puntero TI debe apuntar a un par de enteros contruido
         if(TI == NULL)
@@ -2864,7 +2864,7 @@ void __fastcall TTernIntegers::Print(AnsiString &S, const TTernIntegers *TI)
         S += TI->getText();
 }
 //función de lectura de elementos tipo TTernIntegers
-void __fastcall TTernIntegers::Read(TTernIntegers *TI, const AnsiString &S, int &i)
+void  TTernIntegers::Read(TTernIntegers *TI, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -2939,7 +2939,7 @@ AnsiString TTernIntegers::GetLabelsRow(void)
         return xLabel+AnsiString("\t")+yLabel+AnsiString("\t")+zLabel;
 }
 //función de impresión de elementos tipo TTernIntegers
-void __fastcall TTernIntegers::PrintRow(AnsiString &S, const TTernIntegers *TI)
+void  TTernIntegers::PrintRow(AnsiString &S, const TTernIntegers *TI)
 {
         //el puntero TI debe apuntar a un par de enteros contruido
         if(TI == NULL)
@@ -2948,7 +2948,7 @@ void __fastcall TTernIntegers::PrintRow(AnsiString &S, const TTernIntegers *TI)
         S += TI->getRowText();
 }
 //función de lectura de elementos tipo TTernIntegers
-void __fastcall TTernIntegers::ReadRow(TTernIntegers *TI, const AnsiString &S, int &i)
+void  TTernIntegers::ReadRow(TTernIntegers *TI, const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,

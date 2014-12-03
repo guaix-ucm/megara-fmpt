@@ -75,7 +75,7 @@ void TInstruction::setText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //imprime una instrucción en una cadena de texto
-void _fastcall TInstruction::Print(AnsiString &S, const TInstruction *I)
+void TInstruction::Print(AnsiString &S, const TInstruction *I)
 {
     //el puntro I debería apuntar a una instrucción construida
     if(I == NULL)
@@ -84,7 +84,7 @@ void _fastcall TInstruction::Print(AnsiString &S, const TInstruction *I)
     S += I->getText();
 }
 //lee una instrucción en una cadena de texto
-void __fastcall TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
+void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
 {
     //el puntro I debería apuntar a una instrucción construida
     if(I == NULL)

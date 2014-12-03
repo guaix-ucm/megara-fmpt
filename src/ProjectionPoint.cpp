@@ -6,10 +6,10 @@
 //---------------------------------------------------------------------------
 
 #include "ProjectionPoint.h"
-#include "..\2_Strings\TextFile.h"
-#include "..\2_Strings\Strings.h"
-#include "..\1_Mathematics\Geometry.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "TextFile.h"
+#include "Strings.h"
+#include "Geometry.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ void TProjectionPoint::setAssignsText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS DE LISTA:
 
 //imprime las propiedades de un círculo en una cadena
-void __fastcall TProjectionPoint::PrintRow(AnsiString &S,
+void  TProjectionPoint::PrintRow(AnsiString &S,
                                            TProjectionPoint *PP)
 {
     //el puntero PP debería apuntar a un círculo
@@ -139,7 +139,7 @@ void __fastcall TProjectionPoint::PrintRow(AnsiString &S,
 
     S += PP->getRowText();
 }
-void __fastcall TProjectionPoint::PrintCol(AnsiString &S,
+void  TProjectionPoint::PrintCol(AnsiString &S,
                                            TProjectionPoint *PP)
 {
     //el puntero PP debería apuntar a un círculo
@@ -148,7 +148,7 @@ void __fastcall TProjectionPoint::PrintCol(AnsiString &S,
 
     S += PP->getColText();
 }
-void __fastcall TProjectionPoint::PrintAssigns(AnsiString &S,
+void  TProjectionPoint::PrintAssigns(AnsiString &S,
                                                TProjectionPoint *PP)
 {
     //el puntero PP debería apuntar a un círculo
@@ -159,7 +159,7 @@ void __fastcall TProjectionPoint::PrintAssigns(AnsiString &S,
 }
 
 //lee las propiedades de un círculo en una cadena
-void __fastcall TProjectionPoint::ReadRow(TProjectionPoint *PP,
+void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
                                           const AnsiString &S, int &i)
 {
     //el puntero PP debería apuntar a un círculo construido
@@ -236,11 +236,11 @@ void __fastcall TProjectionPoint::ReadRow(TProjectionPoint *PP,
     //asigna la variable tampón
     *PP = _PP;
 }
-void __fastcall TProjectionPoint::ReadCol(TProjectionPoint *PP,
+void  TProjectionPoint::ReadCol(TProjectionPoint *PP,
                                           const AnsiString &S, int &i)
 {
 }
-void __fastcall TProjectionPoint::ReadAssigns(TProjectionPoint *PP,
+void  TProjectionPoint::ReadAssigns(TProjectionPoint *PP,
                                               const AnsiString &S, int &i)
 {
 }

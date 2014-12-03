@@ -8,7 +8,8 @@
 #include "MotionProgramGenerator.h"
 
 //#include <values.h>
-#include "Windows.h" //Sleep
+#include <unistd.h>
+//#include "Windows.h" //Sleep
 
 //---------------------------------------------------------------------------
 
@@ -927,7 +928,7 @@ void TMotionProgramGenerator::RetractRetractiles(TRoboticPositionerList &Invader
         //su nuevo estado en caso necesario
                 if(PaintAll != NULL) {
                         PaintAll();
-                        Sleep(getSleepingTime());
+                        sleep(getSleepingTime());
                 }
 
                 //DETERMINA EL TIEMPO LIBRE MÍNIMO Y SI ENCUENTRA UN TIEMPO LIBRE
@@ -1013,7 +1014,7 @@ void TMotionProgramGenerator::RetractRetractiles(TRoboticPositionerList &Invader
     //en su nuevo estado en caso necesario
         if(PaintAll != NULL) {
                 PaintAll();
-                Sleep(getSleepingTime());
+                sleep(getSleepingTime());
         }
 
         //asigna las variables tampón
@@ -1093,7 +1094,7 @@ void TMotionProgramGenerator::RetractInvaders(TRoboticPositionerList &Invaders)
                         //imprime la lista de RPs en su nuevo estado
                         if(PaintAll != NULL) {
                                 PaintAll();
-                                Sleep(getSleepingTime());
+                                sleep(getSleepingTime());
                         }
 
 /*

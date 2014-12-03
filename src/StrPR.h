@@ -8,7 +8,7 @@
 #ifndef STRPR_H
 #define STRPR_H
 
-#include "..\1_Mathematics\Vectors.h" //TDoublePoint
+#include "Vectors.h" //TDoublePoint
 
 //##include <QDateTime>
 
@@ -154,7 +154,7 @@ void StrTravelSeparators(const AnsiString&, int&);
 void StrReadIntStr(AnsiString &I, const AnsiString &S, int &i);
 //escudriña S a partir de i en busca de un número entero
 //e intenta convertirlo a int mediante StrToInt
-void __fastcall StrReadInt(int &n, const AnsiString &S, int &i);
+void  StrReadInt(int &n, const AnsiString &S, int &i);
 //convierte un valor entero de formato texto a entero
 //si S contiene algo más que un valor entero
 //lanza una excepción EImproperArgument
@@ -164,13 +164,13 @@ int StrToInt_(const AnsiString &S);
 //impedir su uso inadvertido.
 
 //imprime el valor de una variable double en una cadena de texto
-void __fastcall StrPrintFloat(AnsiString &S, double x);
+void  StrPrintFloat(AnsiString &S, double x);
 //escudriña S a partir de i en busca de un número de punto flotante
 //i quedará indicando a la posúltima posición
 void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i);
 //escudriña S a partir de i en busca de un número de punto flotante
 //e intenta convertirlo a double mediante StrToFloat
-void __fastcall StrReadFloat(double &x, const AnsiString &S, int &i);
+void  StrReadFloat(double &x, const AnsiString &S, int &i);
 //convierte un valor en punto flotante de formato texto a double
 //si S contiene algo más que un valor en punto flotante
 //lanza una excepción EImproperArgument
@@ -184,7 +184,7 @@ double StrToFloat_(const AnsiString &S);
 //lanza una excepción EImproperCall.
 //Si b==false y FalseBoolStrs[0] no está definido
 //lanza una excepción EImproperCall.
-void __fastcall StrPrintBool(AnsiString &S, bool b);
+void  StrPrintBool(AnsiString &S, bool b);
 //Intenta leer un valor lógico en S desde la posición i.
 //Deberán estar definidos los identificadores:
 //      TrueBoolStrs[0] y
@@ -195,7 +195,7 @@ void __fastcall StrPrintBool(AnsiString &S, bool b);
 void StrReadBoolStr(AnsiString &B, const AnsiString &S, int &i);
 //escudriña S a partir de i en busca de un valor lógico
 //e intenta convertirlo a lógico mediante StrToBool
-void __fastcall StrReadBool(bool &b, const AnsiString &S, int &i);
+void  StrReadBool(bool &b, const AnsiString &S, int &i);
 
 //ADVERTENCIA: con la función StrToBool no se han observado
 //las mismas irregularidades que con StrToInt y StrToFloat,
@@ -209,11 +209,11 @@ void __fastcall StrReadBool(bool &b, const AnsiString &S, int &i);
 //lanza una excepción EImproperCall.
 //Si UseBoolStrs==true, B==false y FalseBoolStrs[0] no está definido
 //      lanza una excepción EImproperCall.
-AnsiString __fastcall BoolToStr_(bool B, bool UseBoolStrs = false);
+AnsiString  BoolToStr_(bool B, bool UseBoolStrs = false);
 //Convierte un AnsiString a un valor lógico.
 //Si TrueBoolStrs[0] o FalseBoolStrs[0] no están definidos
 //lanza una excepción EImproperCall.
-bool __fastcall StrToBool_(const AnsiString S);
+bool  StrToBool_(const AnsiString S);
 
 //RECORDATORIO: aunque:
 //      TrueBoolStrs[0]=="True" y
@@ -221,18 +221,18 @@ bool __fastcall StrToBool_(const AnsiString S);
 //la función StrToBool no distinguirá entre mayúsculas y minúsculas.
 
 //imprime un punto en una cadena de texto
-void __fastcall StrPrintPoint(AnsiString &S, TPoint P);
+void  StrPrintPoint(AnsiString &S, TPoint P);
 //compara dos punto
 //valores devueltos:
 //      -1: si x1<x2 || (x1==x2 && y1<y2)
 //      1: si x1>x2 || (x1==x2 && y1>y2)
 //      0: si x1==x2 && y1==y2
-int __fastcall CompareDPoints(const TDoublePoint *P1, const TDoublePoint *P2);
+int  CompareDPoints(const TDoublePoint *P1, const TDoublePoint *P2);
 //imprime un punto al final de una cadena de texto
-void __fastcall StrPrintDPoint(AnsiString &S, const TDoublePoint *P);
+void  StrPrintDPoint(AnsiString &S, const TDoublePoint *P);
 //intenta leer un punto a partir de la posición i de una cadena de texto
 //e intenta convertirlo a TDoublePoint mediante StrToFloat_
-void __fastcall StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i);
+void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i);
 //convierte un valor punto de formato texto a TDoublePoint
 //si S contiene algo más que un valor punto
 //lanza una excepción EImproperArgument
@@ -240,7 +240,7 @@ TDoublePoint StrToDPoint(const AnsiString &S);
 
 //intenta leer un rectángulo a partir de la posición i de una cadena de texto
 //e intenta convertirlo a TDoubleRect mediante StrToFloat_
-void __fastcall StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i);
+void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i);
 //convierte un valor rectángulo de formato texto a TDoubleRect
 //si S contiene algo más que un valor rectángulo
 //lanza una excepción EImproperArgument
@@ -295,7 +295,7 @@ void ReadVector (TStringList *SL, const AnsiString &S,
 //lee la fecha-hora en una cadena de texto a partir de la posición indicada
 //en el formato "dd/mm/yyyy hh:mm:ss" en formato de 24h sin AM/PM
 //si S no contiene un dato válido, lanza EConvertError
-void __fastcall StrReadDateTime(QDateTime &DT,
+void  StrReadDateTime(QDateTime &DT,
         const AnsiString &S, int &i);
 
 //convierte un valor de fecha-hora de formato texto a QDateTime

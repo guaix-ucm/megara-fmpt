@@ -6,10 +6,10 @@
 //---------------------------------------------------------------------------
 
 #include "Cilinder.h"
-#include "..\2_Strings\Strings.h"
-#include "..\2_Strings\StrPR.h"
-#include "..\2_Strings\TextFile.h"
-#include "..\1_Mathematics\Geometry.h"
+#include "Strings.h"
+#include "StrPR.h"
+#include "TextFile.h"
+#include "Geometry.h"
 
 //---------------------------------------------------------------------------
 
@@ -675,7 +675,7 @@ AnsiString TCilinder::getthetaO3Text(void) const
 
 AnsiString TCilinder::getFAddressText(void) const
 {
-    return IntToHex(int(&__F), 8);
+    return IntToHex(reinterpret_cast<intptr_t>(&__F), 8);
 }
 void TCilinder::setFPointsText(const AnsiString &S)
 {
@@ -739,7 +739,7 @@ void TCilinder::setQuantify_Text(AnsiString &S)
 
 AnsiString TCilinder::getGAddressText(void) const
 {
-    return IntToHex(int(&__G), 8);
+    return IntToHex(reinterpret_cast<intptr_t>(&__G), 8);
 }
 
 AnsiString TCilinder::getSB1Text(void) const

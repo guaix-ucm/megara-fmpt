@@ -9,11 +9,11 @@
 #define ITEMSLIST_H
 
 #include "SlideArray.h" //SlideArray
-#include "..\2_Strings\StrPR.h" //namespace Strings
-#include "..\1_Mathematics\Scalars.h" //RandomUniform
+#include "StrPR.h" //namespace Strings
+#include "Scalars.h" //RandomUniform
 //#include "..\0_VCL\vclclemu.h" //AnsiString
 
-#include <typeinfo.h> //namespace std
+#include <typeinfo> //namespace std
 
 //---------------------------------------------------------------------------
 
@@ -99,15 +99,15 @@ public:
     //FUNCIONES EXTERNAS:
 
     //función de comparación de elementos tipo T
-    int (__fastcall *Compare)(const T item1, const T item2);
+    int ( *Compare)(const T item1, const T item2);
     //puntero a función de evaluación de elementos tipo T
-    double (__fastcall *Evaluate)(T item);
+    double ( *Evaluate)(T item);
     //puntero a función de asignación de elementos tipo T
-    void (__fastcall *Assign)(T &item, double x);
+    void ( *Assign)(T &item, double x);
     //puntero a la función de impresión de elementos tipo T
-    void (__fastcall *Print)(AnsiString &S, const T item);
+    void ( *Print)(AnsiString &S, const T item);
     //Puntero a la función de lectura de elementos tipo T
-    void (__fastcall *Read)(T &item, const AnsiString &S, int &i);
+    void ( *Read)(T &item, const AnsiString &S, int &i);
 
     //no se especifica un método de evaluación de elemento apuntado,
     //porque si el tipo T fuera entero se confundiría
@@ -119,34 +119,34 @@ public:
 
     //imprime una lista en una cadena de texto
     //en formato de fila de texto
-    static void __fastcall PrintRow(AnsiString &S,
+    static void  PrintRow(AnsiString &S,
                                     const TItemsList<T> *L);
     //imprime una lista en una cadena de texto
     //en formato de columna de texto
-    static void __fastcall PrintColumn(AnsiString &S,
+    static void  PrintColumn(AnsiString &S,
                                        const TItemsList<T> *L);
     //lee una lista de una cadena de texto
     //en formato de fila o columna de texto
-    static void __fastcall ReadSeparated(TItemsList<T> *L,
+    static void  ReadSeparated(TItemsList<T> *L,
                                          const AnsiString &S, int &i);
     //lee una lista de una cadena de texto
     //en formato de fila o columna de texto
     //para los elementos de la lista previamente construidos
-    static void __fastcall ReadSeparatedForBuiltItems(TItemsList<T> *L,
+    static void  ReadSeparatedForBuiltItems(TItemsList<T> *L,
                                                       const AnsiString &S, int &i);
 
     //imprime una lista en una cadena de texto
     //en formato de lista de texto
-    static void __fastcall PrintList(AnsiString &S,
+    static void  PrintList(AnsiString &S,
                                      const TItemsList<T> *L);
     //lee una lista de una cadena de texto
     //en formato de lista de texto
-    static void __fastcall ReadList(TItemsList<T> *L,
+    static void  ReadList(TItemsList<T> *L,
                                     const AnsiString &S, int &i);
     //lee una lista de una cadena de texto
     //en formato de lista de texto
     //para los elementos de la lista previamente construidos
-    static void __fastcall ReadListForBuiltItems(TItemsList<T> *L,
+    static void  ReadListForBuiltItems(TItemsList<T> *L,
                                                  const AnsiString &S, int &i);
 
     //NOTA: las funciones PrintList y ReadList deberán ser apuntadas
@@ -218,11 +218,11 @@ public:
 
     //constructor general
     TItemsList(int _Capacity=8,
-               int (__fastcall *_Compare)(T, T)=NULL,
-               double (__fastcall *_Evaluate)(T)=NULL,
-               void (__fastcall *_Assign)(T&, double)=NULL,
-               void (__fastcall *_Print)(AnsiString&, T)=NULL,
-               void (__fastcall *_Read)(T&, const AnsiString&, int&)=NULL);
+               int ( *_Compare)(T, T)=NULL,
+               double ( *_Evaluate)(T)=NULL,
+               void ( *_Assign)(T&, double)=NULL,
+               void ( *_Print)(AnsiString&, T)=NULL,
+               void ( *_Read)(T&, const AnsiString&, int&)=NULL);
 
     //ADVERTENCIA: declarar los argumentos por referencia constantes es
     //necesario para evitar las advertencias cuando son pasadas variables
@@ -406,21 +406,21 @@ public:
 
 //imprime una lista en una cadena de texto
 //en formato de fila de texto
-template <class T> void __fastcall TItemsList<T>::PrintRow(AnsiString &S,
+template <class T> void  TItemsList<T>::PrintRow(AnsiString &S,
                                                            const TItemsList<T> *L)
 {
     S += getRowText();
 }
 //imprime una lista en una cadena de texto
 //en formato de columna de texto
-template <class T> void __fastcall TItemsList<T>::PrintColumn(AnsiString &S,
+template <class T> void  TItemsList<T>::PrintColumn(AnsiString &S,
                                                               const TItemsList<T> *L)
 {
     S += getColumnText;
 }
 //lee una lista de una cadena de texto
 //en formato de fila de texto
-template <class T> void __fastcall TItemsList<T>::ReadSeparated(TItemsList<T> *L,
+template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
                                                                 const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -474,7 +474,7 @@ template <class T> void __fastcall TItemsList<T>::ReadSeparated(TItemsList<T> *L
 //lee una lista de una cadena de texto
 //en formato de fila de texto
 //para los elementos de la lista previamente construidos
-template <class T> void __fastcall TItemsList<T>::ReadSeparatedForBuiltItems(TItemsList<T> *L,
+template <class T> void  TItemsList<T>::ReadSeparatedForBuiltItems(TItemsList<T> *L,
                                                                              const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -518,7 +518,7 @@ template <class T> void __fastcall TItemsList<T>::ReadSeparatedForBuiltItems(TIt
 
 //imprime una lista en una cadena de texto
 //en formato de lista de texto
-template <class T> void __fastcall TItemsList<T>::PrintList(AnsiString &S,
+template <class T> void  TItemsList<T>::PrintList(AnsiString &S,
                                                             const TItemsList<T> *L)
 {
     //el puntero L debería apuntar a una lista de construida
@@ -542,7 +542,7 @@ template <class T> void __fastcall TItemsList<T>::PrintList(AnsiString &S,
 }
 //lee una lista de una cadena de texto
 //en formato de lista de texto
-template <class T> void __fastcall TItemsList<T>::ReadList(TItemsList<T> *L,
+template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
                                                            const AnsiString &S, int &i)
 {
     //el puntero L debería apuntar a una lista construida
@@ -706,7 +706,7 @@ template <class T> void __fastcall TItemsList<T>::ReadList(TItemsList<T> *L,
 //lee una lista de una cadena de texto
 //en formato de lista de texto
 //para los elementos de la lista previamente construidos
-template <class T> void __fastcall TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
+template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
                                                                         const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -1247,11 +1247,11 @@ template <class T> void TItemsList<T>::setColumnText(const AnsiString &S)
 //MÉTODOS PÚBLICOS:
 
 template <class T> TItemsList<T>::TItemsList(int _Capacity,
-                                             int (__fastcall *_Compare)(T, T),
-                                             double (__fastcall *_Evaluate)(T),
-                                             void (__fastcall *_Assign)(T&, double),
-                                             void (__fastcall *_Print)(AnsiString&, T),
-                                             void (__fastcall *_Read)(T&, const AnsiString&, int&)) :
+                                             int ( *_Compare)(T, T),
+                                             double ( *_Evaluate)(T),
+                                             void ( *_Assign)(T&, double),
+                                             void ( *_Print)(AnsiString&, T),
+                                             void ( *_Read)(T&, const AnsiString&, int&)) :
     Items(_Capacity, 0)
 {
     Compare = _Compare;

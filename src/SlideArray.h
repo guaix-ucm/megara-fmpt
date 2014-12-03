@@ -8,7 +8,7 @@
 #ifndef SLIDEARRAY_H
 #define SLIDEARRAY_H
 
-#include "..\0_VCL\Exceptions.h"
+#include "Exceptions.h"
 
 //---------------------------------------------------------------------------
 

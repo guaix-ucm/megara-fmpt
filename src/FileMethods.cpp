@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "FileMethods.h"
-#include "..\2_Strings\TextFile.h" //StrReadFromFile, StrWriteToFile
+#include "TextFile.h" //StrReadFromFile, StrWriteToFile
 
 using namespace Strings;
 

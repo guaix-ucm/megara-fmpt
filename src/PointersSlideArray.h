@@ -8,7 +8,7 @@
 #ifndef POINTERSSLIDEARRAY_H
 #define POINTERSSLIDEARRAY_H
 
-#include "..\0_VCL\Exceptions.h"
+#include "Exceptions.h"
 
 //---------------------------------------------------------------------------
 

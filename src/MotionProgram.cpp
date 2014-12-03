@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "MotionProgram.h"
-#include "..\2_Strings\Strings.h"
+#include "Strings.h"
 
 //--------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ using namespace Strings; //StrIndent
 //MÉTODOS ESTÁTICOS:
 
 //imprime una lista en una cadena de texto
-void __fastcall TMessageList::PrintMessageList(AnsiString &S,
+void  TMessageList::PrintMessageList(AnsiString &S,
         const TMessageList *L)
 {
         try {
@@ -32,7 +32,7 @@ void __fastcall TMessageList::PrintMessageList(AnsiString &S,
         }
 }
 //lee una lista de emnsajes en una cadena de texto
-void __fastcall TMessageList::ReadMessageList(TMessageList *L,
+void  TMessageList::ReadMessageList(TMessageList *L,
         const AnsiString &S, int &i)
 {
         try {

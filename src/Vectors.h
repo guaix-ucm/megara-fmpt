@@ -8,7 +8,7 @@
 #ifndef _VECTORS_H
 #define _VECTORS_H
 
-#include "..\0_VCL\vclemu.h" //AnsiString
+#include "vclemu.h" //AnsiString
 
 #include <complex> //complex
 

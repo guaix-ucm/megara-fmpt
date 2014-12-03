@@ -8,11 +8,13 @@
 #include "vclemu.h"
 #include "Exceptions.h"
 
-#include <math.h>
-#include <unistd.h> //getcwd
-#include <stdlib.h> //rands, rand
+#include <cmath>
+#include <climits>
+#include <cstdlib> //rands, rand
 #include <sstream> //ostringstream
 #include <cstdlib> //strtod
+
+#include <unistd.h> //getcwd
 #include <sys/stat.h> //stat, S_ISDIR
 //#include <QDir>
 
@@ -387,7 +389,7 @@ int HexToInt(const AnsiString& S)
 }
 //traduce de integer a AnsiString
 //en base hexadecimal
-AnsiString IntToHex(int n, int fig)
+AnsiString IntToHex(intptr_t n, int fig)
 {
     //el número de cifras debe ser sizeof(n)
     if(fig != 2*sizeof(n))
@@ -395,7 +397,8 @@ AnsiString IntToHex(int n, int fig)
 
     AnsiString S;
     S.SetLength(8);
-    itoa(n, (char*)S.c_str(), 16);
+    // FIXME: itoa is not standard
+    //itoa(n, (char*)S.c_str(), 16);
     return S;
 //#    return AnsiString(QString::number(n, 16).toUpper());
 }
@@ -488,7 +491,7 @@ int mkpath(const string& path)
     //de ser válidos.
 
     //intenta contruir el directorio
-    bool cant_make = mkdir(path.c_str());
+    bool cant_make = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
     //si el directorio no puede ser construido
     if(cant_make) {
@@ -510,7 +513,7 @@ int mkpath(const string& path)
             return 1;
         else { //si la supra-ruta ha sido construida
             //intenta construir el directorio actual
-            cant_make = mkdir(path.c_str());
+            cant_make = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             //indica el efecto de la construcción
             return cant_make;
         }
@@ -760,7 +763,7 @@ TStrings TrueBoolStrs;
 TStrings FalseBoolStrs;
 
 //convierte de Boolean a AnsiString
-AnsiString __fastcall BoolToStr(bool B, bool UseBoolStrs)
+AnsiString  BoolToStr(bool B, bool UseBoolStrs)
 {
     if(UseBoolStrs) {
         if(B) {
@@ -784,7 +787,7 @@ AnsiString __fastcall BoolToStr(bool B, bool UseBoolStrs)
 }
 
 //convierte de AnsiString a Boolean
-bool __fastcall StrToBool(const AnsiString S)
+bool  StrToBool(const AnsiString S)
 {
     if(S.Length() == 1) {
         if(S == "1")

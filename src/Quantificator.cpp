@@ -148,7 +148,7 @@ void TQuantificator::CalculateImageDomain(void)
 
 //imprime el conjunto de propiedades RW de un cuantificador
 //en una cadena de caracteres
-void __fastcall TQuantificator::PrintRW(AnsiString &S, const TQuantificator *Q)
+void  TQuantificator::PrintRW(AnsiString &S, const TQuantificator *Q)
 {
         //el puntero Q debería apuntar a un cuantificador construido
         if(Q == NULL)
@@ -159,7 +159,7 @@ void __fastcall TQuantificator::PrintRW(AnsiString &S, const TQuantificator *Q)
 
 //intenta leer el conjunto de propiedades RW un cuantificador
 //a partir de la posición indicada en una cadena de caracteres
-void __fastcall TQuantificator::ReadRW(TQuantificator *Q, const AnsiString &S,
+void  TQuantificator::ReadRW(TQuantificator *Q, const AnsiString &S,
         int &i)
 {
         //el puntero Q debería apuntar a un cuantificador construido
@@ -303,7 +303,7 @@ void __fastcall TQuantificator::ReadRW(TQuantificator *Q, const AnsiString &S,
 //FUNCIONES ESTÁTICAS:
 
 //imprime un cluster de configuración al final de una cadena de texto
-void __fastcall TQuantificator::PrintAssigns(AnsiString &S,
+void  TQuantificator::PrintAssigns(AnsiString &S,
         const TQuantificator *Q)
 {
         //el puntero Q debería apuntar a un cuantificador contruido
@@ -313,7 +313,7 @@ void __fastcall TQuantificator::PrintAssigns(AnsiString &S,
         S += Q->getAssignsText();
 }
 //lee un cluster de configuración en una cadena de texto
-void __fastcall TQuantificator::ReadAssigns(TQuantificator *Q,
+void  TQuantificator::ReadAssigns(TQuantificator *Q,
         const AnsiString &S, int &i)
 {
         //el puntero Q debería apuntar a un cuantificador contruido

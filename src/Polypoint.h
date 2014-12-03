@@ -8,7 +8,7 @@
 #ifndef POLYPOINT_H
 #define POLYPOINT_H
 
-#include "..\3_Lists\ItemsList.h"
+#include "ItemsList.h"
 #include "Vectors.h"
 
 using namespace Lists;

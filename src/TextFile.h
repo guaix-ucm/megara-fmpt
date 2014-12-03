@@ -8,7 +8,7 @@
 #ifndef TEXTFILE_H
 #define TEXTFILE_H
 
-#include "..\0_VCL\vclemu.h" //AnsiString
+#include "vclemu.h" //AnsiString
 
 #include <stdio.h>  //FILE
 

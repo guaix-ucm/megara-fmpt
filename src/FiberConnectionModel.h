@@ -8,7 +8,7 @@
 #ifndef FIBERCONNECTIONMODEL_H
 #define FIBERCONNECTIONMODEL_H
 
-#include "..\3_Lists\PointersList.h"
+#include "PointersList.h"
 
 //---------------------------------------------------------------------------
 
@@ -80,10 +80,10 @@ public:
         //MÉTODOS:
 
         //lee los valores de las propiedades en una fila de texto
-        static void __fastcall ReadRow(TConection *Item,
+        static void  ReadRow(TConection *Item,
                 const AnsiString& S, int& i);
         //imprime los valores de las propiedades en una fila de texto
-        static void __fastcall PrintRow(AnsiString&, const TConection*);
+        static void  PrintRow(AnsiString&, const TConection*);
         //obtiene las etiqeutas de las propiedades en formato texto
         static AnsiString GetLabelsRow(void);
         //atraviesa las etiquetas de las propiedades

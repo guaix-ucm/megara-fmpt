@@ -10,8 +10,8 @@
 
 #include "Figure.h"
 //##include "..\5_Graphics\PloterShapes.h"
-#include "..\3_Lists\PointersList.h"
-#include "..\1_Mathematics\Vectors.h"
+#include "PointersList.h"
+#include "Vectors.h"
 
 //---------------------------------------------------------------------------
 

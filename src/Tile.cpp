@@ -4,10 +4,11 @@
 //Última actualización: 06/05/2014
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
+//
 
 #include "Tile.h"
-#include "..\2_Strings\TextFile.h"
-#include "..\2_Strings\Strings.h"
+#include "TextFile.h"
+#include "Strings.h"
 
 //---------------------------------------------------------------------------
 
@@ -181,7 +182,7 @@ void TTile::setAssignsText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //compara una de las propiedades de dos objetos
-int __fastcall TTile::CompareIds(const TTile *T1, const TTile *T2)
+int  TTile::CompareIds(const TTile *T1, const TTile *T2)
 {
     //el puntero T1 debería apuntar a un objeto contruido
     if(T1 == NULL)
@@ -197,7 +198,7 @@ int __fastcall TTile::CompareIds(const TTile *T1, const TTile *T2)
         return -1;
     return 0;
 }
-int __fastcall TTile::CompareRAs(const TTile *T1, const TTile *T2)
+int  TTile::CompareRAs(const TTile *T1, const TTile *T2)
 {
     //el puntero T1 debería apuntar a un objeto contruido
     if(T1 == NULL)
@@ -213,7 +214,7 @@ int __fastcall TTile::CompareRAs(const TTile *T1, const TTile *T2)
         return -1;
     return 0;
 }
-int __fastcall TTile::CompareDECs(const TTile *T1, const TTile *T2)
+int  TTile::CompareDECs(const TTile *T1, const TTile *T2)
 {
     //el puntero T1 debería apuntar a un objeto contruido
     if(T1 == NULL)
@@ -229,7 +230,7 @@ int __fastcall TTile::CompareDECs(const TTile *T1, const TTile *T2)
         return -1;
     return 0;
 }
-int __fastcall TTile::CompareR_s(const TTile *T1, const TTile *T2)
+int  TTile::CompareR_s(const TTile *T1, const TTile *T2)
 {
     //el puntero T1 debería apuntar a un objeto contruido
     if(T1 == NULL)
@@ -245,7 +246,7 @@ int __fastcall TTile::CompareR_s(const TTile *T1, const TTile *T2)
         return -1;
     return 0;
 }
-int __fastcall TTile::CompareQ_s(const TTile *T1, const TTile *T2)
+int  TTile::CompareQ_s(const TTile *T1, const TTile *T2)
 {
     //el puntero T1 debería apuntar a un objeto contruido
     if(T1 == NULL)
@@ -273,7 +274,7 @@ AnsiString TTile::GetLabelsRow(void)
 }
 
 //imprime las propiedades de un objeto en una cadena
-void __fastcall TTile::PrintRow(AnsiString &S, const TTile *T)
+void  TTile::PrintRow(AnsiString &S, const TTile *T)
 {
     //el puntero T debería apuntar a un objeto contruido
     if(T == NULL)
@@ -281,7 +282,7 @@ void __fastcall TTile::PrintRow(AnsiString &S, const TTile *T)
 
     S += T->getRowText();
 }
-void __fastcall TTile::PrintCol(AnsiString &S, const TTile *T)
+void  TTile::PrintCol(AnsiString &S, const TTile *T)
 {
     //el puntero T debería apuntar a un objeto contruido
     if(T == NULL)
@@ -289,7 +290,7 @@ void __fastcall TTile::PrintCol(AnsiString &S, const TTile *T)
 
     S += T->getColText();
 }
-void __fastcall TTile::PrintAssigns(AnsiString &S, const TTile *T)
+void  TTile::PrintAssigns(AnsiString &S, const TTile *T)
 {
     //el puntero T debería apuntar a un objeto contruido
     if(T == NULL)
@@ -299,7 +300,7 @@ void __fastcall TTile::PrintAssigns(AnsiString &S, const TTile *T)
 }
 
 //lee las propiedades de un objeto en una cadena
-void __fastcall TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
+void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
 {
     //el puntero T debería apuntar a un objeto construido
     if(T == NULL)
@@ -389,7 +390,7 @@ void __fastcall TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
     //asigna la variable tampón
     *T = _Tile;
 }
-void __fastcall TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
+void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
 {
     //el puntero T debería apuntar a un objeto construido
     if(T == NULL)
@@ -479,7 +480,7 @@ void __fastcall TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
     //asigna la variable tampón
     *T = _Tile;
 }
-void __fastcall TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
+void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
 {
     //el puntero T debería apuntar a un objeto construido
     if(T == NULL)
@@ -797,7 +798,7 @@ void TTileList::SaveToFiles(AnsiString FolderName)
     AnsiString FileName;
 
     //contruye el directorio en caso necesario
-    mkdir(FolderName.c_str());
+    mkdir(FolderName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
     //por cada azulejo de la lista
     for(int k=0; k<getCount(); k++) {

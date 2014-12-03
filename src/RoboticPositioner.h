@@ -10,8 +10,8 @@
 
 #include "Instruction.h"
 #include "Actuator.h"
-#include "..\7_MotionFunctions\ComposedMotionFunction.h"
-#include "..\3_Lists\ItemsList.h"
+#include "ComposedMotionFunction.h"
+#include "ItemsList.h"
 
 //---------------------------------------------------------------------------
 
@@ -30,9 +30,9 @@ namespace Models {
 //      comando start.
 enum TControlMode {cmSinc, cmAsinc};
 
-void __fastcall StrPrintControlMode(AnsiString& S,
+void  StrPrintControlMode(AnsiString& S,
         TControlMode cm);
-void __fastcall StrReadControlMode(TControlMode& cm,
+void  StrReadControlMode(TControlMode& cm,
         const AnsiString &S, int &i);
 AnsiString ControlModeToStr(TControlMode cm);
 TControlMode StrToControlMode(const AnsiString& S);
@@ -47,9 +47,9 @@ TControlMode StrToControlMode(const AnsiString& S);
 //      ftDyn: dinámico;
 enum TFaultType {ftUnk, ftSta, ftDyn};
 
-void __fastcall StrPrintFaultType(AnsiString& S,
+void  StrPrintFaultType(AnsiString& S,
         TFaultType ft);
-void __fastcall StrReadFaultType(TFaultType& ft,
+void  StrReadFaultType(TFaultType& ft,
         const AnsiString &S, int &i);
 AnsiString FaultTypeToStr(TFaultType ft);
 TFaultType StrToFaultType(const AnsiString& S);
@@ -282,13 +282,13 @@ public:
 
         //dirección en memoria del actuador
         AnsiString getActuatorAddressText(void) const {
-                return IntToHex(int(getActuator()), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(getActuator()), 8);}
 
         //PROPIEDADES DE CONTROL EN FORMATO TEXTO:
 
         //dirección en memoria de la propiedad CMF
         AnsiString getCMFAddressText(void) const {
-                return IntToHex(int(&CMF), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&CMF), 8);}
 
         //TOLERANCIAS EN FORMATO TEXTO:
 
@@ -337,11 +337,11 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //compara los identificadores de dos posicionadores
-        static int __fastcall CompareIds(TRoboticPositioner *FP1,
+        static int  CompareIds(TRoboticPositioner *FP1,
                 TRoboticPositioner *FP2);
 
         //imprime el identificador de un posicionador
-        static void __fastcall PrintId(AnsiString &S, TRoboticPositioner *FP);
+        static void  PrintId(AnsiString &S, TRoboticPositioner *FP);
 
         //Los métodos estáticos:
         //      CompareIds
@@ -353,27 +353,27 @@ public:
         //imprime los valores de las propiedades de origen de un posicionador
         //(Id, x0, y0, thetaO1) al final de una cadena de texto
         //en formato fila de texto
-        static void __fastcall PrintOriginsRow(AnsiString& S,
+        static void  PrintOriginsRow(AnsiString& S,
                 TRoboticPositioner *FP);
         //lee los valores de las propiedades de origen de un posicionador
         //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
         //de texto, en formato fila de texto
-        static void __fastcall ReadOriginsRow(TRoboticPositioner *FP,
+        static void  ReadOriginsRow(TRoboticPositioner *FP,
                 const AnsiString& S, int &i);
 
         //imprime los valores de las propiedades de posición de un posicionador
         //(Id, x3, y3) al final de una cadena de texto
         //en formato fila de texto
-        static void __fastcall PrintPositionP3Row(AnsiString& S,
+        static void  PrintPositionP3Row(AnsiString& S,
                 TRoboticPositioner *FP);
         //lee los valores de las propiedades de posición de un posicionador
         //(Id, x3, y3) desde la posición indicada de una cadena
         //de texto, en formato fila de texto
-        static void __fastcall ReadPositionP3Row(TRoboticPositioner* &FP,
+        static void  ReadPositionP3Row(TRoboticPositioner* &FP,
                 const AnsiString& S, int &i);
 
         //lee una instancia en una cadena
-        static void __fastcall ReadInstance(TRoboticPositioner* &FP,
+        static void  ReadInstance(TRoboticPositioner* &FP,
                 const AnsiString& S, int &i);
 
         //------------------------------------------------------------------

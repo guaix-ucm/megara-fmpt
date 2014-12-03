@@ -6,11 +6,11 @@
 //---------------------------------------------------------------------------
 
 #include "ContourFigureList.h"
-#include "..\4_Operators\Function.h"
-#include "..\3_Lists\Vector.h"
-#include "..\2_Strings\Strings.h"
-#include "..\1_Mathematics\Geometry.h"
-#include "..\1_Mathematics\Constants.h"
+#include "Function.h"
+#include "Vector.h"
+#include "Strings.h"
+#include "Geometry.h"
+#include "Constants.h"
 
 //---------------------------------------------------------------------------
 

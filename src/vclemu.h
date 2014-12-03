@@ -8,6 +8,8 @@
 #ifndef VCLEMU_H
 #define VCLEMU_H
 
+#include <stdint.h>
+
 //#include <QCoreApplication> //std::exception
 #include <string>
 //##include <QColor>
@@ -169,7 +171,7 @@ AnsiString IntToStr(int n);
 int HexToInt(const AnsiString& S);
 //traduce de integer a AnsiString
 //en base hexadecimal
-AnsiString IntToHex(int n, int fig);
+AnsiString IntToHex(intptr_t n, int fig);
 /*#
 //traduce de AnsiString a unsigned integer
 //en base hexadecimal
@@ -250,9 +252,9 @@ extern TStrings TrueBoolStrs;
 extern TStrings FalseBoolStrs;
 
 //convierte de Boolean a AnsiString
-AnsiString __fastcall BoolToStr(bool B, bool UseBoolStrs=false);
+AnsiString  BoolToStr(bool B, bool UseBoolStrs=false);
 //convierte de AnsiString a Boolean
-bool __fastcall StrToBool(const AnsiString S);
+bool  StrToBool(const AnsiString S);
 
 //---------------------------------------------------------------------------
 //TStringList

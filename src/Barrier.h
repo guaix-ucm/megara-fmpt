@@ -8,14 +8,16 @@
 #ifndef BARRIER_H
 #define BARRIER_H
 
+#include <stdint.h>
+
 #include "Figure.h"
 #include "ContourFigureList.h"
 //##include "taboutofdialog.h"
 //##include "..\5_Graphics\PloterShapes.h"
-#include "..\4_Operators\Function.h"
-#include "..\4_Operators\Quantificator.h"
-#include "..\3_Lists\Vector.h"
-#include "..\1_Mathematics\Vectors.h"
+#include "Function.h"
+#include "Quantificator.h"
+#include "Vector.h"
+#include "Vectors.h"
 
 //---------------------------------------------------------------------------
 
@@ -105,7 +107,7 @@ public:
         //PROPIEDADES EN FORMATO TEXTO:
 
         AnsiString getContour_AddressText(void) const {
-                return IntToHex(int(&__Contour_), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&__Contour_), 8);}
         void setContour_Text(const AnsiString&);
         void setContour_ColumnText(const AnsiString&);
 
@@ -117,7 +119,7 @@ public:
         void setP0Text(const AnsiString&);
 
         AnsiString getContourAddressText(void) const {
-                return IntToHex(int(&__Contour), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&__Contour), 8);}
         AnsiString getSPMText(void) const;
         void setSPMText(const AnsiString&);
 
@@ -139,7 +141,7 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee una instancia de barrera en una cadena
-        static void __fastcall ReadInstance(TBarrier* &B,
+        static void  ReadInstance(TBarrier* &B,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------

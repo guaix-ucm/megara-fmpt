@@ -4,11 +4,14 @@
 //Última actualización: 07/05/2014
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
+//
+
+#include <stdint.h>
 
 #include "ComposedMotionFunction.h"
-#include "..\1_Mathematics\Scalars.h"
-#include "..\2_Strings\Strings.h"
-#include "..\2_Strings\StrPR.h"
+#include "Scalars.h"
+#include "Strings.h"
+#include "StrPR.h"
 
 //---------------------------------------------------------------------------
 
@@ -22,7 +25,7 @@ namespace MotionFunctions {
 //TMotionFunctionMode
 //---------------------------------------------------------------------------
 
-void __fastcall StrPrintMotionFunctionMode(AnsiString& S,
+void  StrPrintMotionFunctionMode(AnsiString& S,
         TMotionFunctionMode mfm)
 {
         switch(mfm) {
@@ -32,7 +35,7 @@ void __fastcall StrPrintMotionFunctionMode(AnsiString& S,
 
         throw EImposibleError("type TMotionFunctionMode should be in [mfmSquare, mfmRamp]");
 }
-void __fastcall StrReadMotionFunctionMode(TMotionFunctionMode& mfm,
+void  StrReadMotionFunctionMode(TMotionFunctionMode& mfm,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -143,7 +146,7 @@ TMotionFunctionMode StrToMotionFunctionMode(const AnsiString& S)
 //TSquareSynchronismMode
 //##########################################################################
 
-void __fastcall StrPrintSquareSynchronismMode(AnsiString& S,
+void  StrPrintSquareSynchronismMode(AnsiString& S,
         TSquareSynchronismMode ssm)
 {
         switch(ssm) {
@@ -154,7 +157,7 @@ void __fastcall StrPrintSquareSynchronismMode(AnsiString& S,
         }
         throw EImposibleError("ununknown value in type TSquareSynchronousMode");
 }
-void __fastcall StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
+void  StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -300,7 +303,7 @@ TSquareSynchronismMode StrToSquareSynchronismMode(const AnsiString& S)
 //TRampSynchronismMode
 //##########################################################################
 
-void __fastcall StrPrintRampSynchronismMode(AnsiString& S,
+void  StrPrintRampSynchronismMode(AnsiString& S,
         TRampSynchronismMode rsm)
 {
         switch(rsm) {
@@ -314,7 +317,7 @@ void __fastcall StrPrintRampSynchronismMode(AnsiString& S,
         }
         throw EImposibleError("ununknown value in type TRampSynchronousMode");
 }
-void __fastcall StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
+void  StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -795,19 +798,19 @@ void TComposedMotionFunction::setLabel(AnsiString _Label)
 
 AnsiString TComposedMotionFunction::getSF1AddressText(void) const
 {
-        return IntToHex(int(__SF1), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(__SF1), 8);
 }
 AnsiString TComposedMotionFunction::getRF1AddressText(void) const
 {
-        return IntToHex(int(__RF1), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(__RF1), 8);
 }
 AnsiString TComposedMotionFunction::getSF2AddressText(void) const
 {
-        return IntToHex(int(__SF2), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(__SF2), 8);
 }
 AnsiString TComposedMotionFunction::getRF2AddressText(void) const
 {
-        return IntToHex(int(__RF2), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(__RF2), 8);
 }
 
 AnsiString TComposedMotionFunction::getMFMText(void) const
@@ -1059,7 +1062,7 @@ void TComposedMotionFunction::setInstanceText(const AnsiString& S)
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia de función de movimiento compuesta en una cadena
-void __fastcall TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
+void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
         const AnsiString& S, int &i)
 {
         //el puntero CMF debe apuntar a una función de movimeinto compuesta construido

@@ -9,9 +9,10 @@
 #define TILE_H
 
 #include "SkyPoint.h"
-#include "..\3_Lists\PointersList.h"
+#include "PointersList.h"
 
-#include <dir.h>
+//#include <dir.h>
+#include <sys/stat.h>
 
 //---------------------------------------------------------------------------
 
@@ -120,25 +121,25 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //compara una de las propiedades de dos objetos
-    static int __fastcall CompareIds(const TTile *T1, const TTile *T2);
-    static int __fastcall CompareRAs(const TTile *T1, const TTile *T2);
-    static int __fastcall CompareDECs(const TTile *T1, const TTile *T2);
-    static int __fastcall CompareR_s(const TTile *T1, const TTile *T2);
-    static int __fastcall CompareQ_s(const TTile *T1, const TTile *T2);
+    static int  CompareIds(const TTile *T1, const TTile *T2);
+    static int  CompareRAs(const TTile *T1, const TTile *T2);
+    static int  CompareDECs(const TTile *T1, const TTile *T2);
+    static int  CompareR_s(const TTile *T1, const TTile *T2);
+    static int  CompareQ_s(const TTile *T1, const TTile *T2);
 
     //obtiene las etiquetas de las propiedades
     static AnsiString GetLabels(void);
     static AnsiString GetLabelsRow(void);
 
     //imprime las propiedades de un objeto en una cadena
-    static void __fastcall PrintRow(AnsiString &S, const TTile *T);
-    static void __fastcall PrintCol(AnsiString &S, const TTile *T);
-    static void __fastcall PrintAssigns(AnsiString &S, const TTile *T);
+    static void  PrintRow(AnsiString &S, const TTile *T);
+    static void  PrintCol(AnsiString &S, const TTile *T);
+    static void  PrintAssigns(AnsiString &S, const TTile *T);
 
     //lee las propiedades de un objeto en una cadena
-    static void __fastcall ReadRow(TTile *T, const AnsiString &S, int &i);
-    static void __fastcall ReadCol(TTile *T, const AnsiString &S, int &i);
-    static void __fastcall ReadAssigns(TTile *T,
+    static void  ReadRow(TTile *T, const AnsiString &S, int &i);
+    static void  ReadCol(TTile *T, const AnsiString &S, int &i);
+    static void  ReadAssigns(TTile *T,
                                        const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:

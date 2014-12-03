@@ -9,8 +9,8 @@
 #define EXCLUSIONAREALIST_H
 
 #include "RoboticPositionerList3.h"
-#include "..\3_Lists\PointersList.h"
-#include "..\B_RoboticPositioner\ExclusionArea.h"
+#include "PointersList.h"
+#include "ExclusionArea.h"
 
 //---------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ public:
 
         //dirección en memoria de la lista de posicionadores
         AnsiString getItemsAddressText(void) const {
-                return IntToHex(int(&Items), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&Items), 8);}
 
         //PROPIEDADES DE LOCALIZACIÓN EN FORMATO TEXTO:
 
@@ -149,7 +149,7 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee una instancia en una cadena
-        static void __fastcall ReadInstance(TExclusionAreaList* &RPL,
+        static void  ReadInstance(TExclusionAreaList* &RPL,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------

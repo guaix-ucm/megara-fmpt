@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------
 
 #include "TelescopeProjectionModel.h"
-#include "..\A_Arm\FiberMOSModelConstants.h" //GTC_R
-#include "..\1_Mathematics\Geometry.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "FiberMOSModelConstants.h" //GTC_R
+#include "Geometry.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -445,7 +445,7 @@ void TTelescopeProjectionModel::DeterminePlanes(void)
 
 //imprime las propiedades de configuración en una cadena de texto
 //en formato de asignaciones
-void __fastcall TTelescopeProjectionModel::PrintAssigns(AnsiString &S,
+void  TTelescopeProjectionModel::PrintAssigns(AnsiString &S,
                                                         const TTelescopeProjectionModel *TPM)
 {
     //el puntero TPM debería apauntar a un Telescope Projection Model construído
@@ -457,7 +457,7 @@ void __fastcall TTelescopeProjectionModel::PrintAssigns(AnsiString &S,
 
 //lee las propiedades de configuración en una cadena de texto
 //en formato de asignaciones
-void __fastcall TTelescopeProjectionModel::ReadAssigns(TTelescopeProjectionModel *TPM,
+void  TTelescopeProjectionModel::ReadAssigns(TTelescopeProjectionModel *TPM,
                                                        const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,

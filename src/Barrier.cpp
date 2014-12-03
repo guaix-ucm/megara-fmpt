@@ -229,7 +229,7 @@ void TBarrier::CalculateImage(void)
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia de barrera en una cadena
-void __fastcall TBarrier::ReadInstance(TBarrier* &B,
+void  TBarrier::ReadInstance(TBarrier* &B,
         const AnsiString& S, int &i)
 {
         //el puntero B debe apuntar a una barrera construida

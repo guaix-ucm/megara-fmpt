@@ -934,28 +934,28 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee un cluster de configuración en una cadena de texto
-        static void __fastcall ReadTemplate(TArm *Arm,
+        static void  ReadTemplate(TArm *Arm,
                 const AnsiString &S, int &i);
         //lee un cluster de configuración en una cadena de texto
-        static void __fastcall ReadOrientationRadians(TArm *Arm,
+        static void  ReadOrientationRadians(TArm *Arm,
                 const AnsiString &S, int &i);
         //lee un cluster de configuración en una cadena de texto
-        static void __fastcall ReadQuantification(TArm *Arm,
+        static void  ReadQuantification(TArm *Arm,
                 const AnsiString &S, int &i);
         //lee un cluster de configuración en una cadena de texto
-        static void __fastcall ReadOrientationSteps(TArm *Arm,
+        static void  ReadOrientationSteps(TArm *Arm,
                 const AnsiString &S, int &i);
         //lee un cluster de configuración en una cadena de texto
-        static void __fastcall ReadLocation(TArm *Arm,
+        static void  ReadLocation(TArm *Arm,
                 const AnsiString &S, int &i);
 
         //lee un cluster de instancia en una cadena de texto
-        static void __fastcall ReadInstance(TArm *Arm,
+        static void  ReadInstance(TArm *Arm,
                 const AnsiString &S, int &i);
       */
 
         //lee una instancia de posicionador de fibra en una cadena
-        static void __fastcall ReadInstance(TArm* &A,
+        static void  ReadInstance(TArm* &A,
                 const AnsiString& S, int &i);
 
         //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:

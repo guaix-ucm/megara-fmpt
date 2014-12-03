@@ -8,7 +8,7 @@
 #ifndef STRINGS_H
 #define STRINGS_H
 
-#include "..\0_VCL\vclemu.h" //AnsiString
+#include "vclemu.h" //AnsiString
 
 //---------------------------------------------------------------------------
 

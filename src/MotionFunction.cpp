@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------
 
 #include "MotionFunction.h"
-#include "..\0_VCL\Exceptions.h"
-#include "..\2_Strings\Strings.h"
-#include "..\2_Strings\StrPR.h"
+#include "Exceptions.h"
+#include "Strings.h"
+#include "StrPR.h"
 
 //---------------------------------------------------------------------------
 

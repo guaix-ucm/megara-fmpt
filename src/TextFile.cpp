@@ -7,7 +7,7 @@
 
 #include "TextFile.h"
 #include "Strings.h"
-#include "..\0_VCL\Exceptions.h"
+#include "Exceptions.h"
 
 #include <dirent.h> //opendir, readdir, rewinddir, closedir
 

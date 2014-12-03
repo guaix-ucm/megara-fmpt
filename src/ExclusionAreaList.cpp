@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "ExclusionAreaList.h"
-#include "..\2_Strings\Strings.h"
+#include "Strings.h"
 
 //#include <values.h>
 
@@ -95,7 +95,7 @@ void TExclusionAreaList::setPaintLimitDomain_Text(const AnsiString &S)
 AnsiString TExclusionAreaList::getOriginsTableText(void) const
 {
         //guarda el valor de Print
-        void (__fastcall *PrintBak)(AnsiString&, TExclusionArea*);
+        void ( *PrintBak)(AnsiString&, TExclusionArea*);
         PrintBak = Print;
 
         //apunta la lista de áreas de exclusión con un puntero no constante para facilitar su escritura
@@ -242,7 +242,7 @@ void TExclusionAreaList::setInstanceText(const AnsiString& S)
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia en una cadena
-void __fastcall TExclusionAreaList::ReadInstance(TExclusionAreaList* &EAL,
+void  TExclusionAreaList::ReadInstance(TExclusionAreaList* &EAL,
         const AnsiString& S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -526,7 +526,7 @@ void TExclusionAreaList::SortAdjacents(void)
                 double theta;
 
                 //compara los ángulos de dos pares
-                static int __fastcall Comparetheta(TPair *P1, TPair *P2) {
+                static int  Comparetheta(TPair *P1, TPair *P2) {
                         //debe apuntar a objetos construidos
                         if(P1 == NULL)
                                 throw EImproperArgument("pointer P1 should not be null");
@@ -541,7 +541,7 @@ void TExclusionAreaList::SortAdjacents(void)
                 }
 
                 //imprime el ángulo al final de una cadena
-                static void __fastcall Printtheta(AnsiString &S, TPair *P) {
+                static void  Printtheta(AnsiString &S, TPair *P) {
                         S += FloatToStr(P->theta);
                 }
         };

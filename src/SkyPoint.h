@@ -8,7 +8,7 @@
 #ifndef SKYPOINT_H
 #define SKYPOINT_H
 
-#include "..\3_Lists\ItemsList.h"
+#include "ItemsList.h"
 
 //##include <QListWidget>
 //##include <QTextEdit>
@@ -167,25 +167,25 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //compara una de las propiedades de dos puntos de cielo
-    static int __fastcall CompareIds(TSkyPoint*, TSkyPoint*);
-    static int __fastcall CompareRAs(TSkyPoint*, TSkyPoint*);
-    static int __fastcall CompareDECs(TSkyPoint*, TSkyPoint*);
+    static int  CompareIds(TSkyPoint*, TSkyPoint*);
+    static int  CompareRAs(TSkyPoint*, TSkyPoint*);
+    static int  CompareDECs(TSkyPoint*, TSkyPoint*);
 
     //obtiene las etiquetas de las propiedades en una cadena
     static AnsiString GetLabels(void);
     static AnsiString GetLabelsRow(void);
 
     //imprime las propiedades de un punto de cielo en una cadena
-    static void __fastcall PrintRow(AnsiString &S, TSkyPoint *SP);
-    static void __fastcall PrintCol(AnsiString &S, TSkyPoint *SP);
-    static void __fastcall PrintAssigns(AnsiString &S, TSkyPoint *SP);
+    static void  PrintRow(AnsiString &S, TSkyPoint *SP);
+    static void  PrintCol(AnsiString &S, TSkyPoint *SP);
+    static void  PrintAssigns(AnsiString &S, TSkyPoint *SP);
 
     //lee las propiedades de un punto de cielo en una cadena de texto
-    static void __fastcall ReadRow(TSkyPoint* &SP,
+    static void  ReadRow(TSkyPoint* &SP,
                                    const AnsiString &S, int &i);
-    static void __fastcall ReadCol(TSkyPoint* &SP,
+    static void  ReadCol(TSkyPoint* &SP,
                                    const AnsiString &S, int &i);
-    static void __fastcall ReadAssigns(TSkyPoint* &SP,
+    static void  ReadAssigns(TSkyPoint* &SP,
                                        const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
@@ -249,10 +249,10 @@ public:
     /*
         //MÉTODOS ESTÁTICOS:
     //imprime una lista de puntos de cielo en una cadena de texto
-    static void __fastcall PrintTSkyPoints(AnsiString &S,
+    static void  PrintTSkyPoints(AnsiString &S,
                 const TSkyPointList *L);
         //lee una lista de puntos de cielo en una cedena de texto
-    static void __fastcall ReadTSkyPoints(
+    static void  ReadTSkyPoints(
                 TSkyPointList *L,
                 const AnsiString &S, int &i);   */
 

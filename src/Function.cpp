@@ -6,8 +6,8 @@
 //---------------------------------------------------------------------------
 
 #include "Function.h"
-#include "..\3_Lists\PointersList.h"
-#include "..\2_Strings\TextFile.h"
+#include "PointersList.h"
+#include "TextFile.h"
 
 //---------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ void TFunction::setTableText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //imprime los puntos de una función en una cadena
-void __fastcall TFunction::PrintPoints(AnsiString &S, const TFunction *F)
+void  TFunction::PrintPoints(AnsiString &S, const TFunction *F)
 {
     //el puntero F deberí apauntar a una función contruida
     if(F == NULL)
@@ -305,7 +305,7 @@ void __fastcall TFunction::PrintPoints(AnsiString &S, const TFunction *F)
     S += F->getPointsText();
 }
 //lee una cadena en busca de los puntos de un afunción
-void __fastcall TFunction::ReadPoints(TFunction *F, const AnsiString &S,int &i)
+void  TFunction::ReadPoints(TFunction *F, const AnsiString &S,int &i)
 {
     //el puntero F deberí apauntar a una función contruida
     if(F == NULL)
@@ -333,7 +333,7 @@ void __fastcall TFunction::ReadPoints(TFunction *F, const AnsiString &S,int &i)
 }
 
 //imprime los puntos de una función en una cadena
-void __fastcall TFunction::PrintTable(AnsiString &S, const TFunction *F)
+void  TFunction::PrintTable(AnsiString &S, const TFunction *F)
 {
     //el puntero F deberí apauntar a una función contruida
     if(F == NULL)
@@ -342,7 +342,7 @@ void __fastcall TFunction::PrintTable(AnsiString &S, const TFunction *F)
     S += F->getTableText();
 }
 //lee una cadena en busca de los puntos de un afunción
-void __fastcall TFunction::ReadTable(TFunction *F, const AnsiString &S,
+void  TFunction::ReadTable(TFunction *F, const AnsiString &S,
                                      int &i)
 {
     //el puntero F debería apauntar a una función contruida

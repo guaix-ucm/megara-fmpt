@@ -8,7 +8,7 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H
 
-#include "..\1_Mathematics\Constants.h"
+#include "Constants.h"
 #include "Cilinder.h"
 
 //##include <QColor>
@@ -28,8 +28,8 @@ namespace Models {
 //      kdUnk: se desconoce la posición de algún eje
 enum TKnowledgeDegree {kdPre, kdApp, kdUnk};
 
-void __fastcall StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd);
-void __fastcall StrReadKnowledgeDegree(TKnowledgeDegree& kd,
+void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd);
+void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
                                        const AnsiString &S, int &i);
 AnsiString KnowledgeDetgreeToStr(TKnowledgeDegree kd);
 TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S);
@@ -45,8 +45,8 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S);
 //      pExe: ejecución de un programa de movimineto.
 enum TPorpose {pAll, pGen, pVal, pExe};
 
-void __fastcall StrPrintPorpose(AnsiString& S, TPorpose p);
-void __fastcall StrReadPorpose(TPorpose& p, const AnsiString &S, int &i);
+void  StrPrintPorpose(AnsiString& S, TPorpose p);
+void  StrReadPorpose(TPorpose& p, const AnsiString &S, int &i);
 AnsiString PorposeToStr(TPorpose p);
 TPorpose StrToPorpose(const AnsiString& S);
 
@@ -671,10 +671,10 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //compara los identificadores de dos actuadores
-    static int __fastcall CompareIds(TActuator *A1, TActuator *A2);
+    static int  CompareIds(TActuator *A1, TActuator *A2);
 
     //imprime el identificador de un actuador
-    static void __fastcall PrintId(AnsiString &S, TActuator *A);
+    static void  PrintId(AnsiString &S, TActuator *A);
 
     //Los métodos estáticos:
     //      CompareIds
@@ -684,7 +684,7 @@ public:
     //y la impresión de los mismos.
 
     //lee una instancia actuador en una cadena
-    static void __fastcall ReadInstance(TActuator* &A,
+    static void  ReadInstance(TActuator* &A,
                                         const AnsiString& S, int &i);
 
     //obtiene las etiquetas de las propiedades de origen
@@ -694,16 +694,16 @@ public:
     //atraviesa las etiquetas de las propiedades de origen
     //("Id", "x0", "y0", "thetaO1")
     //en formato fila de texto
-    static void __fastcall TravelOriginsLabelsRow(const AnsiString&, int&);
+    static void  TravelOriginsLabelsRow(const AnsiString&, int&);
 
     //imprime los valores de las propiedades de orien de un posicionador
     //(Id, x0, y0, thetaO1) al final de una cadena de texto
     //en formato fila de texto
-    static void __fastcall PrintOriginsRow(AnsiString&, TActuator*);
+    static void  PrintOriginsRow(AnsiString&, TActuator*);
     //lee los valores de las propiedades de orien de un posicionador
     //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
-    static void __fastcall ReadOriginsRow(TActuator* &FP,
+    static void  ReadOriginsRow(TActuator* &FP,
                                           const AnsiString& S, int &i);
 
     //obtiene las etiquetas de las propiedades de posición
@@ -713,16 +713,16 @@ public:
     //atraviesa las etiquetas de las propiedades de posición
     //("Id", "x3", "y3")
     //en formato fila de texto
-    static void __fastcall TravelPositionP3LabelsRow(const AnsiString&, int&);
+    static void  TravelPositionP3LabelsRow(const AnsiString&, int&);
 
     //imprime los valores de las propiedades de posición de un posicionador
     //(Id, x3, y3) al final de una cadena de texto
     //en formato fila de texto
-    static void __fastcall PrintPositionP3Row(AnsiString&, TActuator*);
+    static void  PrintPositionP3Row(AnsiString&, TActuator*);
     //lee los valores de las propiedades de posición de un posicionador
     //(Id, x3, y3) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
-    static void __fastcall ReadPositionP3Row(TActuator* &FP,
+    static void  ReadPositionP3Row(TActuator* &FP,
                                              const AnsiString& S, int &i);
 
     //------------------------------------------------------------------

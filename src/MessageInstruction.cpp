@@ -62,7 +62,7 @@ void TMessageInstruction::setText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //compara los identificadores de dos mensajes de instrucción
-int __fastcall TMessageInstruction::CompareIds(const TMessageInstruction *MI1,
+int  TMessageInstruction::CompareIds(const TMessageInstruction *MI1,
         const TMessageInstruction *MI2)
 {
         //el puntero MI1 debería apuntar a un mensaje de instrucción construido
@@ -81,7 +81,7 @@ int __fastcall TMessageInstruction::CompareIds(const TMessageInstruction *MI1,
         return 0;
 }
 //imprime un mensaje de instrucción en una cadena
-void __fastcall TMessageInstruction::Print(AnsiString &S,
+void  TMessageInstruction::Print(AnsiString &S,
         const TMessageInstruction *MI)
 {
         //el puntero MI debería apuntar a un mensaje de instrucción construido
@@ -91,7 +91,7 @@ void __fastcall TMessageInstruction::Print(AnsiString &S,
         S += MI->getText();
 }
 //lee un mensaje de itnrucción en una cadena de texto
-void __fastcall TMessageInstruction::Read(TMessageInstruction *MI,
+void  TMessageInstruction::Read(TMessageInstruction *MI,
         const AnsiString &S, int &i)
 {
         //el puntero MI debería apuntar a un mensaje de instrucción construido

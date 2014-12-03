@@ -5,7 +5,7 @@
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#include "..\1_Mathematics\Scalars.h" //frexp10
+#include "Scalars.h" //frexp10
 #include "StrSimbolic.h"
 #include "Strings.h" //StrFlip
 

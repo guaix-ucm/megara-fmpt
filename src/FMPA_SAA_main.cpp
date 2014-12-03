@@ -1,7 +1,7 @@
-#include "..\..\C_FiberMOSModel\FileMethods.h"
-#include "..\MotionProgramGenerator.h"
-#include "..\..\2_Strings\Strings.h"
-#include "..\..\2_Strings\TextFile.h"
+#include "FileMethods.h"
+#include "ProgramGenerator.h"
+#include "Strings.h"
+#include "TextFile.h"
 
 #include <QCoreApplication>
 

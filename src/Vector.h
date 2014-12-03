@@ -9,7 +9,7 @@
 #define VECTOR_H
 
 #include "ItemsList.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -33,21 +33,21 @@ protected:
     //MÉTODOS ESTÁTICOS DE INTERFAZ:
 
     //compara dos elementos
-    static int __fastcall FCompare(T, T);
+    static int  FCompare(T, T);
     //evalúa un elemento
-    static double __fastcall FEvaluate(T);
+    static double  FEvaluate(T);
     //asigna un valor a un elemento
-    static void __fastcall FAssign(T&, double);
+    static void  FAssign(T&, double);
 
     //imprime un elemento en punto entero
-    static void __fastcall FPrintInt(AnsiString&, T);
+    static void  FPrintInt(AnsiString&, T);
     //imprime un elemento en punto floatante
-    static void __fastcall FPrintFloat(AnsiString&, T);
+    static void  FPrintFloat(AnsiString&, T);
 
     //escudriña un elemento en punto entero
-    static void __fastcall FReadInt(T&, const AnsiString&, int&);
+    static void  FReadInt(T&, const AnsiString&, int&);
     //escudriña un elemento en punto flotante
-    static void __fastcall FReadFloat(T&, const AnsiString&, int&);
+    static void  FReadFloat(T&, const AnsiString&, int&);
 
     //PROPIEDADES EN FORMATO TEXTO:
 
@@ -72,14 +72,14 @@ public:
 
     //MÉTODOS ESTÁTICOS DE INTERFACE:
 
-    static void __fastcall PrintVector(AnsiString &S, const TVector<T> *V) {
+    static void  PrintVector(AnsiString &S, const TVector<T> *V) {
         try {
             PrintList(S, V);
         } catch(...) {
             throw;
         }
     }
-    static void __fastcall ReadVector(TVector<T> *V, const AnsiString &S, int &i) {
+    static void  ReadVector(TVector<T> *V, const AnsiString &S, int &i) {
         try {
             TItemsList<T>::ReadList(V, S, i);
         } catch(...) {
@@ -119,7 +119,7 @@ public:
 };
 
 //lee una tabla de pares (x, y) en punto flotante
-void __fastcall StrReadTable(TVector<double> &X, TVector<double> &Y,
+void  StrReadTable(TVector<double> &X, TVector<double> &Y,
                              const AnsiString &S, int &i);
 
 //ADVERTENCIA: si pasa un objeto tipo TVector<T> por valor
@@ -133,7 +133,7 @@ void __fastcall StrReadTable(TVector<double> &X, TVector<double> &Y,
 //MÉTODOS PROTEGIDOS:
 
 //compara dos elementos
-template <class T> int __fastcall TVector<T>::FCompare(T item1,
+template <class T> int  TVector<T>::FCompare(T item1,
                                                        T item2)
 {
     /*      //los elementos deben ser distintos de NaN
@@ -149,31 +149,31 @@ template <class T> int __fastcall TVector<T>::FCompare(T item1,
         return 0;
 }
 //evalúa un elemento
-template <class T> double __fastcall TVector<T>::FEvaluate(T item)
+template <class T> double  TVector<T>::FEvaluate(T item)
 {
     return double(item);
 }
 //asigna un valor a un elemento
-template <class T> void __fastcall TVector<T>::FAssign(T &item, double value)
+template <class T> void  TVector<T>::FAssign(T &item, double value)
 {
     item = value;
 }
 
 //imprime un elemento
-template <class T> void __fastcall TVector<T>::FPrintInt(AnsiString &S,
+template <class T> void  TVector<T>::FPrintInt(AnsiString &S,
                                                          T item)
 {
     S += IntToStr((int)item);
 }
 //imprime un elemento
-template <class T> void __fastcall TVector<T>::FPrintFloat(AnsiString &S,
+template <class T> void  TVector<T>::FPrintFloat(AnsiString &S,
                                                            T item)
 {
     S += FloatToStr((double)item);
 }
 
 //escudriña un texto
-template <class T> void __fastcall TVector<T>::FReadInt(T &item,
+template <class T> void  TVector<T>::FReadInt(T &item,
                                                         const AnsiString &S, int &i)
 {
     int aux;
@@ -181,7 +181,7 @@ template <class T> void __fastcall TVector<T>::FReadInt(T &item,
     item = (T)aux;
 }
 //escudriña un texto
-template <class T> void __fastcall TVector<T>::FReadFloat(T &item,
+template <class T> void  TVector<T>::FReadFloat(T &item,
                                                           const AnsiString &S, int &i)
 {
     double aux;

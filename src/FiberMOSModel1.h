@@ -9,7 +9,7 @@
 #define FIBERMOSMODEL1_H
 
 #include "ExclusionAreaList.h"
-#include "..\B_RoboticPositioner\ExclusionArea.h"
+#include "ExclusionArea.h"
 
 //---------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ public:
 
         //lee una instancia de Fiber MOS Model
         //en una cadena de texto en formato de asignaciones
-        static void __fastcall ReadInstance(TFiberMOSModel1 *MP,
+        static void  ReadInstance(TFiberMOSModel1 *MP,
                 const AnsiString &S, int &i);
 
         //------------------------------------------------------------------

@@ -8,9 +8,9 @@
 #ifndef MOTIONPROGRAMGENERATOR_H
 #define MOTIONPROGRAMGENERATOR_H
 
-#include "..\C_FiberMOSModel\FiberMOSModel2.h"
-#include "..\G_TargetPoint\TargetPointList.h"
-#include "..\F_MotionProgram\MotionProgram.h"
+#include "FiberMOSModel2.h"
+#include "TargetPointList.h"
+#include "MotionProgram.h"
 
 //---------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ public:
         //función de dibujo externa adscrita
         //para actualizar la caja de pintura del plano focal
         //valor por defecto: NULL
-        void (__fastcall *PaintAll)(void);
+        void ( *PaintAll)(void);
 
         //retardo entre iteraciones en ms
         //debe ser no negativo

@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------
 
 #include "Arm.h"
-#include "..\1_Mathematics\Constants.h"
-#include "..\2_Strings\Strings.h"
-#include "..\2_Strings\TextFile.h"
+#include "Constants.h"
+#include "Strings.h"
+#include "TextFile.h"
 
 #include <math.h>
 //#include <sysutils.hpp>
@@ -567,7 +567,7 @@ void TArm::setR3Text(const AnsiString &S)
 
 AnsiString TArm::getContour____AddressText(void) const
 {
-        return IntToHex(int(&__Contour____), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(&__Contour____), 8);
 }
 void TArm::setContour____Text(const AnsiString &S)
 {
@@ -770,7 +770,7 @@ void TArm::settheta2Text(const AnsiString &S)
 
 AnsiString TArm::getFAddressText(void) const
 {
-        return IntToHex(int(&__F), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(&__F), 8);
 }
 void TArm::setFPointsText(const AnsiString &S)
 {
@@ -836,7 +836,7 @@ void TArm::setQuantify___Text(const AnsiString &S)
 
 AnsiString TArm::getGAddressText(void) const
 {
-        return IntToHex(int(&__G), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(&__G), 8);
 }
 
 AnsiString TArm::getSB2Text(void) const
@@ -938,7 +938,7 @@ AnsiString TArm::getVText(void) const
 
 AnsiString TArm::getContourAddressText(void) const
 {
-        return IntToHex(int(&__Contour), 8);
+        return IntToHex(reinterpret_cast<intptr_t>(&__Contour), 8);
 }
 
 //---------------------------------------------------------------------------
@@ -1273,7 +1273,7 @@ void TArm::CalculateQ(void)
 //MÉTODOS ESTÁTICOS:
 
 //lee un cluster de configuración en una cadena de texto
-void __fastcall TArm::ReadTemplate(TArm *Arm,
+void  TArm::ReadTemplate(TArm *Arm,
         const AnsiString &S, int &i)
 {
         //el puntero Arm debería ser un brazo contruido
@@ -1375,7 +1375,7 @@ void __fastcall TArm::ReadTemplate(TArm *Arm,
 }
 
 //lee un cluster de configuración en una cadena de texto
-void __fastcall TArm::ReadOrientationRadians(TArm *Arm,
+void  TArm::ReadOrientationRadians(TArm *Arm,
         const AnsiString &S, int &i)
 {
         //el puntero Arm debería ser un brazo contruido
@@ -1492,7 +1492,7 @@ void __fastcall TArm::ReadOrientationRadians(TArm *Arm,
 }
 
 //lee un cluster de configuración en una cadena de texto
-void __fastcall TArm::ReadQuantification(TArm *Arm,
+void  TArm::ReadQuantification(TArm *Arm,
         const AnsiString &S, int &i)
 {
         //el puntero Arm debería ser un brazo contruido
@@ -1594,7 +1594,7 @@ void __fastcall TArm::ReadQuantification(TArm *Arm,
 }
 
 //lee un cluster de configuración en una cadena de texto
-void __fastcall TArm::ReadOrientationSteps(TArm *Arm,
+void  TArm::ReadOrientationSteps(TArm *Arm,
         const AnsiString &S, int &i)
 {
         //el puntero Arm debería ser un brazo contruido
@@ -1677,7 +1677,7 @@ void __fastcall TArm::ReadOrientationSteps(TArm *Arm,
 }
 
 //lee un cluster de configuración en una cadena de texto
-void __fastcall TArm::ReadLocation(TArm *Arm,
+void  TArm::ReadLocation(TArm *Arm,
         const AnsiString &S, int &i)
 {
         //el puntero Arm debería ser un brazo contruido
@@ -1782,7 +1782,7 @@ void __fastcall TArm::ReadLocation(TArm *Arm,
 */
 
 //lee una instancia de posicionador de fibra en una cadena
-void __fastcall TArm::ReadInstance(TArm* &A,
+void  TArm::ReadInstance(TArm* &A,
         const AnsiString& S, int &i)
 {
         //el puntero A debe apuntar a un brazo construido

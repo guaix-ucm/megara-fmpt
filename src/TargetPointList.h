@@ -9,7 +9,7 @@
 #define TARGETPOINTLIST_H
 
 #include "TargetPoint.h"
-#include "..\C_FiberMOSModel\RoboticPositionerList3.h"
+#include "RoboticPositionerList3.h"
 
 //##include <QListWidget>
 

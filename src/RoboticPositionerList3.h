@@ -43,7 +43,7 @@ public:
         //función de dibujo externa adscrita
         //para actualizar la caja de pintura del plano focal
         //valor por defecto: NULL
-        void (__fastcall *PaintAll)(void);
+        void ( *PaintAll)(void);
 
         //Para que el temporizador pueda estar en el posicionador multifibra,
         //es necesario que disponga de un puntero a una función
@@ -131,7 +131,7 @@ public:
 
         //lee una instancia de posicionador multifibra
         //en una cadena de texto en formato de asignaciones
-        static void __fastcall ReadInstance(TRoboticPositionerList *FPL,
+        static void  ReadInstance(TRoboticPositionerList *FPL,
                 const AnsiString &S, int &i);
   */
         //------------------------------------------------------------------

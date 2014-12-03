@@ -9,8 +9,8 @@
 #include "Geometry.h"
 #include "Constants.h"
 #include "Scalars.h"
-#include "..\3_Lists\Vector.h"
-#include "..\0_VCL\Exceptions.h"
+#include "Vector.h"
+#include "Exceptions.h"
 
 //---------------------------------------------------------------------------
 

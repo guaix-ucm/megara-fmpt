@@ -8,10 +8,12 @@
 #ifndef CILINDER_H
 #define CILINDER_H
 
-#include "..\1_Mathematics\Constants.h"
-#include "..\4_Operators\Quantificator.h"
-#include "..\A_Arm\Arm.h"
-#include "..\A_Arm\Barrier.h"
+#include <stdint.h>
+
+#include "Constants.h"
+#include "Quantificator.h"
+#include "Arm.h"
+#include "Barrier.h"
 
 //---------------------------------------------------------------------------
 
@@ -627,10 +629,10 @@ public:
 
         //dirección en memoria del brazo
         AnsiString getArmAddressText(void) const {
-                return IntToHex(int(getArm()), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(getArm()), 8);}
         //dirección en memoria de la barrera
         AnsiString getBarrierAddressText(void) const {
-                return IntToHex(int(getBarrier()), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(getBarrier()), 8);}
 
         //------------------------------------------------------------------
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:

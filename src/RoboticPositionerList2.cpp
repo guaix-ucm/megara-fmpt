@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "RoboticPositionerList2.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -328,7 +328,7 @@ void TRoboticPositionerList2::CalculateSize(void)
 //MÉTODOS ESTÁTICOS DE LECTURA DE PROPIEDADES INDIVIDUALES:
 
 //lee xmin de una asignación
-void __fastcall TRoboticPositionerList2::ReadxminText(double &xmin, const AnsiString &S,
+void  TRoboticPositionerList2::ReadxminText(double &xmin, const AnsiString &S,
         int &i)
 {
         try {
@@ -347,7 +347,7 @@ void __fastcall TRoboticPositionerList2::ReadxminText(double &xmin, const AnsiSt
         }
 }
 //lee xmax de una asignación
-void __fastcall TRoboticPositionerList2::ReadxmaxText(double &xmax, const AnsiString &S,
+void  TRoboticPositionerList2::ReadxmaxText(double &xmax, const AnsiString &S,
         int &i)
 {
         try {
@@ -366,7 +366,7 @@ void __fastcall TRoboticPositionerList2::ReadxmaxText(double &xmax, const AnsiSt
         }
 }
 //lee ymin de una asignación
-void __fastcall TRoboticPositionerList2::ReadyminText(double &ymin, const AnsiString &S,
+void  TRoboticPositionerList2::ReadyminText(double &ymin, const AnsiString &S,
         int &i)
 {
         try {
@@ -385,7 +385,7 @@ void __fastcall TRoboticPositionerList2::ReadyminText(double &ymin, const AnsiSt
         }
 }
 //lee ymax de una asignación
-void __fastcall TRoboticPositionerList2::ReadymaxText(double &ymax, const AnsiString &S,
+void  TRoboticPositionerList2::ReadymaxText(double &ymax, const AnsiString &S,
         int &i)
 {
         try {
@@ -405,7 +405,7 @@ void __fastcall TRoboticPositionerList2::ReadymaxText(double &ymax, const AnsiSt
 }
 
 //lee I de una asignación
-void __fastcall TRoboticPositionerList2::ReadIText(int &I,
+void  TRoboticPositionerList2::ReadIText(int &I,
         const AnsiString &S, int &i)
 {
         try {
@@ -424,7 +424,7 @@ void __fastcall TRoboticPositionerList2::ReadIText(int &I,
         }
 }
 //lee J de una asignación
-void __fastcall TRoboticPositionerList2::ReadJText(int &J,
+void  TRoboticPositionerList2::ReadJText(int &J,
         const AnsiString &S, int &i)
 {
         try {
@@ -447,7 +447,7 @@ void __fastcall TRoboticPositionerList2::ReadJText(int &J,
 
 //imprime el intervalo de mapeo de un mapa de posicionadores
 //en una cadena de texto en formato de asignaciones
-void __fastcall TRoboticPositionerList2::PrintInterval(AnsiString &S,
+void  TRoboticPositionerList2::PrintInterval(AnsiString &S,
         const TRoboticPositionerList2 *RPL)
 {
         //el puntero RPL debería apuntar a un mapa de posicionadores construido
@@ -458,7 +458,7 @@ void __fastcall TRoboticPositionerList2::PrintInterval(AnsiString &S,
 }
 //lee el intervalo de mapeo de un mapa de posicionadores
 //en una cadena de texto en formato de asignaciones
-void __fastcall TRoboticPositionerList2::ReadInterval(TRoboticPositionerList2 *RPL,
+void  TRoboticPositionerList2::ReadInterval(TRoboticPositionerList2 *RPL,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -528,7 +528,7 @@ void __fastcall TRoboticPositionerList2::ReadInterval(TRoboticPositionerList2 *R
 
 //imprime las celdas de un mapa de posicionadores
 //en una cadena de texto en formato de asignaciones
-void __fastcall TRoboticPositionerList2::PrintCells(AnsiString &S,
+void  TRoboticPositionerList2::PrintCells(AnsiString &S,
         const TRoboticPositionerList2 *RPL)
 {
         //el puntero RPL debería apuntar a un mapa de posicionadores construido
@@ -539,7 +539,7 @@ void __fastcall TRoboticPositionerList2::PrintCells(AnsiString &S,
 }
 //lee las celdas de un mapa de posicionadores
 //en una cadena de texto en formato de asignaciones
-void __fastcall TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
+void  TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
         const AnsiString &S, int &p)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,

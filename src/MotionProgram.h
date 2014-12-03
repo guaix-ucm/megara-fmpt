@@ -8,8 +8,8 @@
 #ifndef MOTIONPROGRAM_H
 #define MOTIONPROGRAM_H
 
-#include "..\D_ComunicationSystemModel\MessageInstruction.h"
-#include "..\3_Lists\PointersList.h"
+#include "MessageInstruction.h"
+#include "PointersList.h"
 
 //##include <QListWidget>
 //##include <QTextEdit>
@@ -43,10 +43,10 @@ public:
         //MÉTODOS ESTÁTICOS:
 
     //imprime una lista en una cadena de texto
-    static void __fastcall PrintMessageList(AnsiString &S,
+    static void  PrintMessageList(AnsiString &S,
                 const TMessageList *L);
         //lee una lista de emnsajes en una cadena de texto
-    static void __fastcall ReadMessageList(TMessageList *L,
+    static void  ReadMessageList(TMessageList *L,
                 const AnsiString &S, int &i);
 
         //construye una lista de mensajes

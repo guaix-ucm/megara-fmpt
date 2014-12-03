@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------
 
 #include "SkyPoint.h"
-#include "..\2_Strings\TextFile.h"
-#include "..\2_Strings\Strings.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "TextFile.h"
+#include "Strings.h"
+#include "Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -228,7 +228,7 @@ void TSkyPoint::setAssignsText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS DE LISTA:
 
 //compara una de las propiedades de dos puntos de cielo
-int __fastcall TSkyPoint::CompareIds(TSkyPoint *SP1,
+int  TSkyPoint::CompareIds(TSkyPoint *SP1,
                                      TSkyPoint *SP2)
 {
     //el puntero SP1 debería apuntar a un punto de cielo contruido
@@ -245,7 +245,7 @@ int __fastcall TSkyPoint::CompareIds(TSkyPoint *SP1,
         return 1;
     return 0;
 }
-int __fastcall TSkyPoint::CompareRAs(TSkyPoint *SP1,
+int  TSkyPoint::CompareRAs(TSkyPoint *SP1,
                                      TSkyPoint *SP2)
 {
     //el puntero SP1 debería apuntar a un punto de cielo contruido
@@ -262,7 +262,7 @@ int __fastcall TSkyPoint::CompareRAs(TSkyPoint *SP1,
         return 1;
     return 0;
 }
-int __fastcall TSkyPoint::CompareDECs(TSkyPoint *SP1,
+int  TSkyPoint::CompareDECs(TSkyPoint *SP1,
                                       TSkyPoint *SP2)
 {
     //el puntero SP1 debería apuntar a un punto de cielo contruido
@@ -291,7 +291,7 @@ AnsiString TSkyPoint::GetLabelsRow(void)
 }
 
 //imprime las propiedades de un punto de cielo en una cadena
-void __fastcall TSkyPoint::PrintRow(AnsiString &S,
+void  TSkyPoint::PrintRow(AnsiString &S,
                                     TSkyPoint *SP)
 {
     //el puntero SP debería apuntar a un punto de cielo contruido
@@ -300,7 +300,7 @@ void __fastcall TSkyPoint::PrintRow(AnsiString &S,
 
     S += SP->getRowText();
 }
-void __fastcall TSkyPoint::PrintCol(AnsiString &S,
+void  TSkyPoint::PrintCol(AnsiString &S,
                                     TSkyPoint *SP)
 {
     //el puntero SP debería apuntar a un punto de cielo contruido
@@ -309,7 +309,7 @@ void __fastcall TSkyPoint::PrintCol(AnsiString &S,
 
     S += SP->getColText();
 }
-void __fastcall TSkyPoint::PrintAssigns(AnsiString &S, TSkyPoint *SP)
+void  TSkyPoint::PrintAssigns(AnsiString &S, TSkyPoint *SP)
 {
     //el puntero SP debería apuntar a un punto de cielo contruido
     if(SP == NULL)
@@ -319,7 +319,7 @@ void __fastcall TSkyPoint::PrintAssigns(AnsiString &S, TSkyPoint *SP)
 }
 
 //lee las propiedades de un punto de cielo en una cadena de texto
-void __fastcall TSkyPoint::ReadRow(TSkyPoint* &SP,
+void  TSkyPoint::ReadRow(TSkyPoint* &SP,
                                    const AnsiString &S, int &i)
 {
     //el puntero SP debería apuntar a un punto de cielo construído
@@ -395,7 +395,7 @@ void __fastcall TSkyPoint::ReadRow(TSkyPoint* &SP,
     //asigna la variable tampón
     *SP = _SP;
 }
-void __fastcall TSkyPoint::ReadCol(TSkyPoint* &SP,
+void  TSkyPoint::ReadCol(TSkyPoint* &SP,
                                    const AnsiString &S, int &i)
 {
     //el puntero SP debería apuntar a un punto de cielo construído
@@ -471,7 +471,7 @@ void __fastcall TSkyPoint::ReadCol(TSkyPoint* &SP,
     //asigna la variable tampón
     *SP = _SP;
 }
-void __fastcall TSkyPoint::ReadAssigns(TSkyPoint* &SP,
+void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
                                        const AnsiString &S, int &i)
 {
     //el puntero SP debería apuntar a un punto de cielo construído
@@ -725,7 +725,7 @@ void TSkyPointList::setTableText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //imprime una lista de puntos de cielo en una cadena de texto
-void __fastcall TSkyPointList::PrintTSkyPoints(AnsiString &S,
+void  TSkyPointList::PrintTSkyPoints(AnsiString &S,
         const TSkyPointList *L)
 {
         try {
@@ -735,7 +735,7 @@ void __fastcall TSkyPointList::PrintTSkyPoints(AnsiString &S,
         }
 }
 //lee una lista de puntos de cielo en una cadena de texto
-void __fastcall TSkyPointList::ReadTSkyPoints(
+void  TSkyPointList::ReadTSkyPoints(
         TSkyPointList *L,
         const AnsiString &S, int &i)
 {

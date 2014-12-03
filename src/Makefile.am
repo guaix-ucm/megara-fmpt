@@ -37,6 +37,6 @@ libfmtp_la_LDFLAGS = -version-info 0:0:0
 bin_PROGRAMS = fmpa
 fmpa_SOURCES = FMPA_SAA_main.cpp
 fmpa_LDADD = libfmtp.la $(QT5_LIBS)
+fmpa_CPPFLAGS = $(QT5_CFLAGS) $(AM_CPPFLAGS)
 
-AM_CPPFLAGS = $(QT5_CFLAGS) -I$(top_srcdir)
-#ui
+AM_CPPFLAGS = -I$(top_srcdir)

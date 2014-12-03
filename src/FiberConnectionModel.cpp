@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "FiberConnectionModel.h"
-#include "..\2_Strings\TextFile.h"
+#include "TextFile.h"
 
 //---------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ void TConection::setsText(const AnsiString& S)
 }
 
 //lee los valores de las propiedades en una fila de texto
-void __fastcall TConection::ReadRow(TConection *Item,
+void  TConection::ReadRow(TConection *Item,
         const AnsiString& S, int& i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -181,7 +181,7 @@ void __fastcall TConection::ReadRow(TConection *Item,
         }
 }
 //imprime los valores de las propiedades en una fila de texto
-void __fastcall TConection::PrintRow(AnsiString& S, const TConection *C)
+void  TConection::PrintRow(AnsiString& S, const TConection *C)
 {
         //el puntero C debe apuntar a una conexión construida
         if(C == NULL)

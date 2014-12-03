@@ -8,7 +8,7 @@
 #ifndef STRSIMBOLIC_H
 #define STRSIMBOLIC_H
 
-#include "..\0_VCL\vclemu.h" //AnsiString
+#include "vclemu.h" //AnsiString
 
 //---------------------------------------------------------------------------
 

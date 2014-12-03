@@ -15,7 +15,7 @@ namespace Lists {
 
 //---------------------------------------------------------------------------
 //lee una tabla de pares (x, y) en punto flotante
-void __fastcall StrReadTable(TVector<double> &X, TVector<double> &Y,
+void  StrReadTable(TVector<double> &X, TVector<double> &Y,
         const AnsiString &S, int &i)
 {
 

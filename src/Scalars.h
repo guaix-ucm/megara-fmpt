@@ -8,11 +8,11 @@
 #ifndef SCALARS_H
 #define SCALARS_H
 
-#include "..\0_VCL\vclemu.h"
-#include "..\0_VCL\Exceptions.h" //excepciones no predefinidas
+#include "vclemu.h"
+#include "Exceptions.h" //excepciones no predefinidas
 
-#include <typeinfo.h> //namespace std
-#include <time.h> //clock_t
+#include <typeinfo> //namespace std
+#include <ctime> //clock_t
 
 //---------------------------------------------------------------------------
 
@@ -315,29 +315,29 @@ public:
     //MÉTODOS ESTÁTICOS PARA LISTAS:
 
     //compara dos elementos
-    static int __fastcall Compare(TIdDouble ID1, TIdDouble ID2);
+    static int  Compare(TIdDouble ID1, TIdDouble ID2);
     //evalúa un elemento
-    static double __fastcall Evaluate(TIdDouble ID);
+    static double  Evaluate(TIdDouble ID);
     //asigna un valor a un elemento
-    static void __fastcall Assign(TIdDouble &ID, double _Value);
+    static void  Assign(TIdDouble &ID, double _Value);
     //imprime un elemento en una cadena
-    static void __fastcall Print(AnsiString &S, TIdDouble ID);
+    static void  Print(AnsiString &S, TIdDouble ID);
     //escudriña una cadena en busca de un elemento
-    static void __fastcall Read(TIdDouble &ID, const AnsiString &S, int &i);
+    static void  Read(TIdDouble &ID, const AnsiString &S, int &i);
 
     //MÉTODOS ESTÁTICOS PARA LISTAS DE PUNTEROS:
 
     //compara dos elementos
-    static int __fastcall Compare(const TIdDouble *ID1,
+    static int  Compare(const TIdDouble *ID1,
         const TIdDouble *ID2);
     //evalúa un elemento
-    static double __fastcall Evaluate(const TIdDouble *ID);
+    static double  Evaluate(const TIdDouble *ID);
     //asigna un valor a un elemento
-    static void __fastcall Assign(TIdDouble *ID, double _Value);
+    static void  Assign(TIdDouble *ID, double _Value);
     //imprime un elemento en una cadena
-    static void __fastcall Print(AnsiString &S, const TIdDouble *ID);
+    static void  Print(AnsiString &S, const TIdDouble *ID);
     //escudriña una cadena en busca de un elemento
-    static void __fastcall Read(TIdDouble *ID, const AnsiString &S, int &i);
+    static void  Read(TIdDouble *ID, const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
 
@@ -397,9 +397,9 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //imprime un intervalo en una cadena de texto
-    static void __fastcall Print(AnsiString &S, const TInterval *I);
+    static void  Print(AnsiString &S, const TInterval *I);
     //escanea una cadena de texto en busca de un intervalo
-    static void __fastcall Read(TInterval *I, const AnsiString &S, int &i);
+    static void  Read(TInterval *I, const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
 
@@ -451,15 +451,15 @@ public:
     //FUNCIONES ESTÁTICAS:
 
     //función de impresión de elementos tipo TPairIntegers
-    static void __fastcall Print(AnsiString &S, const TPairIntegers *PI);
+    static void  Print(AnsiString &S, const TPairIntegers *PI);
     //función de lectura de elementos tipo TPairIntegers
-    static void __fastcall Read(TPairIntegers *PI,
+    static void  Read(TPairIntegers *PI,
         const AnsiString &S, int &i);
 
     //función de impresión de elementos tipo TPairIntegers
-    static void __fastcall PrintRow(AnsiString &S, const TPairIntegers *PI);
+    static void  PrintRow(AnsiString &S, const TPairIntegers *PI);
     //función de lectura de elementos tipo TPairIntegers
-    static void __fastcall ReadRow(TPairIntegers *PI,
+    static void  ReadRow(TPairIntegers *PI,
         const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
@@ -490,9 +490,9 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //imprime un par en una cadena de texto
-    static void __fastcall Print(AnsiString &S, const TPair *P);
+    static void  Print(AnsiString &S, const TPair *P);
     //escanea una cadena de texto en busca de un par
-    static void __fastcall Read(TPair *P, const AnsiString &S, int &i);
+    static void  Read(TPair *P, const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
 
@@ -558,24 +558,24 @@ public:
     //      si P1->x < P2->x devuelve -1
     //      si P1->x > P2->x devuelve 1
     //      si P1->x == P2->x devuelve 0
-    static int __fastcall Comparex(const TPairIB *P1, const TPairIB *P2);
+    static int  Comparex(const TPairIB *P1, const TPairIB *P2);
 
     //FUNCIONES ESTÁTICAS DE CONJUNTOS DE PROPIEDADES:
 
     //imprime los valores de las propiedades de la clase
     //en formato texto entre paréntesis
-    static void __fastcall Print(AnsiString &S, const TPairIB *P);
+    static void  Print(AnsiString &S, const TPairIB *P);
     //lee los valores de las etiquetas de las propiedades de la clase
     //en formato textoentre paréntesis
-    static void __fastcall Read(TPairIB *P,
+    static void  Read(TPairIB *P,
         const AnsiString &S, int &i);
 
     //imprime los valores de las propiedades de la clase
     //en formato fila de texto
-    static void __fastcall PrintRow(AnsiString &S, const TPairIB *P);
+    static void  PrintRow(AnsiString &S, const TPairIB *P);
     //lee los valores de las etiquetas de las propiedades de la clase
     //en formato fila de texto
-    static void __fastcall ReadRow(TPairIB *P,
+    static void  ReadRow(TPairIB *P,
         const AnsiString &S, int &i);
 
     //obtiene las etiquetas de las propiedades de la clase
@@ -586,7 +586,7 @@ public:
     static AnsiString GetRowLabels(void);
     //atraviesa las etiquetas de la clase
     //en formato fila de texto
-    static void __fastcall TravelRowLabels(const AnsiString &S,
+    static void  TravelRowLabels(const AnsiString &S,
         int &i);
 
     //MÉTODOS PÚBLICOS:
@@ -655,24 +655,24 @@ public:
     //      si P1->x < P2->x devuelve -1
     //      si P1->x > P2->x devuelve 1
     //      si P1->x == P2->x devuelve 0
-    static int __fastcall Comparex(const TPairID *P1, const TPairID *P2);
+    static int  Comparex(const TPairID *P1, const TPairID *P2);
 
     //FUNCIONES ESTÁTICAS DE CONJUNTOS DE PROPIEDADES:
 
     //imprime los valores de las propiedades de la clase
     //en formato texto entre paréntesis
-    static void __fastcall Print(AnsiString &S, const TPairID *P);
+    static void  Print(AnsiString &S, const TPairID *P);
     //lee los valores de las etiquetas de las propiedades de la clase
     //en formato textoentre paréntesis
-    static void __fastcall Read(TPairID *P,
+    static void  Read(TPairID *P,
         const AnsiString &S, int &i);
 
     //imprime los valores de las propiedades de la clase
     //en formato fila de texto
-    static void __fastcall PrintRow(AnsiString &S, const TPairID *P);
+    static void  PrintRow(AnsiString &S, const TPairID *P);
     //lee los valores de las etiquetas de las propiedades de la clase
     //en formato fila de texto
-    static void __fastcall ReadRow(TPairID *P,
+    static void  ReadRow(TPairID *P,
         const AnsiString &S, int &i);
 
     //obtiene las etiquetas de las propiedades de la clase
@@ -683,7 +683,7 @@ public:
     static AnsiString GetRowLabels(void);
     //atraviesa las etiquetas de la clase
     //en formato fila de texto
-    static void __fastcall TravelRowLabels(const AnsiString &S,
+    static void  TravelRowLabels(const AnsiString &S,
         int &i);
 
     //MÉTODOS PÚBLICOS:
@@ -754,7 +754,7 @@ public:
     //      si P1->x < P2->x devuelve -1
     //      si P1->x > P2->x devuelve 1
     //      si P1->x == P2->x devuelve 0
-    static int __fastcall Comparex(const TPairIS *P1, const TPairIS *P2);
+    static int  Comparex(const TPairIS *P1, const TPairIS *P2);
 
     //FUNCIONES ESTÁTICAS DE CONJUNTOS DE PROPIEDADES:
 
@@ -764,24 +764,24 @@ public:
 
     //función de impresión de pares
     //en formato (x, y)
-    static void __fastcall Print(AnsiString &S, const TPairIS *P);
+    static void  Print(AnsiString &S, const TPairIS *P);
     //función de lectura de pares
     //en formato (x, y)
-    static void __fastcall Read(TPairIS *P, const AnsiString &S, int &i);
+    static void  Read(TPairIS *P, const AnsiString &S, int &i);
 
     //obtiene las etiquetas
     //en formato fila de texto
     static AnsiString GetRowLabels(void);
     //función de atravesar las etiquetas
     //en formato fila de texto
-    static void __fastcall TravelRowLabels(const AnsiString &S, int &i);
+    static void  TravelRowLabels(const AnsiString &S, int &i);
 
     //función de impresión de pares
     //en formato fila de texto
-    static void __fastcall PrintRow(AnsiString &S, const TPairIS *P);
+    static void  PrintRow(AnsiString &S, const TPairIS *P);
     //función de lectura de pares
     //en formato fila de texto
-    static void __fastcall ReadRow(TPairIS *P, const AnsiString &S, int &i);
+    static void  ReadRow(TPairIS *P, const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
 
@@ -809,7 +809,7 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //compara el valor de x de dos pares
-    static int __fastcall Comparex(const TPairTD *P1, const TPairTD *P2) {
+    static int  Comparex(const TPairTD *P1, const TPairTD *P2) {
         //el puntero P1 debería apuntar a un par (T*, double) construido
         if(P1 == NULL)
             throw EImproperArgument("pointer P1 should point to built pair (T*, double)");
@@ -825,7 +825,7 @@ public:
         return 0;
     }
     //compara el valor absoluto de x de dos pares
-    static int __fastcall CompareAbsx(const TPairTD *P1, const TPairTD *P2) {
+    static int  CompareAbsx(const TPairTD *P1, const TPairTD *P2) {
         //el puntero P1 debería apuntar a un par (T*, double) construido
         if(P1 == NULL)
             throw EImproperArgument("pointer P1 should point to built pair (T*, double)");
@@ -844,7 +844,7 @@ public:
         return 0;
     }
     //imprime el valor de x al final de una cadena de texto
-    static void __fastcall Printx(AnsiString &S, const TPairTD *P) {
+    static void  Printx(AnsiString &S, const TPairTD *P) {
         //el puntero P debería apuntar a un par (T*, double) construido
         if(P == NULL)
             throw EImproperArgument("pointer P should point to built pair (T*, double)");
@@ -917,25 +917,25 @@ public:
     //      devuelve 1
     //si TI1->x == TI2.x
     //      devuelve 0
-    static int __fastcall Comparexs(const TTernIntegers *TI1,
+    static int  Comparexs(const TTernIntegers *TI1,
         const TTernIntegers *TI2);
 
     //obtiene las etiquetas en formato texto:
     //      (xLabel, yLabel, zLabel)
     static AnsiString GetLabels(void);
     //función de impresión de elementos tipo TTernIntegers
-    static void __fastcall Print(AnsiString &S, const TTernIntegers *TI);
+    static void  Print(AnsiString &S, const TTernIntegers *TI);
     //función de lectura de elementos tipo TTernIntegers
-    static void __fastcall Read(TTernIntegers *TI,
+    static void  Read(TTernIntegers *TI,
         const AnsiString &S, int &i);
 
     //obtiene las etiquetas en formato fila de texto:
     //      xLabel+"\t"+yLabel+"\t"+zLabel
     static AnsiString GetLabelsRow(void);
     //función de impresión de elementos tipo TTernIntegers
-    static void __fastcall PrintRow(AnsiString &S, const TTernIntegers *TI);
+    static void  PrintRow(AnsiString &S, const TTernIntegers *TI);
     //función de lectura de elementos tipo TTernIntegers
-    static void __fastcall ReadRow(TTernIntegers *TI,
+    static void  ReadRow(TTernIntegers *TI,
         const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:

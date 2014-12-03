@@ -8,7 +8,7 @@
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
-#include "..\3_Lists\Vector.h"
+#include "Vector.h"
 
 //---------------------------------------------------------------------------
 
@@ -105,9 +105,9 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //imprime una instrucción en una cadena de texto
-    static void _fastcall Print(AnsiString &S, const TInstruction *I);
+    static void  Print(AnsiString &S, const TInstruction *I);
     //lee una instrucción en una cadena de texto
-    static void __fastcall Read(TInstruction *I, const AnsiString &S, int &i);
+    static void  Read(TInstruction *I, const AnsiString &S, int &i);
 
     //MÉTODOS PÚBLICOS:
 

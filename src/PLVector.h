@@ -29,9 +29,9 @@ protected:
 public:
     //constructor general
     TPLVector(int _Capacity=8,
-              int (__fastcall *_CompareVectors)(const TVector<T>*, const TVector<T>*)=NULL,
-              double (__fastcall *_EvaluateVector)(const TVector<T>*)=NULL,
-              void (__fastcall *_AssignValue)(TVector<T>*, double)=NULL) :
+              int ( *_CompareVectors)(const TVector<T>*, const TVector<T>*)=NULL,
+              double ( *_EvaluateVector)(const TVector<T>*)=NULL,
+              void ( *_AssignValue)(TVector<T>*, double)=NULL) :
         TPointersList<TVector<T> >(_Capacity, _CompareVectors,
                                    _EvaluateVector, _AssignValue,
                                    TVector<T>::PrintVector, TVector<T>::ReadVector) {;}

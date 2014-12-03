@@ -7,7 +7,7 @@
 
 #include "RoboticPositionerList3.h"
 
-#include <QTimer>
+//#include <QTimer>
 
 //---------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ void TRoboticPositionerList::setInstanceText(const AnsiString& S)
 
 //lee una instancia de posicionador multifibra
 //en una cadena de texto en formato de asignaciones
-void __fastcall TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
+void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,

@@ -8,7 +8,7 @@
 #ifndef QUANTIFICATOR_H
 #define QUANTIFICATOR_H
 
-#include "..\3_Lists\Vector.h"
+#include "Vector.h"
 
 //---------------------------------------------------------------------------
 
@@ -105,20 +105,20 @@ public:
 
         //imprime el conjunto de propiedades RW de un cuantificador
         //en una cadena de caracteres
-        static void __fastcall PrintRW(AnsiString &S, const TQuantificator *Q);
+        static void  PrintRW(AnsiString &S, const TQuantificator *Q);
         //intenta leer el conjunto de propiedades RW un cuantificador
         //a partir de la posición indicada en una cadena de caracteres
-        static void __fastcall ReadRW(TQuantificator *Q, const AnsiString &S,
+        static void  ReadRW(TQuantificator *Q, const AnsiString &S,
                 int &i);
 
         //-------------------------------------------------------------------
         //MÉTODOS PÚBLICOS:
 
         //imprime un cluster de configuración al final de una cadena de texto
-        static void __fastcall PrintAssigns(AnsiString &S,
+        static void  PrintAssigns(AnsiString &S,
                 const TQuantificator *Q);
         //lee un cluster de configuración en una cadena de texto
-        static void __fastcall ReadAssigns(TQuantificator *Q,
+        static void  ReadAssigns(TQuantificator *Q,
                 const AnsiString &S, int &i);
 
         //contruye un cuantificador

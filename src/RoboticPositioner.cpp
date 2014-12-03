@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "RoboticPositioner.h"
-#include "..\2_Strings\Strings.h" //StrIndent
+#include "Strings.h" //StrIndent
 
 //#include <values.h>
 
@@ -21,7 +21,7 @@ namespace Models {
 //TControlMode
 //##########################################################################
 
-void __fastcall StrPrintControlMode(AnsiString& S,
+void  StrPrintControlMode(AnsiString& S,
                                     TControlMode cm)
 {
     switch(cm) {
@@ -30,7 +30,7 @@ void __fastcall StrPrintControlMode(AnsiString& S,
     }
     throw EImposibleError("unknown value in type TControlMode");
 }
-void __fastcall StrReadControlMode(TControlMode& cm,
+void  StrReadControlMode(TControlMode& cm,
                                    const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -140,7 +140,7 @@ TControlMode StrToControlMode(const AnsiString& S)
 //TFaultType
 //##########################################################################
 
-void __fastcall StrPrintFaultType(AnsiString& S,
+void  StrPrintFaultType(AnsiString& S,
                                   TFaultType ft)
 {
     switch(ft) {
@@ -150,7 +150,7 @@ void __fastcall StrPrintFaultType(AnsiString& S,
     }
     throw EImposibleError("unknown value in type TFaultType");
 }
-void __fastcall StrReadFaultType(TFaultType& ft,
+void  StrReadFaultType(TFaultType& ft,
                                  const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -545,7 +545,7 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //compara los identificadores de dos posicionadores
-int __fastcall TRoboticPositioner::CompareIds(TRoboticPositioner *FP1,
+int  TRoboticPositioner::CompareIds(TRoboticPositioner *FP1,
                                               TRoboticPositioner *FP2)
 {
     return TActuator::CompareIds(
@@ -553,7 +553,7 @@ int __fastcall TRoboticPositioner::CompareIds(TRoboticPositioner *FP1,
 }
 
 //imprime el identificador de un posicionador
-void __fastcall TRoboticPositioner::PrintId(AnsiString &S, TRoboticPositioner *FP)
+void  TRoboticPositioner::PrintId(AnsiString &S, TRoboticPositioner *FP)
 {
     return TActuator::PrintId(S, FP->getActuator());
 }
@@ -568,7 +568,7 @@ void __fastcall TRoboticPositioner::PrintId(AnsiString &S, TRoboticPositioner *F
 //imprime los valores de las propiedades de origen de un posicionador
 //(Id, x0, y0, thetaO1) al final de una cadena de texto
 //en formato fila de texto
-void __fastcall TRoboticPositioner::PrintOriginsRow(AnsiString& S,
+void  TRoboticPositioner::PrintOriginsRow(AnsiString& S,
                                                     TRoboticPositioner *FP)
 {
     TActuator::PrintOriginsRow(S, FP->getActuator());
@@ -576,7 +576,7 @@ void __fastcall TRoboticPositioner::PrintOriginsRow(AnsiString& S,
 //lee los valores de las propiedades de origen de un posicionador
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void __fastcall TRoboticPositioner::ReadOriginsRow(TRoboticPositioner *FP,
+void  TRoboticPositioner::ReadOriginsRow(TRoboticPositioner *FP,
                                                    const AnsiString& S, int &i)
 {
     TActuator *A = FP->getActuator();
@@ -586,7 +586,7 @@ void __fastcall TRoboticPositioner::ReadOriginsRow(TRoboticPositioner *FP,
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) al final de una cadena de texto
 //en formato fila de texto
-void __fastcall TRoboticPositioner::PrintPositionP3Row(AnsiString& S,
+void  TRoboticPositioner::PrintPositionP3Row(AnsiString& S,
                                                        TRoboticPositioner *FP)
 {
     TActuator::PrintPositionP3Row(S, FP->getActuator());
@@ -594,7 +594,7 @@ void __fastcall TRoboticPositioner::PrintPositionP3Row(AnsiString& S,
 //lee los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void __fastcall TRoboticPositioner::ReadPositionP3Row(TRoboticPositioner* &FP,
+void  TRoboticPositioner::ReadPositionP3Row(TRoboticPositioner* &FP,
                                                       const AnsiString& S, int &i)
 {
     TActuator *A = FP->getActuator();
@@ -602,7 +602,7 @@ void __fastcall TRoboticPositioner::ReadPositionP3Row(TRoboticPositioner* &FP,
 }
 
 //lee una instancia en una cadena
-void __fastcall TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
+void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
                                                  const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -933,7 +933,7 @@ TRoboticPositioner::~TRoboticPositioner()
     if(i >= Builts.getCount())
         //indica que está intentando destruir un objeto no contruido
         throw EImproperCall(AnsiString("destruction attempt of non built object: ")+
-                            IntToHex(int(this), 8));
+                            IntToHex(reinterpret_cast<intptr_t>(this), 8));
 
     //destruye el actuador
     delete __Actuator;

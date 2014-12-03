@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------
 
 #include "FiberMOSModel1.h"
-#include "..\2_Strings\TextFile.h"
+#include "TextFile.h"
 
 //---------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ void TFiberMOSModel1::setInstanceText(const AnsiString& S)
 
 //lee una instancia de Fiber MOS Model
 //en una cadena de texto en formato de asignaciones
-void __fastcall TFiberMOSModel1::ReadInstance(TFiberMOSModel1 *FMM,
+void  TFiberMOSModel1::ReadInstance(TFiberMOSModel1 *FMM,
         const AnsiString &S, int &i)
 {
         //el puntero FMM debe apuntar a un Fiber MOS Model construído

@@ -8,7 +8,7 @@
 //#include <values.h>
 
 #include "ExclusionArea.h"
-#include "..\2_Strings\Strings.h" //StrIndent
+#include "Strings.h" //StrIndent
 
 //---------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ AnsiString TExclusionArea::getOriginsText(void) const
 
 
 //compara los identificadores de dos EAs
-int __fastcall TExclusionArea::CompareIds(TExclusionArea *EA1, TExclusionArea *EA2)
+int  TExclusionArea::CompareIds(TExclusionArea *EA1, TExclusionArea *EA2)
 {
         //el puntero EA1 debería apuntar a un área de exclusión construida
         if(EA1 == NULL)
@@ -233,7 +233,7 @@ int __fastcall TExclusionArea::CompareIds(TExclusionArea *EA1, TExclusionArea *E
 
 
 //imprime el identificador de un EA
-void __fastcall TExclusionArea::PrintId(AnsiString &S, TExclusionArea *EA)
+void  TExclusionArea::PrintId(AnsiString &S, TExclusionArea *EA)
 {
         //el puntero EA debería apuntar a un área de exclusión construida
         if(EA == NULL)
@@ -250,7 +250,7 @@ AnsiString TExclusionArea::GetOriginsLabelsRow(void)
 }
 //atraviesa las etiquetas de las propiedades de origen
 //en formato fila de texto
-void __fastcall TExclusionArea::TravelOriginsLabelsRow(const AnsiString& S, int& i)
+void  TExclusionArea::TravelOriginsLabelsRow(const AnsiString& S, int& i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -313,7 +313,7 @@ void __fastcall TExclusionArea::TravelOriginsLabelsRow(const AnsiString& S, int&
 //imprime los valores de las propiedades de orien de un EA
 //al final de una cadena de texto
 //en formato fila de texto
-void __fastcall TExclusionArea::PrintOriginsRow(AnsiString& S,
+void  TExclusionArea::PrintOriginsRow(AnsiString& S,
         TExclusionArea *EA)
 {
         //el puntero EA debe apuntar a un área de exclusión construida
@@ -325,7 +325,7 @@ void __fastcall TExclusionArea::PrintOriginsRow(AnsiString& S,
 //lee los valores de las propiedades de orien para un EA
 //desde la posición indicada de una cadena de texto
 //en formato fila de texto
-void __fastcall TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
+void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
         const AnsiString& S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -404,7 +404,7 @@ void __fastcall TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
 //lee una instancia del EA
 //desde la posición indicada de una cadena de texto
 //en formato de asignaciones
-void __fastcall TExclusionArea::ReadInstance(TExclusionArea* &EA,
+void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
         const AnsiString& S, int &i)
 {
         //el puntero EA debe apuntar a una barrera construido
@@ -580,7 +580,7 @@ TExclusionArea::~TExclusionArea()
         //si no ha encontrado el objeto
         if(i >= Builts.getCount())
                 //indica que está intentando destruir un objeto no contruido
-                throw EImproperCall(AnsiString("destruction attempt of non built object: ")+IntToHex(int(this), 8));
+                throw EImproperCall(AnsiString("destruction attempt of non built object: ")+IntToHex(reinterpret_cast<intptr_t>(this), 8));
 
         //borra el puntero de la lista de construídos
         Builts.Delete(i);
