@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TRoboticPositionerFormulary</class>
+ <widget class="QDialog" name="TRoboticPositionerFormulary">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>320</width>
+    <height>240</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>All</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QTextEdit" name="textEdit"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Actuator</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTabWidget" name="tabWidget_2">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab_4">
+          <attribute name="title">
+           <string>Cilinder</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QTabWidget" name="tabWidget_3">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="tab_8">
+              <attribute name="title">
+               <string>All</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <widget class="QTextEdit" name="textEdit_2"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_9">
+              <attribute name="title">
+               <string>F(theta_1)</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <widget class="QTextEdit" name="textEdit_3"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_10">
+              <attribute name="title">
+               <string>G(p_1)</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_10">
+               <item>
+                <widget class="QTextEdit" name="textEdit_4"/>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_5">
+          <attribute name="title">
+           <string>Arm</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QTabWidget" name="tabWidget_4">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="tab_11">
+              <attribute name="title">
+               <string>All</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_11">
+               <item>
+                <widget class="QTextEdit" name="textEdit_5"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_12">
+              <attribute name="title">
+               <string>Contour____</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_12">
+               <item>
+                <widget class="QTextEdit" name="textEdit_6"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_13">
+              <attribute name="title">
+               <string>F(theta___3)</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_13">
+               <item>
+                <widget class="QTextEdit" name="textEdit_7"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_14">
+              <attribute name="title">
+               <string>G(p___3)</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_14">
+               <item>
+                <widget class="QTextEdit" name="textEdit_8"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_15">
+              <attribute name="title">
+               <string>Contour</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_15">
+               <item>
+                <widget class="QTextEdit" name="textEdit_9"/>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_6">
+          <attribute name="title">
+           <string>Barrier</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QTabWidget" name="tabWidget_5">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="tab_16">
+              <attribute name="title">
+               <string>All</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_16">
+               <item>
+                <widget class="QTextEdit" name="textEdit_10"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_17">
+              <attribute name="title">
+               <string>Contour_</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_17">
+               <item>
+                <widget class="QTextEdit" name="textEdit_11"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_18">
+              <attribute name="title">
+               <string>Contour</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_18">
+               <item>
+                <widget class="QTextEdit" name="textEdit_12"/>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_7">
+          <attribute name="title">
+           <string>Others</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_19">
+           <item>
+            <widget class="QTextEdit" name="textEdit_13"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>CMF</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QTabWidget" name="tabWidget_6">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab_19">
+          <attribute name="title">
+           <string>All</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_20">
+           <item>
+            <widget class="QTextEdit" name="textEdit_14"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_20">
+          <attribute name="title">
+           <string>SF1</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_21">
+           <item>
+            <widget class="QTextEdit" name="textEdit_15"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_21">
+          <attribute name="title">
+           <string>RF1</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_22">
+           <item>
+            <widget class="QTextEdit" name="textEdit_16"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_22">
+          <attribute name="title">
+           <string>SF2</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_23">
+           <item>
+            <widget class="QTextEdit" name="textEdit_17"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_23">
+          <attribute name="title">
+           <string>RF2</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_24">
+           <item>
+            <widget class="QTextEdit" name="textEdit_18"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

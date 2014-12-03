@@ -1,0 +1,848 @@
+//---------------------------------------------------------------------------
+//Archivo: Tile.cpp
+//Contenido: azulejo
+//Última actualización: 06/05/2014
+//Autor: Isaac Morales Durán
+//---------------------------------------------------------------------------
+
+#include "Tile.h"
+#include "..\2_Strings\TextFile.h"
+#include "..\2_Strings\Strings.h"
+
+//---------------------------------------------------------------------------
+
+using namespace Strings;
+
+//espacio de nombres de modelos
+namespace Models {
+
+//--------------------------------------------------------------------------
+//TTile:
+//--------------------------------------------------------------------------
+
+//INICIALIZA LAS PROPIEDADES ESTÁTICAS:
+
+AnsiString TTile::IdLabel = "Id";
+AnsiString TTile::RALabel = "RA";
+AnsiString TTile::DECLabel = "DEC";
+AnsiString TTile::RLabel = "R";
+
+//PROPIEDADES DEFINITORIAS:
+
+void TTile::setId(int _Id)
+{
+    //el número de identificación debería ser no negativo
+    if(_Id < 0)
+        throw EImproperArgument("identifier number Id should be nonnegative");
+
+    //asigna el nuevo valor
+    __Id = _Id;
+}
+
+void TTile::setDEC(double _DEC)
+{
+    //la declinación theta debe estar en [-pi/2, pi/2]
+    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+
+    //asigna el nuevo valor
+    __DEC = _DEC;
+}
+void TTile::setR_(double _R_)
+{
+    //el radio R_ debería ser mayor que cero
+    if(_R_ <= 0)
+        throw EImproperArgument(AnsiString("radio '")+FloatToStr(_R_)+AnsiString("' should be upper zero"));
+
+    //asigna el nuevo valor
+    __R_ = _R_;
+}
+
+//PROPIEDADES EN FORMATO TEXTO:
+
+AnsiString TTile::getIdText(void) const
+{
+    return IntToStr(getId());
+}
+void TTile::setIdText(const AnsiString &S)
+{
+    try {
+        setId(StrToInt_(S));
+    } catch(...) {
+        throw;
+    }
+}
+AnsiString TTile::getRAText(void) const
+{
+    return FloatToStr(RA);
+}
+void TTile::setRAText(const AnsiString &S)
+{
+    try {
+        RA = StrToFloat_(S);
+    } catch(...) {
+        throw;
+    }
+}
+AnsiString TTile::getDECText(void) const
+{
+    return FloatToStr(getDEC());
+}
+void TTile::setDECText(const AnsiString &S)
+{
+    try {
+        setDEC(StrToFloat_(S));
+    } catch(...) {
+        throw;
+    }
+}
+AnsiString TTile::getR_Text(void) const
+{
+    return FloatToStr(getR_());
+}
+void TTile::setR_Text(const AnsiString &S)
+{
+    try {
+        setR_(StrToFloat_(S));
+    } catch(...) {
+        throw;
+    }
+}
+
+//CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+
+AnsiString TTile::getRowText(void) const
+{
+    AnsiString S;
+
+    S = getId();
+    StrFill(S, 12, ' ');
+    S += getRAText();
+    StrFill(S, 12+24, ' ');
+    S += getDECText();
+    StrFill(S, 12+24*2, ' ');
+    S += getR_Text();
+
+    return S;
+}
+void TTile::setRowText(const AnsiString &S)
+{
+    try {
+        int i = 1;
+        ReadRow(this, S, i);
+        StrTravelToEnd(S, i);
+    } catch(...) {
+        throw;
+    }
+}
+AnsiString TTile::getColText(void) const
+{
+    AnsiString S;
+
+    S = getIdText()+AnsiString("\r\n");
+    S += getRAText()+AnsiString("\r\n");
+    S += getDECText()+AnsiString("\r\n");
+    S += getR_Text();
+
+    return S;
+}
+void TTile::setColText(const AnsiString &S)
+{
+    try {
+        int i = 1;
+        ReadCol(this, S, i);
+        StrTravelToEnd(S, i);
+    } catch(...) {
+        throw;
+    }
+}
+AnsiString TTile::getAssignsText(void) const
+{
+    AnsiString S;
+
+    S = AnsiString("Id = ")+getIdText()+AnsiString("\r\n");
+    S += AnsiString("phi' = ")+getRAText()+AnsiString("\r\n");
+    S += AnsiString("theta' = ")+getDECText()+AnsiString("\r\n");
+    S += AnsiString("R' = ")+getR_Text();
+
+    return S;
+}
+void TTile::setAssignsText(const AnsiString &S)
+{
+    try {
+        int i = 1;
+        ReadAssigns(this, S, i);
+        StrTravelToEnd(S, i);
+    } catch(...) {
+        throw;
+    }
+}
+
+//MÉTODOS ESTÁTICOS:
+
+//compara una de las propiedades de dos objetos
+int __fastcall TTile::CompareIds(const TTile *T1, const TTile *T2)
+{
+    //el puntero T1 debería apuntar a un objeto contruido
+    if(T1 == NULL)
+        throw EImproperArgument("pointer T1 should point to built object");
+
+    //el puntero T2 debería apuntar a un objeto contruido
+    if(T2 == NULL)
+        throw EImproperArgument("pointer T2 should point to built object");
+
+    if(T1->getId() < T2->getId())
+        return -1;
+    if(T1->getId() > T2->getId())
+        return -1;
+    return 0;
+}
+int __fastcall TTile::CompareRAs(const TTile *T1, const TTile *T2)
+{
+    //el puntero T1 debería apuntar a un objeto contruido
+    if(T1 == NULL)
+        throw EImproperArgument("pointer T1 should point to built object");
+
+    //el puntero T2 debería apuntar a un objeto contruido
+    if(T2 == NULL)
+        throw EImproperArgument("pointer T2 should point to built object");
+
+    if(T1->RA < T2->RA)
+        return -1;
+    if(T1->RA > T2->RA)
+        return -1;
+    return 0;
+}
+int __fastcall TTile::CompareDECs(const TTile *T1, const TTile *T2)
+{
+    //el puntero T1 debería apuntar a un objeto contruido
+    if(T1 == NULL)
+        throw EImproperArgument("pointer T1 should point to built object");
+
+    //el puntero T2 debería apuntar a un objeto contruido
+    if(T2 == NULL)
+        throw EImproperArgument("pointer T2 should point to built object");
+
+    if(T1->getDEC() < T2->getDEC())
+        return -1;
+    if(T1->getDEC() > T2->getDEC())
+        return -1;
+    return 0;
+}
+int __fastcall TTile::CompareR_s(const TTile *T1, const TTile *T2)
+{
+    //el puntero T1 debería apuntar a un objeto contruido
+    if(T1 == NULL)
+        throw EImproperArgument("pointer T1 should point to built object");
+
+    //el puntero T2 debería apuntar a un objeto contruido
+    if(T2 == NULL)
+        throw EImproperArgument("pointer T2 should point to built object");
+
+    if(T1->getR_() < T2->getR_())
+        return -1;
+    if(T1->getR_() > T2->getR_())
+        return -1;
+    return 0;
+}
+int __fastcall TTile::CompareQ_s(const TTile *T1, const TTile *T2)
+{
+    //el puntero T1 debería apuntar a un objeto contruido
+    if(T1 == NULL)
+        throw EImproperArgument("pointer T1 should point to built object");
+
+    //el puntero T2 debería apuntar a un objeto contruido
+    if(T2 == NULL)
+        throw EImproperArgument("pointer T2 should point to built object");
+
+    if(T1->getDEC()<T2->getDEC() || (T1->getDEC()==T2->getDEC() && T1->RA<T2->RA))
+        return -1;
+    if(T1->getDEC()>T2->getDEC() || (T1->getDEC()==T2->getDEC() && T1->RA>T2->RA))
+        return -1;
+    return 0;
+}
+
+//obtiene las etiquetas de las propiedades en una cadena
+AnsiString TTile::GetLabels(void)
+{
+    return AnsiString("(")+IdLabel+AnsiString(", ")+RALabel+AnsiString(", ")+DECLabel+AnsiString(", ")+RLabel+AnsiString(")");
+}
+AnsiString TTile::GetLabelsRow(void)
+{
+    return IdLabel+AnsiString("\t")+RALabel+AnsiString("\t")+DECLabel+AnsiString("\t")+RLabel;
+}
+
+//imprime las propiedades de un objeto en una cadena
+void __fastcall TTile::PrintRow(AnsiString &S, const TTile *T)
+{
+    //el puntero T debería apuntar a un objeto contruido
+    if(T == NULL)
+        throw EImproperArgument("pointer T should point to built object");
+
+    S += T->getRowText();
+}
+void __fastcall TTile::PrintCol(AnsiString &S, const TTile *T)
+{
+    //el puntero T debería apuntar a un objeto contruido
+    if(T == NULL)
+        throw EImproperArgument("pointer T should point to built object");
+
+    S += T->getColText();
+}
+void __fastcall TTile::PrintAssigns(AnsiString &S, const TTile *T)
+{
+    //el puntero T debería apuntar a un objeto contruido
+    if(T == NULL)
+        throw EImproperArgument("pointer T should point to built object");
+
+    S += T->getAssignsText();
+}
+
+//lee las propiedades de un objeto en una cadena
+void __fastcall TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
+{
+    //el puntero T debería apuntar a un objeto construido
+    if(T == NULL)
+        throw EImproperArgument("pointer T shoult point to built object");
+
+    //si el índice i no indica a una posición de la cadena
+    if(i<1 || S.Length()<i)
+        //indica que no se ha encontrado un azulejo
+        throw EImproperArgument("tile not founds");
+
+    //estado de lectura
+    //      0: esperando valor en punto flotante para Id
+    //      1: esperando valor en punto flotante para phi'
+    //      2: esperando cadena de texto para theta'
+    //      3: esperando valor en punto flotante para R'
+    //      4: objeto leido con éxito
+    int status = 0;
+
+    //variables auxiliares
+    TTile _Tile(T); //variabletampón
+    AnsiString Ident; //identificador de propiedad
+    AnsiString Value; //valor de propiedad
+
+    //ADVERTENCIA: las variables tampón con propiedades interdependientes
+    //deben ser clones de las variables que se pretenden modificar.
+
+    //NTTA: adviertase que las propiedades enteras son escaneadas como
+    //valores en punto flotante para detectar errores en los cuales
+    //sea especificado un valor en punto flotante en vez de un valor entero.
+
+    do {
+        switch(status) {
+        case 0: //esperando valor en punto flotante para Id
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setIdText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("phi' value not found");
+            status++;
+            break;
+        case 1: //esperando valor en punto flotante para phi'
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setRAText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("theta' value not found");
+            status++;
+            break;
+        case 2: //esperando valor en punto flotante para theta'
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setDECText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("R' value not found");
+            status++;
+            break;
+        case 3: //esperando valor entero para R'
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setR_Text(Value);
+            StrTravelToEnd(S, i);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property R'"));
+            } catch(...) {
+            throw;
+        }
+            status++;
+            break;
+        }
+    } while(status < 4);
+
+    //asigna la variable tampón
+    *T = _Tile;
+}
+void __fastcall TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
+{
+    //el puntero T debería apuntar a un objeto construido
+    if(T == NULL)
+        throw EImproperArgument("pointer T shoult point to built object");
+
+    //si el índice i no indica a una posición de la cadena
+    if(i<1 || S.Length()<i)
+        //indica que no se ha encontrado un azulejo
+        throw EImproperArgument("tile not founds");
+
+    //estado de lectura
+    //      0: esperando valor en punto flotante para Id
+    //      1: esperando valor en punto flotante para phi'
+    //      2: esperando cadena de texto para theta'
+    //      3: esperando valor en punto flotante para R'
+    //      4: objeto leido con éxito
+    int status = 0;
+
+    //variables auxiliares
+    TTile _Tile(T); //variabletampón
+    AnsiString Ident; //identificador de propiedad
+    AnsiString Value; //valor de propiedad
+
+    //ADVERTENCIA: las variables tampón con propiedades interdependientes
+    //deben ser clones de las variables que se pretenden modificar.
+
+    //NTTA: adviertase que las propiedades enteras son escaneadas como
+    //valores en punto flotante para detectar errores en los cuales
+    //sea especificado un valor en punto flotante en vez de un valor entero.
+
+    do {
+        switch(status) {
+        case 0: //esperando valor en punto flotante para Id
+            try {
+            StrReadString(Value, S, i);
+            _Tile.setIdText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("phi' value not found");
+            status++;
+            break;
+        case 1: //esperando valor en punto flotante para phi'
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setRAText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("R' value not found");
+            status++;
+            break;
+        case 2: //esperando valor en punto flotante para theta'
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setDECText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("phi' value not found");
+            status++;
+            break;
+        case 3: //esperando valor entero para R'
+            try {
+            StrReadWord(Value, S, i);
+            _Tile.setR_Text(Value);
+            StrTravelToEnd(S, i);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property R'"));
+            } catch(...) {
+            throw;
+        }
+            status++;
+            break;
+        }
+    } while(status < 4);
+
+    //asigna la variable tampón
+    *T = _Tile;
+}
+void __fastcall TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
+{
+    //el puntero T debería apuntar a un objeto construido
+    if(T == NULL)
+        throw EImproperArgument("pointer T shoult point to built object");
+
+    //si el índice i no indica a una posición de la cadena
+    if(i<1 || S.Length()<i)
+        //indica que no se ha encontrado un azulejo
+        throw EImproperArgument("tile not founds");
+
+    //estado de lectura
+    //      0: esperando valor en punto flotante para Id
+    //      1: esperando valor en punto flotante para phi'
+    //      2: esperando cadena de texto para theta'
+    //      3: esperando valor en punto flotante para R'
+    //      4: objeto leido con éxito
+    int status = 0;
+
+    //variables auxiliares
+    TTile _Tile(T); //variabletampón
+    AnsiString Ident; //identificador de propiedad
+    AnsiString Value; //valor de propiedad
+
+    //ADVERTENCIA: las variables tampón con propiedades interdependientes
+    //deben ser clones de las variables que se pretenden modificar.
+
+    //NTTA: adviertase que las propiedades enteras son escaneadas como
+    //valores en punto flotante para detectar errores en los cuales
+    //sea especificado un valor en punto flotante en vez de un valor entero.
+
+    do {
+        switch(status) {
+        case 0: //esperando valor en punto flotante para Id
+            try {
+            StrReadLabel(Ident, "Id", S, i);
+            StrTravelLabel("=", S, i);
+            StrReadString(Value, S, i);
+            _Tile.setIdText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("theta' value not found");
+            status++;
+            break;
+        case 1: //esperando valor en punto flotante para phi'
+            try {
+            StrReadLabel(Ident, "phi'", S, i);
+            StrTravelLabel("=", S, i);
+            StrReadWord(Value, S, i);
+            _Tile.setRAText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("R' value not found");
+            status++;
+            break;
+        case 2: //esperando valor en punto flotante para theta'
+            try {
+            StrReadLabel(Ident, "theta'", S, i);
+            StrTravelLabel("=", S, i);
+            StrReadWord(Value, S, i);
+            _Tile.setDECText(Value);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
+            } catch(...) {
+            throw;
+        }
+            if(i > S.Length())
+                throw EImproperArgument("phi' value not found");
+            status++;
+            break;
+        case 3: //esperando valor entero para R'
+            try {
+            StrReadLabel(Ident, "R'", S, i);
+            StrTravelLabel("=", S, i);
+            StrReadWord(Value, S, i);
+            _Tile.setR_Text(Value);
+            StrTravelToEnd(S, i);
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property R'"));
+            } catch(...) {
+            throw;
+        }
+            status++;
+            break;
+        }
+    } while(status < 4);
+
+    //asigna la variable tampón
+    *T = _Tile;
+}
+
+//MÉTODOS PÚBLICOS:
+
+//construye un alista de azulejos
+TTile::TTile(void) :
+    __Id(0), RA(0), __DEC(0), __R_(2.9088902912790199E-3),
+    SkyPointList()
+{
+}
+
+//contruye un clon de un azulejo
+TTile::TTile(TTile *T)
+{
+    try {
+        Copy(T);
+    } catch(...) {
+        throw;
+    }
+}
+
+//MÉTODOS DE COPIA
+
+//clona un axulejo
+void TTile::Copy(TTile *T)
+{
+    //el puntero T debería apuntar a un azulejo contruido
+    if(T == NULL)
+        throw EImproperArgument("pointer T should point to built tail");
+
+    //copia las propiedades
+    SkyPointList = T->SkyPointList;
+    __Id = T->__Id;
+    RA = T->RA;
+    __DEC = T->__DEC;
+    __R_ = T->__R_;
+}
+TTile &TTile::operator=(const TTile &T)
+{
+    //copia las propiedades
+    SkyPointList = T.SkyPointList;
+    __Id = T.__Id;
+    RA = T.RA;
+    __DEC = T.__DEC;
+    __R_ = T.__R_;
+
+    return *this;
+}
+
+//MÉTODOS:
+
+//mueve el azulejo al punto indicado
+void TTile::Move(double _RA, double _DEC)
+{
+    //el azimut theta debe estar en [-pi/2, pi/2]
+    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
+        throw EImproperArgument(AnsiString("azimut '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+
+    //asigna los nuevos valores
+    RA = _RA;
+    __DEC = _DEC;
+}
+
+//segrega los puntos de cielo del catálogo en el azulejo incluyendo
+//aquellos que estén en el interior del círculo (RA, DEC, 1.2*R_)
+void TTile::Segregate(TSkyPointList *SPL)
+{
+    //el putero SPL debería apuntar a una lista de puntos de cielo contruida
+    if(SPL == NULL)
+        throw EImproperArgument("pointer SPL should point to built sky point list");
+
+    TSkyPoint *SP;
+    TVector3D C, P;
+
+    //inicializa la lista de segregados
+    SkyPointList.Clear();
+
+    //traduce el centro del zulejo a coordenadas cartesianas
+    SphericToCartesian(C.x, C.y, C.z, getDEC(), RA, 1);
+
+    //por cada punto de cielo de la lista
+    for(int i=0; i<SPL->getCount(); i++) {
+        //apunta el punto de cielo indicado para facilitar su acceso
+        SP = SPL->Get(i);
+        //traduce el punto de cielo a coordenadas cartesianas
+        SphericToCartesian(P.x, P.y, P.z, SP->getDEC(), SP->getRA(), 1);
+        //si el punto de cielo está en el tail
+        if(Angle(C, P) <= getR_()*1.2)
+            SkyPointList.Add(SP); //añade el punto de cielo
+    }
+}
+
+//carga el aqzulejo de un archivo de texto
+void TTile::LoadFromFile(const AnsiString &FileName)
+{
+    try {
+        AnsiString S;
+        StrReadFromFile(S, FileName);
+        setAssignsText(S);
+    } catch(...) {
+        throw;
+    }
+}
+
+//--------------------------------------------------------------------------
+//TTileList
+//--------------------------------------------------------------------------
+
+//PROPIEDADES EN FORMATO TEXTO:
+
+AnsiString TTileList::getTableText(void)
+{
+    AnsiString S;
+
+    //añade la cabecera
+    S = TTile::GetLabelsRow()+AnsiString("\r\n");
+    for(int i=0; i<getCount(); i++)
+        S += Items[i]->getRowText()+AnsiString("\r\n");
+
+    return S;
+}
+
+void TTileList::setTableText(const AnsiString &S)
+{
+    //descompone la cadena en lineas
+    TStringList *SL = new TStringList();
+    SL->setText(S);
+
+    //la lista de azulejos debería contener la linea de identificadores
+    if(SL->getCount() < 1)
+        throw EImproperArgument("row identifiers not found");
+
+    //la primera linea debería tener los identificadores de los campos
+    //de la lista de azulejos
+    if(StrNotHasSameWords(SL->Strings[0], TTile::GetLabelsRow()))
+        throw EImproperArgument("row identifiers not found");
+
+    //variable tampón
+    TItemsList<TTile*> LT;
+    //variables auxiliares
+    TTile *T;
+
+    //COMPRUEBA LA SINTAXIS DE LAS LÍNEAS DE TEXTO:
+
+    try {
+        //por cada linea de texto a partir de la segunda
+        for(int i=1; i<SL->getCount(); i++) {
+            //contruye un azulejo
+            T = new TTile();
+            //asigna la linea de texto al azulejo
+            T->setRowText(SL->Strings[i]);
+            //añade el azulejo a la lista
+            LT.Add(T);
+        }
+    } catch(...) {
+        throw;
+    }
+
+    //ASIGNA LOS NUEVOS VALORES:
+
+    //destruye los objetos originales
+    Clear();
+    //traslada los azulejos a la lista
+    for(int i=0; i<LT.getCount(); i++)
+        Add(LT[i]);
+
+    //libera la memoria dinámica
+    delete SL;
+}
+
+//MÉTODOS PÚBLICOS:
+
+//construye una lista de azulejos
+TTileList::TTileList(int _Capacity) :
+    TPointersList<TTile>(_Capacity,
+                         TTile::CompareQ_s,
+                         NULL, NULL,
+                         TTile::PrintRow, NULL)//, TTile::ReadRow)
+{
+}
+
+//construye un número de azulejos
+void TTileList::Build(int N)
+{
+    //el número de azulejos N debe ser mayor que cero
+    if(N < 1)
+        throw EImproperArgument("tails number N should be upper zero");
+
+    //repite N veces
+    for(int i=1; i<=N; i++)
+        //añade un nuevo azulejo
+        Add(new TTile());
+}
+
+//MÉTODOS:
+
+//segrega los puntos de cielo del catálogo en los azulejos de una lista
+void TTileList::Segregate(TSkyPointList *SPL)
+{
+    //el putero SPL debería apuntar a una lista de puntos de cielo contruida
+    if(SPL == NULL)
+        throw EImproperArgument("pointer SPL should point to built sky point list");
+
+    for(int i=0; i<getCount(); i++)
+        Items[i]->Segregate(SPL);
+}
+
+//numera los azulejos
+void TTileList::Reidentify(void)
+{
+    //por cada azulejo de la lista
+    for(int k=0; k<getCount(); k++)
+        Items[k]->setId(k + 1);
+}
+
+//guarda los azulejos en el directorio correspondiente
+void TTileList::SaveToFiles(AnsiString FolderName)
+{
+    AnsiString FileName;
+
+    //contruye el directorio en caso necesario
+    mkdir(FolderName.c_str());
+
+    //por cada azulejo de la lista
+    for(int k=0; k<getCount(); k++) {
+        //contruye el nombre del archivo
+        FileName = FolderName+AnsiString("\\tile ")+IntToStr(k+1)+AnsiString(".txt");
+        //guarda las propiedades del azulejo
+        StrWriteToFile(FileName, Items[k]->getAssignsText());
+    }
+}
+
+//MÉTODOS DE INTERFAZ:
+/*#
+//imprime los azulejos en una caja de lista
+void TTileList::Print(QListWidget *LB)
+{
+    //el puntero LB debería apuntar a una caja de lista construida
+    if(LB == NULL)
+        throw EImproperArgument("pointer LB should point to built list box");
+
+    LB->clear();
+    QString QS;
+    for(int i=0; i<getCount(); i++) {
+        QS = Items[i]->getRowText().c_str();
+        LB->addItem(QS);
+    }
+}
+//imprime los azulejos en un memorando
+void TTileList::Print(QTextEdit *M)
+{
+    //el puntero M debería apuntar a un memorando construido
+    if(M == NULL)
+        throw EImproperArgument("pointer M should point to built memo");
+
+    M->clear();
+    QString QS = TTile::GetLabelsRow().c_str();
+    M->append(QS);
+    for(int i=0; i<getCount(); i++) {
+        QS = Items[i]->getRowText().c_str();
+        M->append(QS);
+    }
+}
+*/
+//---------------------------------------------------------------------------
+
+} //namespace Models
+
+//--------------------------------------------------------------------------
+
