@@ -30,13 +30,13 @@ vclemu.cpp vclemu.h Vector.cpp Vector.h Vectors.cpp Vectors.h
 ## If the source code has changed, rev += 1
 
 libfmtp_la_LDFLAGS = -version-info 0:0:0
-#libfmtp_la_LIBADD = $(QT5_LIBS) 
 
-##pkginclude_HEADERS = blanroo.h
+##pkginclude_HEADERS = Strings.h
 
 bin_PROGRAMS = fmpa
 fmpa_SOURCES = FMPA_SAA_main.cpp
-fmpa_LDADD = libfmtp.la $(QT5_LIBS)
-fmpa_CPPFLAGS = $(QT5_CFLAGS) $(AM_CPPFLAGS)
+fmpa_LDADD = libfmtp.la
+fmpa_CPPFLAGS = $(AM_CPPFLAGS)
 
 AM_CPPFLAGS = -I$(top_srcdir)
+
