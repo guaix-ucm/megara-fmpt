@@ -19,7 +19,7 @@ Scalars.cpp Scalars.h SkyPoint.cpp SkyPoint.h SlideArray.cpp SlideArray.h \
 SquareFunction.cpp SquareFunction.h Strings.cpp Strings.h StrPR.cpp StrPR.h \
 StrSimbolic.cpp StrSimbolic.h TargetPoint.cpp TargetPoint.h TargetPointList.cpp \
 TargetPointList.h TelescopeProjectionModel.cpp TelescopeProjectionModel.h \
-TextFile.cpp TextFile.h Thumbs.db Tile.cpp Tile.h \
+TextFile.cpp TextFile.h Tile.cpp Tile.h \
 vclemu.cpp vclemu.h Vector.cpp Vector.h Vectors.cpp Vectors.h
 
 
