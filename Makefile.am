@@ -1,4 +1,4 @@
 
-SUBDIRS = src data
+SUBDIRS = data src tests
 EXTRA_DIST = COPYING INSTALL README
 ACLOCAL_AMFLAGS = -I m4
