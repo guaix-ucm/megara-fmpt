@@ -157,5 +157,5 @@ fmpt_saa_SOURCES = main.cpp
 fmpt_saa_LDADD = libfmtp.la
 fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
 
-AM_CPPFLAGS = -I$(top_srcdir) -DDATADIR=\"$(datadir)\"
+AM_CPPFLAGS = -I$(top_srcdir) -DDATADIR=\"$(pkgdatadir)\"
 
