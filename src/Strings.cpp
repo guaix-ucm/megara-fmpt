@@ -299,20 +299,20 @@ AnsiString StrExtension(const AnsiString &filename)
     //busca el primer caracter distinto de espacio
     //empezando por el final
     int j = filename.Length();
-    while(j>0 && filename[j]!='\\' && filename[j]==' ')
+    while(j>0 && filename[j]!='/' && filename[j]==' ')
         j--;
 
     //la cadena es todo espacios hasta el principio o hasta el '\'
-    if(j<1 || filename[j]=='\\')
+    if(j<1 || filename[j]=='/')
         return "";
 
     //busca el primer punto
     int i = j;
-    while(i>0 && filename[i]!='\\' && filename[i]!='.')
+    while(i>0 && filename[i]!='/' && filename[i]!='.')
         i--;
 
     //i no se movió o recorrió hasta '\' o la posición cero
-    if(i<1 || filename[i]=='\\' || i>=j)
+    if(i<1 || filename[i]=='/' || i>=j)
         return "";
 
     //copia la extensión en ext
@@ -342,6 +342,32 @@ void StrCopy(AnsiString &D, const AnsiString &S, int i1, int i2)
         D[j++] = S[i];
 }
 
+//sustituye las ocurrencias de una cadena a reemplazar por
+//una cadena sustituta
+void strreplace(string& str, const string& str_to_replace,
+                const string& str_substitute)
+{
+    size_t pos = 0;
+    size_t n = str_to_replace.length();
+
+    //mientras haya posiciones donde buscar
+    while(pos < str.length()) {
+        //busca la siguiente ocurrencia de la cadena a reemplazar
+        pos = str.find(str_to_replace.c_str(), pos, n);
+
+        //si ha encontrado otra ocurrencia
+        if(pos < str.length())
+            //sustituye la cadena a reemplazar por la cadena sustituta
+            str = str.replace(pos, n, str_substitute);
+    }
+}
+//sustituye las ocurrencias de una cadena a reemplazar
+//por una cadena sustituta
+void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
+                const AnsiString& S_substitute)
+{
+    strreplace(S.str, S_to_replace.str, S_substitute.str);
+}
 //cuenta las líneas de texto contenidas en una cadena de texto imprimible
 //si la cadena String no es imprimible lanza una excepción EImproperArgument
 int StrCountLines(const AnsiString &String)

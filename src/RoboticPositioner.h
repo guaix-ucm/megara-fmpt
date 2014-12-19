@@ -365,12 +365,17 @@ public:
         //(Id, x3, y3) al final de una cadena de texto
         //en formato fila de texto
         static void  PrintPositionP3Row(AnsiString& S,
-                TRoboticPositioner *FP);
+                                        TRoboticPositioner *FP);
         //lee los valores de las propiedades de posición de un posicionador
         //(Id, x3, y3) desde la posición indicada de una cadena
         //de texto, en formato fila de texto
         static void  ReadPositionP3Row(TRoboticPositioner* &FP,
-                const AnsiString& S, int &i);
+                                       const AnsiString& S, int &i);
+        //imprime los valores de las propiedades de posición de un posicionador
+        //(Id, p_1, p___3) al final de una cadena de texto
+        //en formato fila de texto
+        static void  PrintPositionPAPRow(AnsiString& S,
+                                        TRoboticPositioner *FP);
 
         //lee una instancia en una cadena
         static void  ReadInstance(TRoboticPositioner* &FP,

@@ -35,7 +35,8 @@ const unsigned short MAXUSHORT = (unsigned short)0xFFFF;
 //              return sizeof(arr)/sizeof(arr[0]);}
 
 //error numérico asumible en las funciones geométricas de giro
-#define ERR_NUM 0.00000001
+//#define ERR_NUM 0.00000001
+#define ERR_NUM 0.00001
 
 //ADVERTENCIA: si se utiliza un compilador distinto de C++Builder 6.0 puede
 //que sea neceario cambiar el valor de la constante ERR_NUM.

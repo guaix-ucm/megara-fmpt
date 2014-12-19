@@ -652,7 +652,7 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
                 status = 5;
                 break;
             default:
-                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ' ', ')' or '")+AnsiString(DecimalSeparator)+AnsiString("' if missing"));
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ' ', ')' or '")+AnsiString(get_decimal_separator())+AnsiString("' if missing"));
 
                 //NOTA:
                 //sería posible determinar si el número de punto flotante contiene un punto decimal o no
@@ -862,7 +862,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
                 status = 5;
                 break;
             default:
-                throw EImproperArgument(AnsiString("character '")+AnsiString(c)+AnsiString("' should be ' ', ')' or '")+AnsiString(DecimalSeparator)+AnsiString("' if missing"));
+                throw EImproperArgument(AnsiString("character '")+AnsiString(c)+AnsiString("' should be ' ', ')' or '")+AnsiString(get_decimal_separator())+AnsiString("' if missing"));
 
                 //NOTA:
                 //sería posible determinar si el número de punto flotante contiene un punto decimal o no

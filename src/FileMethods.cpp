@@ -24,10 +24,10 @@ void WriteInstanceToDir(const AnsiString& Dir, const TRoboticPositionerList& RPL
 {
         try {
                 //archiva el mapa de posicionadores
-                StrWriteToFile(Dir+AnsiString("\\InstanceMap.txt"), RPL.getInstanceMapText());
+                StrWriteToFile(Dir+AnsiString("/InstanceMap.txt"), RPL.getInstanceMapText());
 
                 //escribe la instancia en el archivo 'Instance.txt'
-                StrWriteToFile(Dir+AnsiString("\\Instance.txt"), RPL.getInstanceText());
+                StrWriteToFile(Dir+AnsiString("/Instance.txt"), RPL.getInstanceText());
 
                 //por cada posicionador de la lista
                 for(int i=0; i<RPL.getCount(); i++) {
@@ -35,20 +35,28 @@ void WriteInstanceToDir(const AnsiString& Dir, const TRoboticPositionerList& RPL
                         TRoboticPositioner *RP = RPL[i];
 
                         //construye el nombre del subdirectorio que debe contener la instancia del posicionador
-                        AnsiString SubDir = Dir+AnsiString("\\RoboticPositioner")+RP->getActuator()->getId();
+                        AnsiString SubDir = Dir+AnsiString("/RoboticPositioner")+RP->getActuator()->getId();
+                        //fuerza la construcción del directorio
+                        mkpath(SubDir.str);
 
                         //archiva el contorno del brazo
-                        StrWriteToFile(SubDir+AnsiString("\\Contour____.txt"), RP->getActuator()->getArm()->getContour____().getColumnText());
+                        StrWriteToFile(SubDir+AnsiString("/Contour____.txt"), RP->getActuator()->getArm()->getContour____().getColumnText());
 
                         //archiva el contorno de la barrera
-                        StrWriteToFile(SubDir+AnsiString("\\Contour_.txt"), RP->getActuator()->getBarrier()->getContour_().getColumnText());
+                        StrWriteToFile(SubDir+AnsiString("/Contour_.txt"), RP->getActuator()->getBarrier()->getContour_().getColumnText());
+
+                        //archiva la función de compresión del rotor 1
+                        StrWriteToFile(SubDir+AnsiString("/F1.txt"), RP->getActuator()->getF().getTableText());
+
+                        //archiva la función de compresión del rotor 2
+                        StrWriteToFile(SubDir+AnsiString("/F2.txt"), RP->getActuator()->getArm()->getF().getTableText());
 
                         //archiva la instancia del posicionador
-                        StrWriteToFile(SubDir+AnsiString("\\Instance.txt"), RP->getInstanceText());
+                        StrWriteToFile(SubDir+AnsiString("/Instance.txt"), RP->getInstanceText());
                 }
 
                 //archiva la lista de orígenes de coordenadas de la lista de posicionadores
-                StrWriteToFile(Dir+AnsiString("\\RoboticPositionerOriginsTable.txt"), TActuator::GetOriginsLabelsRow()+AnsiString("\r\n")+RPL.getOriginsTableText());
+                StrWriteToFile(Dir+AnsiString("/RoboticPositionerOriginsTable.txt"), TActuator::GetOriginsLabelsRow()+AnsiString("\r\n")+RPL.getOriginsTableText());
 
         } catch(...) {
                 throw;
@@ -65,7 +73,7 @@ void ReadInstanceFromDir(TRoboticPositionerList& RPL, const AnsiString& Dir)
                 AnsiString S;
 
                 //lee y asigna la lista de orígenes de coordenadas de la lista de posicionadores
-                StrReadFromFile(S, Dir+AnsiString("\\RoboticPositionerOriginsTable.txt"));
+                StrReadFromFile(S, Dir+AnsiString("/RoboticPositionerOriginsTable.txt"));
                 _RPL.setOriginsTableText(S);
 
                 //por cada posicionador de la lista
@@ -74,27 +82,35 @@ void ReadInstanceFromDir(TRoboticPositionerList& RPL, const AnsiString& Dir)
                         TRoboticPositioner *RP = _RPL[i];
 
                         //construye el nombre del subdirectorio que contiene la instancia del posicionador
-                        AnsiString SubDir = Dir+AnsiString("\\RoboticPositioner")+RP->getActuator()->getIdText();
+                        AnsiString SubDir = Dir+AnsiString("/RoboticPositioner")+RP->getActuator()->getIdText();
 
                         //lee y asigna el contorno del brazo
-                        StrReadFromFile(S, SubDir+AnsiString("\\Contour____.txt"));
+                        StrReadFromFile(S, SubDir+AnsiString("/Contour____.txt"));
                         RP->getActuator()->getArm()->setContour____ColumnText(S);
 
                         //lee y asigna el contorno de la barrera
-                        StrReadFromFile(S, SubDir+AnsiString("\\Contour_.txt"));
+                        StrReadFromFile(S, SubDir+AnsiString("/Contour_.txt"));
                         RP->getActuator()->getBarrier()->setContour_ColumnText(S);
 
+                        //lee y asigna la función de compresión del rotor 1
+                        StrReadFromFile(S, SubDir+AnsiString("/F1.txt"));
+                        RP->getActuator()->setFTableText(S);
+
+                        //lee y asigna la función de compresión del rotor 2
+                        StrReadFromFile(S, SubDir+AnsiString("/F2.txt"));
+                        RP->getActuator()->getArm()->setFTableText(S);
+
                         //lee y asigna la instancia del posicionador
-                        StrReadFromFile(S, SubDir+AnsiString("\\Instance.txt"));
+                        StrReadFromFile(S, SubDir+AnsiString("/Instance.txt"));
                         RP->setInstanceText(S);
                 }
 
                 //lee y asigna la instancia de la lista de posicionadores
-                StrReadFromFile(S, Dir+AnsiString("\\Instance.txt"));
+                StrReadFromFile(S, Dir+AnsiString("/Instance.txt"));
                 _RPL.setInstanceText(S);
 
                 //carga el mapa de posicionadores
-                StrReadFromFile(S, Dir+AnsiString("\\InstanceMap.txt"));
+                StrReadFromFile(S, Dir+AnsiString("/InstanceMap.txt"));
                 _RPL.setInstanceMapText(S);
 
                 //El mapa de RPs puede ser cargado de un archivo, o puede ser
@@ -131,7 +147,7 @@ void WriteInstanceToDir(const AnsiString& Dir, const TExclusionAreaList& EAL)
 {
         try {
                 //escribe la instancia en el archivo 'Instance.txt'
-//                StrWriteToFile(Dir+"\\Instance.txt", EAL.InstanceText);
+//                StrWriteToFile(Dir+"/Instance.txt", EAL.InstanceText);
 
                 //por cada área de exclusión de la lista
                 for(int i=0; i<EAL.getCount(); i++) {
@@ -139,17 +155,19 @@ void WriteInstanceToDir(const AnsiString& Dir, const TExclusionAreaList& EAL)
                         TExclusionArea *EA = EAL[i];
 
                         //construye el nombre del subdirectorio que debe contener la instancia del área de exclusión
-                        AnsiString SubDir = Dir+AnsiString("\\ExclusionArea")+EA->getId();
+                        AnsiString SubDir = Dir+AnsiString("/ExclusionArea")+EA->getId();
+                        //fuerza la construcción del directorio
+                        mkpath(SubDir.str);
 
                         //archiva el contorno de la barrera
-                        StrWriteToFile(SubDir+AnsiString("\\Contour_.txt"), EA->Barrier.getContour_().getColumnText());
+                        StrWriteToFile(SubDir+AnsiString("/Contour_.txt"), EA->Barrier.getContour_().getColumnText());
 
                         //archiva la instancia del área de exclusión
-                        StrWriteToFile(SubDir+AnsiString("\\Instance.txt"), EA->getInstanceText());
+                        StrWriteToFile(SubDir+AnsiString("/Instance.txt"), EA->getInstanceText());
                 }
 
                 //archiva la lista de orígenes de coordenadas de la lista de área de exclusiónes
-                StrWriteToFile(Dir+AnsiString("\\ExclusionAreaOriginsTable.txt"), TExclusionArea::GetOriginsLabelsRow()+AnsiString("\r\n")+EAL.getOriginsTableText());
+                StrWriteToFile(Dir+AnsiString("/ExclusionAreaOriginsTable.txt"), TExclusionArea::GetOriginsLabelsRow()+AnsiString("\r\n")+EAL.getOriginsTableText());
 
         } catch(...) {
                 throw;
@@ -167,7 +185,7 @@ void ReadInstanceFromDir(TExclusionAreaList& EAL, const AnsiString& Dir,
                 AnsiString S;
 
                 //lee y asigna la tabla de orígenes de coordenadas
-                StrReadFromFile(S, Dir+AnsiString("\\ExclusionAreaOriginsTable.txt"));
+                StrReadFromFile(S, Dir+AnsiString("/ExclusionAreaOriginsTable.txt"));
                 _EAL.setOriginsTableText(S);
 
                 //por cada área de exclusión de la lista
@@ -176,19 +194,19 @@ void ReadInstanceFromDir(TExclusionAreaList& EAL, const AnsiString& Dir,
                         TExclusionArea *EA = _EAL[i];
 
                         //construye el nombre del subdirectorio que contiene la instancia del área de exclusión
-                        AnsiString SubDir = Dir+AnsiString("\\ExclusionArea")+EA->getId();
+                        AnsiString SubDir = Dir+AnsiString("/ExclusionArea")+EA->getId();
 
                         //lee y asigna el contorno de la barrera
-                        StrReadFromFile(S, SubDir+AnsiString("\\Contour_.txt"));
+                        StrReadFromFile(S, SubDir+AnsiString("/Contour_.txt"));
                         EA->Barrier.setContour_ColumnText(S);
 
                         //lee y asigna la instancia del área de exclusión
-                        StrReadFromFile(S, SubDir+AnsiString("\\Instance.txt"));
+                        StrReadFromFile(S, SubDir+AnsiString("/Instance.txt"));
                         EA->setInstanceText(S);
                 }
 
                 //lee y asigna la instancia de la lista de EAs
-//                StrReadFromFile(S, Dir+"\\Instance.txt");
+//                StrReadFromFile(S, Dir+"/Instance.txt");
   //              _EAL.InstanceText = S;
 
                 //clona la lista tampón
@@ -223,7 +241,7 @@ void WriteInstanceToDir(const AnsiString& Dir, const TFiberMOSModel *FMM)
             /*
                             //escribe las demás propiedades de la instancia
                             //en el archivo 'FiberMOSModelInstance.txt'
-                            StrWriteToFile(Dir+AnsiString("\\FiberMOSModelInstance.txt"), FMM->getInstanceText());
+                            StrWriteToFile(Dir+AnsiString("/FiberMOSModelInstance.txt"), FMM->getInstanceText());
             */
                 //escribe las instancias de las listas de objetos en el directorio
                 WriteInstanceToDir(Dir, FMM->EAL);
@@ -252,7 +270,7 @@ void ReadInstanceFromDir(TFiberMOSModel *FMM, const AnsiString& Dir)
                 //lee las demás propiedades de la instancia
                 //del archivo 'FiberMOSModelInstance.txt'
 //                AnsiString S;
-//                StrReadFromFile(S, Dir+"\\FiberMOSModelInstance.txt");
+//                StrReadFromFile(S, Dir+"/FiberMOSModelInstance.txt");
   //              FMM->InstanceText = S;
 
                 //clona la variable tampón
@@ -276,7 +294,7 @@ void WriteInstanceToDir(const AnsiString& Dir, const TFiberMOSModel &FMM)
         try {
         /*                //escribe las demás propiedades de la instancia
                         //en el archivo 'FiberMOSModelInstance.txt'
-                        StrWriteToFile(Dir+"\\FiberMOSModelInstance.txt", FMM.InstanceText);
+                        StrWriteToFile(Dir+"/FiberMOSModelInstance.txt", FMM.InstanceText);
           */
                 //escribe las instancias de las listas de objetos en el directorio
                 WriteInstanceToDir(Dir, FMM.EAL);
@@ -301,7 +319,7 @@ void ReadInstanceFromDir(TFiberMOSModel& FMM, const AnsiString& Dir)
 /*                //lee las demás propiedades de la instancia
                 //del archivo 'Instance.txt'
                 AnsiString S;
-                StrReadFromFile(S, Dir+"\\Instance.txt");
+                StrReadFromFile(S, Dir+"/Instance.txt");
                 _FMM.InstanceText = S;
                 _FMM.Assimilate();
   */
@@ -331,8 +349,10 @@ void WriteInstanceToDir(const AnsiString& Dir, const TFiberConnectionModel *FCM)
             throw EImproperArgument("pointer FCM should point to built Fiber Connection Model");
 
     try {
+        //fuerza la construcción del directorio
+        mkpath(Dir.str);
         //escribe la tabla de conexiones de la pseudoslit en el archivo correspondiente
-        StrWriteToFile(Dir+AnsiString("\\Connections.txt"), FCM->getConnectionsText());
+        StrWriteToFile(Dir+AnsiString("/Connections.txt"), FCM->getConnectionsText());
 
     } catch(...) {
         throw;
@@ -352,7 +372,7 @@ void ReadInstanceFromDir(TFiberConnectionModel *FCM, const AnsiString& Dir)
 
         //lee la tabla de conexiones de la pseudoslit en una cadena de texto
         AnsiString S;
-        StrReadFromFile(S, Dir+AnsiString("\\Connections.txt"));
+        StrReadFromFile(S, Dir+AnsiString("/Connections.txt"));
         //asigna la cadena de texto a la tabla de conexiones de la pseudoslit
         _FCM.setConnectionsText(S);
 
@@ -369,8 +389,10 @@ void ReadInstanceFromDir(TFiberConnectionModel *FCM, const AnsiString& Dir)
 void WriteInstanceToDir(const AnsiString& Dir, const TFiberConnectionModel& FCM)
 {
     try {
+        //fuerza la construcción del directorio
+        mkpath(Dir.str);
         //escribe la tabla de conexiones de la pseudoslit en el archivo correspondiente
-        StrWriteToFile(Dir+AnsiString("\\Connections.txt"), FCM.getConnectionsText());
+        StrWriteToFile(Dir+AnsiString("/Connections.txt"), FCM.getConnectionsText());
 
     } catch(...) {
         throw;
@@ -387,7 +409,7 @@ void ReadInstanceFromDir(TFiberConnectionModel& FCM, const AnsiString& Dir)
 
         //lee la tabla de conexiones de la pseudoslit en una cadena de texto
         AnsiString S;
-        StrReadFromFile(S, Dir+AnsiString("\\Connections.txt"));
+        StrReadFromFile(S, Dir+AnsiString("/Connections.txt"));
         //asigna la cadena de texto a la tabla de conexiones de la pseudoslit
         _FCM.setConnectionsText(S);
 
@@ -428,12 +450,12 @@ void WriteInstanceToDir(const AnsiString& Dir, const TRoboticPositionerListText&
                 SubDir = Dir+"RoboticPositioner"+IntToStr(i);
 
                 //escribe las cadenas ue contiene la instancia del posicionador indicado
-                StrWriteToFile(SubDir+"\\Contour____.txt", RPLT.ItemsText[i].Contour____ColumnText);
-                StrWriteToFile(SubDir+"\\Contour_.txt", RPLT.ItemsText[i].Contour_ColumnText);
-                StrWriteToFile(SubDir+"\\Instance.txt", RPLT.ItemsText[i].InstanceText);
+                StrWriteToFile(SubDir+"/Contour____.txt", RPLT.ItemsText[i].Contour____ColumnText);
+                StrWriteToFile(SubDir+"/Contour_.txt", RPLT.ItemsText[i].Contour_ColumnText);
+                StrWriteToFile(SubDir+"/Instance.txt", RPLT.ItemsText[i].InstanceText);
         }
         //archiva la tabla de orígenes de coordenada
-        StrWriteToFile(Dir+"\\RoboticPositionerOriginsTableText.txt", RPL.OriginsTableText);
+        StrWriteToFile(Dir+"/RoboticPositionerOriginsTableText.txt", RPL.OriginsTableText);
 }
 //lee la instancia de una lista de RPs
 //de un directorio
@@ -443,9 +465,9 @@ void ReadInstanceFromDir(TRoboticPositionerListText& RPLT, const AnsiString& Dir
         if(!DirectoryExists(Dir))
                 throw EImproperArgument("diectory Dir should to exists");
 
-        //el archivo Dir+"\\RoboticPositionerOriginsTableText.txt" debe existir
-        if(!FileExists(Dir+"\\RoboticPositionerOriginsTableText.txt"))
-                throw EImproperArgument("file Dir+\"\\RoboticPositionerOriginsTableText.txt\" should exists");
+        //el archivo Dir+"/RoboticPositionerOriginsTableText.txt" debe existir
+        if(!FileExists(Dir+"/RoboticPositionerOriginsTableText.txt"))
+                throw EImproperArgument("file Dir+\"/RoboticPositionerOriginsTableText.txt\" should exists");
 
 
 }

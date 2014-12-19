@@ -702,7 +702,7 @@ void TCilinder::setFTableText(const AnsiString &S)
 {
     try {
         //clona la función F
-        TFunction _F(__F);
+        TFunction _F;
         //asigna el nuevo valor al clon
         _F.setTableText(S);
         //intenta asignar el clon a la función

@@ -23,23 +23,23 @@ using namespace Strings; //StrIndent
 
 //imprime una lista en una cadena de texto
 void  TMessageList::PrintMessageList(AnsiString &S,
-        const TMessageList *L)
+                                     const TMessageList *L)
 {
-        try {
-                PrintList(S, L);
-        } catch(...) {
-                throw;
-        }
+    try {
+        PrintList(S, L);
+    } catch(...) {
+        throw;
+    }
 }
 //lee una lista de emnsajes en una cadena de texto
 void  TMessageList::ReadMessageList(TMessageList *L,
-        const AnsiString &S, int &i)
+                                    const AnsiString &S, int &i)
 {
-        try {
-                ReadList(L, S, i);
-        } catch(...) {
-                throw;
-        }
+    try {
+        ReadList(L, S, i);
+    } catch(...) {
+        throw;
+    }
 }
 /*
 //PROPIEDADES EN FORMATO TEXTO:

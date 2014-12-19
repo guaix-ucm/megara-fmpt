@@ -662,6 +662,9 @@ public:
     //conjunto de propiedades de posición de P3 (Id, x3, y3)
     //en formato línea de texto
     AnsiString getPositionP3RowText(void) const;
+    //conjunto de propiedades de posición de P3 (Id, p_1, p___3)
+    //en formato línea de texto
+    AnsiString getPositionPAPRowText(void) const;
 
     //##################################################################
     //MÉTODOS PÚBLICOS:
@@ -710,6 +713,10 @@ public:
     //("Id", "x3", "y3") al final de una cadena de texto
     //en formato fila de texto
     static AnsiString GetPositionP3LabelsRow(void);
+    //obtiene las etiquetas de las propiedades de posición
+    //("Id", "p_1", "p___3") al final de una cadena de texto
+    //en formato fila de texto
+    static AnsiString GetPositionPAPLabelsRow(void);
     //atraviesa las etiquetas de las propiedades de posición
     //("Id", "x3", "y3")
     //en formato fila de texto
@@ -724,6 +731,10 @@ public:
     //de texto, en formato fila de texto
     static void  ReadPositionP3Row(TActuator* &FP,
                                              const AnsiString& S, int &i);
+    //imprime los valores de las propiedades de posición de un posicionador
+    //(Id, p_1, p___3) al final de una cadena de texto
+    //en formato fila de texto
+    static void  PrintPositionPAPRow(AnsiString&, TActuator*);
 
     //------------------------------------------------------------------
     //MÉTODOS DE CONSTRUCCIÓN, COPIA Y DESTRUCCIÓN:

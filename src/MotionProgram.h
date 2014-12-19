@@ -28,10 +28,10 @@ namespace Positioning {
 
 //lista de mensajes de instrucción
 class TMessageList : public TPointersList<TMessageInstruction> {
-//        AnsiString __Label; void SetLabel(const AnsiString&);
+    //        AnsiString __Label; void SetLabel(const AnsiString&);
 
 public:
-/*        //PROPIEDADES EN FORMATO TEXTO:
+    /*        //PROPIEDADES EN FORMATO TEXTO:
 
         //etiqueta de la lista de mensajes
         //debe ser una cadena de texto imprimible
@@ -40,25 +40,25 @@ public:
 
         //NOTA: cada lista de mensajes debe tener una etiqueta
 */
-        //MÉTODOS ESTÁTICOS:
+    //MÉTODOS ESTÁTICOS:
 
     //imprime una lista en una cadena de texto
     static void  PrintMessageList(AnsiString &S,
-                const TMessageList *L);
-        //lee una lista de emnsajes en una cadena de texto
+                                  const TMessageList *L);
+    //lee una lista de emnsajes en una cadena de texto
     static void  ReadMessageList(TMessageList *L,
-                const AnsiString &S, int &i);
+                                 const AnsiString &S, int &i);
 
-        //construye una lista de mensajes
-        TMessageList(int _Capacity=1003) :
-                TPointersList<TMessageInstruction>(_Capacity,
-                        TMessageInstruction::CompareIds,
-                        NULL, NULL,
-                        TMessageInstruction::Print,
-                        TMessageInstruction::Read) {;}
+    //construye una lista de mensajes
+    TMessageList(int _Capacity=1003) :
+        TPointersList<TMessageInstruction>(_Capacity,
+                                           TMessageInstruction::CompareIds,
+                                           NULL, NULL,
+                                           TMessageInstruction::Print,
+                                           TMessageInstruction::Read) {;}
 
-        //imprime los mensajes de una lista en una caja de lista
-        //#void Print(QListWidget*);
+    //imprime los mensajes de una lista en una caja de lista
+    //#void Print(QListWidget*);
 };
 
 //--------------------------------------------------------------------------
@@ -68,13 +68,13 @@ public:
 //programa de movimiento
 class TMotionProgram : public TPointersList<TMessageList> {
 public:
-        //contruye un programa de posicionamientos
-        TMotionProgram(int _Capacity=7) :
-                TPointersList<TMessageList>(_Capacity,
-                        NULL, NULL, NULL,
-                        TMessageList::PrintMessageList,
-                        TMessageList::ReadMessageList) {;}
-/*#
+    //contruye un programa de posicionamientos
+    TMotionProgram(int _Capacity=7) :
+        TPointersList<TMessageList>(_Capacity,
+                                    NULL, NULL, NULL,
+                                    TMessageList::PrintMessageList,
+                                    TMessageList::ReadMessageList) {;}
+    /*#
         //imprime las etiquetas de las listas de mensajes de un programa
         //en una caja de lista
         void Print(QListWidget *LB);

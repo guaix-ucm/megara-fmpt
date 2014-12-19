@@ -34,8 +34,12 @@
 //QString::toDouble(), produciéndose un error.
 //Solución, tomar los valores extremos como +/- INF.
 
-//define un separador decimal
-extern char DecimalSeparator;
+//lee el valor del separador decimal
+char get_decimal_separator(void);
+
+//El valor del separador decimal se asigna mediante:
+//    setlocale(LC_NUMERIC, s);
+//donde s es una char* conteniendo el separador.
 
 //clase pantalla
 class TScreen {

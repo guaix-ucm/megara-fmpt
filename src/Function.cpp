@@ -34,6 +34,7 @@ void TFunction::setPeriodic(bool _Periodic)
 
     //si no hay puntos de muestreo siempre se podrá activar la periodicidad
 
+    //asigna el nuevo valor
     Periodic = _Periodic;
 }
 
@@ -51,6 +52,28 @@ void TFunction::setT(double _T)
 
 //---------------------------------------------------------------------------
 //ACCESO A LOS PUNTOS DE MUESTREO:
+
+//asigna los vectores de abcisas y ordenadas
+void TFunction::Set(const TVector<double>& _X, const TVector<double>& _Y)
+{
+    //el número de abcisas debe ser igual al número de ordenadas
+    if(_X.getCount() != _Y.getCount())
+        throw EImproperArgument("number of abcises should be equalto thenumber of ordinates");
+
+    //las abcisas deben estar ordenadas de menor a mayor
+    if(!_X.getIncreasing())
+        throw EImproperArgument("the abcises should besorted increasing");
+
+    //no debe haber dos abcisas iguales
+    for(int i=1; i<_X.getCount(); i++)
+        if(_X[i]==_X[i-1])
+            throw EImproperArgument("should not be two abcises equals");
+
+    //asigna los vectores y actualiza el número de puntos
+    X = _X;
+    Y = _Y;
+    Count = _X.getCount();
+}
 
 double TFunction::getX(int i) const
 {
@@ -165,14 +188,20 @@ void TFunction::setY(int i, double y)
 TDoublePoint TFunction::getP(int i) const
 {
     TDoublePoint p;
+    //si lafunción es periódica
     if(Periodic) {
+        //determina elnúmero de ciclos
         int ncycles = floor(double(i)/Count);
-        i -= ncycles*Count; //transplanta i al ciclo principal
+        //transplanta i alciclo principal
+        i -= ncycles*Count;
+        //obtiene los valores en el ciclo correspondiente
         p.x = X[i] + T*ncycles;
         p.y = Y[i];
+        //devuelvelos valores
         return p;
+
     } else { //si es aperiódica
-        //debe indicar un punto de muestreo existente
+        //debe indicar un punto fundamental existente
         if(i<0 || Count<=i)
             throw EImproperArgument("index i out bounds");
 
@@ -341,9 +370,9 @@ void  TFunction::PrintTable(AnsiString &S, const TFunction *F)
 
     S += F->getTableText();
 }
-//lee una cadena en busca de los puntos de un afunción
+//lee una cadena en busca de los puntos de una función
 void  TFunction::ReadTable(TFunction *F, const AnsiString &S,
-                                     int &i)
+                           int &i)
 {
     //el puntero F debería apauntar a una función contruida
     if(F == NULL)
@@ -359,7 +388,6 @@ void  TFunction::ReadTable(TFunction *F, const AnsiString &S,
 
         //intenta leer la tabla
         StrReadTable(_X, _Y, S, i);
-
         //Nótese que las abcisas no tienen por que estar ordenadas.
 
         //el vector de abcisas no debe tener valores repetidos
@@ -370,8 +398,8 @@ void  TFunction::ReadTable(TFunction *F, const AnsiString &S,
                     throw EImproperArgument(AnsiString("abcissa X[")+IntToStr(i)+AnsiString("] should not be equal to abcissa X[")+IntToStr(j)+AnsiString("]"));
 
         //asigna los nuevos valores
-        F->X = _X;
-        F->Y = _Y;
+        F->Set(_X, _Y);
+
     } catch(...) {
         throw;
     }

@@ -8,7 +8,7 @@
 #ifndef TCANVAS_H
 #define TCANVAS_H
 
-#include "vclemu.h" //AnsiString
+#include "../src/vclemu.h" //AnsiString
 
 #include <QPicture>
 #include <QPainter>

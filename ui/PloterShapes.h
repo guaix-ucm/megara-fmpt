@@ -8,10 +8,10 @@
 #ifndef PLOTERSHAPES_H
 #define PLOTERSHAPES_H
 
-#include "..\0_VCL\tcanvas.h"
-#include "..\0_VCL\tpaintbox.h"
-//#include "..\1_Mathematics\Vectors.h"
-#include "..\1_Mathematics\Polypoint.h"
+#include "tcanvas.h"
+#include "tpaintbox.h"
+//#include "..\src\Vectors.h"
+#include "../src/Polypoint.h"
 
 //ADVERTENCIA: incluir QtQuick/QQuickWindow provoca que
 //TextOut sea una palabra reservada, de modo que el método
@@ -251,11 +251,11 @@ public:
     //MÉTODOS DE TRANSFORMACIÓN DE COORDENADAS:
 
     //traduce de unidades del sistema a pixels del lienzo
-    double __fastcall UnitsToPixelsX(double x) {return (x - __X1)*__PBUx;}
-    double __fastcall UnitsToPixelsY(double y) {return (__Y2 - y)*__PBUy;}
+    double UnitsToPixelsX(double x) {return (x - __X1)*__PBUx;}
+    double UnitsToPixelsY(double y) {return (__Y2 - y)*__PBUy;}
     //traduce de pixels del lienzo a unidades del sistema
-    double __fastcall PixelsToUnitsX(double X) {return X/__PBUx + __X1;}
-    double __fastcall PixelsToUnitsY(double Y) {return __Y2 - Y/__PBUy;}
+    double PixelsToUnitsX(double X) {return X/__PBUx + __X1;}
+    double PixelsToUnitsY(double Y) {return __Y2 - Y/__PBUy;}
 
     //NOTA: las dimensiones en pixels de cara a la transformación de
     //coordenadas son (Width - 1)x(Height - 1) porque se mide desde

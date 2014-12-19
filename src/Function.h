@@ -62,6 +62,9 @@ public:
 
     //ACCESO A LOS PUNTOS DE MUESTREO:
 
+    //asigna los vectores de abcisas y ordenadas
+    void Set(const TVector<double>& _X, const TVector<double>& _Y);
+
     //abcisa indicada
     double getX(int) const;
     void setX(int, double);
@@ -110,13 +113,13 @@ public:
 
     //imprime los puntos de una función en una cadena
     static void  PrintPoints(AnsiString &S, const TFunction *F);
-    //lee una cadena en busca de los puntos de un afunción
+    //lee una cadena en busca de los puntos de una función
     static void  ReadPoints(TFunction *F, const AnsiString &S,
                                       int &i);
 
     //imprime los puntos de una función en una cadena
     static void  PrintTable(AnsiString &S, const TFunction *F);
-    //lee una cadena en busca de los puntos de un afunción
+    //lee una cadena en busca de los puntos de una función
     static void  ReadTable(TFunction *F, const AnsiString &S,
                                      int &i);
 

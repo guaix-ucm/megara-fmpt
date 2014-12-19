@@ -31,7 +31,7 @@ void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
     throw EImposibleError("unknowledge value in type TKnowledgeValue");
 }
 void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
-                                       const AnsiString &S, int &i)
+                             const AnsiString &S, int &i)
 {
     //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -955,7 +955,7 @@ AnsiString TActuator::getGraphicsText(void) const
     S = "R/W:\r\n";
 
     S += AnsiString("    Label = ")+getLabel()+AnsiString("\r\n");
-/*#    S += AnsiString("    ColorCilinder = ")+getColorCilinderText()+AnsiString("\r\n");
+    /*#    S += AnsiString("    ColorCilinder = ")+getColorCilinderText()+AnsiString("\r\n");
     S += AnsiString("    ColorArm = ")+getColorArmText()+AnsiString("\r\n");
     S += AnsiString("    ColorLimitDomainP3 = ")+getColorLimitDomainP3Text()+AnsiString("\r\n");
     S += AnsiString("    ColorLimitDomainManeuvering = ")+getColorLimitDomainManeuveringText()+AnsiString("\r\n");
@@ -1044,6 +1044,10 @@ AnsiString TActuator::getPositionP3RowText(void) const
 {
     return getIdText()+AnsiString("\t")+getArm()->getP3().getRowText();
 }
+AnsiString TActuator::getPositionPAPRowText(void) const
+{
+    return getIdText()+AnsiString("\t")+getp_1Text()+AnsiString("\t")+getArm()->getp___3Text();
+}
 
 //##########################################################################
 //MÉTODOS PRIVADOS:
@@ -1112,7 +1116,7 @@ void  TActuator::PrintId(AnsiString &S, TActuator *A)
 
 //lee una instancia de actuador en una cadena
 void  TActuator::ReadInstance(TActuator* &A,
-                                        const AnsiString& S, int &i)
+                              const AnsiString& S, int &i)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1345,7 +1349,7 @@ void  TActuator::PrintOriginsRow(AnsiString& S, TActuator *A)
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
 void  TActuator::ReadOriginsRow(TActuator* &A,
-                                          const AnsiString& S, int &i)
+                                const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1428,6 +1432,13 @@ AnsiString TActuator::GetPositionP3LabelsRow(void)
 {
     return "Id      x3      y3";
 }
+//obtiene las etiquetas de las propiedades de posición de un posicionador
+//("Id", "p_1", "p___3") al final de una cadena de texto
+//en formato fila de texto
+AnsiString TActuator::GetPositionPAPLabelsRow(void)
+{
+    return "Id      p_1     p___3";
+}
 //atraviesa las etiquetas de las propiedades de posición
 //("Id", "x3", "y3")
 //en formato fila de texto
@@ -1496,7 +1507,7 @@ void  TActuator::PrintPositionP3Row(AnsiString& S, TActuator *A)
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
 void  TActuator::ReadPositionP3Row(TActuator* &A,
-                                             const AnsiString& S, int &i)
+                                   const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1564,6 +1575,17 @@ void  TActuator::ReadPositionP3Row(TActuator* &A,
         throw;
     }
 }
+//imprime los valores de las propiedades de posición de un posicionador
+//(Id, p_1, p___3) al final de una cadena de texto
+//en formato fila de texto
+void  TActuator::PrintPositionPAPRow(AnsiString& S, TActuator *A)
+{
+    //el puntero A debe apuntar a un actuador construido
+    if(A == NULL)
+        throw EImproperArgument("pointer A should bepoint to built actuator");
+
+    S += A->getPositionPAPRowText();
+}
 
 //---------------------------------------------------------------------------
 //MÉTODOS DE CONSTRUCCIÓN, DESTRUCCIÓN Y COPIA:
@@ -1619,7 +1641,7 @@ TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
     //----------------------------------------
     //inicializa las propiedades gráficas
     __Label = "''";
-/*#    ColorCilinder = DefaultColor;
+    /*#    ColorCilinder = DefaultColor;
     ColorArm = DefaultColor;
     ColorLimitDomainP3 = DefaultColor;
     ColorLimitDomainManeuvering = DefaultColor;
@@ -1702,7 +1724,7 @@ void TActuator::CopyGraphics(const TActuator *A)
 
     //copia las propiedades
     __Label = A->__Label;
-/*#    ColorCilinder = A->ColorCilinder;
+    /*#    ColorCilinder = A->ColorCilinder;
     ColorArm = A->ColorArm;
     ColorLimitDomainP3 = A->ColorLimitDomainP3;
     ColorLimitDomainManeuvering = A->ColorLimitDomainManeuvering;

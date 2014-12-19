@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------
 
 #include "PloterShapes.h"
-#include "..\0_VCL\vclemu.h"
-#include "..\1_Mathematics\Scalars.h"
-#include "..\2_Strings\StrSimbolic.h"
+#include "../src/vclemu.h"
+#include "../src/Scalars.h"
+#include "../src/StrSimbolic.h"
 
 //---------------------------------------------------------------------------
 
@@ -350,13 +350,28 @@ void TPloterShapes::Arc(TDoublePoint Pfin, TDoublePoint Pini,
     //se dibujará el círculo complementario, adoptándose
     //(X3, Y3) como el punto inicial.
 
+    //si el marco entre p1 y p2, tiene un pixel central
+    if((X1 + X2)%2!=1 && (Y1 + Y2)%2!=1) {
+        //calcula el punto central
+        int XC = (X1 + X2)/2;
+        int YC = (Y1 + Y2)/2;
+        //si elpunto (X3, Y3) coincide con la coordenada del pixel central
+        if(X3==XC && Y3==YC)
+            //no dibuja la elipse
+            return;
+        //si elpunto (X4, Y4) coincide con la coordenada del pixel central
+        if(X4==XC && Y4==YC)
+            //no dibuja la elipse
+            return;
+    }
+
     //cuando (X3, Y3)==(X4, Y4), solo debe intentar pintar el arco
     //cuando el ángulo es mayor que llano
     if(X3!=X4 || Y3!=Y4 || AnglePos(Pini-Pc, Pfin-Pc)>M_PI) {
         //traza el arco
         __PictureCanvas->Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4);
         //pinta el último punto
-        __PictureCanvas->Point(X4, Y4);
+//        __PictureCanvas->Point(X4, Y4);
     }
 
     //para poder pintar el último punto del arco debe haber normalizado Pfin

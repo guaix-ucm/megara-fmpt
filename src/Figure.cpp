@@ -2425,7 +2425,8 @@ void TArc::SetValues(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc, doubl
         throw EImproperArgument("point Pa should be in range of a point in the arc");
 
     //el punto Pb debe estar en el entorno de un punto del arco
-    if(Abs(Mod(_Pb - _Pc) - _R) > ERR_NUM)
+    double aux = Abs(Mod(_Pb - _Pc) - _R);
+    if(aux > ERR_NUM)
         throw EImproperArgument("point Pb should be in range of a point in the arc");
 
     //asigna los nuevos valores

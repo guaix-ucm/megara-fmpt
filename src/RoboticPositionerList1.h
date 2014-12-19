@@ -243,6 +243,9 @@ public:
         //      Id      x3      y3
         AnsiString getPositionsP3TableText(void) const;
         void setPositionsP3TableText(const AnsiString&);
+        //tabla de PAPs:
+        //      Id      p_1     p___3
+        AnsiString getPositionsPAPTableText(void) const;
 
         //conjunto de todas las propiedades de seguridad
         //en formato asignaciones

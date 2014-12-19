@@ -6,10 +6,10 @@
 //---------------------------------------------------------------------------
 
 #include "tcanvas.h"
-#include "Exceptions.h"
-#include "..\1_Mathematics\Constants.h"
-#include "..\1_Mathematics\Vectors.h"
-#include "..\1_Mathematics\Scalars.h"
+#include "../src/Exceptions.h"
+#include "../src/Constants.h"
+#include "../src/Vectors.h"
+#include "../src/Scalars.h"
 
 //---------------------------------------------------------------------------
 
@@ -129,30 +129,62 @@ void TCanvas::Clear(void)
 int TCanvas::TextWidth(const AnsiString& S)
 {
     //activa el painter adscribiéndolo a la picture
-    painter.begin(&picture);
+//    painter.begin(&picture);
 
-    //utiliza el painter
-    QString QS(S.c_str()); //contruye una QString a partir de la AnsiString
-    int aux = painter.fontMetrics().width(QS);
+    try {
+        //intercambia el contenido de las pictures
+        picture.swap(picturebak);
+        //activa el painter adscribiéndolo a la picture
+        painter.begin(&picture);
+        //restaura el contenido de la picture
+        painter.drawPicture(0, 0, picturebak);
 
-    //desactiva el painter realizando los dibujos
-    painter.end();
+        //Nótese que aunque solo va a medir las simensiones de un texto
+        //el painter debe estar activo, y para que no se borre todo el contenido
+        //deberá intercambiarse su contenido.
 
-    return aux; //devuelve el valor de lectura
+        //utiliza el painter
+        QString QS(S.c_str()); //contruye una QString a partir de la AnsiString
+        int aux = painter.fontMetrics().width(QS);
+
+        //desactiva el painter realizando los dibujos
+        painter.end();
+
+        return aux; //devuelve el valor de lectura
+
+    } catch(...) {
+        throw;
+    }
 }
 //determina la altura de una cadena en pixels
 int TCanvas::TextHeight(void)
 {
     //activa el painter adscribiéndolo a la picture
-    painter.begin(&picture);
+//    painter.begin(&picture);
 
-    //utiliza el painter
-    int aux = painter.fontMetrics().height();
+    try {
+        //intercambia el contenido de las pictures
+        picture.swap(picturebak);
+        //activa el painter adscribiéndolo a la picture
+        painter.begin(&picture);
+        //restaura el contenido de la picture
+        painter.drawPicture(0, 0, picturebak);
 
-    //desactiva el painter
-    painter.end();
+        //Nótese que aunque solo va a medir las simensiones de un texto
+        //el painter debe estar activo, y para que no se borre todo el contenido
+        //deberá intercambiarse su contenido.
 
-    return aux; //devuelve el valor de lectura
+        //utiliza el painter
+        int aux = painter.fontMetrics().height();
+
+        //desactiva el painter realizando los dibujos
+        painter.end();
+
+        return aux; //devuelve el valor de lectura
+
+    } catch(...) {
+        throw;
+    }
 }
 
 //imprime un texto en el lienzo

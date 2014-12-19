@@ -395,56 +395,121 @@ void StrReadLabel(AnsiString &Reading, const AnsiString &Label,
 //la posición indicada de un acadena de texto
 void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i)
 {
-        //si el índice i no indica a un caracter de la cadena S
-        if(i<1 || S.Length()<i)
-                //indica que no ha encontrado la etiqueta
+    //si el índice i no indica a un caracter de la cadena S
+    if(i<1 || S.Length()<i)
+        //indica que no ha encontrado la etiqueta
+        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+
+    //la etiqueta Label debería tener algún caracter
+    if(Label.Length() < 1)
+        throw EImproperArgument("label Label should contain some character");
+
+    //inicializa el índice de la etiqueta
+    int j = 1;
+    //estado de lectura de la cadena S
+    //  0: esperando separador, retorno de carro o primercar cacter de la etiqueta
+    //  1: esperando avance de línea
+    //  2: separadores iniciales atravesados con éxito y atravesando la etiqueta
+    int status = 0;
+
+    //atraviesa los separadores iniciales de la cadena S y el primer caracter de la etiqueta
+    do {
+        //leeel caracterindicado de lacadena S para facilitar su acceso
+        char c = S[i];
+
+        //en caso de que el estado sea...
+        switch(status) {
+        case 0: //esperando separador, retorno de carro o primer cacter de la etiqueta
+            //si el caracter difiere del primer caracter de la etiqueta
+            if(c != Label[j])
+                //en caso de que el caracter indicado sea...
+                switch(c) {
+                case ' ': case '\t': //espacio o tabulador
+                    i++; //atraviesa el separador indicado
+                    break;
+                case '\r': //retorno de carro
+                    i++; //atraviesa el caracter indicado
+                    status++; //pasa a esperar el avance de linea
+                    break;
+                default: //si no es un separador
+                    //indica que no se ha encontrado la etiqueta
+                    throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+                }
+            //si el caracter coincide con el primer caracter de la etiqueta
+            else {
+                //atraviesa el caracter indicado
+                i++; j++;
+                status = 2; //indica que ha empezado a atravesar la etiqueta
+            }
+            break;
+
+        case 1: //esperando avance de línea
+            if(c == '\n') {
+                i++; //atraviesa el caracter indicado
+                status = 0; //vuelve a esperar un separador o retorno de carro, o primer caracter de etiqueta
+            } else
+                //indica que no se ha encontrado la etiqueta
                 throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+            break;
+        }
 
-        //la etiqueta Label debería tener algún caracter
-        if(Label.Length() < 1)
-                throw EImproperArgument("label Label should contain some character");
+    //mientrasnos e haya empezado a atravesar la etiqueta
+    } while(status < 2);
 
-        //estado de lectura:
-        //      0: esperando ' ', '\t', '\r' (cuando la etiqueta no empieza por '\r') o etiqueta
-        //      1: etiqueta leida con éxito
-        int status = 0;
+    //mientras queden caracteres por atravesar y los caracteres coincidan
+    while(i<=S.Length() && j<=Label.Length() && S[i]==Label[j]) {
+        //atraviesa el caracter indicado
+        i++;
+        j++;
+    }
 
-        //variables auxiliares
-        char c; //S[i]
+    //si no se han atravesado todos los caracteres de la etiqueta
+    if(j <= Label.Length())
+        //indica que no se ha encontrado la etiqueta
+        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
 
-        do {
-                c = S[i];
+/*
+    //estado de lectura:
+    //      0: esperando ' ', '\t', '\r' (cuando la etiqueta no empieza por '\r') o etiqueta
+    //      1: etiqueta leida con éxito
+    int status = 0;
 
-                //esperando ' ', '\t', '\r' o etiqueta
-                        if(c==' ' || c=='\t') {
-                                i++;
-                                if(i > S.Length())
-                                        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
-                        } else if(c=='\r' && Label[1]!='\r') {
-                                StrTravelLabel("\r\n", S, i);
-                                if(i > S.Length())
-                                        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
-                        } else {
-                                char c1, c2;
+    //variables auxiliares
+    char c; //S[i]
 
-                                for(int j=1; j<=Label.Length(); j++) {
-                                        c1 = Label[j];
+    do {
+        c = S[i];
 
-                                        if(i > S.Length())
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c1)+AnsiString("' not found"));
+        //esperando ' ', '\t', '\r' o etiqueta
+        if(c==' ' || c=='\t') {
+            i++;
+            if(i > S.Length())
+                throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+        } else if(c=='\r' && Label[1]!='\r') {
+            StrTravelLabel("\r\n", S, i);
+            if(i > S.Length())
+                throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+        } else {
+            char c1, c2;
 
-                                        c2 = S[i];
+            for(int j=1; j<=Label.Length(); j++) {
+                c1 = Label[j];
 
-                                        //si los caracteres no coinciden
-                                        if(c1 != c2)
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c2)+AnsiString("' should be '")+AnsiString(c1)+AnsiString("'"));
-                                        else
-                                                i++;
-                                }
-                                //indica que ha leido la etiqueta con éxito
-                                status++;
-                        }
-        } while(status < 1);
+                if(i > S.Length())
+                    throw EImproperArgument(AnsiString("'")+AnsiString(c1)+AnsiString("' not found"));
+
+                c2 = S[i];
+
+                //si los caracteres no coinciden
+                if(c1 != c2)
+                    throw EImproperArgument(AnsiString("'")+AnsiString(c2)+AnsiString("' should be '")+AnsiString(c1)+AnsiString("'"));
+                else
+                    i++;
+            }
+            //indica que ha leido la etiqueta con éxito
+            status++;
+        }
+    } while(status < 1);*/
 }
 
 /*
@@ -927,7 +992,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
-                                } else if(c == DecimalSeparator) {
+                                } else if(c == get_decimal_separator()) {
                                         _F += c;
                                         i++;
                                         if(i > S.Length())

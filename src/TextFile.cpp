@@ -265,6 +265,8 @@ void StrReadFromFile(AnsiString &S, const AnsiString &FileName)
 
         //lee el archivo en la cadena
         TF.Read(S);
+        //reemplaza las cadenas "\r\r\n" por cadenas "\r\n"
+        strreplace(S.str, "\r\r\n", "\r\n");
 
         //cierra el archivo
         TF.Close();

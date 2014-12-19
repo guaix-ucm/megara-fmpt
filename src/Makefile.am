@@ -1,27 +1,99 @@
 lib_LTLIBRARIES = libfmtp.la
-libfmtp_la_SOURCES = Actuator.cpp Actuator.h Arm.cpp Arm.h Barrier.cpp Barrier.h Cilinder.cpp \
-Cilinder.h ComposedMotionFunction.cpp ComposedMotionFunction.h Constants.cpp \
-Constants.h ContourFigureList.cpp ContourFigureList.h Exceptions.cpp Exceptions.h \
-ExclusionArea.cpp ExclusionArea.h ExclusionAreaList.cpp ExclusionAreaList.h \
-FiberConnectionModel.cpp FiberConnectionModel.h FiberMOSModel1.cpp \
-FiberMOSModel1.h FiberMOSModel2.cpp FiberMOSModel2.h FiberMOSModelConstants.h \
-Figure.cpp Figure.h FileMethods.cpp FileMethods.h Function.cpp Function.h \
-Geometry.cpp Geometry.h Instruction.cpp Instruction.h ItemsList.cpp \
-ItemsList.h MessageInstruction.cpp MessageInstruction.h MotionFunction.cpp \
-MotionFunction.h MotionProgram.cpp MotionProgramGenerator.cpp MotionProgramGenerator.h \
-MotionProgram.h PLVector.cpp PLVector.h PointersList.cpp PointersList.h \
-PointersSlideArray.cpp PointersSlideArray.h Polypoint.cpp Polypoint.h \
-ProjectionPoint.cpp ProjectionPoint.h Quantificator.cpp Quantificator.h \
-RampFunction.cpp RampFunction.h RoboticPositioner.cpp RoboticPositioner.h \
-RoboticPositionerList1.cpp RoboticPositionerList1.h RoboticPositionerList2.cpp \
-RoboticPositionerList2.h RoboticPositionerList3.cpp RoboticPositionerList3.h \
-Scalars.cpp Scalars.h SkyPoint.cpp SkyPoint.h SlideArray.cpp SlideArray.h \
-SquareFunction.cpp SquareFunction.h Strings.cpp Strings.h StrPR.cpp StrPR.h \
-StrSimbolic.cpp StrSimbolic.h TargetPoint.cpp TargetPoint.h TargetPointList.cpp \
-TargetPointList.h TelescopeProjectionModel.cpp TelescopeProjectionModel.h \
-TextFile.cpp TextFile.h Tile.cpp Tile.h \
-vclemu.cpp vclemu.h Vector.cpp Vector.h Vectors.cpp Vectors.h
-
+libfmtp_la_SOURCES = vclemu.cpp \
+    Exceptions.cpp \
+    Vectors.cpp \
+    Constants.cpp \
+    Scalars.cpp \
+    Geometry.cpp \
+    Strings.cpp \
+    StrPR.cpp \
+    StrSimbolic.cpp \
+    TextFile.cpp \
+    ItemsList.cpp \
+    SlideArray.cpp \
+    Vector.cpp \
+    PointersList.cpp \
+    PointersSlideArray.cpp \
+    Quantificator.cpp \
+    Function.cpp \
+    ComposedMotionFunction.cpp \
+    RampFunction.cpp \
+    SquareFunction.cpp \
+    MotionFunction.cpp \
+    Figure.cpp \
+    Barrier.cpp \
+    ContourFigureList.cpp \
+    Arm.cpp \
+    Cilinder.cpp \
+    Actuator.cpp \
+    RoboticPositioner.cpp \
+    ExclusionArea.cpp \
+    Instruction.cpp \
+    RoboticPositionerList1.cpp \
+    RoboticPositionerList2.cpp \
+    RoboticPositionerList3.cpp \
+    ExclusionAreaList.cpp \
+    FiberConnectionModel.cpp \
+    FiberMOSModel1.cpp \
+    FiberMOSModel2.cpp \
+    FileMethods.cpp \
+    MessageInstruction.cpp \
+    SkyPoint.cpp \
+    ProjectionPoint.cpp \
+    Tile.cpp \
+    TelescopeProjectionModel.cpp \
+    MotionProgram.cpp \
+    TargetPoint.cpp \
+    TargetPointList.cpp \
+    MotionProgramGenerator.cpp \
+    vclemu.h \
+    Exceptions.h \
+    Vectors.h \
+    Constants.h \
+    Scalars.h \
+    Geometry.h \
+    Strings.h \
+    StrPR.h \
+    StrSimbolic.h \
+    TextFile.h \
+    ItemsList.h \
+    SlideArray.h \
+    Vector.h \
+    PointersList.h \
+    PointersSlideArray.h \
+    Quantificator.h \
+    Function.h \
+    ComposedMotionFunction.h \
+    RampFunction.h \
+    SquareFunction.h \
+    MotionFunction.h \
+    Figure.h \
+    Barrier.h \
+    ContourFigureList.h \
+    FiberMOSModelConstants.h \
+    Arm.h \
+    Cilinder.h \
+    Actuator.h \
+    RoboticPositioner.h \
+    ExclusionArea.h \
+    Instruction.h \
+    RoboticPositionerList1.h \
+    RoboticPositionerList2.h \
+    RoboticPositionerList3.h \
+    ExclusionAreaList.h \
+    FiberConnectionModel.h \
+    FiberMOSModel1.h \
+    FiberMOSModel2.h \
+    FileMethods.h \
+    MessageInstruction.h \
+    SkyPoint.h \
+    ProjectionPoint.h \
+    Tile.h \
+    TelescopeProjectionModel.h \
+    MotionProgram.h \
+    TargetPoint.h \
+    TargetPointList.h \
+    MotionProgramGenerator.h
 
 ## Version info is in current : revision : age form
 ## A library supports interfaces from current downto current - age
@@ -31,12 +103,59 @@ vclemu.cpp vclemu.h Vector.cpp Vector.h Vectors.cpp Vectors.h
 
 libfmtp_la_LDFLAGS = -version-info 0:0:0
 
-##pkginclude_HEADERS = Strings.h
+pkginclude_HEADERS = vclemu.h \
+    Exceptions.h \
+    Vectors.h \
+    Constants.h \
+    Scalars.h \
+    Geometry.h \
+    Strings.h \
+    StrPR.h \
+    StrSimbolic.h \
+    TextFile.h \
+    ItemsList.h \
+    SlideArray.h \
+    Vector.h \
+    PointersList.h \
+    PointersSlideArray.h \
+    Quantificator.h \
+    Function.h \
+    ComposedMotionFunction.h \
+    RampFunction.h \
+    SquareFunction.h \
+    MotionFunction.h \
+    Figure.h \
+    Barrier.h \
+    ContourFigureList.h \
+    FiberMOSModelConstants.h \
+    Arm.h \
+    Cilinder.h \
+    Actuator.h \
+    RoboticPositioner.h \
+    ExclusionArea.h \
+    Instruction.h \
+    RoboticPositionerList1.h \
+    RoboticPositionerList2.h \
+    RoboticPositionerList3.h \
+    ExclusionAreaList.h \
+    FiberConnectionModel.h \
+    FiberMOSModel1.h \
+    FiberMOSModel2.h \
+    FileMethods.h \
+    MessageInstruction.h \
+    SkyPoint.h \
+    ProjectionPoint.h \
+    Tile.h \
+    TelescopeProjectionModel.h \
+    MotionProgram.h \
+    TargetPoint.h \
+    TargetPointList.h \
+    MotionProgramGenerator.h
 
-bin_PROGRAMS = fmpa
-fmpa_SOURCES = FMPA_SAA_main.cpp
-fmpa_LDADD = libfmtp.la
-fmpa_CPPFLAGS = $(AM_CPPFLAGS)
+bin_PROGRAMS = fmpt_saa
+fmpt_saa_SOURCES = main.cpp
+fmpt_saa_LDADD = libfmtp.la
+fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
 
-AM_CPPFLAGS = -I$(top_srcdir)
+AM_CPPFLAGS = -I$(top_srcdir) -DDATADIR=\"$(datadir)\"
 

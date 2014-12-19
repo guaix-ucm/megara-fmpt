@@ -10,18 +10,30 @@
 
 #include <cmath>
 #include <climits>
-#include <cstdlib> //rands, rand
+#include <stdlib.h> //rands, rand
 #include <sstream> //ostringstream
-#include <cstdlib> //strtod
+#include <stdlib.h> //strtod
 
 #include <unistd.h> //getcwd
 #include <sys/stat.h> //stat, S_ISDIR
 //#include <QDir>
+#include <locale.h> //struct lconv, localeconv()
+#include <cstring> //strlen
 
 //---------------------------------------------------------------------------
 
-//inicializa el separador decimal
-char DecimalSeparator = ',';
+//lee elvalor del separador decimal
+char get_decimal_separator(void)
+{
+    struct lconv *lc;
+    lc = localeconv();
+    char *s = lc->decimal_point;
+
+    if(strlen(s) != 1)
+        throw exception();
+
+    return s[0];
+}
 
 //construye la pantalla
 TScreen Screen;
@@ -498,7 +510,7 @@ int mkpath(const string& path)
         //descompone la ruta en la supra-ruta y el directorio actual
         string upper_path;
         int i = path.length() - 1;
-        while(i>=0 && path.c_str()[i]!='\\') {
+        while(i>=0 && path.c_str()[i]!='/') {
             i--;
         }
         for(int j=0; j<i; j++)
@@ -531,7 +543,7 @@ int mkpath(const string& path)
     //si el directorio existe o solo queda el directorio raiz
     struct stat sb;
     if((stat(dir, &sb)==0 && S_ISDIR(sb.st_mode)) ||
-            (strlen(dir)==3 && dir[2]=='\\'))
+            (strlen(dir)==3 && dir[2]=='/'))
         //indica que ha terminado el trabajo con éxito
         //(para el nivel en que se encuentre)
         return 0;
@@ -540,7 +552,7 @@ int mkpath(const string& path)
 
     //construye la subpath contenedora
     char *sp = strdup(dir);
-    char *dn = strstr(sp, "\\");
+    char *dn = strstr(sp, "/");
     mkpath(dn);
 
     //construye el directorio actual

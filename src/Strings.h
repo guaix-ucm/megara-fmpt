@@ -91,6 +91,14 @@ AnsiString StrExtension(const AnsiString &filename);
 //la cadena de destino perderá su contenido original
 void StrCopy(AnsiString &D, const AnsiString &S, int i1, int i2);
 
+//sustituye las ocurrencias de una cadena a reemplazar por
+//una cadena sustituta
+void strreplace(string& str, const string& str_to_replace,
+                const string& str_substitute);
+//sustituye las ocurrencias de una cadena a reemplazar
+//por una cadena sustituta
+void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
+                const AnsiString& S_substitute);
 //cuenta las líneas de texto contenidas en una cadena de texto imprimible
 //si la cadena String no es imprimible lanza una excepción EImproperArgument
 int StrCountLines(const AnsiString &String);

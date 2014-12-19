@@ -803,7 +803,7 @@ void TTileList::SaveToFiles(AnsiString FolderName)
     //por cada azulejo de la lista
     for(int k=0; k<getCount(); k++) {
         //contruye el nombre del archivo
-        FileName = FolderName+AnsiString("\\tile ")+IntToStr(k+1)+AnsiString(".txt");
+        FileName = FolderName+AnsiString("/tile ")+IntToStr(k+1)+AnsiString(".txt");
         //guarda las propiedades del azulejo
         StrWriteToFile(FileName, Items[k]->getAssignsText());
     }

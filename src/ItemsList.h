@@ -431,7 +431,7 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
     if(L->Read == NULL)
         throw EImproperCall("pointer Read should point to reading function");
 
-    //el índice i debería indicar a alguna posición de l acadena de texto S
+    //el índice i debería indicar a alguna posición de la cadena de texto S
     if(i<0 || S.Length()+1<i)
         throw EImproperArgument("index i should indicate a posicion in the string text S");
 
@@ -444,7 +444,7 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
     T Item;
     TSlideArray<T> _Items;
 
-    //avanza el índice hasta el comiendo de la lista
+    //avanza el índice hasta el comienzo de la lista
     StrTravelSeparatorsIfAny(S, i);
 
     do { //repite

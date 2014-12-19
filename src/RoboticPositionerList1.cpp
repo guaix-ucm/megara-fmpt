@@ -441,6 +441,27 @@ void TRoboticPositionerList1::setPositionsP3TableText(const AnsiString &S)
 
         delete Words, Lines;*/
 }
+//tabla de PAPs:
+//      Id      p_1     p___3
+AnsiString TRoboticPositionerList1::getPositionsPAPTableText(void) const
+{
+    //guarda el valor de Print
+    void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
+    PrintBak = Print;
+
+    //apunta la lista de posicionadores con un puntero no constante para facilitar su escritura
+    TRoboticPositionerList1 *RPL = (TRoboticPositionerList1*)this;
+
+    //apunta la función de impresión de coordenadas de posición en formato linea de texto
+    RPL->Print = TRoboticPositioner::PrintPositionPAPRow;
+    //obtiene la lista de coordenadas de posición en una cadena de texto
+    AnsiString S = RPL->getColumnText();
+
+    //restaura el valor de Print
+    RPL->Print = PrintBak;
+
+    return S; //devuelve la cadena de texto
+}
 
 AnsiString TRoboticPositionerList1::getToleranceText(void) const
 {

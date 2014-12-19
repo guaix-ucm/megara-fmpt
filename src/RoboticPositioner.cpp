@@ -569,7 +569,7 @@ void  TRoboticPositioner::PrintId(AnsiString &S, TRoboticPositioner *FP)
 //(Id, x0, y0, thetaO1) al final de una cadena de texto
 //en formato fila de texto
 void  TRoboticPositioner::PrintOriginsRow(AnsiString& S,
-                                                    TRoboticPositioner *FP)
+                                          TRoboticPositioner *FP)
 {
     TActuator::PrintOriginsRow(S, FP->getActuator());
 }
@@ -577,7 +577,7 @@ void  TRoboticPositioner::PrintOriginsRow(AnsiString& S,
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
 void  TRoboticPositioner::ReadOriginsRow(TRoboticPositioner *FP,
-                                                   const AnsiString& S, int &i)
+                                         const AnsiString& S, int &i)
 {
     TActuator *A = FP->getActuator();
     TActuator::ReadOriginsRow(A, S,  i);
@@ -587,7 +587,7 @@ void  TRoboticPositioner::ReadOriginsRow(TRoboticPositioner *FP,
 //(Id, x3, y3) al final de una cadena de texto
 //en formato fila de texto
 void  TRoboticPositioner::PrintPositionP3Row(AnsiString& S,
-                                                       TRoboticPositioner *FP)
+                                             TRoboticPositioner *FP)
 {
     TActuator::PrintPositionP3Row(S, FP->getActuator());
 }
@@ -595,10 +595,18 @@ void  TRoboticPositioner::PrintPositionP3Row(AnsiString& S,
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
 void  TRoboticPositioner::ReadPositionP3Row(TRoboticPositioner* &FP,
-                                                      const AnsiString& S, int &i)
+                                            const AnsiString& S, int &i)
 {
     TActuator *A = FP->getActuator();
     TActuator::ReadPositionP3Row(A, S,  i);
+}
+//imprime los valores de las propiedades de posición de un posicionador
+//(Id, p_1, p___3) al final de una cadena de texto
+//en formato fila de texto
+void  TRoboticPositioner::PrintPositionPAPRow(AnsiString& S,
+                                              TRoboticPositioner *FP)
+{
+    TActuator::PrintPositionPAPRow(S, FP->getActuator());
 }
 
 //lee una instancia en una cadena
