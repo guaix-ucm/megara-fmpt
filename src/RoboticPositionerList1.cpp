@@ -1,4 +1,4 @@
-﻿//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //Archivo: RoboticPositionerList1.cpp
 //Contenido: lista de posicionadores con propiedades dimensionales
 //Última actualización: 06/05/2014
