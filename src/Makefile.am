@@ -95,7 +95,8 @@ libfmtp_la_SOURCES = vclemu.cpp \
     TargetPoint.h \
     TargetPointList.h \
     MotionProgramValidator.h \
-    MotionProgramGenerator.h
+    MotionProgramGenerator.h \ 
+    PairPositionAngles.cpp
 
 ## Version info is in current : revision : age form
 ## A library supports interfaces from current downto current - age
