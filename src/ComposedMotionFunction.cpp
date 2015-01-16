@@ -33,7 +33,7 @@ void  StrPrintMotionFunctionMode(AnsiString& S,
                 case mfmRamp: S += AnsiString("Ramp"); break;
         }
 
-        throw EImposibleError("type TMotionFunctionMode should be in [mfmSquare, mfmRamp]");
+        throw EImpossibleError("type TMotionFunctionMode should be in [mfmSquare, mfmRamp]");
 }
 void  StrReadMotionFunctionMode(TMotionFunctionMode& mfm,
         const AnsiString &S, int &i)
@@ -97,7 +97,7 @@ AnsiString MotionFunctionModeToStr(TMotionFunctionMode mfm)
                 case mfmRamp: return AnsiString("Ramp");
         }
 
-        throw EImposibleError("type TMotionFunctionMode should be in [mfmSquare, mfmRamp]");
+        throw EImpossibleError("type TMotionFunctionMode should be in [mfmSquare, mfmRamp]");
 }
 TMotionFunctionMode StrToMotionFunctionMode(const AnsiString& S)
 {
@@ -155,7 +155,7 @@ void  StrPrintSquareSynchronismMode(AnsiString& S,
                 case ssmMaxTmin: S +=  AnsiString("MaxTmin")+AnsiString("\r\n");
                 case ssmDouTmin: S +=  AnsiString("DouTmin")+AnsiString("\r\n");
         }
-        throw EImposibleError("ununknown value in type TSquareSynchronousMode");
+        throw EImpossibleError("ununknown value in type TSquareSynchronousMode");
 }
 void  StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
         const AnsiString &S, int &i)
@@ -241,7 +241,7 @@ AnsiString SquareSynchronismModeToStr(TSquareSynchronismMode ssm)
                 case ssmMaxTmin: return  AnsiString("MaxTmin");
                 case ssmDouTmin: return  AnsiString("DouTmin");
         }
-        throw EImposibleError("ununknown value in type TSquareSynchronousMode");
+        throw EImpossibleError("ununknown value in type TSquareSynchronousMode");
 }
 TSquareSynchronismMode StrToSquareSynchronismMode(const AnsiString& S)
 {
@@ -315,7 +315,7 @@ void  StrPrintRampSynchronismMode(AnsiString& S,
                 case rsmMaxTv: S +=  AnsiString("MaxTv")+AnsiString("\r\n");
                 case rsmDouTv: S +=  AnsiString("DouTv")+AnsiString("\r\n");
         }
-        throw EImposibleError("ununknown value in type TRampSynchronousMode");
+        throw EImpossibleError("ununknown value in type TRampSynchronousMode");
 }
 void  StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
         const AnsiString &S, int &i)
@@ -445,7 +445,7 @@ AnsiString RampSynchronismModeToStr(TRampSynchronismMode rsm)
                 case rsmMaxTv: return AnsiString("MaxTv");
                 case rsmDouTv: return AnsiString("DouTv");
         }
-        throw EImposibleError("ununknown value in type TRampSynchronousMode");
+        throw EImpossibleError("ununknown value in type TRampSynchronousMode");
 }
 TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S)
 {
@@ -772,7 +772,7 @@ double TComposedMotionFunction::getvmaxabs1(void) const
                 case mfmSquare: return __SF1->getvmaxabs();
                 case mfmRamp: return __RF1->getvmaxabs();
         }
-        throw EImposibleError("motion funcion mode MFM should be mfmSquare or mfmRamp");
+        throw EImpossibleError("motion funcion mode MFM should be mfmSquare or mfmRamp");
 }
 double TComposedMotionFunction::getvmaxabs2(void) const
 {
@@ -780,7 +780,7 @@ double TComposedMotionFunction::getvmaxabs2(void) const
                 case mfmSquare: return __SF2->getvmaxabs();
                 case mfmRamp: return __RF2->getvmaxabs();
         }
-        throw EImposibleError("motion funcion mode MFM should be mfmSquare or mfmRamp");
+        throw EImpossibleError("motion funcion mode MFM should be mfmSquare or mfmRamp");
 }
 
 //-------------------------------------------------------------------
@@ -820,7 +820,7 @@ AnsiString TComposedMotionFunction::getMFMText(void) const
                 case mfmRamp: return AnsiString("Ramp");
 
         };
-        throw EImposibleError("motion function mode MFM should be mfmSquare or mfmRamp");
+        throw EImpossibleError("motion function mode MFM should be mfmSquare or mfmRamp");
 }
 void TComposedMotionFunction::setMFMText(AnsiString &S)
 {
@@ -865,7 +865,7 @@ AnsiString TComposedMotionFunction::getMF1Text(void) const
         else if(__MF1 == __RF1)
                 return getRF1AddressText();
         else
-                throw EImposibleError("pointer MF1 should point to NULL, SF1 or RF1");
+                throw EImpossibleError("pointer MF1 should point to NULL, SF1 or RF1");
 }
 AnsiString TComposedMotionFunction::getMF2Text(void) const
 {
@@ -876,7 +876,7 @@ AnsiString TComposedMotionFunction::getMF2Text(void) const
         else if(__MF2 == __RF2)
                 return getRF2AddressText();
         else
-                throw EImposibleError("pointer MF2 should point to NULL, SF2 or RF2");
+                throw EImpossibleError("pointer MF2 should point to NULL, SF2 or RF2");
 }
 
 AnsiString TComposedMotionFunction::gettsta1Text(void) const
@@ -1224,7 +1224,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
 //construye una función de movimiento compuesta
 TComposedMotionFunction::TComposedMotionFunction(void) :
         //inicializa los selectores a sus valores por defecto
-        __MFM(mfmSquare), __SSM(ssmFree), __RSM(rsmFree),
+        __MFM(mfmRamp), __SSM(ssmFree), __RSM(rsmFree),
         //inicializa los instantes de inicio de desplazamiento
         __tsta1(0), __tsta2(0),
         //inicializa los identificadores de las microcontroladoras
@@ -1498,6 +1498,17 @@ void TComposedMotionFunction::ClearProgram(void)
         __MF2 = NULL;
 }
 
+/*//store the setting of the CMF
+void TComposedMotionFunction::PushSetting(void)
+{
+    TO DEFINE
+}
+//recovery the stored setting of the CMF
+void TComposedMotionFunction::PullSetting(void)
+{
+    TO DEFINE
+}
+*/
 //sincroniza la llegada del gesto con el instante de tiempo indicado
 void TComposedMotionFunction::SinchronizeArrival(double t)
 {

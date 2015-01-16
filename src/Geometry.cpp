@@ -304,7 +304,7 @@ int IntersectionCircumCircum(TDoublePoint &P1, TDoublePoint &P2,
                 }
         }
 
-        double Rmin; //radio de la circunferecnia menor
+        double Rmin; //radio de la circunferencia menor
         double Rmax; //radio de la circunferencia mayor
         TDoublePoint Pcmax; //centro de la circunferencia mayor
         TDoublePoint V; //vector de la circunferencia mayor a la menor

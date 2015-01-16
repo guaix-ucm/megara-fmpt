@@ -794,6 +794,9 @@ public:
     TPairIS& operator=(const TPairIS&);
 };
 */
+//---------------------------------------------------------------------------
+//TPairTD
+
 //clase par (T*, double)
 template <class T> class TPairTD {
 //    T *__P;

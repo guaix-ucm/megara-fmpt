@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//Archivo: TargetPointList.h
-//Contenido: lista de puntos objetivo
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: TargetPointList.h
+//Content: lista de puntos objetivo
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TARGETPOINTLIST_H
@@ -17,44 +17,40 @@
 
 using namespace Models;
 
-//espacio de nombres del posicionamiento
+//namespace for positioning
 namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-//clase lista de puntos objetivo
+//classlist of target points
 class TTargetPointList : public TItemsList<TTargetPoint*> {
 protected:
         TRoboticPositionerList *__RoboticPositionerList;
 
 public:
-        //lista de RPs externa adscrito
+        //extern-attached RP list
         TRoboticPositionerList *getRoboticPositionerList(void) const {
             return __RoboticPositionerList;}
 
-        //lista de puntos objetivo
-//        TItemsList<TTargetPoint*> TargetPoints;
+        //PROPERTIES IN TEXT FORMAT:
 
-        //PROPIEDADES DE INTERFAZ:
-
-        //lista de puntos objetivo en formato texto
+        //target point list in text format
         AnsiString getTargetPointsText(void);
         void setTargetPointsText(AnsiString&);
 
-        //CONTRUCCIÓN Y DESTRUCCIÓN:
+        //BUILDING AND DESTROYING METHODS:
 
-        //construye una lista de puntos objetivo
-        //adscrita a una lista de RPs
+        //build a target point list, attached to a RP list
         TTargetPointList(TRoboticPositionerList *_RoboticPositionerList);
 
-        //borra los puntos objetivo y destruye la lista
+        //destroy the targetpoint and destroy the list
         ~TTargetPointList();
 
-        //BÚSQUEDA:
+        //SEARCHING METHODS:
 
-        //busca el punto objetivo adscrito a un posicionador
+        //search the target point attached to a RP
         int SearchTargetPoint(TRoboticPositioner *RP);
-        //busca el punto objetivo adscrito a un posicionador identificado
+        //search the target point attached to an identified RP
         int SearchTargetPoint(int Id);
 
         //OBJETOS INDICADOS:

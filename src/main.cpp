@@ -3,139 +3,211 @@
 #include "Strings.h"
 #include "TextFile.h"
 
-//#include <QCoreApplication>
-
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <cstring> //strlen
 #include <iostream> //std
-//#include <QDebug> //qDebug()
-
-//Dos formas de imprimir en la consola:
-//Forma habitual:
-//  #include <QDebug> //qDebug()
-//  std::cout << "Hello world!" << endl;
-//A partir de Qt 5:
-//  #include <iostream> //std
-//  qDebug() << "Hello world!" << endl;
 
 //using namespace Mathematics;
 using namespace Strings;
 using namespace Models;
 using namespace Positioning;
 
-//imprime una linea de texto en la consola
+//print a text line in the standard output
 void append(const AnsiString& S)
 {
     std::cout << S.c_str() << endl;
 }
 
-//programa principal
+//main program
 int main(int argc, char *argv[])
 {
-//    QCoreApplication a(argc, argv);
-
     //------------------------------------------------------------------
-    //CONFIGURA EL SISTEMA:
+    //CONFIGURATES THE SYSTEM:
 
-    //RECUERDE: las excepciones en tiempo de ejecución pueden deberse a
-    //que no se ha configurado el sistema.
+    //REMEMBER: exceptions in runtime can be due to that
+    //the system is not configurated.
 
-    //configur el separador decimal
+    //configurates the decimal separator
     setlocale(LC_NUMERIC, "C");
 
-    //configura las variables globales para que la función StrToBool
-    //pueda funcionar
+    //configurates the global variables in order to the function
+    //StrToBool can work
     if(TrueBoolStrs.getCount() < 1) {
-            TrueBoolStrs.setCount(1);
-            TrueBoolStrs[0] = "True";
+        TrueBoolStrs.setCount(1);
+        TrueBoolStrs[0] = "True";
     }
     if(FalseBoolStrs.getCount() < 1) {
-            FalseBoolStrs.setCount(1);
-            FalseBoolStrs[0] = "False";
+        FalseBoolStrs.setCount(1);
+        FalseBoolStrs[0] = "False";
     }
 
-    //ADVERTENCIA: BoolToStr no comprueba que:
-    //      TrueBoolStrs[0] = "True" y
-    //      FalseBoolStrs[0] = "False",
-    //aunque dicha condición ha sido configurada en el contructor
-    //debe usarse BoolToStr_ que si comprueba la condición,
-    //ya que podría cambiar subrepticiamente.
+    //WARNING: function BoolToStr not check the precondition:
+    //      TrueBoolStrs[0] == "True" && FalseBoolStrs[0] == "False",
+    //instead of these shall be used the function BoolToStr_ which
+    //check the precondition.
 
     //------------------------------------------------------------------
 
     try {
-        //la llamada a fmpt_saa debe contener un argumento
-        if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/'))
-            throw EImproperArgument("fmpt_saa RP\r\n    RP: relative path to file containing a PP list.");
+        //call to the program shall contains one argument
+        //if(argc != 2)
+        //  throw EImproperArgument("missing argument MEGARA_FiberMOSModel_Instance in call to MotionProgramGenerator");
 
-	//indica que el programa está corriendo
-	append(AnsiString("Program fmpt_saa is running..."));
+        //indicates that the program is running
+        append(AnsiString("program fmpt_saa is running..."));
 
-        //CONTRUYE LOS OBJETOS:
+        //BUILDS THE OBJECTS:
 
-        //Modelo del Fiber MOS
+        //build the Fiber MOS Model
         TFiberMOSModel FMM;
-        //generador de programas de movimiento
-        TMotionProgramGenerator MPG(&(FMM.RPL));
+        //build the Motion Program Generator attachet to the Fiber MOS Model
+        TMotionProgramGenerator MPG(&FMM);
 
-        //CARGA LAS CONFIGURACIONES DE LOS ARCHIVOS:
+        //LOAD SETTTINGS FROM FILES:
 
-        //carga la instancia del FiberMOSModel del directorio indicado
-        //AnsiString S = GetCurrentDir()+AnsiString("/Models/MEGARA_FiberMOSModel_Instance");
-        AnsiString S = AnsiString(DATADIR) + AnsiString("/Models/MEGARA_FiberMOSModel_Instance");
+        //####################################################################################################
+        //When the program is compiled using autotools:
+        //--------------------------------------------
+        //
+        //Calling WORKINGDIR to '/home/Isaac/MEGARA'
+        //  sources shall be in:    'WORKINGDIR/megarafmpt/src'
+        //  data shall be in:       'WORKINGDIR/megarafmpt/data'
+        //When compilation has been make in an appart directory named build:
+        //  sources will be in:     'WORKINGDIR/build/src'
+        //  data will be in:        'WORKINGDIR/build/data'
+        //When the installation has been make:
+        //  executable will be in:  'prefix/bin'
+        //  data will be in:        'prefix/share/megara-fmpt'
+        //Where prefix is probably '/usr/local'.
+        //
+        //Then the program fmpt_saa compiled with autotools, shall be search the data in the following paths:
+        //  when program is installed:  DATADIR+"..." or GetCurrentDir()+"/../share/megara-fmpt..."
+        //  when program is compiled:   GetCurrentDir()+"/../data..."
+        //DATADIR is a macro which can be used when the program is compiled using autotools.
+        //It is say, that DATADIR will be probably: "/urs/local/share/megara-fmpt"
+        //
+        //When the program is compiled using Qr Creator:
+        //----------------------------------------------
+        //
+        //The main file will be in:
+        //  'WORKINGDIR/FMPT_SAA-CLI'
+        //The object code and the executable will be in:
+        //  'WORKINGDIR/build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
+        //  'WORKINGDIR/build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
+        //The other source files and data files will be in the same repository for autotools,
+        //whose relative path from the executable is:
+        //  sources shall be in:    '../megarafmpt/src'
+        //  data shall be in:       '../megarafmpt/data'
+        //
+        //But the app fmpt_saa, shall be provided with the data in the same directory
+        //where is the executable.
+        //
+        //Then the program fmpt_saa sompiled with Qt, shall be search the data in the following paths:
+        //  when program is released:  GetCurrentDir()
+        //  when program is debugging: GetCurrentDir()+"/../megarafmpt/data"
+        //####################################################################################################
 
+        //load the instance of the Fiber MOS Model from the default directory
+        AnsiString S;
+        try {
+            S = AnsiString(DATADIR)+AnsiString("/Models/MEGARA_FiberMOSModel_Instance");
+            ReadInstanceFromDir(FMM, S);
+        } catch(...) {
+            try {
+                S = GetCurrentDir()+AnsiString("/../data/Models/MEGARA_FiberMOSModel_Instance");
+                ReadInstanceFromDir(FMM, S);
+            } catch(Exception& E) {
+                append(AnsiString("ERROR: ")+E.Message);
+                throw E;
+            }
+        }
+        append(AnsiString("Fiber MOS Model instance loaded from '")+S+AnsiString("'."));
 
+        //load the PP table from a file
+        AnsiString FileName;// = AnsiString(argv[1]);
+        try {
+            FileName = AnsiString(DATADIR);
+            if(argv[1][0] != '/')
+                FileName += AnsiString("/");
+            FileName += AnsiString(argv[1]); //Example: argv[1]: "PPPList/20141124102242.txt"; or  argv[1]: "/PPPList/20141124102242.txt".
+            StrReadFromFile(S, FileName);
+        } catch(...) {
+            try {
+                FileName = GetCurrentDir()+AnsiString("/../data");
+                if(argv[1][0] != '/')
+                    FileName += AnsiString("/");
+                FileName += AnsiString(argv[1]); //Example: argv[1]: "PPPList/20141124102242.txt"; or  argv[1]: "/PPPList/20141124102242.txt".
+                StrReadFromFile(S, FileName);
+            } catch(Exception& E) {
+                append(AnsiString("ERROR: ")+E.Message);
+                throw E;
+            }
+        }
+        append(AnsiString("PP table loaded from '")+FileName+AnsiString("'."));
 
-        ReadInstanceFromDir(FMM, S);
-        append(AnsiString("Fiber MOS Model instance loaded from dir '")+S+AnsiString("'."));
-
-        //REALIZA LAS OPERACIONES:
-
-        //carga la TPL en una cadena
-	AnsiString FileName = GetCurrentDir();
-        if(argv[1][0] != '/')
-            FileName += AnsiString("/");
-	FileName += AnsiString(argv[1]);
-        StrReadFromFile(S, FileName);
-        append(AnsiString("PP list loaded from '")+FileName+AnsiString("'."));
-
-        //asigna la cadena a la TPL
+        //assign the PP table to the MPG
         MPG.setTargetPointsText(S);
-        append("PP list allocated.");
+        append("Target points allocated.");
 
-        //mueve los RPs a sus TPs asignados
+        //MAKE THE OPERATIONS:
+
+        //move the RPs to the more closer stable point to the TPs
         MPG.MoveToTargetP3();
-        append("RPs moved to PPs.");
+        append("RPs moved to target points.");
 
-        //capturas las posiciones iniciales de los RPs
-/*        TPointersList<TPair> IPL;
+        //Other way to obtain the more closer stablepoints to the PPs,
+        //consist in get from the PP table the following lists:
+        //  the allocation list;
+        //  the PP list.
+        //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
+
+        //A PPA table shall be stored how a table (Id, p_1, p___3).
+
+        //captures the initial positions of the RPs in a PPA list
+        TPairPositionAnglesList IPL;
         FMM.RPL.GetPositions(IPL);
-        IPL.Print = TPair::Print;
-        S = IPL.getColumnText();*/
-        S = TActuator::GetPositionPAPLabelsRow()+AnsiString("\r\n")+FMM.RPL.getPositionsPAPTableText();
+        S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
+        S += IPL.getColumnText();
         StrWriteToFile("InitialPositionList.txt", S);
         append("Initial position list saved in 'InitialPositionList.txt'.");
 
-        //segrega los RPs internos y externos
-        TRoboticPositionerList Inners, Outsiders;
-        FMM.RPL.SegregateInOut(Inners, Outsiders);
+        //Other whay to obtain the initial position table directly in text format:
+        //  FMM.RPL.getPositionsPAPTableText()
 
-        //genera un programa de deposicionamiento
+        //segregates the operative outsiders RPs
+        TRoboticPositionerList Outsiders;
+        FMM.RPL.segregateOperativeOutsiders(Outsiders);
+
+        //generates a de positioning program for the operative RPs at insecurity positions
+        //and determines the RPs in collision status or obstructed at insecurity positions
         append("Generating depositioning program...");
+        TRoboticPositionerList Collided;
+        TRoboticPositionerList Obstructed;
         TMotionProgram DP;
-        MPG.GenerateDepositioningProgram(DP, Outsiders);
-        S = DP.getText();
-        StrWriteToFile("DepositioningProgram.txt", S);
+        MPG.generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
         append("Depositioning program generated.");
 
-        //DESTRUYE LOS OBJETOS:
+        //translates the depositioning program to the format of the interface MCS-FMPT
+        append("Teanslating the depositiong program.");
+        FMM.RPL.TranslateMotionProgram(S, 1, IPL, DP);
+        StrWriteToFile("DepositioningProgram.txt", S);
+        append("Depositiong program translated.");
+        append("Depositioning program saved in 'DepositioningProgram.txt'.");
+
+        //DESTROY THE OBJECTS:
 
     } catch(Exception &E) {
+        //show the message of the exception
         append(AnsiString("ERROR: ")+E.Message);
+        return 1;
+
+    } catch(...) {
+        //indicates that has haoppened an unknoledgeexception
+        append(AnsiString("ERROR: unknowledge exception"));
+        return 2;
     }
 
     //------------------------------------------------------------------
 
     return 0;
-//    return a.exec();
 }

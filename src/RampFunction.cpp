@@ -564,9 +564,13 @@ void TRampFunction::CalculateVariables_Tc(void)
 //------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
 
-//inicializa {amax=amaxabs=amaxabsdef, vmax=vmaxabs=vmaxabsdef,
-//psta=0, pfin=0} y asimila los parámetros
-TRampFunction::TRampFunction(double _amaxabs, double _vmaxabs) :
+//inicialize:
+//  amax=amaxabs=MEGARA_AMAXABSDEF,
+//  vmax=vmaxabs=MEGARA_VMAXABSDEF,
+//  psta=0, pfin=0;
+//and assimilate the parameters
+TRampFunction::TRampFunction(double _amaxabs,
+                             double _vmaxabs) :
     TMotionFunction() //inicializa las propiedades heredadas
 {
         //deben ser mayores que cero

@@ -1,167 +1,161 @@
 //---------------------------------------------------------------------------
-//Archivo: TargetPoint.h
-//Contenido: punto objetivo adscrito a un posicionador de fibra
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: TargetPoint.h
+//Content: targetpoint attached to a RP
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TARGETPOINT_H
 #define TARGETPOINT_H
 
 #include "FiberMOSModel2.h"
-//#include "..\3_Lists\ItemsList.h"
 
 //---------------------------------------------------------------------------
 
 using namespace Lists;
 using namespace Models;
 
-//espacio de nombres de posicionamiento
+//spacename for positioning
 namespace Positioning {
 
 //---------------------------------------------------------------------------
 //TTargetPoint:
 //---------------------------------------------------------------------------
 
-//clase punto objetivo
+//class target point
 class TTargetPoint {
-        //PROPIEDADES ESTÁTICAS:
+        //STATIC PROPERTIES:
 
-        //lista de punteros a puntos objetivo construidos
+        //list of pointers to built target points
         static TItemsList<TTargetPoint*> Builts;
 
-        //Permite controlar la construcción de un solo punto objetivo
-        //por posicionador, así como la destrucción de puntos existentes.
+        //Allows to control the construction of asingletarget point by RP,
+        //and the destruction of existing target point.
 
-        //PROPIEDADES DINÁMICAS:
+        //DYNAMIC PROPERTIES:
 
         TRoboticPositioner *__RoboticPositioner;
 
-        //PROPIEDADES DE INTERFAZ:
+        //INTERFACE PROPERTIES:
 
 public:
-        //PROPIEDADES DINÁMICAS:
+        //DYNAMIC PROPERTIES:
 
-        //puntero al RP adscrito
+        //pointer to the attached RP
         TRoboticPositioner *getRoboticPositioner(void) const {return __RoboticPositioner;}
 
-        //punto objetivo al que debe ir el punto P3 del posicionador adscrito
+        //point where sall be positioned the point P3 of the attached RP
         TDoublePoint TargetP3;
 
-        //PROPIEDADES GRÁFICAS:
+        //GRAPHICAL PROPERTIES:
 
-        //indica si el punto objetivo está seleccionado
-        //valor por defecto: false
+        //indicates if the target point is attached
+        //default value: false
         bool Selected;
 
-        //color del punto objetivo
-        //color por defecto: clYellow
+        //color of thetarget point
+        //defaultcolor: clYellow
         //#QColor Color;
 
-        //PROPIEDADES EN FORMATO TEXTO:
+        //PROPERTIES IN TEXTFORMAT:
 
-        //TargetP3 en formato texto
+        //TargetP3 in text format
         AnsiString getTargetP3Text(void);
         void setTargetP3Text(const AnsiString&);
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+        //SETS OF PROPERTIES IN TEXT FORMAT:
 
-        //punto objetivo en formato texto
+        //target point in text format
         AnsiString getText(void); void setText(const AnsiString&);
 
         //------------------------------------------------------------------
-        //MÉTODOS ESTÁTICOS:
+        //STATIC METHODS:
 
-        //compara los identificadores de los posicionadores
-        //adscritos de dos puntos objetivo
+        //compare the identifiers of the RPs attached to two target points
         static int  CompareIds(TTargetPoint *TPA1,
                 TTargetPoint *TPA2);
-        //este método debe ser apuntado en una lista de punteros
-        //para permitir el funcionamiento de
-        //los métodos de ordenación y comparación
+        //this method shall be pointed in a pointer list
+        //to allow the functioning of shorting and comparing methods
 
-        //obtiene las etiquetas de las propiedades
-        //en formato fila de texto
+        //get the labels of the properties
+        //in row text format
         static AnsiString GetIdTargetP3LabelsRow(void);
 
-        //atraviesa las etiquetas de las propiedades
-        //en una cadena de texto a partir de la posición i
+        //travel the labels of the properties
+        //in a text string from the position i
         static void  TravelLabels(const AnsiString& S, int& i);
 
-        //lee los valores de las propiedades
-        //en una cadena de texto a partir de la posición i
+        //read the values of the properties
+        //in a text string from the position i
         static void  ReadSeparated(int& Id, double& x, double& y, const AnsiString& S, int& i);
 
-        //MÉTODOS DE CONSTRUCCIÓN Y DESTRUCCIÓN:
+        //BUILDING AND DESTROYING METHODS:
 
-        //construye un punto objetivo adscrito a un RP
-        //si el RP ya tiene un punto objetivo contruido
-        //lanza una excepción EImproperArgument
+        //build a target point attached a RP
+        //if the RP already has an attached target point
+        //  throw an exception EImproperArgument
         TTargetPoint(TRoboticPositioner *_RoboticPositioner,
                 double x, double y);
         TTargetPoint(TRoboticPositioner *_RoboticPositioner,
                 TDoublePoint _TargetP3);
 
-        //destruye un punto objetivo
-        //si no hay ningún punto objetivo construido
-        //lanza una excepción EImproperCall
+        //destroy a targetpoint
+        //if thereisn't a built target point
+        //  throw an exception EImproperCall
         ~TTargetPoint();
 
-        //MÉTODOS DE COMPROBACIÓN:
+        //CHECKING METHODS:
 
-        //determina si el punto objetivo está fuera
-        //del dominio del punto P3 de su posicioandor adscrito
+        //determines if the target point is out of the domain
+        //of thepoint P3 of the attached RP
         bool IsOutDomainP3(void);
-        //determina si el punto objetivo queda dentro
-        //del área de seguridad del punto P3  de su posicionador adscrito
+        //determines if the target point is in the secure area
+        //of thepoint P3 of the attached RP
         bool IsInSafeAreaP3(void);
 
-        //MÉTODOS DE DESPLAZAMIENTO:
+        //MOVING METHODS:
 
-        //Asigna el punto P3o del posicionador adscrito al punto objetivo
+        //assign the point P3o of the attacheed RP to the point TargetP3
         void SetP3o(void) {TargetP3 = getRoboticPositioner()->getActuator()->getP3o();}
-        //asigna el punto P3 del posiciondor adscrito al punto objetivo
+        //assign the point P3 of the attacheed RP to the point TargetP3
         void SetP3(void) {TargetP3 = getRoboticPositioner()->getActuator()->getArm()->getP3();}
-        //randomiza el punto objetivo con distribución uniforme
-        //en el dominio del punto P3 de su posicioandor adscrito
+        //randomize the point TargetP3 with uniform distribution
+        //in the domain of the point P3 of its attached RP
         void Randomize(void);
 
-        //Hay tres modos de randomizar un punto en el dominio de un posicionador
-        //    - randomizando las posiciones de sus ejes con distribución
-        //      uniforme en sus dominios respectivos;
-        //    - randomizando un punto en coordenadas polares respecto S1
-        //      con distribución uniforme en el intervalo radial
-        //      hasta que el punto esté dentro del dominio del posicionador;
-        //    - randomizando un pnto en coordenadas cartesianas respecto S0
-        //      en el intervalo cartesiano del dominio del posicionador
-        //      hasta que dicho punto esté en el dominio del mimso.
-        //Aquí se ha implementado esta última por ser la única que
-        //realmente randomiza con distribución uniforme en el dominio.
+        //There are three ways to randomize a point in the domain of a RP:
+        //  - Randomizing the angular positions of their rotors in their
+        //    respective domains;
+        //  - Randomizing the point in polar coordinates respect S1 with
+        //    uniform distribution in the radial interval. Iterating the
+        //    process until the point is in the domain of the RP.
+        //  - Randomizing the point in Cartesian coordinates respect S0,
+        //    in the Cartesian insterval of the domain of the RP, until
+        //    thepoint is inthedomain of the RP.
+        //Themethod Ramize, implement the las way.
 
-        //asigna el punto objetivo al punto P3 de su posicionador adscrito
-        //si el punto objetivo no está en el dominio de
-        //su posicionador adscrito lanza EImpropercall
-        void MoveToTargetP3(void);
+        //assign the point TargetP3 to the point P3 of its attached RP
+        //and return the distance from the stable position to the target point
+        //if the the point TargetP3 isn't on the domain of its attached RP:
+        //  throw an exception EImpropercall
+        double MoveToTargetP3(void);
 
-        //NOTA: cuando la cuantificación de los oejes del posicionador
-        //está desactivada, MoveToTargeTP3 moverá los ejes del posicionador
-        //a las posicioes exactas para que P3 quede en la posición
-        //del punto objetivo, pero cuando la cuantificación de alguno de
-        //los ejes está activada, se aplicará la cuantificación primero
-        //al eje 1 y despues al eje 2 en todo caso, sin comprobar cual es
-        //el punto estable más próximo, ya que se considera que la diferencia
-        //es despreciable.
+        //NOTE: method MoveToTargetP3 will move the rotors of the RP to the
+        //positions corresponding to the P3 is positioned on the TargetP3.
+        //When the quantification of the rotors is enabled, will be quantified
+        //first the rotor 1, and after the rotor 2, in any case, uncheking
+        //which is the neares stable point.
 
-        //MÉTODOS GRÁFICOS:
+        //GRAPHICAL METHODS:
 
-        //indica que parte del punto objetivo
-        //puede ser agarrado en el punto indicado
-        //      1: punto (TargetP3, 0.75)
-        //      0: niguna;
+        //indicates the part of the target point which can be grabbed
+        //on the givenpoint
+        //      1: point which is a circunference (TargetP3, 0.75)
+        //      0: none;
         int Grab(TDoublePoint P);
 
-        //imprime el puntos objetivo en el lienzo de la fotografía
-        //de un trazador de formas
+        //print the target point in the canvas of the picture
+        //of a ploter shapes
         //#void Paint(TPloterShapes *PS);
 };
 

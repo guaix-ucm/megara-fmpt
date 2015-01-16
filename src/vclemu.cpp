@@ -182,6 +182,18 @@ void AnsiString::SetLength(int n)
     }
 }
 
+//insert a char in a position of the string
+//if index i not indicate a position in the string S
+//  throw an exception EImproperArgument
+void AnsiString::Insert(int i, char c)
+{
+    //index i shall indicates a position in the string
+    if(i<0 || Length()+1<i)
+        throw EImproperArgument("index i shall indicates a position in the string");
+
+    str.insert(i-1, sizeof(typeof(c)), c);
+}
+
 //obtiene la subcadena en el intervalo [offset, offset+count]
 AnsiString AnsiString::SubString(int offset, int count) const
 {

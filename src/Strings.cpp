@@ -627,6 +627,28 @@ void StrFill(AnsiString &S, int L, char c)
     while(S.Length() < L)
         S += c;
 }
+//insert a char in the indicated position of a text string
+//to get the intended length
+AnsiString strInsertChar(const AnsiString& S, int length,
+                        int i, char c)
+{
+    //the length to achieve should be upper zero
+    if(length <= 0)
+        throw EImproperArgument("length to achieve shall be upper zero");
+
+    //index i should indicate a position in the text string S
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("index i shall indicate a position of the text string S");
+
+    //clone the text string
+    AnsiString S_(S);
+    //insert to achieve the intended length
+    while(S_.Length() < length)
+        S_.Insert(i, c);
+
+    //return the modified string
+    return S_;
+}
 
 //determina si dos cadenas contienen las mismas palabras
 bool StrNotHasSameWords(const AnsiString &S1, const AnsiString &S2)

@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//Archivo: ComposedMotionFunction.h
-//Contenido: funcion de movimiento compuesta
-//Última actualización: 07/05/2014
-//Autor: Isaac Morales Durán
+//File: ComposedMotionFunction.h
+//Content: composed motion funtion
+//Last update: 07/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef COMPOSEDMOTIONFUNCTION_H
@@ -13,7 +13,7 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de funciones de movimiento
+//namespace for motion functions
 namespace MotionFunctions {
 
 //---------------------------------------------------------------------------
@@ -181,7 +181,7 @@ public:
         //              apuntan a funciones cuadradas o a nulo
         //      smfRamp: los punteros a funciones de movimeinto
         //              apuntan a funciones rampa o a nulo
-        //valor por defecto: smfSquare
+        //valor por defecto: smfRamp
         TMotionFunctionMode getMFM(void) const {return __MFM;}
         void setMFM(TMotionFunctionMode);
 
@@ -376,7 +376,7 @@ public:
         //desde la posición p__ini hasta la posición p__fin
         void ProgramMF2(double p__ini, double p__fin);
         //apunta (MF1=SF1, MF2=SF2) ó (MF1=RF1, MF2=RF2)
-        //programa el movimiento de ambas funciones de movimeinto
+        //programa el movimiento de ambas funciones de movimiento
         //desde la posición (p_ini, p__ini)
         //hasta la posición (p_fin, p__fin)
         void ProgramBoth(double p_ini, double p__ini,
@@ -387,6 +387,10 @@ public:
 
         //apunta (MF1=NULL, MF2=NULL)
         void ClearProgram(void);
+        //store the setting of the CMF
+        void PushSetting(void);
+        //recovery the stored setting of the CMF
+        void PullSetting(void);
 
         //sincroniza la llegada del gesto con el instante de tiempo indicado
         void SinchronizeArrival(double t);

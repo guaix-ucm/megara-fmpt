@@ -646,12 +646,12 @@ template <class T> void TPointersSlideArray<T>::Clone(const TPointersSlideArray 
     //redimensiona el array en caso necesario
     if(getCapacity() != SA.getCapacity()) {
         delete Items;
-        Items = new T*[SA.Capacity];
+        Items = new T*[SA.getCapacity()];
     }
 
     //copia las propiedades
-    __Capacity = SA.Capacity;
-    __Count = SA.Count;
+    __Capacity = SA.getCapacity();
+    __Count = SA.getCount();
     ifirst = SA.ifirst;
     ilast = SA.ilast;
 

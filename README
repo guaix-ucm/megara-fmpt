@@ -1,0 +1,15 @@
+This is Megara FMPT, the Fiber MOS Positioning Toools for MEGARA.
+
+Copyright IAA-CSIC 2012-2014.
+Megara FMPT is distributed under <CSIC> License. See the file 'COPYING' for details.
+
+Megara FMPT requires the following packages installed in order to
+be able to be installed and work properly:
+
+ - autoconf-2.69	(http://ftp.gnu.org/gnu/autoconf/)
+ - automake-1.14.1	(http://ftp.gnu.org/gnu/automake/)
+ - libtool-2.4.4	(http://ftp.gnu.org/gnu/libtool/)
+
+Webpage: https://guaix.fis.ucm.es/projects/megara
+Maintainer: isaac@iaa.es
+

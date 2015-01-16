@@ -77,12 +77,12 @@ public:
 //ya que sirve para llevar un control de configuración en vez de existencia.
 */
 //error imposible
-class EImposibleError : public Exception {
+class EImpossibleError : public Exception {
 public:
-        EImposibleError(AnsiString _Message) : Exception(_Message) {;}
+        EImpossibleError(AnsiString _Message) : Exception(_Message) {;}
 };
 
-//EImposibleError sirve para indicar los errores que en teoría nunca
+//EImpossibleError sirve para indicar los errores que en teoría nunca
 //pueden llegar a producirse pero que por alguna razón llegan a producirse
 //y detectarse en alguna comprobación rutinaria.
 

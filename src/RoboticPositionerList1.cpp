@@ -8,6 +8,7 @@
 #include "RoboticPositionerList1.h"
 #include "Strings.h"
 #include "Scalars.h"
+#include "vclemu.h"
 
 //#include <values.h>
 
@@ -165,6 +166,8 @@ AnsiString TRoboticPositionerList1::getOText(void) const
 
 //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
+//get the origins table in text format:
+//      Id      x0      y0      thetaO1
 AnsiString TRoboticPositionerList1::getOriginsTableText(void) const
 {
         //guarda el valor de Print
@@ -184,6 +187,8 @@ AnsiString TRoboticPositionerList1::getOriginsTableText(void) const
 
         return S; //devuelve la cadena de texto
 }
+//set the origins table in text format:
+//      Id      x0      y0      thetaO1
 void TRoboticPositionerList1::setOriginsTableText(const AnsiString &S)
 {
         try {
@@ -216,43 +221,10 @@ void TRoboticPositionerList1::setOriginsTableText(const AnsiString &S)
                 throw;
         }
 }
+//get the P3 table in text format:
+//      Id      x3      y3
 AnsiString TRoboticPositionerList1::getPositionsP3TableText(void) const
 {
-//        AnsiString S;
-
-/*        //inicializa S con la cabecera de la tabla
-        S = "Id";
-        while(S.Length() < 8)
-                S += char(32);
-        S += "x3";
-        while(S.Length() < 32)
-                S += char(32);
-        S += "y3";
-        S += "\r\n";
-  */
-/*        TRoboticPositioner *RP;
-        AnsiString aux;
-
-        //para cada posicionador de la lista
-        for(int i=0; i<getCount(); i++) {
-                //apunta el posicionador indicado para facilitar su acceso
-                RP = (TRoboticPositioner*)Items[i];
-
-                aux = IntToStr(RP->getActuator()->Id);
-                while(aux.Length() < 8)
-                        aux += char(32);
-
-                aux += FloatToStr(RP->getActuator()->getArm()->P3.x);
-                while(aux.Length() < 32)
-                        aux += char(32);
-
-                aux += FloatToStr(RP->getActuator()->getArm()->P3.y);
-                aux += "\r\n";
-
-                S += aux;
-        }
-
-        return S;*/
         //guarda el valor de Print
         void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
         PrintBak = Print;
@@ -270,6 +242,8 @@ AnsiString TRoboticPositionerList1::getPositionsP3TableText(void) const
 
         return S; //devuelve la cadena de texto
 }
+//set the P3 table in text format
+//      Id      x3      y3
 void TRoboticPositionerList1::setPositionsP3TableText(const AnsiString &S)
 {
         try {
@@ -321,146 +295,27 @@ void TRoboticPositionerList1::setPositionsP3TableText(const AnsiString &S)
         } catch(...) {
                 throw;
         }
-/*        //ERROR: este método debe ser reemplazado por un método
-        //que emplee la función de lectura:
-        //      TRoboticPositioner::ReadPositionP3Row;
-        //similar al método:
-        //      void TRoboticPositionerList1::setOriginsTableText(const AnsiString &S)
-
-        //------------------------------------------------------------------
-        TVector<int> Ids; //identificadores
-        TVector<double> xs; //abcisas
-        TVector<double> ys; //ordenadas
-
-        //divide la cadena en líneas
-        TStringList *Lines = new TStringList;
-        Lines->Text = S;
-
-        //------------------------------------------------------------------
-        //intenta traducir la lista a formato numérico
-
-        //la cadena debe contener al menos una linea
-        if(Lines->Count < 1)
-                throw EImproperFileLoadedValue("string S should contain almos one line");
-
-        //La primera línea debe contener las palabras de la cabecera:
-        //      {"Id", "x3", "y3"}
-
-        //divide la primera linea en palabras
-        TStringList *Words = new TStringList;
-        StrDivideInWords(Words, Lines->Strings[0]);
-        //el número de palabras de la primera línea debe ser tres
-        if(Words->Count != 3)
-                throw EImproperFileLoadedValue("number words in first line should be three");
-        //las palabras de la primera línea deben ser: "Id", "x3" y "y3"
-        if(Words->Strings[0]!="Id" || Words->Strings[1]!="x3" || Words->Strings[2]!="y3")
-                throw EImproperFileLoadedValue("the words in the firs line should be: 'Id', 'x3' and 'y3'");
-
-        int i;
-
-        //para cada fila de la tabla
-        for(i=1; i<Lines->Count; i++) {
-                //descompone la fila en palabras
-                Words->Clear();
-                StrDivideInWords(Words, Lines->Strings[i]);
-
-                //el número de palabras de cada fila debe ser 0 ó 3
-                if(Words->Count!=0 && Words->Count!=3)
-                        throw EImproperFileLoadedValue("number words shuld be 0 or 3 in the line: "+IntToStr(i));
-
-                if(Words->Count == 3) {
-                        Ids.Add(StrToInt(Words->Strings[0]));
-                        xs.Add(StrToFloat(Words->Strings[1]));
-                        ys.Add(StrToFloat(Words->Strings[2]));
-                }
-        }
-
-        //-------------------------------------------------------------------
-        //comprueba la validez de la tabla
-
-        int Id;
-        int j;
-
-        for(i=0; i<Ids.Count; i++) {
-                //asigna el identificador indicado para facilitar su acceso
-                Id = Ids[i];
-                //busca una repetición del identificador
-                for(j=i+1; j<Ids.Count; j++)
-                        if(Id == Ids[j])
-                                throw EImproperFileLoadedValue("fiber positioner identifier appear repeated in the table: "+IntToStr(Id));
-        }
-
-        //-------------------------------------------------------------------
-        //intenta asignar la posición a cada posicionador
-
-        TRoboticPositioner *RP;
-        double x3, y3;
-        TDoublePoint P_3;
-        double r_3, theta_3;
-        double theta_1, theta___3;
-
-        //para cada posición de la lista
-        for(i=0; i<Ids.Count; i++) {
-                //asigna el identificador indicado para facilitar su acceso
-                Id = Ids[i];
-
-                //busca el posicionador identificado en la lista
-                j = 0;
-                while(j<Count && Id!=Items[j]->getActuator()->Id)
-                        j++;
-
-                //el posicionador identificado debería estar en la lista
-                if(j >= Count)
-                        throw EImproperFileLoadedValue("fiber positioner identifier should be in the list: "+IntToStr(Id));
-
-                //apunta el posicionador indicado para facilitar su acceso
-                RP = Items[j];
-                //asigna las coordenadas para facilitar su acceso
-                x3 = xs[j];
-                y3 = ys[j];
-
-                //traduce a coordenadas relativas a S1
-                P_3 = RP->getActuator()->S0recToS1rec(x3, y3);
-                //traduce a coordenadas polares en S1
-                r_3 = Mod(P_3.x, P_3.y);
-                if(P_3.x!=0 || P_3.y!=0)
-                        theta_3 = ArgPos(P_3.x, P_3.y);
-                else
-                        theta_3 = RP->getActuator()->theta_3;
-
-                //el punto a asignar debería estar en el dominio del posicionador
-                if(!RP->getActuator()->AnglesToGoP_3(theta_1, theta___3, r_3, theta_3))
-                        throw EImproperFileLoadedValue("point to assign should be in the domine of the fiber positioner");
-
-                //asigna el punto
-                RP->getActuator()->SetAnglesRadians(theta_1, theta___3);
-
-        }
-
-        //-------------------------------------------------------------------
-
-        delete Words, Lines;*/
 }
-//tabla de PAPs:
+//get the PPA table in text format:
 //      Id      p_1     p___3
-AnsiString TRoboticPositionerList1::getPositionsPAPTableText(void) const
+AnsiString TRoboticPositionerList1::getPositionsPPATableText(void) const
 {
-    //guarda el valor de Print
+    //save the value of Print
     void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
     PrintBak = Print;
 
-    //apunta la lista de posicionadores con un puntero no constante para facilitar su escritura
+    //point the RPL with a nonconstant pointer to make this writable
     TRoboticPositionerList1 *RPL = (TRoboticPositionerList1*)this;
 
-    //apunta la función de impresión de coordenadas de posición en formato linea de texto
-    RPL->Print = TRoboticPositioner::PrintPositionPAPRow;
-    //obtiene la lista de coordenadas de posición en una cadena de texto
+    //point the required print function
+    RPL->Print = TRoboticPositioner::PrintPositionPPARow;
+    //get the PPA table in a text string
     AnsiString S = RPL->getColumnText();
 
-    //restaura el valor de Print
+    //restore theprint value
     RPL->Print = PrintBak;
 
-    return S; //devuelve la cadena de texto
+    return S; //return the text string
 }
 
 AnsiString TRoboticPositionerList1::getToleranceText(void) const
@@ -745,6 +600,26 @@ TRoboticPositionerList1::TRoboticPositionerList1(const TRoboticPositionerList1 *
 }
 
 //--------------------------------------------------------------------------
+//ADD OR DELETE RPs:
+
+//search and delete a RP of the list
+//return the position where the RP was found
+int TRoboticPositionerList1::deleteIfFind(const TRoboticPositioner* RP)
+{
+    //pointer RP shall pooint to built robotic positioner
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
+
+    int i = Search(RP);
+    if(i < getCount())
+        Delete(i);
+
+    //El método Delete no debe asimilar nada, porque el RP borrado sigue existiendo.
+
+    return i;
+}
+
+//--------------------------------------------------------------------------
 //CONTRUIR POSICIONADORES:
 
 //construye la capa n de posicionadores equidistantes una distancia D
@@ -973,7 +848,7 @@ void TRoboticPositionerList1::Destroy(double rmax)
 //MÉTODOS DE BÚSQUEDA DE POSICIONADORES:
 
 //busca un posicionador en la lista
-int TRoboticPositionerList1::Search(TRoboticPositioner *RP) const
+int TRoboticPositionerList1::Search(const TRoboticPositioner *RP) const
 {
         //el puntero RP debe apuntar a un posicionador construido
         if(RP == NULL)
@@ -987,7 +862,7 @@ int TRoboticPositionerList1::Search(TRoboticPositioner *RP) const
 
         return i; //devuelve el índice
 }
-int TRoboticPositionerList1::Search(TActuator *A) const
+int TRoboticPositionerList1::Search(const TActuator *A) const
 {
         //elpuntero A debe apuntar a un actuador construido
         if(A == NULL)
@@ -1354,23 +1229,27 @@ void TRoboticPositionerList1::Assimilate(void)
 
 //MÉTODOS DE LECTURA CONJUNTA:
 
-//obtiene las posiciones angulares de los ejes
-//de los posicionadores en radianes
-void TRoboticPositionerList1::GetPositions(TPointersList<TPair>& PositionList)
+//get the PPA list in steps
+void TRoboticPositionerList1::GetPositions(TPairPositionAnglesList& PPAL)
 {
-        //ajusta la longitud de la lista de pares
-        PositionList.setCount(getCount());
+        //adjust the length of PPAL
+//        PPAL.setCount(getCount());
 
-        //por cada posicionador de la lista
-        for(int i=0; i<getCount(); i++) {
-                //apunta el posicionador indicado para facilitar su acceso
-                TRoboticPositioner *RP = Items[i];
-                //apunta el par indicado para facilitar su acceso
-                TPair *P = PositionList.GetPointer(i);
-                //asigna las posiciones angulares de los ejes
-                P->x = RP->getActuator()->gettheta_1();
-                P->y = RP->getActuator()->getArm()->gettheta___3();
-        }
+    //initialize the PPA list
+    PPAL.Clear();
+
+    //for each RP
+    for(int i=0; i<getCount(); i++) {
+        //point the indicated RP to facilitate its access
+        TRoboticPositioner *RP = Items[i];
+        //builds a PPAattached to the RP
+        TPairPositionAngles *PPA = new TPairPositionAngles(RP);
+        //assign the position angles of the rotors
+        PPA->p_1 = RP->getActuator()->getp_1();
+        PPA->p___3 = RP->getActuator()->getArm()->getp___3();
+        //add the PPA to the list
+        PPAL.Add(PPA);
+    }
 }
 
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
@@ -1387,7 +1266,7 @@ void TRoboticPositionerList1::SetRoboticPositioners(const TPointersList<TRobotic
 } */
 //asigna las posiciones angulares de los ejes
 //este método es atómico
-void TRoboticPositionerList1::SetPositions(TPointersList<TPair>& PositionList)
+void TRoboticPositionerList1::SetPositions(const TPairPositionAnglesList& PositionList)
 {
         //la lista de posiciones debe tener un par por cada posicionador
         if(PositionList.getCount() != getCount())
@@ -1398,12 +1277,12 @@ void TRoboticPositionerList1::SetPositions(TPointersList<TPair>& PositionList)
                 //apunta el posicionador indicado para facilitar su acceso
                 TRoboticPositioner *RP = Items[i];
                 //apunta el par indicado para facilitar su acceso
-                TPair *P = PositionList.GetPointer(i);
+                const TPairPositionAngles *PPA = PositionList.GetPointer(i);
                 //las posiciones angulares del eje 1 debe estar en el dominio del eje 1
-                if(RP->getActuator()->IsntInDomaintheta_1(P->x))
+                if(RP->getActuator()->IsntInDomainp_1(PPA->p_1))
                         throw EImproperArgument("the axis 1 angular position should be in the domain of axis 1");
                 //las posiciones angulares del eje 2 debe estar en el dominio del eje 2
-                if(RP->getActuator()->getArm()->IsntInDomaintheta___3(P->y))
+                if(RP->getActuator()->getArm()->IsntInDomainp___3(PPA->p___3))
                         throw EImproperArgument("the axis 2 angular position should be in the domain of axis 2");
         }
 
@@ -1412,9 +1291,9 @@ void TRoboticPositionerList1::SetPositions(TPointersList<TPair>& PositionList)
                 //apunta el posicionador indicado para facilitar su acceso
                 TRoboticPositioner *RP = Items[i];
                 //apunta el par indicado para facilitar su acceso
-                TPair *P = PositionList.GetPointer(i);
+                const TPairPositionAngles *PPA = PositionList.GetPointer(i);
                 //asigna las posiciones angulares
-                RP->getActuator()->SetAnglesRadians(P->x, P->y);
+                RP->getActuator()->SetAnglesSteps(PPA->p_1, PPA->p___3);
         }
 }
 //asigna conjuntamente los márgenes de segudidad
@@ -1494,6 +1373,20 @@ bool TRoboticPositionerList1::IsInSquare(const TDoublePoint &P)
         if(x<getx3min() || getx3max()<x ||y<gety3min() || gety3max()<y)
                 return false;
         return true;
+}
+
+//determine if all RPs of the list are in secure positions
+bool TRoboticPositionerList1::AllRPsAreInSecurePosition(void) const
+{
+    //for each RP of the list
+    for(int i=0; i<getCount(); i++)
+        //if the RP is out the safe area
+        if(Items[i]->getActuator()->ArmIsOutSafeArea())
+            //indicate that not all RPsare in securepositions
+            return false;
+
+    //indicates that all RPs are in secure positions
+    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -1604,6 +1497,28 @@ void TRoboticPositionerList1::SegregateInOut(TRoboticPositionerList1 &Inners,
                                 Outsiders.Add(RP);
                 }
         }
+}
+
+//segregates the operative RPs in unsecure positions
+void TRoboticPositionerList1::segregateOperativeOutsiders(TRoboticPositionerList1& Outsiders)
+{
+    Outsiders.Clear();
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->getOperative() && RP->getActuator()->ArmIsOutSafeArea())
+            Outsiders.Add(RP);
+    }
+}
+
+//segregates the collided RPs
+void TRoboticPositionerList1::segregateCollided(TRoboticPositionerList1& Collided)
+{
+    Collided.Clear();
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->getActuator()->ThereIsCollisionWithAdjacent())
+            Collided.Add(RP);
+    }
 }
 
 //segrega losposicionadores seleccionados en una lista
@@ -1956,7 +1871,7 @@ void TRoboticPositionerList1::SearchCollinding(TVector<int> &indices)
                                 //si noha encontrado el actuador en la lista
                                 if(m >= getCount())
                                 //indica efecto lateral
-                                throw EImposibleError("lateral effect");
+                                throw EImpossibleError("lateral effect");
 
                                 //indica que ya ha determinado el estado de colisión del posicionador adyacente
                                 Items[m]->getActuator()->Pending = false;
@@ -2200,6 +2115,113 @@ int TRoboticPositionerList1::RandomizeP3WithoutCollisionSelected(void)
         }
 
         return count;
+}
+
+//METHODS TO TRANSLATE MOTION PROGRAMS:
+
+//translate a motion progam from intermediary set of instructions
+//to the format stablished by the interface FMPT-MCS
+void TRoboticPositionerList1::TranslateMotionProgram(AnsiString& S, int CBId,
+    const TPairPositionAnglesList& IPL, const TMotionProgram& MP)
+{
+    //VERIFIES THE PRECONDITIONS:
+
+    //all message of instructions of the motion program shall be addressed to an existing RP
+    for(int i=0; i<MP.getCount(); i++) {
+        const TMessageList *ML = MP.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int k = SearchId(MI->getId());
+            if(k >= getCount())
+                throw EImproperArgument("invalid motion program because contains a message of instrucction addressed to a nonexistent RP");
+        }
+    }
+
+    //the initial position list must has a PPA for each RP
+    if(IPL.getCount() != getCount())
+        throw EImproperArgument("the initialposition list must have a PPA for each RP");
+
+    //TRANSLATE THE MOTION PROGRAM:
+
+    //stores the initial status of the RPs
+//    TRoboticPositionerList1 RPL(this);
+
+    //for each RP of the Fiber MOS Model
+    SetPositions(IPL);
+
+    //print the star delimiter of motion program cluster
+    S = AnsiString("obs depos_")+IntToStr(CBId)+AnsiString(" {");
+
+    //for each list of message of instructions of the motion program
+    for(int i=0; i<MP.getCount(); i++) {
+        //initialices the CMF of all RPs
+        for(int j=0; j<getCount(); j++)
+            Items[j]->CMF.ClearProgram();
+
+        //points the indicated message list to facilitate its access
+        const TMessageList *ML = MP.GetPointer(i);
+
+        //CONFIGURE THE Fiber MOS Model WITH THE GIVEN MESSAGE LIST:
+
+        //for each MI of the list
+        for(int j=0; j<ML->getCount(); j++) {
+            //point the indicated MI to facilitate its access
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //search the RP to which the message is addressed
+            int k = SearchId(MI->getId());
+
+            //point the found RP to facilitate its access
+            TRoboticPositioner *RP = Items[k];
+
+            //set the instruction to the RP
+            RP->SetInstruction(MI->Instruction);
+        }
+
+        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
+
+        //print the start delimiter of goup i
+        S += AnsiString("\r\n\tgroup_");
+        S += strInsertChar(IntToStr(i+1), 2);
+        S += AnsiString(" {");
+
+        //for each RP
+        for(int j=0; j<getCount(); j++) {
+            //point the indicated RP to facilitate its access
+            TRoboticPositioner *RP = Items[j];
+
+            //if there is programmed a motion for rotor 1
+            if(RP->CMF.getMF1() != NULL) {
+                //print the identifier of RP and the identifier of the rotor
+                S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r1");
+                //print the final position
+                S += AnsiString(" ")+RP->CMF.getMF1()->getpfinText();
+            }
+
+            //if there is programmed a motion for rotor 2
+            if(RP->CMF.getMF2() != NULL) {
+                //print the identifier of RP and the identifier of the rotor
+                S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r2");
+                //print the final position
+                S += AnsiString(" ")+RP->CMF.getMF2()->getpfinText();
+            }
+        }
+
+        //print the end delimiter of group i
+        S += AnsiString("\r\n\t}");
+
+        //MOVE ALL RPs TO ITS PROGRAMMED FINAL POSITIONS:
+
+        //for each RP of the Fiber MOS Model
+        for(int i=0; i<getCount(); i++)
+            //move the RP to its programmed final positions
+            Items[i]->MoveFin();            
+    }
+    //print the end delimiter of motion program cluster
+    S += AnsiString("\r\n}");
+
+    //recovers the initial status of the RPs
+//    Clone(RPL);
 }
 
 //-------------------------------------------------------------------

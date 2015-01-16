@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//Archivo: TargetPoint.cpp
-//Contenido: punto objetivo adscrito a un RP
-//Última actualización: 27/09/2013
-//Autor: Isaac Morales Durán
+//File: TargetPoint.cpp
+//Content: target point attached to a RP
+//Last update: 27/09/2013
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "TargetPoint.h"
@@ -14,7 +14,7 @@ using namespace Strings;
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres del programador de esposicionamiento
+//namespace for positioning
 namespace Positioning {
 
 //---------------------------------------------------------------------------
@@ -22,13 +22,13 @@ namespace Positioning {
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-//PROPIEDADES ESTÁTICAS:
+//STATIC PROPERTIES:
 
-//lista de objetos construidos
+//list of built objects
 TItemsList<TTargetPoint*> TTargetPoint::Builts;
 
 //---------------------------------------------------------------------------
-//PROPIEDADES DE INTERFAZ:
+//PROPERTIES IN TEXT FORMAT:
 
 AnsiString TTargetPoint::getTargetP3Text(void)
 {
@@ -38,10 +38,13 @@ void TTargetPoint::setTargetP3Text(const AnsiString &S)
 {
         try {
                 TargetP3 = StrToDPoint(S);
+
         } catch(...) {
                 throw;
         }
 }
+
+//SETS OF PROPERTIES IN TEXT FORMAT:
 
 AnsiString TTargetPoint::getText(void)
 {
@@ -56,10 +59,9 @@ void TTargetPoint::setText(const AnsiString&)
 }
 
 //---------------------------------------------------------------------------
-//MÉTODOS ESTÁTICOS:
+//STATIC METHODS:
 
-//compara los identificadores de los posicionadores
-//adscritos de dos puntos objetivo
+//compare the identifiers of the RPs attached to two target points
 int  TTargetPoint::CompareIds(TTargetPoint *TPA1, TTargetPoint *TPA2)
 {
         //el puntero TPA1 no debe ser nulo
@@ -72,23 +74,22 @@ int  TTargetPoint::CompareIds(TTargetPoint *TPA1, TTargetPoint *TPA2)
 
         if(TPA1->getRoboticPositioner()->getActuator()->getId() < TPA2->getRoboticPositioner()->getActuator()->getId())
                 return -1;
+
         if(TPA1->getRoboticPositioner()->getActuator()->getId() > TPA2->getRoboticPositioner()->getActuator()->getId())
                 return 1;
+
         return 0;
 }
-//este método debe ser apuntado en una lista de punteros
-//para permitir el funcionamiento de
-//los métodos de ordenación y comparación
 
-//obtiene las etiquetas de las propiedades
-//en formato fila de texto
+//get the labels of the properties
+//in row text format
 AnsiString TTargetPoint::GetIdTargetP3LabelsRow(void)
 {
         return AnsiString("Id\t")+TDoublePoint::xLabel+AnsiString("\t")+TDoublePoint::yLabel;
 }
 
-//atraviesa las etiquetas de las propiedades
-//en una cadena de texto a partir de la posición i
+//travel the labels of the properties
+//in a text string from the position i
 void  TTargetPoint::TravelLabels(const AnsiString& S, int& i)
 {
     try {
@@ -110,8 +111,8 @@ void  TTargetPoint::TravelLabels(const AnsiString& S, int& i)
     }
 }
 
-//lee los valores de las propiedades
-//en una cadena de texto a partir de la posición i
+//read the values of the properties
+//in a text string from the position i
 void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
                                       const AnsiString& S, int& i)
 {
@@ -181,11 +182,11 @@ void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
 }
 
 //---------------------------------------------------------------------------
-//MÉTODOS DE CONSTRUCCIÓN Y DESTRUCCIÓN:
+//BUILDING AND DESTROYING METHODS:
 
-//construye un punto objetivo adscrito a un RP
-//si el RP ya tiene un punto objetivo contruido
-//lanza una excepción EImproperArgument
+//build a target point attached a RP
+//if the RP already has an attached target point
+//  throw an exception EImproperArgument
 TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
         double x, double y) : Selected(false)//#, Color(Qt::red)
 {
@@ -227,9 +228,9 @@ TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);
 }
-//destruye un punto objetivo
-//si no hay ningún punto objetivo construido
-//lanza una excepción EImproperCall
+//destroy a targetpoint
+//if thereisn't a built target point
+//  throw an exception EImproperCall
 TTargetPoint::~TTargetPoint()
 {
         //debe haber algún punto objetivo construido
@@ -244,17 +245,17 @@ TTargetPoint::~TTargetPoint()
         //si no lo encuentra
         if(i >= Builts.getCount())
                 //indica que no se encuentra un punto objetivo previamente contruido
-                throw EImposibleError("dont find a previously built target point");
+                throw EImpossibleError("dont find a previously built target point");
 
         //borra el puntero de la lista
         Builts.Delete(i);
 }
 
 //---------------------------------------------------------------------------
-//MÉTODOS DE COMPROBACIÓN:
+//CHECKING METHODS:
 
-//determina si el punto objetivo está fuera
-//del dominio del punto P3 de su posicioandor adscrito
+//determines if the target point is out of the domain
+//of thepoint P3 of the attached RP
 bool TTargetPoint::IsOutDomainP3(void)
 {
         if(getRoboticPositioner()->getActuator()->PointIsOutDomainP3(TargetP3))
@@ -262,8 +263,8 @@ bool TTargetPoint::IsOutDomainP3(void)
 
         return false;
 }
-//determina si el punto objetivo queda dentro
-//del área de seguridad del punto P3  de su posicionador adscrito
+//determines if the target point is in the secure area
+//of thepoint P3 of the attached RP
 bool TTargetPoint::IsInSafeAreaP3(void)
 {
         //determina si el punto objetivo está en el dominio del posicionador
@@ -280,63 +281,51 @@ bool TTargetPoint::IsInSafeAreaP3(void)
 }
 
 //---------------------------------------------------------------------------
-//MÉTODOS DE DESPLAZAMIENTO:
+//MOVING METHODS:
 
-//randomiza el punto objetivo con distribución uniforme
-//en el dominio del punto P3 de su posicioandor adscrito
+//randomize the point TargetP3 with uniform distribution
+//in the domain of the point P3 of its attached RP
 void TTargetPoint::Randomize(void)
 {
-/*        double x, y; //coordenadas rectangulares
-        TDoublePoint P_;
-        double r_, theta_;
-        double theta_1, theta__3;
-        bool isindomain; //indicador de que el punto está dentro del dominio
-
-        do {
-                //radomiza las coordenadas cartesianas con distribución uniforme
-                //en el  intervalo cartesiano del posicionador
-                x = RandomUniform(RoboticPositioner->Actuator->x3min, RoboticPositioner->Actuator->x3max);
-                y = RandomUniform(RoboticPositioner->Actuator->y3min, RoboticPositioner->Actuator->y3max);
-
-                //traduce a coordenadas posicionales de los ejes
-                //y determina si el punto está en el dominio
-                isindomain = RoboticPositioner->PositionsToGoP3(theta_1, theta__3, x, y);
-
-                //si está en el dominio
-                if(isindomain) {
-                        //asigna el punto objetivo
-                        TargetP3.x = x;
-                        TargetP3.y = y;
-                }
-        } while(!isindomain);*/
         TargetP3 = getRoboticPositioner()->getActuator()->RandomP3();
 }
 
-//asigna el punto objetivo al punto P3 de su posicionador adscrito
-//si el punto objetivo no está en el dominio de
-//su posicionador adscrito lanza EImpropercall
-void TTargetPoint::MoveToTargetP3(void)
+//assign the point TargetP3 to the point P3 of its attached RP
+//and return the distance from the stable position to the target point
+//if the the point TargetP3 isn't on the domain of its attached RP:
+//  throw an exception EImpropercall
+double TTargetPoint::MoveToTargetP3(void)
 {
-        //determina si el punto objetivo está en el dominio del posicionador
-        //adscrito y calcula las posiciones angulares de los ejes
+        //determines if the target point is in the domain of the attached RP
+        //and calculates the position angles of the axes
         double theta_1, theta___3;
         bool isindomain = getRoboticPositioner()->getActuator()->AnglesToGoP3(theta_1, theta___3, TargetP3.x, TargetP3.y);
 
-        //el punto objetivo TargetP3 debería estar en el dominio del punto P3 de su RP adscrito
+        //target point TargetP3 should be in the point P3 domain of his assigned fiber positioner
         if(!isindomain)
                 throw EImproperCall("target point TargetP3 should be in the point P3 domain of his assigned fiber positioner");
 
-        //asigna las posiciones a los ejes
+        //determines the stable position more closer to the target point
+        //and determines the distance fromthe stable position to the target point
+        double p_1nsp, p___3nsp;
+        double d = getRoboticPositioner()->getActuator()->GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+
+        //assign the positions to the axes
+//        getRoboticPositioner()->getActuator()->SetAnglesSteps(p_1nsp, p___3nsp);
         getRoboticPositioner()->getActuator()->SetAnglesRadians(theta_1, theta___3);
+
+        //returns the distance fromthe stable position to the target point
+//        return d;
+        return 0;
 }
 
 //---------------------------------------------------------------------------
-//MÉTODOS DE INTERFAZ:
+//GRAPHICAL METHODS:
 
-//indica que parte del punto objetivo
-//puede ser agarrado en el punto indicado
-//      1: punto (TargetP3, 0.75)
-//      0: niguna;
+//indicates the part of the target point which can be grabbed
+//on the givenpoint
+//      1: point which is a circunference (TargetP3, 0.75)
+//      0: none;
 int TTargetPoint::Grab(TDoublePoint P)
 {
         //si está en el punto
@@ -346,8 +335,8 @@ int TTargetPoint::Grab(TDoublePoint P)
         return 0;
 }
 /*#
-//imprime el puntos objetivo en el lienzo de la fotografía
-//de un trazador de formas
+//print the target point in the canvas of the picture
+//of a ploter shapes
 void TTargetPoint::Paint(TPloterShapes *PS)
 {
         //el puntero PS debería apuntar a un trazador de formas construido

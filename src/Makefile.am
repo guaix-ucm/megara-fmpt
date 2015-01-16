@@ -45,6 +45,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     MotionProgram.cpp \
     TargetPoint.cpp \
     TargetPointList.cpp \
+    MotionProgramValidator.cpp \
     MotionProgramGenerator.cpp \
     vclemu.h \
     Exceptions.h \
@@ -93,6 +94,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     MotionProgram.h \
     TargetPoint.h \
     TargetPointList.h \
+    MotionProgramValidator.h \
     MotionProgramGenerator.h
 
 ## Version info is in current : revision : age form
@@ -150,6 +152,7 @@ pkginclude_HEADERS = vclemu.h \
     MotionProgram.h \
     TargetPoint.h \
     TargetPointList.h \
+    MotionProgramValidator.h \
     MotionProgramGenerator.h
 
 bin_PROGRAMS = fmpt_saa

@@ -10,10 +10,13 @@
 
 #include "ExclusionArea.h"
 #include "PointersList.h"
+#include "PairPositionAngles.h"
+#include "MotionProgram.h"
 
 //---------------------------------------------------------------------------
 
 using namespace Lists;
+using namespace Positioning;
 
 //espacio de nombres de modelos
 namespace Models {
@@ -235,17 +238,21 @@ public:
 
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //tabla de orígenes de coordenadas:
+        //get the origins table in text format:
         //      Id      x0      y0      thetaO1
         AnsiString getOriginsTableText(void) const;
+        //set the origins table in text format:
+        //      Id      x0      y0      thetaO1
         void setOriginsTableText(const AnsiString&);
-        //tabla de coordenadas de posición de P3:
+        //get the P3 table in text format:
         //      Id      x3      y3
         AnsiString getPositionsP3TableText(void) const;
+        //set the P3 table in text format:
+        //      Id      x3      y3
         void setPositionsP3TableText(const AnsiString&);
-        //tabla de PAPs:
+        //tabla de PPA table in text format:
         //      Id      p_1     p___3
-        AnsiString getPositionsPAPTableText(void) const;
+        AnsiString getPositionsPPATableText(void) const;
 
         //conjunto de todas las propiedades de seguridad
         //en formato asignaciones
@@ -309,14 +316,15 @@ public:
         //es destruir la lista de posicionadores sin destruir los posicionadores
         //deberá vaciarla antes con el método: ClearWithoutDestroy.
 
-        //AÑADIR Y BORAR POSICIONADORES:
+        //ADD OR DELETE RPs:
 
-        //Añadir un posicionador a la lista:
-        //      Add(RP);
-        //Destruye y borra un posicionador de la lista
-        //      Delete(i);
-        //Borra un posicionador de la lista sin destruirlo
-        //      DeleteWithoutDestroy(i);
+        //Inherited methods:
+        //  Add(TRoboticPositioner *RP): dd a RP to the list.
+        //  Delete(int i): delete a RP of the list without destroy it.
+
+        //search and delete a RP of the list
+        //return the position where the RP was found
+        int deleteIfFind(const TRoboticPositioner* RP);
 
         //MÉTODOS DE CONSTRUCCIÓN DE POSICIONADORES:
 
@@ -355,8 +363,8 @@ public:
         //MÉTODOS DE BÚSQUEDA DE POSICIONADORES:
 
         //busca un posicionador en la lista
-        int Search(TRoboticPositioner *RP) const;
-        int Search(TActuator *A) const;
+        int Search(const TRoboticPositioner *RP) const;
+        int Search(const TActuator *A) const;
         //busca el primer posicionador con el identificador indicado
         int SearchId(int Id) const;
         //devuelve el puntero al primer posicionador
@@ -449,9 +457,8 @@ public:
 
         //MÉTODOS DE LECTURA CONJUNTA:
 
-        //obtiene las posiciones angulares de los ejes
-        //de los posicionadores en radianes
-        void GetPositions(TPointersList<TPair>& PositionList);
+        //get the PPA list in steps
+        void GetPositions(TPairPositionAnglesList& PPAL);
 
         //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
@@ -459,7 +466,7 @@ public:
         void SetRoboticPositioners(const TPointersList<TRoboticPositioner>&);*/
         //asigna las posiciones angulares de los ejes
         //este método es atómico
-        void SetPositions(TPointersList<TPair>& PositionList);
+        void SetPositions(const TPairPositionAnglesList& PositionList);
         //asigna conjuntamente las tolerancias
         //      (PAem, Pem)
         void SetTolerance(double _PAem,double _Pem);
@@ -480,6 +487,9 @@ public:
         //determina si un punto se encuentra dentro del cuadrado
         //que contiene el dominio conjunto de los posicionadores
         bool IsInSquare(const TDoublePoint&);
+
+        //determine if all RPs of the list are in securepositions
+        bool AllRPsAreInSecurePosition(void) const;
 
         //MÉTODOS DE DESPLAZAMIENTO CONJUNTO:
 
@@ -506,7 +516,13 @@ public:
         void SegregateInOut(TRoboticPositionerList1 &Inners,
                 TRoboticPositionerList1 &Outsiders);
 
-        //segrega losposicionadores seleccionados en una lista
+        //segregates the operative RPs in unsecure positions
+        void segregateOperativeOutsiders(TRoboticPositionerList1& Outsiders);
+
+        //segregates the collided RPs
+        void segregateCollided(TRoboticPositionerList1& Collided);
+
+        //segrega los posicionadores seleccionados en una lista
         void SegregateSelected(TRoboticPositionerList1&);
 
         //MÉTODOS DE PILA DE POSICIONES ANGULARES:
@@ -607,6 +623,13 @@ public:
         //posiciones aleatorias con distribución uniforme en su dominio
         //en las que no colisionan entre si
         int RandomizeP3WithoutCollisionSelected(void);
+
+        //METHODS TO TRANSLATE MOTION PROGRAMS:
+
+        //translate amotion progam from intermediary set of instructions
+        //to the format stablished by the interface FMPT-MCS
+        void TranslateMotionProgram(AnsiString& S, int CBId,
+            const TPairPositionAnglesList& IPL, const TMotionProgram& MP);
 
         //------------------------------------------------------------------
         //MÉTODOS GRÁFICOS:

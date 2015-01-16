@@ -300,7 +300,7 @@ TRoboticPositionerList::TRoboticPositionerList(const TRoboticPositionerList *RPL
         Clone(RPL);
 }
 
-//destruye un alista de posicionadores de fibra
+//destruye una lista de posicionadores de fibra
 TRoboticPositionerList::~TRoboticPositionerList()
 {
         //destruye el temporizador
@@ -433,10 +433,10 @@ void TRoboticPositionerList::SetIdTable(TPointersList<TTernIntegers>& IdTable)
 }
 
 //prepara el posicionador multifibra según un propósito
-void TRoboticPositionerList::SetPorpose(TPorpose Porpose)
+void TRoboticPositionerList::SetPurpose(TPurpose Purpose)
 {
         for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->setPorpose(Porpose);
+                Items[i]->getActuator()->setPurpose(Purpose);
 }
 
 //configura el estado de habilitación del cuantificador de rot 1
@@ -539,7 +539,7 @@ void TRoboticPositionerList::ClearInstructions(void)
 //si el posicionador Id no está en la lista
 //      lanza una excepción EImproperArgument
 //si Id==0 asigna la instrucción a todos los controldaores
-void TRoboticPositionerList::SetInstruction(int Id, TInstruction &Instruction)
+void TRoboticPositionerList::SetInstruction(const int Id, const TInstruction &Instruction)
 {
         //el identificador Id debería ser no negativo
         if(Id < 0)
@@ -572,7 +572,7 @@ void TRoboticPositionerList::SetInstruction(int Id, TInstruction &Instruction)
 }
 
 //añade gestos de abatimiento para los posicionadores de fibras de la lista
-void TRoboticPositionerList::TurnArmsToSafeAreas(void)
+void TRoboticPositionerList::programTurnArmsToSafeAreas(void)
 {
         TRoboticPositioner *RP;
 
@@ -583,7 +583,7 @@ void TRoboticPositionerList::TurnArmsToSafeAreas(void)
                 //si el brazo del posicionador adscrito está fuera del área de seguridad
                 if(RP->getActuator()->ArmIsOutSafeArea())
                         //programa el abatimiento desde su posición actual
-                        RP->TurnArmToSafeArea();
+                        RP->programTurnArmToSafeArea();
         }
 }
 //sincroniza todos los gestos de la lista

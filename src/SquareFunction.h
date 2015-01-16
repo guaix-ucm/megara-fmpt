@@ -61,9 +61,9 @@ public:
 
         //MÉTODOS DE CONTRUCCIÓN Y COPIA:
 
-        //inicializa {vmax=vmaxabs=vmaxabsdef, tini=0, tfin=0}
+        //inicializa {vmax=vmaxabs=MEGARA_VMAXABSDEF, tini=0, tfin=0}
         //y asimila los parámetros
-        TSquareFunction(double _vmaxabs=VMAXABSDEF);
+        TSquareFunction(double _vmaxabs=MEGARA_VMAXABSDEF);
         //clona una función cuadrada
         TSquareFunction(TSquareFunction*);
         //copia todas las propiedades una función cuadrada

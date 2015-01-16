@@ -9,6 +9,7 @@
 #define MOTIONFUNCTION_H
 
 #include "vclemu.h"
+#include "FiberMOSModelConstants.h" //VMAXABS, AMAXABS
 
 //---------------------------------------------------------------------------
 
@@ -22,10 +23,6 @@ namespace MotionFunctions {
 //ABREVIATURAS (en castellano):
 //      ul: udidades de longitud;
 //      ut: unidades de tiempo.
-
-//CONSTANTES:
-#define VMAXABSDEF 0.3 //(pasos/ms)
-#define AMAXABSDEF 0.0007 //(pasos/ms^2)
 
 //clase función de movimiento
 class TMotionFunction {

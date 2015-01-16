@@ -35,7 +35,7 @@ AnsiString KnowledgeDetgreeToStr(TKnowledgeDegree kd);
 TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S);
 
 //###########################################################################
-//TPorpose
+//TPurpose
 //###########################################################################
 
 //propósito de SPM
@@ -43,12 +43,12 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S);
 //      pGen: generación de un programa de movimiento;
 //      pVal: validación de un programa de movimineto;
 //      pExe: ejecución de un programa de movimineto.
-enum TPorpose {pAll, pGen, pVal, pExe};
+enum TPurpose {pAll, pGen, pVal, pExe};
 
-void  StrPrintPorpose(AnsiString& S, TPorpose p);
-void  StrReadPorpose(TPorpose& p, const AnsiString &S, int &i);
-AnsiString PorposeToStr(TPorpose p);
-TPorpose StrToPorpose(const AnsiString& S);
+void  StrPrintPurpose(AnsiString& S, TPurpose p);
+void  StrReadPurpose(TPurpose& p, const AnsiString &S, int &i);
+AnsiString PurposeToStr(TPurpose p);
+TPurpose StrToPurpose(const AnsiString& S);
 
 //###########################################################################
 //TActuator
@@ -78,7 +78,7 @@ protected:
     //PROPIEDADES DE ESTADO:
 
     TKnowledgeDegree __PAkd;
-    TPorpose __Porpose;
+    TPurpose __Purpose;
 
     int __Id;
 
@@ -138,7 +138,7 @@ protected:
     //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
 
-    //asigna el SPM adecuado para (PAkd, Porpose)
+    //asigna el SPM adecuado para (PAkd, Purpose)
     void AssignSPM(void);
 
 public:
@@ -296,8 +296,8 @@ public:
     //      pVal: validación
     //      pExe: ejecución
     //valor por defecto: pAll
-    TPorpose getPorpose(void) const {return __Porpose;}
-    void setPorpose(TPorpose);
+    TPurpose getPurpose(void) const {return __Purpose;}
+    void setPurpose(TPurpose);
 
     //si PAkd == kdPre,
     //      si Porporse == pAll
@@ -562,8 +562,8 @@ public:
 
     AnsiString getPAkdText(void) const;
     void setPAkdText(const AnsiString&);
-    AnsiString getPorposeText(void) const;
-    void setPorposeText(const AnsiString&);
+    AnsiString getPurposeText(void) const;
+    void setPurposeText(const AnsiString&);
 
     AnsiString getIdText(void) const; void setIdText(const AnsiString&);
 
@@ -716,7 +716,7 @@ public:
     //obtiene las etiquetas de las propiedades de posición
     //("Id", "p_1", "p___3") al final de una cadena de texto
     //en formato fila de texto
-    static AnsiString GetPositionPAPLabelsRow(void);
+    static AnsiString GetPositionPPALabelsRow(void);
     //atraviesa las etiquetas de las propiedades de posición
     //("Id", "x3", "y3")
     //en formato fila de texto
@@ -734,7 +734,7 @@ public:
     //imprime los valores de las propiedades de posición de un posicionador
     //(Id, p_1, p___3) al final de una cadena de texto
     //en formato fila de texto
-    static void  PrintPositionPAPRow(AnsiString&, TActuator*);
+    static void  PrintPositionPPARow(AnsiString&, TActuator*);
 
     //------------------------------------------------------------------
     //MÉTODOS DE CONSTRUCCIÓN, COPIA Y DESTRUCCIÓN:
@@ -797,6 +797,16 @@ public:
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
     void SetPositionP3(double x3, double y3);
+    //assign a pair of position angles in radians
+    //if the position angle theta_1 isn't in domain of theta_1,
+    //or the position angle theta___3 isn't in domain of theta___3
+    //  throw an exception EImproperArgument
+    void setPositionPPARadians(double theta_1, double theta___3);
+    //assign a pair of position angles in steps
+    //if the position angle p_1 isn't in domain of p_1,
+    //or the position angle p___3 isn't in domain of p___3
+    //  throw an exception EImproperArgument
+    void setPositionPPASteps(double p_1, double p___3);
     //asigna las propiedades de identificación y posición
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
@@ -806,8 +816,8 @@ public:
     void SetSPMComponents(double _SPMrec, double _SPMsta,
                           double _SPMdyn, double _SPMmin);//, double _SPMoff);
 
-    //asigna las propiedades de estado (PAkd, Porpose)
-    void SetStatus(TKnowledgeDegree _PAkd, TPorpose _Porpose);
+    //asigna las propiedades de estado (PAkd, Purpose)
+    void SetStatus(TKnowledgeDegree _PAkd, TPurpose _Purpose);
 
     //-------------------------------------------------------------------
     //MÉTODOS PARA ALMACENAR Y RECUPERAR POSICIONES DE LOS ROTORES:

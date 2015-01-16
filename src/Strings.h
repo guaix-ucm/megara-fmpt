@@ -134,6 +134,10 @@ AnsiString StrFirstChars(const AnsiString &S, int LengthMax=15);
 
 //rellena una cadena con caracteres hasta que alcance la longitud indicada
 void StrFill(AnsiString &S, int length, char c);
+//insert a char in the indicated position of a text string
+//to get the intended length
+AnsiString strInsertChar(const AnsiString& S, int length,
+                        int i=1, char c='0');
 
 //ERROR: usar en StrFill la 'L' como nombre de variable provoca el error:
 //      Undefined symbol 'AnsiString'
@@ -189,7 +193,7 @@ void StrPaint(TCanvas *Canvas, const AnsiString &S,
 //se empleará el sufijo 'Form' para referirse a funcioens que
 //actúa sobre el formato de presentación de cadenas de texto.
 
-//insrta un salto de linea y un tabulador delante de cada elemento de una lista
+//inserta un salto de linea y un tabulador delante de cada elemento de una lista
 //delimitada por {} y elementos separados por ','
 void StrListToColumnForm(AnsiString &D, const AnsiString &O, int &i);
 //ERROR: esta función está por definir. No usar.

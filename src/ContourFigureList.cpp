@@ -61,7 +61,7 @@ void TContourFigureList::Copy(const TContourFigureList &C)
 
                 else {
                         //figura geométrica de tipo desconocido
-                        throw EImposibleError("geometrical figure type unknown");
+                        throw EImpossibleError("geometrical figure type unknown");
                 }
         }
 }
@@ -93,7 +93,7 @@ TContourFigureList& TContourFigureList::operator=(const TContourFigureList& C)
 
                 else {
                         //figura geométrica de tipo desconocido
-                        throw EImposibleError("geometrical figure type unknown");
+                        throw EImpossibleError("geometrical figure type unknown");
                 }
         }
 
@@ -478,7 +478,7 @@ bool TContourFigureList::IsInner(TDoublePoint P) const
                 else {
                         //inidica que se ha producido un efecto lateral por que
                         //debería haber un vértice de la figura indicada conectado a la próxima figura
-                        throw EImposibleError("should be a vertext in the actual figure connect to next figure");
+                        throw EImpossibleError("should be a vertext in the actual figure connect to next figure");
                 }
 
                 //contabiliza el ángulo recorrido para desplazarse
@@ -727,12 +727,12 @@ void TContourFigureList::GetRotatedAndTranslated(TContourFigureList &Contour,
 {
         //el número de figuras de la lista debe ser igual
         if(Contour.getCount() != getCount())
-                throw EImposibleError("number figures of thelist should be equal");
+                throw EImpossibleError("number figures of thelist should be equal");
 
         //el tipo de figuras dela lista debe coincidir
         for(int i=0; i<Contour.getCount(); i++)
                 if(typeid(Contour[i]) != typeid(Items[i]))
-                        throw EImposibleError("types figures in thelist should match");
+                        throw EImpossibleError("types figures in thelist should match");
 //if(IsAContourSorted())
   //      int aux = 0;
         //rota y traslada cada figura del contorno

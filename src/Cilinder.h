@@ -756,61 +756,6 @@ public:
         //en el intervalo [theta_1min, theta_1max]
         double Qtheta_1(double theta_1);
 
-        //determina las posiciones angulares estables que hacen que
-        //la fibra de este posicionador se ubique lo más cerca posible
-        //del punto correspondiente a unas posiciones angulares de los ejes
-        //devuelve la distancia al punto hallado
-        double GetNearestStablePosition(double &p_1nsp, double &p___3nsp,
-            double theta_1, double theta___3);
-
-        //Este método tiene los parámetros de entrada en coordenadas angulares
-        //de los ejes en radianes, en congruencia con los valores devueltos por
-        //el método:
-        //      bool AnglesToGoP_3(double& theta_1, double& theta___3,
-    //              double r_3, double theta_3);
-        //Es preferible introducir coordenadas angulares de los ejes,
-        //para reconstruir el punto por el mismo método con el cual
-        //se van a generar los puntos estables, de modo que se evite
-        //el error numérico.
-
-        //Este método devuelve valores en pasos, porque los métodos de
-        //generación de programas de movimiento van a trabajar en pasos.
-        //Se ha elegido que dichos métodos trabajen en pasos por varias razones:
-        //    - Existen tres posibilidades:
-        //      1. Trabajar en radianes y no cuantificar.
-        //      2. Trabajar en radianes y cuantificar.
-        //      3. Trabajar en pasos y cuantificar.
-        //      Trabajar en pasos constituye el método de cuantificación por
-        //      antonomasia, de modo que no tiene sentido trabajar en radianes
-        //      y cuantificar al mismo tiempo.
-        //    - Si se trabaja en radianes hay que inroducir en el SPM una
-        //      componente para absorber el error de cuantificación de los
-        //      programas de movimiento.
-        //    - La cuantificación de los programas de movimiento no es trivial,
-        //      ya que las posiciones finales pueden diferir en más de un paso
-        //      en la posición final de algún eje.
-        //    - La componente de SPM a introducir dependería además del tamaño
-        //      de los escalones de cuantificación más grandes (en posicones
-        //      de inseguridad), de modo que si por defecto mecánico, hubiera
-        //      algún escalon incrementado, la componente del SPM se vería
-        //      también incrementada.
-        //    - Se haría obligatorio introducir el conceptos de distancia de
-        //      seguridad.
-        //    - Habría que definir en la documentación el concepto de
-        //      instrucción de movimiento no cuantificada (en radianes).
-        //    - La única ventaja de trabajar en radianes es tener programas
-        //      válidos para cualquier número de pasos. Sin embargo, si cambiase
-        //      el número de pasos cambiaríán otros parámetros del modelo,
-        //      de modo que la adaptación de un programa no tiene sentido,
-        //      debiendo generarse un nuevo programa.
-        //A la vista de estas razones se concluye que el motivo principal de
-        //trabajar en pasos es la simplificación de los algoritmos;
-        //en particular la cuantificación de los programas y el cálculo de
-        //la nueva componente del SPM. Además trabajar en pasos permite
-        //generar programas de movimiento optimizados, tanto en tiempo como en
-        //espacio, pudiendo volverse crítico cualquiera de los dos factores
-        //en un momento dado.
-
         //MÉTODOS DE CONFIGURACIÓN:
 
         //cambia conjuntamente las propiedades de plantilla
@@ -913,6 +858,61 @@ public:
         //Dado el radio r_3 (en S1) calcula theta___3 para que P3 vaya a él;
         //si el radio no está dentro del dominio devuelve falso.
         bool theta___3ToGor_3(double &_theta___3, double _r_3);
+
+        //determina las posiciones angulares estables que hacen que
+        //la fibra de este posicionador se ubique lo más cerca posible
+        //del punto correspondiente a unas posiciones angulares de los ejes
+        //devuelve la distancia al punto hallado
+        double GetNearestStablePosition(double &p_1nsp, double &p___3nsp,
+            double theta_1, double theta___3);
+
+        //Este método tiene los parámetros de entrada en coordenadas angulares
+        //de los ejes en radianes, en congruencia con los valores devueltos por
+        //el método:
+        //      bool AnglesToGoP_3(double& theta_1, double& theta___3,
+        //          double r_3, double theta_3);
+        //Es preferible introducir coordenadas angulares de los ejes,
+        //para reconstruir el punto por el mismo método con el cual
+        //se van a generar los puntos estables, de modo que se evite
+        //el error numérico.
+
+        //Este método devuelve valores en pasos, porque los métodos de
+        //generación de programas de movimiento van a trabajar en pasos.
+        //Se ha elegido que dichos métodos trabajen en pasos por varias razones:
+        //    - Existen tres posibilidades:
+        //      1. Trabajar en radianes y no cuantificar.
+        //      2. Trabajar en radianes y cuantificar.
+        //      3. Trabajar en pasos y cuantificar.
+        //      Trabajar en pasos constituye el método de cuantificación por
+        //      antonomasia, de modo que no tiene sentido trabajar en radianes
+        //      y cuantificar al mismo tiempo.
+        //    - Si se trabaja en radianes hay que inroducir en el SPM una
+        //      componente para absorber el error de cuantificación de los
+        //      programas de movimiento.
+        //    - La cuantificación de los programas de movimiento no es trivial,
+        //      ya que las posiciones finales pueden diferir en más de un paso
+        //      en la posición final de algún eje.
+        //    - La componente de SPM a introducir dependería además del tamaño
+        //      de los escalones de cuantificación más grandes (en posicones
+        //      de inseguridad), de modo que si por defecto mecánico, hubiera
+        //      algún escalon incrementado, la componente del SPM se vería
+        //      también incrementada.
+        //    - Se haría obligatorio introducir el conceptos de distancia de
+        //      seguridad.
+        //    - Habría que definir en la documentación el concepto de
+        //      instrucción de movimiento no cuantificada (en radianes).
+        //    - La única ventaja de trabajar en radianes es tener programas
+        //      válidos para cualquier número de pasos. Sin embargo, si cambiase
+        //      el número de pasos cambiaríán otros parámetros del modelo,
+        //      de modo que la adaptación de un programa no tiene sentido,
+        //      debiendo generarse un nuevo programa.
+        //A la vista de estas razones se concluye que el motivo principal de
+        //trabajar en pasos es la simplificación de los algoritmos;
+        //en particular la cuantificación de los programas y el cálculo de
+        //la nueva componente del SPM. Además trabajar en pasos permite
+        //generar programas de movimiento optimizados, tanto en tiempo como en
+        //espacio, pudiendo volverse crítico cualquiera de los dos factores
+        //en un momento dado.
 
         //MÉTODOS DE PERTENENCIA AL DOMINIO DE P3:
 

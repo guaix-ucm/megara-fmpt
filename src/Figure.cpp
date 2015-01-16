@@ -743,7 +743,7 @@ double TCircle::Distance(TFigure *F)
         //calcula la distancia mínima al objeto
         return DistanceArc((TArc*)F);
     else
-        throw EImposibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
+        throw EImpossibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
 }
 
 //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
@@ -1336,7 +1336,7 @@ double TCircunference::Distance(TFigure *F)
         //calcula la distancia mínima al objeto
         return DistanceArc((TArc*)F);
     else
-        throw EImposibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
+        throw EImpossibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
 }
 
 //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
@@ -1796,7 +1796,7 @@ double TSegment::Distance(TFigure *F)
         //calcula la distancia mínima al objeto
         return DistanceArc((TArc*)F);
     else
-        throw EImposibleError(AnsiString("unknown type: ")+
+        throw EImpossibleError(AnsiString("unknown type: ")+
                               AnsiString(typeid(*F).name()));
 }
 
@@ -2513,7 +2513,7 @@ double TArc::Distance(TFigure *F)
         //calcula la distancia mínima al objeto
         return DistanceArc((TArc*)F);
     else
-        throw EImposibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
+        throw EImpossibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
 }
 
 //MÉTODOS DE ROTACIÓN Y TRASLACIÓN
@@ -2623,7 +2623,7 @@ double Rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
     //si no es segmento ni arco
 
     //indica que el puntero F debería apuntar a un segmento o un arco
-    throw EImposibleError("pointer F should point to a segment or an arc");
+    throw EImpossibleError("pointer F should point to a segment or an arc");
 }
 
 //---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ void  StrPrintControlMode(AnsiString& S,
     case cmSinc: S +=  AnsiString("Sinc"); break;
     case cmAsinc: S +=  AnsiString("Asinc"); break;
     }
-    throw EImposibleError("unknown value in type TControlMode");
+    throw EImpossibleError("unknown value in type TControlMode");
 }
 void  StrReadControlMode(TControlMode& cm,
                                    const AnsiString &S, int &i)
@@ -91,7 +91,7 @@ AnsiString ControlModeToStr(TControlMode cm)
     case cmSinc: return AnsiString("Sinc");
     case cmAsinc: return AnsiString("Asinc");
     }
-    throw EImposibleError("unknown value in type TControlMode");
+    throw EImpossibleError("unknown value in type TControlMode");
 }
 TControlMode StrToControlMode(const AnsiString& S)
 {
@@ -148,7 +148,7 @@ void  StrPrintFaultType(AnsiString& S,
     case ftSta: S +=  AnsiString("Sta"); break;
     case ftDyn: S +=  AnsiString("Dyn"); break;
     }
-    throw EImposibleError("unknown value in type TFaultType");
+    throw EImpossibleError("unknown value in type TFaultType");
 }
 void  StrReadFaultType(TFaultType& ft,
                                  const AnsiString &S, int &i)
@@ -216,7 +216,7 @@ AnsiString FaultTypeToStr(TFaultType ft)
     case ftSta: return AnsiString("Sta");
     case ftDyn: return AnsiString("Dyn");
     }
-    throw EImposibleError("unknown value in type TFaultType");
+    throw EImpossibleError("unknown value in type TFaultType");
 }
 TFaultType StrToFaultType(const AnsiString& S)
 {
@@ -603,10 +603,10 @@ void  TRoboticPositioner::ReadPositionP3Row(TRoboticPositioner* &FP,
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
-void  TRoboticPositioner::PrintPositionPAPRow(AnsiString& S,
+void  TRoboticPositioner::PrintPositionPPARow(AnsiString& S,
                                               TRoboticPositioner *FP)
 {
-    TActuator::PrintPositionPAPRow(S, FP->getActuator());
+    TActuator::PrintPositionPPARow(S, FP->getActuator());
 }
 
 //lee una instancia en una cadena
@@ -1029,7 +1029,7 @@ double TRoboticPositioner::SPMtop(double w1, double w2) const
 //      SPM = SPMerr + SPMtop + SPMtop + SPMpro; cuando Popose=sPro
 //      SPM = SPMerr + SPMtop;   cuando Popose=sVal
 //      SPM = SPMerr;    cuando Popose=sExe
-void TRoboticPositioner::SetSPM(TPorpose Porpose,
+void TRoboticPositioner::SetSPM(TPurpose Purpose,
         double Eo, double Ep,
         double w1, double w2)
 {
@@ -1049,7 +1049,7 @@ void TRoboticPositioner::SetSPM(TPorpose Porpose,
         if(w2 < 0)
                 throw EImproperArgument("angular velociti of rot 2 should be nonnegative");
 
-        switch(Porpose) {
+        switch(Purpose) {
                 case pPro:
                         Arm->SPM = GetSPMerr(Eo, Ep) + GetSPMtop(w1, w2) + GetSPMtop(w1, w2);
                         break;
@@ -1060,7 +1060,7 @@ void TRoboticPositioner::SetSPM(TPorpose Porpose,
                         Arm->SPM = GetSPMerr(Eo, Ep);
                         break;
                 default:
-                        throw EImposibleError("value unknown for property Porpose");
+                        throw EImpossibleError("value unknown for property Purpose");
         }
 }
   */
@@ -1133,11 +1133,11 @@ void TRoboticPositioner::SetSPMoff(double PAem, double Pem)
 }
 
 //--------------------------------------------------------------------------
-//MÉTODOS DE INSTRUCCIÓN:
+//INSTRUCTION METHODS:
 
-//gira el cilindro hasta p_1
-//si hay un comando programado lanza una excepción EImproperCall
-//si la posición es inalcanzable devuelve falso
+//program turn of rotor 1 from actual position to p_1
+//if the p_1 is out rotor 1 domain:
+//  throw an exception EImproperArgument
 void TRoboticPositioner::M1(double _p_1)
 {
     //la posición p_1 debería estar en el dominio del eje 1
@@ -1147,9 +1147,9 @@ void TRoboticPositioner::M1(double _p_1)
     //programa el giro del cilindro
     CMF.ProgramMF1(getActuator()->getp_1(), _p_1);
 }
-//gira el brazo hasta p___3
-//si no hay un comando programado lanza una excepción EImproperCall
-//si la posición es inalcanzable devuelve falso
+//program turn of rotor 2 from actual position to p___3
+//if the p___3 is out rotor 2 domain:
+//  throw an exception EImproperArgument
 void TRoboticPositioner::M2(double _p___3)
 {
     //la posición p___3 debería estar en el dominio del eje 2
@@ -1159,9 +1159,9 @@ void TRoboticPositioner::M2(double _p___3)
     //programa el giro del cilindro
     CMF.ProgramMF2(getActuator()->getArm()->getp___3(), _p___3);
 }
-//gira ambos ejes hasta (p_1, p___3)
-//si no hay un comando programado lanza una excepción EImproperCall
-//si la posición es inalcanzable devuelve falso
+//program turns of rotors 1 and 2 from actual position to (p_1, p___3)
+//if the p_1 is out rotor 1 domain or p___3 is out rotor 2 domain:
+//  throw an exception EImproperArgument
 void TRoboticPositioner::MM(double _p_1, double _p___3)
 {
     //las posiciones (p_1, p___3) should has in rotors domain
@@ -1172,9 +1172,9 @@ void TRoboticPositioner::MM(double _p_1, double _p___3)
     CMF.ProgramBoth(getActuator()->getp_1(), getActuator()->getArm()->getp___3(), _p_1, _p___3);
 }
 
-//gira el cilindro desde p_1sta hasta p_1fin
-//si hay un comando programado lanza una excepción EImproperCall
-//si la posición es inalcanzable devuelve falso
+//program turn of rotor 1 from p_1sta to p_1end
+//if the p_1sta or p_1end is out rotor 1 domain:
+//  throw an exception EImproperArgument
 void TRoboticPositioner::M1(double p_1sta, double p_1fin)
 {
     //la posición p_1sta debería estar en el dominio del eje 1
@@ -1187,9 +1187,9 @@ void TRoboticPositioner::M1(double p_1sta, double p_1fin)
     //programa el giro del cilindro
     CMF.ProgramMF1(p_1sta, p_1fin);
 }
-//gira el brazo desde p___3sta hasta p___3fin
-//si no hay un comando programado lanza una excepción EImproperCall
-//si la posición es inalcanzable devuelve falso
+//program turn of rotor 2 from p___3sta to p___3end
+//if the p___3sta or p___3end is out rotor 2 domain:
+//  throw an exception EImproperArgument
 void TRoboticPositioner::M2(double p___3sta, double p___3fin)
 {
     //la posición p___3sta debería estar en el dominio del eje 2
@@ -1202,9 +1202,11 @@ void TRoboticPositioner::M2(double p___3sta, double p___3fin)
     //programa el giro del cilindro
     CMF.ProgramMF2(p___3sta, p___3fin);
 }
-//gira ambos ejes desde (p_1sta, p___3sta) hasta (p_1fin, p___3fin)
-//si no hay un comando programado lanza una excepción EImproperCall
-//si la posición es inalcanzable devuelve falso
+//program turn of rotor 1 from p_1sta to p_1end, and
+//program turn of rotor 2 from p___3sta to p___3end
+//if the p_1sta or p_1end is out rotor 1 domain, or:
+//if the p___3sta or p___3end is out rotor 2 domain:
+//  throw an exception EImproperArgument
 void TRoboticPositioner::MM(double p_1sta, double p___3sta,
                             double p_1fin, double p___3fin)
 {
@@ -1219,9 +1221,9 @@ void TRoboticPositioner::MM(double p_1sta, double p___3sta,
     CMF.ProgramBoth(p_1sta, p___3sta, p_1fin, p___3fin);
 }
 
-//detiene el desplazamiento borrando el gesto programado
-//      si no hay un gesto programado
-//      lanza una excepción EImproperCall
+//stop displacement and clear the programmed gesture
+//if there isn't programmed a gesture:
+//  throw an exception EImproperCall
 void TRoboticPositioner::SP(void)
 {
     //debería haber un gesto programado
@@ -1232,11 +1234,10 @@ void TRoboticPositioner::SP(void)
     CMF.ClearProgram();
 }
 
-//MÉTODOS DE ASIGNACIÓN Y LECTURA DE INSTRUCCIONES:
-
-//asigna una instrucción al controlador
-//si la instrucción está vacía lanza una excepción EImproperAgument
-void TRoboticPositioner::SetInstruction(TInstruction &Instruction)
+//set an instruction
+//if instruction is empty:
+//  throw an exception EImproperArgument
+void TRoboticPositioner::SetInstruction(const TInstruction &Instruction)
 {
     //Nombre del comando y número de argumentos:
     //      ""      0
@@ -1274,28 +1275,28 @@ void TRoboticPositioner::SetInstruction(TInstruction &Instruction)
             SP();
         } else
             //indica error imposible
-            throw EImposibleError("instruction name should be known");
+            throw EImpossibleError("instruction name should be known");
     } catch(...) {
         throw; //relanza la excepción
     }
 }
 
-//lee una instrucción del controlador
-//si el controlador no tiene ningún movimiento programado
-//      lanza una excepción EImproperCall
+//get the programmed instruction
+//if there isn't progrmmed a gesture:
+//  throw an exception EImproperCall
 void TRoboticPositioner::GetInstruction(TInstruction &Instruction)
 {
     if(CMF.getMF1()!=NULL && CMF.getMF2()!=NULL) {
-        Instruction.getName() = "MM";
+        Instruction.setName("MM");
         Instruction.Args.setCount(2);
         Instruction.Args[0] = CMF.getMF1()->getpfin();
         Instruction.Args[1] = CMF.getMF2()->getpfin();
     } else if(CMF.getMF1() != NULL) {
-        Instruction.getName() = "M1";
+        Instruction.setName("M1");
         Instruction.Args.setCount(1);
         Instruction.Args[0] = CMF.getMF1()->getpfin();
     } else if(CMF.getMF2() != NULL) {
-        Instruction.getName() = "M2";
+        Instruction.setName("M2");
         Instruction.Args.setCount(1);
         Instruction.Args[0] = CMF.getMF2()->getpfin();
     } else //CMF.MF1==NULL && CMF.MF2==NULL
@@ -1303,21 +1304,21 @@ void TRoboticPositioner::GetInstruction(TInstruction &Instruction)
         throw EImproperCall("should be programmed some motion function");
 }
 
-//MÉTODOS DE PROGRAMACIÓN DE GESTOS:
+//METHODS TO PROGRAM GESTURES:
 
-//programa el abatimiento del brazo hasta
-//la posición de seguridad estable más próxima
-void TRoboticPositioner::TurnArmToSafeArea(void)
+//program the abatement of the arm to
+//the more closer-stable security position
+void TRoboticPositioner::programTurnArmToSafeArea(void)
 {
-    //traduce a pasos
+    //translate to steps the security position limit of the rotor 2
     double p___3saf = getActuator()->getArm()->getF().Image(getActuator()->gettheta___3saf());
-    //asigna el primer ángulo estable menor o igual que p___3saf
+    //set the firs stable position less than the security position limit
     M2(Max(0., floor(p___3saf)));
 }
 
-//programa la retracción del brazo hasta
-//la posición de seguridad estable más próxima
-void TRoboticPositioner::RetractArmToSafeArea(void)
+//program the retraction of the arm to
+//the more closer-stable security position
+void TRoboticPositioner::programRetractArmToSafeArea(void)
 {
     //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
 
@@ -1335,14 +1336,14 @@ void TRoboticPositioner::RetractArmToSafeArea(void)
         double vmaxabs2 = CMF.getRF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
         //calcula la velocidad a la que debe moverse rot 1 en rad/ms
         double vmaxabs1 = vmaxabs2/2;
-        //traduce a pasos/ms y la asigna
-        CMF.getRF1()->setvmaxabs(vmaxabs1/M_2PI*getActuator()->getSB1());
+        //traduce a pasos/ms, la cuantifica y la asigna
+        CMF.getRF1()->setvmaxabs(round(vmaxabs1/M_2PI*getActuator()->getSB1()));
     } break;
     }
 
     //Nótese que para traducir la velocidad angular de rad/ms a pasos/ms
     //no debe emplearse la función G de los cuantificadores, cuyo dominio
-    //está restringido, por lo que podría ser menor que 1 ms.
+    //está restringido, por lo que el resultado podría ser menor que 1 ms.
 
     //DETERMINA LA POSICIÓN A LA QUE DEBE  MOVERSE ROT 2:
 
@@ -1382,9 +1383,10 @@ void TRoboticPositioner::RetractArmToSafeArea(void)
     MM(p_1_, p___3saf_);
 }
 
-//gira el cilindro hasta theta_1
-//si la posición es inalcanzable devuelve falso
-void TRoboticPositioner::TurnCilinderTotheta_1(double _theta_1)
+//program turn of rotor 1 to theta_1
+//if theta_1 is out rotor 1 domain:
+//  throw an exception EImproperArgument
+void TRoboticPositioner::programTurnCilinderTotheta_1(double _theta_1)
 {
     //traduce a pasos
     int _p_1 = getActuator()->getQ()[getActuator()->getF().Image(_theta_1)];
@@ -1414,9 +1416,10 @@ void TRoboticPositioner::TurnArmToSafeArea(void)
                 throw;
         }
 } */
-//va directamente a (x_3, y_3)
-//si la posición es inalcanzable devuelve falso
-void TRoboticPositioner::GoDirectlyToCartesianP_3(double _x_3, double _y_3)
+//progrsam go directly from actual position to (x_3, y_3)
+//if (x_3, y_3) is out the scope of the RP:
+//  throw an exception EImproperArgument
+void TRoboticPositioner::programGoDirectlyToCartesianP_3(double _x_3, double _y_3)
 {
     //traduce a polares en S1
     double r_3 = Mod(_x_3, _y_3);
@@ -1453,9 +1456,10 @@ void TRoboticPositioner::GoDirectlyToCartesianP_3(double _x_3, double _y_3)
     }
 }
 
-//va directamente a (x3, y3)
-//si la posición es inalcanzable devuelve falso
-void TRoboticPositioner::GoDirectlyToCartesianP3(double _x3, double _y3)
+//progrsam go directly from actual position to (x3, y3)
+//if (x3, y3) is out the scope of the RP:
+//  throw an exception EImproperArgument
+void TRoboticPositioner::programGoDirectlyToCartesianP3(double _x3, double _y3)
 {
     //traduce las coordenadas cartesianas de S0 a S1
     TDoublePoint _P_3 = getActuator()->S0recToS1rec(_x3, _y3);
@@ -1569,7 +1573,80 @@ double TRoboticPositioner::dMaxAbs(double T)
     return Max(d_MaxAbs(T), d___MaxAbs(T));
 }
 
-//MÉTODOS DE MOVIMEINTO A INSTANTES DE TIEMPO DEL GESTO PROGRAMADO:
+//determine a upper top for longitudinal velocity
+//of all points of the arm
+double TRoboticPositioner::calculatevmaxabs(void) const
+{
+    double vmaxabs;
+
+    //if it is going to be moved any rotor
+    if(CMF.getMF1()==NULL && CMF.getMF2()==NULL) {
+        //indicates that the longitudinal velocity is cero
+        return 0;
+    }
+
+    //if it is going to be moved the rotor 1 only
+    else if(CMF.getMF1()!=NULL && CMF.getMF2()==NULL) {
+        //calculate the angular velocity of the rotor 1 in rad/ms
+        double w1 = CMF.getMF1()->getvmaxabs()/getActuator()->getSB1()*M_2PI;
+        //calculate the upper top for longitudinal velocity in mm/ms
+        vmaxabs = w1*getActuator()->getr_max();
+    }
+
+    //else, if it is going to be moved the rotor 2 only
+    else if(CMF.getMF1()==NULL && CMF.getMF2()!=NULL) {
+        //calculate the angular velocity of the rotor 2 in rad/ms
+        double w2 = CMF.getMF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
+        //calculate the upper top for longitudinal velocity in mm/ms
+        vmaxabs = w2*getActuator()->getArm()->getL1V();
+    }
+
+    //else, if it is going to be moved both rotors
+    else {
+        //calculate the angular velocity of the rotor 1 in rad/ms
+        double w1 = CMF.getMF1()->getvmaxabs()/getActuator()->getSB1()*M_2PI;
+        //calculate the angular velocity of the rotor 2 in rad/ms
+        double w2 = CMF.getMF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
+        //calculate the upper top for longitudinal velocity in mm/ms
+        vmaxabs = w1*getActuator()->getr_max() + w2*getActuator()->getArm()->getL1V();
+    }
+
+    return vmaxabs;
+}
+
+//calculates the displacement of rotor 1
+//  double theta_1 = getActuator()->theta_1s.getLast();
+//  double p_1 = getActuator()->getF().Image(theta_1);
+//  p_1 = Round(p_1);
+//  dp1 =  CMF.getMF1()->getpsta() - p_1;
+//preconditions:
+//  RP shall be stascked one position almost
+//  rotor 1 quantifier shall be enabled
+double TRoboticPositioner::dp1(void) const
+{
+    //CHECK THE PRECONDITIONS;
+
+    if(getActuator()->theta_1s.getCount() < 1)
+        throw EImproperCall("RP shall be stascked one position almost");
+
+    if(!getActuator()->getQuantify_())
+        throw EImproperCall("rotor 1 quantifier shall be enabled");
+
+    //CALCULATES AND RETURN THE DISPLACEMENT IN STEPS:
+
+    //get the stored initial position in radians
+    double theta_1 = getActuator()->theta_1s.getLast();
+    //translate the position to steps
+    double p_1 = getActuator()->getF().Image(theta_1);
+    //eliminates the numerical error
+    p_1 = Round(p_1);
+    //calculates the displacement from initial positions to start positions
+    double dp1 =  CMF.getMF1()->getpsta() - p_1;
+
+    return dp1;
+}
+
+//MOTION METHODS:
 
 //lleva los ejes del cilindro adscrito a
 //las posiciones correspondientes al instante t

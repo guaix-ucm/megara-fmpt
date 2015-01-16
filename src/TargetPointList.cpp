@@ -55,6 +55,7 @@ void TTargetPointList::setTargetPointsText(AnsiString &S)
         int i = 1;
         //atraviesa las etiquetas
         TTargetPoint::TravelLabels(S, i);
+
         //lee la tabla en una variable tampón
         //TPointersList<TTargetPoint> TPL;
         //TPL.Read = TTargetPoint::ReadRow;
@@ -99,6 +100,10 @@ void TTargetPointList::setTargetPointsText(AnsiString &S)
                     TRoboticPositioner *RP = getRoboticPositionerList()->Get(j);
                     //contruye el elemento adscrito al RP encontrado
                     Item = new TTargetPoint(RP, x, y);
+
+                    //ERROR: si el RP tiene otro RP asignado, TTargetPoint lanzará una excepción EImproperArgument.
+                    //Eso impedirá que puedan signarse nuevas PP tables, amenos que la TPL esté inicializada.
+
                     //añade el elemento
                     Items.AddLast(Item);
                     //avanza el índice hasta el próximo caracter no separador
@@ -137,109 +142,6 @@ void TTargetPointList::setTargetPointsText(AnsiString &S)
             delete Items[i];
         throw;
     }
-
-/*        TVector<int> Ids; //identificadores
-        TVector<double> xs; //abcisas
-        TVector<double> ys; //ordenadas
-
-        TStringList *Lines = new TStringList;
-
-        //divide la cadena en líneas
-        Lines->setText(TargetPointsText.c_str());
-
-        //-------------------------------------------------------------------
-        //intenta traducir la lista a formato numérico
-
-        //la cadena debería contener al menos una linea
-        if(Lines->getCount() < 1)
-                throw EImproperFileLoadedValue("the string should have almos one line");
-
-        //La primera línea debe contener las palabras de la cabecera:
-        //      {"Id", "x", "y"}
-
-        //divide la primera linea en palabras
-        TStringList *Words = new TStringList;
-        AnsiString S = Lines->Strings[0];
-        StrDivideInWords(Words, S);
-        //el número de palabras de la primera línea debería ser tres
-        if(Words->getCount() != 3)
-                throw EImproperFileLoadedValue("number words in the first line should be three");
-        //las palabras de la primera línea deben ser: "Id", "x" e "y"
-        if(Words->Strings[0]!="Id" || Words->Strings[1]!="x" || Words->Strings[2]!="y")
-                throw EImproperFileLoadedValue("the words in the firs line should be: 'Id', 'x' and 'y'");
-
-        int i;
-
-        //para cada fila de la tabla
-        for(i=1; i<Lines->getCount(); i++) {
-                //descompone la fila en palabras
-                Words->Clear();
-                S = Lines->Strings[i];
-                StrDivideInWords(Words, S);
-
-                //el número de palabras de cada fila debería ser 0 ó 3
-                if(Words->getCount()!=0 && Words->getCount()!=3)
-                        throw EImproperFileLoadedValue(AnsiString("number words in the file shuld be 0 or 3: ")+IntToStr(i));
-
-                //traduce las palabras a formato numérico
-                if(Words->getCount() == 3) {
-                        Ids.Add(StrToInt(Words->Strings[0]));
-                        xs.Add(StrToFloat(Words->Strings[1]));
-                        ys.Add(StrToFloat(Words->Strings[2]));
-                }
-        }
-
-        //-------------------------------------------------------------------
-        //determina la validez de la lista de puntos objetivo
-
-        //el número de puntos objetivo no debería ser
-        //mayor que el número de posicionadores
-        if(Ids.getCount() > getRoboticPositionerList()->getCount())
-               throw EImproperFileLoadedValue("target points number should not be upper RPs number");
-
-        //cada identificador debe ser mayor que cero y aparecer una sola vez
-        int Id;
-        for(i=0; i<Ids.getCount(); i++) {
-                //asigna el identificador para facilitar su acceso
-                Id = Ids[i];
-
-                //el identificador debería ser mayor que cero
-                if(Id < 1)
-                        throw EImproperFileLoadedValue(AnsiString("identifier Id should be upper zero: ")+IntToStr(Id));
-
-                //el identificador debería aparecer una sola vez
-                for(int j=i+1; j<Ids.getCount(); j++)
-                        if(Ids[j] == Id)
-                                throw EImproperFileLoadedValue(AnsiString("identifier Id should appear once: ")+IntToStr(Id));
-        }
-
-        //-------------------------------------------------------------------
-        //intenta añadir los puntos finales a la lista
-
-        //reinicia la lista de puntos objetivo
-        Delete_();
-
-        TRoboticPositioner *FP;
-        int j;
-
-        //para cada identificador de la lista
-        for(i=0; i<Ids.getCount(); i++) {
-                //busca el posicionador
-                j = getRoboticPositionerList()->SearchId(Ids[i]);
-
-                //si el posicionador no está en la lista
-                if(j >= getRoboticPositionerList()->getCount())
-                        //indica que el posicionador identificado Id no está en la lista RoboticPositionerList
-                        throw EImproperFileLoadedValue("identified positionr Id isn't in the list RoboticPositionerList");
-
-                //añade un nuevo punto objetivo
-                Add(new TTargetPoint(getRoboticPositionerList()->Get(j), xs[i], ys[i]));
-        }
-
-        //-------------------------------------------------------------------
-
-        delete Words;
-        delete Lines;*/
 }
 
 //---------------------------------------------------------------------------
@@ -925,7 +827,7 @@ void TTargetPointList::SegregateInOut(TRoboticPositionerList &Inners,
 
                 //el punto objetivo no puede estar fuera del dominio de su posicionador adscrito
                 if(!isindomain)
-                        throw EImposibleError("lateral effects");
+                        throw EImpossibleError("lateral effects");
 
                 //si el punto objetivo está en el área de seguridad
                 if(RP->getActuator()->theta___3IsInSafeArea(theta___3))

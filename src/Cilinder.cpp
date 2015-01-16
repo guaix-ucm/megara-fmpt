@@ -1383,254 +1383,6 @@ double TCilinder::Qtheta_1(double theta_1)
     return getG().Image(p_1);
 }
 
-//determina las posiciones angulares estables que hacen que
-//la fibra de este posicionador se ubique lo más cerca posible
-//del punto correspondiente a unas posiciones angulares de los ejes
-//devuelve la distancia al punto hallado
-double TCilinder::GetNearestStablePosition(double &p_1nsp, double &p___3nsp,
-                                           double theta_1, double theta___3)
-{
-    //GUARDA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
-
-    //guarda el estado de habilitación de los cuantificadores de los ejes
-    PushQuantify_();
-    getArm()->PushQuantify___();
-    //guarda las posiciones angulares de los ejes
-    Pushtheta_1();
-    getArm()->Pushtheta___3();
-
-    //DETERMINALAS COORDENAS CARTESIANAS DEL PUNTO DADO:
-
-    //desactiva la cuantificación de los ejes
-    setQuantify_(false);
-    getArm()->setQuantify___(false);
-
-    //mueve los ejes a las posiciones indicadas
-    SetAnglesRadians(theta_1, theta___3);
-
-    //guarda P
-    TDoublePoint P = getArm()->getP3();
-
-    //ADVERTENCIA: las coordenadas de P3 vienen dadas en S0.
-
-    //BUSCA EL PUNTO MÁS PRÓMIMO AL PUNTO P ENTRE LOS
-    //CORRESPONDIENTES A LAS POSICIONES ANGULARES ADYACENTES:
-
-    //calcula los límites del intervalo de búsqueda
-    double p_1min = floor(getp_1());
-    double p_1max = ceil(getp_1());
-    double p___3min = floor(getArm()->getp___3());
-    double p___3max = ceil(getArm()->getp___3());
-
-    //activa los cuantificadores de los ejes
-    setQuantify_(true);
-    getArm()->setQuantify___(true);
-
-    //mueve los ejes al punto (min, min)
-    SetAnglesSteps(p_1min, p___3min);
-    //guarda la solución
-    p_1nsp = p_1min;
-    p___3nsp = p___3min;
-    //calcula la distancia entre puntos
-    double R = Mod(getArm()->getP3() - P);
-
-    //si el punto (min, min) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
-
-    //mueve los ejes al punto (max, min)
-    SetAnglesSteps(p_1max, p___3min);
-    //calcula la distancia entre puntos
-    double r = Mod(getArm()->getP3() - P);
-
-    //si la distancia es menor que la anterior
-    if(r < R) {
-        //guarda la solución
-        p_1nsp = p_1max;
-        p___3nsp = p___3min;
-        //actualiza la distancia
-        R = r;
-    }
-    //si el punto (max, min) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
-
-    //mueve los ejes al punto (max, max)
-    SetAnglesSteps(p_1max, p___3max);
-    //calcula la distancia entre puntos
-    r = Mod(getArm()->getP3() - P);
-
-    //si la distancia es menor que la anterior
-    if(r < R) {
-        //guarda la solución
-        p_1nsp = p_1max;
-        p___3nsp = p___3max;
-        //actualiza la distancia
-        R = r;
-    }
-    //si el punto (max, max) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
-
-    //mueve los ejes al punto (min, max)
-    SetAnglesSteps(p_1min, p___3max);
-    //calcula la distancia entre puntos
-    r = Mod(getArm()->getP3() - P);
-
-    //si la distancia es menor que la anterior
-    if(r < R) {
-        //guarda la solución
-        p_1nsp = p_1min;
-        p___3nsp = p___3max;
-        //actualiza la distancia
-        R = r;
-    }
-    //si el punto (min, max) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
-
-    //------------------------------------------------------------------
-    //CALCULA LOS LÍMITES DEL INTERVALO DE BÚSQUEDA
-    //(theta_1min, theta_1max)x(theta___3min, theta___3max):
-
-    //calcula los límites del intervalo para theta___3:
-
-    //calcula la distancia de P0 a P
-    r = Mod(P - getP0());
-
-    //calcula theta___3min
-    double r_3 = r - R;
-    r_3 = Max(r_3, getr_3min());
-    double theta___3min;
-    bool exist = theta___3ToGor_3(theta___3min, r_3);
-
-    //realiza un control rutinario
-    if(!exist)
-        throw EImposibleError("possible malfunction of Max or theta___3ToGor_3");
-
-    //calcula theta___3max
-    r_3 = r + R;
-    r_3 = Min(r_3, getr_3max());
-    double theta___3max;
-    exist = theta___3ToGor_3(theta___3max, r_3);
-
-    //realiza un control rutinario
-    if(!exist)
-        throw EImposibleError("possible malfunction of Min or theta___3ToGor_3");
-
-    //calcula los límites del intervalo para theta_1:
-
-    //determina los puntos que se encuentran a una distancia
-    //L01 de P0 y Arm->L13-R de P
-    TDoublePoint P1, P2;
-    int type = IntersectionCircumCircum(P1, P2,
-                                        P, getArm()->getL13()-R, getP0(), getL01());
-
-    //las circunferencias deben ser de tipo secantes:
-    //      0: exteriores
-    //      1: coincidentes
-    //      2: interiores concéntricas
-    //      3: interiores excéntricas
-    //      4: tangentes interiormente
-    //      5: tangentes exteriormente
-    //      6: secantes
-    if(type != 6)
-        throw EImposibleError("circunferences (P0, L01) y (P, Arm->L13-R) should be secant");
-
-    //El punto P1 corresponde al punto superior cuando
-    //(P, L13-R) esta a la izquierda y (P0, L01) está a la derecha.
-
-    //calcula el argumento positivo del vector de P0 a P1
-    settheta_1min(ArgPos(P1 - getP0()));
-
-    //determina los puntos que se encuentran a una distancia
-    //L01 de P0 y Arm->L13+R de P
-    type = IntersectionCircumCircum(P1, P2,
-                                    P, getArm()->getL13()+R, getP0(), getL01());
-
-    //las circunferencias deben ser de tipo secantes:
-    //      0: exteriores
-    //      1: coincidentes
-    //      2: interiores concéntricas
-    //      3: interiores excéntricas
-    //      4: tangentes interiormente
-    //      5: tangentes exteriormente
-    //      6: secantes
-    if(type != 6)
-        throw EImposibleError("circunferences (P0, L01) y (P, Arm->L13+R) should be secant");
-
-    //El punto P1 corresponde al punto superior cuando
-    //(P, L13+R) esta a la izquierda y (P0, L01) está a la derecha.
-
-    //calcula el argumento positivo del vector de P0 a P1
-    settheta_1max(ArgPos(P1 - getP0()));
-
-    //------------------------------------------------------------------
-    //BUSCA EL PUNTO MÁS CERCANO EN EL INTERVALO ABIERTO
-    //(p_1min, p_1max)x(p___3min, p___3max):
-
-    //traduce los límites del intervalo a pasos
-    p_1min = getF().Image(gettheta_1min());
-    p_1max = getF().Image(gettheta_1max());
-    p___3min = getArm()->getF().Image(theta___3min);
-    p___3max = getArm()->getF().Image(theta___3max);
-
-    //por cada punto estable de las trayectorias que atraviesan el círculo (P, R)
-    for(int i=ceil(p_1min); i<p_1max; i++) {
-        for(int j=ceil(p___3min); j<p___3max; j++) {
-            //transforma los ángulos de los ejes a double
-            double p_1 = double(i);
-            double p___3 = double(j);
-
-            //asigna las coordenadas correspondientes en pasos
-            SetAnglesSteps(p_1, p___3);
-            //ADVERTECNIA: como la cuentificación de los ejes está
-            //habilitada el error numérico es corregido
-
-            //si el punto P3coincide exactamente con el punto dado
-            if(getArm()->getP3() == P) {
-                //actualiza las posiciones angulares estables
-                p_1nsp = p_1;
-                p___3nsp = p___3;
-                //termina la búsqueda indicando distancia igual a cero
-                return 0;
-            }
-
-            //calcula la distancia al punto dado
-            r = Mod(getArm()->getP3() - P);
-
-            //si el punto P3 está más próximo al punto dado
-            if(r < R) {
-                //actualiza las posiciones angulares estables
-                p_1nsp = p_1;
-                p___3nsp = p___3;
-                //actualiza el radio del espacio de búsqueda
-                R = r;
-
-                //aquí cabría la posibilidad de indicar que
-                //debe reiniciarse el proceso, para que se
-                //determine un nuevo intervalo de búsqueda,
-                //pero se considera que el núnero de puntos
-                //no debe ser tan grande como para justificarlo.
-            }
-        }
-    }
-
-    //------------------------------------------------------------------
-    //RESTAURA Y DESCARTA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
-
-    //restaura y descarta las posiciones angulares de los ejes
-    getArm()->RestoreAndPoptheta___3();
-    RestoreAndPoptheta_1();
-    //restaura y desempila el estado de habilitación de
-    //los cuantificadores de los ejes
-    getArm()->RestoreAndPopQuantify___();
-    RestoreAndPopQuantify_();
-
-    //devuelve la distancia al punto hallado
-    return R;
-}
-
 //---------------------------------------------------------------------------
 //MÉTODOS DE CONFIGURACIÓN:
 
@@ -2101,7 +1853,7 @@ bool TCilinder::theta___3ToGor_3(double &_theta___3, double _r_3)
 
         //realiza un control rutinario para excluir la situación imposible
         if(den == 0)
-            throw EImposibleError("2*L01*Arm->L13 has been zero");
+            throw EImpossibleError("2*L01*Arm->L13 has been zero");
 
         //calcula el argumento de la función acos
         double x___3 = (getL01()*getL01() + getArm()->getL13()*getArm()->getL13() - _r_3*_r_3)/den;
@@ -2123,6 +1875,264 @@ bool TCilinder::theta___3ToGor_3(double &_theta___3, double _r_3)
     }
 
     return true; //indica que el radio si está en el dominio
+}
+
+//determina las posiciones angulares estables que hacen que
+//la fibra de este posicionador se ubique lo más cerca posible
+//del punto correspondiente a unas posiciones angulares de los ejes
+//devuelve la distancia al punto hallado
+double TCilinder::GetNearestStablePosition(double &p_1nsp, double &p___3nsp,
+                                           double theta_1, double theta___3)
+{
+    //GUARDA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
+
+    //guarda el estado de habilitación de los cuantificadores de los ejes
+    PushQuantify_();
+    getArm()->PushQuantify___();
+    //guarda las posiciones angulares de los ejes
+    Pushtheta_1();
+    getArm()->Pushtheta___3();
+
+    //DETERMINA LAS COORDENAS CARTESIANAS DEL PUNTO DADO:
+
+    //desactiva la cuantificación de los ejes
+    setQuantify_(false);
+    getArm()->setQuantify___(false);
+
+    //mueve los ejes a las posiciones indicadas
+    SetAnglesRadians(theta_1, theta___3);
+
+    //guarda P
+    TDoublePoint P = getArm()->getP3();
+
+    //ADVERTENCIA: las coordenadas de P3 vienen dadas en S0.
+
+    //BUSCA EL PUNTO MÁS PRÓMIMO AL PUNTO P ENTRE LOS
+    //CORRESPONDIENTES A LAS POSICIONES ANGULARES ADYACENTES:
+
+    //calcula los límites del intervalo de búsqueda
+    double p_1min = floor(getp_1());
+    double p_1max = ceil(getp_1());
+    double p___3min = floor(getArm()->getp___3());
+    double p___3max = ceil(getArm()->getp___3());
+
+    //activa los cuantificadores de los ejes
+    setQuantify_(true);
+    getArm()->setQuantify___(true);
+
+    //mueve los ejes al punto (min, min)
+    SetAnglesSteps(p_1min, p___3min);
+    //guarda la solución
+    p_1nsp = p_1min;
+    p___3nsp = p___3min;
+    //calcula la distancia entre puntos
+    double R = Mod(getArm()->getP3() - P);
+
+    //si el punto (min, min) coincide exactamente con el punto P
+    if(getArm()->getP3() == P)
+        return 0; //termina la búsqueda indicando distancia igual a cero
+
+    //mueve los ejes al punto (max, min)
+    SetAnglesSteps(p_1max, p___3min);
+    //calcula la distancia entre puntos
+    double r = Mod(getArm()->getP3() - P);
+
+    //si la distancia es menor que la anterior
+    if(r < R) {
+        //guarda la solución
+        p_1nsp = p_1max;
+        p___3nsp = p___3min;
+        //actualiza la distancia
+        R = r;
+    }
+    //si el punto (max, min) coincide exactamente con el punto P
+    if(getArm()->getP3() == P)
+        return 0; //termina la búsqueda indicando distancia igual a cero
+
+    //mueve los ejes al punto (max, max)
+    SetAnglesSteps(p_1max, p___3max);
+    //calcula la distancia entre puntos
+    r = Mod(getArm()->getP3() - P);
+
+    //si la distancia es menor que la anterior
+    if(r < R) {
+        //guarda la solución
+        p_1nsp = p_1max;
+        p___3nsp = p___3max;
+        //actualiza la distancia
+        R = r;
+    }
+    //si el punto (max, max) coincide exactamente con el punto P
+    if(getArm()->getP3() == P)
+        return 0; //termina la búsqueda indicando distancia igual a cero
+
+    //mueve los ejes al punto (min, max)
+    SetAnglesSteps(p_1min, p___3max);
+    //calcula la distancia entre puntos
+    r = Mod(getArm()->getP3() - P);
+
+    //si la distancia es menor que la anterior
+    if(r < R) {
+        //guarda la solución
+        p_1nsp = p_1min;
+        p___3nsp = p___3max;
+        //actualiza la distancia
+        R = r;
+    }
+    //si el punto (min, max) coincide exactamente con el punto P
+    if(getArm()->getP3() == P)
+        return 0; //termina la búsqueda indicando distancia igual a cero
+
+    //------------------------------------------------------------------
+    //CALCULA LOS LÍMITES DEL INTERVALO DE BÚSQUEDA
+    //(theta_1min, theta_1max)x(theta___3min, theta___3max):
+
+    //calcula los límites del intervalo para theta___3:
+
+    //calcula la distancia de P0 a P
+    r = Mod(P - getP0());
+
+    //calcula theta___3min
+    double r_3 = r - R;
+    r_3 = Max(r_3, getr_3min());
+    double theta___3min;
+    bool exist = theta___3ToGor_3(theta___3min, r_3);
+
+    //realiza un control rutinario
+    if(!exist)
+        throw EImpossibleError("possible malfunction of Max or theta___3ToGor_3");
+
+    //calcula theta___3max
+    r_3 = r + R;
+    r_3 = Min(r_3, getr_3max());
+    double theta___3max;
+    exist = theta___3ToGor_3(theta___3max, r_3);
+
+    //realiza un control rutinario
+    if(!exist)
+        throw EImpossibleError("possible malfunction of Min or theta___3ToGor_3");
+
+    //calcula los límites del intervalo para theta_1:
+
+    //determina los puntos que se encuentran a una distancia
+    //L01 de P0 y Arm->L13-R de P
+    TDoublePoint P1, P2;
+    int type = IntersectionCircumCircum(P1, P2,
+                                        P, getArm()->getL13()-R, getP0(), getL01());
+
+    //El punto P1 corresponde al punto superior cuando
+    //(P, L13-R) esta a la izquierda y (P0, L01) está a la derecha.
+
+    //The circunferences shall be secant, extern-secant or extern:
+    //      0: extern
+    //      1: coincident
+    //      2: intern-concentric
+    //      3: extern-excentric
+    //      4: interior-tangent
+    //      5: exterior-tangent
+    //      6: secant
+
+    //calculates the lower limit theta_1min
+    double theta_1min;
+    //if thecircunferences are secants
+    if(type == 6)
+        //calculates the positive argument of the vector from P0 to P2
+        theta_1min = ArgPos(P2 - getP0());
+    //else if, the circunferences are exterior-tangent or exterior
+    else if(type == 5 || type == 0)
+        //calculates the positive argument of the vector from P0 to P
+        theta_1min = ArgPos(P - getP0());
+    //else (if the circunferences not are secants, exterior-secant or exterior)
+    else
+        //indicates improper values for circunferences (P0, L01) and (P, Arm->L13-R)
+        throw EImpossibleError("improper values for circunferences (P0, L01) and (P, Arm->L13-R)");
+
+    //determina los puntos que se encuentran a una distancia
+    //L01 de P0 y Arm->L13+R de P
+    type = IntersectionCircumCircum(P1, P2,
+                                    P, getArm()->getL13()+R, getP0(), getL01());
+
+    //The circunferences shall be secant
+    //      0: extern
+    //      1: coincident
+    //      2: intern-concentric
+    //      3: extern-excentric
+    //      4: interior-tangent
+    //      5: exterior-tangent
+    //      6: secant
+    if(type != 6)
+        throw EImpossibleError("improper values for circunferences (P0, L01) and (P, Arm->L13-R)");
+
+    //El punto P1 corresponde al punto superior cuando
+    //(P, L13+R) esta a la izquierda y (P0, L01) está a la derecha.
+
+    //calcula el argumento positivo del vector de P0 a P2
+    double theta_1max = ArgPos(P2 - getP0());
+
+    //------------------------------------------------------------------
+    //BUSCA EL PUNTO MÁS CERCANO EN EL INTERVALO ABIERTO
+    //(p_1min, p_1max)x(p___3min, p___3max):
+
+    //traduce los límites del intervalo a pasos
+    p_1min = getF().Image(theta_1min);
+    p_1max = getF().Image(theta_1max);
+    p___3min = getArm()->getF().Image(theta___3min);
+    p___3max = getArm()->getF().Image(theta___3max);
+
+    //por cada punto estable de las trayectorias que atraviesan el círculo (P, R)
+    for(int i=ceil(p_1min); i<p_1max; i++) {
+        for(int j=ceil(p___3min); j<p___3max; j++) {
+            //transforma los ángulos de los ejes a double
+            double p_1 = double(i);
+            double p___3 = double(j);
+
+            //asigna las coordenadas correspondientes en pasos
+            SetAnglesSteps(p_1, p___3);
+            //ADVERTECNIA: como la cuentificación de los ejes está
+            //habilitada el error numérico es corregido
+
+            //si el punto P3 coincide exactamente con el punto dado
+            if(getArm()->getP3() == P) {
+                //actualiza las posiciones angulares estables
+                p_1nsp = p_1;
+                p___3nsp = p___3;
+                //termina la búsqueda indicando distancia igual a cero
+                return 0;
+            }
+
+            //calcula la distancia al punto dado
+            r = Mod(getArm()->getP3() - P);
+
+            //si el punto P3 está más próximo al punto dado
+            if(r < R) {
+                //actualiza las posiciones angulares estables
+                p_1nsp = p_1;
+                p___3nsp = p___3;
+                //actualiza el radio del espacio de búsqueda
+                R = r;
+
+                //aquí cabría la posibilidad de indicar que
+                //debe reiniciarse el proceso, para que se
+                //determine un nuevo intervalo de búsqueda,
+                //pero se considera que el núnero de puntos
+                //no debe ser tan grande como para justificarlo.
+            }
+        }
+    }
+
+    //------------------------------------------------------------------
+    //RESTAURA Y DESCARTA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
+
+    //restaura y descarta las posiciones angulares de los ejes
+    getArm()->RestoreAndPoptheta___3();
+    RestoreAndPoptheta_1();
+    //restaura y desempila el estado de habilitación de
+    //los cuantificadores de los ejes
+    getArm()->RestoreAndPopQuantify___();
+    RestoreAndPopQuantify_();
+
+    //devuelve la distancia al punto hallado
+    return R;
 }
 
 //MÉTODOS DE PERTENENCIA AL DOMINIO DE P3:
@@ -2678,6 +2688,7 @@ TDoublePoint TCilinder::RandomP3(void)
         r_3 = Mod(P_3);
         theta_3 = Arg(P_3);
 
+    //while there isntangles to go to point P3
     } while(!AnglesToGoP_3(theta_1, theta___3, r_3, theta_3));
 
     //devuelve el punto generado

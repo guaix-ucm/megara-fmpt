@@ -347,8 +347,8 @@ public:
     void Delete(int i);
     //destruye los elementos y vacía la lista
     void Clear(void);
-    //destruye los objetos apuntados por una lista de punteros a punteros
-    friend void Destroy(TPointersList<T*> &L);
+/*    //destruye los objetos apuntados por una lista de punteros a punteros
+    friend void Destroy(TPointersList<T*> &L);*/
 
     //borra la posición indicada sin destruir el elemento
     void DeleteWithoutDestroy(int i);
@@ -852,7 +852,7 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
     _Items.LibLast(_Items.Count);
 }
 
-//---------------------------------------------------------------------------
+/*//---------------------------------------------------------------------------
 //FUNCIONES FRIEND:
 
 //ADVERTENCIA: el uso del operador de indexación debe restringirse en
@@ -872,7 +872,7 @@ template <class T> void Destroy(TPointersList<T*> &L)
 
     L.Clear(); //vacia la lista
 }
-
+*/
 //---------------------------------------------------------------------------
 //PROPIEDADES DE DIMENSIONAMIENTO:
 
@@ -1803,9 +1803,9 @@ template <class T> void TPointersList<T>::ClearWithoutDestroy(void)
 template <class T> void TPointersList<T>::Copy(const TPointersList<T> &L)
 {
     //redimensiona la lista
-    if(L.Count < getCount())
+    if(L.getCount() < getCount())
         Items.DelLast(getCount() - L.getCount());
-    else if(L.Count > getCount())
+    else if(L.getCount() > getCount())
         Items.NewLast(L.getCount() - getCount());
 
     //copia los elementos

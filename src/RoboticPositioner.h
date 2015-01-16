@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//Archivo: RoboticPositioner.h
-//Contenido: posicionador básico (dimensión y posición)
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: RoboticPositioner.h
+//Content: robotic positioner model
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONER_H
@@ -17,17 +17,17 @@
 
 using namespace MotionFunctions;
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
 //##########################################################################
 //TControlMode
 //##########################################################################
 
-//Modo de funcionamiento del controlador
-//      cmSinc: los gestos programados se ejecutarán inmediatamente;
-//      cmAsinc: los gestos programados se ejecutarán al recibir el
-//      comando start.
+//Functioning mode of the controller:
+//      cmSinc: programmed gestures will be inmediately executed;
+//      cmAsinc: programmed gestures will be excuted when the accordant
+//      instruction is received.
 enum TControlMode {cmSinc, cmAsinc};
 
 void  StrPrintControlMode(AnsiString& S,
@@ -41,10 +41,10 @@ TControlMode StrToControlMode(const AnsiString& S);
 //TFaultType
 //##########################################################################
 
-//Tipo de fallo del posicionador
-//      ftUnk: desconocido;
-//      ftSta: estático;
-//      ftDyn: dinámico;
+//Fault type of the RP
+//      ftUnk: unknowledge;
+//      ftSta: static;
+//      ftDyn: dynamic;
 enum TFaultType {ftUnk, ftSta, ftDyn};
 
 void  StrPrintFaultType(AnsiString& S,
@@ -58,41 +58,16 @@ TFaultType StrToFaultType(const AnsiString& S);
 //TRoboticPositioner
 //##########################################################################
 
-//La clase TRoboticPositioner permite programar una función de movimiento para
-//cada uno de los ejes que deben ser girados para que un posicionador
-//realice un determinado gesto.
-//Las funciones de movimiento serán programadas partiendo de la posición inicial
-//para que p_1 y p___3 alcancen la posición final indicada.
-
-//Cuando en el gesto interviene un único eje, es posible ajustar
-//el intervalo temporal de desplazamiento de la función, así como
-//el resto de parámetros libres de la función,
-//y cuando en el gesto intervienen los dos ejes, es posible sincronizar
-//los periodos de las funciones de movimeinto de los ejes.
-//Las funciones de movimiento se programarán en pasos.
-
-//Son importantes dos cuestiones:
-//      1. Debe programar el movimiento de cada eje de manera independiente,
-//      de modo que al mover un eje, el otro quede libre para ser desplazado
-//      durante la programación;
-//      de este modo no hace falta implementar una función Displace(t, qt).
-//      2. Cada gesto se inicia en el instante t=0, de modo que se facilita
-//      la realización aislada, lo cual simplifica el algoritmo de busqueda;
-//      cuando haya que concatenar varios gestos, se sincronizarán con una
-//      variable temproal externa que indique el instante en que debe iniciarse.
-
-//Clase TRoboticPositioner; descripción:
+//Class TRoboticPositioner; description:
 //
-//Un objeto de la clase TRoboticPositioner es contruido para un posicionador
-//al que queda adscrito.
-//Entonces un gesto puede ser programado para el posicionador, obteniendo
+//Un objeto de la clase TRoboticPositioner contiene un actuador y
+//una funciónde movimiento.
+//Entonces un gesto puede ser programado para el actuador, obteniendo
 //la función de movimeinto compuesto para ambos ejes, mediante:
 //      - los métodos que programan gestos;
 //      - asignando el comando en formato de cadena de bytes;
 //Una vez programado el gesto puede ser ejecutado mediante los métodos
 //de movimeinto tantas veces como se desee.
-//Finalmente debe indicarse que el gesto ha finalizado para que el controlador
-//no sea sensible al comando start ("ST").
 //
 //Nótese que no es necesario cambiar las propiedades del gesto de manera
 //independiente.
@@ -146,14 +121,14 @@ TFaultType StrToFaultType(const AnsiString& S);
 //- El método Copy de TActuator no tiene que ser redefinido, manteniendose
 //  la encapsulación de las propiedades del actuador.
 
-//clase posicionador
+//class robotic positioner
 class TRoboticPositioner {
 protected:
-        //PROPIEDADES MECÁNICAS:
+        //MECHANICAL PROPERTIES:
 
         TActuator *__Actuator;
 
-        //TOLERANCIAS:
+        //TOLERANCES:
 
         double __Eo;
         double __Ep;
@@ -161,33 +136,20 @@ protected:
         double __Tstop;
         double __Tshiff;
 
-        //PROPIEDADES DE ESTADO:
+        //ESTATUS PROPERTIES:
 
         double __FaultProbability;
 
-        //------------------------------------------------------------------
-        //PROPIEDADES EN FORMATO TEXTO:
-
-        //PROPIEDADES MECÁNICAS EN FORMATO TEXTO:
-
-        //PROPIEDADES DE CONTROL EN FORMATO TEXTO:
-
-        //TOLERANCIAS EN FORMATO TEXTO:
-
-        //PROPIEDADES DE ESTADO EN FORMATO TEXTO:
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
 public:
-        //PROPIEDADES ESTÁTICAS:
+        //STATIC PROPERTIES:
 
-        //lista de objetos construidos
+        //list of built RPs
         static TItemsList<TRoboticPositioner*> Builts;
 
-        //La lista de objetos contruidos es útil para:
-        //- determinar los identificadores que se encuentran repetidos;
-        //- obtener identificadores unívocos;
-        //- controlar la integridad de memoria.
+        //list of built RPs is useful for:
+        //- determine the identifiers which are repeated;
+        //- get univocal identifiers;
+        //- control integrity of the memory.
 
         //El objeto estático Builts debe ser contruido
         //antes de invocar al contructor mediante:
@@ -197,100 +159,97 @@ public:
         //Si se insertase en este archivo o en su correspondiente .cpp,
         //sería invocado después de llamar al constructor.
 
-        //PROPIEDADES MECÁNICAS:
+        //MECHANICAL PROPERTIES:
 
-        //actuador del posicionador
+        //actuator of the RP
         TActuator *getActuator(void) const {return __Actuator;}
 
-        //PROPIEDADES DE CONTROL:
+        //CONTROL PROPERTIES:
 
-        //función de movimiento compuesta
+        //composed motion function
         TComposedMotionFunction CMF;
 
-        //TOLERANCIAS:
+        //TOLERANCES:
 
-        //margen de error de orientación en S0
-        //      Valor por defecto: MEGARA_Eo rad
+        //orientation error margin in S0
+        //default value: MEGARA_Eo rad
         double getEo(void) const {return __Eo;}
         void setEo(double);
-        //margen de error de posición en S0
-        //      Valor por defecto: MEGARA_Ep mm
+        //position error margin in S0
+        //default value: MEGARA_Ep mm
         double getEp(void) const {return __Ep;}
         void setEp(double);
 
-        //tiempo máximo entre el último almacenamiento
-        //de la posición y la detención de ambos ejes.
-        //      Valor por defecto: MEGARA_Tstop ms
+        //maximun time betweem last storage of the position angles,
+        //and rotors detention.
+        //default value: MEGARA_Tstop ms
         double getTstop(void) const {return __Tstop;}
         void setTstop(double);
-        //desfase temporal entre posicionadores en movimeinto.
-        //      Valor por defecto: MEGARA_Tshiff ms
+        //maximun time shift between RPs in motion.
+        //  default value: MEGARA_Tshiff ms
         double getTshiff(void) const {return __Tshiff;}
         void setTshiff(double);
 
-        //PROPIEDADES DE ESTADO:
+        //STATUS PROPERTIES:
 
-        //estado de deshabilitación del posicionador
-        //valor por defecto: false
+        //disabling status of the RP
+        //default value: false
         bool Disabled;
-        //probabilidad de que el posicionador esté anomalo
-        //debe estar en [0, 1]
-        //valor por defecto: 0
+        //probability of fault
+        //shall be in [0, 1]
+        //default value: 0
         double getFaultProbability(void) const {return __FaultProbability;}
         void setFaultProbability(double);
-        //tipo de fallo
-        //      ftUnk: desconoido
-        //      ftSta: estático
-        //      ftDyn: dinámico
-        //valor por defecto: ftUnk
+        //type of fault:
+        //  ftUnk: unknoledge
+        //  ftSta: static
+        //  ftDyn: dynamic
+        //default value: ftUnk
         TFaultType FaultType;
-        //Modo de funcionamiento del controlador
-        //      cmSinc: los gestos programados se ejecutarán inmediatamente;
-        //      cmAsinc: los gestos programados se ejecutarán al recibir el
-        //      comando start.
-        //Valor por defecto: cmSinc.
+        //Functioning mode of the controller:
+        //  cmSinc: programmed gestures will be inmediately executed;
+        //  cmAsinc: programmed gestures will be excuted when the accordant
+        //  instruction is received.
+        //defult value: cmSinc.
         TControlMode ControlMode;
 
-        //indica si el posicionador está operativo
-        //      FaultProbability<=0 && !Disabled
+        //NOTE: class TRoboticPositioner not has capacity for execution.
+        //Execution of gestures, will be performed usually in RP lists.
+
+        //NOTE: ControlMode value can be directly changed
+        //using the instructions:
+        //      "MS": set sinchronous mode;
+        //      "MA": set asinchronous mode.
+
+        //operativity status:
+        //  true: FaultProbability<=0 && !Disabled
+        //  false: FaultProbability>0 || Disabled
         bool getOperative(void) const {
             return getFaultProbability()<=0 && !Disabled;}
 
-        //NOTA: la clase TRoboticPositioner no tiene capacidad de ejecución.
-        //La ejecución de gestos se efectuará en TMultifiberPositioner
-        //de modo que ControlMode tiene aquí valor testamental.
-
-        //NOTA: el valor de ControlMode puede ser cambiado directamente
-        //o mediante los comandos:
-        //      "MS": asigna el modo síncrono;
-        //      "MA": asigna el modo asíncrono.
-
-/*        //indica que el posicionador no puede ser destruido
-        //porque está adscrito a un punto objetivo
-        //valor por defecto: false
+/*        //latch to avoid destruction
+        //default value: false
         bool Latch;
 
-        //El cerrojo deberá mantenerse activado mientras
-        //al posicionador tenga asignado un punto objetivo.
-        //Solamente la clase TTargetPoint debería cambiar el estado de Latch.
+        //latch should be enabled when RP has attachet other structure.
+        //Only attached structures shall change the latch status.
 */
-
         //------------------------------------------------------------------
-        //PROPIEDADES EN FORMATO TEXTO:
+        //PROPERTIES IN TEXT FORMAT:
 
-        //PROPIEDADES MECÁNICAS EN FORMATO TEXTO:
+        //MECHANICAL PROPERTIES IN TEXT FORMAT:
 
-        //dirección en memoria del actuador
+        //address in memory of property Actuator
         AnsiString getActuatorAddressText(void) const {
                 return IntToHex(reinterpret_cast<intptr_t>(getActuator()), 8);}
 
-        //PROPIEDADES DE CONTROL EN FORMATO TEXTO:
+        //CONTROL PROPERTIES IN TEXT FORMAT:
 
-        //dirección en memoria de la propiedad CMF
+        //address in memory of property CMF
         AnsiString getCMFAddressText(void) const {
                 return IntToHex(reinterpret_cast<intptr_t>(&CMF), 8);}
 
-        //TOLERANCIAS EN FORMATO TEXTO:
+        //TOLERANCES IN TEXT FORMAT:
 
         AnsiString getEoText(void) const;
         void setEoText(const AnsiString&);
@@ -302,7 +261,7 @@ public:
         AnsiString getTshiffText(void) const;
         void setTshiffText(const AnsiString&);
 
-        //PROPIEDADES DE ESTADO EN FORMATO TEXTO:
+        //STATUS PROPERTIES IN TEXT FORMAT:
 
         AnsiString getDisabledText(void) const;
         void setDisabledText(const AnsiString&);
@@ -315,66 +274,72 @@ public:
 
         AnsiString getOperativeText(void) const;
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+        //SETSOF PROPERTIES IN TEXT FORMAT:
 
-        //conjuntos de todas las propiedades de seguridad
-        //en formato asignaciones de texto
+        //set of all security properties
+        //in assign text format
         AnsiString getToleranceText(void) const;
-        //conjunto de propiedades de estado
-        //en formato asignaciones de texto
+        //set ofall status properties
+        //in assign text format
         AnsiString getStatusText(void) const;
 
-        //conjunto de todas las propiedades
-        //en formato asignaciones de texto
+        //set of all properties
+        //in assign text format
         AnsiString getAllText(void) const;
 
-        //instancia del posicionador
-        //en formato asignaciones de texto
+        //set of properties of the instance of the RP
+        //in assign text format
         AnsiString getInstanceText(void) const;
         void setInstanceText(const AnsiString&);
 
         //------------------------------------------------------------------
-        //MÉTODOS ESTÁTICOS:
+        //STATIC METHODS:
 
-        //compara los identificadores de dos posicionadores
+        //compare the identifiers of two RPs
         static int  CompareIds(TRoboticPositioner *FP1,
                 TRoboticPositioner *FP2);
 
-        //imprime el identificador de un posicionador
+        //print the identifier of a RP
         static void  PrintId(AnsiString &S, TRoboticPositioner *FP);
 
-        //Los métodos estáticos:
+        //Statics methods:
         //      CompareIds
         //      PrintId
-        //serán apuntados en la lista de posicionadores adyacentes
-        //para permitir su ordenacíon en función de los identificadores
-        //y la impresión de los mismos.
+        //will be pointed in the adjacent-RP list
+        //to allow sort it, according the identifiers,
+        //and to allow the printing of the identifiers.
 
-        //imprime los valores de las propiedades de origen de un posicionador
-        //(Id, x0, y0, thetaO1) al final de una cadena de texto
-        //en formato fila de texto
+        //print the value of the origin properties of a RP
+        //  (Id, x0, y0, thetaO1)
+        //to the end of a text string
+        //in row text format
         static void  PrintOriginsRow(AnsiString& S,
                 TRoboticPositioner *FP);
-        //lee los valores de las propiedades de origen de un posicionador
-        //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
-        //de texto, en formato fila de texto
+        //read the value of the origin properties of a RP
+        //  (Id, x0, y0, thetaO1)
+        //from the indicated position of a text string
+        //in row text format
         static void  ReadOriginsRow(TRoboticPositioner *FP,
                 const AnsiString& S, int &i);
 
-        //imprime los valores de las propiedades de posición de un posicionador
-        //(Id, x3, y3) al final de una cadena de texto
-        //en formato fila de texto
+        //print the value of the position properties of a RP
+        //  (Id, x3, y3)
+        //to the end of a text string
+        //in row text format
         static void  PrintPositionP3Row(AnsiString& S,
                                         TRoboticPositioner *FP);
-        //lee los valores de las propiedades de posición de un posicionador
-        //(Id, x3, y3) desde la posición indicada de una cadena
-        //de texto, en formato fila de texto
+        //read the value of the position properties of a RP
+        //  (Id, x3, y3)
+        //from the indicated position of a text string
+        //in row text format
         static void  ReadPositionP3Row(TRoboticPositioner* &FP,
                                        const AnsiString& S, int &i);
-        //imprime los valores de las propiedades de posición de un posicionador
-        //(Id, p_1, p___3) al final de una cadena de texto
-        //en formato fila de texto
-        static void  PrintPositionPAPRow(AnsiString& S,
+
+        //print the value of the position properties of a RP
+        //  (Id, p_1, p___3)
+        //to the end of a text string
+        //in row text format
+        static void  PrintPositionPPARow(AnsiString& S,
                                         TRoboticPositioner *FP);
 
         //lee una instancia en una cadena
@@ -382,7 +347,7 @@ public:
                 const AnsiString& S, int &i);
 
         //------------------------------------------------------------------
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA, CLONACIÓN Y DESTRUCCIÓN:
+        //BUILDING, CLONATION, COPYING AND DESTROYING METHODS:
 
         //construye un posicionador
         //con los valores por defecto
@@ -420,8 +385,7 @@ public:
         ~TRoboticPositioner();
 
         //-------------------------------------------------------------------
-        //MÉTODOS PARA CALCULAR LOS VALORES RECOMENDADOS DE
-        //LAS COMPONENTES DE SPM:
+        //METHODS TO CALCULATE THE RECOMMENDED VALUES OF THE SPMCOMPONENTS:
 
         //calcula la componente de SPM para absorber el error de recuperación:
         //      SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
@@ -487,7 +451,7 @@ public:
         //      SPM = SPMerr + SPMtop + SPMtop + SPMpro; cuando Popose=sPro
         //      SPM = SPMerr + SPMtop;                   cuando Popose=sVal
         //      SPM = SPMerr;                            cuando Popose=sExe
-        void SetSPM(TPorpose Porpose,
+        void SetSPM(TPurpose Purpose,
                 double Eo=0.002, double Ep=0.002,
                 double w1=0.3, double w2=0.3);
 
@@ -500,7 +464,7 @@ public:
         //G(p_1) y Arm->G(p___3).
   */
         //-------------------------------------------------------------------
-        //MÉTODOS DE ASIGNACIÓN CONJUNTA:
+        //METHODS FOR JOINTLY SET:
 
         //asigna conjuntamente las tolerancias
         //      {Eo, Ep, Tstop, Tshiff}
@@ -508,7 +472,7 @@ public:
                 double _Tstop, double _Tshiff);
 
         //------------------------------------------------------------------
-        //MÉTODOS DE ASIMILACIÓN:
+        //ASSIMILATION METHODS:
 
         //A partir de:
         //      (Eo, Ep, Tstop, Tshiff)
@@ -523,71 +487,72 @@ public:
         void SetSPMoff(double PAem, double Pem);
 
         //------------------------------------------------------------------
-        //MÉTODOS DE INSTRUCCIÓN:
+        //INSTRUCTION METHODS:
 
-        //Los gestos se programarán según el tipo de función seleccionada
-        //y el tipo de sincronismo seleccionado para el tipo de función.
+        //Gestures will be programmed according to the motion functions type
+        //and the sinchronous mode of the functions.
 
-        //Establecer modo asíncrono:
-        //      ControllerMode = cmAsinc;
-        //Establecer modo síncrono:
-        //      ControllerMode = cmSinc;
-
-        //Restricciones semánticas de las instrucciones:
-        //      los argumentos deben estar en el dominio de los ejes
-
-        //gira el cilindro hasta p_1
-        //si hay un comando programado lanza una excepción EImproperCall
-        //si la posición es inalcanzable devuelve falso
+        //program turn of rotor 1 from actual position to p_1
+        //if the p_1 is out rotor 1 domain:
+        //  throw an exception EImproperArgument
         void M1(double _p_1);
-        //gira el brazo hasta p___3
-        //si no hay un comando programado lanza una excepción EImproperCall
-        //si la posición es inalcanzable devuelve falso
+        //program turn of rotor 2 from actual position to p___3
+        //if the p___3 is out rotor 2 domain:
+        //  throw an exception EImproperArgument
         void M2(double _p___3);
-        //gira ambos ejes hasta (p_1, p___3)
-        //si no hay un comando programado lanza una excepción EImproperCall
-        //si la posición es inalcanzable devuelve falso
+        //program turns of rotors 1 and 2 from actual position to (p_1, p___3)
+        //if the p_1 is out rotor 1 domain or p___3 is out rotor 2 domain:
+        //  throw an exception EImproperArgument
         void MM(double _p_1, double _p___3);
 
-        //gira el cilindro desde p_1sta hasta p_1fin
-        //si hay un comando programado lanza una excepción EImproperCall
-        //si la posición es inalcanzable devuelve falso
+        //program turn of rotor 1 from p_1sta to p_1end
+        //if the p_1sta or p_1end is out rotor 1 domain:
+        //  throw an exception EImproperArgument
         void M1(double _p_1sta, double _p_1fin);
-        //gira el brazo desde p___3sta hasta p___3fin
-        //si no hay un comando programado lanza una excepción EImproperCall
-        //si la posición es inalcanzable devuelve falso
+        //program turn of rotor 2 from p___3sta to p___3end
+        //if the p___3sta or p___3end is out rotor 2 domain:
+        //  throw an exception EImproperArgument
         void M2(double _p___3sta, double _p___3fin);
-        //gira ambos ejes desde (p_1sta, p___3sta) hasta (p_1fin, p___3fin)
-        //si no hay un comando programado lanza una excepción EImproperCall
-        //si la posición es inalcanzable devuelve falso
+        //program turn of rotor 1 from p_1sta to p_1end, and
+        //program turn of rotor 2 from p___3sta to p___3end
+        //if the p_1sta or p_1end is out rotor 1 domain, or:
+        //if the p___3sta or p___3end is out rotor 2 domain:
+        //  throw an exception EImproperArgument
         void MM(double _p_1sta, double _p___3sta,
                 double _p_1fin, double _p___3fin);
 
-        //detiene el desplazamiento borrando el gesto programado
-        //      si no hay un gesto programado
-        //              lanza una excepción EImproperCall
+        //stop displacement and clear the programmed gesture
+        //if there isn't programmed a gesture:
+        //  throw an exception EImproperCall
         void SP(void);
 
-        //asigna una instrucción al controlador
-        //si la instrucción está vacía lanza una excepción EImproperAgument
-        void SetInstruction(TInstruction&);
-        //lee una instrucción del controlador
-        //si el controlador no tiene ningún movimiento programado
-        //      lanza una excepción EImproperCall
+        //set an instruction
+        //if instruction is empty:
+        //  throw an exception EImproperArgument
+        void SetInstruction( const TInstruction&);
+        //get the programmed instruction
+        //if there isn't progrmmed a gesture:
+        //  throw an exception EImproperCall
         void GetInstruction(TInstruction&);
 
-        //MÉTODOS DE PROGRAMACIÓN DE GESTOS:
+        //METHODS TOPROGRAM GESTURES:
 
-        //programa el abatimiento del brazo hasta
-        //la posición de seguridad estable más próxima
-        void TurnArmToSafeArea(void);
-        //programa la retracción del brazo hasta
-        //la posición de seguridad estable más próxima
-        void RetractArmToSafeArea(void);
+        //program the abatement of the arm to
+        //the more closer-stable security position
+        void programTurnArmToSafeArea(void);
+        //program the retraction of the arm to
+        //the more closer-stable security position
+        void programRetractArmToSafeArea(void);
 
-        //gira el cilindro hasta theta_1
-        //si la posición es inalcanzable devuelve falso
-        void TurnCilinderTotheta_1(double _theta_1);
+        //When the vmax of rotor 2 is the double that vmax of rotor 1,
+        //the extension and retraction of the arm will be radial. And
+        //when the rotor 1is near of origin, part of the trajectory can
+        //be circular around the rotor 2.
+
+        //program turn of rotor 1 to theta_1
+        //if theta_1 is out rotor 1 domain:
+        //  throw an exception EImproperArgument
+        void programTurnCilinderTotheta_1(double _theta_1);
         //gira el cilindro hasta theta_2
 //        void TurnCilinderTotheta_2(double theta_2);
         //gira el cilindro hasta theta_3
@@ -617,19 +582,21 @@ public:
 
         //va directamente a (r_3, theta_3)
 //        void GoDirectlyToPolarP_3(double r_3, double theta_3);
-        //va directamente a (x_3, y_3)
-        //si la posición es inalcanzable devuelve falso
-        void GoDirectlyToCartesianP_3(double x_3, double y_3);
-        //si la posición es inalcanzable devuelve falso
-        void GoDirectlyToCartesianP3(double x3, double y3);
+        //progrsam go directly from actual position to (x_3, y_3)
+        //if (x_3, y_3) is out the scope of the RP:
+        //  throw an exception EImproperArgument
+        void programGoDirectlyToCartesianP_3(double x_3, double y_3);
+        //progrsam go directly from actual position to (x3, y3)
+        //if (x3, y3) is out the scope of the RP:
+        //  throw an exception EImproperArgument
+        void programGoDirectlyToCartesianP3(double x3, double y3);
 
-        //MÉTODOS PARA MODIFICAR EL GESTO PROGRAMADO:
+        //METHODS TO MODIFY THE PROGRAMMED GESTURE:
 
-        //invierte el gesto en el dominio del tiempo
+        //invertgesture in the time domain
         void InvertTime(void);
 
-        //MÉTODOS PARA DETERMINAR LA DISTANCIA MÁXIMA RECORRIDA
-        //POR UN PUNTO DEL BRAZO EN UN INTERVALO DE TIEMPO:
+        //METHODS TO DETERMINE MOTION PARAMETERS:
 
         //determina el valor absoluto de
         //el ángulo máximo recorrido al moverse el eje 1 durante un tiempo T
@@ -657,7 +624,26 @@ public:
         //      dMaxAbs = Max(d_MaxAbs(T), d___MaxAbs(T))
         double dMaxAbs(double T);
 
-        //MÉTODOS DE MOVIMIENTO A INSTANTES DE TIEMPO DEL GESTO PROGRAMADO:
+        //determine a upper top for longitudinal velocity
+        //of all points of the arm
+        double calculatevmaxabs(void) const;
+
+        //calculates the displacement of rotor 1
+        //  double theta_1 = getActuator()->theta_1s.getLast();
+        //  double p_1 = getActuator()->getF().Image(theta_1);
+        //  p_1 = Round(p_1);
+        //  dp1 =  CMF.getMF1()->getpsta() - p_1;
+        //preconditions:
+        //  RP shall be stascked one position almost
+        //  rotor 1 quantifier shall be enabled
+        double dp1(void) const;
+
+        //WARNING: the value of psta not involve numerical error, becuase
+        //was calculated and assigned when the quantifier of the rotor
+        //was enabled. but recover thes tacked position of rotor 1 in steps
+        //could involves a numerical error introduced by the function F.
+
+        //MOTION METHODS:
 
         //ADVERTENCIA: Para simular el movimeinto de los ejes correctamente
         //debe desactivarse la cuantificación de los ejes que se van a mover.

@@ -139,6 +139,11 @@
 //contorno de la barrera del EA correspondiente al SIFU
 #define MEGARA_SIFU_Conatour_Text "{({-10, -10}, {-10, 10}), ({-10, 10}, {10, 10}), ({10, 10}, {10, -10}), ({10, -10}, {-10, -10})}"
 
+//CONSTANTS OF THE MOTION FUNCTIONS:
+
+#define MEGARA_VMAXABSDEF 0.6 //(steps/ms)
+#define MEGARA_AMAXABSDEF 0.0007 //(steps/ms^2)
+
 //---------------------------------------------------------------------------
 //Constantes del Telescope Projection Model
 //---------------------------------------------------------------------------

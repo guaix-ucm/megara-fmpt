@@ -258,7 +258,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
 
                 //reaciona según el número de argumentos
                 if(_I.Args.getCount() > 2)
-                    throw EImposibleError("there isn't instruction with more two arguments");
+                    throw EImpossibleError("there isn't instruction with more two arguments");
                 else
                     status = 4;
             }

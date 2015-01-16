@@ -28,7 +28,7 @@ void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
     case kdApp: S += AnsiString("App"); break;
     case kdUnk: S += AnsiString("Unk"); break;
     }
-    throw EImposibleError("unknowledge value in type TKnowledgeValue");
+    throw EImpossibleError("unknowledge value in type TKnowledgeValue");
 }
 void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
                              const AnsiString &S, int &i)
@@ -96,7 +96,7 @@ AnsiString KnowledgeDegreeToStr(TKnowledgeDegree kd)
     case kdApp: return AnsiString("App");
     case kdUnk: return AnsiString("Unk");
     }
-    throw EImposibleError("unknowledge value in type TKnowledgeValue");
+    throw EImpossibleError("unknowledge value in type TKnowledgeValue");
 }
 TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S)
 {
@@ -142,10 +142,10 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S)
 }
 
 //###########################################################################
-//TPorpose
+//TPurpose
 //###########################################################################
 
-void  StrPrintPorpose(AnsiString& S, TPorpose p)
+void  StrPrintPurpose(AnsiString& S, TPurpose p)
 {
     switch(p) {
     case pAll: S += AnsiString("All"); break;
@@ -153,9 +153,9 @@ void  StrPrintPorpose(AnsiString& S, TPorpose p)
     case pVal: S += AnsiString("Val"); break;
     case pExe: S += AnsiString("Exe"); break;
     }
-    throw EImposibleError("unknowledge value in type TPurpose");
+    throw EImpossibleError("unknowledge value in type TPurpose");
 }
-void  StrReadPorpose(TPorpose& p, const AnsiString &S, int &i)
+void  StrReadPurpose(TPurpose& p, const AnsiString &S, int &i)
 {
     //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -221,9 +221,9 @@ void  StrReadPorpose(TPorpose& p, const AnsiString &S, int &i)
         }
     }
 
-    throw EImproperArgument("there is a value of type TPorpose as from position i in string text S");
+    throw EImproperArgument("there is a value of type TPurpose as from position i in string text S");
 }
-AnsiString PorposeToStr(TPorpose p)
+AnsiString PurposeToStr(TPurpose p)
 {
     switch(p) {
     case pAll: return AnsiString("All");
@@ -231,9 +231,9 @@ AnsiString PorposeToStr(TPorpose p)
     case pVal: return AnsiString("Val");
     case pExe: return AnsiString("Exe");
     }
-    throw EImposibleError("unknowledge value in type TPurpose");
+    throw EImpossibleError("unknowledge value in type TPurpose");
 }
-TPorpose StrToPorpose(const AnsiString& S)
+TPurpose StrToPurpose(const AnsiString& S)
 {
     //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -279,7 +279,7 @@ TPorpose StrToPorpose(const AnsiString& S)
             return pExe;
     }
 
-    throw EImproperArgument("there is a value of type TPorpose as from position i in string text S");
+    throw EImproperArgument("there is a value of type TPurpose as from position i in string text S");
 }
 
 //###########################################################################
@@ -403,14 +403,14 @@ void TActuator::setPAkd(TKnowledgeDegree _PAkd)
         AssignSPM();
     }
 }
-void TActuator::setPorpose(TPorpose _Porpose)
+void TActuator::setPurpose(TPurpose _Purpose)
 {
     //siel nuevo valor difiere del actual
-    if(_Porpose != getPorpose()) {
+    if(_Purpose != getPurpose()) {
         //asigna el nuevo valor
-        __Porpose = _Porpose;
+        __Purpose = _Purpose;
 
-        //asimila Porpose
+        //asimila Purpose
         AssignSPM();
     }
 }
@@ -607,14 +607,14 @@ void TActuator::setPAkdText(const AnsiString &S)
         throw;
     }
 }
-AnsiString TActuator::getPorposeText(void) const
+AnsiString TActuator::getPurposeText(void) const
 {
-    return PorposeToStr(getPorpose());
+    return PurposeToStr(getPurpose());
 }
-void TActuator::setPorposeText(const AnsiString &S)
+void TActuator::setPurposeText(const AnsiString &S)
 {
     try {
-        setPorpose(StrToPorpose(S));
+        setPurpose(StrToPurpose(S));
     } catch(...) {
         throw;
     }
@@ -894,7 +894,7 @@ AnsiString TActuator::getStatusText(void) const
     S = "R/W:\r\n";
 
     S += AnsiString("    PAkd = ")+getPAkdText()+AnsiString("\r\n");
-    S += AnsiString("    Porpose = ")+getPorposeText()+AnsiString("\r\n");
+    S += AnsiString("    Purpose = ")+getPurposeText()+AnsiString("\r\n");
 
     S += AnsiString("    Id = ")+IntToStr(getId())+AnsiString("\r\n");
     S += AnsiString("    Adjacents = ")+Adjacents.getText()+AnsiString("\r\n");
@@ -1056,13 +1056,13 @@ AnsiString TActuator::getPositionPAPRowText(void) const
 //------------------------------------------------------------------
 //MÉTODOS DE ASIMILACIÓN:
 
-//asigna el SPM adecuado para (PAkd, Porpose)
+//asigna el SPM adecuado para (PAkd, Purpose)
 void TActuator::AssignSPM(void)
 {
-    //asigna a Arm->SPM o a Barrier->SPM el SPM correspondiente según (PAkd, Porpose)
+    //asigna a Arm->SPM o a Barrier->SPM el SPM correspondiente según (PAkd, Purpose)
     switch(getPAkd()) {
     case kdPre: //precise
-        switch(getPorpose()) {
+        switch(getPurpose()) {
         case pAll: getArm()->setSPM(getSPMall_p()); break;
         case pGen: getArm()->setSPM(getSPMgen_p()); break;
         case pVal: getArm()->setSPM(getSPMval_p()); break;
@@ -1070,7 +1070,7 @@ void TActuator::AssignSPM(void)
         }
         break;;
     case kdApp: //approximated
-        switch(getPorpose()) {
+        switch(getPurpose()) {
         case pAll: getArm()->setSPM(getSPMall_a()); break;
         case pGen: getArm()->setSPM(getSPMgen_a()); break;
         case pVal: getArm()->setSPM(getSPMval_a()); break;
@@ -1430,14 +1430,14 @@ void  TActuator::ReadOriginsRow(TActuator* &A,
 //en formato fila de texto
 AnsiString TActuator::GetPositionP3LabelsRow(void)
 {
-    return "Id      x3      y3";
+    return "Id\tx3\ty3";
 }
 //obtiene las etiquetas de las propiedades de posición de un posicionador
 //("Id", "p_1", "p___3") al final de una cadena de texto
 //en formato fila de texto
-AnsiString TActuator::GetPositionPAPLabelsRow(void)
+AnsiString TActuator::GetPositionPPALabelsRow(void)
 {
-    return "Id      p_1     p___3";
+    return "Id\tp_1\tp___3";
 }
 //atraviesa las etiquetas de las propiedades de posición
 //("Id", "x3", "y3")
@@ -1578,7 +1578,7 @@ void  TActuator::ReadPositionP3Row(TActuator* &A,
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
-void  TActuator::PrintPositionPAPRow(AnsiString& S, TActuator *A)
+void  TActuator::PrintPositionPPARow(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1596,7 +1596,7 @@ TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
     //construye e inciializa el cilindro
     TCilinder(_P0, _thetao_),
     //inicializa las propiedades de estado
-    __PAkd(kdPre), __Porpose(pAll),
+    __PAkd(kdPre), __Purpose(pAll),
     Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
     Pending(true), Collision(false)
 {
@@ -1674,7 +1674,7 @@ void TActuator::CopyStatus(const TActuator *A)
         throw EImproperArgument("pointer A should point to built actuator");
 
     __PAkd = A->__PAkd;
-    __Porpose = A->__Porpose;
+    __Purpose = A->__Purpose;
 
     __Id = A->__Id;
     Adjacents.Clone(A->Adjacents);
@@ -2035,6 +2035,34 @@ void TActuator::SetPositionP3(double x3, double y3)
     //asigna el punto
     SetAnglesRadians(theta_1, theta___3);
 }
+//assign a pair of position angles in radians
+//if the position angle theta_1 isn't in domain of theta_1,
+//or the position angle theta___3 isn't in domain of theta___3
+//  throw an exception EImproperArgument
+void TActuator::setPositionPPARadians(double theta_1, double theta___3)
+{
+    //the position angle theta_1 should be in the domain of theta_1
+    //and position angle theta___3 should be in the domain of theta___3
+    if(IsntInDomaintheta_1(theta_1) || getArm()->IsntInDomaintheta___3(theta___3))
+        throw EImproperArgument("the position angle theta_1 should be in the domain of theta_1, and position angle theta___3 should be in the domain of theta___3");
+
+    //assign the position angles
+    SetAnglesRadians(theta_1, theta___3);
+}
+//assign a pair of position angles in steps
+//if the position angle p_1 isn't in domain of p_1,
+//or the position angle p___3 isn't in domain of p___3
+//  throw an exception EImproperArgument
+void TActuator::setPositionPPASteps(double p_1, double p___3)
+{
+    //the position angle p_1 should be in the rotor 1 domain
+    //and the position angle p___3 should be in the rotor 2 domain
+    if(IsntInDomainp_1(p_1) || getArm()->IsntInDomainp___3(p___3))
+        throw EImproperArgument("the position angle p_1 should be in the domain of p_1, and position angle p___3 should be in the domain of p___3");
+
+    //assign the position angles
+    SetAnglesSteps(p_1, p___3);
+}
 //asigna las propiedades de identificación y posición
 //si el punto (x3, y3) no está en el dominio del actuador
 //      lanza EImproperArgument
@@ -2103,19 +2131,19 @@ void TActuator::SetSPMComponents(double _SPMrec, double _SPMsta,
     AssignSPM();
 }
 
-//asigna las propiedades de estado (PAkd, Porpose, Faul, disabled)
-void TActuator::SetStatus(TKnowledgeDegree _PAkd, TPorpose _Porpose)
+//asigna las propiedades de estado (PAkd, Purpose, Faul, disabled)
+void TActuator::SetStatus(TKnowledgeDegree _PAkd, TPurpose _Purpose)
 {
     //asigna los valores
     __PAkd = _PAkd;
-    __Porpose = _Porpose;
+    __Purpose = _Purpose;
 
     //ASIMILA LOS VALORES:
 
-    //asigna a Arm->SPM o a Barrier->SPM el SPM correspondiente según (PAkd, Porpose)
+    //asigna a Arm->SPM o a Barrier->SPM el SPM correspondiente según (PAkd, Purpose)
     switch(getPAkd()) {
     case kdPre:
-        switch(getPorpose()) {
+        switch(getPurpose()) {
         case pAll: getArm()->setSPM(getSPMall_p()); break;
         case pGen: getArm()->setSPM(getSPMgen_p()); break;
         case pVal: getArm()->setSPM(getSPMval_p()); break;
@@ -2123,7 +2151,7 @@ void TActuator::SetStatus(TKnowledgeDegree _PAkd, TPorpose _Porpose)
         }
         break;
     case kdApp:
-        switch(getPorpose()) {
+        switch(getPurpose()) {
         case pAll: getArm()->setSPM(getSPMall_a()); break;
         case pGen: getArm()->setSPM(getSPMgen_a()); break;
         case pVal: getArm()->setSPM(getSPMval_a()); break;

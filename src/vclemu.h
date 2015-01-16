@@ -119,6 +119,11 @@ public:
     //cambia la longitud de una cadena
     void SetLength(int);
 
+    //insert a char in a position of the string
+    //if index i not indicate a position in the string S
+    //  throw an exception EImproperArgument
+    void Insert(int i, char c);
+
     //obtiene la subcadena en el intervalo [offset, offset+count]
     //si offset o count no indican una posición de la cadena Src:
     //  lanza EImproperArgument

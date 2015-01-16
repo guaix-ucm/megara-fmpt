@@ -189,7 +189,7 @@ public:
         //	pGen: generación
         //	pVal: validación
         //	pExe: ejecución
-        void SetPorpose(TPorpose Porpose);
+        void SetPurpose(TPurpose Purpose);
 
         //configura el estado de habilitación del cuantificador de rot 1
         //de todos los posicionadores de la lista
@@ -206,7 +206,7 @@ public:
         void SetCollisions(bool);
 
         //------------------------------------------------------------------
-        //MÉTODOS PARA COMPROBAR LASPRECONDICIONES:
+        //MÉTODOS PARA COMPROBAR LAS PRECONDICIONES:
 
         //determina si todos los posicionadores operativos en
         //posiciones de inseguridad están en la lista Abatibles
@@ -229,10 +229,10 @@ public:
         //si el posicionador Id no está en la lista
         //      lanza una excepción EImproperArgument
         //si Id==0 asigna la instrucción a todos los controldaores
-        void SetInstruction(int Id, TInstruction &Instruction);
+        void SetInstruction(const int Id, const TInstruction &Instruction);
 
         //programa gestos de abatimiento en todos los controladores de la lista
-        void TurnArmsToSafeAreas(void);
+        void programTurnArmsToSafeAreas(void);
         //sincroniza las llegadas de todos los gestos de la lista
         void SinchronizeArrivals(void);
         //invierte todos los gestos de la lista en el dominio del tiempo

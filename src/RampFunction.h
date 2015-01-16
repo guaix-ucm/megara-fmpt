@@ -203,9 +203,13 @@ public:
 
     //MÉTODOS PÚBLICOS:
 
-    //inicializa {amax=amaxabs=amaxabsdef, vmax=vmaxabs=vmaxabsdef,
-    //psta=0, pfin=0} y asimila los parámetros
-    TRampFunction(double _amaxabs=AMAXABSDEF, double _vmaxabs=VMAXABSDEF);
+    //inicialize:
+    //  amax=amaxabs=MEGARA_AMAXABSDEF,
+    //  vmax=vmaxabs=MEGARA_VMAXABSDEF,
+    //  psta=0, pfin=0;
+    //and assimilate the parameters
+    TRampFunction(double _amaxabs=MEGARA_AMAXABSDEF,
+                  double _vmaxabs=MEGARA_VMAXABSDEF);
     //clona una función rampa
     TRampFunction(TRampFunction*);
     //copia todas las propiedades de una función rampa
