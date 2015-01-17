@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
     //------------------------------------------------------------------
 
     try {
-        //call to the program shall contains one argument
-        //if(argc != 2)
-        //  throw EImproperArgument("missing argument MEGARA_FiberMOSModel_Instance in call to MotionProgramGenerator");
+        //la llamada a fmpt_saa debe contener un argumento
+        if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/'))
+            throw EImproperArgument("fmpt_saa <relative_path>\r\n\t<relative_path>: relative path to file containing a PP list.");
 
         //indicates that the program is running
         append(AnsiString("program fmpt_saa is running..."));

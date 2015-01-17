@@ -24,6 +24,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     Barrier.cpp \
     ContourFigureList.cpp \
     Arm.cpp \
+    PairPositionAngles.cpp \
     Cilinder.cpp \
     Actuator.cpp \
     RoboticPositioner.cpp \
@@ -73,6 +74,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     ContourFigureList.h \
     FiberMOSModelConstants.h \
     Arm.h \
+    PairPositionAngles.h \
     Cilinder.h \
     Actuator.h \
     RoboticPositioner.h \
@@ -95,8 +97,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     TargetPoint.h \
     TargetPointList.h \
     MotionProgramValidator.h \
-    MotionProgramGenerator.h \
-    PairPositionAngles.cpp
+    MotionProgramGenerator.h
 
 ## Version info is in current : revision : age form
 ## A library supports interfaces from current downto current - age
@@ -132,6 +133,7 @@ pkginclude_HEADERS = vclemu.h \
     ContourFigureList.h \
     FiberMOSModelConstants.h \
     Arm.h \
+    PairPositionAngles.h \
     Cilinder.h \
     Actuator.h \
     RoboticPositioner.h \
@@ -154,8 +156,7 @@ pkginclude_HEADERS = vclemu.h \
     TargetPoint.h \
     TargetPointList.h \
     MotionProgramValidator.h \
-    MotionProgramGenerator.h \
-    PairPositionAngles.h
+    MotionProgramGenerator.h
 
 bin_PROGRAMS = fmpt_saa
 fmpt_saa_SOURCES = main.cpp

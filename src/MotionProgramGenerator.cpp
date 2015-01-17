@@ -410,6 +410,8 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
     double Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
     //initiaize Dfmin
     double Dfmin = Df;
+    //initialize p_1min
+    double p_1_ = p_1;
     //initialize the collision flag
     bool collision = (Df < 0);
 
@@ -426,11 +428,13 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
         //calculates the free distance
         Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
         //actualice the collision flag
-        collision = (Df <= 0);
+        collision = (Df < 0);
 
         //actualice the minimun free distance
-        if(Df < Dfmin)
+        if(Df < Dfmin) {
                 Dfmin = Df;
+                p_1_ = p_1;
+        }
 
         if(collision != collisionbak) {
             if(collision)
@@ -440,7 +444,13 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
         }
     }
 
-    //retore the initialposition of rotor 1
+    //if there isn't collision
+    if(Dfmin >= 0) {
+        l1 = p_1_;
+        l2 = p_1_;
+    }
+
+    //retore the initial position of rotor 1
     RP->getActuator()->setp_1(p_1bak);
 
     //ERROR: this function is a temporalsolution while a binary searhc is implemented.

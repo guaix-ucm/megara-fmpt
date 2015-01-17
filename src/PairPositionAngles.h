@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//File: PairProjectionAngles.h
+//File: PairPositionAngles.h
 //Content: pair of projection angles
 //Last update: 30/12/2014
 //Author: Isaac Morales Durán
