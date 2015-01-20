@@ -1784,6 +1784,7 @@ bool TCilinder::AnglesToGoP3(double &_theta_1, double &_theta___3,
     if(P_.x!=0 || P_.y!=0) {
         r_ = Mod(P_);
         theta_ = ArgPos(P_);
+
     } else {
         r_ = 0;
         theta_ = M_PI/2;

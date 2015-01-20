@@ -1,5 +1,5 @@
 
-extraconf = Models PPLists
+extraconf = Models Samples
 
 EXTRA_DIST = $(extraconf)
 

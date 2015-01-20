@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //Archivo: SquareFunction.cpp
-//Contenido: función de movimeinto cuadrada
+//Contenido: función de movimiento cuadrada
 //Última actualización: 06/05/2014
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------

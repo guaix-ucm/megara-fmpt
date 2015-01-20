@@ -1,15 +1,60 @@
-This is Megara FMPT, the Fiber MOS Positioning Toools for MEGARA.
+This is a package to install the MEGARA FMPT, the Fiber MOS Positioning Toools for MEGARA.
 
 Copyright IAA-CSIC 2012-2014.
-Megara FMPT is distributed under <CSIC> License. See the file 'COPYING' for details.
+Megara FMPT is distributed under GPLv3 License. See the file 'COPYING' for details.
+Provided that this S/W is used to the instrument MEGARA, this license is intended that GRANTECAN will be able to use and modify it without restrictions, while developers retain rights tomodify and use it for other uses. All software have two years of warranty while it remains without being modified.
 
-Megara FMPT requires the following packages installed in order to
-be able to be installed and work properly:
+This package provides a positioning library (libfmtp) and command line interface
+to it called 'fmpt_saa'
+
+This package is written in C++, requires GNU C++ to compile.
+
+It has been tested in:
+- Fedora 20 x86 64-bit.
+- SUSE Linux Enterprises SLES 11 SP1 64-bit.
+- Mac OS X 10.9y 10.10.
+
+Webpage: https://guaix.fis.ucm.es/projects/megara
+Maintainer: isaac@iaa.es
+
+Megara FMPT requires the following packages installed in order to be able to be installed and work properly:
 
  - autoconf-2.69	(http://ftp.gnu.org/gnu/autoconf/)
  - automake-1.14.1	(http://ftp.gnu.org/gnu/automake/)
  - libtool-2.4.4	(http://ftp.gnu.org/gnu/libtool/)
 
-Webpage: https://guaix.fis.ucm.es/projects/megara
-Maintainer: isaac@iaa.es
+The process to install this S/W can be found in the file INSTALL. This is a generic file of autotools, reason why the process is explained in detail. The summarized process is explained below:
+
+1. Decompress tar file 'megara-fmpt-1.0.0.tar.gz' (or .xz).
+2. Change to directory './megara-fmpt-1.0.0'.
+3. Execute './configure; make; make install' or configure. build and install this package.
+
+This process will install the libraries (static and dynamic) FMPT, and the FMPT SAA application, in the usual directories of the used distribution of the used operativesystem. For example:
+the libraries (estatic and dynamic) will be installed in '/usr/local/lib';
+the executable file fmpt_saa will be installed in '/usr/local/bin';
+the instance of the Fiber MOS Model will be installed in: '/usr/local/share/megara-fmpt/models/MEGARA_FiberMOSModel_Instance';
+the sample input files will be installed in: 'usr/local/bin/share/megara-fmpt/samples';
+These locations can vary depending on the operating sistem and distribution where this package is installed.
+
+This release includes the implementation of the function to generate depositioning programs of type step-by-step. This function is the core of the positioning program, and this implementation is intended to be definitive, in the sense that the algorithm not shall be changed.
+
+To run the FMPT SAA application write in the shell:
+
+$ fmpt_saa <path>
+
+where path is the absolute path of the file to be executed. For example, to execute one of the installed examples:
+
+$ fmpt_saa /usr/local/share/megara-fmpt/samples/all_RPs_in_insecure_positions.txt
+
+These locations can vary depending on the operating sistem and distribution where this package is installed.
+
+Known issues
+============
+The package fails to compile with clang, the default compiler in Mac OSX 10.9
+and upper. To compile in these versions, the GNU C++ compiler is required.
+To override the default compiler use the following sintax:
+
+$ ./configure CXX=/path/to/gnu-g++/binary
+
+and then 'make', 'make install' as usual
 

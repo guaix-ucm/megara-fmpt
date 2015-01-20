@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         }
         append(AnsiString("Fiber MOS Model instance loaded from '")+S+AnsiString("'."));
 
-        //load the PP table from a file
+/*        //load the PP table from a file
         AnsiString FileName;// = AnsiString(argv[1]);
         try {
             FileName = AnsiString(DATADIR);
@@ -142,6 +142,13 @@ int main(int argc, char *argv[])
                 append(AnsiString("ERROR: ")+E.Message);
                 throw E;
             }
+        }*/
+        //load the PP table from a file
+        AnsiString FileName = AnsiString(argv[1]);
+        try {
+            StrReadFromFile(S, FileName);
+        } catch(...) {
+                throw;
         }
         append(AnsiString("PP table loaded from '")+FileName+AnsiString("'."));
 

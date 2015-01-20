@@ -664,7 +664,7 @@ void TTargetPointList::MoveToTargetP3(void)
         TVector<int> indices;
         SearchOutDomineTargetPoints(indices);
         if(indices.getCount() > 0)
-                throw EImproperCall(AnsiString("there are target points out of domain his atached RP ")+indices.getText());
+                throw EImproperCall(AnsiString("there is some target point out of the scope of their atached RP ")+indices.getText());
 
         //para cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++)

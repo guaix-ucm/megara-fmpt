@@ -107,6 +107,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
         //determines the list of adjacent RPs which are in unsecure position
         //and are in the list Outsiders
         TItemsList<TRoboticPositioner*> Adjacents;
+        Adjacents.Print = TRoboticPositioner::PrintId;
         for(int j=0; j<RP->getActuator()->Adjacents.getCount(); j++) {
             TRoboticPositioner *RPA = RP->getActuator()->Adjacents[j];
             if(RPA->getActuator()->ArmIsOutSafeArea()) {
@@ -115,6 +116,8 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
                     Adjacents.Add(RPA);
             }
         }
+
+        AnsiString Sadj = Adjacents.getText();
 
         //NOTE: list Adjacents is of type TItemsList<TRoboticPositioner*>,
         //not TRoboticPositionerList.
@@ -132,10 +135,13 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
             for(int k=0; k<DisjointSets.getCount(); k++) {
                 TRoboticPositionerList *Set = DisjointSets.GetPointer(k);
                 int l = Set->Search(RPA);
-                if(l < Set->getCount())
+                int m = index.Search(k);
+                if(l<Set->getCount() && m>=index.getCount())
                     index.Add(k);
             }
         }
+
+        AnsiString Sind = index.getText();
 
         //if not founds the adjacent in the disjoint sets
         if(index.getCount() <= 0) {
@@ -147,12 +153,17 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
         //if has found some adjacent in the disjoint sets
         else {
             //join the disjoint sets where the RPAs was found
+            TRoboticPositionerList *Set = DisjointSets.GetPointer(index[0]);
             for(int j=1; j<index.getCount(); j++) {
-                DisjointSets[index[0]].Add(DisjointSets[index[j]]);
+                TRoboticPositionerList *SetToAdd = DisjointSets.GetPointer(index[j]);
+                for(int k=0; k<SetToAdd->getCount(); k++) {
+                    TRoboticPositioner *RPToAdd = SetToAdd->Get(k);
+                    Set->Add(RPToAdd);
+                }
                 DisjointSets.Delete(index[j]);
             }
             //add the RP
-            DisjointSets[index[0]].Add(RP);
+            Set->Add(RP);
         }
     }
 }
@@ -162,11 +173,11 @@ bool TMotionProgramGenerator::notAllRPsFollowMEGARADistribution(
         const TRoboticPositionerList& Set)
 {
     //calculate the constants
-    double D = 4*MEGARA_L*cos(M_PI/12); //distance between points P0
+    double D = 4*MEGARA_L*cos(M_PI/6); //distance between points P0
     double Sx = 3*D;        //base of the rectangle
     double Sy = 6*MEGARA_L; //height of the rectangle
 
-    //all RPs of the disjoint set:
+    //all RPs of the disjoint subsets:
     //  shall be separated a distance D - 2*L or upper
     for(int i=1; i<Set.getCount(); i++) {
         TRoboticPositioner *RP = Set[i];
@@ -271,7 +282,7 @@ void TMotionProgramGenerator::segregateRPsInDisperseSubsets(
     //  Circle ({2*D, Sy/2}, L)
 
     //calculate the constants
-    double D = 4*MEGARA_L*cos(M_PI/12); //distance between points P0
+    double D = 4*MEGARA_L*cos(M_PI/6); //distance between points P0
     double Sx = 3*D;        //base of the rectangle
     double Sy = 6*MEGARA_L; //height of the rectangle
 
@@ -410,13 +421,13 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
     double Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
     //initiaize Dfmin
     double Dfmin = Df;
-    //initialize p_1min
+    //initialize p_1_
     double p_1_ = p_1;
     //initialize the collision flag
     bool collision = (Df < 0);
 
     //search in the interval
-    for(p_1=round(p_1min+1); p_1<=p_1max; p_1+=1, p_1=round(p_1)) {
+    for(p_1=round(p_1min+50); p_1<=p_1max; p_1+=50, p_1=round(p_1)) {
         //capture the status of the cllision flag
         bool collisionbak = collision;
 
@@ -438,7 +449,7 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
 
         if(collision != collisionbak) {
             if(collision)
-                l1 = p_1 - 1;
+                l1 = p_1 - 50;
             else
                 l2 = p_1;
         }
@@ -952,8 +963,8 @@ void TMotionProgramGenerator::getTheMessageInstructionLists(TMotionProgram& DP,
         TRoboticPositioner *RP = RPsToBeRetracted[i];
         if(RP->getActuator()->theta_1s.getCount()<=0 || RP->getActuator()->getArm()->theta___3s.getCount()<=0)
             throw EImproperArgument("All RPs of the list RPsToBeRetracted shall have stacked the initial positions of their rotors.");
-        if(RP->getActuator()->ArmIsOutSafeArea())
-            throw EImproperArgument("All RPs of the list RPsToBeRetracted shall be in security positions.");
+//        if(RP->getActuator()->ArmIsOutSafeArea())
+  //          throw EImproperArgument("All RPs of the list RPsToBeRetracted shall be in security positions.");
     }
 
     //segregates the RPs whose rotor 1 has been displaced
@@ -977,7 +988,7 @@ void TMotionProgramGenerator::getTheMessageInstructionLists(TMotionProgram& DP,
             TMessageInstruction *M = new TMessageInstruction();
             //configure the message
             M->setId(RP->getActuator()->getId());
-            M->Instruction.getName() = "M1";
+            M->Instruction.setName(AnsiString("M1"));
             M->Instruction.Args.setCount(1);
             M->Instruction.Args[0] = RP->CMF.getMF1()->getpsta();
 
@@ -1102,7 +1113,11 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
         //segregates the RPs to recover, in disjoint sets
         TPointersList<TRoboticPositionerList> DisjointSets;
         segregateRPsInDisjointSets(DisjointSets, Outsiders_);
-
+/*int M = DisjointSets.getCount();
+int N = DisjointSets[0].getCount();
+TRoboticPositioner *RP1 = DisjointSets[0][0];
+TRoboticPositioner *RP2 = DisjointSets[0][1];
+*/
         //WARNING: if recicle the DDS, would need to make here:
         //  DDS.Clear();
 
@@ -1113,12 +1128,35 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
             segregateRPsInDisperseSubsets(DisperseSubsets, DisjointSets[i]);
             DDS.Add(DisperseSubsets);
         }
-
+/*int M_ = DDS.getCount();
+int N_ = DDS[0].getCount();
+int O_1 = DDS[0][0].getCount();
+int O_2 = DDS[0][1].getCount();
+TRoboticPositioner *RP1_ = DDS[0][1][0];
+TRoboticPositioner *RP2_ = DDS[0][0][0];
+double RP1_dp1 = RP1_->dp1();
+double RP2_dp1 = RP2_->dp1();
+*/
         //segregates the RPs which can be retracted in each subset of each set
         TPointersList<TPointersList<TRoboticPositionerList> > RetractilesDDS;
         TPointersList<TPointersList<TRoboticPositionerList> > InvadersDDS;
         segregateRetractilesInvaders(RetractilesDDS, InvadersDDS, DDS);
+/*int count1 = 0;
+for(int i=0; i<RetractilesDDS.getCount(); i++) {
+    for(int j=0; j<RetractilesDDS[i].getCount(); j++)
+        count1 += RetractilesDDS[i][j].getCount();
+}
+int count2 = 0;
+for(int i=0; i<InvadersDDS.getCount(); i++) {
+    for(int j=0; j<InvadersDDS[i].getCount(); j++)
+        count2 += InvadersDDS[i][j].getCount();
+}
 
+TRoboticPositioner *RP1__ = RetractilesDDS[0][1][0];
+TRoboticPositioner *RP2__ = RetractilesDDS[0][0][0];
+double RP1__dp1 = RP1__->dp1();
+double RP2__dp1 = RP2__->dp1();
+*/
         //Here all RPs of RetractilesDDS will be in security positions,
         //but we want retract only the RPs in the dispersesubsets more large.
 
@@ -1162,15 +1200,15 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
 
         //if there is some RP to be retracted
         if(RPsToBeRetracted.getCount() > 0) {
+            //get and add to the DP, the corresponding list or lists of message of instructions
+            getTheMessageInstructionLists(DP, RPsToBeRetracted);
+
             //move the RPs to be retracted to their final positions
             RPsToBeRetracted.MoveFin();
 
             //WARNING: RPs to be retracted shall be in their final positions
             //for avoid inter ferences with the next iterationand to get the
             //message-instruction list to turn the rotors 1.
-
-            //get and add to the DP, the corresponding list or lists of message of instructions
-            getTheMessageInstructionLists(DP, RPsToBeRetracted);
 
             //delete the retracted RPs from the list Outsiders_
             for(int i=0; i<RPsToBeRetracted.getCount(); i++) {
