@@ -2189,6 +2189,25 @@ void TActuator::Restorethetas(void)
     settheta_1(theta_1s.getLast());
     getArm()->Restoretheta___3();
 }
+//determines if:
+//the rotors of the RP not coincide with the last stacked positions
+bool TActuator::thetasNotCoincideWithStacked(void)
+{
+    if(theta_1s.getCount() < 1)
+        throw EImproperCall("should be stacked a theta_1 value");
+
+    if(getArm()->theta___3s.getCount() < 1)
+        throw EImproperCall("should be stacked a theta___3 value");
+
+    if(gettheta_1() != theta_1s.getLast())
+        return true;
+
+    if(getArm()->gettheta___3() != getArm()->theta___3s.getLast())
+        return true;
+
+    return false;
+}
+
 //desempila las últimas posiciones apiladas de los rotores
 //si no hay una posisición almacenada para algún rotor:
 //      lanza EImproperCall
@@ -2293,11 +2312,11 @@ void TActuator::RestoreAndPopQuantifys(void)
 }
 
 //--------------------------------------------------------------------------
-//MÉTODOS PARA DETERMINAR LA POSICIÓN RELATIVA DEL BRAZO:
+//METHODS TO DETERMINE THE RELATIVE POSITION OF THE ACTUATOR:
 
 //determina si un ángulo del eje 2 en radianes
 //está fuera del área de seguridad
-bool TActuator::theta___3IsOutSafeArea(double theta___3)
+bool TActuator::theta___3IsOutSafeArea(double theta___3) const
 {
     if(theta___3 > gettheta___3saf())
         return true;
@@ -2306,7 +2325,7 @@ bool TActuator::theta___3IsOutSafeArea(double theta___3)
 }
 //determina si un ángulo del eje 2 en radianes
 //está dentro del área de seguridad
-bool TActuator::theta___3IsInSafeArea(double theta___3)
+bool TActuator::theta___3IsInSafeArea(double theta___3) const
 {
     if(theta___3 <= gettheta___3saf())
         return true;
@@ -2316,7 +2335,7 @@ bool TActuator::theta___3IsInSafeArea(double theta___3)
 
 //determina si un ángulo del eje 2 en pasos
 //está fuera del área de seguridad
-bool TActuator::p___3IsOutSafeArea(double p___3)
+bool TActuator::p___3IsOutSafeArea(double p___3) const
 {
     if(p___3 > getArm()->getF().Image(gettheta___3saf()))
         return true;
@@ -2325,7 +2344,7 @@ bool TActuator::p___3IsOutSafeArea(double p___3)
 }
 //determina si un ángulo del eje 2 en pasos
 //está dentro del área de seguridad
-bool TActuator::p___3IsInSafeArea(double p___3)
+bool TActuator::p___3IsInSafeArea(double p___3) const
 {
     if(p___3 <= getArm()->getF().Image(gettheta___3saf()))
         return true;
@@ -2334,7 +2353,7 @@ bool TActuator::p___3IsInSafeArea(double p___3)
 }
 
 //determina si un punto está fuera del área de seguridad
-bool TActuator::P3IsOutSafeArea(TDoublePoint P)
+bool TActuator::P3IsOutSafeArea(TDoublePoint P) const
 {
     //calcula las posiciones angulares para ir al punto
     double theta_1, theta___3;
@@ -2345,7 +2364,7 @@ bool TActuator::P3IsOutSafeArea(TDoublePoint P)
     return theta___3IsOutSafeArea(theta___3);
 }
 //determina si un punto está dentro del área de seguridad
-bool TActuator::P3IsInSafeArea(TDoublePoint P)
+bool TActuator::P3IsInSafeArea(TDoublePoint P) const
 {
     //calcula las posiciones angulares para ir al punto
     double theta_1, theta___3;
@@ -2357,7 +2376,7 @@ bool TActuator::P3IsInSafeArea(TDoublePoint P)
 }
 
 //determina si el brazo está fuera del área deseguridad
-bool TActuator::ArmIsOutSafeArea(void)
+bool TActuator::ArmIsOutSafeArea(void) const
 {
     if(getArm()->gettheta___2() > gettheta___2saf())
         return true;
@@ -2365,12 +2384,30 @@ bool TActuator::ArmIsOutSafeArea(void)
         return false;
 }
 //determina si el brazo está dentro del área de seguridad
-bool TActuator::ArmIsInSafeArea(void)
+bool TActuator::ArmIsInSafeArea(void) const
 {
     if(getArm()->gettheta___2() <= gettheta___2saf())
         return true;
     else
         return false;
+}
+
+//determine if sny rotor of the actuator is out the origin
+bool TActuator::isOutTheOrigin(void) const
+{
+    //determines the origin of each rotor
+    double p_1origin = Max(0., ceil(getp_1min()));
+    double p___3origin = Max(0., ceil(getArm()->getp___3min()));
+
+    //if the rotor 1 is out the origin, indicates that the actuator is oit the origin
+    if(round(getp_1()) != p_1origin)
+        return true;
+
+    //if the rotor 2 is out the origin, indicates that the actuator is oit the origin
+    if(round(getArm()->getp___3()) != p___3origin)
+        return true;
+
+    return false;
 }
 
 //PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL EJE 1:

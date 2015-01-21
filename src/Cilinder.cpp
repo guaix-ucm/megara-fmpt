@@ -1696,7 +1696,7 @@ void TCilinder::Randomizep_1(void)
 //Aunque el punto sea inalcanzable, este método devolverá
 //las posiciones límite a la que los ejes pueden ir.
 bool TCilinder::AnglesToGoP_3(double &_theta_1, double &_theta___3,
-                              double r_3, double theta_3)
+                              double r_3, double theta_3) const
 {
     //el punto debe estar en el intervalo radial
     if(r_3<getr_3min()-ERR_NUM || getr_3max()+ERR_NUM<r_3)
@@ -1773,7 +1773,7 @@ bool TCilinder::AnglesToGoP_3(double &_theta_1, double &_theta___3,
 //Aunque el punto sea inalcanzable, este método devolverá
 //las posiciones límite a la que los ejes pueden ir.
 bool TCilinder::AnglesToGoP3(double &_theta_1, double &_theta___3,
-                             double x3, double y3)
+                             double x3, double y3) const
 {
     //traduce a coordenadas relativas a S1
     TDoublePoint P_ = S0recToS1rec(x3, y3);

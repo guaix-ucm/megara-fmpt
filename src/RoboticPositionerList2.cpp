@@ -314,6 +314,7 @@ AnsiString TRoboticPositionerList2::getInstanceMapText(void) const
 }
 void TRoboticPositionerList2::setInstanceMapText(const AnsiString& S)
 {
+    //TBD
 }
 
 //MÉTODOS DE ASIMILACIÓN:

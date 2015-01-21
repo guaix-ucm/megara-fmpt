@@ -529,11 +529,16 @@ public:
         //set an instruction
         //if instruction is empty:
         //  throw an exception EImproperArgument
-        void SetInstruction( const TInstruction&);
+        void setInstruction( const TInstruction&);
         //get the programmed instruction
         //if there isn't progrmmed a gesture:
         //  throw an exception EImproperCall
-        void GetInstruction(TInstruction&);
+        void getInstruction(TInstruction&) const;
+
+        //get the instruction to move:
+        //  rotor 1 from actualposition to Max(0, p_1min)
+        //  rotor 2 from actualposition to Max(0, p___3min)
+        void getInstructionToGoToTheOrigin(TInstruction&) const;
 
         //METHODS TOPROGRAM GESTURES:
 

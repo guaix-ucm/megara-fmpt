@@ -489,7 +489,10 @@ public:
         bool IsInSquare(const TDoublePoint&);
 
         //determine if all RPs of the list are in securepositions
-        bool AllRPsAreInSecurePosition(void) const;
+        bool allRPsAreInSecurePosition(void) const;
+
+        //determine if all operative RPs of the list are in the origin
+        bool allOperativeRPsAreInTheOrigin(void) const;
 
         //MÉTODOS DE DESPLAZAMIENTO CONJUNTO:
 
@@ -508,22 +511,27 @@ public:
         //seguridad estables más próximas
         int MoveOutsideArmsToSafePositionsSelected(void);
 
-        //MÉTODOS DE SEGREGACIÓN DE POSICIONADORES:
+        //METHODS TO SEGREGATE RPs:
 
         //segrega los posicionadores en dos listas:
         //      lista con el brazo dentro del área de seguridad;
         //      lista con el brazo fuera del área de seguridad;
         void SegregateInOut(TRoboticPositionerList1 &Inners,
-                TRoboticPositionerList1 &Outsiders);
+                TRoboticPositionerList1 &Outsiders) const;
 
         //segregates the operative RPs in unsecure positions
-        void segregateOperativeOutsiders(TRoboticPositionerList1& Outsiders);
+        void segregateOperativeOutsiders(TRoboticPositionerList1& Outsiders) const;
+
+        //segregates the operative RPs in security positions
+        //out the origins
+        void segregateOperativeInnersOutTheOrigins(
+                TRoboticPositionerList1& Inners) const;
 
         //segregates the collided RPs
-        void segregateCollided(TRoboticPositionerList1& Collided);
+        void segregateCollided(TRoboticPositionerList1& Collided) const;
 
         //segrega los posicionadores seleccionados en una lista
-        void SegregateSelected(TRoboticPositionerList1&);
+        void SegregateSelected(TRoboticPositionerList1&) const;
 
         //MÉTODOS DE PILA DE POSICIONES ANGULARES:
 

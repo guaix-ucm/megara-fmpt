@@ -179,9 +179,22 @@ public:
     //Preconditions:
     //  All RPs of the list RPsToBeRetracted shall have stacked the initial
     //      positions of their rotors.
-    //  All RPs of the list RPsToBeRetracted shall be in security positions.
-    void getTheMessageInstructionLists(TMotionProgram& DP,
+    //  All RPs of the list RPsToBeRetracted shall be in their stacked positions.
+    //  All RPs of the list RPsToBeRetracted shall have programmed a gesture.
+    void getTheMessageLists(TMotionProgram& DP,
             const TRoboticPositionerList& RPsToBeRetracted);
+
+    //add to the DP the message-instruction list to move the RPs
+    //of the list Inners to the origins
+    //Inputs:
+    //  Inners: list of operative RPs in seciry position out the origin.
+    //Output:
+    //  DP: depositioning program which the message list will be added.
+    //Preconditions:
+    //  All RPs of the list Inners shall be operatives in secure position
+    //  but out the origin.
+    void getTheMessageListToGoToTheOrigins(TMotionProgram& DP,
+        const TRoboticPositionerList& Inners);
 
     //Generates a DP for a given set of operative RPs in unsecurity
     //positions and determines the RPs of the given set,

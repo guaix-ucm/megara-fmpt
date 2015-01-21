@@ -843,14 +843,14 @@ public:
         //Aunque el punto sea inalcanzable, este método devolverá
         //las posiciones límite a la que los ejes pueden ir.
         bool AnglesToGoP_3(double &_theta_1, double &_theta___3,
-                double r_3, double theta_3);
+                double r_3, double theta_3) const;
         //Dado el punto (x3, y3) (en S0)
         //calcula (theta_1, theta___3) para que P3 vaya a él;
         //si el punto no está dentro del dominio devuelve falso.
         //Aunque el punto sea inalcanzable, este método devolverá
         //las posiciones límite a la que los ejes pueden ir.
         bool AnglesToGoP3(double &_theta_1, double &_theta___3,
-                double x3, double y3);
+                double x3, double y3) const;
 
         //Dado el ángulo theta_3 (en S1) calcula theta___3 para que P3 vaya a él;
         //si el ángulo no está dentro del dominio devuelve falso.

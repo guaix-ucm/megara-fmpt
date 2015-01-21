@@ -297,26 +297,24 @@ void TTargetPoint::Randomize(void)
 double TTargetPoint::MoveToTargetP3(void)
 {
         //determines if the target point is in the domain of the attached RP
-        //and calculates the position angles of the axes
+        //and calculates the position angles of the rotors
         double theta_1, theta___3;
         bool isindomain = getRoboticPositioner()->getActuator()->AnglesToGoP3(theta_1, theta___3, TargetP3.x, TargetP3.y);
 
-        //target point TargetP3 should be in the point P3 domain of his assigned fiber positioner
+        //target point TargetP3 should be in the point P3 domain of his allocated RP
         if(!isindomain)
-                throw EImproperCall("target point TargetP3 should be in the point P3 domain of his assigned fiber positioner");
+                throw EImproperCall("target point TargetP3 should be in the point P3 domain of his allocated RP");
 
         //determines the stable position more closer to the target point
         //and determines the distance fromthe stable position to the target point
         double p_1nsp, p___3nsp;
         double d = getRoboticPositioner()->getActuator()->GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
 
-        //assign the positions to the axes
-//        getRoboticPositioner()->getActuator()->SetAnglesSteps(p_1nsp, p___3nsp);
-        getRoboticPositioner()->getActuator()->SetAnglesRadians(theta_1, theta___3);
+        //assign the positions to the rotors
+        getRoboticPositioner()->getActuator()->SetAnglesSteps(p_1nsp, p___3nsp);
 
         //returns the distance fromthe stable position to the target point
-//        return d;
-        return 0;
+        return d;
 }
 
 //---------------------------------------------------------------------------

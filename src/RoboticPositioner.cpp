@@ -1237,7 +1237,7 @@ void TRoboticPositioner::SP(void)
 //set an instruction
 //if instruction is empty:
 //  throw an exception EImproperArgument
-void TRoboticPositioner::SetInstruction(const TInstruction &Instruction)
+void TRoboticPositioner::setInstruction(const TInstruction &Instruction)
 {
     //Nombre del comando y número de argumentos:
     //      ""      0
@@ -1284,7 +1284,7 @@ void TRoboticPositioner::SetInstruction(const TInstruction &Instruction)
 //get the programmed instruction
 //if there isn't progrmmed a gesture:
 //  throw an exception EImproperCall
-void TRoboticPositioner::GetInstruction(TInstruction &Instruction)
+void TRoboticPositioner::getInstruction(TInstruction &Instruction) const
 {
     if(CMF.getMF1()!=NULL && CMF.getMF2()!=NULL) {
         Instruction.setName("MM");
@@ -1302,6 +1302,47 @@ void TRoboticPositioner::GetInstruction(TInstruction &Instruction)
     } else //CMF.MF1==NULL && CMF.MF2==NULL
         //indica que debería haber alguna funcion de movimiento programada
         throw EImproperCall("should be programmed some motion function");
+}
+
+//get the instruction to move:
+//  rotor 1 from actualposition to Max(0, p_1min)
+//  rotor 2 from actualposition to Max(0, p___3min)
+void TRoboticPositioner::getInstructionToGoToTheOrigin(TInstruction& Instruction) const
+{
+    //determine the position of the origin of each rotor
+    double p_1origin = max(0., ceil(getActuator()->getp_1min()));
+    double p___3origin = max(0., ceil(getActuator()->getArm()->getp___3min()));
+
+    //determine if rotor 1 is out of the origin
+    bool rot1out;
+    if(getActuator()->getp_1() != p_1origin)
+        rot1out = true;
+    else
+        rot1out = false;
+
+    //determine if rotor 2 is out of the origin
+    bool rot2out;
+    if(getActuator()->getArm()->getp___3() != p___3origin)
+        rot2out = true;
+    else
+        rot2out = false;
+
+    //set the instruction according the status of the rotors
+    if(rot1out && rot2out) {
+        Instruction.setName("MM");
+        Instruction.Args.setCount(2);
+        Instruction.Args[0] = p_1origin;
+        Instruction.Args[1] = p___3origin;
+    } else if(rot1out) {
+        Instruction.setName("M1");
+        Instruction.Args.setCount(1);
+        Instruction.Args[0] = p_1origin;
+    } else if(rot2out) {
+        Instruction.setName("M2");
+        Instruction.Args.setCount(1);
+        Instruction.Args[0] = p___3origin;
+    } else //!rot1out && !rot2out
+        throw EImproperCall("some rotor should be out their origin");
 }
 
 //METHODS TO PROGRAM GESTURES:

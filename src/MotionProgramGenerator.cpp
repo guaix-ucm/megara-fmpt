@@ -107,7 +107,6 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
         //determines the list of adjacent RPs which are in unsecure position
         //and are in the list Outsiders
         TItemsList<TRoboticPositioner*> Adjacents;
-        Adjacents.Print = TRoboticPositioner::PrintId;
         for(int j=0; j<RP->getActuator()->Adjacents.getCount(); j++) {
             TRoboticPositioner *RPA = RP->getActuator()->Adjacents[j];
             if(RPA->getActuator()->ArmIsOutSafeArea()) {
@@ -116,8 +115,6 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
                     Adjacents.Add(RPA);
             }
         }
-
-        AnsiString Sadj = Adjacents.getText();
 
         //NOTE: list Adjacents is of type TItemsList<TRoboticPositioner*>,
         //not TRoboticPositionerList.
@@ -141,8 +138,6 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
             }
         }
 
-        AnsiString Sind = index.getText();
-
         //if not founds the adjacent in the disjoint sets
         if(index.getCount() <= 0) {
             //add the RP in a new set
@@ -162,7 +157,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
                 }
                 DisjointSets.Delete(index[j]);
             }
-            //add the RP
+            //add the RP to the Set
             Set->Add(RP);
         }
     }
@@ -954,17 +949,20 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
 //Preconditions:
 //  All RPs of the list RPsToBeRetracted shall have stacked the initial
 //      positions of their rotors.
-//  All RPs of the list RPsToBeRetracted shall be in security positions.
-void TMotionProgramGenerator::getTheMessageInstructionLists(TMotionProgram& DP,
+//  All RPs of the list RPsToBeRetracted shall be in their stacked positions.
+//  All RPs of the list RPsToBeRetracted shall have programmed a gesture.
+void TMotionProgramGenerator::getTheMessageLists(TMotionProgram& DP,
         const TRoboticPositionerList& RPsToBeRetracted)
 {
     //CHECK THE PRECONDITIONS:
     for(int i=0; i<RPsToBeRetracted.getCount(); i++) {
         TRoboticPositioner *RP = RPsToBeRetracted[i];
         if(RP->getActuator()->theta_1s.getCount()<=0 || RP->getActuator()->getArm()->theta___3s.getCount()<=0)
-            throw EImproperArgument("All RPs of the list RPsToBeRetracted shall have stacked the initial positions of their rotors.");
-//        if(RP->getActuator()->ArmIsOutSafeArea())
-  //          throw EImproperArgument("All RPs of the list RPsToBeRetracted shall be in security positions.");
+            throw EImproperArgument("all RPs of the list RPsToBeRetracted shall have stacked the initial positions of their rotors");
+        if(RP->getActuator()->thetasNotCoincideWithStacked())
+            throw EImproperArgument("all RPs of the list RPsToBeRetracted shall be in their stacked positions");
+        if(RP->CMF.getMF1()==NULL && RP->CMF.getMF2()==NULL)
+            throw EImproperArgument("all RPs of the list RPsToBeRetracted shall have programmed a gesture");
     }
 
     //segregates the RPs whose rotor 1 has been displaced
@@ -1010,7 +1008,7 @@ void TMotionProgramGenerator::getTheMessageInstructionLists(TMotionProgram& DP,
         TMessageInstruction *M = new TMessageInstruction();
         //configure the message
         M->setId(RP->getActuator()->getId());
-        RP->GetInstruction(M->Instruction);
+        RP->getInstruction(M->Instruction);
 
         //add the message to the message list
         ML->Add(M);
@@ -1019,6 +1017,52 @@ void TMotionProgramGenerator::getTheMessageInstructionLists(TMotionProgram& DP,
     DP.Add(ML);
 }
 
+//add to the DP the message-instruction list to move the RPs
+//of the list Inners to the origins
+//Inputs:
+//  Inners: list of operative RPs in seciry position out the origin.
+//Output:
+//  DP: depositioning program which the message list will be added.
+//Preconditions:
+//  All RPs of the list Inners shall be operatives in secure position
+//  but out the origin.
+void TMotionProgramGenerator::getTheMessageListToGoToTheOrigins(TMotionProgram& DP,
+    const TRoboticPositionerList& Inners)
+{
+    //check the preconditions
+    for(int i=0; i<Inners.getCount(); i++) {
+        TRoboticPositioner *RP = Inners[i];
+
+        if(RP == NULL)
+            throw EImproperArgument("list Inners should contains pointers to built RPs only");
+        if(!RP->getOperative())
+            throw EImproperArgument("all RPs in the list Inners shall be operative");
+        if(RP->getActuator()->ArmIsOutSafeArea())
+            throw EImproperArgument("all RPs in the list Inners shall be in security positions");
+        if(!RP->getActuator()->isOutTheOrigin())
+            throw EImproperArgument("all RPs in the list Inners shall be out the origins");
+    }
+
+    //WARNING: shall be taken into account that could hassome RP in the prigin.
+
+    //get a message list with message instruction to go to the origin
+    //for each RP of the list Inners
+    TMessageList *ML = new TMessageList();
+    for(int i=0; i<Inners.getCount(); i++) {
+        TRoboticPositioner *RP = Inners[i];
+
+        TMessageInstruction *MI = new TMessageInstruction();
+        MI->setId(RP->getActuator()->getId());
+        RP->getInstructionToGoToTheOrigin(MI->Instruction);
+        ML->Add(MI);
+    }
+
+    //add the message list to the DP, if it isn't empty
+    if(ML->getCount() > 0)
+        DP.Add(ML);
+    else
+        delete ML;
+}
 
 //Generates a DP for a given set of operative RPs in unsecurity
 //positions and determines the RPs of the given set,
@@ -1077,7 +1121,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     Obstructed.Clear();
 
     //if there aren't RPs of the list Outsiders in unsecurity positions
-    if(Outsiders.AllRPsAreInSecurePosition())
+    if(Outsiders.allRPsAreInSecurePosition())
         //indicates that has found a solution, and return the empty solution
         return true;
 
@@ -1113,11 +1157,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
         //segregates the RPs to recover, in disjoint sets
         TPointersList<TRoboticPositionerList> DisjointSets;
         segregateRPsInDisjointSets(DisjointSets, Outsiders_);
-/*int M = DisjointSets.getCount();
-int N = DisjointSets[0].getCount();
-TRoboticPositioner *RP1 = DisjointSets[0][0];
-TRoboticPositioner *RP2 = DisjointSets[0][1];
-*/
+
         //WARNING: if recicle the DDS, would need to make here:
         //  DDS.Clear();
 
@@ -1128,35 +1168,12 @@ TRoboticPositioner *RP2 = DisjointSets[0][1];
             segregateRPsInDisperseSubsets(DisperseSubsets, DisjointSets[i]);
             DDS.Add(DisperseSubsets);
         }
-/*int M_ = DDS.getCount();
-int N_ = DDS[0].getCount();
-int O_1 = DDS[0][0].getCount();
-int O_2 = DDS[0][1].getCount();
-TRoboticPositioner *RP1_ = DDS[0][1][0];
-TRoboticPositioner *RP2_ = DDS[0][0][0];
-double RP1_dp1 = RP1_->dp1();
-double RP2_dp1 = RP2_->dp1();
-*/
+
         //segregates the RPs which can be retracted in each subset of each set
         TPointersList<TPointersList<TRoboticPositionerList> > RetractilesDDS;
         TPointersList<TPointersList<TRoboticPositionerList> > InvadersDDS;
         segregateRetractilesInvaders(RetractilesDDS, InvadersDDS, DDS);
-/*int count1 = 0;
-for(int i=0; i<RetractilesDDS.getCount(); i++) {
-    for(int j=0; j<RetractilesDDS[i].getCount(); j++)
-        count1 += RetractilesDDS[i][j].getCount();
-}
-int count2 = 0;
-for(int i=0; i<InvadersDDS.getCount(); i++) {
-    for(int j=0; j<InvadersDDS[i].getCount(); j++)
-        count2 += InvadersDDS[i][j].getCount();
-}
 
-TRoboticPositioner *RP1__ = RetractilesDDS[0][1][0];
-TRoboticPositioner *RP2__ = RetractilesDDS[0][0][0];
-double RP1__dp1 = RP1__->dp1();
-double RP2__dp1 = RP2__->dp1();
-*/
         //Here all RPs of RetractilesDDS will be in security positions,
         //but we want retract only the RPs in the dispersesubsets more large.
 
@@ -1201,7 +1218,7 @@ double RP2__dp1 = RP2__->dp1();
         //if there is some RP to be retracted
         if(RPsToBeRetracted.getCount() > 0) {
             //get and add to the DP, the corresponding list or lists of message of instructions
-            getTheMessageInstructionLists(DP, RPsToBeRetracted);
+            getTheMessageLists(DP, RPsToBeRetracted);
 
             //move the RPs to be retracted to their final positions
             RPsToBeRetracted.MoveFin();

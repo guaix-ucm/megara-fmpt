@@ -553,7 +553,7 @@ void TRoboticPositionerList::SetInstruction(const int Id, const TInstruction &In
                         //si ha encontrado el posicioandor
                         if(i < getCount())
                                 //asigna la instrucción al posicionador identificado
-                                Items[i]->SetInstruction(Instruction);
+                                Items[i]->setInstruction(Instruction);
                 } else { //si la instrucción va dirigida a todos los posicinadores
                         //si es la instrucción 'ST'
                         if(Instruction.getName() == "ST") {
@@ -563,7 +563,7 @@ void TRoboticPositionerList::SetInstruction(const int Id, const TInstruction &In
                                 //por cada controlador de la lista
                                 for(int i=0; i<getCount(); i++)
                                         //asigna la instrucción al controlador indicado
-                                        Items[i]->SetInstruction(Instruction);
+                                        Items[i]->setInstruction(Instruction);
                         }
                 }
         } catch(...) {

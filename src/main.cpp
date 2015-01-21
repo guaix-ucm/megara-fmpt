@@ -18,6 +18,28 @@ void append(const AnsiString& S)
     std::cout << S.c_str() << endl;
 }
 
+//To avoid need to link the Boost.System library, little functions
+//will be defined to replace some boost functionalities:
+//  #include <boost/filesystem.hpp>
+//  boost::filesystem::path path("...");
+//  boost::filesystem::path filename = path.filename;
+
+//split a path
+void splitpath(AnsiString& parent_path, AnsiString& filename, AnsiString& path)
+{
+    int i = path.Length();
+    while(i>0 && path[i] != '/')
+            i--;
+
+    parent_path.SetLength(0);
+    if(i > 0)
+        parent_path = path.SubString(1, 1);
+
+    filename.SetLength(0);
+    if(i < path.Length())
+        filename = path.SubString(i+1, path.Length());
+}
+
 //main program
 int main(int argc, char *argv[])
 {
@@ -51,10 +73,10 @@ int main(int argc, char *argv[])
     try {
         //la llamada a fmpt_saa debe contener un argumento
         if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/'))
-            throw EImproperArgument("fmpt_saa <relative_path>\r\n\t<relative_path>: relative path to file containing a PP list.");
+            throw EImproperArgument("missing argument.\r\nfmpt_saa <path>\r\n\t<path>: absolute path to file containing a PP list.");
 
         //indicates that the program is running
-        append(AnsiString("program fmpt_saa is running..."));
+        append(AnsiString("Program fmpt_saa is running..."));
 
         //BUILDS THE OBJECTS:
 
@@ -123,26 +145,6 @@ int main(int argc, char *argv[])
         }
         append(AnsiString("Fiber MOS Model instance loaded from '")+S+AnsiString("'."));
 
-/*        //load the PP table from a file
-        AnsiString FileName;// = AnsiString(argv[1]);
-        try {
-            FileName = AnsiString(DATADIR);
-            if(argv[1][0] != '/')
-                FileName += AnsiString("/");
-            FileName += AnsiString(argv[1]); //Example: argv[1]: "PPPList/20141124102242.txt"; or  argv[1]: "/PPPList/20141124102242.txt".
-            StrReadFromFile(S, FileName);
-        } catch(...) {
-            try {
-                FileName = GetCurrentDir()+AnsiString("/../data");
-                if(argv[1][0] != '/')
-                    FileName += AnsiString("/");
-                FileName += AnsiString(argv[1]); //Example: argv[1]: "PPPList/20141124102242.txt"; or  argv[1]: "/PPPList/20141124102242.txt".
-                StrReadFromFile(S, FileName);
-            } catch(Exception& E) {
-                append(AnsiString("ERROR: ")+E.Message);
-                throw E;
-            }
-        }*/
         //load the PP table from a file
         AnsiString FileName = AnsiString(argv[1]);
         try {
@@ -185,6 +187,13 @@ int main(int argc, char *argv[])
         TRoboticPositionerList Outsiders;
         FMM.RPL.segregateOperativeOutsiders(Outsiders);
 
+        //check the limiting case when all operative RPs are in the origin
+        if(FMM.RPL.allOperativeRPsAreInTheOrigin())
+            append("WARNING: all operative RPs are in the origin. The generated DP will be empty.");
+        //else, check the limiting case when all operative RPs are in security positions
+        else if(Outsiders.getCount() <= 0)
+            append("WARNING: all operative RPs are in security positions. The generated DP will contains only a message-instruction list to go to the origin.");
+
         //generates a de positioning program for the operative RPs at insecurity positions
         //and determines the RPs in collision status or obstructed at insecurity positions
         append("Generating depositioning program...");
@@ -194,12 +203,34 @@ int main(int argc, char *argv[])
         MPG.generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
         append("Depositioning program generated.");
 
+        //Here all operative outsiders RPs which aren't obstructed
+        //are in secure position, in their final position
+        //after has been execute the DP.
+
+	//print the lists Collided and Obstructed
+	S = AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
+	S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
+	StrWriteToFile("CollidedAndObstructed.txt", S);
+        append("Lists Collided and Obstructed saved in 'CollidedAndObstructed.txt'.");
+
+        //sergegate the operative inners RPs out of the origin
+        TRoboticPositionerList Inners;
+        FMM.RPL.segregateOperativeInnersOutTheOrigins(Inners);
+
+        //generates the parking gesture for the operative RPs in secure position out the origin
+        MPG.getTheMessageListToGoToTheOrigins(DP, Inners);
+        append("Message list to go the origins added.");
+
         //translates the depositioning program to the format of the interface MCS-FMPT
-        append("Teanslating the depositiong program.");
+        append("Translating the depositiong program to the format of MCS interface.");
         FMM.RPL.TranslateMotionProgram(S, 1, IPL, DP);
-        StrWriteToFile("DepositioningProgram.txt", S);
+        AnsiString path(argv[1]);
+        AnsiString parent_path, filename;
+        splitpath(parent_path, filename, path);
+	filename = AnsiString("DP-from-")+filename;
+        StrWriteToFile(filename, S);
         append("Depositiong program translated.");
-        append("Depositioning program saved in 'DepositioningProgram.txt'.");
+	append("Depositioning program saved in '"+filename.str+"'.");
 
         //DESTROY THE OBJECTS:
 

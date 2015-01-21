@@ -497,6 +497,9 @@ TRoboticPositionerList1::TRoboticPositionerList1(void) :
         //#LimitDomainColor(Qt::gray),
         PaintActuators_(true), PaintLimitDomain_(false), PaintMap_(false)
 {
+        //point the default printing function
+        Print = TRoboticPositioner::PrintId;
+
         //inicializa las propiedades de localización
         __O.x = 0;
         __O.y = 0;
@@ -1376,7 +1379,7 @@ bool TRoboticPositionerList1::IsInSquare(const TDoublePoint &P)
 }
 
 //determine if all RPs of the list are in secure positions
-bool TRoboticPositionerList1::AllRPsAreInSecurePosition(void) const
+bool TRoboticPositionerList1::allRPsAreInSecurePosition(void) const
 {
     //for each RP of the list
     for(int i=0; i<getCount(); i++)
@@ -1386,7 +1389,23 @@ bool TRoboticPositionerList1::AllRPsAreInSecurePosition(void) const
             return false;
 
     //indicates that all RPs are in secure positions
-    return false;
+    return true;
+}
+
+//determine if all operative RPs of the list are in the origin
+bool TRoboticPositionerList1::allOperativeRPsAreInTheOrigin(void) const
+{
+    //for each RP of the list
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        //if the RP is operative and out the safe area
+        if(RP->getOperative() && RP->getActuator()->isOutTheOrigin())
+            //indicate that not all RPsare in securepositions
+            return false;
+    }
+
+    //indicates that all operative RPs are in secure positions
+    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -1468,13 +1487,13 @@ int TRoboticPositionerList1::MoveOutsideArmsToSafePositionsSelected(void)
 }
 
 //--------------------------------------------------------------------------
-//SEGREGACIÓN DE POSICIONADORES:
+//METHODS TO SEGREGATE RPs:
 
 //segrega los posicionadores en dos listas:
 //      lista con el brazo dentro del área de seguridad;
 //      lista con el brazo fuera del área de seguridad;
 void TRoboticPositionerList1::SegregateInOut(TRoboticPositionerList1 &Inners,
-        TRoboticPositionerList1 &Outsiders)
+        TRoboticPositionerList1 &Outsiders) const
 {
         //reinicializa las listas
         Inners.Clear();
@@ -1500,7 +1519,7 @@ void TRoboticPositionerList1::SegregateInOut(TRoboticPositionerList1 &Inners,
 }
 
 //segregates the operative RPs in unsecure positions
-void TRoboticPositionerList1::segregateOperativeOutsiders(TRoboticPositionerList1& Outsiders)
+void TRoboticPositionerList1::segregateOperativeOutsiders(TRoboticPositionerList1& Outsiders) const
 {
     Outsiders.Clear();
     for(int i=0; i<getCount(); i++) {
@@ -1510,8 +1529,21 @@ void TRoboticPositionerList1::segregateOperativeOutsiders(TRoboticPositionerList
     }
 }
 
+//segregates the operative RPs in security positions
+//out the origins
+void TRoboticPositionerList1::segregateOperativeInnersOutTheOrigins(
+        TRoboticPositionerList1& Inners) const
+{
+    Inners.Clear();
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->getOperative() && RP->getActuator()->ArmIsInSafeArea() && RP->getActuator()->isOutTheOrigin())
+            Inners.Add(RP);
+    }
+}
+
 //segregates the collided RPs
-void TRoboticPositionerList1::segregateCollided(TRoboticPositionerList1& Collided)
+void TRoboticPositionerList1::segregateCollided(TRoboticPositionerList1& Collided) const
 {
     Collided.Clear();
     for(int i=0; i<getCount(); i++) {
@@ -1522,7 +1554,7 @@ void TRoboticPositionerList1::segregateCollided(TRoboticPositionerList1& Collide
 }
 
 //segrega losposicionadores seleccionados en una lista
-void TRoboticPositionerList1::SegregateSelected(TRoboticPositionerList1& RPL)
+void TRoboticPositionerList1::SegregateSelected(TRoboticPositionerList1& RPL) const
 {
         //inicializa la lista de posicionadores
         RPL.Clear();
@@ -2001,7 +2033,6 @@ int TRoboticPositionerList1::RandomizeWithoutCollisionSelected(void)
 {
         TRoboticPositioner *RP;
         bool collision;
-        int j;
         int count = 0;
 
         //para cada posicionador de la lista
@@ -2091,7 +2122,6 @@ int TRoboticPositionerList1::RandomizeP3WithoutCollisionSelected(void)
 {
         TRoboticPositioner *RP;
         bool collision;
-        int j;
         int count = 0;
 
         //para cada posicionador de la lista de osicionadores
@@ -2175,7 +2205,7 @@ void TRoboticPositionerList1::TranslateMotionProgram(AnsiString& S, int CBId,
             TRoboticPositioner *RP = Items[k];
 
             //set the instruction to the RP
-            RP->SetInstruction(MI->Instruction);
+            RP->setInstruction(MI->Instruction);
         }
 
         //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
@@ -2190,20 +2220,27 @@ void TRoboticPositionerList1::TranslateMotionProgram(AnsiString& S, int CBId,
             //point the indicated RP to facilitate its access
             TRoboticPositioner *RP = Items[j];
 
-            //if there is programmed a motion for rotor 1
-            if(RP->CMF.getMF1() != NULL) {
+            //if there is a gesture programmedfor the RP
+            if(RP->CMF.getMF1()!=NULL || RP->CMF.getMF2()!=NULL) {
+                //print the programmed a motion for rotor 1
                 //print the identifier of RP and the identifier of the rotor
                 S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r1");
-                //print the final position
-                S += AnsiString(" ")+RP->CMF.getMF1()->getpfinText();
-            }
+                if(RP->CMF.getMF1() != NULL)
+                    //print the final position
+                    S += AnsiString(" ")+RP->CMF.getMF1()->getpfinText();
+                else
+                    //print the final position
+                    S += AnsiString(" ")+RP->getActuator()->getp_1Text();
 
-            //if there is programmed a motion for rotor 2
-            if(RP->CMF.getMF2() != NULL) {
+                //print the programmed a motion for rotor 2
                 //print the identifier of RP and the identifier of the rotor
                 S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r2");
-                //print the final position
-                S += AnsiString(" ")+RP->CMF.getMF2()->getpfinText();
+                if(RP->CMF.getMF2() != NULL)
+                    //print the final position
+                    S += AnsiString(" ")+RP->CMF.getMF2()->getpfinText();
+                else
+                    //print the final position
+                    S += AnsiString(" ")+RP->getActuator()->getArm()->getp___3Text();
             }
         }
 

@@ -828,6 +828,9 @@ public:
     //si no hay una posisición almacenada para algún rotor:
     //      lanza EImproperCall
     void Restorethetas(void);
+    //determines if:
+    //the rotors of the RP not coincide with the last stacked positions
+    bool thetasNotCoincideWithStacked(void);
     //desempila las últimas posiciones apiladas de los rotores
     //si no hay una posisición almacenada para algún rotor:
     //      lanza EImproperCall
@@ -860,31 +863,34 @@ public:
     void RestoreAndPopQuantifys(void);
 
     //------------------------------------------------------------------
-    //MÉTODOS PARA DETERMINAR LA POSICIÓN RELATIVA DEL BRAZO:
+    //METHODS TO DETERMINE THE RELATIVE POSITION OF THE ACTUATOR:
 
     //determina si un ángulo del eje 2 en radianes
     //está fuera del área de seguridad
-    bool theta___3IsOutSafeArea(double theta___3);
+    bool theta___3IsOutSafeArea(double theta___3) const;
     //determina si un ángulo del eje 2 en radianes
     //está dentro del área de seguridad
-    bool theta___3IsInSafeArea(double theta___3);
+    bool theta___3IsInSafeArea(double theta___3) const;
 
     //determina si un ángulo del eje 2 en pasos
     //está fuera del área de seguridad
-    bool p___3IsOutSafeArea(double p___3);
+    bool p___3IsOutSafeArea(double p___3) const;
     //determina si un ángulo del eje 2 en pasos
     //está dentro del área de seguridad
-    bool p___3IsInSafeArea(double p___3);
+    bool p___3IsInSafeArea(double p___3) const;
 
     //determina si un punto está fuera del área de seguridad
-    bool P3IsOutSafeArea(TDoublePoint P);
+    bool P3IsOutSafeArea(TDoublePoint P) const;
     //determina si un punto está dentro del área de seguridad
-    bool P3IsInSafeArea(TDoublePoint P);
+    bool P3IsInSafeArea(TDoublePoint P) const;
 
     //determina si el brazo está fuera del área deseguridad
-    bool ArmIsOutSafeArea(void);
+    bool ArmIsOutSafeArea(void) const;
     //determina si el brazo está dentro del área de seguridad
-    bool ArmIsInSafeArea(void);
+    bool ArmIsInSafeArea(void) const;
+
+    //determine if sny rotor of the actuator is out the origin
+    bool isOutTheOrigin(void) const;
 
     //MÉTODOS PARA DETERMINAR EL PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL EJE 1:
 
