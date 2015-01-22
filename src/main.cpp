@@ -1,3 +1,28 @@
+// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Institute of Astrophysics of Andalusia, IAA-CSIC
+//
+// This file is part of FMPT (Fiber MOS Positioning Tools)
+//
+// FMPT is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+//---------------------------------------------------------------------------
+//File: main.cpp
+//Content: lista de elementos genéricos
+//Last update: 23/01/2015
+//Author: Isaac Morales Durán
+//---------------------------------------------------------------------------
+
 #include "FileMethods.h"
 #include "MotionProgramGenerator.h"
 #include "Strings.h"
@@ -73,7 +98,7 @@ int main(int argc, char *argv[])
     try {
         //la llamada a fmpt_saa debe contener un argumento
         if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/'))
-            throw EImproperArgument("missing argument.\r\nfmpt_saa <path>\r\n\t<path>: absolute path to file containing a PP list.");
+            throw EImproperArgument("missing argument.\r\nfmpt_saa <path>\r\n\t<path>: absolute path to file containing a PP table.");
 
         //indicates that the program is running
         append(AnsiString("Program fmpt_saa is running..."));

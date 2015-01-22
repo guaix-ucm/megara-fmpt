@@ -1,3 +1,21 @@
+// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Institute of Astrophysics of Andalusia, IAA-CSIC
+//
+// This file is part of FMPT (Fiber MOS Positioning Tools)
+//
+// FMPT is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 //---------------------------------------------------------------------------
 //Archivo: RoboticPositionerList3.h
 //Contenido: lista de posicionadores con funciones de programación y ejecución
@@ -6,6 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "RoboticPositionerList3.h"
+#include "Strings.h"
 
 //#include <QTimer>
 
@@ -683,6 +702,117 @@ void TRoboticPositionerList::TimerTimer(void)
         }
 }
 */
+//METHODS TO TRANSLATE MOTION PROGRAMS:
+
+//Translate the motion progam to the format stablished for
+//the interface FMPT-MCS.
+//Preconditions:
+//  All message of instructions of the motion program
+//  shall be addressed to an existing RP.
+void TRoboticPositionerList::TranslateMotionProgram(AnsiString& S, int CBId,
+    const TPairPositionAnglesList& IPL, const TMotionProgram& MP)
+{
+    //VERIFIES THE PRECONDITIONS:
+
+    //all message of instructions of the motion program shall be addressed to an existing RP
+    for(int i=0; i<MP.getCount(); i++) {
+        const TMessageList *ML = MP.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int k = SearchId(MI->getId());
+            if(k >= getCount())
+                throw EImproperArgument("invalid motion program because contains a message of instrucction addressed to a nonexistent RP");
+        }
+    }
+
+    //the initial position list must has a PPA for each RP
+    if(IPL.getCount() != getCount())
+        throw EImproperArgument("the initialposition list must have a PPA for each RP");
+
+    //TRANSLATE THE MOTION PROGRAM:
+
+    //stores the initial status of the RPs
+//    TRoboticPositionerList1 RPL(this);
+
+    //for each RP of the Fiber MOS Model
+    SetPositions(IPL);
+
+    //print the star delimiter of motion program cluster
+    S = AnsiString("obs depos_")+IntToStr(CBId)+AnsiString(" {");
+
+    //for each list of message of instructions of the motion program
+    for(int i=0; i<MP.getCount(); i++) {
+        //points the indicated message list to facilitate its access
+        const TMessageList *ML = MP.GetPointer(i);
+
+        //initialices the CMF of all RPs
+        this->ClearInstructions();
+
+        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
+
+        //print the start delimiter of goup i
+        S += AnsiString("\r\n\tgroup_");
+        S += strInsertChar(IntToStr(i+1), 2);
+        S += AnsiString(" {");
+
+        //for each MI of the list
+        for(int j=0; j<ML->getCount(); j++) {
+            //point the indicated MI to facilitate its access
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //search the RP to which the message is addressed
+            int k = SearchId(MI->getId());
+
+            //point the found RP to facilitate its access
+            TRoboticPositioner *RP = Items[k];
+
+            //set the instruction to the RP
+            RP->setInstruction(MI->Instruction);
+
+            //if there is a gesture programmedfor the RP
+            if(RP->CMF.getMF1()!=NULL || RP->CMF.getMF2()!=NULL) {
+                //print the programmed a motion for rotor 1
+                if(RP->CMF.getMF1()!=NULL && RP->CMF.getMF1()->getpfinText()!=RP->getActuator()->getp_1Text()) {
+                    //print the identifier of RP and the identifier of the rotor
+                    S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r1");
+                    //print the new final position
+                    S += AnsiString(" ")+RP->CMF.getMF1()->getpfinText();
+                }
+//                else
+                    //print the same final position
+//                    S += AnsiString(" ")+RP->getActuator()->getp_1Text();
+
+                //print the programmed a motion for rotor 2
+                if(RP->CMF.getMF2()!=NULL && RP->CMF.getMF2()->getpfinText()!=RP->getActuator()->getArm()->getp___3Text()) {
+                    //print the identifier of RP and the identifier of the rotor
+                    S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r2");
+                    //print the new final position
+                    S += AnsiString(" ")+RP->CMF.getMF2()->getpfinText();
+                }
+//                else
+                    //print the same final position
+//                    S += AnsiString(" ")+RP->getActuator()->getArm()->getp___3Text();
+            }
+        }
+
+        //print the end delimiter of group i
+        S += AnsiString("\r\n\t}");
+
+        //MOVE ALL RPs TO ITS PROGRAMMED FINAL POSITIONS:
+
+        MoveFin();
+/*        //for each RP of the Fiber MOS Model
+        for(int i=0; i<getCount(); i++)
+            //move the RP to its programmed final positions
+            Items[i]->MoveFin();*/
+    }
+    //print the end delimiter of motion program cluster
+    S += AnsiString("\r\n}");
+
+    //recovers the initial status of the RPs
+//    Clone(RPL);
+}
+
 //---------------------------------------------------------------------------
 
 } //namespace Models

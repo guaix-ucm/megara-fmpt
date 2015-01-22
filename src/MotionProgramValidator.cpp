@@ -1,3 +1,21 @@
+// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Institute of Astrophysics of Andalusia, IAA-CSIC
+//
+// This file is part of FMPT (Fiber MOS Positioning Tools)
+//
+// FMPT is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 //---------------------------------------------------------------------------
 //Archivo: MotionProgramValidator.cpp
 //Contenido: validador de programas de movimiento
@@ -329,20 +347,13 @@ void TMotionProgramValidator::getRPsIncludedInMP(TRoboticPositionerList& RPL,
 {
     //CHECK THE PRECONDITION:
 
-    //for each message instruction list of the motion program
+    //chack if all message of instruction in the MP are addressed to an existent RP of the Fiber MOS Model
     for(int i=0; i<MP.getCount(); i++) {
-        //point the message instruction list to facilitate its access
         const TMessageList *ML = MP.GetPointer(i);
-
-        //for each message of instruction
         for(int j=0; j<ML->getCount(); j++) {
-            //point themessage of instruction to facilitate its access
             const TMessageInstruction *MI = ML->GetPointer(j);
-            //search the identified RP in the Fiber MOS Model
             int k = getFiberMOSModel()->RPL.SearchId(MI->getId());
-            //if not has found the identified RP
             if(k >= getFiberMOSModel()->RPL.getCount())
-                //indicates that precontition is not accomplished
                 throw EImproperArgument("all message of instruction in the MP shall be addressed to an existent RP of the Fiber MOS Model");
         }
     }
@@ -354,21 +365,24 @@ void TMotionProgramValidator::getRPsIncludedInMP(TRoboticPositionerList& RPL,
 
     //for each message instruction list of the motion program
     for(int i=0; i<MP.getCount(); i++) {
-        //point the message instruction list to facilitate its access
         const TMessageList *ML = MP.GetPointer(i);
-
-        //for each message of instruction
         for(int j=0; j<ML->getCount(); j++) {
-            //point themessage of instruction to facilitate its access
             const TMessageInstruction *MI = ML->GetPointer(j);
+
             //search the identifier RP in the Fiber MOS Model
             int k = getFiberMOSModel()->RPL.SearchId(MI->getId());
             //if not has found the identifier Id
             if(k >= getFiberMOSModel()->RPL.getCount())
                 //indicates lateral effect
                 throw EImpossibleError("lateral effect");
-            else
-                RPL.Add(getFiberMOSModel()->RPL[k]);
+            //if has found the identifier Id
+            else {
+                //actualice the RPL avoiding repetitions
+                TRoboticPositioner *RP = getFiberMOSModel()->RPL[k];
+                int l = RPL.SearchId(RP->getActuator()->getId());
+                if(l >= RPL.getCount())
+                    RPL.Add(getFiberMOSModel()->RPL[k]);
+            }
         }
     }
 }
@@ -408,18 +422,14 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
         //indicates that the motion program notavoid dynamic collision
         return true;
 
-    //CEHCK THE FOLLOWING STEPPING POSITIONS TO END:
+    //CHECK THE FOLLOWING STEPPING POSITIONS TO END:
 
-    //for each message of instruction list of the motion program
+    //search a collision in each gesture
     for(int i=0; i<MP.getCount(); i++) {
-        //point the indicated message list to facilitate its access
         const TMessageList *ML = MP.GetPointer(i);
 
-        //PROGRAM THE GESTURE:
-
-        //clear theprograms of all RPs
+        //program the gesture
         getFiberMOSModel()->RPL.ClearInstructions();
-        //set the instructions to their respectives RPs
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *M = ML->GetPointer(j);
             getFiberMOSModel()->RPL.SetInstruction(M->getId(), M->Instruction);
@@ -429,40 +439,44 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
 
         double Tfmin; //minimun free time
 
-        //initialize the simulation time
-        double t = 0;
         //get the time of displacement
         double Tdis = getFiberMOSModel()->RPL.getTdis();
-        //while there is time of displacement
+        //initialize the simulation time
+        double t = 0;
+        //while has not reached the end
         while(t < Tdis) {
-            //calculates the minimun free time
+            //calculates the minimun free time of the RPL
             Tfmin = calculateTfmin(RPL);
             //if there is collision
-            if(Tfmin <= 0)
+            if(Tfmin < 0)
                 //indicates that the motion program produces a collision
                 return true;
-            //apply the lower bound for displacement
+            //calculates and applies the minimun jump of the RPL
             double Tmin = calculateTminmin(RPL);
             if(Tfmin < Tmin)
                 Tfmin = Tmin;
 
-            //advance simulation
-            t += Tfmin;
-
-            //NOTA: numerical error accumulated in t is aclipsed by
-            //the margins of Tfmin.
-
             //move the rotors of the RPs to time t
             getFiberMOSModel()->RPL.Move(t);
 
-        } while(t < Tdis);
+            //advance simulation
+            t += Tfmin;
+
+            //NOTE: numerical error accumulated in t is eclipsed by
+            //the additional margins of Tfmin. Tfmin has additional margins
+            //due to the trayectory of all points of the armis circular.
+
+        } //while(t < Tdis);
 
         //calculates the minimun free time
         Tfmin = calculateTfmin(RPL);
         //if there is collision
         if(Tfmin <= 0)
-            //indicates that the motion program not avoid collision
+            //indicates that the motion program not avoid dynamic collision
             return true;
+
+        //move the rotors of the RPs to final positions
+        getFiberMOSModel()->RPL.MoveFin();
     }
 
     //indicates that motion program avoid dynamic collision

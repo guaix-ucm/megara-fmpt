@@ -1,3 +1,21 @@
+// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Institute of Astrophysics of Andalusia, IAA-CSIC
+//
+// This file is part of FMPT (Fiber MOS Positioning Tools)
+//
+// FMPT is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 //---------------------------------------------------------------------------
 //File: MotionProgramGenerator.cpp
 //Content: generador de programas de movimiento
@@ -736,7 +754,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                 if(l >= getFiberMOSModel()->RPL.getCount())
                     throw EImproperArgument("All RPs of DDS shall be in the Fiber MOS Model.");
                 if(RP->getActuator()->ThereIsCollisionWithAdjacent())
-                    throw EImproperArgument("All RPs of DDS shall be freeof dynamic collisions.");
+                    throw EImproperArgument("All RPs of DDS shall be free of dynamic collisions.");
                 if(RP->getActuator()->ArmIsInSafeArea())
                     throw EImproperArgument("All RPs of DDS shall be in insecurity position.");
                 if(!RP->getActuator()->getQuantify_() || !RP->getActuator()->getArm()->getQuantify___())
@@ -780,7 +798,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
     //  are in insecurity position.
     //  have the quantifiers enabled.
     //  are free of dynamic collisions.
-    //  have programmed a gesture of radial retraction.
+    //  have programmed a gesture of retraction.
 
     //SIMULATES THE RADIAL RETRACTION SOLVING DYNAMIC COLLISIONS BY ROTOR 1 TURNS:
 
@@ -801,10 +819,8 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
 
                 //get the simulation period
                 double T = RP->CMF.gettendmax();
-
-                //determines the minimun jump
+                //calculates the minimun jump of the RP
                 double Tminmin = calculateTminmin(RP);
-
                 //initialize the simulation time
                 double t = 0;
 
@@ -815,7 +831,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                     double st = Max(Tfmin, Tminmin);
                     //calculates the new time
                     t += st;
-                    //move the RP to new time
+                    //move the RP to the time of simulation
                     RP->Move(t);
                     //determines the collision status of the RP
                     bool collision = RP->getActuator()->ThereIsCollisionWithAdjacent();
@@ -826,7 +842,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                         double p_1new;
                         bool itispossible = collisionCanBesolved(p_1new, RP);
 
-                        //here p_1new will be ever in the rotor 1 domain
+                        //here p_1new shall be in the rotor 1 domain
                         if(RP->getActuator()->IsntInDomainp_1(p_1new))
                             throw EImpossibleError("p_1new shall be in the rotor 1 domain");
 
@@ -837,11 +853,11 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                             //displace the rotor 1 to the new position angle
                             RP->getActuator()->setp_1(p_1new);
 
-                            //displaces the limits of motion function of rotor 1
+                            //calculates the limits of the new interval of displacement of rotor 1
                             double dp = double(p_1new - p_1act);
                             double psta = RP->CMF.getMF1()->getpsta() + dp;
                             double pfin = RP->CMF.getMF1()->getpfin() + dp;
-                            //constrict the motion funtion to the domain of its rotor
+                            //constrict the limits to the domain of the rotor
                             double p_1min = RP->getActuator()->getp_1min();
                             double p_1max = RP->getActuator()->getp_1max();
                             if(psta < p_1min)
@@ -852,6 +868,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                                 pfin = p_1min;
                             else if(pfin > p_1max)
                                 pfin = p_1max;
+                            //set the limis of the new interval to themotion function of the rotor
                             RP->CMF.getMF1()->SetInterval(psta, pfin);
 
                             //The displacement of a motion function can produce
@@ -863,17 +880,20 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
 
                             //if there is collision in the new starting position
                             if(RP->getActuator()->ThereIsCollisionWithAdjacent())
-                                //indicates that isn't possiblesolve the collision
+                                //indicates that isn't possible solve the collision
                                 T = 0;
                         }
                         //if it isn't possible solve the collision
                         else {
-                            //indicates that isn't possiblesolve the collision
+                            //indicates that isn't possible solve the collision
                             T = 0;
                         }
                     }
-                //while there istime simulation
+                //while has not reached the end
                 } while(t < T);
+
+                //ERROR: determine the Tfmin is equivalent to determine the collision status,
+                //reason why the block of code above, can be wrote more eficient.
 
                 //if has finished the simulation period avoiding collision
                 if(T > 0)
@@ -1212,6 +1232,11 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
                     RPsToBeRetracted.Add(RP);
                 }
         }
+        //sort the list RPsToBeRetracted
+        RPsToBeRetracted.Compare = TRoboticPositioner::CompareIds;
+        RPsToBeRetracted.SortInc();
+
+        //Sort the RPs isn't really necessary, but is recomendable because produce a more legible output.
 
         //GET THE MESSAGE-INSTRUCTION LIST CORRESPONDING TO THE RPsToBeRetracted:
 
@@ -1254,8 +1279,11 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
         //indicates that not can find a solution
         return false;
 
-    //restore and discard the stacked initial positions
-    getFiberMOSModel()->RPL.RestoreAndPopPositions();
+    //discard the stacked initial positions
+    getFiberMOSModel()->RPL.PopPositions();
+
+    //WRNING: all RPs retracted shall stay in security positions,
+    //to allow add a message list to go to the origins.
 
     //indicates in the obstructed list, the operative RPs which remain in unsequrity positions
     //and are in the outsiders list
