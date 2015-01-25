@@ -91,7 +91,7 @@ public:
 
     //Programs the retraction of all RP of the list Outsiders_.
     //Preconditions:
-    //  All RPs of the list Outsiders_ shall be in unsecurity position.
+    //  All RPs of the list Outsiders_ shall be in unsecure position.
     //  All RPs of the list Outsiders_ shall has enabled the quantifiers.
     void programRetraction(TRoboticPositionerList &Outsiders_);
 
@@ -173,7 +173,7 @@ public:
     //  All RPs of the Fiber MOS Model shall be configurated to
     //  motion program generation.
     //  All RPs of DDS shall be in the Fiber MOS  Model
-    //  All RPs of DDS shall be in insecurity position
+    //  All RPs of DDS shall be in insecure position
     //  All RPs of DDS shall have enabled the quantifiers
     //  All RPs of DDS shall be free of dynamic collisions
     //  All RPs of DDS shall to have programmed a gesture of retraction
@@ -187,7 +187,7 @@ public:
       TPointersList<TPointersList<TRoboticPositionerList> >& InvadersDDS,
       TPointersList<TPointersList<TRoboticPositionerList> >& DDS);
 
-    //get and add to the DP, the corresponding list or lists
+    //Add to the DP, the corresponding list or lists
     //of message of instructions
     //Inputs:
     //  RPsToBeRetracted: list of the RPs which has been retracted.
@@ -199,10 +199,10 @@ public:
     //      positions of their rotors.
     //  All RPs of the list RPsToBeRetracted shall be in their stacked positions.
     //  All RPs of the list RPsToBeRetracted shall have programmed a gesture.
-    void getTheMessageLists(TMotionProgram& DP,
+    void addMessageLists(TMotionProgram& DP,
             const TRoboticPositionerList& RPsToBeRetracted);
 
-    //add to the DP the message-instruction list to move the RPs
+    //Add to the DP the message-instruction list to move the RPs
     //of the list Inners to the origins
     //Inputs:
     //  Inners: list of operative RPs in seciry position out the origin.
@@ -211,32 +211,94 @@ public:
     //Preconditions:
     //  All RPs of the list Inners shall be operatives in secure position
     //  but out the origin.
-    void getTheMessageListToGoToTheOrigins(TMotionProgram& DP,
+    void addMessageListToGoToTheOrigins(TMotionProgram& DP,
         const TRoboticPositionerList& Inners);
 
-    //Generates a DP for a given set of operative RPs in unsecurity
-    //positions and determines the RPs of the given set,
+    //NOTE: nomenclature:
+    //- Positioning Program: to go the observing positiong, need has a first
+    //  gesture to go to the starting positions in the secure area.
+    //- Depositioning Program: antagonicus of PP, include a final gesture
+    //  tomove therotors to their origins.
+    //- Recovery Program: is a DP without the final gesture to go to the
+    //  origins.
+    //- Parking Gesture: gesture to mo the rotors to their origins.
+
+    //Generates a recovery program for a given set of operative RPs
+    //in unsecure positions and determines the RPs of the given set,
     //which can not be recovered because are in collision status
-    //or because are obstructed in unsecurity positions.
+    //or because are obstructed in unsecure positions.
     //Preconditions:
     //  All RPs of the Fiber MOS Model, shall be in their initial positions.
-    //  All RPs of the list Outsidersm shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in unsecurity positions.
+    //  All RPs of the list Outsiders, shall be in unsecure positions.
     //  All RPs of the list Outsiders, shall have enabled the quantifiers.
     //Inputs:
     //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
-    //  Outsiders: list of operative RPs in insecurity positions which
+    //  Outsiders: list of operative RPs in insecure positions which
     //      we want recover the security positions.
     //Outputs:
     //  generateDepositioningProgram: flag indicating if the DP can be
     //      generated or not with this function.
-    //  Collided: list of RPs collided in unsecurity position.
-    //  Obstructed: list of RPs obstructed in unsecurity position.
+    //  Collided: list of RPs collided in unsecure position.
+    //  Obstructed: list of RPs obstructed in unsecure position.
+    //  MP: recovery program.
+    bool generateRecoveryProgram(TRoboticPositionerList& Collided,
+        TRoboticPositionerList& Obstructed, TMotionProgram& MP,
+        const TRoboticPositionerList& Outsiders);
+
+    //Generates a depositioning program for a given set of operative RPs
+    //in unsecure positions and determines the RPs of the given set,
+    //which can not be recovered because are in collision status
+    //or because are obstructed in unsecure positions.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be operatives.
+    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //Inputs:
+    //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
+    //  Outsiders: list of operative RPs in insecure positions which
+    //      we want recover the security positions.
+    //Outputs:
+    //  generateParkingProgram: flag indicating if the parking program
+    //      can be generated or not with this function.
+    //  Collided: list of RPs collided in unsecure position.
+    //  Obstructed: list of RPs obstructed in unsecure position.
     //  DP: depositioning program.
     bool generateDepositioningProgram(TRoboticPositionerList& Collided,
         TRoboticPositionerList& Obstructed, TMotionProgram& DP,
         const TRoboticPositionerList& Outsiders);
+
+    //Generates a positioning program from a given depositioning program.
+    void generatePositioningProgram(TMotionProgram& PP,
+        const TMotionProgram& DP, const TPairPositionAnglesList& IPL);
+
+    //Generates a pair (PP, DP) for a given set of operative RPs
+    //in unsecure positions and determines the RPs of the given set,
+    //which can not be recovered because are in collision status
+    //or because are obstructed in unsecure positions.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model, shall be in their observing positions.
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be operatives.
+    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //Inputs:
+    //  FiberMOSModel: Fiber MOS Model with RPs in their observing positions.
+    //  Outsiders: list of operative RPs in insecure positions which
+    //      we want recover the security positions.
+    //Outputs:
+    //  generateParkingProgram: flag indicating if the pair (PP, DP)
+    //      can be generated or not with this function.
+    //  Collided: list of RPs collided in unsecure position.
+    //  Obstructed: list of RPs obstructed in unsecure position.
+    //  PP: positioning program.
+    //  DP: depositioning program.
+    bool generatePairPPDP(TRoboticPositionerList& Collided,
+        TRoboticPositionerList& Obstructed, TMotionProgram& PP,
+        TMotionProgram& DP, const TRoboticPositionerList& Outsiders);
 };
 
 //---------------------------------------------------------------------------

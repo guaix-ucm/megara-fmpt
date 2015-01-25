@@ -60,18 +60,18 @@ TMotionProgramGenerator::~TMotionProgramGenerator(void)
 //program the retraction of all RP of the list Outsiders
 //Preconditions:
 //  All RPs of the list Outsiders shall has enabled the quantifiers.
-//  All RPs of the list Outsiders shall be in unsecurity position.
+//  All RPs of the list Outsiders shall be in unsecure position.
 void TMotionProgramGenerator::programRetraction(TRoboticPositionerList &Outsiders)
 {
     //CHECK THE PRECONDITIONS:
 
-    //all RPs of thelist Outsiders shall has enabled the quantifiers and shall be in unsecurity position
+    //all RPs of thelist Outsiders shall has enabled the quantifiers and shall be in unsecure position
     for(int i=0; i<Outsiders.getCount(); i++) {
         TRoboticPositioner *RP = Outsiders.Get(i);
         if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
             throw EImproperArgument("all positioners in the list Outsiders should has enabled the quantifiers");
         if(RP->getActuator()->ArmIsInSafeArea())
-            throw EImproperArgument("all positioners in the list Outsiders should be in unsecurity position");
+            throw EImproperArgument("all positioners in the list Outsiders should be in unsecure position");
     }
 
 
@@ -715,7 +715,7 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
 //  All RPs of the Fiber MOS Model shall be configurated to
 //  motion program generation (Purpose =pGen).
 //  All RPs of DDS shall be in the Fiber MOS  Model
-//  All RPs of DDS shall be in insecurity position
+//  All RPs of DDS shall be in insecure position
 //  All RPs of DDS shall have enabled the quantifiers
 //  All RPs of DDS shall be free of dynamic collisions
 //  All RPs of DDS shall to have programmed a gesture of retraction
@@ -740,7 +740,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
 
     //All RPs of DDS:
     //  shall be in the Fiber MOS  Model.
-    //  shall be in insecurity position.
+    //  shall be in insecure position.
     //  shall have enabled the quantifiers.
     //  shall be free of dynamic collisions.
     //  shall to have programmed a gesture of retraction.
@@ -756,7 +756,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                 if(RP->getActuator()->ThereIsCollisionWithAdjacent())
                     throw EImproperArgument("All RPs of DDS shall be free of dynamic collisions.");
                 if(RP->getActuator()->ArmIsInSafeArea())
-                    throw EImproperArgument("All RPs of DDS shall be in insecurity position.");
+                    throw EImproperArgument("All RPs of DDS shall be in insecure position.");
                 if(!RP->getActuator()->getQuantify_() || !RP->getActuator()->getArm()->getQuantify___())
                     throw EImproperArgument("All RPs of DDS shall have enabled the quantifiers.");
                 if(RP->CMF.getMF1()==NULL || RP->CMF.getMF2()==NULL)
@@ -795,7 +795,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
     //Here all RPs of RetractilesDDS accomplish the preconditions:
     //  are configurated to motion program generation.
     //  are in the Fiber MOS  Model.
-    //  are in insecurity position.
+    //  are in insecure position.
     //  have the quantifiers enabled.
     //  are free of dynamic collisions.
     //  have programmed a gesture of retraction.
@@ -959,7 +959,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
     }
 }
 
-//get and add to the DP, the corresponding list or lists
+//Add to the DP, the corresponding list or lists
 //of message of instructions
 //Inputs:
 //  RPsToBeRetracted: list of the RPs which has been retracted.
@@ -971,7 +971,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
 //      positions of their rotors.
 //  All RPs of the list RPsToBeRetracted shall be in their stacked positions.
 //  All RPs of the list RPsToBeRetracted shall have programmed a gesture.
-void TMotionProgramGenerator::getTheMessageLists(TMotionProgram& DP,
+void TMotionProgramGenerator::addMessageLists(TMotionProgram& DP,
         const TRoboticPositionerList& RPsToBeRetracted)
 {
     //CHECK THE PRECONDITIONS:
@@ -1037,7 +1037,7 @@ void TMotionProgramGenerator::getTheMessageLists(TMotionProgram& DP,
     DP.Add(ML);
 }
 
-//add to the DP the message-instruction list to move the RPs
+//Add to the DP the message-instruction list to move the RPs
 //of the list Inners to the origins
 //Inputs:
 //  Inners: list of operative RPs in seciry position out the origin.
@@ -1046,7 +1046,7 @@ void TMotionProgramGenerator::getTheMessageLists(TMotionProgram& DP,
 //Preconditions:
 //  All RPs of the list Inners shall be operatives in secure position
 //  but out the origin.
-void TMotionProgramGenerator::getTheMessageListToGoToTheOrigins(TMotionProgram& DP,
+void TMotionProgramGenerator::addMessageListToGoToTheOrigins(TMotionProgram& DP,
     const TRoboticPositionerList& Inners)
 {
     //check the preconditions
@@ -1084,45 +1084,45 @@ void TMotionProgramGenerator::getTheMessageListToGoToTheOrigins(TMotionProgram& 
         delete ML;
 }
 
-//Generates a DP for a given set of operative RPs in unsecurity
-//positions and determines the RPs of the given set,
+//Generates a recovery program for a given set of operative RPs
+//in unsecure positions and determines the RPs of the given set,
 //which can not be recovered because are in collision status
-//or because are obstructed in unsecurity positions.
+//or because are obstructed in unsecure positions.
 //Preconditions:
 //  All RPs of the Fiber MOS Model, shall be in their initial positions.
-//  All RPs of the list Outsidersm shall be in the Fiber MOS Model.
+//  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
-//  All RPs of the list Outsiders, shall be in unsecurity positions.
+//  All RPs of the list Outsiders, shall be in unsecure positions.
 //  All RPs of the list Outsiders, shall have enabled the quantifiers.
 //Inputs:
 //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
-//  Outsiders: list of operative RPs in insecurity positions which
+//  Outsiders: list of operative RPs in insecure positions which
 //      we want recover the security positions.
 //Outputs:
 //  generateDepositioningProgram: flag indicating if the DP can be
 //      generated or not with this function.
-//  Collided: list of RPs collided in unsecurity position.
-//  Obstructed: list of RPs obstructed in unsecurity position.
-//  DP: depositioning program.
-bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerList& Collided,
-    TRoboticPositionerList& Obstructed, TMotionProgram& DP,
+//  Collided: list of RPs collided in unsecure position.
+//  Obstructed: list of RPs obstructed in unsecure position.
+//  RP: recovery program.
+bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Collided,
+    TRoboticPositionerList& Obstructed, TMotionProgram& MP,
     const TRoboticPositionerList& Outsiders)
 {
     //CHECK THE PRECONDITIONS:
 
-    //All RPs of the list Outsidersm shall be in the Fiber MOS Model.
+    //All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //All RPs in the list Outsiders, shall be operatives.
-    //All RPs in the list Outsiders, shall be in unsecurity positions.
+    //All RPs in the list Outsiders, shall be in unsecure positions.
     //All RPs in the list Outsiders, shall have enabled the quantifiers.
     for(int i=0; i<Outsiders.getCount(); i++) {
         TRoboticPositioner *RP = Outsiders[i];
         int j = getFiberMOSModel()->RPL.Search(RP);
         if(j >= getFiberMOSModel()->RPL.getCount())
-            throw EImproperArgument("All RPs of the list Outsidersm shall be in the Fiber MOS Model.");
+            throw EImproperArgument("All RPs of the list Outsiders, shall be in the Fiber MOS Model.");
         if(!RP->getOperative())
             throw EImproperArgument("All RPs in the list Outsiders, shall be operatives.");
         if(RP->getActuator()->ArmIsInSafeArea())
-            throw EImproperArgument("All RPs in the list Outsiders, shall be in unsecurity positions.");
+            throw EImproperArgument("All RPs in the list Outsiders, shall be in unsecure positions.");
         if(!RP->getActuator()->getQuantify_() || !RP->getActuator()->getArm()->getQuantify___())
             //indicates that all RPs in the list Outsiders shall have enabled the quantifiers
             throw EImproperArgument("All RPs in the list Outsiders, shall have enabled the quantifiers.");
@@ -1136,11 +1136,12 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     //segregates the RPs of the list Outsiders which are in collision status, in the list Collided
     getFiberMOSModel()->RPL.segregateCollided(Collided);
 
-    //initialize DP and Obstructed
-    DP.Clear();
+    //initialize the outputs
+    Collided.Clear();
     Obstructed.Clear();
+    MP.Clear();
 
-    //if there aren't RPs of the list Outsiders in unsecurity positions
+    //if there aren't RPs of the list Outsiders in unsecure positions
     if(Outsiders.allRPsAreInSecurePosition())
         //indicates that has found a solution, and return the empty solution
         return true;
@@ -1151,7 +1152,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     getFiberMOSModel()->RPL.PushPositions();
 
     //build the list Outsiders_ to contains the pointers to
-    //the RPs wich remain in unsecurity positions
+    //the RPs wich remain in unsecure positions
     TRoboticPositionerList Outsiders_(Outsiders);
     //program the retraction for all RPs of the list Outsiders_
     programRetraction(Outsiders_);
@@ -1160,7 +1161,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     //Each time can be only retracted some RPs of the list Outsiders_.
     //The process shall be reiterated until deplete the list.
     //The list Outsiders_ will start being a copy of the list Outsiders,
-    //which will contains the set of all RPs in unsecurity positions,
+    //which will contains the set of all RPs in unsecure positions,
     //which is to recover the security position of most of them.
     //Only the obstructed RPs will remain in the list Outsiders_.
 
@@ -1242,8 +1243,8 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
 
         //if there is some RP to be retracted
         if(RPsToBeRetracted.getCount() > 0) {
-            //get and add to the DP, the corresponding list or lists of message of instructions
-            getTheMessageLists(DP, RPsToBeRetracted);
+            //add to the MP, the corresponding list or lists of message of instructions
+            addMessageLists(MP, RPsToBeRetracted);
 
             //move the RPs to be retracted to their final positions
             RPsToBeRetracted.MoveFin();
@@ -1271,10 +1272,10 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     //while has been retracted some RP and there is more RPs which we would like attempt retract
     } while(aux1 && aux2);
 
-    //determines if the generated DP produces dynamic collisions
+    //determines if the generated MP produces dynamic collisions
     getFiberMOSModel()->RPL.RestorePositions();
-    bool collision = motionProgramIsntValid(DP);
-    //if the DP poduces dynamic collisions
+    bool collision = motionProgramIsntValid(MP);
+    //if the MP poduces dynamic collisions
     if(collision)
         //indicates that not can find a solution
         return false;
@@ -1291,6 +1292,187 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
 
     //indicates that has found a solutions, and return the DP and the obstructed list
     return true;
+}
+
+//Generates a depositioning program for a given set of operative RPs
+//in unsecure positions and determines the RPs of the given set,
+//which can not be recovered because are in collision status
+//or because are obstructed in unsecure positions.
+//Preconditions:
+//  All RPs of the Fiber MOS Model, shall be in their initial positions.
+//  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+//  All RPs of the list Outsiders, shall be operatives.
+//  All RPs of the list Outsiders, shall be in unsecure positions.
+//  All RPs of the list Outsiders, shall have enabled the quantifiers.
+//Inputs:
+//  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
+//  Outsiders: list of operative RPs in insecure positions which
+//      we want recover the security positions.
+//Outputs:
+//  generateParkingProgram: flag indicating if the parking program
+//      can be generated or not with this function.
+//  Collided: list of RPs collided in unsecure position.
+//  Obstructed: list of RPs obstructed in unsecure position.
+//  DP: depositioning program.
+bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerList& Collided,
+    TRoboticPositionerList& Obstructed, TMotionProgram& DP,
+    const TRoboticPositionerList& Outsiders)
+{
+    //attempt to generates the recovery program
+    bool success = generateRecoveryProgram(Collided, Obstructed, DP, Outsiders);
+
+    //if generation function was successfully generated
+    if(success) {
+        //Here all operative outsiders RPs which aren't obstructed are in secure position,
+        //in their final position after execute the DP.
+
+        //segregate the operative inners RPs out of the origin and sorts it
+        TRoboticPositionerList Inners;
+        getFiberMOSModel()->RPL.segregateOperativeInnersOutTheOrigins(Inners);
+        Inners.SortInc();
+
+        //Sort the RPs isn't really necessary, but is recomendable because produce a more legible output.
+
+        //generates the parking gesture for the operative RPs in secure position out the origin
+        addMessageListToGoToTheOrigins(DP, Inners);
+    }
+
+    return success;
+}
+
+//Generates a positioning program from a given depositioning program.
+void TMotionProgramGenerator::generatePositioningProgram(TMotionProgram& PP,
+    const TMotionProgram& DP, const TPairPositionAnglesList& IPL)
+{
+    //ERROR: pendient of revisión 25-01-2015
+
+    //CHECK THE PRECONDITIONS:
+
+    //shall be a PPA for each RP of the Fiber MOS Model
+    for(int i=0; i<IPL.getCount(); i++) {
+        int Id = IPL[i].getId();
+        int j = getFiberMOSModel()->RPL.SearchId(Id);
+        if(j >= getFiberMOSModel()->RPL.getCount())
+            throw EImproperArgument("shall be a PPA for each RP of the Fiber MOS Model");
+    }
+
+    //all RP sincluded in the DP shall be in the Fiber MOS Model
+    for(int i=0; i<DP.getCount(); i++) {
+        const TMessageList *ML = DP.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int k= getFiberMOSModel()->RPL.SearchId(MI->getId());
+            if(k >= getFiberMOSModel()->RPL.getCount())
+                throw EImproperArgument("all RP sincluded in the DP shall be inthe Fiber MOS Model");
+        }
+    }
+
+    //MAKE ACTIONS:
+
+    //initialize the output
+    PP.Clear();
+
+    //for each message list,move the RPs to the final position (of the gessture),
+    //and then get and insert the corresponding message list for the PP:
+
+    //initialize initial position list and final position list
+    TPairPositionAnglesList initialPositions;
+    TPairPositionAnglesList finalPositions(IPL);
+
+    //for each message list of the DP
+    for(int i=0; i<DP.getCount(); i++) {
+        const TMessageList *ML = DP.GetPointer(i);
+
+        //actualice initial positions
+        initialPositions = finalPositions;
+
+        //build the message list for contains the inverse gesture
+        TMessageList *IML = new TMessageList();
+
+        //for each message of instruction build and add the corresponding inverse message instruction
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int Id = MI->getId();
+
+            //search the initial and final positions corresponding to the message
+            int k = finalPositions.SearchId(Id);
+            if(k >= finalPositions.getCount())
+                throw EImpossibleError("lateral effect");
+            TPairPositionAngles *PPAini = initialPositions.GetPointer(k);
+            TPairPositionAngles *PPAfin = finalPositions.GetPointer(k);
+
+            //actualice the final position
+            if(MI->Instruction.getName() == "MM") {
+                PPAfin->p_1 = MI->Instruction.Args[0];
+                PPAfin->p___3 = MI->Instruction.Args[1];
+            } else if(MI->Instruction.getName() == "M1")
+                PPAfin->p_1 = MI->Instruction.Args[0];
+            else if(MI->Instruction.getName() == "M2")
+                PPAfin->p___3 = MI->Instruction.Args[0];
+
+            //set thecorresponding initial position as final position in  the inverse message of instruction
+            TMessageInstruction *IMI = new TMessageInstruction();
+            IMI->setId(Id);
+            IMI->Instruction.setName(MI->Instruction.getName());
+            if(IMI->Instruction.getName() == "MM") {
+                IMI->Instruction.Args.setCount(2);
+                IMI->Instruction.Args[0] = PPAini->p_1;
+                IMI->Instruction.Args[1] = PPAini->p___3;
+            } else if(MI->Instruction.getName() == "M1") {
+                IMI->Instruction.Args.setCount(1);
+                IMI->Instruction.Args[0] = PPAini->p_1;
+            } else if(MI->Instruction.getName() == "M2") {
+                IMI->Instruction.Args.setCount(1);
+                IMI->Instruction.Args[0] = PPAini->p___3;
+            }
+
+            //and the inverse message of instruction to the inversemessage list
+            IML->Add(IMI);
+        }
+
+        //insert the invert message list in the PP
+        PP.Insert(0, IML);
+    }
+}
+
+//Generates a pair (PP, DP) for a given set of operative RPs
+//in unsecure positions and determines the RPs of the given set,
+//which can not be recovered because are in collision status
+//or because are obstructed in unsecure positions.
+//Preconditions:
+//  All RPs of the Fiber MOS Model, shall be in their observing positions.
+//  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+//  All RPs of the list Outsiders, shall be operatives.
+//  All RPs of the list Outsiders, shall be in unsecure positions.
+//  All RPs of the list Outsiders, shall have enabled the quantifiers.
+//Inputs:
+//  FiberMOSModel: Fiber MOS Model with RPs in their observing positions.
+//  Outsiders: list of operative RPs in insecure positions which
+//      we want recover the security positions.
+//Outputs:
+//  generateParkingProgram: flag indicating if the pair (PP, DP)
+//      can be generated or not with this function.
+//  Collided: list of RPs collided in unsecure position.
+//  Obstructed: list of RPs obstructed in unsecure position.
+//  PP: positioning program.
+//  DP: depositioning program.
+bool TMotionProgramGenerator::generatePairPPDP(TRoboticPositionerList& Collided,
+    TRoboticPositionerList& Obstructed, TMotionProgram& PP,
+    TMotionProgram& DP, const TRoboticPositionerList& Outsiders)
+{
+    //captures the initial positions of the RPs in a PPA list
+    TPairPositionAnglesList IPL;
+    getFiberMOSModel()->RPL.GetPositions(IPL);
+
+    //attempt to generates the depositioning program
+    bool success = generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
+
+    //if has obtained a valid DP, generates the corresponding PP
+    if(success)
+        generatePositioningProgram(PP, DP, IPL);
+
+    //indicates the result of the generation process
+    return success;
 }
 
 //---------------------------------------------------------------------------

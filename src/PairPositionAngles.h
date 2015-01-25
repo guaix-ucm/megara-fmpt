@@ -158,6 +158,9 @@ public:
     //add the PPAs attached to the PPs of a PP list
 //    void Build(TProjectionPointList&);
 
+    //search the first PPA with a given identifier
+    int SearchId(int Id) const;
+
     //randomize the PPAs of the list
     void Randomize(double p_1min, double p_1max,
                    double p___3min, double p___3max);

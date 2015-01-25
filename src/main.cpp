@@ -258,23 +258,11 @@ int main(int argc, char *argv[])
 
         //if generation function was successfully generated
         if(success) {
-            //indicates that themotion program has been generated
-            append_("Depositioning program generated.", log_filename.c_str());
+            //indicates that the depositioning program has been generated successfully
+            append_("Depositioning program generated successfully.", log_filename.c_str());
 
-            //Here all operative outsiders RPs which aren't obstructed
-            //are in secure position, in their final position
-            //after has been execute the DP.
-
-            //segregate the operative inners RPs out of the origin and sorts it
-            TRoboticPositionerList Inners;
-            FMM.RPL.segregateOperativeInnersOutTheOrigins(Inners);
-            Inners.SortInc();
-
-            //Sort the RPs isn't really necessary, but is recomendable because produce a more legible output.
-
-            //generates the parking gesture for the operative RPs in secure position out the origin
-            MPG.getTheMessageListToGoToTheOrigins(DP, Inners);
-            append_("Message list to go the origins added to depositioning program.", log_filename.c_str());
+            //Here all operative outsiders RPs which aren't obstructed are in the origin positions,
+            //in their final position after execute the DP.
 
             //translates the depositioning program to the format of the interface MCS-FMPT
             //and save it in a file
@@ -283,36 +271,30 @@ int main(int argc, char *argv[])
             output_filename = "DP-from-"+filename;
             StrWriteToFile(output_filename, S);
             append_("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //print the other outputs in the corresponding file
-            S = AnsiString("generateDepositioningProgram: true\r\n");
-            S += AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
-            S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
-            output_filename = "others-from-"+filename;
-            StrWriteToFile(output_filename, S);
-            append_("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
         }
-        //if generation function fail
-        else {
-            //indicates that the motion program can't be generated
-            append_("Depositioning program can't' be generated.", log_filename.c_str());
-            //get and save the positions where the collision was detected
-            TPairPositionAnglesList FPL;
-            FMM.RPL.GetPositions(FPL);
-            S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
-            S += IPL.getColumnText();
-            output_filename = "FPL-from-"+filename;
-            StrWriteToFile(output_filename, S);
-            append_("Final position list (whear collission has been detected) saved in '"+output_filename+"'.", log_filename.c_str());
 
-            //print the other outputs in the corresponding file
-            S = AnsiString("generateDepositioningProgram: false\r\n");
-            S += AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
-            S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
-            output_filename = "outputs-from-"+filename;
-            StrWriteToFile(output_filename, S);
-            append_("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
-        }
+        //Here all operative outsiders RPs which aren't obstructed,can be:
+        //- in the origin positions, in their final position after execute the DP.
+        //  if success == true.
+        //- in the first position where the collision was detected.
+        //  if success == false.
+
+        //get and save the positions where the collision was detected
+        TPairPositionAnglesList FPL;
+        FMM.RPL.GetPositions(FPL);
+        S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
+        S += FPL.getColumnText();
+        output_filename = "FPL-from-"+filename;
+        StrWriteToFile("output_filename.txt", S);
+        append_("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //print the other outputs in the corresponding file
+        S = AnsiString("generateDepositioningProgram: ")+BoolToStr_(success)+AnsiString("\r\n");
+        S += AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
+        S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
+        output_filename = "outputs-from-"+filename;
+        StrWriteToFile(output_filename, S);
+        append_("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
 
         //DESTROY THE OBJECTS:
 

@@ -399,6 +399,20 @@ void TPairPositionAnglesList::Build(TProjectionPointList &PPL)
         Add(new TPairPositionAngles(PPL.GetPointer(i)));
 }
 */
+
+//search the first PPA with a given identifier
+int TPairPositionAnglesList::SearchId(int Id) const
+{
+    int i;
+    for(i=0; i<getCount(); i++) {
+        const TPairPositionAngles *PPA = Items[i];
+        if(PPA->getId() == Id)
+            return i;
+    }
+
+    return i;
+}
+
 //randomize the PPAs of the list
 void TPairPositionAnglesList::Randomize(double p_1min, double p_1max,
                double p___3min, double p___3max)
