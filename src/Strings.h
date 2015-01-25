@@ -122,6 +122,7 @@ void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
 int StrCountLines(const AnsiString &String);
 //divide una cadena por cada "\r\n" que encuentre
 void StrDivideInLines(TStrings *Lines, const AnsiString &String);
+void StrDivideInLines(TStrings& Lines, const AnsiString &String);
 //divide una cadena en palabras
 //obtiene cada palabra hasta cada secuencia de espacios o tabuladores
 void StrDivideInWords(TStrings *Words, const AnsiString &String);
@@ -131,6 +132,9 @@ void StrDivideInWords(TStringList *Words, const AnsiString &String);
 //este método es heredado por la clase hija TStringList
 //como es lógico es preferible el uso de dicho método a la función
 //StrDivideInLines(Lines, String)
+
+//separate the words between chars
+void StrSplit(TStrings&, const AnsiString&, char c);
 
 //elimina los espacios y caracteres de control marginales de una cadena
 //la cadena de destino D puede ser la misma cadena fuente S
@@ -149,6 +153,9 @@ AnsiString StrTrim(const AnsiString &S);
 //La cadena de destino D, puede ser la misma que la cadena fuente S.
 void StrFirstChars(AnsiString &D, const AnsiString &S, int LengthMax=15);
 AnsiString StrFirstChars(const AnsiString &S, int LengthMax=15);
+
+//search and return the first non separator char in a text string
+int StrSearchFirstNonseparatorChar(const AnsiString&);
 
 //rellena una cadena con caracteres hasta que alcance la longitud indicada
 void StrFill(AnsiString &S, int length, char c);

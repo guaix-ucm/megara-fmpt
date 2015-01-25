@@ -74,7 +74,7 @@ public:
     //abre el archivo de nombre FileName en el modo indicado
     //si no lo especifica solo construye el TextFile
     //si no lo puede abrir lanza una excepción ECantComplete
-    TTextFile(char *FileName=NULL, char *mode=NULL);
+    TTextFile(const char *FileName=NULL, const char *mode=NULL);
     //si el archivo no está cerrado lanza una excepción EImproperCall
     ~TTextFile();
 

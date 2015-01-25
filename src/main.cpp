@@ -25,6 +25,7 @@
 
 #include "FileMethods.h"
 #include "MotionProgramGenerator.h"
+#include "SPPP.h"
 #include "Strings.h"
 #include "TextFile.h"
 
@@ -37,10 +38,15 @@ using namespace Strings;
 using namespace Models;
 using namespace Positioning;
 
-//print a text line in the standard output
-void append(const AnsiString& S)
+//print a text line in the standard output and in the log file
+void append_(const string& str, const char *log_filename)
 {
-    std::cout << S.c_str() << endl;
+    std::cout << str.c_str() << endl;
+
+    char mode[] = "a";
+    TTextFile TF(log_filename, mode);
+    TF.Print((str+"\r\n").c_str());
+    TF.Close();
 }
 
 //To avoid need to link the Boost.System library, little functions
@@ -50,19 +56,21 @@ void append(const AnsiString& S)
 //  boost::filesystem::path filename = path.filename;
 
 //split a path
-void splitpath(AnsiString& parent_path, AnsiString& filename, AnsiString& path)
+void splitpath_(string& parent_path, string& filename, const string& path)
 {
-    int i = path.Length();
-    while(i>0 && path[i] != '/')
+    int i = path.length() - 1;
+    while(i>=0 && path[i] != '/')
             i--;
 
-    parent_path.SetLength(0);
+    parent_path.clear();
     if(i > 0)
-        parent_path = path.SubString(1, 1);
+        parent_path = path.substr(0, i);
 
-    filename.SetLength(0);
-    if(i < path.Length())
-        filename = path.SubString(i+1, path.Length());
+    filename.clear();
+    if(i < int(path.length() - 1)) {
+        int count = path.length() - 1 - i;
+        filename = path.substr(i+1, count);
+    }
 }
 
 //main program
@@ -95,13 +103,29 @@ int main(int argc, char *argv[])
 
     //------------------------------------------------------------------
 
+    //if the program is run without arguments
+    if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/')) {
+	//show the help and indicates that the program has been executed without error
+        std::cout << "missing argument.\r\nfmpt_saa <path>\r\n\t<path>: absolute or relative path to file containing a PP table." << endl;
+        return 0;
+    }
+
+    //split the path of the file containing the PP table
+    string path = string(argv[1]);
+    string parent_path, filename;
+    splitpath_(parent_path, filename, path);
+
+    //get the log filename
+    string log_filename = "log-from-"+filename;
+
     try {
-        //la llamada a fmpt_saa debe contener un argumento
-        if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/'))
-            throw EImproperArgument("missing argument.\r\nfmpt_saa <path>\r\n\t<path>: absolute path to file containing a PP table.");
+        //initalize the log file
+        char mode[] = "w";
+        TTextFile TF(log_filename.c_str(), mode);
+        TF.Close();
 
         //indicates that the program is running
-        append(AnsiString("Program fmpt_saa is running..."));
+        append_("Program fmpt_saa is running...", log_filename.c_str());
 
         //BUILDS THE OBJECTS:
 
@@ -155,39 +179,43 @@ int main(int argc, char *argv[])
         //####################################################################################################
 
         //load the instance of the Fiber MOS Model from the default directory
-        AnsiString S;
+        AnsiString DirName;
         try {
-            S = AnsiString(DATADIR)+AnsiString("/Models/MEGARA_FiberMOSModel_Instance");
-            ReadInstanceFromDir(FMM, S);
+            DirName = AnsiString(DATADIR)+AnsiString("/Models/MEGARA_FiberMOSModel_Instance");
+            ReadInstanceFromDir(FMM, DirName);
         } catch(...) {
             try {
-                S = GetCurrentDir()+AnsiString("/../data/Models/MEGARA_FiberMOSModel_Instance");
-                ReadInstanceFromDir(FMM, S);
-            } catch(Exception& E) {
-                append(AnsiString("ERROR: ")+E.Message);
-                throw E;
+                DirName = GetCurrentDir()+AnsiString("/../data/Models/MEGARA_FiberMOSModel_Instance");
+                ReadInstanceFromDir(FMM, DirName);
+            } catch(...) {
+                throw;
             }
         }
-        append(AnsiString("Fiber MOS Model instance loaded from '")+S+AnsiString("'."));
+        append_("Fiber MOS Model instance loaded from '"+DirName.str+"'.", log_filename.c_str());
 
         //load the PP table from a file
-        AnsiString FileName = AnsiString(argv[1]);
+        AnsiString S;
+        AnsiString FileName(path);
         try {
             StrReadFromFile(S, FileName);
         } catch(...) {
-                throw;
+            throw;
         }
-        append(AnsiString("PP table loaded from '")+FileName+AnsiString("'."));
+        append_("PP table loaded from '"+FileName.str+"'.", log_filename.c_str());
+
+        //translate the SPPP table to structure
+        TSPPPList SPPPL;
+        SPPPL.setTableText(S);
 
         //assign the PP table to the MPG
-        MPG.setTargetPointsText(S);
-        append("Target points allocated.");
+        SPPPL.getTPL(MPG);
+        append_("PP table allocated to the MPG.", log_filename.c_str());
 
         //MAKE THE OPERATIONS:
 
         //move the RPs to the more closer stable point to the TPs
         MPG.MoveToTargetP3();
-        append("RPs moved to target points.");
+        append_("RPs moved to target points.", log_filename.c_str());
 
         //Other way to obtain the more closer stablepoints to the PPs,
         //consist in get from the PP table the following lists:
@@ -202,8 +230,9 @@ int main(int argc, char *argv[])
         FMM.RPL.GetPositions(IPL);
         S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
         S += IPL.getColumnText();
-        StrWriteToFile("InitialPositionList.txt", S);
-        append("Initial position list saved in 'InitialPositionList.txt'.");
+        string output_filename = "IPL-from-"+filename;
+        StrWriteToFile(output_filename, S);
+        append_("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the initial position table directly in text format:
         //  FMM.RPL.getPositionsPAPTableText()
@@ -214,63 +243,93 @@ int main(int argc, char *argv[])
 
         //check the limiting case when all operative RPs are in the origin
         if(FMM.RPL.allOperativeRPsAreInTheOrigin())
-            append("WARNING: all operative RPs are in the origin. The generated DP will be empty.");
+            append_("WARNING: all operative RPs are in the origin. The generated DP will be empty.", log_filename.c_str());
         //else, check the limiting case when all operative RPs are in security positions
         else if(Outsiders.getCount() <= 0)
-            append("WARNING: all operative RPs are in security positions. The generated DP will contains only a message-instruction list to go to the origin.");
+            append_("WARNING: all operative RPs are in security positions. The generated DP will contains only a message-instruction list to go to the origin.", log_filename.c_str());
 
-        //generates a de positioning program for the operative RPs at insecurity positions
-        //and determines the RPs in collision status or obstructed at insecurity positions
-        append("Generating depositioning program...");
+        //generates a de positioning program for the operative RPs in insecure positions
+        //and determines the RPs in collision status or obstructed in insecure positions
+        append_("Generating depositioning program...", log_filename.c_str());
         TRoboticPositionerList Collided;
         TRoboticPositionerList Obstructed;
         TMotionProgram DP;
-        MPG.generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
-        append("Depositioning program generated.");
+        bool success = MPG.generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
 
-        //Here all operative outsiders RPs which aren't obstructed
-        //are in secure position, in their final position
-        //after has been execute the DP.
+        //if generation function was successfully generated
+        if(success) {
+            //indicates that themotion program has been generated
+            append_("Depositioning program generated.", log_filename.c_str());
 
-	//print the lists Collided and Obstructed
-	S = AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
-	S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
-	StrWriteToFile("CollidedAndObstructed.txt", S);
-        append("Lists Collided and Obstructed saved in 'CollidedAndObstructed.txt'.");
+            //Here all operative outsiders RPs which aren't obstructed
+            //are in secure position, in their final position
+            //after has been execute the DP.
 
-        //sergegate the operative inners RPs out of the origin
-        TRoboticPositionerList Inners;
-        FMM.RPL.segregateOperativeInnersOutTheOrigins(Inners);
+            //segregate the operative inners RPs out of the origin and sorts it
+            TRoboticPositionerList Inners;
+            FMM.RPL.segregateOperativeInnersOutTheOrigins(Inners);
+            Inners.SortInc();
 
-        //generates the parking gesture for the operative RPs in secure position out the origin
-        MPG.getTheMessageListToGoToTheOrigins(DP, Inners);
-        append("Message list to go the origins added.");
+            //Sort the RPs isn't really necessary, but is recomendable because produce a more legible output.
 
-        //translates the depositioning program to the format of the interface MCS-FMPT
-        append("Translating the depositiong program to the format of MCS interface.");
-        FMM.RPL.TranslateMotionProgram(S, 1, IPL, DP);
-        AnsiString path(argv[1]);
-        AnsiString parent_path, filename;
-        splitpath(parent_path, filename, path);
-	filename = AnsiString("DP-from-")+filename;
-        StrWriteToFile(filename, S);
-        append("Depositiong program translated.");
-	append("Depositioning program saved in '"+filename.str+"'.");
+            //generates the parking gesture for the operative RPs in secure position out the origin
+            MPG.getTheMessageListToGoToTheOrigins(DP, Inners);
+            append_("Message list to go the origins added to depositioning program.", log_filename.c_str());
+
+            //translates the depositioning program to the format of the interface MCS-FMPT
+            //and save it in a file
+            FMM.RPL.TranslateMotionProgram(S, 1, IPL, DP);
+            append_("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
+            output_filename = "DP-from-"+filename;
+            StrWriteToFile(output_filename, S);
+            append_("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //print the other outputs in the corresponding file
+            S = AnsiString("generateDepositioningProgram: true\r\n");
+            S += AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
+            S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
+            output_filename = "others-from-"+filename;
+            StrWriteToFile(output_filename, S);
+            append_("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
+        }
+        //if generation function fail
+        else {
+            //indicates that the motion program can't be generated
+            append_("Depositioning program can't' be generated.", log_filename.c_str());
+            //get and save the positions where the collision was detected
+            TPairPositionAnglesList FPL;
+            FMM.RPL.GetPositions(FPL);
+            S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
+            S += IPL.getColumnText();
+            output_filename = "FPL-from-"+filename;
+            StrWriteToFile(output_filename, S);
+            append_("Final position list (whear collission has been detected) saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //print the other outputs in the corresponding file
+            S = AnsiString("generateDepositioningProgram: false\r\n");
+            S += AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
+            S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
+            output_filename = "outputs-from-"+filename;
+            StrWriteToFile(output_filename, S);
+            append_("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
+        }
 
         //DESTROY THE OBJECTS:
 
     } catch(Exception &E) {
-        //show the message of the exception
-        append(AnsiString("ERROR: ")+E.Message);
+        //indicates that has happened an exception
+        //and show the message of the exception
+        append_("ERROR: "+E.Message.str, log_filename.c_str());
         return 1;
 
     } catch(...) {
-        //indicates that has haoppened an unknoledgeexception
-        append(AnsiString("ERROR: unknowledge exception"));
+        //indicates that has happened an unknoledge exception
+        append_("ERROR: unknowledge exception", log_filename.c_str());
         return 2;
     }
 
     //------------------------------------------------------------------
 
+    //indicates that the program has been executed without error
     return 0;
 }

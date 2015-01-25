@@ -771,27 +771,25 @@ void TRoboticPositionerList::TranslateMotionProgram(AnsiString& S, int CBId,
 
             //if there is a gesture programmedfor the RP
             if(RP->CMF.getMF1()!=NULL || RP->CMF.getMF2()!=NULL) {
+                //print the identifier of RP and the identifier of the rotor
+                S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r1");
                 //print the programmed a motion for rotor 1
-                if(RP->CMF.getMF1()!=NULL && RP->CMF.getMF1()->getpfinText()!=RP->getActuator()->getp_1Text()) {
-                    //print the identifier of RP and the identifier of the rotor
-                    S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r1");
+                if(RP->CMF.getMF1()!=NULL && RP->CMF.getMF1()->getpfinText()!=RP->getActuator()->getp_1Text())
                     //print the new final position
                     S += AnsiString(" ")+RP->CMF.getMF1()->getpfinText();
-                }
-//                else
+                else
                     //print the same final position
-//                    S += AnsiString(" ")+RP->getActuator()->getp_1Text();
+                    S += AnsiString(" ")+RP->getActuator()->getp_1Text();
 
+                //print the identifier of RP and the identifier of the rotor
+                S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r2");
                 //print the programmed a motion for rotor 2
-                if(RP->CMF.getMF2()!=NULL && RP->CMF.getMF2()->getpfinText()!=RP->getActuator()->getArm()->getp___3Text()) {
-                    //print the identifier of RP and the identifier of the rotor
-                    S += AnsiString("\r\n\trp")+strInsertChar(RP->getActuator()->getIdText(), 2)+AnsiString(" r2");
+                if(RP->CMF.getMF2()!=NULL && RP->CMF.getMF2()->getpfinText()!=RP->getActuator()->getArm()->getp___3Text())
                     //print the new final position
                     S += AnsiString(" ")+RP->CMF.getMF2()->getpfinText();
-                }
-//                else
+                else
                     //print the same final position
-//                    S += AnsiString(" ")+RP->getActuator()->getArm()->getp___3Text();
+                    S += AnsiString(" ")+RP->getActuator()->getArm()->getp___3Text();
             }
         }
 

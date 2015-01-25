@@ -99,8 +99,9 @@ AnsiString::AnsiString(const char *cs) : str(cs)
 {
 }
 //construye un AnsiString a partir de una string
-AnsiString::AnsiString(const string& _str) : str(_str)
+AnsiString::AnsiString(const string& _str)
 {
+    str = _str;
 }
 /*#//construye una AnsiString a partir de una QString
 AnsiString::AnsiString(const QString& QS) : str(QS.toLocal8Bit())

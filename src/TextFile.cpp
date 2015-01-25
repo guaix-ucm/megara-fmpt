@@ -41,7 +41,7 @@ namespace Strings {
 //abre el archivo de nombre FileName en el modo indicado
 //si no lo especifica solo construye el TextFile
 //si no lo puede abrir lanza una excepción ECantComplete
-TTextFile::TTextFile(char *FileName, char *mode) :
+TTextFile::TTextFile(const char *FileName, const char *mode) :
     IsOpen(false) //inicializa a su valor por defecto
 {
     //debe especificar ambos argumentos o ninguno

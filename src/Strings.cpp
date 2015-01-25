@@ -430,6 +430,10 @@ int StrCountLines(const AnsiString &String)
 //divide una cadena por cada "\r\n" que encuentre
 void StrDivideInLines(TStrings *Lines, const AnsiString &String)
 {
+    //pointer Lines shall point to built string list
+    if(Lines == NULL)
+        throw EImproperArgument("pointer Strings shall point to built string list");
+
     char c;
     char status = 0;
 
@@ -475,6 +479,50 @@ void StrDivideInLines(TStrings *Lines, const AnsiString &String)
 
     //añade la última línea
     Lines->Add(S);
+}
+void StrDivideInLines(TStrings& Lines, const AnsiString &S)
+{
+    //initialize the output
+    Lines.Clear();
+
+    //indicates the first char of the string
+    int i = 1;
+
+    //cheack the trivial basic case
+    if(i > S.Length())
+        return;
+
+    do {
+        //initialize ifrist
+        int ifirst = i;
+
+        //search the pos-position of the actual line
+        while(i<=S.Length() && S[i]!='\r')
+            i++;
+        i++;
+        if(i <= S.Length()) {
+            if(S[i] != '\n')
+                throw EImproperArgument("char '\r' should be followed by char '\n'");
+            else
+                i++;
+        }
+
+        //if previously i there isn't "\r\n"
+        int count;
+        if((i < ifirst+2) || S[i-1]!='\n' || S[i-2]!='\r')
+            //add substring [ifirst, i-1]
+            count = i - ifirst;
+        //else, if previously i there is "\r\n"
+        else
+            //add substring [ifirst, i-3]
+            count = i - ifirst - 2;
+        if(count > 0)
+            Lines.Add(S.SubString(ifirst, count));
+        else
+            Lines.Add(AnsiString(""));
+
+    //while there is a position for travel
+    } while(i <= S.Length());
 }
 //divide una cadena en palabras
 //obtiene cada palabra hasta cada secuencia de espacios o tabuladores
@@ -531,6 +579,38 @@ void StrDivideInWords(TStringList *Words, const AnsiString &String)
         throw EImproperArgument("pointer Words should point to built string list");
 
     StrDivideInWords(&(Words->Strings), String);
+}
+
+//separate the words between chars
+void StrSplit(TStrings& Strings, const AnsiString& S, char c)
+{
+    //initialize the list of strings
+    Strings.Clear();
+
+    //initialize iprev indicating the first delimiter (the pre-first position)
+    int iprev = 0;
+
+    //for each delimiter (S[i]), add to Strings the string in the interval [iprev+1, i-1],
+    //and actualice iprev = i.
+    for(int i=1; i<=S.Length(); i++) {
+        if(S[i] == c) {
+            if(i > iprev+1) {
+                int count = i - 1 - iprev;
+                Strings.Add(S.SubString(iprev+1, count));
+            } else
+                Strings.Add(AnsiString(""));
+            iprev = i;
+        }
+    }
+
+    //add the string between the last delimiter and poslast position
+    if(S.Length() > 0) {
+        if(S.Length() > iprev) {
+            int count = S.Length() - iprev;
+            Strings.Add(S.SubString(iprev+1, count));
+        } else
+            Strings.Add(AnsiString(""));
+    }
 }
 
 //elimina los espacios y caracteres de control marginales de una cadena
@@ -633,6 +713,60 @@ AnsiString StrFirstChars(const AnsiString &S, int LengthMax)
     }
 
     return D; //devuelve la cadena destino
+}
+
+//search and return the first non separator char in a text string
+int StrSearchFirstNonseparatorChar(const AnsiString& S)
+{
+    int i = 1;
+
+    if(S.Length() <= 0)
+        return i;
+
+    //status:
+    //  0: waiting ' ', '\t', '\r' or other
+    //  1: '\r' found and waiting '\n'
+    //  2: firs nonseparator char found or pos-last position reached
+    char status = 0;
+
+    do {
+        //assign the indicated char
+        char c = S[i];
+
+        //actualize (i, status) according (status, c)
+        switch(status) {
+        case 0: //waiting ' ', '\t',  '\r', or other
+            switch(c) {
+            case ' ': case '\t':
+                i++;
+                break;
+            case '\r':
+                if(i >= S.Length())
+                    throw EImproperArgument("\r should be followed by \n");
+                i++;
+                status++;
+                break;
+            default:
+                status = 2;
+            }
+            break;
+
+        case 1: //'\r' found and waiting '\n'
+            if(c != '\n')
+                throw EImproperArgument("\r should be followed by \n");
+            i++;
+            status--;
+            break;
+        }
+
+        //finish if index i indicates the pos-last position
+        if(i > S.Length())
+            status = 2;
+
+    //while not firs nonseparator char found or pos-last position reached
+    } while(status < 2);
+
+    return i;
 }
 
 //rellena una cadena con caracteres hasta que alcance la longitud indicada
