@@ -38,40 +38,58 @@ namespace Models {
 //class TSPPP:
 
 //set the structure in text format
-void TSPPP::setText(const AnsiString& S)
+void TSPPP::setText(const string& str)
 {
     TStrings Strings;
-    StrSplit(Strings, S, '|');
+    StrSplit(Strings, str, '|');
 
     if(Strings.getCount() != 12)
         throw EImproperArgument("string S should contains 12 dields separated by '|'");
 
     try {
-        Name = StrTrim(Strings[0]);
-        RA = StrToFloat_(Strings[1]);
-        Dec = StrToFloat_(Strings[2]);
-        Mag = StrTrim(Strings[3]);
-        Type = StrTrim(Strings[4]);
+        //translate the values and assign to a tampon variable
+        TSPPP SPPP;
+        SPPP.Name = StrTrim(Strings[0]).str;
+        SPPP.RA = StrToFloat_(Strings[1]);
+        SPPP.Dec = StrToFloat_(Strings[2]);
+        SPPP.Mag = StrTrim(Strings[3]).str;
+        SPPP.Type = StrTrim(Strings[4]).str;
 
-        Pr = StrTrim(Strings[5]);
-        Bid = StrTrim(Strings[6]);
-        Pid = StrTrim(Strings[7]);
+        SPPP.Pr = StrTrim(Strings[5]).str;
+        SPPP.Bid = StrTrim(Strings[6]).str;
+        SPPP.Pid = StrTrim(Strings[7]).str;
 
-        X = StrToFloat_(Strings[8]);
-        Y = StrToFloat_(Strings[9]);
-        //Enabled = StrToBool_(Strings[10]);
-        if(StrTrim(Strings[10])==AnsiString("0"))
-            Enabled = false;
+        SPPP.X = StrToFloat_(Strings[8]);
+        SPPP.Y = StrToFloat_(Strings[9]);
+
+        //SPPP.Enabled = StrToBool_(Strings[10]);
+        if(StrTrim(Strings[10])=="0")
+            SPPP.Enabled = false;
         else
-            Enabled = true;
+            SPPP.Enabled = true;
 
-        Comment = StrTrim(Strings[11]);
+        SPPP.Comment = StrTrim(Strings[11]).str;
+
+        //assign the tampon variable
+        *this = SPPP;
 
     } catch(...) {
         throw;
     }
 }
 
+//build an structure by default
+TSPPP::TSPPP() : RA(0), Dec(0),
+      X(0), Y(0), Enabled(false)
+{
+    Name = "";
+    Mag = "";
+    Type = "";
+    Pr = "";
+    Bid = "";
+    Pid = "";
+    Comment = "";
+}
 
 //copy all properties of a SPPP
 TSPPP& TSPPP::operator=(const TSPPP& SPPP)
@@ -95,20 +113,20 @@ TSPPP& TSPPP::operator=(const TSPPP& SPPP)
 //---------------------------------------------------------------------------
 //class TSPPPList:
 
-char StrFirstNonseparatorChar(const AnsiString& S)
+char strFirstNonseparatorChar(const string& str)
 {
-    int i = StrSearchFirstNonseparatorChar(S);
-    if(i <= S.Length())
-        return S[i];
+    int i = StrSearchFirstNonseparatorChar(str) - 1;
+    if(i <= (int)str.length())
+        return str[i];
     return 0;
 }
 
 //set the SPPPL in text format
-void TSPPPList::setTableText(const AnsiString& S)
+void TSPPPList::setTableText(const string& str)
 {
     //divide the string S in lines
     TStrings Strings;
-    StrDivideInLines(Strings, S);
+    StrDivideInLines(Strings, str);
 
     //--------------------------------------------------------------
 
@@ -118,7 +136,7 @@ void TSPPPList::setTableText(const AnsiString& S)
         throw EImproperArgument("string S should contains a SPPPL");
 
     //discard the coments and empty lines
-    while(i<Strings.getCount() && (StrFirstNonseparatorChar(Strings[i])=='#' || StrTrim(Strings[i]).Length()<=0))
+    while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i].str).Length()<=0))
         i++;
 
     //check if there is more lines
@@ -150,7 +168,7 @@ void TSPPPList::setTableText(const AnsiString& S)
         throw EImproperArgument("string S should contains a SPPPL");
 
     //discard the coments and empty lines
-    while(i<Strings.getCount() && (StrFirstNonseparatorChar(Strings[i])=='#' || StrTrim(Strings[i]).Length()<=0))
+    while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i]).Length()<=0))
         i++;
 
     //check if there is more lines
@@ -175,7 +193,7 @@ void TSPPPList::setTableText(const AnsiString& S)
         while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
             TSPPP *SPPP = new TSPPP();
             SPPPL.Add(SPPP);
-            SPPP->setText(Strings[i]);
+            SPPP->setText(Strings[i].str);
             i++;
         }
 
@@ -200,14 +218,10 @@ void TSPPPList::getTPL(TTargetPointList& TPL)
 {
     for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
-        if(SPPP->Name.Length() > 0) { //if the SPPP correspond to an PP
+        if(SPPP->Name.length() > 0) { //if the SPPP correspond to an PP
             if(SPPP->Enabled) { //if the point is allocated
-                //extract the Id from the name of the SPPP
-                TStrings Strings;
-                StrSplit(Strings, SPPP->Name, ':');
-                if(Strings.getCount() <= 0)
-                    throw EImproperArgument("");
-                int Id = StrToInt_(Strings[Strings.getCount() - 1]);
+                //extract the Id from the SPPP
+                int Id = StrToInt_(SPPP->Pid);
                 //search the RP in the RPL attached to the TPL
                 int j = TPL.getRoboticPositionerList()->SearchId(Id);
                 //if has found the RP, build and attach a TP

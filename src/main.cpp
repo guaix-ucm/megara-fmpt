@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 
         //translate the SPPP table to structure
         TSPPPList SPPPL;
-        SPPPL.setTableText(S);
+        SPPPL.setTableText(S.str);
 
         //assign the PP table to the MPG
         SPPPL.getTPL(MPG);
@@ -260,6 +260,11 @@ int main(int argc, char *argv[])
         if(success) {
             //indicates that the depositioning program has been generated successfully
             append_("Depositioning program generated successfully.", log_filename.c_str());
+
+            //save the DP in the format of the FMPT
+            S = DP.getText();
+            output_filename = "DP-FMPT-from-"+filename;
+            StrWriteToFile(output_filename, S);
 
             //Here all operative outsiders RPs which aren't obstructed are in the origin positions,
             //in their final position after execute the DP.

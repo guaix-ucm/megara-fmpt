@@ -1,6 +1,6 @@
-This is a package to install the MEGARA FMPT, the Fiber MOS Positioning Toools for MEGARA.
+This is a package to install the MEGARA FMPT, the Fiber MOS Positioning Tool for MEGARA.
 
-Copyright IAA-CSIC 2013-2014.
+Copyright IAA-CSIC 2013-2015.
 
 ##################
 Table of Contents
@@ -20,6 +20,8 @@ This package provides a positioning library (libfmtp) and command line interface
 to it called 'fmpt_saa'
 
 License
+-----------------------------------
+
 Megara FMPT is distributed under GPLv3 License. See the file 'COPYING' for details.
 Provided that this S/W is used to the instrument MEGARA, this license is intended that GRANTECAN will be able to use and modify it without restrictions, while developers retain rights to modify and use it for other uses. The software has two years of warranty while it remains without being modified.
 
@@ -40,17 +42,17 @@ The process to install this S/W can be found in the file INSTALL. The summarized
 
 1. Decompress tar file 'megara-fmpt-1.0.0.tar.gz' (or .xz).
 2. Change to directory './megara-fmpt-1.0.0'.
-3. Execute './configure; make;'for configure and build this package.
+3. Execute './configure; make;' to configure and build this package.
 4. Turn on superuser to have access to '/usr/local/...'.
 5. Execute 'make install' (as superuser) to install the library and the application.
 
-This process will install the libraries (static and dynamic) FMPT, and the FMPT SAA application, in the usual directories of the used distribution of the used operativesystem. For example:
+This process will install the libraries (static and dynamic) FMPT, and the FMPT SAA application, in the usual directories of the user distribution of the user operative system. For example:
 - the libraries (estatic and dynamic) will be installed in '/usr/local/lib';
 - the executable file fmpt_saa will be installed in '/usr/local/bin';
 - the instance of the Fiber MOS Model will be installed in: '/usr/local/share/megara-fmpt/models/MEGARA_FiberMOSModel_Instance';
-- the sample input files will be installed in: 'usr/local/bin/share/megara-fmpt/samples';
+- the sample input files will be installed in: 'usr/local/bin/share/megara-fmpt/Samples';
 
-These locations can vary depending on the operating sistem and distribution where this package is installed.
+These locations can vary depending on the operating system and distribution where this package is installed.
 
 Using MEGARA FMPT
 ---------------------------------
@@ -63,7 +65,7 @@ where path is the absolute path of the file to be executed. For example, to exec
 
 $ fmpt_saa /usr/local/share/megara-fmpt/Samples/megara-cb1.txt
 
-These locations can vary depending on the operating sistem and distribution where this package is installed.
+These locations can vary depending on the operating system and distribution where this package is installed.
 
 Known issues
 ============

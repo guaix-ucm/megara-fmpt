@@ -43,28 +43,30 @@ namespace Models {
 class TSPPP {
 public:
     //SP properties:
-    AnsiString Name;    //is empty not correespond to an allocated PP
+    string Name;    //name of the SP
     double RA;
     double Dec;
-    AnsiString Mag;
-    AnsiString Type;
-    //other properties which value is integer:
-    AnsiString Pr;      //if Nae is empty this is empty
-    AnsiString Bid;     //if Nae is empty this is empty
-    AnsiString Pid;
-    //corresponding PP properties:
+    string Mag;
+    string Type;
+
+    //allocation properties
+    string Pr;      //if Name is empty this is empty
+    string Bid;     //if Name is empty this is empty
+    string Pid;     //Id of the RP
+
+    //PP properties:
     double X;
     double Y;
-    bool Enabled;   //indicates if the point is allocated
+    bool Enabled;       //indicates if the point is allocated
+
     //coment about the point
-    AnsiString Comment; //if Nae is empty this is empty
+    string Comment; //if Name is empty this is empty
 
     //set the structure in text format
-    void setText(const AnsiString& S);
+    void setText(const string& S);
 
     //build an structure by default
-    TSPPP(void) : Name(""), RA(0), Dec(0), Mag(0), Type(""),
-        Pr(""), Bid(""), Pid(""), X(0), Y(0), Enabled(false), Comment("") {;}
+    TSPPP(void);
 
     //copy all properties of a SPPP
     TSPPP& operator=(const TSPPP&);
@@ -76,7 +78,7 @@ public:
 class TSPPPList : public TPointersList<TSPPP> {
 public:
     //set the SPPPL in text format
-    void setTableText(const AnsiString& S);
+    void setTableText(const string& S);
 
     //get the TPL
     void getTPL(TTargetPointList& TPL);
