@@ -1,6 +1,0 @@
-BarrierInstance:
-    thetaO1 = 0
-    P0 = {0, 18}
-    SPM = 0.0170711
-Eo = 0.001
-Ep = 0.01

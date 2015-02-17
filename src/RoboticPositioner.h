@@ -367,39 +367,40 @@ public:
         //------------------------------------------------------------------
         //BUILDING, CLONATION, COPYING AND DESTROYING METHODS:
 
-        //construye un posicionador
-        //con los valores por defecto
+        //build a RP by default
         TRoboticPositioner(void);
-        //construye un posicionador
-        //con los valores indicados
-        //si el número de identificación es menor que uno
-        //lanza una execepción EimproperArgument
+        //build a RP with the indicated values
+        //if Id is less 1 throw an exception EimproperArgument
         TRoboticPositioner(int _Id, TDoublePoint _P0,
                 double _thetaO1=MEGARA_thetaO1);
 
-        //ADVERTENCIA: para poder contruir clones de posicionadores
-        //la duplicidad de números de identificación está permitida.
-        //El control de duplicidad de identificadores debe llevarse
-        //en todo caso mediante métodos. Al fin y al cabo en el mundo real
-        //será posible configurar dos objetos para que tengan elmismo
-        //identificador.
+        //WARNING: duplicity of identifiers is allowed.
 
-        //copia las propiedades de control de un posicionador
+        //copy all control properties of a RP
         void CopyControl(const TRoboticPositioner*);
-        //copia las propiedades de seguridad de un posicionador
+        void CopyControl(const TRoboticPositioner&);
+        //copy all tolerance properties of a RP
         void CopyTolerance(const TRoboticPositioner*);
-        //copia las propiedades de estado de un posicionador
+        void CopyTolerance(const TRoboticPositioner&);
+        //copy all status properties of a RP
         void CopyStatus(const TRoboticPositioner*);
+        void CopyStatus(const TRoboticPositioner&);
 
-        //copia todas las propiedades de un posicionador
+        //copy all properties of a RP
         void Clone(const TRoboticPositioner*);
+        void Clone(const TRoboticPositioner&);
         TRoboticPositioner& operator=(const TRoboticPositioner&);
 
-        //contruye un clon de un posicionador
+        //build a clon of a RP
         TRoboticPositioner(const TRoboticPositioner*);
+        TRoboticPositioner(const TRoboticPositioner&);
 
-        //libera la memoria dinámica y borra el objeto de Builts
-        //si el objeto no está en Builts lanza EImproperCall
+        //copy all properties of a RP
+        //except (P0, Id, Id1, Id2)
+        void Apply(const TRoboticPositioner&);
+
+        //free the dynamic memory and delete the RP in Builts
+        //if the RP isn't in Built throw EImproperCall
         ~TRoboticPositioner();
 
         //-------------------------------------------------------------------
@@ -510,34 +511,40 @@ public:
         //Gestures will be programmed according to the motion functions type
         //and the sinchronous mode of the functions.
 
-        //program turn of rotor 1 from actual position to p_1
-        //if the p_1 is out rotor 1 domain:
+        //program turn of rotor 1 from actual position to p_1fin
+        //if rotor 1 quantifier is disabled:
+        //  throw and exception EImproperCall
+        //if the p_1fin is out rotor 1 domain:
         //  throw an exception EImproperArgument
-        void M1(double _p_1);
-        //program turn of rotor 2 from actual position to p___3
-        //if the p___3 is out rotor 2 domain:
+        void M1(double p_1fin);
+        //program turn of rotor 2 from actual position to p___3fin
+        //if rotor 2 quantifier is disabled:
+        //  throw and exception EImproperCall
+        //if the p___3fin is out rotor 2 domain:
         //  throw an exception EImproperArgument
-        void M2(double _p___3);
-        //program turns of rotors 1 and 2 from actual position to (p_1, p___3)
-        //if the p_1 is out rotor 1 domain or p___3 is out rotor 2 domain:
+        void M2(double p___3fin);
+        //program turns of rotors 1 and 2 from actual position to (p_1fin, p___3fin)
+        //if rotor 1 quantifier or rotor 2 quantifier is disabled:
+        //  throw and exception EImproperCall
+        //if the p_1fin is out rotor 1 domain or p___3fin is out rotor 2 domain:
         //  throw an exception EImproperArgument
-        void MM(double _p_1, double _p___3);
+        void MM(double p_1fin, double p___3fin);
 
-        //program turn of rotor 1 from p_1sta to p_1end
-        //if the p_1sta or p_1end is out rotor 1 domain:
+        //program turn of rotor 1 from p_1sta to p_1fin
+        //if the p_1sta or p_1fin is out rotor 1 domain:
         //  throw an exception EImproperArgument
-        void M1(double _p_1sta, double _p_1fin);
-        //program turn of rotor 2 from p___3sta to p___3end
-        //if the p___3sta or p___3end is out rotor 2 domain:
+        void M1(double p_1sta, double p_1fin);
+        //program turn of rotor 2 from p___3sta to p___3fin
+        //if the p___3sta or p___3fin is out rotor 2 domain:
         //  throw an exception EImproperArgument
-        void M2(double _p___3sta, double _p___3fin);
-        //program turn of rotor 1 from p_1sta to p_1end, and
-        //program turn of rotor 2 from p___3sta to p___3end
-        //if the p_1sta or p_1end is out rotor 1 domain, or:
-        //if the p___3sta or p___3end is out rotor 2 domain:
+        void M2(double p___3sta, double p___3fin);
+        //program turn of rotor 1 from p_1sta to p_1fin, and
+        //program turn of rotor 2 from p___3sta to p___3fin
+        //if the p_1sta or p_1fin is out rotor 1 domain, or:
+        //if the p___3sta or p___3fin is out rotor 2 domain:
         //  throw an exception EImproperArgument
-        void MM(double _p_1sta, double _p___3sta,
-                double _p_1fin, double _p___3fin);
+        void MM(double p_1sta, double p___3sta,
+                double p_1fin, double p___3fin);
 
         //stop displacement and clear the programmed gesture
         //if there isn't programmed a gesture:
@@ -565,6 +572,8 @@ public:
         void programTurnArmToSafeArea(void);
         //program the retraction of the arm to
         //the more closer-stable security position
+        //if rotor 1 quantifier or rotor 2 quantifier is disabled:
+        //  throw and exception EImproperCall
         void programRetractArmToSafeArea(void);
 
         //When the vmax of rotor 2 is the double that vmax of rotor 1,

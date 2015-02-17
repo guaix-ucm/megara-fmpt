@@ -443,7 +443,7 @@ bool IntersectionSegmentArc(TDoublePoint Pa, TDoublePoint Pb,
                 throw EImproperArgument("Pa should be unequal Pb");
         //el radio de la circunferecnia debe ser mayor que cero
         if(R <= 0)
-                throw EImproperArgument("R ahould be upper zero");
+                throw EImproperArgument("R should be upper zero");
         //los puntos de las cuerdas del arco no deben
         //coincidir con el centro de la circunferencia
         if(Pfin == Pc)

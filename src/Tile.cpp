@@ -687,18 +687,6 @@ void TTile::Segregate(TSkyPointList *SPL)
     }
 }
 
-//carga el aqzulejo de un archivo de texto
-void TTile::LoadFromFile(const AnsiString &FileName)
-{
-    try {
-        AnsiString S;
-        StrReadFromFile(S, FileName);
-        setAssignsText(S);
-    } catch(...) {
-        throw;
-    }
-}
-
 //--------------------------------------------------------------------------
 //TTileList
 //--------------------------------------------------------------------------
@@ -809,7 +797,7 @@ void TTileList::Reidentify(void)
     for(int k=0; k<getCount(); k++)
         Items[k]->setId(k + 1);
 }
-
+/*
 //guarda los azulejos en el directorio correspondiente
 void TTileList::SaveToFiles(AnsiString FolderName)
 {
@@ -825,7 +813,7 @@ void TTileList::SaveToFiles(AnsiString FolderName)
         //guarda las propiedades del azulejo
         StrWriteToFile(FileName, Items[k]->getAssignsText());
     }
-}
+}*/
 
 //MÉTODOS DE INTERFAZ:
 /*#

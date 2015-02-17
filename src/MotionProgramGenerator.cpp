@@ -29,6 +29,8 @@
 #include <unistd.h>
 //#include "Windows.h" //Sleep
 
+#include <limits> //std::numeric_limits
+
 //---------------------------------------------------------------------------
 
 //spacename for positioning
@@ -54,37 +56,44 @@ TMotionProgramGenerator::~TMotionProgramGenerator(void)
 {
 }
 
-//-----------------------------------------------------------------------
-//METHODS TO GENERATE MPs:
+//---------------------------------------------------------------------------
+//METHODS OF LOWER LEVEL:
 
 //program the retraction of all RP of the list Outsiders
 //Preconditions:
-//  All RPs of the list Outsiders shall has enabled the quantifiers.
-//  All RPs of the list Outsiders shall be in unsecure position.
+//  All RPs of the list Outsiders shall be in insecurity position.
+//Notes:
+//  The quantifiers of the rotors may be enabled or disabled.
 void TMotionProgramGenerator::programRetraction(TRoboticPositionerList &Outsiders)
 {
     //CHECK THE PRECONDITIONS:
 
-    //all RPs of thelist Outsiders shall has enabled the quantifiers and shall be in unsecure position
+    //all RPs of the list Outsiders shall be in insecurity position
     for(int i=0; i<Outsiders.getCount(); i++) {
         TRoboticPositioner *RP = Outsiders.Get(i);
-        if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-            throw EImproperArgument("all positioners in the list Outsiders should has enabled the quantifiers");
         if(RP->getActuator()->ArmIsInSafeArea())
-            throw EImproperArgument("all positioners in the list Outsiders should be in unsecure position");
+            throw EImproperArgument("all positioners in the list Outsiders should be in insecurity position");
     }
-
 
     //for each RP ofthe list Outsiders:
     for(int i=0; i<Outsiders.getCount(); i++) {
         //point the indicated RP tofacilitate its access
         TRoboticPositioner *RP = Outsiders.Get(i);
-        //program the readial retraction
-        RP->programRetractArmToSafeArea();
+
+        //enable the quantifiers to accomplish the precondition
+        RP->getActuator()->PushQuantifys();
+        RP->getActuator()->setQuantify_(true);
+        RP->getActuator()->getArm()->setQuantify___(true);
+
+        //program the retraction
+        RP->programRetractArmToSafeArea();               
+
+        //restore and pop the status of the quantifiers
+        RP->getActuator()->RestoreAndPopQuantifys();
     }
 
     //WARNING: when rotor 1 is near of its lower limit,
-    //not all trajectoryof the fiber may be radial.
+    //not all trajectory of the fiber may be radial.
 }
 
 //segregate the RPs of the list Outsiders, in disjoint subsets
@@ -94,7 +103,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
 {
     //CHECK THE PRECONDITIONS:
 
-    //all RPs in the list Outsiders, shall be operatives in unsecure positions
+    //all RPs in the list Outsiders, shall be operatives in insecurity positions
     for(int i=0; i<Outsiders.getCount(); i++) {
         //point the indicated RP to facilitate its access
         TRoboticPositioner *RP = Outsiders[i];
@@ -104,8 +113,8 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
             throw EImproperArgument("all RPs in thelist Outsiders shall be operatives");
         //if the RP is in safe area
         if(RP->getActuator()->ArmIsInSafeArea())
-            //indicates thar all RPs in the list Outsiders shall be in unsecure positions
-            throw EImproperArgument("all RPs in thelist Outsiders shall be in unsecure positions");
+            //indicates thar all RPs in the list Outsiders shall be in insecurity positions
+            throw EImproperArgument("all RPs in thelist Outsiders shall be in insecurity positions");
     }
 
     //START:
@@ -113,7 +122,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
     //initialize the list of disjoint sets
     DisjointSets.Clear();
 
-    //The RPs in unsecure position, which not are in the list Outsiders,
+    //The RPs in insecurity position, which not are in the list Outsiders,
     //shall be taken how obstacles, so that the sets separated only for
     //these RPs, are disjoint sets.
 
@@ -122,7 +131,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
         //points the indicated RP to facilitate its access
         TRoboticPositioner *RP = Outsiders[i];
 
-        //determines the list of adjacent RPs which are in unsecure position
+        //determines the list of adjacent RPs which are in insecurity position
         //and are in the list Outsiders
         TItemsList<TRoboticPositioner*> Adjacents;
         for(int j=0; j<RP->getActuator()->Adjacents.getCount(); j++) {
@@ -385,19 +394,18 @@ void TMotionProgramGenerator::segregateRPsInDisperseSubsets(
 
 //Determines the limits of the open interval (l1, l2)
 //where RP collide with RPA.
+//It is to say in l1 and l2 there isn't collision.
 //Inputs:
-//  RP: robotic positioner which rotor 1 shall be displaced.
-//  RPA: roboticpositioner adjacentto RP which shall remains stoped.
+//  RP: robotic positioner whose rotor 1 shall be displaced.
+//  RPA: robotic positioner adjacent to RP which shall remains stoped.
 //Outputs:
-//  l1: lower limit of interval (l1, l2)
-//  l2: upper limit of interval (l1, l2)
-//Preconditions:
-//  RP shall beenabled their rotor 1 quantifier.
-//Posconditions:
-//  Robotic positioner RP and RPA remains without change,
-//      and the limits l1and l2 has been determined.
-//Meaning:
-//  When l1 == l2 there isn't collision. (In this casemoreover l1 == p1 ==l2).
+//  l1: stable lower limit of interval (l1, l2)
+//  l2: stable upper limit of interval (l1, l2)
+//Postconditions:
+//  The RP will be in their initial status.
+//Notes:
+//  The quantifiers of the rotors may be enabled or disabled.
+//  When l1 == l2 there isn't collision. (In this case moreover l1 == p1 == l2).
 //  When l1 < l2, the soltion can be searched in both senses.
 //  When l2 < l1, the solution shall be searched:
 //      in positive sense, when p_1 is in [p_1min, l2)
@@ -405,7 +413,7 @@ void TMotionProgramGenerator::segregateRPsInDisperseSubsets(
 void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2,
         TRoboticPositioner *RP, const TRoboticPositioner *RPA)
 {
-    //CHECK THEPRECONDITIONS:
+    //CHECK THE PRECONDITIONS:
 
     //pointer RP shall points to built robotic positioner
     if(RP == NULL)
@@ -418,36 +426,36 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
     //MAKE THE ACTIONS:
 
     //save the initial position of rotor 1 of the RP
-    double p_1bak = RP->getActuator()->getp_1();
+    double theta_1bak = RP->getActuator()->gettheta_1();
 
-    //get the interval of search
-    double p_1min = ceil(RP->getActuator()->getp_1min());
-    double p_1max = floor(RP->getActuator()->getp_1max());
+    //get the interval of search [p_1low, p_1upp]
+    double p_1low = Max(0., ceil(RP->getActuator()->getp_1min()));
+    double p_1upp = Min(floor(RP->getActuator()->getSB1()), floor(RP->getActuator()->getp_1max()));
 
     //initialice p_1
-    double p_1 = p_1min;
+    double p_1 = p_1low;
     //move the rotor 1 to the first position
     RP->getActuator()->setp_1(p_1);
-    //calculates the distance between arms
+    //calculates the distance between contours of the arms
     double D = RP->getActuator()->getArm()->getContour().DistanceMin(RPA->getActuator()->getArm()->getContour());
     //calculates the free distance
     double Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
-    //initiaize Dfmin
+    //initiaize the minimun free distance
     double Dfmin = Df;
-    //initialize p_1_
+    //initialize theposition where the arm of RP is nearest to the arm of RPA
     double p_1_ = p_1;
     //initialize the collision flag
     bool collision = (Df < 0);
 
     //search in the interval
-    for(p_1=round(p_1min+50); p_1<=p_1max; p_1+=50, p_1=round(p_1)) {
-        //capture the status of the cllision flag
-        bool collisionbak = collision;
+    for(p_1=round(p_1low+50); p_1<=p_1upp; p_1+=50, p_1=round(p_1)) {
+        //capture the status of the collision flag in collision_prev flag
+        bool collision_prev = collision;
 
         //set the p_1
         RP->getActuator()->setp_1(p_1);
 
-        //calculates the distance between arms
+        //calculates the distance between contours of the arms
         D = RP->getActuator()->getArm()->getContour().DistanceMin(RPA->getActuator()->getArm()->getContour());
         //calculates the free distance
         Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
@@ -460,9 +468,9 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
                 p_1_ = p_1;
         }
 
-        if(collision != collisionbak) {
+        if(collision != collision_prev) {
             if(collision)
-                l1 = p_1 - 50;
+                l1 = round(p_1 - 50);
             else
                 l2 = p_1;
         }
@@ -474,30 +482,33 @@ void TMotionProgramGenerator::determinesCollisionInterval(double& l1, double& l2
         l2 = p_1_;
     }
 
-    //retore the initial position of rotor 1
-    RP->getActuator()->setp_1(p_1bak);
+    //Note that here Dfmin can be zero or less zero. This not
+    //occur with the Tfmin whose minimun value is zero.
 
-    //ERROR: this function is a temporalsolution while a binary searhc is implemented.
+    //retore the initial position of rotor 1
+    RP->getActuator()->settheta_1(theta_1bak);
+
+    //ERROR: this function is a temporal solution while a binary searhc is implemented.
 }
 
-//Determines if a RP in collision status can solve
-//their collision turning the rotor 1,
-//and calculates the new position of the rotor 1.
+//Determines if a RP in collision status can solve their collision
+//turning the rotor 1, and calculates the new stable position of it,
+//in the indicated direction by the tendence.
 //Inputs:
 //  RP: the robotic positioner in collission status.
 //Onputs:
 //- collisionCanbesolved: flag indicating if collision can be solved
 //  turning the rotor 1.
-//- p_1new: the position which the rotor 1 of the RP shall jump
+//- p_1new: the stable position which the rotor 1 of the RP must bemoved
 //  to solve the collision.
 //Preconditions:
 //  Pointer RP shall  point to built robotic positioner.
-//  The RP shall be in collision sattus with one or more adjacent RPs.
-//  The RP shall has enabled their rotor 1 quantifier.
+//  The RP shall be in collision status with one or more adjacent RPs.
 //  The rotor 1 of the RP shall has stacked one position almost.
-//Posconditions:
-//  Te RP will be in their initial status, and the proposed quastion
-//  will be solved.
+//Postconditions:
+//  The RP will be in their initial status.
+//Notes:
+//  The quantifiers of the rotors may be enabled or disabled.
 bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPositioner *RP)
 {
     //CHECK THE PRECONDITIONS:
@@ -510,17 +521,11 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
     if(RP->getActuator()->ThereIsntCollisionWithAdjacent())
         throw EImproperArgument("the RP should be in collision status");
 
-    //the RP shall has enabled their rotor 1 quantifier
-    if(!RP->getActuator()->getQuantify_())
-        throw EImproperArgument("the RP should has enabled their rotor 1 quantifier");
-
-    //The quantifier of the rotor 1 shall be enabled because the solution shall be stable.
-
     //The rotor 1 of the RP shall has stascked one position almost
     if(RP->getActuator()->theta_1s.getCount() < 1)
         throw EImproperCall("the rotor 1 of the RP shall has stacked one position almost");
 
-    //Therotor 1 of the RP shall be stacked a positions to determines
+    //The rotor 1 of the RP shall be stacked a positions to determines
     //if there is a previous displacement of their rotor 1.
 
     //MAKE THE ACTION:
@@ -534,15 +539,25 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
         TRoboticPositioner *RPA = RP->getActuator()->Adjacents[i];
         double l1,l2;
         determinesCollisionInterval(l1, l2, RP, RPA);
+
+        //make a rutinary check of (l1, l2)
+        if((l1 != round(l1)) || (l2 != round(l2)))
+            throw EImpossibleError("l1 and l2 shall be stable positions");
+
         l1s.Add(l1);
         l2s.Add(l2);
+
     }
 
-    //When l1 == l2 there isn't collision. (In this casemoreover l1 == p1 ==l2).
+    //When l1 == l2 there isn't collision. (In this case moreover l1 == p1 ==l2).
     //When l1 < l2, the soltion can be searched in both senses.
     //When l2 < l1, the solution shall be searched:
     //  in positive sense, when p_1 is in [p_1min, l2)
     //  in negative sense, when p_1 is in (l1, p_1max]
+
+    //WARNING: the searching interval where search the solution, not must be confused with the interval [p_1min, p_1max]:
+    //  double p_1low = Max(0., ceil(RP->getActuator()->getp_1min()));
+    //  double p_1upp = Min(floor(RP->getActuator()->getSB1()), floor(RP->getActuator()->getp_1max()));
 
     //search the largest interval where p_1 is inner
     int imax = 0;
@@ -551,8 +566,8 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
         //get the limits of the intervals
         double l1 = l1s[i];
         double l2 = l2s[i];
-        double p_1min = ceil(RP->getActuator()->getp_1min());
-        double p_1max = floor(RP->getActuator()->getp_1max());
+        double p_1low = Max(0., ceil(RP->getActuator()->getp_1min()));
+        double p_1upp = Min(floor(RP->getActuator()->getSB1()), floor(RP->getActuator()->getp_1max()));
 
         //calculates the length of the interval
         //and determines the collision status
@@ -565,7 +580,7 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
             else
                 collision = true;
         } else if(l2 < l1) {
-            length = (l2 - p_1min) + (p_1max - l1);
+            length = (l2 - p_1low) + (p_1upp - l1);
             if(p_1<l2 || l1<p_1)
                 collision = true;
             else
@@ -575,7 +590,7 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
             collision = false;
         }
 
-        //if there is collision actualice (imax, lengthmax)
+        //if there is collision actualice the tip (imax, lengthmax)
         if(collision)
             if(length > lengthmax) {
                 imax = i;
@@ -596,25 +611,25 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
             p_1new = l2;
     } else if(l2 < l1) {
         if(p_1 < l2) {
-            s1 = MAXDOUBLE;
+            s1 = std::numeric_limits<double>::max();
             s2 = l2 - p_1;
             p_1new = l2;
         } else if(l1 < p_1) {
             s1 = p_1 - l1;
-            s2 = MAXDOUBLE;
+            s2 = std::numeric_limits<double>::max();
             p_1new = l1;
         }
     } else { //l1 == l2
         throw EImpossibleError("l1 shall not be equal to l2, becuase here is supossed that there is a collision to be solved");
     }
 
-    //determines the displacementto escape ofthe collision
+    //determines the displacement to scape from the collision
     double dp1_esc = p_1new - p_1;
 
     //determines the previous displacement
     double dp1_prev = RP->dp1();
 
-    //if rotor 1 has been previously displaced in the opposed sense to escape
+    //if rotor 1 has been previously displaced in the opposed sense to escape from the collision
     if(dp1_prev != 0)
         if(Sign(dp1_esc) != Sign(dp1_prev))
             //indicates that collision can't be solved
@@ -671,7 +686,7 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
                 length = (l2 - p_1min) + (p_1max - l1);
                 if(p_1new < l2) {
                     if(dp1_esc < 0) {
-                        p_1new = -MAXDOUBLE;
+                        p_1new = -std::numeric_limits<double>::max();
                     } else if(dp1_esc > 0) {
                         p_1new = l2;
                     } else { //dp1_esc == 0
@@ -681,7 +696,7 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
                     if(dp1_esc < 0) {
                         p_1new = l1;
                     } else if(dp1_esc > 0) {
-                        p_1new = MAXDOUBLE;
+                        p_1new = std::numeric_limits<double>::max();
                     } else { //dp1_esc == 0
                         throw EImpossibleError("pd1_esc can't be equal to 0, because here is supossed that a collision shall be solved");
                     }
@@ -716,10 +731,10 @@ bool TMotionProgramGenerator::collisionCanBesolved(double& p_1new, TRoboticPosit
 //  motion program generation (Purpose =pGen).
 //  All RPs of DDS shall be in the Fiber MOS  Model
 //  All RPs of DDS shall be in insecure position
-//  All RPs of DDS shall have enabled the quantifiers
+//  All RPs of DDS shall have disabled the quantifiers
 //  All RPs of DDS shall be free of dynamic collisions
 //  All RPs of DDS shall to have programmed a gesture of retraction
-//Posconditions:
+//Postconditions:
 //  RetractilesDDS will contains the RPs which can be retracted
 //  in one or two gestures.
 //  InvadersDDS will contains the RPs which can not be retracted
@@ -741,7 +756,7 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
     //All RPs of DDS:
     //  shall be in the Fiber MOS  Model.
     //  shall be in insecure position.
-    //  shall have enabled the quantifiers.
+    //  shall have disabled the quantifiers.
     //  shall be free of dynamic collisions.
     //  shall to have programmed a gesture of retraction.
     for(int i=0; i<DDS.getCount(); i++) {
@@ -757,8 +772,8 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                     throw EImproperArgument("All RPs of DDS shall be free of dynamic collisions.");
                 if(RP->getActuator()->ArmIsInSafeArea())
                     throw EImproperArgument("All RPs of DDS shall be in insecure position.");
-                if(!RP->getActuator()->getQuantify_() || !RP->getActuator()->getArm()->getQuantify___())
-                    throw EImproperArgument("All RPs of DDS shall have enabled the quantifiers.");
+                if(RP->getActuator()->getQuantify_() || RP->getActuator()->getArm()->getQuantify___())
+                    throw EImproperArgument("All RPs of DDS shall have disabled the quantifiers.");
                 if(RP->CMF.getMF1()==NULL || RP->CMF.getMF2()==NULL)
                     throw EImproperArgument("All RPs of DDS shall to have programmed a gesture of retraction.");
             }
@@ -790,13 +805,13 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
 
     //WARNING: do not clone the DDS, because TRoboticPositionerList::Clone
     //will clone the RPs, while TRoboticPositionerList::operator= will copy
-    //the pointers to the RPs. for DDS use the method Copy.
+    //the pointers to the RPs. Then for DDS use the method Copy.
 
     //Here all RPs of RetractilesDDS accomplish the preconditions:
     //  are configurated to motion program generation.
     //  are in the Fiber MOS  Model.
     //  are in insecure position.
-    //  have the quantifiers enabled.
+    //  have the quantifiers disabled.
     //  are free of dynamic collisions.
     //  have programmed a gesture of retraction.
 
@@ -817,9 +832,9 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                 //point the indicated RP to facilitate its access
                 TRoboticPositioner *RP = DisperseSubset->Get(k);
 
-                //get the simulation period
-                double T = RP->CMF.gettendmax();
-                //calculates the minimun jump of the RP
+                //get the displacement period
+                double Tdis = RP->CMF.gettendmax();
+                //calculates the minimun jump time of the RP
                 double Tminmin = calculateTminmin(RP);
                 //initialize the simulation time
                 double t = 0;
@@ -881,22 +896,22 @@ void TMotionProgramGenerator::segregateRetractilesInvaders(
                             //if there is collision in the new starting position
                             if(RP->getActuator()->ThereIsCollisionWithAdjacent())
                                 //indicates that isn't possible solve the collision
-                                T = 0;
+                                Tdis = 0;
                         }
                         //if it isn't possible solve the collision
                         else {
                             //indicates that isn't possible solve the collision
-                            T = 0;
+                            Tdis = 0;
                         }
                     }
                 //while has not reached the end
-                } while(t < T);
+                } while(t < Tdis);
 
                 //ERROR: determine the Tfmin is equivalent to determine the collision status,
                 //reason why the block of code above, can be wrote more eficient.
 
-                //if has finished the simulation period avoiding collision
-                if(T > 0)
+                //if has finished the displacement period avoiding collision
+                if(Tdis > 0)
                     //add the RP to the indicated disperse subset of RetractilesDDS
                     RetractilesDDS.GetPointer(i)->GetPointer(j)->Add(RP);
                 else //(T <= 0) has finished the simulation period because cannot avoid the collision
@@ -989,8 +1004,14 @@ void TMotionProgramGenerator::addMessageLists(TMotionProgram& DP,
     TRoboticPositionerList DisplacedRPs;
     for(int i=0; i<RPsToBeRetracted.getCount(); i++) {
         TRoboticPositioner *RP = RPsToBeRetracted[i];
+        RP->getActuator()->PushQuantify_();
+        RP->getActuator()->setQuantify_(true);
         if(RP->dp1() != 0)
             DisplacedRPs.Add(RP);
+        RP->getActuator()->RestoreAndPopQuantify_();
+
+        //Note that the rot 1 quantifier is temporarily enabled,
+        //to accomplish the preconditions of function dp1.
     }
 
     //if there is some RPs whose rotor 1 has been displaced
@@ -999,7 +1020,7 @@ void TMotionProgramGenerator::addMessageLists(TMotionProgram& DP,
         TMessageList *ML = new TMessageList(Max(1, getFiberMOSModel()->RPL.getCount()));
         //for each RP of the list DisplacedRPs
         for(int i=0; i<DisplacedRPs.getCount(); i++) {
-            //point the indicated RP to facilitate irs access
+            //point the indicated RP to facilitate their access
             TRoboticPositioner *RP = DisplacedRPs[i];
 
             //built a message
@@ -1084,16 +1105,24 @@ void TMotionProgramGenerator::addMessageListToGoToTheOrigins(TMotionProgram& DP,
         delete ML;
 }
 
+//-----------------------------------------------------------------------
+//METHODS TO GENERATE MPs:
+
 //Generates a recovery program for a given set of operative RPs
-//in unsecure positions and determines the RPs of the given set,
+//in insecurity positions and determines the RPs of the given set,
 //which can not be recovered because are in collision status
-//or because are obstructed in unsecure positions.
+//or because are obstructed in insecurity positions.
 //Preconditions:
 //  All RPs of the Fiber MOS Model, shall be in their initial positions.
 //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
-//  All RPs of the list Outsiders, shall be in unsecure positions.
+//  All RPs of the list Outsiders, shall be in insecurity positions.
 //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+//Postconditions:
+//  All RPs of the Fiber MOS Model will be configured for MP validation
+//  All RPs of the fiber MOS Model will be in their final positions,
+//  or the first position where the collision was detected.
+//  All RPs of the Fiber MOS Model will have disabled the quantifiers.
 //Inputs:
 //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
 //  Outsiders: list of operative RPs in insecure positions which
@@ -1101,9 +1130,9 @@ void TMotionProgramGenerator::addMessageListToGoToTheOrigins(TMotionProgram& DP,
 //Outputs:
 //  generateDepositioningProgram: flag indicating if the DP can be
 //      generated or not with this function.
-//  Collided: list of RPs collided in unsecure position.
-//  Obstructed: list of RPs obstructed in unsecure position.
-//  RP: recovery program.
+//  Collided: list of RPs collided in insecurity position.
+//  Obstructed: list of RPs obstructed in insecurity position.
+//  MP: recovery program.
 bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Collided,
     TRoboticPositionerList& Obstructed, TMotionProgram& MP,
     const TRoboticPositionerList& Outsiders)
@@ -1112,7 +1141,7 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
 
     //All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //All RPs in the list Outsiders, shall be operatives.
-    //All RPs in the list Outsiders, shall be in unsecure positions.
+    //All RPs in the list Outsiders, shall be in insecurity positions.
     //All RPs in the list Outsiders, shall have enabled the quantifiers.
     for(int i=0; i<Outsiders.getCount(); i++) {
         TRoboticPositioner *RP = Outsiders[i];
@@ -1122,7 +1151,7 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
         if(!RP->getOperative())
             throw EImproperArgument("All RPs in the list Outsiders, shall be operatives.");
         if(RP->getActuator()->ArmIsInSafeArea())
-            throw EImproperArgument("All RPs in the list Outsiders, shall be in unsecure positions.");
+            throw EImproperArgument("All RPs in the list Outsiders, shall be in insecurity positions.");
         if(!RP->getActuator()->getQuantify_() || !RP->getActuator()->getArm()->getQuantify___())
             //indicates that all RPs in the list Outsiders shall have enabled the quantifiers
             throw EImproperArgument("All RPs in the list Outsiders, shall have enabled the quantifiers.");
@@ -1130,18 +1159,18 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
 
     //START:
 
-    //configure the Fiber MOS Model for generation of motion programs
-    getFiberMOSModel()->RPL.SetPurpose(pGen);
-
-    //segregates the RPs of the list Outsiders which are in collision status, in the list Collided
-    getFiberMOSModel()->RPL.segregateCollided(Collided);
-
     //initialize the outputs
     Collided.Clear();
     Obstructed.Clear();
     MP.Clear();
 
-    //if there aren't RPs of the list Outsiders in unsecure positions
+    //configure the Fiber MOS Model for MP generation
+    getFiberMOSModel()->RPL.SetPurpose(pGen);
+
+    //segregates the RPs of the list Outsiders which are in collision status, in the list Collided
+    getFiberMOSModel()->RPL.segregateCollided(Collided);
+
+    //if there aren't RPs of the list Outsiders in insecurity positions
     if(Outsiders.allRPsAreInSecurePosition())
         //indicates that has found a solution, and return the empty solution
         return true;
@@ -1152,7 +1181,7 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     getFiberMOSModel()->RPL.PushPositions();
 
     //build the list Outsiders_ to contains the pointers to
-    //the RPs wich remain in unsecure positions
+    //the RPs wich remain in insecurity positions
     TRoboticPositionerList Outsiders_(Outsiders);
     //program the retraction for all RPs of the list Outsiders_
     programRetraction(Outsiders_);
@@ -1161,16 +1190,23 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //Each time can be only retracted some RPs of the list Outsiders_.
     //The process shall be reiterated until deplete the list.
     //The list Outsiders_ will start being a copy of the list Outsiders,
-    //which will contains the set of all RPs in unsecure positions,
+    //which will contains the set of all RPs in insecurity positions,
     //which is to recover the security position of most of them.
     //Only the obstructed RPs will remain in the list Outsiders_.
 
-    //Each step can has be composed by one or two gestures:
-    //  a gesture of retraction
-    //  or a gesture of rot 1 turn, followed by retractionof all
+    //Each step can be composed by one or two gestures:
+    //- A gesture of retraction for all RPs to be retracted.
+    //- A gesture of rot 1 turn for some RPs to be retracted,
+    //  followed by retraction for all RPs to be retracted.
 
     //ITERATES THE GENERATION OF STEPS UNTIL EXHAUST THE POSSIBILITIES
     //OF RETRACTION OF THE RPs OF THE LIST Outsiders_:
+
+    //disable the quantifiers
+    getFiberMOSModel()->RPL.SetQuantifys(false, false);
+
+    //WARNING: initial and final position of each gesture shall correspond to stable positions.
+    //For that reason the quantifiers shall be temporarity enabled while gestures are programed.
 
     bool aux1, aux2;
 
@@ -1272,38 +1308,42 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //while has been retracted some RP and there is more RPs which we would like attempt retract
     } while(aux1 && aux2);
 
+    //indicates in the obstructed list, the operative RPs which remain in unsequrity positions
+    //and are in the outsiders list
+    Obstructed = Outsiders_;
+
+    //restaura y descarta las posiciones iniciales
+    getFiberMOSModel()->RPL.RestoreAndPopPositions();
+
     //determines if the generated MP produces dynamic collisions
-    getFiberMOSModel()->RPL.RestorePositions();
     bool collision = motionProgramIsntValid(MP);
     //if the MP poduces dynamic collisions
     if(collision)
         //indicates that not can find a solution
         return false;
 
-    //discard the stacked initial positions
-    getFiberMOSModel()->RPL.PopPositions();
-
-    //WRNING: all RPs retracted shall stay in security positions,
+    //WARNING: all RPs retracted must be in security positions,
     //to allow add a message list to go to the origins.
-
-    //indicates in the obstructed list, the operative RPs which remain in unsequrity positions
-    //and are in the outsiders list
-    Obstructed = Outsiders_;
 
     //indicates that has found a solutions, and return the DP and the obstructed list
     return true;
 }
 
 //Generates a depositioning program for a given set of operative RPs
-//in unsecure positions and determines the RPs of the given set,
+//in insecurity positions and determines the RPs of the given set,
 //which can not be recovered because are in collision status
-//or because are obstructed in unsecure positions.
+//or because are obstructed in insecurity positions.
 //Preconditions:
 //  All RPs of the Fiber MOS Model, shall be in their initial positions.
 //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
-//  All RPs of the list Outsiders, shall be in unsecure positions.
+//  All RPs of the list Outsiders, shall be in insecurity positions.
 //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+//Postconditions:
+//  All RPs of the Fiber MOS Model will be configured for MP validation
+//  All RPs of the fiber MOS Model will be in their final positions,
+//  or the first position where the collision was detected.
+//  All RPs of the Fiber MOS Model will have disabled the quantifiers.
 //Inputs:
 //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
 //  Outsiders: list of operative RPs in insecure positions which
@@ -1311,8 +1351,8 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
 //Outputs:
 //  generateParkingProgram: flag indicating if the parking program
 //      can be generated or not with this function.
-//  Collided: list of RPs collided in unsecure position.
-//  Obstructed: list of RPs obstructed in unsecure position.
+//  Collided: list of RPs collided in insecurity position.
+//  Obstructed: list of RPs obstructed in insecurity position.
 //  DP: depositioning program.
 bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerList& Collided,
     TRoboticPositionerList& Obstructed, TMotionProgram& DP,
@@ -1321,7 +1361,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     //attempt to generates the recovery program
     bool success = generateRecoveryProgram(Collided, Obstructed, DP, Outsiders);
 
-    //if generation function was successfully generated
+    //if the recovery program was successfully generated
     if(success) {
         //Here all operative outsiders RPs which aren't obstructed are in secure position,
         //in their final position after execute the DP.
@@ -1436,15 +1476,20 @@ void TMotionProgramGenerator::generatePositioningProgram(TMotionProgram& PP,
 }
 
 //Generates a pair (PP, DP) for a given set of operative RPs
-//in unsecure positions and determines the RPs of the given set,
+//in insecurity positions and determines the RPs of the given set,
 //which can not be recovered because are in collision status
-//or because are obstructed in unsecure positions.
+//or because are obstructed in insecurity positions.
 //Preconditions:
 //  All RPs of the Fiber MOS Model, shall be in their observing positions.
 //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
-//  All RPs of the list Outsiders, shall be in unsecure positions.
+//  All RPs of the list Outsiders, shall be in insecurity positions.
 //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+//Postconditions:
+//  All RPs of the Fiber MOS Model will be configured for MP validation
+//  All RPs of the fiber MOS Model will be in their final positions,
+//  or the first position where the collision was detected.
+//  All RPs of the Fiber MOS Model will have disabled the quantifiers.
 //Inputs:
 //  FiberMOSModel: Fiber MOS Model with RPs in their observing positions.
 //  Outsiders: list of operative RPs in insecure positions which
@@ -1452,8 +1497,8 @@ void TMotionProgramGenerator::generatePositioningProgram(TMotionProgram& PP,
 //Outputs:
 //  generateParkingProgram: flag indicating if the pair (PP, DP)
 //      can be generated or not with this function.
-//  Collided: list of RPs collided in unsecure position.
-//  Obstructed: list of RPs obstructed in unsecure position.
+//  Collided: list of RPs collided in insecurity position.
+//  Obstructed: list of RPs obstructed in insecurity position.
 //  PP: positioning program.
 //  DP: depositioning program.
 bool TMotionProgramGenerator::generatePairPPDP(TRoboticPositionerList& Collided,

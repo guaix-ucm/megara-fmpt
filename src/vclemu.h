@@ -17,40 +17,36 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: vclemu.h
-//Contenido: emulador de VCL
-//Última actualización: 03/10/2011
-//Autor: Isaac Morales Durán
+//File: vclemu.h
+//Content: VCL emulator
+//Last update: 14/02/2015
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef VCLEMU_H
 #define VCLEMU_H
 
 #include <stdint.h>
-
-//#include <QCoreApplication> //std::exception
 #include <string>
-//##include <QColor>
 
 //---------------------------------------------------------------------------
 
-//Límites numéricos:
+//Numeric limits:
+//Value                     VCL             STL
+//                          values.h        limits
+//53                        DSIGNIF         std::numeric_limits<double>::digits
+//15                        -               std::numeric_limits<double>::digits10
+//0x7fffffff                MAXINT          std::numeric_limits<int>::max()
+//1.7976931348623158E+308   MAXDOUBLE       std::numeric_limits<double>::max()
 //
-//en values.h:
-#define DSIGNIF                 53 //número de bits de la mantisa de un double
-//#define MAXINT                  0x7fffffff //valor máximo para un entero
-#define MAXDOUBLE               1.7976931348623158E+308 //valor máximo para un double
-//#define MINDOUBLE               2.2250738585072014E-308 //valor mínimo (positivo) para un double
-//con std:
-//  numeric_limits<int>::max()      -
-//  numeric_limits<double>::min()   -
-//  numeric_limits<double>:_max()   -
-//
-//Encabezado necesario: <limits>
-//
-//Problema, el valor máximo de un double no se puede imprimir con
-//QString::toDouble(), produciéndose un error.
-//Solución, tomar los valores extremos como +/- INF.
+//WARNING: maximun value of a double can not be translated to text using
+//QString::toDouble(), generating an error.
+//this is the reasom why is prefferible used stringstream or ostringstream.
+
+//Other conversion functin in Qt:
+//  QString::number(x, 'g', 18);
+//  QString::number(n, 10);
+
 
 //lee el valor del separador decimal
 char get_decimal_separator(void);
@@ -58,21 +54,6 @@ char get_decimal_separator(void);
 //El valor del separador decimal se asigna mediante:
 //    setlocale(LC_NUMERIC, s);
 //donde s es una char* conteniendo el separador.
-
-//clase pantalla
-class TScreen {
-public:
-    int Width;
-    int Height;
-    double PixelsPerInch;
-
-    TScreen(void) : Width(1024), Height(768), PixelsPerInch(91.43) {;}
-};
-
-//define una pantalla
-extern TScreen Screen;
-
-//debe existir otro modo de acceeder a estas propiedades.
 
 //inicializa la semilla de los números pseudoaleatorios
 void randomize(void);
@@ -118,6 +99,8 @@ public:
     AnsiString& operator+=(const char&);
     //copia una AnsiString
     AnsiString& operator=(const AnsiString&);
+    //copia una string
+    AnsiString& operator=(const string& _str);
     //copia una char* (no la ñade, sino que la copia)
     AnsiString& operator=(const char*);
     //determina si una cadena es igual a esta
@@ -272,16 +255,12 @@ public:
 };
 
 //---------------------------------------------------------------------------
+//TrueBoolStrs and FalseBoolStrs:
 
 //variables globales para contener las cadenas correspondientes a true y false
 //según StrToBool y BoolToStr
 extern TStrings TrueBoolStrs;
 extern TStrings FalseBoolStrs;
-
-//convierte de Boolean a AnsiString
-AnsiString  BoolToStr(bool B, bool UseBoolStrs=false);
-//convierte de AnsiString a Boolean
-bool  StrToBool(const AnsiString S);
 
 //---------------------------------------------------------------------------
 //TStringList

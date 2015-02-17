@@ -29,7 +29,7 @@
 
 #include <math.h> //funciones matemáticas variadas
 #include <stdlib.h> //rand
-//##include <QColor> //QColor
+#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
@@ -314,7 +314,7 @@ double incmin(double x)
     //      1/pow(2, 54) = 5.55111512312578E-17
 
     //calcula el incremento mínimo de x
-    return pow(2, double(xexp))/pow(2, double(DSIGNIF+1));
+    return pow(2, double(xexp))/pow(2, double(std::numeric_limits<double>::digits+1));
 }
 
 //---------------------------------------------------------------------------

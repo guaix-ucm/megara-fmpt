@@ -181,9 +181,6 @@ public:
     //segrega los puntos de cielo del catálogo en el azulejo incluyendo
     //aquellos que estén en el interior del círculo (RA, DEC, 1.2*R_)
     void Segregate(TSkyPointList*);
-
-    //carga el aqzulejo de un archivo de texto
-    void LoadFromFile(const AnsiString &FileName);
 };
 
 //---------------------------------------------------------------------------
@@ -217,9 +214,9 @@ public:
     //numera los azulejos
     void Reidentify(void);
 
-    //guarda los azulejos en el directorio correspondiente
+/*    //guarda los azulejos en el directorio correspondiente
     void SaveToFiles(AnsiString FolderName="Tiles");
-
+*/
     //MÉTODOS DE INTERFAZ:
 /*#
     //imprime los azulejos en una caja de lista

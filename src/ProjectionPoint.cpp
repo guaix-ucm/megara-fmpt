@@ -608,26 +608,6 @@ void TProjectionPointList::Paint(TPloterShapes *PS)
         Items[i]->Paint(PS);
 }
 */
-//guarda la lista de puntos de proyección en un archivo de texto
-void TProjectionPointList::SaveToFile(const AnsiString &FileName)
-{
-    try {
-        StrWriteToFile(FileName, getText());
-    } catch(...) {
-        throw;
-    }
-}
-//carga los puntos de proyección de un archivo
-void TProjectionPointList::LoadFromFile(const AnsiString &FileName)
-{
-    try {
-        AnsiString S;
-        StrReadFromFile(S, FileName);
-        setText(S);
-    } catch(...) {
-        throw;
-    }
-}
 
 //selecciona todos los puntos objetivo de la lista
 void TProjectionPointList::SelectAll(void)

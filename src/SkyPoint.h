@@ -316,10 +316,6 @@ public:
     //imprime los puntos de cielo en un memorando
     void Print(QTextEdit *M);
 */
-    //guarda la lista de puntos de cielo en un archivo de texto
-    void SaveToFile(const AnsiString &FileName);
-    //carga la lista de puntos de cielo de un archivo de texto
-    void LoadFromFile(const AnsiString &FileName);
 };
 
 //---------------------------------------------------------------------------

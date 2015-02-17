@@ -300,7 +300,7 @@ void TRoboticPositioner::setEo(double _Eo)
     if(_Eo < 0)
         throw EImproperArgument("Eo value should be nonnegative");
 
-    __Eo = 0;//_Eo; //asigna el nuevo valor
+    __Eo = _Eo; //asigna el nuevo valor
 
     //ERROR: se ha dispuesto asignar E0 = 0 para
     //reducir el SPM y evitar una colisión dinámica
@@ -412,12 +412,12 @@ void TRoboticPositioner::setFaultProbability(double _FaultProbability)
 
 AnsiString TRoboticPositioner::getDisabledText(void) const
 {
-    return BoolToStr_(Disabled, true);
+    return BoolToStr(Disabled, true);
 }
 void TRoboticPositioner::setDisabledText(const AnsiString &S)
 {
     try {
-        Disabled = StrToBool_(S);
+        Disabled = StrToBool(S);
     } catch(...) {
         throw;
     }
@@ -462,7 +462,7 @@ void TRoboticPositioner::setControlModeText(AnsiString &S)
 
 AnsiString TRoboticPositioner::getOperativeText(void) const
 {
-    return BoolToStr_(getOperative(), true);
+    return BoolToStr(getOperative(), true);
 }
 
 //---------------------------------------------------------------------------
@@ -821,8 +821,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
 //---------------------------------------------------------------------------
 //MÉTODOS DE CONSTRUCCIÓN, DESTRUCCIÓN Y COPIA:
 
-//construye un posicionador
-//con los valores por defecto
+//build a RP by default
 TRoboticPositioner::TRoboticPositioner(void) :
     //inicializa las propiedades de tolerancia
     __Eo(0.001), __Ep(0.01),
@@ -844,10 +843,8 @@ TRoboticPositioner::TRoboticPositioner(void) :
     //añade el posicionador a la lista de contruidos
     Builts.Add(this);
 }
-//construye un posicionador
-//con los valores indicados
-//si el número de identificación es menor que uno
-//lanza una execepción EimproperArgument
+//build a RP with the indicated values
+//if Id is less 1 throw an exception EimproperArgument
 TRoboticPositioner::TRoboticPositioner(int _Id, TDoublePoint _P0,
                                        double _thetaO1) :
     //inicializa las propiedades de tolerancia
@@ -863,7 +860,7 @@ TRoboticPositioner::TRoboticPositioner(int _Id, TDoublePoint _P0,
     if(_Id < 1)
         throw EImproperArgument("identification number Id should be upper zero");
 
-    //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
+    //WARNING: duplicity of identifiers is allowed.
 
     //contruye el actuador del posicionador
     __Actuator = new TActuator(_Id, _P0, _thetaO1);
@@ -875,75 +872,128 @@ TRoboticPositioner::TRoboticPositioner(int _Id, TDoublePoint _P0,
     Builts.Add(this);
 }
 
-//copia las propiedades de seguridad de un posicionador
-void TRoboticPositioner::CopyTolerance(const TRoboticPositioner *FP)
+/*//copy all control properties of a RP
+void CopyControl(const TRoboticPositioner*);
+void CopyControl(const TRoboticPositioner&);*/
+//copy all tolerance properties of a RP
+void TRoboticPositioner::CopyTolerance(const TRoboticPositioner *RP)
 {
-    //el puntero FP debe apuntar a un posicionador contruido
-    if(FP == NULL)
-        throw EImproperArgument("pointer FP should point to built fiberpositioner");
+    //check the precondition
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //copia las tolerancias
-    __Eo = FP->getEo();
-    __Ep = FP->getEp();
-    __Tstop = FP->getTstop();
-    __Tshiff = FP->getTshiff();
+    __Eo = RP->getEo();
+    __Ep = RP->getEp();
+    __Tstop = RP->getTstop();
+    __Tshiff = RP->getTshiff();
 }
-//copia las propiedades de estado de un posicionador
-void TRoboticPositioner::CopyStatus(const TRoboticPositioner *FP)
+void TRoboticPositioner::CopyTolerance(const TRoboticPositioner& RP)
 {
-    //el puntero FP debe apuntar a un posicionador contruido
-    if(FP == NULL)
-        throw EImproperArgument("pointer FP should point to built fiber posicionator");
+    //copia las tolerancias
+    __Eo = RP.getEo();
+    __Ep = RP.getEp();
+    __Tstop = RP.getTstop();
+    __Tshiff = RP.getTshiff();
+}
+//copy all status properties of a RP
+void TRoboticPositioner::CopyStatus(const TRoboticPositioner *RP)
+{
+    //check the precondition
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-    Disabled = FP->Disabled;
-    setFaultProbability(FP->getFaultProbability());
-    FaultType = FP->FaultType;
-    ControlMode = FP->ControlMode;
+    Disabled = RP->Disabled;
+    setFaultProbability(RP->getFaultProbability());
+    FaultType = RP->FaultType;
+    ControlMode = RP->ControlMode;
+}
+void TRoboticPositioner::CopyStatus(const TRoboticPositioner& RP)
+{
+    Disabled = RP.Disabled;
+    setFaultProbability(RP.getFaultProbability());
+    FaultType = RP.FaultType;
+    ControlMode = RP.ControlMode;
 }
 
-//copia todas las propiedades de un posicionador
-void TRoboticPositioner::Clone(const TRoboticPositioner *FP)
+//copy all properties of a RP
+void TRoboticPositioner::Clone(const TRoboticPositioner *RP)
 {
-    //el puntero FP debe apuntar a un posicionador contruido
-    if(FP == NULL)
-        throw EImproperArgument("pointer FP should point to built fiber posicionator");
+    //check the precondition
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //copia las propiedades
-    getActuator()->Clone(FP->getActuator());
-    CMF.Copy(&FP->CMF);
-    CopyTolerance(FP);
-    CopyStatus(FP);
+    getActuator()->Clone(RP->getActuator());
+    CMF.Copy(RP->CMF);
+    CopyTolerance(RP);
+    CopyStatus(RP);
 }
-TRoboticPositioner& TRoboticPositioner::operator=(const TRoboticPositioner& FP)
+void TRoboticPositioner::Clone(const TRoboticPositioner& RP)
 {
     //copia las propiedades
-    getActuator()->Clone(FP.getActuator());
-    CMF.Copy(&FP.CMF);
-    CopyTolerance(&FP);
-    CopyStatus(&FP);
+    getActuator()->Clone(RP.getActuator());
+    CMF.Copy(RP.CMF);
+    CopyTolerance(RP);
+    CopyStatus(RP);
+}
+TRoboticPositioner& TRoboticPositioner::operator=(const TRoboticPositioner& RP)
+{
+    //copia las propiedades
+    getActuator()->Clone(RP.getActuator());
+    CMF.Copy(RP.CMF);
+    CopyTolerance(RP);
+    CopyStatus(RP);
 
     //devuelve la referenciaa este posicionador
     return *this;
 }
 
-//contruye un clon de un posicionador
-TRoboticPositioner::TRoboticPositioner(const TRoboticPositioner *FP)
+//build a clon of a RP
+TRoboticPositioner::TRoboticPositioner(const TRoboticPositioner *RP)
 {
-    //el puntero FP debe apuntar a un posicionador contruido
-    if(FP == NULL)
-        throw EImproperArgument("pointer FP should point to built fiber posicionator");
+    //check the precondition
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
+    //build a clone of the actuator of the RP
+    __Actuator = new TActuator(RP->getActuator());
+    //copy all other properties of the RP
+    Clone(RP);
+
+    //añade el posicionador a la lista de contruidos
+    Builts.Add(this);
+}
+TRoboticPositioner::TRoboticPositioner(const TRoboticPositioner& RP)
+{
     //contruye un clon del actuador del posicionador
-    __Actuator = new TActuator(FP->getActuator());
+    __Actuator = new TActuator(RP.getActuator());
     //copia todas las propiedades del posicionador
-    Clone(FP);
+    Clone(RP);
 
     //añade el posicionador a la lista de contruidos
     Builts.Add(this);
 }
 
-//libera la memoria dinámica y borra el objeto de Builts
-//si el objeto no está en Builts lanza EImproperCall
+//copy all properties of a RP
+//except (P0, Id, Id1, Id2)
+void TRoboticPositioner::Apply(const TRoboticPositioner& RP)
+{
+    TDoublePoint P0 = getActuator()->getP0();
+    int Id = getActuator()->getId();
+    int Id1 = CMF.getId1();
+    int Id2 = CMF.getId2();
+
+    Clone(RP);
+
+    getActuator()->setP0(P0);
+    getActuator()->setId(Id);
+    CMF.setId1(Id1);
+    CMF.setId2(Id2);
+}
+
+//free the dynamic memory and delete the RP in Builts
+//if the RP isn't in Built throw EImproperCall
 TRoboticPositioner::~TRoboticPositioner()
 {
     //debe haber algún objeto para destruir
@@ -1153,89 +1203,115 @@ void TRoboticPositioner::SetSPMoff(double PAem, double Pem)
 //--------------------------------------------------------------------------
 //INSTRUCTION METHODS:
 
-//program turn of rotor 1 from actual position to p_1
-//if the p_1 is out rotor 1 domain:
+//program turn of rotor 1 from actual position to p_1fin
+//if rotor 1 quantifier is disabled:
+//  throw and exception EImproperCall
+//if the p_1fin is out rotor 1 domain:
 //  throw an exception EImproperArgument
-void TRoboticPositioner::M1(double _p_1)
+void TRoboticPositioner::M1(double p_1fin)
 {
-    //la posición p_1 debería estar en el dominio del eje 1
-    if(getActuator()->IsntInDomainp_1(_p_1))
-        throw EImproperArgument("position p_1 should have in rot 1 domain");
+    //check the preconditions
+    if(getActuator()->getQuantify_() != true)
+        throw EImproperCall("rotor 1 quantifier should be enabled");
+    if(getActuator()->IsntInDomainp_1(p_1fin))
+        throw EImproperArgument("position p_1fin should be in rot 1 domain");
 
-    //programa el giro del cilindro
-    CMF.ProgramMF1(getActuator()->getp_1(), _p_1);
+    //Rotor 1 quantifier shall be enabled to avoid
+    //the numerical error in getActuator()->getp_1().
+
+    //get the actual position of rotor 1
+    double p_1sta = getActuator()->getp_1();
+
+    //program turn of rotor 1 from actual position to final position
+    CMF.ProgramMF1(p_1sta, p_1fin);
 }
-//program turn of rotor 2 from actual position to p___3
-//if the p___3 is out rotor 2 domain:
+//program turn of rotor 2 from actual position to p___3fin
+//if rotor 2 quantifier is disabled:
+//  throw and exception EImproperCall
+//if the p___3fin is out rotor 2 domain:
 //  throw an exception EImproperArgument
-void TRoboticPositioner::M2(double _p___3)
+void TRoboticPositioner::M2(double p___3fin)
 {
-    //la posición p___3 debería estar en el dominio del eje 2
-    if(getActuator()->getArm()->IsntInDomainp___3(_p___3))
-        throw EImproperArgument("position p___3 should have in rot 2 domain");
+    //check the preconditions
+    if(getActuator()->getArm()->getQuantify___() != true)
+        throw EImproperCall("rotor 2 quantifier should be enabled");
+    if(getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+        throw EImproperArgument("position p___3fin should be in rot 2 domain");
 
-    //programa el giro del cilindro
-    CMF.ProgramMF2(getActuator()->getArm()->getp___3(), _p___3);
+    //Rotor 2 quantifier shall be enabled to avoid
+    //the numerical error in getActuator()->getp_1().
+
+    //get the actual position of rotor 2
+    double p___3sta = getActuator()->getArm()->getp___3();
+
+    //program turn of rotor 2 from actual position to final position
+    CMF.ProgramMF2(p___3sta, p___3fin);
 }
-//program turns of rotors 1 and 2 from actual position to (p_1, p___3)
-//if the p_1 is out rotor 1 domain or p___3 is out rotor 2 domain:
+//program turns of rotors 1 and 2 from actual position to (p_1fin, p___3fin)
+//if rotor 1 quantifier or rotor 2 quantifier is disabled:
+//  throw and exception EImproperCall
+//if the p_1fin is out rotor 1 domain or p___3fin is out rotor 2 domain:
 //  throw an exception EImproperArgument
-void TRoboticPositioner::MM(double _p_1, double _p___3)
+void TRoboticPositioner::MM(double p_1fin, double p___3fin)
 {
-    //las posiciones (p_1, p___3) should has in rotors domain
-    if(getActuator()->IsntInDomainp_1(_p_1) || getActuator()->getArm()->IsntInDomainp___3(_p___3))
-        throw EImproperArgument("positions (p_1, p___3) should has in rotor domain");
+    //check the preconditions
+    if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
+        throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
+    if(getActuator()->IsntInDomainp_1(p_1fin) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+        throw EImproperArgument("PPA (p_1fin, p___3fin) should be in rotor domain");
 
-    //programa el giro del cilindro
-    CMF.ProgramBoth(getActuator()->getp_1(), getActuator()->getArm()->getp___3(), _p_1, _p___3);
+    //Quantifier of the rotors shall be enabled to avoid
+    //the numerical error in actual position.
+
+    //get the actual position of rotor 1
+    double p_1sta = getActuator()->getp_1();
+    //get the actual position of rotor 2
+    double p___3sta = getActuator()->getArm()->getp___3();
+
+    //program the turn of the rotors
+    CMF.ProgramBoth(p_1sta, p___3sta, p_1fin, p___3fin);
 }
 
-//program turn of rotor 1 from p_1sta to p_1end
-//if the p_1sta or p_1end is out rotor 1 domain:
+//program turn of rotor 1 from p_1sta to p_1fin
+//if the p_1sta or p_1fin is out rotor 1 domain:
 //  throw an exception EImproperArgument
 void TRoboticPositioner::M1(double p_1sta, double p_1fin)
 {
-    //la posición p_1sta debería estar en el dominio del eje 1
-    if(getActuator()->IsntInDomainp_1(p_1sta))
-        throw EImproperArgument("position p_1sta should have in rot 1 domain");
-    //la posición p_1fin debería estar en el dominio del eje 1
-    if(getActuator()->IsntInDomainp_1(p_1fin))
-        throw EImproperArgument("position p_1fin should have in rot 1 domain");
+    //check theprecondition
+    if(getActuator()->IsntInDomainp_1(p_1sta) || getActuator()->IsntInDomainp_1(p_1fin))
+        throw EImproperArgument("position angles p_1sta and p_1fin should be in rot 1 domain");
 
-    //programa el giro del cilindro
+    //program the turn of rotor 1
     CMF.ProgramMF1(p_1sta, p_1fin);
 }
-//program turn of rotor 2 from p___3sta to p___3end
-//if the p___3sta or p___3end is out rotor 2 domain:
+//program turn of rotor 2 from p___3sta to p___3fin
+//if the p___3sta or p___3fin is out rotor 2 domain:
 //  throw an exception EImproperArgument
 void TRoboticPositioner::M2(double p___3sta, double p___3fin)
 {
-    //la posición p___3sta debería estar en el dominio del eje 2
-    if(getActuator()->getArm()->IsntInDomainp___3(p___3sta))
-        throw EImproperArgument("position p___3sta should have in rot 2 domain");
-    //la posición p___3fin debería estar en el dominio del eje 2
-    if(getActuator()->getArm()->IsntInDomainp___3(p___3fin))
-        throw EImproperArgument("position p___3fin should have in rot 2 domain");
+    //check theprecondition
+    if(getActuator()->getArm()->IsntInDomainp___3(p___3sta) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+        throw EImproperArgument("position angles p___3sta and p___3fin should be in rot 2 domain");
 
-    //programa el giro del cilindro
+    //program the turn of rotor 1
     CMF.ProgramMF2(p___3sta, p___3fin);
 }
-//program turn of rotor 1 from p_1sta to p_1end, and
-//program turn of rotor 2 from p___3sta to p___3end
-//if the p_1sta or p_1end is out rotor 1 domain, or:
-//if the p___3sta or p___3end is out rotor 2 domain:
+//program turn of rotor 1 from p_1sta to p_1fin, and
+//program turn of rotor 2 from p___3sta to p___3fin
+//if the p_1sta or p_1fin is out rotor 1 domain, or:
+//if the p___3sta or p___3fin is out rotor 2 domain:
 //  throw an exception EImproperArgument
 void TRoboticPositioner::MM(double p_1sta, double p___3sta,
                             double p_1fin, double p___3fin)
 {
-    //las posiciones (p_1sta, p___3sta) should has in rotors domain
-    if(getActuator()->IsntInDomainp_1(p_1sta) || getActuator()->getArm()->IsntInDomainp___3(p___3sta))
-        throw EImproperArgument("positions (p_1sta, p___3sta) should has in rotors domain");
-    //las posiciones (p_1fin, p___3fin) should has in rotors domain
-    if(getActuator()->IsntInDomainp_1(p_1fin) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
-        throw EImproperArgument("positions (p_1fin, p___3fin) should has in rotors domain");
+    //check theprecondition
+    if(getActuator()->IsntInDomainp_1(p_1sta) || getActuator()->IsntInDomainp_1(p_1fin))
+        throw EImproperArgument("position angles p_1sta and p_1fin should be in rot 1 domain");
+    //check theprecondition
+    if(getActuator()->getArm()->IsntInDomainp___3(p___3sta) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+        throw EImproperArgument("position angles p___3sta and p___3fin should be in rot 2 domain");
 
-    //programa el giro del cilindro
+    //program the turn of the rotors
     CMF.ProgramBoth(p_1sta, p___3sta, p_1fin, p___3fin);
 }
 
@@ -1244,11 +1320,11 @@ void TRoboticPositioner::MM(double p_1sta, double p___3sta,
 //  throw an exception EImproperCall
 void TRoboticPositioner::SP(void)
 {
-    //debería haber un gesto programado
+    //check the precondition
     if(CMF.getMF1()==NULL && CMF.getMF2()==NULL)
         throw EImproperCall("should have a programmed gesture");
 
-    //despograma el gesto
+    //clear the program
     CMF.ClearProgram();
 }
 
@@ -1272,28 +1348,48 @@ void TRoboticPositioner::setInstruction(const TInstruction &Instruction)
         throw EImproperArgument("instruction 'Instruction' should not be empty");
 
     try {
-        //el nombre de la instrucción debería ser conocido
+        //execute the instruction
         if(Instruction.getName() == "MS") {
-            //ejecuta el comando
             ControlMode = cmSinc;
+
         } else if(Instruction.getName() == "MA") {
-            //ejecuta el comando
             ControlMode = cmAsinc;
+
         } else if(Instruction.getName() == "M1") {
-            //ejecuta el comando
+            //enable temporarity the rotor quantifier to accomplish precondition
+            getActuator()->PushQuantify_();
+            getActuator()->setQuantify_(true);
+            //program the gesture
             M1(Instruction.Args.getFirst());
+            //restore the status of rotor quantifier
+            getActuator()->RestoreAndPopQuantify_();
+
         } else if(Instruction.getName() == "M2") {
-            //ejecuta el comando
+            //enable temporarity the rotor quantifier to accomplish precondition
+            getActuator()->getArm()->PushQuantify___();
+            getActuator()->getArm()->setQuantify___(true);
+            //program the gesture
             M2(Instruction.Args.getFirst());
+            //restore the status of rotor quantifier
+            getActuator()->getArm()->RestoreAndPopQuantify___();
+
         } else if(Instruction.getName() == "MM") {
-            //ejecuta el comando
+            //enable temporarity the rotor quantifier to accomplish precondition
+            getActuator()->PushQuantifys();
+            getActuator()->setQuantify_(true);
+            getActuator()->getArm()->setQuantify___(true);
+            //program the gesture
             MM(Instruction.Args.getFirst(), Instruction.Args[1]);
+            //restore the status of rotor quantifier
+            getActuator()->RestoreAndPopQuantifys();
+
         } else if(Instruction.getName() == "SP") {
-            //ejecuta el comando
             SP();
+
         } else
-            //indica error imposible
+            //indicates that the instruction should be known
             throw EImpossibleError("instruction name should be known");
+
     } catch(...) {
         throw; //relanza la excepción
     }
@@ -1377,8 +1473,14 @@ void TRoboticPositioner::programTurnArmToSafeArea(void)
 
 //program the retraction of the arm to
 //the more closer-stable security position
+//if rotor 1 quantifier or rotor 2 quantifier is disabled:
+//  throw and exception EImproperCall
 void TRoboticPositioner::programRetractArmToSafeArea(void)
 {
+    //check the preconditions
+    if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
+        throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
+
     //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
 
     switch(CMF.getMFM()) {
@@ -1433,12 +1535,12 @@ void TRoboticPositioner::programRetractArmToSafeArea(void)
     }
     //traduce la nueva posición a pasos
     double p_1 = getActuator()->getF().Image(theta_1);
-    //determina la primera posición estable menor o igual
-    p_1_ = Max(0., floor(p_1));
+    //determines the more closer estable position
+    p_1_ = Max(0., round(p_1));
 
-    //PROGRAMA EL MOVIMIENTO DE LOS EJES:
+    //PROGRAM THE MOVEMENT OF THE ROTORS:
 
-    //asigna el primer ángulo estable menor o igual que p___3saf
+    //program the movement to go to the stable position
     MM(p_1_, p___3saf_);
 }
 

@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: RoboticPositionerList1.h
-//Contenido: lista de posicionadores con propiedades dimensionales
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: RoboticPositionerList1.h
+//Content: RPlist with sizing properties
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONERLIST1_H
@@ -36,22 +36,20 @@
 using namespace Lists;
 using namespace Positioning;
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
-//###########################################################################
-//Métodos de TRoboticPositionerList1:
-//###########################################################################
+//---------------------------------------------------------------------------
 
-//clase lista de posicionadores
+//class RP list
 class TRoboticPositionerList1 : public TItemsList<TRoboticPositioner*> {
 protected:
-        //TOLERANCIAS:
+        //TOLERANCES:
 
         double __PAem;
         double __Pem;
 
-        //PROPIEDADES DE DIMENSIONAMIENTO:
+        //SIZING PROPERTIES:
 
         TDoublePoint __O;
 
@@ -62,38 +60,15 @@ protected:
         double __y3min;
         double __y3max;
 
-        //PROPIEDADES DE ÁREA:
+        //AREA PROPERTIES:
 
         double __Spt;
         double __Set;
         double __Ret;
         double __FiberDensity;
 
-        //###################################################################
-        //PROPIEDADES EN FORMATO TEXTO
-        //###################################################################
-
-        //PROPIEDADES COMPUESTAS EN FORMATO TEXTO:
-
-        //TOLERANCIAS EN FORMATO TEXTO:
-
-        //PROPIEDADES DE DIMENSIONAMIENTO EN FORMATO TEXTO:
-
-        //PROPIEDADES DE ÁREA EN FORMATO TEXTO:
-
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
 public:
-        //PROPIEDADES COMPUESTAS:
-
-/*        //lista de posicionadores
-        TPointersList<TRoboticPositioner> RoboticPositioners;
-        //lista de áreas de exclusión
-        TPointersList<TRoboticPositioner> ExclusionAreas;
-  */
-        //PROPIEDADES DE SEGURIDAD:
+        //TOLERANCE PROPERTIES:
 
         //margen de error de orientación de S0.
         //debe ser no negativo
@@ -124,7 +99,7 @@ public:
         //      double SPMdyn(void) const;
         //      double SPMoff(double PAem, double Pem) const;
 
-        //PROPIEDADES DE DIMENSIONAMIENTO:
+        //SIZING PROPERTIES:
 
         //posición del origen del sistema S0
         //valor constante: (0, 0)
@@ -148,7 +123,7 @@ public:
         //el dominio conjunto de P3
         double gety3max(void) const {return __y3max;}
 
-        //PROPIEDADES DE ÁREA:
+        //AREA PROPERTIES:
 
        //NOTA: los parámetros Sp, Se y Re son calculados analíticamente
        //para el caso en que los posicionadores adyacentes cumplen:
@@ -183,48 +158,19 @@ public:
         //      área exclusiva total;
         //      área exclusiva accesible.
 
-        //PROPIEDADES GRÁFICAS:
-
-        //color del límite del dominio conjunto
-        //valor por defecto: clGray
-        //#QColor LimitDomainColor;
-
-        //indica si debe dibujar los actuadores
-        //valor por defecto: true
-        bool PaintActuators_;
-        //interruptor de dibujo del límite del dominio
-        //circular conjunto de los posicionadores
-        //valor por defecto: false
-        bool PaintLimitDomain_;
-        //indica si debe dibujar el mapa
-        //valor por defecto: false
-        bool PaintMap_;
-
-        //###################################################################
-        //PROPIEDADES EN FORMATO TEXTO
-        //###################################################################
-
-        //PROPIEDADES COMPUESTAS EN FORMATO TEXTO:
-
+        //-------------------------------------------------------------------
+        //COMPOSED PROPERTIES IN TEXT FORMAT:
 
         //dirección en memoria de la lista de elementos
         AnsiString getItemsAddressText(void) const {
                 return IntToHex(reinterpret_cast<intptr_t>(&Items), 8);}
-/*        //dirección en memoria de la lista de posicionadores
-        AnsiString getRoboticPositionersAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&RoboticPositioners), 8);}
-        //dirección en memoria de la lista de áreas de exclusión
-        AnsiString getExclusionAreasAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&ExclusionAreas), 8);}
-  */
-        //TOLERANCIAS EN FORMATO TEXTO:
 
-        //TOLERANCIAS EN FORMATO TEXTO:
+        //TOLERANCE PROPERTIES IN TEXT FORMAT:
 
         AnsiString getPAemText(void) const; void setPAemText(const AnsiString&);
         AnsiString getPemText(void) const; void setPemText(const AnsiString&);
 
-        //PROPIEDADES DE DIMENSIONAMIENTO EN FORMATO TEXTO:
+        //SIZING PROPERTIES IN TEXT FORMAT:
 
         AnsiString getOText(void) const;
 
@@ -235,26 +181,14 @@ public:
         AnsiString gety3minText(void) const;
         AnsiString gety3maxText(void) const;
 
-        //PROPIEDADES DE ÁREA EN FORMATO TEXTO:
+        //AREA PROPERTIES IN TEXT FORMAT:
 
         AnsiString getSptText(void) const;
         AnsiString getSetText(void) const;
         AnsiString getRetText(void) const;
         AnsiString getFiberDensityText(void) const;
 
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-        AnsiString getLimitDomainColorText(void) const;
-        void setLimitDomainColorText(const AnsiString&);
-
-        AnsiString getPaintActuators_Text(void) const;
-        void setPaintActuators_Text(const AnsiString&);
-        AnsiString getPaintLimitDomain_Text(void) const;
-        void setPaintLimitDomain_Text(const AnsiString&);
-        AnsiString getPaintMap_Text(void) const;
-        void setPaintMap_Text(const AnsiString&);
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+        //SETS OF PROPERTIES IN TEXT FORMAT:
 
         //get the origins table in text format:
         //      Id      x0      y0      thetaO1
@@ -294,14 +228,14 @@ public:
         void setInstanceText(const AnsiString&);
 
         //-------------------------------------------------------------------
-        //MÉTODOS ESTÁTICOS:
+        //STATIC METHODS:
 
         //lee una instancia en una cadena
         static void  ReadInstance(TRoboticPositionerList1* &RPL,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------
-        //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN
+        //BUILDING AND DESTROYING METHODS:
 
         //construye una lista de posicionadores
         TRoboticPositionerList1(void);
@@ -319,7 +253,7 @@ public:
         //      (LimitDomainColor, PaintActuators_, PaintLimitDomain_, PaintMap)
         void CopyGraphics(const TRoboticPositionerList1*);
 
-        //clona un lista de posicionadores
+        //clone a RP list
         //      (Tolerance, Sizing, Area, Graphics)
         void Clone(const TRoboticPositionerList1*);
 
@@ -334,7 +268,7 @@ public:
         //es destruir la lista de posicionadores sin destruir los posicionadores
         //deberá vaciarla antes con el método: ClearWithoutDestroy.
 
-        //ADD OR DELETE RPs:
+        //METHODS TO ADD OR DELETE RPs:
 
         //Inherited methods:
         //  Add(TRoboticPositioner *RP): dd a RP to the list.
@@ -344,7 +278,7 @@ public:
         //return the position where the RP was found
         int deleteIfFind(const TRoboticPositioner* RP);
 
-        //MÉTODOS DE CONSTRUCCIÓN DE POSICIONADORES:
+        //METHODS TOBUILD RPs:
 
         //construye la capa n de posicionadores equidistantes una distancia D
         //donde la capa 0 representa el posicionador central
@@ -366,7 +300,7 @@ public:
         //Valores recomendados para BuildquareHive:
         //      MEGARA 104: M=5 pos; N=4 pos;
 
-        //MÉTODOS DE DESTRUCCION DE POSICIONADORES:
+        //METHODS TO DESTROY RPs:
 
         //detruye el posicionador indicado de la lista
         void Destroy(int i);
@@ -378,7 +312,7 @@ public:
         //una distancia del centro mayor que la indicada
         void Destroy(double rmax);
 
-        //MÉTODOS DE BÚSQUEDA DE POSICIONADORES:
+        //METHODS TO SEARCH RPs:
 
         //busca un posicionador en la lista
         int Search(const TRoboticPositioner *RP) const;
@@ -388,6 +322,8 @@ public:
         //devuelve el puntero al primer posicionador
         //con el identificador indicado
         const TRoboticPositioner *SearchIdPointer(int Id) const;
+        //search the first free identifier starting fron Id
+        int searchFirstFreeId(int Id);
 
         //busca el primer posicionador de la lista
         //en cuyo dominio de P3 se encuentra un punto
@@ -399,7 +335,7 @@ public:
         void SearchDisabledQuantificators(TVector<int> &indices);
 
         //------------------------------------------------------------------
-        //MÉTODOS DE ASIMILACIÓN:
+        //ASSIMILATION METHODS:
 
         //A partir de:
         //      (Items[i]->Eo, Items[i]->Ep, Items[i]->Tstop_em, Items[i]->Tshif_em, PAem, Pem)
@@ -468,20 +404,18 @@ public:
         //      CalculateAreaParameters
         void AssimilateSizing(void);
 
-        //asimila la configurración de posicionadores dada ejecutando:
+/*        //asimila la configurración de posicionadores dada ejecutando:
         //      CalculateSPMComponents();
         //      AssimilateSizing();
         void Assimilate(void);
-
-        //MÉTODOS DE LECTURA CONJUNTA:
+*/
+        //METHODS FOR JOINTLY READING:
 
         //get the PPA list in steps
         void GetPositions(TPairPositionAnglesList& PPAL);
 
-        //MÉTODOS DE ASIGNACIÓN CONJUNTA:
+        //METHODS FOR JOINTLY ALLOCATION:
 
-/*        //asigna una lista de posiciondores
-        void SetRoboticPositioners(const TPointersList<TRoboticPositioner>&);*/
         //asigna las posiciones angulares de los ejes
         //este método es atómico
         void SetPositions(const TPairPositionAnglesList& PositionList);
@@ -490,7 +424,7 @@ public:
         void SetTolerance(double _PAem,double _Pem);
 
         //------------------------------------------------------------------
-        //MÉTODOS DE DOMINIO CONJUNTO:
+        //METHODS FOR JOINTLY DOMAIN:
 
         //determina el intervalo cartesiano que contiene
         //el dominio de todos los posicionadores
@@ -512,7 +446,7 @@ public:
         //determine if all operative RPs of the list are in the origin
         bool allOperativeRPsAreInTheOrigin(void) const;
 
-        //MÉTODOS DE DESPLAZAMIENTO CONJUNTO:
+        //METHODS FORJOINTLY DISOPLACEMENT:
 
         //mueve los ejes de los posicionadores
         //a sus orígenes de coordenadas
@@ -552,7 +486,7 @@ public:
         //segrega los posicionadores seleccionados en una lista
         void SegregateSelected(TRoboticPositionerList1&) const;
 
-        //MÉTODOS DE PILA DE POSICIONES ANGULARES:
+        //METHODS FOR STACKING POSITION ANGLES:
 
         //apila las posiciones de cada posicionador de la lista
         void PushPositions(void);
@@ -571,7 +505,7 @@ public:
         //restaura la siguiente posición apilada del brazo de cada posicionador
         void PopArmtheta___3s(void);
 
-        //MÉTODOS DE PILA DE CUANTIFICADORES:
+        //METHODS FOR STACKING QUANTOFIERS STATUS:
 
         //apila el estado de
         //los cuantificadores de cada posicionador de la lista
@@ -600,7 +534,7 @@ public:
         void RestoreAndPopArmQuantify___s(void);
 
         //------------------------------------------------------------------
-        //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
+        //METHODS FOR DETERMINE COLLISION STATUS:
 
         //levanta las banderas indicadoras de determinación de colisión
         //pendiente de todos los posicionadores de la lista
@@ -615,7 +549,7 @@ public:
         //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
         void GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
 
-        //MÉTODOS RANDOMIZADO DE LOS EJES:
+        //METHODS FOR RANDOMIZE AXES:
 
         //lleva los ejes de los posicionadores a posiciones aleatorias
         //con distribución uniforme en sus dominios
@@ -633,7 +567,7 @@ public:
         //sus dominios en las que no colisionan entre si
         int RandomizeWithoutCollisionSelected(void);
 
-        //MÉTODOS DE RANDOMIZADO DE P3:
+        //METHODS FOR RANDOMIZE P3:
 
         //lleva el punto P3 de los posicionadores a posiciones aleatorias
         //con distribución uniforme en su dominio
@@ -650,53 +584,6 @@ public:
         //posiciones aleatorias con distribución uniforme en su dominio
         //en las que no colisionan entre si
         int RandomizeP3WithoutCollisionSelected(void);
-
-        //------------------------------------------------------------------
-        //MÉTODOS GRÁFICOS:
-
-        //establece el estado de la bandera de pintado
-        //del cuerpo de los posicionadores
-        void SetPaintBody(bool);
-        //establece el estado de la bandera de pintado
-        //del límite del dominio del punto P3 de los posicionadores
-        void SetPaintLimitDomainP3(bool);
-        //establece el estado de la bandera de pintado
-        //del límite del dominio de maniobra de los posicionadores
-        void SetPaintLimitDomainManeuvering(bool);
-
-        //asigna un color a todos los posicionadores de la lista
-//#        void SetAllColors(QColor Color);
-        //selecciona todos los posicionadores de la lista
-        void SelectAll(void);
-        //deselecciona todos los posicionadores de la lista
-        void DeselectAll(void);
-
-        //imprime la lista de posicionadores en el lienzo de la fotografía
-        //con los colores indicados
-        //imprime el lienzo de la fotografía en el lienzo de la caja de pintura
-        //#void PaintActuators(TPloterShapes *PS);
-        //imprime la lista de posicionadores en el lienzo de la fotografía
-        //con los colores indicados en el modelo simplificado
-        //imprime el lienzo de la fotografía en el lienzo de la caja de pintura
-        //#void PaintActuatorsSimplified(TPloterShapes *PS);
-        //dibuja el límite circular del dominio conjunto de los posicionadores
-        //#void PaintLimitDomain(TPloterShapes *PS);
-
-        //busca el primer posicionador que está bajo el punto P
-        //y que parte del posicionador puede ser agarrado en
-        //el punto indicado:
-        //      i: índice al posicionador bajo el punto P;
-        //      dominio i: [0, Count];
-        //      n: parte del posicionador agarrada;
-        //      valores posibles:
-        //              0: niguna;
-        //              1: cilindro (P0, L01);
-        //              2: brazo (PA..PH);
-        //              3: lente (P2, R2)
-        //valores de retorno:
-        //      false: ninguna parte agarrada
-        //      true: alguna parte agarrada
-        bool Grab(int &i, int &n, TDoublePoint P);
 };
 
 //---------------------------------------------------------------------------

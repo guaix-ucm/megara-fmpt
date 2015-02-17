@@ -42,6 +42,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     SkyPoint.cpp \
     ProjectionPoint.cpp \
     SPPP.cpp \
+    PositionerCenter.cpp \
     Tile.cpp \
     TelescopeProjectionModel.cpp \
     MotionProgram.cpp \
@@ -93,6 +94,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     SkyPoint.h \
     ProjectionPoint.h \
     SPPP.h \
+    PositionerCenter.h \
     Tile.h \
     TelescopeProjectionModel.h \
     MotionProgram.h \
@@ -153,6 +155,7 @@ pkginclude_HEADERS = vclemu.h \
     SkyPoint.h \
     ProjectionPoint.h \
     SPPP.h \
+    PositionerCenter.cpp \
     Tile.h \
     TelescopeProjectionModel.h \
     MotionProgram.h \

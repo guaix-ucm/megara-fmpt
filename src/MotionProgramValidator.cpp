@@ -24,8 +24,9 @@
 //---------------------------------------------------------------------------
 
 #include "MotionProgramValidator.h"
+#include "TextFile.h" //StrWriteToFile
 
-//#include <values.h>
+#include <limits> //std::numeric_limits
 
 //--------------------------------------------------------------------------
 
@@ -179,7 +180,7 @@ double TMotionProgramValidator::calculateTf(const TRoboticPositioner *RP,
     if(vmaxabs != 0)
         Tf = Df/vmaxabs;
     else
-        Tf= MAXDOUBLE;
+        Tf = std::numeric_limits<double>::max();
     return Tf;
 }
 //calculates the minimun step time of two RPs
@@ -207,7 +208,7 @@ double TMotionProgramValidator::calculateTmin(const TRoboticPositioner *RP,
     if(vmaxabs != 0)
         Tmin = SPMmin/vmaxabs;
     else
-        Tmin = MAXDOUBLE;
+        Tmin = std::numeric_limits<double>::max();
     return Tmin;
 }
 
@@ -220,7 +221,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositioner *RP) con
         throw EImproperArgument("pointer RP should point to built RP");
 
     //determines the Tf between each adjacent RP and select the minimun
-    double Tfmin = MAXDOUBLE;
+    double Tfmin = std::numeric_limits<double>::max();
     for(int i=0; i<RP->getActuator()->Adjacents.getCount(); i++) {
         TRoboticPositioner *RPA = RP->getActuator()->Adjacents[i];
         double Tf = calculateTf(RP, RPA);
@@ -239,7 +240,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositioner *RP) c
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //determines the Tmin between each adjacent RP and select the minimun
-    double Tminmin = MAXDOUBLE;
+    double Tminmin = std::numeric_limits<double>::max();
     for(int i=0; i<RP->getActuator()->Adjacents.getCount(); i++) {
         TRoboticPositioner *RPA = RP->getActuator()->Adjacents[i];
         double Tmin = calculateTmin(RP, RPA);
@@ -255,7 +256,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositioner *RP) c
 double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL) const
 {
     //minimun time free of the RPs of the RPL
-    double Tfmin = MAXDOUBLE; //initialize Tfmin with its maximun possible value
+    double Tfmin = std::numeric_limits<double>::max(); //initialize Tfmin with its maximun possible value
     bool notcollision = true; //initialize the collision indicator flag
 
     //calculates the Tf for the RPs of the RPL and select the minimun
@@ -299,7 +300,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
 double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& RPL) const
 {
     //minimun time free of the RPs of the RPL
-    double Tminmin = MAXDOUBLE; //initialize Tminmin with its maximun possible value
+    double Tminmin = std::numeric_limits<double>::max(); //initialize Tminmin with its maximun possible value
     bool notcollision = true; //initialize the collision indicator flag
 
     //calculates the Tmin for the RPs of the RPL and select the minimun
@@ -391,9 +392,11 @@ void TMotionProgramValidator::getRPsIncludedInMP(TRoboticPositionerList& RPL,
 //given initial positions, produce some dynamic collision.
 //Preconditions:
 //  All RPs ofthe Fiber MOS Model shall be in their initial positions
-//Posconditions:
+//Postconditions:
 //  All RPs of the Fiber MOS Model will be configured for MP validation
-//  All RPs of the fiber MOS Model will be in their final positions
+//  All RPs of the fiber MOS Model will be in their final positions,
+//  or the first position where the collision was detected.
+//  All RPs of the Fiber MOS Model will have disabled the quantifiers.
 //Inputs:
 //  MP: motion program
 //Outputs:
@@ -403,10 +406,13 @@ void TMotionProgramValidator::getRPsIncludedInMP(TRoboticPositionerList& RPL,
 //          true: motion program not avoid dynamic collision
 bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) const
 {
-    //CONFIGURES ALL RPs OF THE Fiber MOS Model FOR VALIDATION:
+    //CONFIGURES ALL RPs OF THE Fiber MOS Model:
 
-    //configure the Fiber MOS Model for validation
+    //set the purpose to Validation
     getFiberMOSModel()->RPL.SetPurpose(pVal);
+
+    //disable the quantifiers
+    getFiberMOSModel()->RPL.SetQuantifys(false, false);
 
     //CHECK THE INITIAL POSITIONS:
 
@@ -423,6 +429,22 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
         return true;
 
     //CHECK THE FOLLOWING STEPPING POSITIONS TO END:
+
+    /*
+     * Determine the IPL and the MP just before validation
+     * */
+
+    strWriteToFile("RPL_included.txt", RPL.getText().str);
+
+    TPairPositionAnglesList IPL;
+    getFiberMOSModel()->RPL.GetPositions(IPL);
+    strWriteToFile("IPL_interna.txt", IPL.getColumnText().str);
+
+    strWriteToFile("MP_intern.txt", MP.getText().str);
+
+    /*
+     *
+     * */
 
     //search a collision in each gesture
     for(int i=0; i<MP.getCount(); i++) {
@@ -445,19 +467,19 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
         double t = 0;
         //while has not reached the end
         while(t < Tdis) {
+            //move the rotors of the RPs to time t
+            getFiberMOSModel()->RPL.Move(t);
+
             //calculates the minimun free time of the RPL
             Tfmin = calculateTfmin(RPL);
             //if there is collision
-            if(Tfmin < 0)
+            if(Tfmin <= 0)
                 //indicates that the motion program produces a collision
                 return true;
-            //calculates and applies the minimun jump of the RPL
+            //calculates and applies the minimun jump time of the RPL
             double Tmin = calculateTminmin(RPL);
             if(Tfmin < Tmin)
                 Tfmin = Tmin;
-
-            //move the rotors of the RPs to time t
-            getFiberMOSModel()->RPL.Move(t);
 
             //advance simulation
             t += Tfmin;
@@ -468,15 +490,15 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
 
         } //while(t < Tdis);
 
+        //move the rotors of the RPs to final positions
+        getFiberMOSModel()->RPL.MoveFin();
+
         //calculates the minimun free time
         Tfmin = calculateTfmin(RPL);
         //if there is collision
         if(Tfmin <= 0)
             //indicates that the motion program not avoid dynamic collision
             return true;
-
-        //move the rotors of the RPs to final positions
-        getFiberMOSModel()->RPL.MoveFin();
     }
 
     //indicates that motion program avoid dynamic collision

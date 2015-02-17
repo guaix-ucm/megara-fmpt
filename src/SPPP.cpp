@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TranslationFuunctions.cpp
+//File: SPPP.cpp
 //Content: structure containing propeties of SP and PP
 //Last update: 23/01/2015
 //Author: Isaac Morales Durán
@@ -44,7 +44,7 @@ void TSPPP::setText(const string& str)
     StrSplit(Strings, str, '|');
 
     if(Strings.getCount() != 12)
-        throw EImproperArgument("string S should contains 12 dields separated by '|'");
+        throw EImproperArgument("string S should contains 12 fields separated by '|'");
 
     try {
         //translate the values and assign to a tampon variable
@@ -78,7 +78,7 @@ void TSPPP::setText(const string& str)
     }
 }
 
-//build an structure by default
+//build a structure by default
 TSPPP::TSPPP() : RA(0), Dec(0),
       X(0), Y(0), Enabled(false)
 {
@@ -91,7 +91,7 @@ TSPPP::TSPPP() : RA(0), Dec(0),
     Comment = "";
 }
 
-//copy all properties of a SPPP
+//copy all properties of am object of the same type
 TSPPP& TSPPP::operator=(const TSPPP& SPPP)
 {
     Name = SPPP.Name;
@@ -218,7 +218,7 @@ void TSPPPList::getTPL(TTargetPointList& TPL)
 {
     for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
-        if(SPPP->Name.length() > 0) { //if the SPPP correspond to an PP
+        if(SPPP->Bid.length() > 0) { //if the SPPP correspond to an PP
             if(SPPP->Enabled) { //if the point is allocated
                 //extract the Id from the SPPP
                 int Id = StrToInt_(SPPP->Pid);

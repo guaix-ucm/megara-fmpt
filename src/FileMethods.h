@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: FileMethods.h
-//Contenido: métodos de archivo para lectura y escritura de modelos
-//Última actualización: 15/05/2014
-//Autor: Isaac Morales Durán
+//File: FileMethods.h
+//Content: file functions for read and write instances of models
+//Last update: 12/02/2015
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FILEMETHODS_H
@@ -31,102 +31,70 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
 //---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA LISTAS DE POSICIONADORES DE FIBRA:
+//FILE FUNCTIONS FOR ROBOTIC POSITIONERS:
 
-//escribe la instancia de una lista de RPs
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TRoboticPositionerList&);
-//lee la instancia de una lista de RPs
-//de un directorio
-void ReadInstanceFromDir(TRoboticPositionerList&, const AnsiString& Dir);
+//read an instance of a RP
+//from a directory
+void readInstanceFromDir(TRoboticPositioner&, const string& dir);
 
 //---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA LISTAS DE ÁREAS DE EXCLUSIÓN:
+//FILE FUNCTIONS FOR ROBOTIC POSITIONER LISTS:
 
-//escribe la instancia de una lista de EAs
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TExclusionAreaList&);
-//lee la instancia de una lista de EAs
-//de un directorio
-void ReadInstanceFromDir(TExclusionAreaList&, const AnsiString& Dir,
+//write the instance of a RP list
+//in a directory
+void writeInstanceToDir(const string& dir, const TRoboticPositionerList&);
+//read an instance of a RP list
+//from a directory
+void readInstanceFromDir(TRoboticPositionerList&, const string& dir);
+
+//---------------------------------------------------------------------------
+//FILE FUNCTIONS FOR EXCLUSION AREA LIST:
+
+//write the instance of a EA list
+//in a directory
+void writeInstanceToDir(const string& dir, const TExclusionAreaList&);
+//read an instance of a EA list
+//from a directory
+void readInstanceFromDir(TExclusionAreaList&, const string& dir,
         const TRoboticPositionerList&);
 
 //---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA Fiber MOS Models:
+//FILE FUNCTIONS FOR Fiber MOS Models:
 
-//escribe la instancia de un Fiber MOS Model
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TFiberMOSModel*);
-//lee la instancia de un Fiber MOS Model
-//de un directorio
-void ReadInstanceFromDir(TFiberMOSModel*, const AnsiString& Dir);
-
-//escribe la instancia de un Fiber MOS Model
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TFiberMOSModel&);
-//lee la instancia de un Fiber MOS Model
-//de un directorio
-void ReadInstanceFromDir(TFiberMOSModel&, const AnsiString& Dir);
-
-//---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA Fiber Connection Models:
-
-//escribe la instancia de un Fiber Connection Model
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TFiberConnectionModel*);
-//lee la instancia de un Fiber Connection Model
-//de un directorio
-void ReadInstanceFromDir(TFiberConnectionModel*, const AnsiString& Dir);
-
-//escribe la instancia de un Fiber Connection Model
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TFiberConnectionModel&);
-//lee la instancia de un Fiber Connection Model
-//de un directorio
-void ReadInstanceFromDir(TFiberConnectionModel&, const AnsiString& Dir);
-
-/*//###########################################################################
-//FUNCIONES PARA OBJETOS EN FORMATO TEXTO
-//###########################################################################
-
-//---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA LISTAS DE POSICIONADORES DE FIBRA
-//EN FORMATO TEXTO:
-
-//escribe la instancia de una lista de posicionadores de fibra
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TRoboticPositionerListText&);
-//lee la instancia de una lista de posicionadores de fibra
-//de un directorio
-void ReadInstanceFromDir(TRoboticPositionerListText&, const AnsiString& Dir);
-
-//---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA LISTAS DE ÁREAS DE EXCLUSIÓN
-//EN FORMATO TEXTO:
-
-//escribe la instancia de una lista de EAs
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TExclusionAreaListText&);
-//lee la instancia de una lista de EAs
-//de un directorio
-void ReadInstanceFromDir(TExclusionAreaListText&, const AnsiString& Dir);
-
-//---------------------------------------------------------------------------
-//FUNCIONES DE ARCHIVO PARA POSICIONADORES MULTIFIBRA
-//EN FORMATO TEXTO:
-
-//escribe la instancia de un Fiber MOS Model
-//en un directorio
-void WriteInstanceToDir(const AnsiString& Dir, const TFiberMOSModelText*);
-//lee la instancia de un Fiber MOS Model
-//de un directorio
-void ReadInstanceFromDir(TFiberMOSModelText*, const AnsiString& Dir);
+/*//write the instance of a Fiber MOS Model
+//in a directory
+void writeInstanceToDir(const string& Dir, const TFiberMOSModel*);
+//read an instance of a Fiber MOS Model
+//from a directory
+void readInstanceFromDir(TFiberMOSModel*, const string& dir);
 */
+//write the instance of a Fiber MOS Model
+//in a directory
+void writeInstanceToDir(const string& dir, const TFiberMOSModel&);
+//read an instance of a Fiber MOS Model
+//from a directory
+void readInstanceFromDir(TFiberMOSModel&, const string& dir);
+
 //---------------------------------------------------------------------------
+//FILE FUNCTIONS FOR Fiber Connection Models:
+
+/*//write the instance of a Fiber Connection Model
+//in a directory
+void writeInstanceToDir(const string& dir, const TFiberConnectionModel*);
+//read an instance of a Fiber Connection Model
+//from a directory
+void readInstanceFromDir(TFiberConnectionModel*, const string& dir);
+*/
+//write the instance of a Fiber Connection Model
+//in a directory
+void writeInstanceToDir(const string& dir, const TFiberConnectionModel&);
+//read an instance of a Fiber Connection Model
+//from a directory
+void readInstanceFromDir(TFiberConnectionModel&, const string& dir);
 
 } //namespace Models
 

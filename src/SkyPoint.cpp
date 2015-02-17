@@ -918,26 +918,6 @@ void TSkyPointList::Print(QTextEdit *M)
     }
 }
 */
-//guarda la lista de puntos de cielo en un archivo de texto
-void TSkyPointList::SaveToFile(const AnsiString &FileName)
-{
-    try {
-        StrWriteToFile(FileName, getText());
-    } catch(...) {
-        throw;
-    }
-}
-//carga la lista de puntos de cielo de un archivo de texto
-void TSkyPointList::LoadFromFile(const AnsiString &FileName)
-{
-    try {
-        AnsiString S;
-        StrReadFromFile(S, FileName);
-        setText(S);
-    } catch(...) {
-        throw;
-    }
-}
 
 //---------------------------------------------------------------------------
 

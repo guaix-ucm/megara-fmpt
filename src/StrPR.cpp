@@ -1247,42 +1247,55 @@ void  StrReadBool(bool &b, const AnsiString &S, int &i)
 //      lanza una excepción EImproperCall.
 //Si UseBoolStrs==true, B==false y FalseBoolStrs[0] no está definido
 //      lanza una excepción EImproperCall.
-AnsiString  BoolToStr_(bool B, bool UseBoolStrs)
+AnsiString  BoolToStr(bool B, bool UseBoolStrs)
 {
-        //si usa las cadenas TrueBoolStrs[0] o FalseBoolStrs[0]
+        //check the precondition
         if(UseBoolStrs) {
-                //la cadena TrueBoolStrs[0] debería contener al menos un caracter
                 if(B && (TrueBoolStrs.getCount()<=0 || TrueBoolStrs[0].Length()<1))
                         throw EImproperCall("string TrueBoolStrs[0] should contain one character almost");
-
-                //la cadena FalseBoolStrs[0] debería contener al menos un caracter
                 if(!B && (FalseBoolStrs.getCount()<=0 || FalseBoolStrs[0].Length()<1))
                         throw EImproperCall("string FalseBoolStrs[0] should contain one character almost");
         }
 
-        //imprime el contenido de TrueBoolStrs[0] o FalseBoolStrs[0]
-        return BoolToStr(B, UseBoolStrs);
+        if(UseBoolStrs) {
+            if(B)
+                return TrueBoolStrs[0];
+            else
+                return FalseBoolStrs[0];
+        }
+
+        else {
+            if(B)
+                return AnsiString("1");
+            else
+                return AnsiString("0");
+        }
 }
 //Convierte un AnsiString a un valor lógico.
 //Si TrueBoolStrs[0] o FalseBoolStrs[0] no están definidos
 //lanza una excepción EImproperCall.
-bool  StrToBool_(const AnsiString S) {
-        //la cadena TrueBoolStrs[0] debería contener al menos un caracter
-        if(TrueBoolStrs.getCount()<1 && TrueBoolStrs[0].Length()<1)
+bool  StrToBool(const AnsiString S) {
+        //check the preconditions
+        if(TrueBoolStrs.getCount()<1 || TrueBoolStrs[0].Length()<1)
                 throw EImproperArgument("string TrueBoolStrs[0] should contain one character almost");
-
-        //la cadena FalseBoolStrs[0] debería contener al menos un caracter
-        if(FalseBoolStrs.getCount()<1 && FalseBoolStrs[0].Length()<1)
+        if(FalseBoolStrs.getCount()<1 || FalseBoolStrs[0].Length()<1)
                 throw EImproperArgument("string FalseBoolStrs[0] should contain one character almost");
 
-        try {
-                bool b;
-                int i = 1;
-                StrReadBool(b, S, i);
-                return b;
-        } catch(...) {
-                throw;
+        if(S.Length() == 1) {
+            if(S == "1")
+                return true;
+            else if(S == "0")
+                return false;
         }
+
+        if(TrueBoolStrs.getCount()>0 && S==TrueBoolStrs[0])
+            return true;
+
+        if(FalseBoolStrs.getCount()>0 && S==FalseBoolStrs[0])
+            return false;
+
+        //indica que la cadena S debería contener un valor lógico
+        throw EImproperArgument("strins S should contains a Boolean value");
 }
 
 //imprime un punto en una cadena de texto

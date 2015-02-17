@@ -28,7 +28,6 @@
 
 #include "vclemu.h" //AnsiString
 
-//#include <QCoreApplication> //std::exception
 #include <exception>
 #include <time.h> //time
 

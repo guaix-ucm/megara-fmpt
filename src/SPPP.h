@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TranslationFuunctions.h
+//File: SPPP.h
 //Content: structure containing propeties of SP and PP
 //Last update: 23/01/2015
 //Author: Isaac Morales Durán
@@ -65,10 +65,10 @@ public:
     //set the structure in text format
     void setText(const string& S);
 
-    //build an structure by default
+    //build a structure by default
     TSPPP(void);
 
-    //copy all properties of a SPPP
+    //copy all properties of am object of the same type
     TSPPP& operator=(const TSPPP&);
 };
 

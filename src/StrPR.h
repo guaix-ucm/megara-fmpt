@@ -227,11 +227,11 @@ void  StrReadBool(bool &b, const AnsiString &S, int &i);
 //lanza una excepción EImproperCall.
 //Si UseBoolStrs==true, B==false y FalseBoolStrs[0] no está definido
 //      lanza una excepción EImproperCall.
-AnsiString  BoolToStr_(bool B, bool UseBoolStrs = false);
+AnsiString  BoolToStr(bool B, bool UseBoolStrs = false);
 //Convierte un AnsiString a un valor lógico.
 //Si TrueBoolStrs[0] o FalseBoolStrs[0] no están definidos
 //lanza una excepción EImproperCall.
-bool  StrToBool_(const AnsiString S);
+bool  StrToBool(const AnsiString S);
 
 //RECORDATORIO: aunque:
 //      TrueBoolStrs[0]=="True" y

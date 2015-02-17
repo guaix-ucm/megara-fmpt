@@ -17,26 +17,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: vclemu.cpp
-//Contenido: emulador de VCL
-//Última actualización: 03/10/2011
-//Autor: Isaac Morales Durán
+//File: vclemu.cpp
+//Content: VCL emulator
+//Last update: 14/02/2015
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "vclemu.h"
 #include "Exceptions.h"
 
 #include <cmath>
-#include <climits>
+#include <climits> //PATH_MAX
+#include <limits> //std::numeric_limits
 #include <stdlib.h> //rands, rand
 #include <sstream> //ostringstream
 #include <stdlib.h> //strtod
-
 #include <unistd.h> //getcwd
 #include <sys/stat.h> //stat, S_ISDIR
-//#include <QDir>
 #include <locale.h> //struct lconv, localeconv()
 #include <cstring> //strlen
+#include <stdio.h> //printf, scanf
 
 //---------------------------------------------------------------------------
 
@@ -52,9 +52,6 @@ char get_decimal_separator(void)
 
     return s[0];
 }
-
-//construye la pantalla
-TScreen Screen;
 
 //inicializa la semilla de los números pseudoaleatorios
 void randomize(void)
@@ -147,6 +144,12 @@ AnsiString& AnsiString::operator=(const AnsiString& S)
     str = S.str;
     return *this;
 }
+//copia una string
+AnsiString& AnsiString::operator=(const string& _str)
+{
+    str = _str;
+    return *this;
+}
 //copia una char* (no la ñade, sino que la copia)
 AnsiString& AnsiString::operator=(const char *chars)
 {
@@ -236,79 +239,49 @@ AnsiString AnsiString::SubString(int offset, int count) const
 double AnsiString::ToDouble() const
 {
     try {
-        double value = strtod(str.c_str(), 0);
+        stringstream ss(str);
+        ss.precision(std::numeric_limits<double>::digits10);
+        double value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to double"));
+        }
+
+        //WARNING: if precision is upper to digits10 decimals, conversión to
+        //string can introduce numerial error for somevalues.Example:
+        //  value       ->  string
+        //  87.035553	->  "87.03555299999999"
+        //  -70.35		->  "-70.34999999999999"
+
         return value;
 
     } catch(...) {
             throw;
     }
-
-/*#    //indica a la primera posición
-    uint i = 0;
-    //descarta los separadores iniciales
-    while(str[i]==' ' || str[i]=='\t')
-        i++;
-    //descarta los ceros iniciales sin rebasar la última posición
-    //pues la cadena podría contener un solo cero
-    while(i<str.length()-1 && str[i]=='0')
-        i++;
-
-    //copia el resto de la cadena en una QString
-    QString QS;
-    for(; i<str.length(); i++)
-        QS += str[i];
-
-    //intenta traducir a double
-    bool ok;
-    double x = QS.toDouble(&ok);
-
-    //si no ha tenido éxito
-    if(!ok)
-        throw Exception(str+" not contains a double");
-
-    //ERROR: aquí debería tomar los valores extremos como +/- INF
-    //y los valores fuera del intervalo como error. Pero para evitar
-    //tener que averiguar cuales son los valores extremos exactamente,
-    //se prefiere dejar así esta función.
-
-    //devuelve el resultado
-    return x;*/
 }
 //convierte la cadena a entero
 int AnsiString::ToInt() const
 {
     try {
-        int value = strtod(str.c_str(), 0);
+        istringstream ss(str);
+        ss.precision(std::numeric_limits<double>::digits10);
+        int value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to double"));
+        }
+
+        //WARNING: if precision is upper to digits10 decimals, conversión to
+        //string can introduce numerial error for somevalues.Example:
+        //  value       ->  string
+        //  87.035553	->  "87.03555299999999"
+        //  -70.35		->  "-70.34999999999999"
+
         return value;
 
     } catch(...) {
             throw;
     }
-
-/*#    //indica a la primera posición
-    uint i = 0;
-    //descarta los separadores iniciales
-    while(str[i]==' ' || str[i]=='\t')
-        i++;
-    //descarta los ceros iniciales
-    while(str[i]=='0' && str.length()>1)
-        i++;
-
-    //copia el resto de la cadena en una QString
-    QString QS;
-    for(; i<str.length(); i++)
-        QS += str[i];
-
-    //intenta traducir a int
-    bool ok;
-    int n = QS.toInt(&ok, 10);
-
-    //si no ha tenido éxito
-    if(!ok)
-        throw Exception(str+" not contains an integer in decimal base");
-
-    //devuelve el resultado
-    return n;*/
 }
 
 //No sabemos como configurar un stringstream para que funcione en base hexadecimal.
@@ -326,30 +299,6 @@ int AnsiString::ToHex() const
     } catch(...) {
             throw;
     }
-/*#    //indica a la primera posición
-    uint i = 0;
-    //descarta los separadores iniciales
-    while(str[i]==' ' || str[i]=='\t')
-        i++;
-    //descarta los ceros iniciales
-    while(str[i]=='0')
-        i++;
-
-    //copia el resto de la cadena en una QString
-    QString QS;
-    for(; i<str.length(); i++)
-        QS += str[i];
-
-    //intenta traducir a int
-    bool ok;
-    int n = QS.toInt(&ok, 16);
-
-    //si no ha tenido éxito
-    if(!ok)
-        throw Exception(str+" not contains an integer in hexadecimal base");
-
-    //devuelve el resultado
-    return n;*/
 }
 /*#
 //convierte la cadena a entero
@@ -392,15 +341,21 @@ double StrToFloat(const AnsiString& S)
 //traduce de double a AnsiString
 AnsiString FloatToStr(double value)
 {
-    //#    return AnsiString(QString::number(x, 'g', 16));
-    ostringstream oss;
+    stringstream ss;
 
-    bool ok = (oss << value);
+    ss.precision(std::numeric_limits<double>::digits10);
+    bool ok = (ss << value);
     if(!ok) {
         throw EImproperArgument(AnsiString("can't convert double to string"));
     }
 
-    AnsiString S(oss.str());
+    //WARNING: if precision is upper to digits10 decimals, conversión to
+    //string can introduce numerial error for somevalues.Example:
+    //  value       ->  string
+    //  87.035553	->  "87.03555299999999"
+    //  -70.35		->  "-70.34999999999999"
+
+    AnsiString S(ss.str());
     return S;
 }
 
@@ -412,15 +367,14 @@ int StrToInt(const AnsiString& S)
 //traduce de integer a AnsiString
 AnsiString IntToStr(int value)
 {
-//    return AnsiString(QString::number(n, 10));
-    ostringstream oss;
+    stringstream ss;
 
-    bool ok = (oss << value);
+    bool ok = (ss << value);
     if(!ok) {
         throw EImproperArgument(AnsiString("can't convert int to string"));
     }
 
-    AnsiString S(oss.str());
+    AnsiString S(ss.str());
     return S;
 }
 
@@ -799,55 +753,11 @@ void TStrings::Clear(void)
 }
 
 //---------------------------------------------------------------------------
-//FUNCIONES DE CONVERSIÓN:
+//TrueBoolStrs and FalseBoolStrs:
 
 //inicializa las variables globales
 TStrings TrueBoolStrs;
 TStrings FalseBoolStrs;
-
-//convierte de Boolean a AnsiString
-AnsiString  BoolToStr(bool B, bool UseBoolStrs)
-{
-    if(UseBoolStrs) {
-        if(B) {
-            //TrueBoolStrs debe contener al menos una cadena
-            if(TrueBoolStrs.getCount() < 1)
-                throw EImproperCall("TrueBoolStrs should contains one AnsiString almost");
-            return TrueBoolStrs[0];
-        }
-        else {
-            //FalseBoolStrs debe contener al menos una cadena
-            if(FalseBoolStrs.getCount() < 1)
-                throw EImproperCall("FalseBoolStrs should contains one AnsiString almost");
-            return FalseBoolStrs[0];
-        }
-    }
-
-    if(B)
-        return AnsiString("1");
-    else
-        return AnsiString("0");
-}
-
-//convierte de AnsiString a Boolean
-bool  StrToBool(const AnsiString S)
-{
-    if(S.Length() == 1) {
-        if(S == "1")
-            return true;
-        else if(S == "0")
-            return false;
-    }
-
-    if(TrueBoolStrs.getCount()>0 && S==TrueBoolStrs[0])
-        return true;
-
-    if(FalseBoolStrs.getCount()>0 && S==FalseBoolStrs[0])
-        return false;
-
-    //indica que la cadena S debería contener un valor lógico
-    throw EImproperArgument("strins S should contains a Boolean value");
-}
 
 //---------------------------------------------------------------------------
 //TStringList:

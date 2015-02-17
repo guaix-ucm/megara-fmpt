@@ -69,6 +69,12 @@ These locations can vary depending on the operating system and distribution wher
 
 Known issues
 ============
+If installation is completed successfully but execution produce the following error:
+	fmpt_saa. error while loading shared libraries: libfmp.so:cannotopen shhared object file: No such file or directory.
+Then you must add the path of the library in the file '.bashrc' or the corresponding to the shell of your system:
+	LD_LiBRARY_PATH=/usr/local/lib
+	export LD_LIBRARY_PATH
+
 The package fails to compile with clang, the default compiler in Mac OSX 10.9
 and higher versions. To compile in these versions, the GNU C++ compiler is required.
 To override the default compiler use the following syntax:

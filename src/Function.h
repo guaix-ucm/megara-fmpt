@@ -246,10 +246,8 @@ public:
     //      Y[i] = Max(Y[i], F.Y[i])
     //las abcisas debén coincidir
     void OrdinatesMax(TFunction &F);
-
-    //escribe la función en elarchivo filename
-    void WriteToFile(char *filename);
 };
+
 //---------------------------------------------------------------------------
 
 } //namespace Operators

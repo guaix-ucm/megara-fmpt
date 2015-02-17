@@ -85,24 +85,24 @@ void TExclusionAreaList::setLimitDomainColorText(const AnsiString &S)
 */
 AnsiString TExclusionAreaList::getPaintExclusionAreas_Text(void) const
 {
-        return BoolToStr_(PaintExclusionAreas_);
+        return BoolToStr(PaintExclusionAreas_);
 }
 void TExclusionAreaList::setPaintExclusionAreas_Text(const AnsiString &S)
 {
         try {
-                PaintExclusionAreas_ = StrToBool_(S);
+                PaintExclusionAreas_ = StrToBool(S);
         } catch(...) {
                 throw;
         }
 }
 AnsiString TExclusionAreaList::getPaintLimitDomain_Text(void) const
 {
-        return BoolToStr_(PaintLimitDomain_);
+        return BoolToStr(PaintLimitDomain_);
 }
 void TExclusionAreaList::setPaintLimitDomain_Text(const AnsiString &S)
 {
         try {
-                PaintLimitDomain_ = StrToBool_(S);
+                PaintLimitDomain_ = StrToBool(S);
         } catch(...) {
                 throw;
         }

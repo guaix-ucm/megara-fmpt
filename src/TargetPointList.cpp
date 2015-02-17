@@ -681,8 +681,18 @@ void TTargetPointList::MoveToTargetP3(void)
         //el dominio de su posicionador adscrito
         TVector<int> indices;
         SearchOutDomineTargetPoints(indices);
-        if(indices.getCount() > 0)
-                throw EImproperCall(AnsiString("there is some target point out of the scope of their atached RP ")+indices.getText());
+        if(indices.getCount() > 0) {
+            //build a list with the pointer to the RP whose targetpointis out of their scope
+            TItemsList<TRoboticPositioner*> RPL;
+            RPL.Print = TRoboticPositioner::PrintId;
+            for(int i=0; i<indices.getCount(); i++) {
+                TTargetPoint *TP = Items[indices[i]];
+                RPL.Add(TP->getRoboticPositioner());
+            }
+
+            //indicates the error
+            throw EImproperCall(AnsiString("there is some target point out of the scope of their atached RP ")+RPL.getText());
+        }
 
         //para cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++)

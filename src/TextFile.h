@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: TextFile.h
-//Contenido: funciones de cálculo simbólico
-//Última actualización: 25/04/2013
-//Autor: Isaac Morales Durán
+//File: TextFile.h
+//Content: generic text file
+//Last update: 25/04/2013
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TEXTFILE_H
@@ -32,8 +32,7 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de funciones y clases de objetos
-//relacionados con cadenas de texto
+//namespace for strings
 namespace Strings {
 
 //---------------------------------------------------------------------------
@@ -91,26 +90,26 @@ public:
 
     //lee todo el contenido del archivo
     //si no puede realizar la operación lanza una excepción ECantComplete
-    void Read(AnsiString &S);
+    void Read(string& S);
 
     //escribe todo el contenido del archivo
     //si no puede realizar la operación lanza una excepción ECantComplete
-    void Print(const AnsiString &S);
+    void Print(const string& S);
 
     //MÉTODOS DE LECTURA Y ESCRITURA DE SENTENCIAS:
 
     //lee de f una cadena hasta que encuentra ';' o EOF
     //si encuentra ';' devuelve true y si encuentra EOF devuelve false.
-    bool ReadSentence(AnsiString &S);
+    bool ReadSentence(string& S);
 
     //busca la clave Ident partir de la posición actual y
     //devuelve el texto asociado
     //si no hay más sentencias lanza una excepción EComplete y
     //si encuentra otra cosa lanza una excepción ECantComplete
-    void ReadAssign(char *Ident, AnsiString &Value);
+    void ReadAssign(char *Ident, string& Value);
     //almacena la cadena Value asociada a la clave Ident
     //si no tiene éxito lanza una exceptición ECantComplete
-    void PrintAssign(char *Ident, const AnsiString &Value);
+    void PrintAssign(char *Ident, const string& Value);
 
     //SOBRE EL USO DE LOS MÉTODOS DE SENTENCIAS: es preferible
     //la implementación de un procedimiento que permita leer y escribir
@@ -132,14 +131,14 @@ public:
 //pasandole las propiedades de texto de los objetos:
 
 //lee un subdirectorio en una lista de cadenas de texto
-void ReadDir(TStringList *StringList, const AnsiString &Dir);
+void ReadDir(TStringList *StringList, const AnsiString& Dir);
 
-//lee una cadena de texto de un archivo
-void StrReadFromFile(AnsiString &S, const AnsiString &FileName);
-//escribe una cadena de texto en un archivo
-void StrWriteToFile(const AnsiString &FileName, const AnsiString &S);
-//añade una cadena de texto a un archivo
-void StrAddToFile(const AnsiString &FileName, const AnsiString &S);
+//read a text string from a file
+void strReadFromFile(string& str, const string& fileName);
+//write a text string in a file
+void strWriteToFile(const string& fileName, const string& str);
+//add a text string to afile
+void strAddToFile(const string& fileName, const string& str);
 
 //---------------------------------------------------------------------------
 

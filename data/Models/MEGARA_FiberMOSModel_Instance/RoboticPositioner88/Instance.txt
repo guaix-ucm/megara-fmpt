@@ -1,33 +1,33 @@
 ActuatorInstance:
-    L01 = 5.80237
-    theta_1min = -0.0436332
-    theta_1max = 6.32682
+    L01 = 5.80237021
+    theta_1min = -0.0436332312998582
+    theta_1max = 6.32681853847944
     theta_1 = 0
-    theta_O3o = 3.14159
-    SB1 = 8123.03
+    theta_O3o = 3.14159265358979
+    SB1 = 8123.07692
     ArmInstance:
-        L12 = 5.80237
-        L13 = 5.80237
+        L12 = 5.80237021
+        L13 = 5.80237021
         theta__O3 = 0
         R3 = 0.75
-        thetaO3 = -3.14159
-        theta___3min = -0.0436332
-        theta___3max = 3.18523
+        thetaO3 = -3.14159265358979
+        theta___3min = -0.0436332312998582
+        theta___3max = 3.18522588488965
         theta___3 = 0
-        SB2 = 9999.95
+        SB2 = 10000
     PAkd = Pre
 CMFInstance:
-    SF1->vmaxabs = 0.94
-    SF2->vmaxabs = 0.376
-    RF1->vmaxabs = 0.94
-    RF2->vmaxabs = 0.376
+    SF1->vmaxabs = 1
+    SF2->vmaxabs = 2
+    RF1->vmaxabs = 1
+    RF2->vmaxabs = 2
     MFM = Square
     SSM = Free
     RSM = Free
     Id1 = 175
     Id2 = 176
 Tolerances:
-    Eo = 0
+    Eo = 0.001
     Ep = 0.01
     Tstop = 1
     Tshiff = 1

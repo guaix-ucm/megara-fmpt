@@ -28,21 +28,18 @@
 #include "Scalars.h"
 #include "vclemu.h"
 
-//#include <values.h>
+#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
 using namespace Strings;
 using namespace Mathematics;
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
-//###########################################################################
-//Métodos de TRoboticPositionerList1:
-//###########################################################################
-
-//PROPIEDADES DE SEGURIDAD:
+//---------------------------------------------------------------------------
+//TOLERANCE PROPERTIES:
 
 void TRoboticPositionerList1::setPAem(double _PAem)
 {
@@ -68,16 +65,7 @@ void TRoboticPositionerList1::setPem(double _Pem)
 }
 
 //---------------------------------------------------------------------------
-//PROPIEDADES DE ÁREA:
-
-//PROPIEDADES MECÁNICAS EN FORMATO TEXTO:
-
-AnsiString TRoboticPositionerList1::getLO3maxText(void) const
-{
-        return FloatToStr(getLO3max());
-}
-
-//PROPIEDADES DE SEGURIDAD EN FORMATO TEXTO:
+//TOLERANCE PROPERTIES IN TEXT FORMAT:
 
 AnsiString TRoboticPositionerList1::getPAemText(void) const
 {
@@ -104,7 +92,36 @@ void TRoboticPositionerList1::setPemText(const AnsiString &S)
         }
 }
 
-//PROPIEDADES DE ÁREA EN FORMATO TEXTO:
+//SIZING PROPERTIES IN TEXT FORMAT:
+
+AnsiString TRoboticPositionerList1::getOText(void) const
+{
+        return DPointToStr(getO());
+}
+
+AnsiString TRoboticPositionerList1::getLO3maxText(void) const
+{
+        return FloatToStr(getLO3max());
+}
+
+AnsiString TRoboticPositionerList1::getx3minText(void) const
+{
+    return FloatToStr(getx3min());
+}
+AnsiString TRoboticPositionerList1::getx3maxText(void) const
+{
+    return FloatToStr(getx3max());
+}
+AnsiString TRoboticPositionerList1::gety3minText(void) const
+{
+    return FloatToStr(gety3min());
+}
+AnsiString TRoboticPositionerList1::gety3maxText(void) const
+{
+    return FloatToStr(gety3max());
+}
+
+//AREA PROPERTIES IN TEXT FORMAT:
 
 AnsiString TRoboticPositionerList1::getSptText(void) const
 {
@@ -123,66 +140,7 @@ AnsiString TRoboticPositionerList1::getFiberDensityText(void) const
         return FloatToStr(getFiberDensity());
 }
 
-//PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-/*#
-AnsiString TRoboticPositionerList1::getLimitDomainColorText(void) const
-{
-        return ColorToString(LimitDomainColor);
-}
-void TRoboticPositionerList1::setLimitDomainColorText(const AnsiString &S)
-{
-        try {
-                LimitDomainColor = StringToColor(S);
-        } catch(...) {
-                throw;
-        }
-}
-*/
-AnsiString TRoboticPositionerList1::getPaintActuators_Text(void) const
-{
-        return BoolToStr_(PaintActuators_);
-}
-void TRoboticPositionerList1::setPaintActuators_Text(const AnsiString &S)
-{
-        try {
-                PaintActuators_ = StrToBool_(S);
-        } catch(...) {
-                throw;
-        }
-}
-AnsiString TRoboticPositionerList1::getPaintLimitDomain_Text(void) const
-{
-        return BoolToStr_(PaintLimitDomain_);
-}
-void TRoboticPositionerList1::setPaintLimitDomain_Text(const AnsiString &S)
-{
-        try {
-                PaintLimitDomain_ = StrToBool_(S);
-        } catch(...) {
-                throw;
-        }
-}
-AnsiString TRoboticPositionerList1::getPaintMap_Text(void) const
-{
-        return BoolToStr_(PaintMap_);
-}
-void TRoboticPositionerList1::setPaintMap_Text(const AnsiString &S)
-{
-        try {
-                PaintMap_ = StrToBool_(S);
-        } catch(...) {
-                throw;
-        }
-}
-
-//PROPIEDADES DE LOCALIZACIÓN EN FORMATO TEXTO:
-
-AnsiString TRoboticPositionerList1::getOText(void) const
-{
-        return DPointToStr(getO());
-}
-
-//CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+//SETS OF PROPERTIES IN TEXT FORMAT:
 
 //get the origins table in text format:
 //      Id      x0      y0      thetaO1
@@ -366,18 +324,6 @@ AnsiString TRoboticPositionerList1::getAreaText(void) const
 
         return S;
 }
-AnsiString TRoboticPositionerList1::getGraphicsText(void) const
-{
-        AnsiString S;
-
-        //#S += AnsiString("LimitDomainColor: ")+getLimitDomainColorText()+AnsiString("\r\n");
-
-        S += AnsiString("PaintActuators_: ")+getPaintActuators_Text()+AnsiString("\r\n");
-        S += AnsiString("PaintLimitDomain_: ")+getPaintLimitDomain_Text()+AnsiString("\r\n");
-        S += AnsiString("PaintMap_: ")+getPaintMap_Text();
-
-        return S;
-}
 
 AnsiString TRoboticPositionerList1::getAllText(void) const
 {
@@ -388,7 +334,6 @@ AnsiString TRoboticPositionerList1::getAllText(void) const
         S += AnsiString("\r\nItemsAddress: ")+getItemsAddressText();
         S += AnsiString("\r\nSizing:\r\n")+StrIndent(getSizingText());
         S += AnsiString("\r\nArea:\r\n")+StrIndent(getAreaText());
-        S += AnsiString("\r\nGraphics:\r\n")+StrIndent(getGraphicsText());
 
         return S;
 }
@@ -423,7 +368,7 @@ void TRoboticPositionerList1::setInstanceText(const AnsiString& S)
                         throw EImproperArgument("string S should contain the instance value only");
 
                 //asigna la variable tampón
-                Clone(&RPL);
+                Clone(aux);
 
         } catch(...) {
                 throw;
@@ -510,10 +455,7 @@ void  TRoboticPositionerList1::ReadInstance(TRoboticPositionerList1* &RPL,
 TRoboticPositionerList1::TRoboticPositionerList1(void) :
     TItemsList<TRoboticPositioner*>(100),
     //propiedades de seguridad
-    __PAem(0.000001), __Pem(0.0001),
-    //propiedades de interfaz
-    //#LimitDomainColor(Qt::gray),
-    PaintActuators_(true), PaintLimitDomain_(false), PaintMap_(false)
+    __PAem(0.000001), __Pem(0.0001)
 {
     //point the default functions
     Compare = TRoboticPositioner::CompareIds;
@@ -565,49 +507,41 @@ void TRoboticPositionerList1::CopyArea(const TRoboticPositionerList1 *RPL)
         __Ret = RPL->getRet();
         __FiberDensity = RPL->getFiberDensity();
 }
-//copia las propiedades gráficas
-//      (LimitDomainColor, PaintActuators_, PaintLimitDomain_, PaintMap)
-void TRoboticPositionerList1::CopyGraphics(const TRoboticPositionerList1 *RPL)
-{
-        //el puntero RPL debe apuntar a una lista de posicionadores construida
-        if(RPL == NULL)
-                throw EImproperArgument("pointers RPL should point to built fiber positioner list");
 
-        //#LimitDomainColor = RPL->LimitDomainColor;
-        PaintActuators_ =RPL->PaintActuators_;
-        PaintLimitDomain_ = RPL->PaintLimitDomain_;
-        PaintMap_ = RPL->PaintMap_;
-}
-
-//clona una lista de posicionadores
+//clone a RP list
 //      (Tolerance, Sizing, Area, Graphics)
 void TRoboticPositionerList1::Clone(const TRoboticPositionerList1 *RPL)
 {
-        //el puntero RPL debe apuntar a una lista de posicionadores construida
-        if(RPL == NULL)
-                throw EImproperArgument("pointers RPL should point to built robotic positioner list");
+    //check the precondition
+    if(RPL == NULL)
+        throw EImproperArgument("pointers RPL should point to built robotic positioner list");
 
-        //clona los posicionadores de la lista
-        Items.Clone(RPL->Items);
-        for(int i=0; i<RPL->getCount(); i++)
-//                Add(new TRoboticPositioner(RPL->Get(i)));
-                Items[i] = new TRoboticPositioner(RPL->Get(i));
+    //initialize this list
+    Destroy();
+    //clona los posicionadores de la lista
+    for(int i=0; i<RPL->getCount(); i++) {
+        TRoboticPositioner *RP = RPL->Get(i);
+        TRoboticPositioner *RP_ = new TRoboticPositioner(RP);
+        Add(RP_);
+    }
 
-        //apunta a las mismas funciones externas
-        Compare = RPL->Compare;
-        Evaluate = RPL->Evaluate;
-        Assign = RPL->Assign;
-        Print = RPL->Print;
-        Read = RPL->Read;
+    //WARNING: due to a robotic positioner list is a list of pointers,
+    //their method Clone copy only the pointers:
+    //        Items.Clone(RPL->Items);
+    //This is the reason why the clonation of the list need build
+    //the RPs.
 
-        //copia las propiedades de seguridad
-        CopyTolerance(RPL);
-        //copia las propiedades de dimensionamiento:
-        CopySizing(RPL);
-        //copia las propiedades de área
-        CopyArea(RPL);
-        //copia laspropiedades gráficas
-        CopyGraphics(RPL);
+    //point the same extern funtions
+    Compare = RPL->Compare;
+    Evaluate = RPL->Evaluate;
+    Assign = RPL->Assign;
+    Print = RPL->Print;
+    Read = RPL->Read;
+
+    //copy all other properties of the model
+    CopyTolerance(RPL);
+    CopySizing(RPL);
+    CopyArea(RPL);
 }
 
 //construye un clon de una lista de posicionadores
@@ -930,6 +864,22 @@ const TRoboticPositioner *TRoboticPositionerList1::SearchIdPointer(int Id) const
         return Items[i];
 }
 
+//search the first free identifier starting fron Id
+int TRoboticPositionerList1::searchFirstFreeId(int Id)
+{
+    do {
+        //search the actual Id
+        int i = SearchId(Id);
+
+        //if has found the Id
+        if(i < getCount())
+            Id++; //increase the Id
+        else //else
+            return Id; //return the actual Id
+
+    } while(true); //ever
+}
+
 //busca el primer posicionador de la lista
 //en cuyo dominio de P3 se encuentra un punto
 int TRoboticPositionerList1::SearchDomainP3(TDoublePoint P)
@@ -1234,21 +1184,21 @@ void TRoboticPositionerList1::CalculateAreaParameters(void)
 void TRoboticPositionerList1::AssimilateSizing(void)
 {
         DetermineAdjacents();
-        SortAdjacents();                //<-----------------18/03/2014
+        SortAdjacents();
         CalculateSafeParameters();
         CalculateSizingParameters();
         CalculateAreaParameters();
 }
 
-//asimila la configurración de posicionadores dada ejecutando:
+/*//asimila la configurración de posicionadores dada ejecutando:
 //      CalculateSPMComponents();
 //      AssimilateSizing();
 void TRoboticPositionerList1::Assimilate(void)
 {
         CalculateSPMComponents();
-        AssimilateSizing();                //<-----------------18/03/2014
+        AssimilateSizing();
 }
-
+*/
 //MÉTODOS DE LECTURA CONJUNTA:
 
 //get the PPA list in steps
@@ -1276,16 +1226,6 @@ void TRoboticPositionerList1::GetPositions(TPairPositionAnglesList& PPAL)
 
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
-/*//asigna una lista de posiciondores
-void TRoboticPositionerList1::SetRoboticPositioners(const TPointersList<TRoboticPositioner>& RPs)
-{
-        //por cada posicionador de la lista
-        for(int i=0; i<RPs.Count; i++)
-                Add(new TRoboticPositioner(RPs.GetPointer(i)));
-
-        //asimila la lista de posicionadores
-        Assimilate();
-} */
 //asigna las posiciones angulares de los ejes
 //este método es atómico
 void TRoboticPositionerList1::SetPositions(const TPairPositionAnglesList& PositionList)
@@ -1347,33 +1287,28 @@ void TRoboticPositionerList1::SetTolerance(double _PAem,double _Pem)
 void TRoboticPositionerList1::GetDomainP3s(double &x3min, double &x3max,
         double &y3min, double &y3max)
 {
-        //el número de posicionadores de la lista debería ser mayor que cero
-        if(getCount() < 1)
-                throw EImproperCall("number of robotic positioners in the list should be upper zero");
+        //cheack the precondition
+        if(getCount() <= 0)
+            throw EImproperCall("for determine thejointly domain, the list should contains one RP almost");
 
-        TRoboticPositioner *RP;
+        //Here the list has one RP almost.
 
-        //inicializa los límites
-        x3min = MAXDOUBLE;
-        y3min = MAXDOUBLE;
-        x3max = -MAXDOUBLE;
-        y3max = -MAXDOUBLE;
+        //initialize the limits
+        x3min = std::numeric_limits<double>::max();
+        y3min = std::numeric_limits<double>::max();
+        x3max = -std::numeric_limits<double>::max();
+        y3max = -std::numeric_limits<double>::max();
 
-        //por cada posicionador de la lista
+        //for each RP of the list, actualize the limits
         for(int i=0; i<getCount(); i++) {
-                //apunta el posicionador indicado para facilitar su acceso
-                RP = Items[i];
+                TRoboticPositioner *RP = Items[i];
 
-                //actualiza los límites
                 if(RP->getActuator()->getx3min() < x3min)
                         x3min = RP->getActuator()->getx3min();
-                //actualiza los límites
                 if(RP->getActuator()->gety3min() < y3min)
                         y3min = RP->getActuator()->gety3min();
-                //actualiza los límites
                 if(RP->getActuator()->getx3max() > x3max)
                         x3max = RP->getActuator()->getx3max();
-                //actualiza los límites
                 if(RP->getActuator()->gety3max() > y3max)
                         y3max = RP->getActuator()->gety3max();
         }
@@ -2167,110 +2102,6 @@ int TRoboticPositionerList1::RandomizeP3WithoutCollisionSelected(void)
         return count;
 }
 
-//-------------------------------------------------------------------
-//MÉTODOS GRÁFICOS:
-
-//establece el estado de la bandera de pintado
-//del cuerpo de los posicionadores
-void TRoboticPositionerList1::SetPaintBody(bool b)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->PaintBody = b;
-}
-//establece el estado de la bandera de pintado
-//del límite del dominio del punto P3 de los posicionadores
-void TRoboticPositionerList1::SetPaintLimitDomainP3(bool b)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->PaintLimitDomainP3 = b;
-}
-//establece el estado de la bandera de pintado
-//del límite del dominio de maniobra de los posicionadores
-void TRoboticPositionerList1::SetPaintLimitDomainManeuvering(bool b)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->PaintLimitDomainManeuvering = b;
-}
-
-/*#//asigna un color a todos los posicionadores de la lista
-void TRoboticPositionerList1::SetAllColors(QColor Color)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->SetAllColors(Color);
-}*/
-//selecciona todos los posicionadores de la lista
-void TRoboticPositionerList1::SelectAll(void)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->Selected = true;
-}
-//deselecciona todos los posicionadores de la lista
-void TRoboticPositionerList1::DeselectAll(void)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->Selected = false;
-}
-/*#
-//imprime la lista de posicionadores en el lienzo de la fotografía
-//con los colores indicados
-//imprime el lienzo de la fotografía en el lienzo de la caja de pintura
-void TRoboticPositionerList1::PaintActuators(TPloterShapes *PS)
-{
-        //el puntero PS debería apuntar a un trazador de formas construido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-        //imprime los posicionadores de la lista
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->Paint(PS);
-}
-//imprime la lista de posicionadores en el lienzo de la fotografía
-//con los colores indicados en el modelo simplificado
-//imprime el lienzo de la fotografía en el lienzo de la caja de pintura
-void TRoboticPositionerList1::PaintActuatorsSimplified(TPloterShapes *PS)
-{
-        //el puntero PS debería apuntar a un trazador de formas construido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-        //imprime los posicionadores de la lista
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->PaintSimplified(PS);
-}
-//dibuja el límite circular del dominio conjunto de los posicionadores
-void TRoboticPositionerList1::PaintLimitDomain(TPloterShapes *PS)
-{
-        //configura el color de la pluma
-        PS->setPenColor(LimitDomainColor);
-        PS->Circunference(getO(), getLO3max());
-
-}
-
-//busca el primer posicionador que está bajo el punto P
-//y que parte del posicionador puede ser agarrado en
-//el punto indicado:
-//      i: índice al posicionador bajo el punto P;
-//      dominio i: [0, Count];
-//      n: parte del posicionador agarrada;
-//      valores posibles:
-//      0: niguna;
-//      1: cilindro (P0, L01);
-//      2: brazo (PA..PH);
-//      3: lente (P2, R2)
-//valores de retorno:
-//      false: ninguna parte agarrada
-//      true: alguna parte agarrada
-bool TRoboticPositionerList1::Grab(int &i, int &n, TDoublePoint P)
-{
-        for(i=0; i<getCount(); i++) {
-                n = Items[i]->getActuator()->Grab(P);
-                if(n > 0)
-                        return true;
-        }
-
-        return false;
-}
-*/
 //---------------------------------------------------------------------------
 
 } //namespace Models

@@ -104,9 +104,11 @@ public:
     //given initial positions, produce some dynamic collision.
     //Preconditions:
     //  All RPs ofthe Fiber MOS Model shall be in their initial positions
-    //Posconditions:
+    //Postconditions:
     //  All RPs of the Fiber MOS Model will be configured for MP validation
-    //  All RPs of the fiber MOS Model will be in their final positions
+    //  All RPs of the fiber MOS Model will be in their final positions,
+    //  or the first position where the collision was detected.
+    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
     //Inputs:
     //  MP: motion program
     //Outputs:
@@ -123,7 +125,7 @@ public:
     //  in the firs position where collision has been detected.
 };
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 } //namespace Positiong
 

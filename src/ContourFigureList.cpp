@@ -30,6 +30,8 @@
 #include "Geometry.h"
 #include "Constants.h"
 
+#include <limits> //std::numeric_limits
+
 //---------------------------------------------------------------------------
 
 using namespace Strings;
@@ -286,7 +288,7 @@ double TContourFigureList::DistanceMin(TDoublePoint P) const
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el punto y cada figura
-        double dmin = MAXDOUBLE; //distancia mínima hasta el momento
+        double dmin = std::numeric_limits<double>::max(); //distancia mínima hasta el momento
         TFigure *F; //puntero a una figura indicada de este contorno
 
         //calcula la distancia entre las figuras de este contorno
@@ -354,7 +356,7 @@ double TContourFigureList::DistanceMin(const TContourFigureList &C) const
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el par de figuras
-        double dmin = MAXDOUBLE; //distancia mínima hasta el momento
+        double dmin = std::numeric_limits<double>::max(); //distancia mínima hasta el momento
         TFigure *F; //puntero a una figura indicada de este contorno
         TFigure *Fo; //puntero a una figura indicada del otro contorno
         int i, j;

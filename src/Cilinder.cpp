@@ -741,12 +741,12 @@ void TCilinder::setFTableText(const AnsiString &S)
 
 AnsiString TCilinder::getQuantify_Text(void) const
 {
-    return BoolToStr_(getQuantify_(), true);
+    return BoolToStr(getQuantify_(), true);
 }
 void TCilinder::setQuantify_Text(AnsiString &S)
 {
     try {
-        setQuantify_(StrToBool_(S));
+        setQuantify_(StrToBool(S));
     } catch(...) {
         throw;
     }
@@ -1269,19 +1269,18 @@ void TCilinder::CopyCilinder(const TCilinder *C)
     __Barrier->Copy(C->__Barrier);
 }
 
-//construye un clon de un cilindro
+//build a clone of a cilinder
 TCilinder::TCilinder(const TCilinder *C)
 {
-    //el puntero C debería apuntar a un cilindro construído
+    //check the precondition
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
-    //construye el brazo del posicionador de fibra con sus propiedades por defecto
+    //build the components of the cilinder by default
     __Arm = new TArm(NewP1(), getthetaO1() - M_PI);
-    //coonstruye la barrera del área de exclusión
     __Barrier = new TBarrier(getP0(), getthetaO1());
 
-    //copia las propiedades
+    //copy all properties of the cilinder
     CopyCilinder(C);
 }
 
@@ -2277,15 +2276,18 @@ void TCilinder::GetArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
     //traduce de S1 a S0
     Pc = S1recToS0rec(Pc.x, Pc.y);
 
+    //calcula el radio del arco
+    R = getArm()->getL13();
+
     //determina el vértice inicial del arco en S1
-    double aux = getL01() + getArm()->getL13();
+    double aux = getL01() + R;
     Pini.x = aux*cos(theta_);
     Pini.y = aux*sin(theta_);
     //traduce de S1 a S0
     Pini = S1recToS0rec(Pini.x, Pini.y);
 
     //determina el vértice final del arco en S1
-    aux = getL01() - getArm()->getL13();
+    aux = getL01() - R;
     Pfin.x = aux*cos(theta_);
     Pfin.y = aux*sin(theta_);
     if(aux < 0) //si el brazo es más largo que el antebrazo

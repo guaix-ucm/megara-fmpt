@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: RoboticPositionerList2.h
-//Contenido: lista de posicionadores con mapeo hash
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: RoboticPositionerList2.h
+//Content: RP list with hash table
+//Last update: 13/02/2015
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONERLIST2_H
@@ -30,111 +30,97 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
-//###########################################################################
-//TRoboticPositionerList2
-//###########################################################################
+//---------------------------------------------------------------------------
 
-//clase mapa de posicionadores
+//class RP list with hash table
 class TRoboticPositionerList2 : public TRoboticPositionerList1 {
 protected:
-    //INTERVALO DE MAPEO:
+    //MAPPING INTERVAL:
 
     double __xmin;
     double __xmax;
     double __ymin;
     double __ymax;
 
-    //CELDAS DEL MAPA:
+    //CELL MATRIX OF THE MAP:
 
-    //celdas de la retícula del mapa
+    //cell matrix
     TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > Cells;
 
     int __J;
 
-    //PARÁMETROS DERIVADOS:
+    //DERIVED PARAMETERS:
 
     double __qx;
     double __qy;
 
-    //PARÁMETROS DE CONFIGURACIÓN EN FORMATO TEXTO:
+    //ASSIMILATION METHODS:
 
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    //PROPIEDADES GRÁFICAS:
-
-    bool __PaintMap;
-
-    //MÉTODOS DE ASIMILACIÓN:
-
-    //calcula el tamaño de una celda (qx, qy)
+    //calculates the sizing of a cell (qx, qy)
     void CalculateSize(void);
 
 public:
-    //INTERVALO DE MAPEO:
+    //MAPPING INTERVAL:
 
-    //límite inferior de la abcisa del intervalo de mapeo
-    //debe ser menor que el límite superior
-    //valor por defecto: -106.08 mm
+    //lower limit of the interval x of the map
+    //shall be lower than upper limit
+    //default value: -106.08 mm
     double getxmin(void) const {return __xmin;}
     void setxmin(double);
-    //límite superior de la abcisa del intervalo de mapeo
-    //debe ser mayor que el límite inferior
-    //valor por defecto: 106.08 mm
+    //upper limit of the interval x of the map
+    //shall be upper than lower limit
+    //default value: 106.08 mm
     double getxmax(void) const {return __xmax;}
     void setxmax(double);
-    //límite inferior de la ordenada del intervalo de mapeo
-    //debe ser menor que el límite superior
-    //valor por defecto: -102 mm
+    //lower limit of the interval y of the map
+    //shall be lower than upper limit
+    //default value: -102 mm
     double getymin(void) const {return __ymin;}
     void setymin(double);
-    //límite superior de la ordenada del intervalo de mapeo
-    //debe ser mayor que el límite inferior
-    //valor por defecto: 102 mm
+    //upper limit of the interval y of the map
+    //shall be upper than lower limit
+    //default value: 102 mm
     double getymax(void) const {return __ymax;}
     void setymax(double);
 
-    //ADVERTENCIA: el intervalo de mapeo debe contener completamente
-    //al plano focal y no necesariamente el dominio completo
-    //del conjunto de posicionadores, ya que solo se habrán de procesar
-    //los puntos dentro del plano focal.
+    //WARNING: the mapping interval shall contains the focal plane,
+    //becuase only will be processed the points in the focal plane.
 
-    //CELDAS DEL MAPA:
+    //CELL MATRIX OF THE MAP:
 
-    //número de filas de la retícula
-    //debe ser mayor que cero
-    //valor por defecto: 50
+    //number of rows of the grid
+    //shall be upper zero
+    //default value: 50
     int getI(void) const {return Cells.getCount();} void setI(int);
-    //número de columnas de la retícula
-    //debe ser mayor que cero
-    //valor por defecto: 52
+    //number of columns of the grid
+    //shall be upper zero
+    //default value: 52
     int getJ(void) const {return __J;} void setJ(int);
 
-    //CONSEJO: las dimensiones de la matriz de celdas deberían
-    //ser tales que la diagonal de cada celda no supere L,
-    //de modo que el lado de cada celda debería ser a lo sumo:
+    //ADVICE: cell matriz dimensions shall be such that the diagonal of each cell
+    //doesnot exceed L, so that the side of each cell should be at most:
     //      qmax = L/sqrt(2.) - ERR_NUM,
-    //ya que:
-    //      - por debajo de L el número máximo de posicionadores
-    //        por celda es 3;
-    //      - cuanto menor sea el tamaño de la celda, más probable
-    //        es que un punto del área exclusiva esté en una celda
-    //        con un solo posicionador.
+    //since:
+    //  - when the diagonal of a cell is below L,
+    //    the maximun number of RPs by cell is 3;
+    //  - when the sizing of a cell is lower, is most probably that
+    //    a point in the exclusive area is in a cell with one RP only.
 
-    //PARÁMETROS DERIVADOS:
+    //DERIVATED PARAMETERS:
 
-    //base de una celda
+    //base of a cell
     //      qx = (xmax - xmin)/J
-    //valor por defecto: 4.08 mm
+    //default value: 4.08 mm
     double getqx(void) const {return __qx;}
-    //altura de una celda
+    //hight of a cell
     //      qy = (ymax - ymin)/I
-    //valor por defecto: 4.08 mm
+    //default value: 4.08 mm
     double getqy(void) const {return __qy;}
 
-    //PROPIEDAES EN FORMATO TEXTO:
+    //PROPERTIES IN TEXT FORMAT:
 
     AnsiString getxminText(void) const;
     void setxminText(const AnsiString&);
@@ -153,152 +139,136 @@ public:
     AnsiString getqxText(void) const;
     AnsiString getqyText(void) const;
 
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //SET OF PROPERTIES IN TEXT FORMAT:
 
-    //propiedades de configuración
-    //en formato asignaciones de texto
+    //mapping interval
+    //in format assign of text
     AnsiString getIntervalText(void) const;
     void setIntervalText(const AnsiString&);
-    //celdas del mapa
-    //en formato asignaciones de texto
+    //cells ofthe map
+    //in format assign of text
     AnsiString getCellsText(void) const;
     void setCellsText(const AnsiString&);
-    //tamaño de celda
-    //en formato asignaciones de texto
+    //size of cell
+    //in format assign of text
     AnsiString getSizeText(void);
 
-    //instancia del mapa del posicionador
-    //en formato de asignaciones
+    //instance of the RP map
+    //in format assign of text
     AnsiString getInstanceMapText(void) const;
     void setInstanceMapText(const AnsiString&);
 
-    //PROPIEDADES GRÁFICAS:
+    //-------------------------------------------------------------------
+    //STATIC METHODS FOR INDIVIDUAL PROPERTIES:
 
-    //color de la regilla
-    //valor por defecto: clGreen
-    //#QColor Color;
+    //read xmin in assignment text format
+    static void  ReadxminText(double &xmin, const AnsiString &S, int &i);
+    //read xmax in assignment text format
+    static void  ReadxmaxText(double &xmax, const AnsiString &S, int &i);
+    //read ymin in assignment text format
+    static void  ReadyminText(double &ymin, const AnsiString &S, int &i);
+    //read umax in assignment text format
+    static void  ReadymaxText(double &ymax, const AnsiString &S, int &i);
+
+    //read I in assignment text format
+    static void  ReadIText(int &I,  const AnsiString &S, int &i);
+    //read J in assignment text format
+    static void  ReadJText(int &J, const AnsiString &S, int &i);
+
+    //STATIC METHODS FOR SETS OF PROPERTIES:
+
+    //print the mapping interval of a RP map
+    //in a text string in assign format
+    static void  PrintInterval(AnsiString &S,
+                               const TRoboticPositionerList2 *RPL);
+    //read the mapping interval of a RP map
+    //in a text string in assign format
+    static void  ReadInterval(TRoboticPositionerList2 *RPL,
+                              const AnsiString &S, int &i);
+
+    //print the cells of a RP map
+    //in a text string in assign format
+    static void  PrintCells(AnsiString &S,
+                            const TRoboticPositionerList2 *RPL);
+    //read the cells of a RP map
+    //in a text string in assign format
+    static void  ReadCells(TRoboticPositionerList2 *RPL,
+                           const AnsiString &S, int &i);
 
     //-------------------------------------------------------------------
-    //MÉTODOS ESTÁTICOS DE LECTURA DE PROPIEDADES INDIVIDUALES:
+    //BUILDING, COPY AND DESTROYING METHODS:
 
-    //lee xmin de una asignación
-    static void  ReadxminText(double &xmin, const AnsiString &S,
-                                        int &i);
-    //lee xmax de una asignación
-    static void  ReadxmaxText(double &xmax, const AnsiString &S,
-                                        int &i);
-    //lee ymin de una asignación
-    static void  ReadyminText(double &ymin, const AnsiString &S,
-                                        int &i);
-    //lee ymax de una asignación
-    static void  ReadymaxText(double &ymax, const AnsiString &S,
-                                        int &i);
+    //build a RP list
+    TRoboticPositionerList2(void);
 
-    //lee I de una asignación
-    static void  ReadIText(int &I,  const AnsiString &S,
-                                     int &i);
-    //lee J de una asignación
-    static void  ReadJText(int &J, const AnsiString &S,
-                                     int &i);
-
-    //MÉTODOS ESTÁTICOS DE CONJUNTOS DE PROPIEDADES:
-
-    //imprime el intervalo de mapeo de un mapa de posicionadores
-    //en una cadena de texto en formato de asignaciones
-    static void  PrintInterval(AnsiString &S,
-                                         const TRoboticPositionerList2 *RPL);
-    //le el intervalo de mapeo de un mapa de posicionadores
-    //en una cadena de texto en formato de asignaciones
-    static void  ReadInterval(TRoboticPositionerList2 *RPL,
-                                        const AnsiString &S, int &i);
-
-    //imprime las celdas de un mapa de posicionadores
-    //en una cadena de texto en formato de asignaciones
-    static void  PrintCells(AnsiString &S,
-                                      const TRoboticPositionerList2 *RPL);
-    //lee las celdas de un mapa de posicionadores
-    //en una cadena de texto en formato de asignaciones
-    static void  ReadCells(TRoboticPositionerList2 *RPL,
-                                     const AnsiString &S, int &i);
-
-    //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:
-
-    //construye unalista de posicionadores
-    TRoboticPositionerList2(void);//TRoboticPositionerList *_ListRoboticPositioners);
-
-    //copia la matriz de celdas
+    //copy the cell matrix
     void CopyCells(const TRoboticPositionerList2*);
-    //copia el mapa de posicionadores de una RPL
+    //copy the RP map of a RPL
     void CopyMap(const TRoboticPositionerList2*);
 
-    //clona un lista de posicionadores
-    //      (Tolerance, Sizing, Area, Graphics, Map)
+    //clone a RPL including:
+    //  (Tolerance, Sizing, Area, Graphics, Map)
     void Clone(const TRoboticPositionerList2*);
 
-    //contruye un clon de una lista de posicionadores
+    //build a clon of a RPL
     TRoboticPositionerList2(const TRoboticPositionerList2*);
 
-    //MÉTODOS DEL MAPA:
+    //MAP METHODS:
 
-    //establece los límites del intervalo de mapeo
+    //set the limmits of the mapping interval
     void SetMapInterval(double _xmin, double _xmax, double _ymin, double _ymax);
-    //establece las dimensiones de la matriz de celdas
+    //set the dimensions of the cell matrix
     void SetMapDimensions(int _I, int _J);
-    //establece el contenido de las celdas
+    //set the content of the cell matrix
     void SetMapCells(TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > &_Cells);
 
-    //mapea los posicionadores en el intervalo de mapeo
+    //maps the RPs in the mapping interval
     void Map(void);
-    //automáticamente:
-    //      1. establece los límites apropiados del intervalo de mapeo
-    //      2. establece las dimensiones apropieadas de la matriz de celda
-    //      3. mapea los posicionadores en el intervalo de mapeo
+    //automatically:
+    //      1. stablish the appropriate limits of the mapping interval
+    //      2. stablish the appropriate dimensions of the cell matrix
+    //      3. maps the RPs in the mapping interval
     void GenerateMap(void);
 
-    //transforma x en j por defecto
+    //assimilates the configuration of RPs executing:
+    //      CalculateSPMComponents();
+    //      AssimilateSizing();
+    //      GenerateMap();
+    void Assimilate(void);
+
+    //assimilates all RPs of the RPL to a given RP
+    void Apply(const TRoboticPositioner& RP);
+
+    //transform x in j by default
     //      x = floor((x - xmin)/qx)
     int jfloor(double x);
-    //transforma y en i por defecto
+    //transform y in i by default
     //      y = floor((y - ymin)/qy)
     int ifloor(double y);
-    //transforma x en j por exceso
+    //transform x in j by excess
     //      x = ceil((x - xmin)/qx)
     int jceil(double x);
-    //transforma y en i por exceso
+    //transform y in i by excess
     //      y = ceil((y - ymin)/qy)
     int iceil(double y);
 
-    //accede a la lista de posicionadores de la célula que contiene un punto
+    //access to the RP list of the cell which contains a point
     TItemsList<TRoboticPositioner*> *RoboticPositionersCell(TDoublePoint P);
 
-    //busca los posicionadores en cuyos dominios de P3
-    //se encuentre un punto determinado
+    //search the RPs whose scope is a point
     void SearchPositioners(TItemsList<TRoboticPositioner*> &RPs,
                            TDoublePoint P);
-
-    //MÉTODOS GRÁFICOS:
-
-    //dibuja el mapa en un trazador de formas
-    //#void PaintMap(TPloterShapes*);
-
-    //dibuja la lista de posicioandores en un trazador de formas
-    //#void Paint(TPloterShapes*);
-
 };
 
-//Utilización:
-//      //contruye el mapa
-//      TRoboticPositionerList *RPL = new TRoboticPositionerList(RPL);
-//      //ajusta los límites del mapa (ya realizado por defecto para SIDE)
+//How to use the class TRoboticPositionerList2:
+//      //set the mapping limits
 //      RPL->SetLimits(-RPL->R, RPL->R, -RPL->R, RPL->R);
-//      //redimensiona la matriz de celdas (ya realizado por defecto para SIDE)
+//      //setthedimensions of the cell matrix
 //      RPL->SetDimensions(floor(2*RPL->R/(L/2)), floor(2*RPL->R/(L/2)));
-//      //mapea los posicionadores de la lista
+//      //maps the RPs ofthe RPL
 //      RPL->Map(RPL);
-//      //determina los posicionadores en cuyos cominios está un punto
+//      //determines the RPs whose scope is a point
 //      RPL->SearchPositioners(RPs, P);
-//      //destruye el mapa
-//      delete RPL;
 
 //---------------------------------------------------------------------------
 

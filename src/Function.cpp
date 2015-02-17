@@ -27,6 +27,8 @@
 #include "PointersList.h"
 #include "TextFile.h"
 
+#include <limits> //std::numeric_limits
+
 //---------------------------------------------------------------------------
 
 using namespace Lists;
@@ -120,7 +122,7 @@ double TFunction::getX(int i) const
 void TFunction::setX(int i, double x)
 {
     //para tener sentido descriptivo, la abcisa debe ser finita
-    if(x<=-MAXDOUBLE || MAXDOUBLE<=x)
+    if(x<=-std::numeric_limits<double>::max() || std::numeric_limits<double>::max()<=x)
         throw EImproperArgument("x should be finite");
 
     if(Periodic) {
@@ -1155,34 +1157,6 @@ void TFunction::OrdinatesMax(TFunction &F)
     for(int i=0; i<Count; i++)
         //asigna la ordenada máxima
         Y[i] = Max(Y[i], F.Y[i]);
-}
-
-
-//escribelafunciónenelarchivofilename
-void TFunction::WriteToFile(char *filename)
-{
-    TTextFile TF;
-
-    try {
-        //abre el archivo para adición
-        TF.Open(filename, (char*)"w");
-
-        //imprime la cadena en el archivo
-        AnsiString S = getPointsText();
-        TF.Print(S);
-
-        //cierra el archivo
-        TF.Close();
-    }
-    catch(Exception &E) { //si falla
-        //asegura el cierre del archivo para evitar la pérdida de datos
-        if(TF.getIsOpen())
-            TF.Close();
-
-        //relanza la excepción que deberá ser
-        //capturada en la secuencia de guardado
-        throw Exception(E);
-    }
 }
 
 //---------------------------------------------------------------------------

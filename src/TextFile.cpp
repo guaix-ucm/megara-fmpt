@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: TextFile.cpp
-//Contenido: funciones de cálculo simbólico
-//Última actualización: 25/04/2013
-//Autor: Isaac Morales Durán
+//File: TextFile.h
+//Content: generic text file
+//Last update: 25/04/2013
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "TextFile.h"
@@ -123,7 +123,7 @@ void TTextFile::Close(void)
 
 //lee todo el contenido del archivo
 //si no puede realizar la operación lanza una excepción
-void TTextFile::Read(AnsiString &S)
+void TTextFile::Read(string& S)
 {
     //debe haber un archivo abierto
     if(!IsOpen)
@@ -145,14 +145,14 @@ void TTextFile::Read(AnsiString &S)
         if(ch == '\n')
             S += '\r';
 
-        S += AnsiString(ch);
+        S += ch;
         ch = (char)fgetc(f);
     }
 }
 
 //escribe todo el contenido del archivo
 //si no puede realizar la operación lanza una excepción
-void TTextFile::Print(const AnsiString &S)
+void TTextFile::Print(const string& S)
 {
     //debe haber un archivo abierto
     if(!IsOpen)
@@ -161,7 +161,7 @@ void TTextFile::Print(const AnsiString &S)
     char ch;
 
     //obtiene caracteres de f en S
-    for(int i=1; i<=S.Length(); i++) {
+    for(unsigned int i=0; i<S.length(); i++) {
         ch = S[i];
         if(ch != '\r')
             fprintf(f, "%c", ch);
@@ -178,7 +178,7 @@ void TTextFile::Print(const AnsiString &S)
 
 //lee de f una cadena hasta que encuentra ';' o EOF
 //si encuentra ';' devuelve true y si encuentra EOF devuelve false.
-bool TTextFile::ReadSentence(AnsiString &S)
+bool TTextFile::ReadSentence(string& S)
 {
     //debe haber un archivo abierto
     if(!IsOpen)
@@ -188,10 +188,13 @@ bool TTextFile::ReadSentence(AnsiString &S)
     S = "";
     char ch = (char)fgetc(f);
     while(ch!=EOF && ch!=';') {
-        S += AnsiString(ch);
+        S += ch;
         ch = (char)fgetc(f);
     }
-    StrTrim(S, S); //descarta los márgenes
+
+    AnsiString aux;
+    StrTrim(aux, S); //descarta los márgenes
+    S = aux.str;
 
     //puede encontrar ';' o EOF
     if(ch == EOF)
@@ -203,40 +206,38 @@ bool TTextFile::ReadSentence(AnsiString &S)
 //devuelve el texto asociado
 //si no hay más sentencias lanza una excepción EComplete y
 //si encuentra otra cosa lanza una excepción ECantComplete
-void TTextFile::ReadAssign(char *Ident, AnsiString &Value)
+void TTextFile::ReadAssign(char *Ident, string& Value)
 {
     //intenta leer la próxima sentencia
-    AnsiString S;
-    if(ReadSentence(S)) { //encontró ';'
+    string str;
+    if(ReadSentence(str)) { //encontró ';'
         //intenta descomponer la sentencia
         AnsiString S1, S2;
-        if(StrSplitAssign(S1, S2, S)) { //si encontró '='
+        if(StrSplitAssign(S1, S2, AnsiString(str))) { //si encontró '='
             //descarta los espacios y caracteres de control marginales
             StrTrim(S1, S1);
             StrTrim(S2, S2);
             if(S1 == AnsiString(Ident)) //si es la clave esperada
-                Value = S2; //asigna el texto asociado
+                Value = S2.str; //asigna el texto asociado
             else //la clave no es la esperada
                 //indica que la clave no es la esperada
                 throw ECantComplete(AnsiString("\"")+S1+AnsiString("\" debería ser \"")+
                                     AnsiString(Ident)+AnsiString("\""));
         } else //no es una asignación
-            throw ECantComplete(AnsiString("\"")+S+AnsiString("\" ")+
-                                AnsiString("no es una sentencia de asignación"));
+            throw ECantComplete("\""+str+"\" "+"no es una sentencia de asignación");
 
     } else //encontró EOF
-        if(S.Length() < 1)
+        if(str.length() < 1)
             //indica que se acabó el archivo
             throw EComplete(AnsiString("no encuentra la clave: ")+
                              AnsiString(Ident)+AnsiString("\r\narchivo termiando"));
         else
             //indica que encontró basura
-            throw ECantComplete(AnsiString("\"")+S+AnsiString("\" ")+
-                                 AnsiString("no es una sentencia"));
+            throw ECantComplete("\""+str+"\" "+"no es una sentencia");
 }
 //almacena la cadena Value asociada a la clave Ident
 //si no tiene éxito lanza una exceptición ECantComplete
-void TTextFile::PrintAssign(char *Ident, const AnsiString &Value)
+void TTextFile::PrintAssign(char *Ident, const string& Value)
 {
     //debe haber un archivo abierto
     if(!IsOpen)
@@ -250,7 +251,7 @@ void TTextFile::PrintAssign(char *Ident, const AnsiString &Value)
 //---------------------------------------------------------------------------
 
 //lee un subdirectorio en una lista de cadenas de texto
-void ReadDir(TStringList *StringList, const AnsiString &Dir)
+void ReadDir(TStringList *StringList, const AnsiString& Dir)
 {
     //el puntero StringListdebeapuntar a una lista de cadenas de texto construida
     if(StringList == NULL)
@@ -272,19 +273,19 @@ void ReadDir(TStringList *StringList, const AnsiString &Dir)
         throw Exception(AnsiString("can't close the directory ")+Dir);
 }
 
-//escribe una cadena de texto en un archivo
-void StrReadFromFile(AnsiString &S, const AnsiString &FileName)
+//read a text string from a file
+void strReadFromFile(string& str, const string& filename)
 {
     TTextFile TF;
 
     try {
         //abre el archivo para lectura
-        TF.Open(FileName.c_str(), (char*)"r");
+        TF.Open(filename.c_str(), (char*)"r");
 
         //lee el archivo en la cadena
-        TF.Read(S);
+        TF.Read(str);
         //reemplaza las cadenas "\r\r\n" por cadenas "\r\n"
-        strreplace(S.str, "\r\r\n", "\r\n");
+        strreplace(str, "\r\r\n", "\r\n");
 
         //cierra el archivo
         TF.Close();
@@ -299,17 +300,17 @@ void StrReadFromFile(AnsiString &S, const AnsiString &FileName)
         throw;
     }
 }
-//escribe una cadena de texto en un archivo
-void StrWriteToFile(const AnsiString &FileName, const AnsiString &S)
+//write a text string in a file
+void strWriteToFile(const string& fileName, const string& str)
 {
     TTextFile TF;
 
     try {
         //abre el archivo para escritura
-        TF.Open(FileName.c_str(), (char*)"w");
+        TF.Open(fileName.c_str(), (char*)"w");
 
         //imprime la cadena en el archivo
-        TF.Print(S);
+        TF.Print(str);
 
         //cierra el archivo
         TF.Close();
@@ -324,17 +325,17 @@ void StrWriteToFile(const AnsiString &FileName, const AnsiString &S)
         throw Exception(E);
     }
 }
-//añade una cadena de texto a un archivo
-void StrAddToFile(const AnsiString &FileName, const AnsiString &S)
+//add a text string to afile
+void strAddToFile(const string& fileName, const string& str)
 {
     TTextFile TF;
 
     try {
         //abre el archivo para adición
-        TF.Open(FileName.c_str(), (char*)"a+");
+        TF.Open(fileName.c_str(), (char*)"a+");
 
         //imprime la cadena en el archivo
-        TF.Print(S);
+        TF.Print(str);
 
         //cierra el archivo
         TF.Close();

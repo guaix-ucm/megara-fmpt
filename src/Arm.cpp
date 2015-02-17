@@ -837,12 +837,12 @@ void TArm::setFTableText(const AnsiString &S)
 
 AnsiString TArm::getQuantify___Text(void) const
 {
-        return BoolToStr_(getQuantify___(), true);
+        return BoolToStr(getQuantify___(), true);
 }
 void TArm::setQuantify___Text(const AnsiString &S)
 {
         try {
-                __Quantify___ = StrToBool_(S);
+                __Quantify___ = StrToBool(S);
         } catch(...) {
                 throw;
         }
@@ -1951,20 +1951,20 @@ void  TArm::ReadInstance(TArm* &A,
 //--------------------------------------------------------------------------
 //MÉTODOS DE CONTRUCCIÓN Y COPIA:
 
-//construye un brazo
-//con la posición y orientación indicadas
+//build an arm
+//with the position and orientation indicated
 TArm::TArm(TDoublePoint _P1, double _thetaO2) :
-        //contruye las propiedades privadas
+        //build the prIvate properties
         __Contour____(8),
         __F(),
         __G(), __Q(),
         __Contour(8),
-        //contruye las propiedades públicas
+        //build the public properties
         P____1(0, 1),
         theta___3s(2), //las funciones de theta___3s ya están apuntadas por que es de tipo TVector
         Quantify___s(2, NULL, NULL, NULL, StrPrintBool)
 {
-        //INICIALIZA LA PLANTILLA:
+        //INITIALIZE THE TEMPLATE:
 
         //inicializa los parámetros de dimensión por defecto
         __L12 = MEGARA_L;
@@ -1975,7 +1975,7 @@ TArm::TArm(TDoublePoint _P1, double _thetaO2) :
         //inicializa el contorno
         setContour____Text(MEGARA_Contour____Text);
 
-        //INICIALIZA LAS PROPIEDADES DE ORIENTACIÓN:
+        //INITIALIZE THE ORIENTATION PROPERTIES:
 
         //inicializa los parámetros y variables de orientación en radianes
         __thetaO3 = _thetaO2 + gettheta__O3();
@@ -1989,7 +1989,7 @@ TArm::TArm(TDoublePoint _P1, double _thetaO2) :
         //será arrastrado, pudiendo ser cuantificado por Q.
         //Por eso theta___3 dbe inicializarse dentro de su dominio.
 
-        //INICIALIZA LAS PROPIEDADES DE CUANTIFICACIÓN:
+        //INITIALIZE THE QUANTIFICATION PROPERTIES:
 
         //añade los puntos de la función de compresión
         __F.Add(-M_2PI, -double(MEGARA_SB2));
@@ -2006,14 +2006,14 @@ TArm::TArm(TDoublePoint _P1, double _thetaO2) :
         //inicializa las propiedades de cuantificación
         __Quantify___ = true;
 
-        //INICIALIZA LAS PROPIEDADES DE POSICIÓN:
+        //INITIALIZE THE LOCATION PROPERTIES:
 
         //inicializa las propiedades de posición
         __P1 = _P1;
         __SPM = MEGARA_SPMall_p;
 
         //------------------------------------------------------------------
-        //ASIMILA LOS VALORES DE INICIALIZACIÓN DE LA PLANTILLA:
+        //ASSIMILATES THE VALUES OF THE TEMPLATE:
 
         //Apartir de:
         //      {L12, L13, theta____3},
@@ -2023,8 +2023,7 @@ TArm::TArm(TDoublePoint _P1, double _thetaO2) :
         //      {V____, L1V}
         ProcessateTemplate();
 
-        //ASIMILA LOS VALORES DE INICIALIZACIÓN DE
-        //LAS PROPIEDADES DE CUANTIFICACIÓN:
+        //ASSIMILATES THE VALUES OF THE QUANTIFICATION:
 
         //A partir de:
         //      {F(theta___3)}.
@@ -2036,7 +2035,7 @@ TArm::TArm(TDoublePoint _P1, double _thetaO2) :
         //      La función F(theta___3) debe ser monótona creciente.
         ProcessateF();
 
-        //ASIMILA LAS PROPIEDADES DE ORIENTACIÓN Y POSICIÓN:
+        //ASSIMILATES THE VALUES OF ORIENTATION AND LOCATION:
 
         //a partir de:
         //      {P____2, P____3}

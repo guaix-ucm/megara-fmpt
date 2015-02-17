@@ -18,20 +18,20 @@
 
 //---------------------------------------------------------------------------
 //File: main.cpp
-//Content: lista de elementos genéricos
-//Last update: 23/01/2015
+//Content: principal program fmpt_saa
+//Last update: 11/02/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FileMethods.h"
 #include "MotionProgramGenerator.h"
 #include "SPPP.h"
+#include "PositionerCenter.h"
 #include "Strings.h"
 #include "TextFile.h"
 
 #include <locale.h> //setlocale, LC_NUMERIC
-#include <cstring> //strlen
-#include <iostream> //std
+#include <iostream> //std::cout
 
 //using namespace Mathematics;
 using namespace Strings;
@@ -39,93 +39,213 @@ using namespace Models;
 using namespace Positioning;
 
 //print a text line in the standard output and in the log file
-void append_(const string& str, const char *log_filename)
+void append(const string& str, const char *log_filename)
 {
     std::cout << str.c_str() << endl;
 
     char mode[] = "a";
     TTextFile TF(log_filename, mode);
-    TF.Print((str+"\r\n").c_str());
+    string str_aux = str;
+    str_aux += "\r\n";
+    TF.Print(str_aux.c_str());
     TF.Close();
 }
 
-//To avoid need to link the Boost.System library, little functions
-//will be defined to replace some boost functionalities:
-//  #include <boost/filesystem.hpp>
-//  boost::filesystem::path path("...");
-//  boost::filesystem::path filename = path.filename;
-
 //split a path
-void splitpath_(string& parent_path, string& filename, const string& path)
+void splitpath(string& parent_path, string& filename, const string& path)
 {
     int i = path.length() - 1;
     while(i>=0 && path[i] != '/')
-            i--;
+        i--;
 
     parent_path.clear();
-    if(i > 0)
+    if(i >= 0)
         parent_path = path.substr(0, i);
 
     filename.clear();
-    if(i < int(path.length() - 1)) {
-        int count = path.length() - 1 - i;
+    int aux = path.length() - 1;
+    if(i < aux) {
+        int count = aux - i;
         filename = path.substr(i+1, count);
     }
 }
 
-//main program
-int main(int argc, char *argv[])
+//print the help in the standard output
+void print_help(void)
 {
-    //------------------------------------------------------------------
-    //CONFIGURATES THE SYSTEM:
+    std::cout << "\r\nfmpt_saa -applyPositionerCenterTable <path>";
+    std::cout << "\r\n\t<path>: absolute or relative path to file containing a positioner center table.";
+    std::cout << endl;
+    std::cout << "\r\nfmpt_saa -applyRP <path>";
+    std::cout << "\r\n\t<path>: absolute or relative path to dir containing a RP instance.";
+    std::cout << endl;
+    std::cout << "\r\nfmpt_saa -generateDP <path>";
+    std::cout << "\r\n\t<path>: absolute or relative path to file containing a PP table." << endl;
+}
 
-    //REMEMBER: exceptions in runtime can be due to that
-    //the system is not configurated.
-
-    //configurates the decimal separator
-    setlocale(LC_NUMERIC, "C");
-
-    //configurates the global variables in order to the function
-    //StrToBool can work
-    if(TrueBoolStrs.getCount() < 1) {
-        TrueBoolStrs.setCount(1);
-        TrueBoolStrs[0] = "True";
-    }
-    if(FalseBoolStrs.getCount() < 1) {
-        FalseBoolStrs.setCount(1);
-        FalseBoolStrs[0] = "False";
-    }
-
-    //WARNING: function BoolToStr not check the precondition:
-    //      TrueBoolStrs[0] == "True" && FalseBoolStrs[0] == "False",
-    //instead of these shall be used the function BoolToStr_ which
-    //check the precondition.
-
-    //------------------------------------------------------------------
-
-    //if the program is run without arguments
-    if(argc!=2 || strlen(argv[1])<=0 || (strlen(argv[1])==1 && argv[1][0]=='/')) {
-	//show the help and indicates that the program has been executed without error
-        std::cout << "missing argument.\r\nfmpt_saa <path>\r\n\t<path>: absolute or relative path to file containing a PP table." << endl;
-        return 0;
-    }
-
-    //split the path of the file containing the PP table
-    string path = string(argv[1]);
-    string parent_path, filename;
-    splitpath_(parent_path, filename, path);
-
-    //get the log filename
-    string log_filename = "log-from-"+filename;
-
+//apply a positioner center table to the Fiber MOS Model Instance
+void applyPositionerCenterTable(string& dir1, string& dir2, string& path, string& log_filename)
+{
     try {
-        //initalize the log file
-        char mode[] = "w";
-        TTextFile TF(log_filename.c_str(), mode);
-        TF.Close();
 
-        //indicates that the program is running
-        append_("Program fmpt_saa is running...", log_filename.c_str());
+        //BUILDS THE OBJECTS:
+
+        //build the Fiber MOS Model
+        TFiberMOSModel FMM;
+        //build the positioner center list
+        TPositionerCenterList PCL;
+
+        //LOAD SETTINGS FROM FILES:
+
+        //load the instance of the Fiber MOS Model from a dir
+        char selected_dir = 0;
+        string dir;
+        try {
+            dir = dir1;
+            readInstanceFromDir(FMM, dir);
+            selected_dir = 1;
+        } catch(...) {
+            try {
+                dir = dir2;
+                readInstanceFromDir(FMM, dir);
+                selected_dir = 2;
+            } catch(...) {
+                throw;
+            }
+        }
+        append("Fiber MOS Model instance loaded from '"+dir+"'.", log_filename.c_str());
+
+        //load the positioner center table from a file
+        try {
+            string str;
+            strReadFromFile(str, path);
+            PCL.setTableText(str);
+        } catch(...) {
+            throw;
+        }
+        append("Positioner center table loaded from '"+path+"'.", log_filename.c_str());
+
+        //MAKE THE OPERATIONS:
+
+        //assimilates the positioner center table in the Fiber MOS Model
+        for(int i=0; i<PCL.getCount(); i++) {
+            TPositionerCenter PC = PCL[i];
+            int j = FMM.RPL.SearchId(PC.Id);
+            if(j < FMM.RPL.getCount()) {
+                TRoboticPositioner *RP = FMM.RPL[j];
+                RP->getActuator()->setP0(TDoublePoint(PC.x0, PC.y0));
+            } else {
+                int Id = FMM.RPL.searchFirstFreeId(1);
+                TDoublePoint P0;
+                P0.x = PC.x0;
+                P0.y = PC.y0;
+                TRoboticPositioner *RP = new TRoboticPositioner(Id, P0);
+                FMM.RPL.Add(RP);
+            }
+        }
+        FMM.Assimilate();
+        append("Positioner center table applied to the Fiber MOS Model.", log_filename.c_str());
+
+        //save the instance of the Fiber MOS Model to the default directory
+        switch(selected_dir) {
+        case 1:
+            dir = dir1;
+            break;
+        case 2:
+            dir = dir2;
+            break;
+        default:
+            throw EImpossibleError("lateral effect");
+        }
+        try {
+            writeInstanceToDir(dir, FMM);
+        } catch(...) {
+            throw;
+        }
+        append("Fiber MOS Model instance saved in '"+dir+"'.", log_filename.c_str());
+
+        //DESTROY THE OBJECTS:
+
+    } catch(...) {
+        throw;
+    }
+}
+
+//apply a RP instance for all RPs of the Fiber MOS Model Instance
+void applyRP(string& dir1, string& dir2, string& path, string& log_filename)
+{
+    try {
+
+        //BUILDS THE OBJECTS:
+
+        //build the Fiber MOS Model
+        TFiberMOSModel FMM;
+        //build the RP Model
+        TRoboticPositioner RP;
+
+        //LOAD SETTINGS FROM FILES:
+
+        //load the instance of the Fiber MOS Model from a dir
+        string dir;
+        char selected_dir = 0;
+        try {
+            dir = dir1;
+            readInstanceFromDir(FMM, dir);
+            selected_dir = 1;
+        } catch(...) {
+            try {
+                dir = dir2;
+                readInstanceFromDir(FMM, dir);
+                selected_dir = 2;
+            } catch(...) {
+                throw;
+            }
+        }
+        append("Fiber MOS Model instance loaded from '"+dir+"'.", log_filename.c_str());
+
+        //load the RP instance from a dir
+        try {
+            readInstanceFromDir(RP, path);
+        } catch(...) {
+            throw;
+        }
+        append("RP instance loaded from '"+path+"'.", log_filename.c_str());
+
+        //MAKE THE OPERATIONS:
+
+        //assimilates the instance of the RP in the Fiber MOS Model
+        FMM.RPL.Apply(RP);
+        append("RP instance applied to the Fiber MOS Model.", log_filename.c_str());
+
+        //save the instance of the Fiber MOS Model to the default directory
+        switch(selected_dir) {
+        case 1:
+            dir = dir1;
+            break;
+        case 2:
+            dir = dir2;
+            break;
+        default:
+            throw EImpossibleError("lateral effect");
+        }
+        try {
+            writeInstanceToDir(dir, FMM);
+        } catch(...) {
+            throw;
+        }
+        append("Fiber MOS Model instance saved in '"+dir+"'.", log_filename.c_str());
+
+        //DESTROY THE OBJECTS:
+
+    } catch(...) {
+        throw;
+    }
+}
+
+//attempt generate a DP from a path file
+void generateDP(string& dir1, string& dir2, string& path, string& log_filename)
+{
+    try {
 
         //BUILDS THE OBJECTS:
 
@@ -134,88 +254,49 @@ int main(int argc, char *argv[])
         //build the Motion Program Generator attachet to the Fiber MOS Model
         TMotionProgramGenerator MPG(&FMM);
 
-        //LOAD SETTTINGS FROM FILES:
+        //LOAD SETTINGS FROM FILES:
 
-        //####################################################################################################
-        //When the program is compiled using autotools:
-        //--------------------------------------------
-        //
-        //Calling WORKINGDIR to '/home/Isaac/MEGARA'
-        //  sources shall be in:    'WORKINGDIR/megarafmpt/src'
-        //  data shall be in:       'WORKINGDIR/megarafmpt/data'
-        //When compilation has been make in an appart directory named build:
-        //  sources will be in:     'WORKINGDIR/build/src'
-        //  data will be in:        'WORKINGDIR/build/data'
-        //When the installation has been make:
-        //  executable will be in:  'prefix/bin'
-        //  data will be in:        'prefix/share/megara-fmpt'
-        //Where prefix is probably '/usr/local'.
-        //
-        //Then the program fmpt_saa compiled with autotools, shall be search the data in the following paths:
-        //  when program is installed:  DATADIR+"..." or GetCurrentDir()+"/../share/megara-fmpt..."
-        //  when program is compiled:   GetCurrentDir()+"/../data..."
-        //DATADIR is a macro which can be used when the program is compiled using autotools.
-        //It is say, that DATADIR will be probably: "/urs/local/share/megara-fmpt"
-        //
-        //When the program is compiled using Qr Creator:
-        //----------------------------------------------
-        //
-        //The main file will be in:
-        //  'WORKINGDIR/FMPT_SAA-CLI'
-        //The object code and the executable will be in:
-        //  'WORKINGDIR/build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
-        //  'WORKINGDIR/build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
-        //The other source files and data files will be in the same repository for autotools,
-        //whose relative path from the executable is:
-        //  sources shall be in:    '../megarafmpt/src'
-        //  data shall be in:       '../megarafmpt/data'
-        //
-        //But the app fmpt_saa, shall be provided with the data in the same directory
-        //where is the executable.
-        //
-        //Then the program fmpt_saa sompiled with Qt, shall be search the data in the following paths:
-        //  when program is released:  GetCurrentDir()
-        //  when program is debugging: GetCurrentDir()+"/../megarafmpt/data"
-        //####################################################################################################
-
-        //load the instance of the Fiber MOS Model from the default directory
-        AnsiString DirName;
+        //load the instance of the Fiber MOS Model from a dir
+        string dir;
         try {
-            DirName = AnsiString(DATADIR)+AnsiString("/Models/MEGARA_FiberMOSModel_Instance");
-            ReadInstanceFromDir(FMM, DirName);
+            dir = dir1;
+            readInstanceFromDir(FMM, dir);
         } catch(...) {
             try {
-                DirName = GetCurrentDir()+AnsiString("/../data/Models/MEGARA_FiberMOSModel_Instance");
-                ReadInstanceFromDir(FMM, DirName);
+                dir = dir2;
+                readInstanceFromDir(FMM, dir);
             } catch(...) {
                 throw;
             }
         }
-        append_("Fiber MOS Model instance loaded from '"+DirName.str+"'.", log_filename.c_str());
+        append("Fiber MOS Model instance loaded from '"+dir+"'.", log_filename.c_str());
 
         //load the PP table from a file
-        AnsiString S;
-        AnsiString FileName(path);
+        TSPPPList SPPPL;
         try {
-            StrReadFromFile(S, FileName);
+            string str;
+            strReadFromFile(str, path);
+            SPPPL.setTableText(str);
         } catch(...) {
             throw;
         }
-        append_("PP table loaded from '"+FileName.str+"'.", log_filename.c_str());
-
-        //translate the SPPP table to structure
-        TSPPPList SPPPL;
-        SPPPL.setTableText(S.str);
+        append("PP table loaded from '"+path+"'.", log_filename.c_str());
 
         //assign the PP table to the MPG
         SPPPL.getTPL(MPG);
-        append_("PP table allocated to the MPG.", log_filename.c_str());
+        append("PP table allocated to the MPG.", log_filename.c_str());
 
         //MAKE THE OPERATIONS:
 
+        //split the path of the file containing the PP table
+        string parent_path, filename;
+        splitpath(parent_path, filename, path);
+
+        //The filename will be used to attach the outputs filenames witht the input filename.
+
         //move the RPs to the more closer stable point to the TPs
         MPG.MoveToTargetP3();
-        append_("RPs moved to target points.", log_filename.c_str());
+        append("RPs moved to target points.", log_filename.c_str());
 
         //Other way to obtain the more closer stablepoints to the PPs,
         //consist in get from the PP table the following lists:
@@ -228,11 +309,11 @@ int main(int argc, char *argv[])
         //captures the initial positions of the RPs in a PPA list
         TPairPositionAnglesList IPL;
         FMM.RPL.GetPositions(IPL);
-        S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
-        S += IPL.getColumnText();
+        string str = TActuator::GetPositionPPALabelsRow().str;
+        str += "\r\n"+IPL.getColumnText().str;
         string output_filename = "IPL-from-"+filename;
-        StrWriteToFile(output_filename, S);
-        append_("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+        strWriteToFile(output_filename, str);
+        append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the initial position table directly in text format:
         //  FMM.RPL.getPositionsPAPTableText()
@@ -243,39 +324,57 @@ int main(int argc, char *argv[])
 
         //check the limiting case when all operative RPs are in the origin
         if(FMM.RPL.allOperativeRPsAreInTheOrigin())
-            append_("WARNING: all operative RPs are in the origin. The generated DP will be empty.", log_filename.c_str());
+            append("WARNING: all operative RPs are in the origin. The generated DP will be empty.", log_filename.c_str());
         //else, check the limiting case when all operative RPs are in security positions
         else if(Outsiders.getCount() <= 0)
-            append_("WARNING: all operative RPs are in security positions. The generated DP will contains only a message-instruction list to go to the origin.", log_filename.c_str());
+            append("WARNING: all operative RPs are in security positions. The generated DP will contains only a message-instruction list to go to the origin.", log_filename.c_str());
+
+        //Now are fulfilled the preconditions:
+        //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+        //  All RPs of the list Outsiders, shall be operatives.
+        //  All RPs of the list Outsiders, shall be in unsecure positions.
+        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
 
         //generates a de positioning program for the operative RPs in insecure positions
         //and determines the RPs in collision status or obstructed in insecure positions
-        append_("Generating depositioning program...", log_filename.c_str());
+        append("Generating depositioning program...", log_filename.c_str());
         TRoboticPositionerList Collided;
         TRoboticPositionerList Obstructed;
         TMotionProgram DP;
         bool success = MPG.generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
 
+        //Now are fulfilled the postconditions:
+        //  All RPs of the Fiber MOS Model will be configured for MP validation
+        //  All RPs of the fiber MOS Model will be in their final positions,
+        //  or the first position where the collision was detected.
+        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+
+        //########################################################################
+        //#WARNING: before re-use a function to generation, shall be restablished#
+        //#the preconditions.                                                    #
+        //########################################################################
+
         //if generation function was successfully generated
         if(success) {
             //indicates that the depositioning program has been generated successfully
-            append_("Depositioning program generated successfully.", log_filename.c_str());
+            append("Depositioning program generated successfully.", log_filename.c_str());
 
             //save the DP in the format of the FMPT
-            S = DP.getText();
+            str = DP.getText().str;
             output_filename = "DP-FMPT-from-"+filename;
-            StrWriteToFile(output_filename, S);
+            strWriteToFile(output_filename, str);
 
             //Here all operative outsiders RPs which aren't obstructed are in the origin positions,
             //in their final position after execute the DP.
 
             //translates the depositioning program to the format of the interface MCS-FMPT
             //and save it in a file
-            FMM.RPL.TranslateMotionProgram(S, 1, IPL, DP);
-            append_("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
+            FMM.RPL.translateMotionProgram(str, 1, IPL, DP);
+            append("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
             output_filename = "DP-from-"+filename;
-            StrWriteToFile(output_filename, S);
-            append_("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
+            strWriteToFile(output_filename, str);
+            append("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
         }
 
         //Here all operative outsiders RPs which aren't obstructed,can be:
@@ -287,36 +386,246 @@ int main(int argc, char *argv[])
         //get and save the positions where the collision was detected
         TPairPositionAnglesList FPL;
         FMM.RPL.GetPositions(FPL);
-        S = TActuator::GetPositionPPALabelsRow()+AnsiString("\r\n");
-        S += FPL.getColumnText();
+        str = TActuator::GetPositionPPALabelsRow().str;
+        str += "\r\n"+FPL.getColumnText().str;
         output_filename = "FPL-from-"+filename;
-        StrWriteToFile("output_filename.txt", S);
-        append_("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
+        strWriteToFile(output_filename, str);
+        append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //print the other outputs in the corresponding file
-        S = AnsiString("generateDepositioningProgram: ")+BoolToStr_(success)+AnsiString("\r\n");
-        S += AnsiString("Collided: ")+Collided.getText()+AnsiString("\r\n");
-        S += AnsiString("Obstructed: ")+Obstructed.getText()+AnsiString("\r\n");
+        str = "generateDepositioningProgram: "+BoolToStr(success).str+"\r\n";
+        str += "Collided: "+Collided.getText().str+"\r\n";
+        str += "Obstructed: "+Obstructed.getText().str+"\r\n";
         output_filename = "outputs-from-"+filename;
-        StrWriteToFile(output_filename, S);
-        append_("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
+        strWriteToFile(output_filename, str);
+        append("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
 
         //DESTROY THE OBJECTS:
 
-    } catch(Exception &E) {
-        //indicates that has happened an exception
-        //and show the message of the exception
-        append_("ERROR: "+E.Message.str, log_filename.c_str());
-        return 1;
-
     } catch(...) {
-        //indicates that has happened an unknoledge exception
-        append_("ERROR: unknowledge exception", log_filename.c_str());
-        return 2;
+        throw;
     }
+}
+
+//main function
+int main(int argc, char *argv[])
+{
+    //------------------------------------------------------------------
+    //CONFIGURATES THE SYSTEM:
+
+    //REMEMBER: exceptions in runtime can be due to that
+    //the system is not configurated.
+
+    //configurates the decimal separator
+    setlocale(LC_NUMERIC, "C");
+
+    //initialize the global variables
+    if(TrueBoolStrs.getCount() < 1) {
+        TrueBoolStrs.setCount(1);
+        TrueBoolStrs[0] = "True";
+    }
+    if(FalseBoolStrs.getCount() < 1) {
+        FalseBoolStrs.setCount(1);
+        FalseBoolStrs[0] = "False";
+    }
+
+    //------------------------------------------------------------------
+
+    //if the program is run without arguments
+    if(argc <= 1) {
+        //indicates that the arguments has been missed
+        std::cout << "Missing arguments.";
+
+        //show the help
+        std::cout << endl;
+        print_help();
+
+        //indicates that the program has been executed without error
+        std::cout << endl;
+        return 0;
+    }
+
+    //if the program is run with 2 arguments
+    else if(argc == 3) {
+
+        //####################################################################################################
+        //Using autotools over Linux:
+        //---------------------------------------------------------
+        //
+        //Selecting '/home/Isaac/MEGARA' how working directory, before compilation:
+        //  sources shall be in:    '/home/Isaac/MEGARA/megarafmpt/src'
+        //  data shall be in:       '/home/Isaac/MEGARA/megarafmpt/data'
+        //
+        //When compilation has been make in the same directory named megarafmpt:
+        //  sources will be in:     '/home/Isaac/MEGARA/megarafmpt/src'
+        //  data will be in:        '/home/Isaac/MEGARA/megarafmpt/data'
+        //
+        //When compilation has been make in an appart directory named build:
+        //  sources will be in:     '/home/Isaac/MEGARA/build/src'
+        //  data will be in:        '/home/Isaac/MEGARA/build/data'
+        //
+        //When the installation has been make:
+        //  executable will be in:  'prefix/bin'
+        //  data will be in:        'prefix/share/megara-fmpt'
+        //Where prefix is probably '/usr/local'.
+        //
+        //Then the program fmpt_saa compiled with autotools, shall be search the data in the following paths:
+        //  The Fiber MOS Model Instance:
+        //      option 1, when program is installed:    DATADIR+"/Models/MEGARA_FiberMOSModel_Instance"
+        //      option 2, when program is compiled:     GetCurrentDir().str+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
+        //  The input data:
+        //      path(argv[2])
+        //
+        //DATADIR is a macro which can be used when the program is compiled using autotools.
+        //DATADIR will be probably: "/urs/local/share/megara-fmpt"
+        //
+        //When the program is compiled using Qt Creator over Linux:
+        //---------------------------------------------------------
+        //
+        //The Qt project and the main.cpp file will be in:
+        //  '/home/Isaac/MEGARA/FMPT_SAA-CLI'
+        //The object code and the executable will be in:
+        //  '/home/Isaac/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
+        //The other source files and data files will be in the same repository for autotools,
+        //whose relative path from the executable is:
+        //  for source files:   '../megarafmpt/src'
+        //  for data files:     '../megarafmpt/data'
+        //
+        //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
+        //  The Fiber MOS Model Instance:
+        //      when program is released:  GetCurrentDir().str+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
+        //      when program is debugging: GetCurrentDir().str+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
+        //  The input data:
+        //      path = GetCurrentDir().str+"/../megarafmpt/data/Models/positionersCenters.txt";
+        //      path = GetCurrentDir().str+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
+        //      path = GetCurrentDir().str+"/../megarafmpt/data/Samples/megara-cb6.txt";
+        //
+        //Using Qt over Windows:
+        //---------------------------------------------------------
+        //
+        //Selecting 'D:\Isaac\MEGARA' how working directory:
+        //The Qt project and the main.cpp file will be in:
+        //  'D:\Isaac\MEGARA\FMPT_SAA-CLI'
+        //The object code and the executable will be in:
+        //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
+        //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
+        //
+        //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
+        //  The Fiber MOS Model Instance:
+        //      when program is released:  GetCurrentDir().str+"\..\megarafmpt\data\Models\MEGARA_FiberMOSModel_Instance"
+        //      when program is debugging: GetCurrentDir().str+"\..\megarafmpt\data\Models\MEGARA_FiberMOSModel_Instance"
+        //  The input data:
+        //      for applyPositionerCenterTable: path = GetCurrentDir().str+"/../megarafmpt/data/Models/positionersCenters.txt";
+        //      for applyRP:                    path = GetCurrentDir().str+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
+        //      for generateDP:                 path = GetCurrentDir().str+"/../megarafmpt/data/Samples/megara-cb6.txt";
+        //
+        //####################################################################################################
+
+        //BUILD THE PATH FOR THE INSTANCE OF THE Fiber MOS Model:
+
+        string dir1 = DATADIR;
+	dir1 += "/Models/MEGARA_FiberMOSModel_Instance";
+//        string dir2 = GetCurrentDir().str+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+        string dir2 = DATADIR;
+	dir2 += "/Models/MEGARA_FiberMOSModel_Instance";
+
+        //BUILD THE PATH FOR INPUT DATA:
+
+        //built a path from arg 2
+        string path(argv[2]);
+
+        //split the path of the file containing the input data
+        string parent_path, filename;
+        splitpath(parent_path, filename, path);
+
+        //build the log filename
+        string log_filename = filename+".log";
+
+        //initalize the log file
+        char mode[] = "w";
+        TTextFile TF(log_filename.c_str(), mode);
+        TF.Close();
+
+        //indicates that the program is running
+        append("Program fmpt_saa is running...", log_filename.c_str());
+
+        //if arg 1 is "-applyPositionerCenterTable"
+        if(string(argv[1]) == "-applyPositionerCenterTable") {
+            try {
+                //apply a positionersCenters table to the Fiber MOS Model Instance
+                applyPositionerCenterTable(dir1, dir2, path, log_filename);
+
+            } catch(Exception &E) {
+                //indicates that has happened an exception
+                //and show the message of the exception
+                append("ERROR: "+E.Message.str, log_filename.c_str());
+                return 1;
+
+            } catch(...) {
+                //indicates that has happened an unknoledge exception
+                append("ERROR: unknowledge exception", log_filename.c_str());
+                return 2;
+            }
+        }
+
+        //else if arg 1 is "-applyRP"
+        else if(string(argv[1]) == "-applyRP") {
+            try {
+                //apply a RP model for all RPs of the Fiber MOS Model Instance
+                applyRP(dir1, dir2, path, log_filename);
+
+            } catch(Exception &E) {
+                //indicates that has happened an exception
+                //and show the message of the exception
+                append("ERROR: "+E.Message.str, log_filename.c_str());
+                return 1;
+
+            } catch(...) {
+                //indicates that has happened an unknoledge exception
+                append("ERROR: unknowledge exception", log_filename.c_str());
+                return 2;
+            }
+        }
+
+        //else if arg 1 is "-generateDP"
+        else if(string(argv[1]) == "-generateDP") {
+            try {
+                //generate a DP from a path and write the events in the log file
+                generateDP(dir1, dir2, path, log_filename);
+
+            } catch(Exception &E) {
+                //indicates that has happened an exception
+                //and show the message of the exception
+                append("ERROR: "+E.Message.str, log_filename.c_str());
+                return 1;
+
+            } catch(...) {
+                //indicates that has happened an unknoledge exception
+                append("ERROR: unknowledge exception", log_filename.c_str());
+                return 2;
+            }
+        }
+
+        //if the arg 1 is unknowledge
+        else {
+            //indicates that the modifier is unknoledge
+            std::cout << "Unknowledge modifier: ";
+            std::cout << argv[1];
+
+            //print the help
+            std::cout << endl;
+            print_help();
+
+            //indicates that the program has been executed without error
+            std::cout << endl;
+            return 0;
+        }
+
+    } //else if(argc == 3)
 
     //------------------------------------------------------------------
 
     //indicates that the program has been executed without error
     return 0;
 }
+

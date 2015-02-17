@@ -87,18 +87,19 @@ public:
     ~TMotionProgramGenerator(void);
 
     //-----------------------------------------------------------------------
-    //METHODS TO GENERATE MPs:
+    //METHODS OF LOWER LEVEL:
 
-    //Programs the retraction of all RP of the list Outsiders_.
+    //program the retraction of all RP of the list Outsiders
     //Preconditions:
-    //  All RPs of the list Outsiders_ shall be in unsecure position.
-    //  All RPs of the list Outsiders_ shall has enabled the quantifiers.
+    //  All RPs of the list Outsiders shall be in insecurity position.
+    //Notes:
+    //  The quantifiers of the rotors may be enabled or disabled.
     void programRetraction(TRoboticPositionerList &Outsiders_);
 
     //Segregate the RPs of the list Outsiders, in disjoint subsets.
     //Preconditions:
     //  All RPs in the list Outsiders shall be operatives
-    //  All RPs in the list Outsiders shall be in unsecure positions
+    //  All RPs in the list Outsiders shall be in insecurity positions
     void segregateRPsInDisjointSets(
             TPointersList<TRoboticPositionerList>& DisjointSets,
             const TRoboticPositionerList& Outsiders);
@@ -121,19 +122,18 @@ public:
 
     //Determines the limits of the open interval (l1, l2)
     //where RP collide with RPA.
+    //It is to say in l1 and l2 there isn't collision.
     //Inputs:
-    //  RP: robotic positioner which rotor 1 shall be displaced.
-    //  RPA: roboticpositioner adjacentto RP which shall remains stoped.
+    //  RP: robotic positioner whose rotor 1 shall be displaced.
+    //  RPA: robotic positioner adjacent to RP which shall remains stoped.
     //Outputs:
-    //  l1: lower limit of interval (l1, l2)
-    //  l2: upper limit of interval (l1, l2)
-    //Preconditions:
-    //  RP shall beenabled their rotor 1 quantifier.
-    //Posconditions:
-    //  Robotic positioner RP and RPA remains without change,
-    //      and the limits l1and l2 has been determined.
-    //Meaning:
-    //  When l1 == l2 there isn't collision. (In this casemoreover l1 == p1 ==l2).
+    //  l1: stable lower limit of interval (l1, l2)
+    //  l2: stable upper limit of interval (l1, l2)
+    //Postconditions:
+    //  The RP will be in their initial status.
+    //Notes:
+    //  The quantifiers of the rotors may be enabled or disabled.
+    //  When l1 == l2 there isn't collision. (In this case moreover l1 == p1 == l2).
     //  When l1 < l2, the soltion can be searched in both senses.
     //  When l2 < l1, the solution shall be searched:
     //      in positive sense, when p_1 is in [p_1min, l2)
@@ -141,24 +141,27 @@ public:
     void determinesCollisionInterval(double& l1, double& l2,
             TRoboticPositioner *RP, const TRoboticPositioner *RPA);
 
-    //Determines if a RP in collision status can solve
-    //their collision turning the rotor 1,
-    //and calculates the new position of the rotor 1.
+    //DEFINITION: tendence of turn: when therotor 1 is displaced, for solve
+    //their collision, onlycan be displaced again in the same direction.
+
+    //Determines if a RP in collision status can solve their collision
+    //turning the rotor 1, and calculates the new stable position of it,
+    //in the indicated direction by the tendence.
     //Inputs:
     //  RP: the robotic positioner in collission status.
     //Onputs:
     //- collisionCanbesolved: flag indicating if collision can be solved
     //  turning the rotor 1.
-    //- p_1new: the position which the rotor 1 of the RP shall jump
+    //- p_1new: the stable position which the rotor 1 of the RP must bemoved
     //  to solve the collision.
     //Preconditions:
     //  Pointer RP shall  point to built robotic positioner.
-    //  The RP shall be in collision sattus with one or more adjacent RPs.
-    //  The RP shall has enabled their rotor 1 quantifier.
+    //  The RP shall be in collision status with one or more adjacent RPs.
     //  The rotor 1 of the RP shall has stacked one position almost.
-    //Posconditions:
-    //  Te RP will be in their initial status, and the proposed quastion
-    //  will be solved.
+    //Postconditions:
+    //  The RP will be in their initial status.
+    //Notes:
+    //  The quantifiers of the rotors may be enabled or disabled.
     bool collisionCanBesolved(double& p_1new, TRoboticPositioner *RP);
 
     //Determines the RPs which can be retracted in each subset of each set.
@@ -174,10 +177,10 @@ public:
     //  motion program generation.
     //  All RPs of DDS shall be in the Fiber MOS  Model
     //  All RPs of DDS shall be in insecure position
-    //  All RPs of DDS shall have enabled the quantifiers
+    //  All RPs of DDS shall have disabled the quantifiers
     //  All RPs of DDS shall be free of dynamic collisions
     //  All RPs of DDS shall to have programmed a gesture of retraction
-    //Posconditions:
+    //Postconditions:
     //  RetractilesDDS will contains the RPs which can be retracted
     //  in one or two gestures.
     //  InvadersDDS will contains the RPs which can not be retracted
@@ -214,7 +217,10 @@ public:
     void addMessageListToGoToTheOrigins(TMotionProgram& DP,
         const TRoboticPositionerList& Inners);
 
-    //NOTE: nomenclature:
+    //-----------------------------------------------------------------------
+    //METHODS TO GENERATE MPs:
+
+    //Nomenclature:
     //- Positioning Program: to go the observing positiong, need has a first
     //  gesture to go to the starting positions in the secure area.
     //- Depositioning Program: antagonicus of PP, include a final gesture
@@ -224,15 +230,20 @@ public:
     //- Parking Gesture: gesture to mo the rotors to their origins.
 
     //Generates a recovery program for a given set of operative RPs
-    //in unsecure positions and determines the RPs of the given set,
+    //in insecurity positions and determines the RPs of the given set,
     //which can not be recovered because are in collision status
-    //or because are obstructed in unsecure positions.
+    //or because are obstructed in insecurity positions.
     //Preconditions:
     //  All RPs of the Fiber MOS Model, shall be in their initial positions.
     //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall be in insecurity positions.
     //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for MP validation
+    //  All RPs of the fiber MOS Model will be in their final positions,
+    //  or the first position where the collision was detected.
+    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
     //Inputs:
     //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
     //  Outsiders: list of operative RPs in insecure positions which
@@ -240,23 +251,28 @@ public:
     //Outputs:
     //  generateDepositioningProgram: flag indicating if the DP can be
     //      generated or not with this function.
-    //  Collided: list of RPs collided in unsecure position.
-    //  Obstructed: list of RPs obstructed in unsecure position.
+    //  Collided: list of RPs collided in insecurity position.
+    //  Obstructed: list of RPs obstructed in insecurity position.
     //  MP: recovery program.
     bool generateRecoveryProgram(TRoboticPositionerList& Collided,
         TRoboticPositionerList& Obstructed, TMotionProgram& MP,
         const TRoboticPositionerList& Outsiders);
 
     //Generates a depositioning program for a given set of operative RPs
-    //in unsecure positions and determines the RPs of the given set,
+    //in insecurity positions and determines the RPs of the given set,
     //which can not be recovered because are in collision status
-    //or because are obstructed in unsecure positions.
+    //or because are obstructed in insecurity positions.
     //Preconditions:
     //  All RPs of the Fiber MOS Model, shall be in their initial positions.
     //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall be in insecurity positions.
     //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for MP validation
+    //  All RPs of the fiber MOS Model will be in their final positions,
+    //  or the first position where the collision was detected.
+    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
     //Inputs:
     //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
     //  Outsiders: list of operative RPs in insecure positions which
@@ -264,8 +280,8 @@ public:
     //Outputs:
     //  generateParkingProgram: flag indicating if the parking program
     //      can be generated or not with this function.
-    //  Collided: list of RPs collided in unsecure position.
-    //  Obstructed: list of RPs obstructed in unsecure position.
+    //  Collided: list of RPs collided in insecurity position.
+    //  Obstructed: list of RPs obstructed in insecurity position.
     //  DP: depositioning program.
     bool generateDepositioningProgram(TRoboticPositionerList& Collided,
         TRoboticPositionerList& Obstructed, TMotionProgram& DP,
@@ -276,15 +292,20 @@ public:
         const TMotionProgram& DP, const TPairPositionAnglesList& IPL);
 
     //Generates a pair (PP, DP) for a given set of operative RPs
-    //in unsecure positions and determines the RPs of the given set,
+    //in insecurity positions and determines the RPs of the given set,
     //which can not be recovered because are in collision status
-    //or because are obstructed in unsecure positions.
+    //or because are obstructed in insecurity positions.
     //Preconditions:
     //  All RPs of the Fiber MOS Model, shall be in their observing positions.
     //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall be in insecurity positions.
     //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for MP validation
+    //  All RPs of the fiber MOS Model will be in their final positions,
+    //  or the first position where the collision was detected.
+    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
     //Inputs:
     //  FiberMOSModel: Fiber MOS Model with RPs in their observing positions.
     //  Outsiders: list of operative RPs in insecure positions which
@@ -292,8 +313,8 @@ public:
     //Outputs:
     //  generateParkingProgram: flag indicating if the pair (PP, DP)
     //      can be generated or not with this function.
-    //  Collided: list of RPs collided in unsecure position.
-    //  Obstructed: list of RPs obstructed in unsecure position.
+    //  Collided: list of RPs collided in insecurity position.
+    //  Obstructed: list of RPs obstructed in insecurity position.
     //  PP: positioning program.
     //  DP: depositioning program.
     bool generatePairPPDP(TRoboticPositionerList& Collided,

@@ -122,12 +122,12 @@ void TExclusionArea::setIdText(const AnsiString& S)
 
 AnsiString TExclusionArea::getPendingText(void) const
 {
-        return BoolToStr_(Pending, true);
+        return BoolToStr(Pending, true);
 }
 void TExclusionArea::setPendingText(const AnsiString &S)
 {
         try {
-                Pending = StrToBool_(S);
+                Pending = StrToBool(S);
         } catch(...) {
                 throw;
         }
@@ -149,24 +149,24 @@ void TExclusionArea::setColorText(const AnsiString &S)
 }*/
 AnsiString TExclusionArea::getPaintBodyText(void) const
 {
-        return BoolToStr_(PaintBody, true);
+        return BoolToStr(PaintBody, true);
 }
 void TExclusionArea::setPaintBodyText(const AnsiString &S)
 {
         try {
-                PaintBody = StrToBool_(S);
+                PaintBody = StrToBool(S);
         } catch(...) {
                 throw;
         }
 }
 AnsiString TExclusionArea::getSelectedText(void) const
 {
-        return BoolToStr_(Selected, true);
+        return BoolToStr(Selected, true);
 }
 void TExclusionArea::setSelectedText(const AnsiString &S)
 {
         try {
-                Selected = StrToBool_(S);
+                Selected = StrToBool(S);
         } catch(...) {
                 throw;
         }

@@ -28,7 +28,7 @@
 #include "Strings.h"
 #include "Geometry.h"
 
-//#include <values.h>
+#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
@@ -454,7 +454,7 @@ void TActuator::setr_3maxnom(double _r_3maxnom)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be upper zero");
 
     //el radio nominal del dominio de P3 r_3maxnom debe ser menor que infinito
-    if(MAXDOUBLE <= _r_3maxnom)
+    if(std::numeric_limits<double>::max() <= _r_3maxnom)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be less infinite");
 
     //el número de posicionadores adyacentes Adjacents.Count debería estar en [0, 6]
@@ -653,12 +653,12 @@ void TActuator::setIdText(const AnsiString &S)
 
 AnsiString TActuator::getPendingText(void) const
 {
-    return BoolToStr_(Pending, true);
+    return BoolToStr(Pending, true);
 }
 void TActuator::setPendingText(const AnsiString &S)
 {
     try {
-        Pending = StrToBool_(S);
+        Pending = StrToBool(S);
     } catch(...) {
         throw;
     }
@@ -823,36 +823,36 @@ void TActuator::setColorLimitDomainManeuveringText(const AnsiString &S)
 */
 AnsiString TActuator::getPaintBodyText(void) const
 {
-    return BoolToStr_(PaintBody, true);
+    return BoolToStr(PaintBody, true);
 }
 void TActuator::setPaintBodyText(const AnsiString &S)
 {
     try {
-        PaintBody = StrToBool_(S);
+        PaintBody = StrToBool(S);
     } catch(...) {
         throw;
     }
 }
 AnsiString TActuator::getPaintLimitDomainP3Text(void) const
 {
-    return BoolToStr_(PaintLimitDomainP3, true);
+    return BoolToStr(PaintLimitDomainP3, true);
 }
 void TActuator::setPaintLimitDomainP3Text(const AnsiString &S)
 {
     try {
-        PaintLimitDomainP3 = StrToBool_(S);
+        PaintLimitDomainP3 = StrToBool(S);
     } catch(...) {
         throw;
     }
 }
 AnsiString TActuator::getPaintLimitDomainManeuveringText(void) const
 {
-    return BoolToStr_(PaintLimitDomainManeuvering, true);
+    return BoolToStr(PaintLimitDomainManeuvering, true);
 }
 void TActuator::setPaintLimitDomainManeuveringText(const AnsiString &S)
 {
     try {
-        PaintLimitDomainManeuvering = StrToBool_(S);
+        PaintLimitDomainManeuvering = StrToBool(S);
     } catch(...) {
         throw;
     }
@@ -860,12 +860,12 @@ void TActuator::setPaintLimitDomainManeuveringText(const AnsiString &S)
 
 AnsiString TActuator::getSelectedText(void) const
 {
-    return BoolToStr_(Selected, true);
+    return BoolToStr(Selected, true);
 }
 void TActuator::setSelectedText(const AnsiString &S)
 {
     try {
-        Selected = StrToBool_(S);
+        Selected = StrToBool(S);
     } catch(...) {
         throw;
     }
@@ -1773,23 +1773,19 @@ void TActuator::Clone(const TActuator *A)
     CopyGraphics(A);
 }
 
-//construye un clon de un actuador
+//vuilda clone of an actuator
 TActuator::TActuator(const TActuator *A) :
-    TCilinder(A)
+    TCilinder(A) //clone the cilinder
 {
-    //el puntero A debe apuntar a un actuador contruido
+    //check the precondition
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built actuator");
 
-    //copia las propiedades de seguridad
+    //copyall other properties
     CopySecurity(A);
-    //copia las propiedades de estado
     CopyStatus(A);
-    //copia las propiedades límite
     CopyLimits(A);
-    //copia las propiedades de área
     CopyArea(A);
-    //copia las propiedades gráficas
     CopyGraphics(A);
 }
 
@@ -2587,7 +2583,7 @@ double TActuator::DistanceFree(TActuator *A)
 double TActuator::DistanceWithAdjacent(void)
 {
     TActuator *AA;
-    double dmin = MAXDOUBLE;
+    double dmin = std::numeric_limits<double>::max();
     double d;
 
     //si hay algún adyacente
@@ -2610,7 +2606,7 @@ double TActuator::DistanceWithAdjacent(void)
 double TActuator::DistanceP3WithAdjacent(void)
 {
     TActuator *AA;
-    double dmin = MAXDOUBLE;
+    double dmin = std::numeric_limits<double>::max();
     double d;
 
     //si hay algún adyacente

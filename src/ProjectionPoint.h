@@ -224,10 +224,6 @@ public:
     //dibuja los puntos de proyección en la fotografía de un trazador de formas
     void Paint(TPloterShapes *PS);
 */
-    //guarda la lista de puntos de proyección en un archivo de texto
-    void SaveToFile(const AnsiString &FileName);
-    //carga los puntos de proyección de un archivo
-    void LoadFromFile(const AnsiString &FileName);
 
     //selecciona todos los puntos objetivo de la lista
     void SelectAll(void);

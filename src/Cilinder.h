@@ -346,7 +346,6 @@ public:
         //número de pasos de una vuelta completa del eje 1 (SB: Steps Back)
         //es un número real ya que a la salida de la reductora
         //el número de pasos puede ser fraccionario
-        //aunque convendría que fuera par ya que solo va a girar media vuelta
         //valor por defecto: F(M_2PI) = SIDESB1 steps
         double getSB1(void) const {return __SB1;}
         //radianes por paso medio en el intervalo [0, M_2PI]
