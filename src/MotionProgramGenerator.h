@@ -89,13 +89,15 @@ public:
     //-----------------------------------------------------------------------
     //METHODS OF LOWER LEVEL:
 
-    //program the retraction of all RP of the list Outsiders
+/*    //program the retraction of all RP of the list Outsiders
     //Preconditions:
     //  All RPs of the list Outsiders shall be in insecurity position.
+    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
+    //  approximately double that rotor 1 velocity.
     //Notes:
     //  The quantifiers of the rotors may be enabled or disabled.
     void programRetraction(TRoboticPositionerList &Outsiders_);
-
+*/
     //Segregate the RPs of the list Outsiders, in disjoint subsets.
     //Preconditions:
     //  All RPs in the list Outsiders shall be operatives
@@ -119,7 +121,7 @@ public:
     void segregateRPsInDisperseSubsets(
             TPointersList<TRoboticPositionerList > *Subsets,
             TRoboticPositionerList& Set);
-
+/*
     //Determines the limits of the open interval (l1, l2)
     //where RP collide with RPA.
     //It is to say in l1 and l2 there isn't collision.
@@ -163,47 +165,134 @@ public:
     //Notes:
     //  The quantifiers of the rotors may be enabled or disabled.
     bool collisionCanBesolved(double& p_1new, TRoboticPositioner *RP);
+*/
+    //Propose a recovery program composed to two gestures:
+    //  1. radial retraction
+    //  2. abatement of the arm (if necessary)
+    void proposeRecoveryProgram(TMotionProgram& MP, TRoboticPositioner *RP);
 
-    //Determines the RPs which can be retracted in each subset of each set.
+    //Propose a recovery program composed to three gestures:
+    //  1. turn of rotor 1 to p_1new
+    //  2. radial retraction
+    //  3. abatement of the arm (if necessary)
+    void proposeRecoveryProgram(TMotionProgram& MP, TRoboticPositioner *RP,
+                                double p_1new);
+
+    //Search in negative sense, the stable positions of the rotor 1 of the RP,
+    //where the collision can be solved.
     //Inputs:
-    //  DDS: structure to contains disjoint disperse subsets
+    //  RP: robotic positioner whose rotor 1 shall be displaced.
+    //  RPA: robotic positioner adjacent to RP which shall remains stoped.
+    //  dt1max: maximun displacement of the rotor 1 for search the solution
+    //      in rad.
     //Outputs:
-    //  RetractilesDDS: structure to contains the RPs which can be retracted
-    //  in one or two gestures avoiding dynamic collisions.
-    //  InvadersDDS: structure to contains the RPs which can not be retracted
-    //  in one or two gestures avoiding dynamic collisions.
+    //  searchSolutionInNegativeSense: indicates if the solution is valid.
+    //  p_1new: last position where solution has been searched.
+    //  MP: the solution.
     //Preconditions:
-    //  All RPs of the Fiber MOS Model shall be configurated to
-    //  motion program generation.
-    //  All RPs of DDS shall be in the Fiber MOS  Model
-    //  All RPs of DDS shall be in insecure position
-    //  All RPs of DDS shall have disabled the quantifiers
-    //  All RPs of DDS shall be free of dynamic collisions
-    //  All RPs of DDS shall to have programmed a gesture of retraction
+    //  The RP shall be disabled the quantifier of their rotors.
+    //  The RP shall be stacked the actual position of their rotor 1.
+    //  The searching interval dt1max shall be upper zero.
+    //  The RP shall contains the default MP.
     //Postconditions:
-    //  RetractilesDDS will contains the RPs which can be retracted
-    //  in one or two gestures.
-    //  InvadersDDS will contains the RPs which can not be retracted
-    //  in one or two gestures.
-    void segregateRetractilesInvaders(
-      TPointersList<TPointersList<TRoboticPositionerList> >& RetractilesDDS,
-      TPointersList<TPointersList<TRoboticPositionerList> >& InvadersDDS,
+    //  The RP will be in their initial status.
+    //Notes:
+    //  The initial position can be stable or inestable.
+    //  When searchSolutionInNegativeSense == false
+    //      solution p_1new will be nearest to theta_1 - dt1max.
+    bool searchSolutionInNegativeSense(double& p_1new, TMotionProgram&MP,
+        TRoboticPositioner *RP, double dt1max);
+
+    //Search in positive sense, the stable positions of the rotor 1 of the RP,
+    //where the collision can be solved.
+    //Inputs:
+    //  RP: robotic positioner whose rotor 1 shall be displaced.
+    //  RPA: robotic positioner adjacent to RP which shall remains stoped.
+    //  dt1max: maximun displacement of the rotor 1 for search the solution
+    //      in rad.
+    //Outputs:
+    //  searchSolutionInNegativeSense: indicates if the solution is valid.
+    //  p_1new: last position where solution has been searched.
+    //  MP: the solution.
+    //Preconditions:
+    //  The RP shall be disabled the quantifier of their rotors.
+    //  The RP shall be stacked the actual position of their rotor 1.
+    //  The searching interval dt1max shall be upper zero.
+    //  The RP shall contains the default MP.
+    //Postconditions:
+    //  The RP will be in their initial status.
+    //Notes:
+    //  The initial position can be stable or inestable.
+    //  When searchSolutionInPositiveSense == false
+    //      solution p_1new will be nearest to theta_1 + dt1max.
+    bool searchSolutionInPositiveSense(double& p_1new, TMotionProgram&MP,
+        TRoboticPositioner *RP, double dt1max);
+
+/*    //Determines if a RP in collision status can solve their collision
+    //turning the rotor 1, and calculates the new stable position of this,
+    //in the indicated direction by the tendence.
+    //Inputs:
+    //  RP: the robotic positioner in collission status.
+    //  dt1max: maximun displacement of the rotor 1 for search the solution.
+    //Onputs:
+    //- collisionCanbesolved: flag indicating if collision can be solved
+    //  turning the rotor 1.
+    //- p_1new: the stable position which the rotor 1 of the RP must be moved
+    //  to solve the collision.
+    //Preconditions:
+    //  Pointer RP shall  point to built robotic positioner.
+    //  The RP shall be in collision status with one or more adjacent RPs.
+    //  The RP shall be disabled the quantifiers of their rotors.
+    //Postconditions:
+    //  The RP will be in their initial status.
+    //Notes:
+    //  The quantifiers of the rotors may be enabled or disabled.
+    bool collisionCanBesolved(double& p_1new,
+                              TRoboticPositioner *RP, double dt1max);
+*/
+    //Determines the RPs which can be recovered in each subset of each set.
+    //Inputs:
+    //  DDS: structure to contain disjoint disperse subsets.
+    //Outputs:
+    //  RecoverablesDDS: structure to contain the RPs which can be recovered.
+    //  UnrecoverablesDDS: structure to contain the RPs which can not be recovered.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model shall be configurated for MP generation.
+    //  All RPs of DDS:
+    //      shall be in the Fiber MOS  Model;
+    //      shall be in insecure position;
+    //      shall be enabled the quantifiers of their rotors.
+    //      shall not have dynamic collisions;
+    //Postconditions:
+    //  RecoverablesDDS will contains the RPs which can be recovered,
+    //  programmedwith the necessary instruction for their recovery.
+    //  All RPs of the RecoverablesDDS, will beintheir initial  positions.
+    //  UnrecoverablesDDS will contains the RPs which can not be recovered.
+    //Notes:
+    //  It is not necessary that the RPs of DDS have stored their initial
+    //  positions.
+    //  It is not necessary that the RPs of DDS have disabled the quantifiers
+    //  of their rotors.
+    //  It is not necessary that the RPs of DDS have programmed any movement.
+    void segregateRecoverables(
+      TPointersList<TPointersList<TRoboticPositionerList> >& RecoverablesDDS,
+      TPointersList<TPointersList<TRoboticPositionerList> >& UnrecoverablesDDS,
       TPointersList<TPointersList<TRoboticPositionerList> >& DDS);
 
-    //Add to the DP, the corresponding list or lists
-    //of message of instructions
+    //Add to a MP, the corresponding list or lists of message instruction
+    //correspondint to the individual MPs of the RPs of a RPlist
     //Inputs:
-    //  RPsToBeRetracted: list of the RPs which has been retracted.
-    //  DP: depositioning program to bemodified.
+    //  RPsToBeRetracted: list of the RPs which has been programmed.
+    //  MP: motion program to add themessage list.
     //Outputs:
-    //  DP: depositioning program modified.
+    //  MP: motion program modified.
     //Preconditions:
     //  All RPs of the list RPsToBeRetracted shall have stacked the initial
     //      positions of their rotors.
     //  All RPs of the list RPsToBeRetracted shall be in their stacked positions.
-    //  All RPs of the list RPsToBeRetracted shall have programmed a gesture.
-    void addMessageLists(TMotionProgram& DP,
-            const TRoboticPositionerList& RPsToBeRetracted);
+    //  All RPs of the list RPsToBeRetracted shall have a recovery program.
+    void addMessageLists(TMotionProgram& MP,
+                         const TRoboticPositionerList& RPsToBeRecovered);
 
     //Add to the DP the message-instruction list to move the RPs
     //of the list Inners to the origins
@@ -235,22 +324,31 @@ public:
     //or because are obstructed in insecurity positions.
     //Preconditions:
     //  All RPs of the Fiber MOS Model, shall be in their initial positions.
-    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-    //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in insecurity positions.
-    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //  All RPs of the list Outsiders:
+    //      shall be in the Fiber MOS Model;
+    //      shall be operatives;
+    //      shall be in insecurity positions;
+    //      shall have enabled the quantifiers of their rotors;
+    //      shall be setted in order to the rotor 2 velocity
+    //          is approximately double than rotor 1 velocity.
     //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for MP validation
-    //  All RPs of the fiber MOS Model will be in their final positions,
-    //  or the first position where the collision was detected.
-    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+    //  All RPs of the FMM will be configured for MP validation.
+    //  When the generated recovery program isn't valid:
+    //      All RPs of the FMM:
+    //          will have disabled the quantifiers of their rotors;
+    //          will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated recovery program is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //          will have enabled the quantifiers of their rotors;
+    //          will be in their final positions.
     //Inputs:
-    //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
+    //  FMM: Fiber MOS Model with RPs in their initial positions.
     //  Outsiders: list of operative RPs in insecure positions which
     //      we want recover the security positions.
     //Outputs:
-    //  generateDepositioningProgram: flag indicating if the DP can be
-    //      generated or not with this function.
+    //  generateRecoveryProgram: flag indicating if the recovery program
+    //      generated with this function is valid.
     //  Collided: list of RPs collided in insecurity position.
     //  Obstructed: list of RPs obstructed in insecurity position.
     //  MP: recovery program.
@@ -268,6 +366,8 @@ public:
     //  All RPs of the list Outsiders, shall be operatives.
     //  All RPs of the list Outsiders, shall be in insecurity positions.
     //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
+    //  approximately double that rotor 1 velocity.
     //Postconditions:
     //  All RPs of the Fiber MOS Model will be configured for MP validation
     //  All RPs of the fiber MOS Model will be in their final positions,

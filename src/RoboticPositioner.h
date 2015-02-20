@@ -30,6 +30,7 @@
 #include "Actuator.h"
 #include "ComposedMotionFunction.h"
 #include "ItemsList.h"
+#include "MotionProgram.h"
 
 //---------------------------------------------------------------------------
 
@@ -252,6 +253,9 @@ public:
         //latch should be enabled when RP has attachet other structure.
         //Only attached structures shall change the latch status.
 */
+        //individual MP attached to the RP
+        Positioning::TMotionProgram MP;
+
         //------------------------------------------------------------------
         //PROPERTIES IN TEXT FORMAT:
 
@@ -292,7 +296,7 @@ public:
 
         AnsiString getOperativeText(void) const;
 
-        //SETSOF PROPERTIES IN TEXT FORMAT:
+        //SETS OF PROPERTIES IN TEXT FORMAT:
 
         //set of all security properties
         //in assign text format
@@ -505,6 +509,14 @@ public:
         //      SPMoff = PAem*Actuator->rmax + Pem mm
         void SetSPMoff(double PAem, double Pem);
 
+        //--------------------------------------------------------------------------
+        //METHODS TO CHECK THE CONFIGURATION:
+
+        //calculate the maximun absolute velocity of rotor 1 in rad/s
+        double wmaxabs1(void);
+        //calculate the maximun absolute velocity of rotor 2 in rad/s
+        double wmaxabs2(void);
+
         //------------------------------------------------------------------
         //INSTRUCTION METHODS:
 
@@ -627,6 +639,15 @@ public:
 
         //invertgesture in the time domain
         void InvertTime(void);
+
+        //METHODS TO ADD MESSAGE INSTRUCTIONS TO THE MP:
+
+        //add a amessage instruction to retract to security position
+        //or to where rotor 1 is in the origin
+        bool addMIforRetraction(void);
+
+        //add amessage instruction to abate the arm to security position
+        void addMIforAbatement(void);
 
         //METHODS TO DETERMINE MOTION PARAMETERS:
 

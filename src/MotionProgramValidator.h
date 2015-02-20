@@ -101,22 +101,34 @@ public:
                             const TMotionProgram& MP) const;
 
     //Determines if the execution of a motion program, starting from
-    //given initial positions, produce some dynamic collision.
+    //given initial positions, avoid collisions.
     //Preconditions:
-    //  All RPs ofthe Fiber MOS Model shall be in their initial positions
+    //  All RPs included in the MP:
+    //      must be enabled the quantifiers of their rotors.
+    //  All RPs of the FMM:
+    //      shall be in their initial positions;
+    //      must have the aadecuate SPM.
     //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for MP validation
-    //  All RPs of the fiber MOS Model will be in their final positions,
-    //  or the first position where the collision was detected.
-    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+    //  If the MP produces a collision, all RPs of the FMM:
+    //      will have disabled the quantifiers of their rotors.
+    //      will be in the firstposition where collission was detected.
+    //  If the MP avoid collisions, all RPs of the FMM:
+    //      will have the quantifiers of their rotors in their initial status,
+    //      sill be in their final positions.
     //Inputs:
-    //  MP: motion program
+    //  MP: motion program to be validated
     //Outputs:
-    //  motionProgramIsntValid: flag indicating if the motion program
-    //      produces dynamic collision:
-    //          false: motion program avoid dynamic collision
-    //          true: motion program not avoid dynamic collision
-    bool motionProgramIsntValid(const TMotionProgram &MP) const;
+    //  motionProgramIsValid: flag indicating if the motion program
+    //      avoid collisions.
+    //Notes:
+    //  The validation process of a MP consume a component of the SPM, even
+    //  when the process is successfully passed. So if a MP pass the validation
+    //  process with a value of SPM, the validation shall be make with
+    //  the value of SPM inmediately lower.
+    //  The validation method of a MP will be used during the generation process
+    //  with the individual MP of each RP, and at the end of the process for
+    //  validate the generated recovery program.
+    bool motionProgramIsValid(const TMotionProgram &MP) const;
 
     //Validation process can end of two ways:
     //- If the motion program not produce a dynamic collision, being all RPs

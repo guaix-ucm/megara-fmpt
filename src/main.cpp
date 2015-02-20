@@ -33,7 +33,6 @@
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
 
-//using namespace Mathematics;
 using namespace Strings;
 using namespace Models;
 using namespace Positioning;
@@ -80,6 +79,9 @@ void print_help(void)
     std::cout << "\r\n\t<path>: absolute or relative path to dir containing a RP instance.";
     std::cout << endl;
     std::cout << "\r\nfmpt_saa -generateDP <path>";
+    std::cout << "\r\n\t<path>: absolute or relative path to file containing a PP table." << endl;
+    std::cout << endl;
+    std::cout << "\r\nfmpt_saa -generatePPDP <path>";
     std::cout << "\r\n\t<path>: absolute or relative path to file containing a PP table." << endl;
 }
 
@@ -370,7 +372,7 @@ void generateDP(string& dir1, string& dir2, string& path, string& log_filename)
 
             //translates the depositioning program to the format of the interface MCS-FMPT
             //and save it in a file
-            FMM.RPL.translateMotionProgram(str, 1, IPL, DP);
+            FMM.RPL.translateMotionProgram(str, 1, "obs depos", IPL, DP);
             append("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
             output_filename = "DP-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -394,6 +396,183 @@ void generateDP(string& dir1, string& dir2, string& path, string& log_filename)
 
         //print the other outputs in the corresponding file
         str = "generateDepositioningProgram: "+BoolToStr(success).str+"\r\n";
+        str += "Collided: "+Collided.getText().str+"\r\n";
+        str += "Obstructed: "+Obstructed.getText().str+"\r\n";
+        output_filename = "outputs-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Others outputs saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //DESTROY THE OBJECTS:
+
+    } catch(...) {
+        throw;
+    }
+}
+
+//attempt generate a pair (PP, DP) from a path file
+void generatePPDP(string& dir1, string& dir2, string& path, string& log_filename)
+{
+    try {
+
+        //BUILDS THE OBJECTS:
+
+        //build the Fiber MOS Model
+        TFiberMOSModel FMM;
+        //build the Motion Program Generator attachet to the Fiber MOS Model
+        TMotionProgramGenerator MPG(&FMM);
+
+        //LOAD SETTINGS FROM FILES:
+
+        //load the instance of the Fiber MOS Model from a dir
+        string dir;
+        try {
+            dir = dir1;
+            readInstanceFromDir(FMM, dir);
+        } catch(...) {
+            try {
+                dir = dir2;
+                readInstanceFromDir(FMM, dir);
+            } catch(...) {
+                throw;
+            }
+        }
+        append("Fiber MOS Model instance loaded from '"+dir+"'.", log_filename.c_str());
+
+        //load the PP table from a file
+        TSPPPList SPPPL;
+        try {
+            string str;
+            strReadFromFile(str, path);
+            SPPPL.setTableText(str);
+        } catch(...) {
+            throw;
+        }
+        append("PP table loaded from '"+path+"'.", log_filename.c_str());
+
+        //assign the PP table to the MPG
+        SPPPL.getTPL(MPG);
+        append("PP table allocated to the MPG.", log_filename.c_str());
+
+        //MAKE THE OPERATIONS:
+
+        //split the path of the file containing the PP table
+        string parent_path, filename;
+        splitpath(parent_path, filename, path);
+
+        //The filename will be used to attach the outputs filenames witht the input filename.
+
+        //move the RPs to the more closer stable point to the TPs
+        MPG.MoveToTargetP3();
+        append("RPs moved to target points.", log_filename.c_str());
+
+        //Other way to obtain the more closer stablepoints to the PPs,
+        //consist in get from the PP table the following lists:
+        //  the allocation list;
+        //  the PP list.
+        //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
+
+        //A PPA table shall be stored how a table (Id, p_1, p___3).
+
+        //captures the observing positions of the RPs in a PPA list
+        TPairPositionAnglesList OPL;
+        FMM.RPL.GetPositions(OPL);
+        string str = TActuator::GetPositionPPALabelsRow().str;
+        str += "\r\n"+OPL.getColumnText().str;
+        string output_filename = "OPL-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //Other whay to obtain the observing position table directly in text format:
+        //  FMM.RPL.getPositionsPAPTableText()
+
+        //segregates the operative outsiders RPs
+        TRoboticPositionerList Outsiders;
+        FMM.RPL.segregateOperativeOutsiders(Outsiders);
+
+        //check the limiting case when all operative RPs are in the origin
+        if(FMM.RPL.allOperativeRPsAreInTheOrigin())
+            append("WARNING: all operative RPs are in the origin. The generated pair (PP, DP) will be empty.", log_filename.c_str());
+        //else, check the limiting case when all operative RPs are in security positions
+        else if(Outsiders.getCount() <= 0)
+            append("WARNING: all operative RPs are in security positions. The generated (PP, DP) will contains only a message-instruction list to go to the observing positions and back to the origin.", log_filename.c_str());
+
+        //Now are fulfilled the preconditions:
+        //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+        //  All RPs of the list Outsiders, shall be operatives.
+        //  All RPs of the list Outsiders, shall be in unsecure positions.
+        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+
+        //generates a de positioning program for the operative RPs in insecure positions
+        //and determines the RPs in collision status or obstructed in insecure positions
+        append("Generating depositioning program...", log_filename.c_str());
+        TRoboticPositionerList Collided, Obstructed;
+        TMotionProgram PP, DP;
+        bool success = MPG.generatePairPPDP(Collided, Obstructed, PP, DP, Outsiders);
+
+        //Now are fulfilled the postconditions:
+        //  All RPs of the Fiber MOS Model will be configured for MP validation
+        //  All RPs of the fiber MOS Model will be in their final positions,
+        //  or the first position where the collision was detected.
+        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+
+        //########################################################################
+        //#WARNING: before re-use a function to generation, shall be restablished#
+        //#the preconditions.                                                    #
+        //########################################################################
+
+        //if generation function was successfully generated
+        if(success) {
+            //indicates that the depositioning program has been generated successfully
+            append("Pair (PP, DP) generated successfully.", log_filename.c_str());
+
+            //save the PP in the format of the FMPT
+            str = PP.getText().str;
+            output_filename = "PP-FMPT-from-"+filename;
+            strWriteToFile(output_filename, str);
+
+            //save the DP in the format of the FMPT
+            str = DP.getText().str;
+            output_filename = "DP-FMPT-from-"+filename;
+            strWriteToFile(output_filename, str);
+
+            //Here all operative outsiders RPs which aren't obstructed,can be:
+            //- in the origin positions, in their final position after execute the DP.
+            //  if success == true.
+            //- in the first position where the collision was detected.
+            //  if success == false.
+
+            //captures the initial positions of the RPs in a PPA list
+            TPairPositionAnglesList IPL;
+            FMM.RPL.GetPositions(IPL);
+            string str = TActuator::GetPositionPPALabelsRow().str;
+            str += "\r\n"+IPL.getColumnText().str;
+            string output_filename = "IPL-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //Other whay to obtain the observing position table directly in text format:
+            //  FMM.RPL.getPositionsPAPTableText()
+
+            //translates the positioning program to the format of the interface MCS-FMPT
+            //and save it in a file
+            FMM.RPL.translateMotionProgram(str, 1, "obs pos", IPL, PP);
+            append("Positiong program translated to the format of MCS interface.", log_filename.c_str());
+            output_filename = "PP-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Positioning program saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //translates the depositioning program to the format of the interface MCS-FMPT
+            //and save it in a file
+            FMM.RPL.translateMotionProgram(str, 1, "obs depos", OPL, DP);
+            append("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
+            output_filename = "DP-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
+        }
+
+        //print the other outputs in the corresponding file
+        str = "generatePairPPDP: "+BoolToStr(success).str+"\r\n";
         str += "Collided: "+Collided.getText().str+"\r\n";
         str += "Obstructed: "+Obstructed.getText().str+"\r\n";
         output_filename = "outputs-from-"+filename;
@@ -431,8 +610,8 @@ int main(int argc, char *argv[])
 
     //------------------------------------------------------------------
 
-    //if the program is run without arguments
-    if(argc <= 1) {
+    //if the program is run without the necessary arguments
+    if(argc != 3) {
         //indicates that the arguments has been missed
         std::cout << "Missing arguments.";
 
@@ -446,7 +625,7 @@ int main(int argc, char *argv[])
     }
 
     //if the program is run with 2 arguments
-    else if(argc == 3) {
+    else { //argc == 3
 
         //####################################################################################################
         //Using autotools over Linux:
@@ -524,10 +703,9 @@ int main(int argc, char *argv[])
         //BUILD THE PATH FOR THE INSTANCE OF THE Fiber MOS Model:
 
         string dir1 = DATADIR;
-	dir1 += "/Models/MEGARA_FiberMOSModel_Instance";
+        dir1 += "/Models/MEGARA_FiberMOSModel_Instance";
 //        string dir2 = GetCurrentDir().str+"/../data/Models/MEGARA_FiberMOSModel_Instance";
-        string dir2 = DATADIR;
-	dir2 += "/Models/MEGARA_FiberMOSModel_Instance";
+        string dir2 = dir1;
 
         //BUILD THE PATH FOR INPUT DATA:
 
@@ -592,6 +770,25 @@ int main(int argc, char *argv[])
             try {
                 //generate a DP from a path and write the events in the log file
                 generateDP(dir1, dir2, path, log_filename);
+
+            } catch(Exception &E) {
+                //indicates that has happened an exception
+                //and show the message of the exception
+                append("ERROR: "+E.Message.str, log_filename.c_str());
+                return 1;
+
+            } catch(...) {
+                //indicates that has happened an unknoledge exception
+                append("ERROR: unknowledge exception", log_filename.c_str());
+                return 2;
+            }
+        }
+
+        //else if arg 1 is "-generatePPDP"
+        else if(string(argv[1]) == "-generatePPDP") {
+            try {
+                //generate a pair (PP, DP) from a path and write the events in the log file
+                generatePPDP(dir1, dir2, path, log_filename);
 
             } catch(Exception &E) {
                 //indicates that has happened an exception

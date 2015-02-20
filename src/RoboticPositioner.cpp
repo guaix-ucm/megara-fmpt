@@ -830,7 +830,7 @@ TRoboticPositioner::TRoboticPositioner(void) :
     CMF(),
     //inicializa las propiedades de estado
     Disabled(false), __FaultProbability(0), FaultType(ftUnk),
-    ControlMode(cmSinc)
+    ControlMode(cmSinc), MP()
 {
     //contruye el actuador del posicionador
     //con el identificador 0
@@ -1201,6 +1201,39 @@ void TRoboticPositioner::SetSPMoff(double PAem, double Pem)
 }
 
 //--------------------------------------------------------------------------
+//METHODS TO CHECK THE CONFIGURATION:
+
+//calculate the maximun absolute velocity of rotor 1 in rad/s
+double TRoboticPositioner::wmaxabs1(void)
+{
+    double wmaxabs1;
+    switch(CMF.getMFM()) {
+    case mfmSquare:
+        wmaxabs1 = CMF.getSF1()->getvmaxabs()/getActuator()->getSB1()*M_2PI;
+        break;
+    case mfmRamp:
+        wmaxabs1 = CMF.getRF1()->getvmaxabs()/getActuator()->getSB1()*M_2PI;
+        break;
+    }
+    return wmaxabs1;
+}
+
+//calculate the maximun absolute velocity of rotor 2 in rad/s
+double TRoboticPositioner::wmaxabs2(void)
+{
+    double wmaxabs2;
+    switch(CMF.getMFM()) {
+    case mfmSquare:
+        wmaxabs2 = CMF.getSF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
+        break;
+    case mfmRamp:
+        wmaxabs2 = CMF.getRF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
+        break;
+    }
+    return wmaxabs2;
+}
+
+//--------------------------------------------------------------------------
 //INSTRUCTION METHODS:
 
 //program turn of rotor 1 from actual position to p_1fin
@@ -1481,7 +1514,7 @@ void TRoboticPositioner::programRetractArmToSafeArea(void)
     if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
         throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
 
-    //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
+/*    //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
 
     switch(CMF.getMFM()) {
     case mfmSquare: {
@@ -1505,7 +1538,7 @@ void TRoboticPositioner::programRetractArmToSafeArea(void)
     //Nótese que para traducir la velocidad angular de rad/ms a pasos/ms
     //no debe emplearse la función G de los cuantificadores, cuyo dominio
     //está restringido, por lo que el resultado podría ser menor que 1 ms.
-
+*/
     //DETERMINA LA POSICIÓN A LA QUE DEBE  MOVERSE ROT 2:
 
     //traduce la posisión de seguridad de rot 2 a pasos
@@ -1672,6 +1705,96 @@ void TRoboticPositioner::InvertTime(void)
 {
     //invierte la funcion de movimiento compuesto en el dominio del tiempo
     CMF.InvertTime();
+}
+
+//METHODS TO ADD MESSAGE INSTRUCTIONS TO THE MP:
+
+//add a gesture to retract fromactual position to security position
+//or to the rotor 1 is in the origin
+bool TRoboticPositioner::addMIforRetraction(void)
+{
+    //determines the necessary displaceement of rot 2 in steps
+    double theta___3saf = getActuator()->gettheta___3saf();
+    double p___3saf = getActuator()->getArm()->getF().Image(theta___3saf);
+    double p___3fin = floor(p___3saf);
+    double dp2 = getActuator()->getArm()->getp___3() -  p___3fin;
+
+    //make a rutinary check
+    if(p___3fin < 0)
+        throw EImpossibleError("final position of rotor 2 can not be less zero");
+
+    //determines the necessary displacement of rot 2 in radians
+    double dt2 = getActuator()->getArm()->getG().Image(dp2);
+
+    //calculates the necessary displacement of rotor 1 in radians
+    double dt1 = dt2/2;
+
+    //determines the final position of rot 1 in radians
+    double theta_1fin, theta___3fin;
+    if(getActuator()->gettheta_1() > dt1) {
+        theta_1fin = getActuator()->gettheta_1() - dt1;
+        theta___3fin = getActuator()->getArm()->gettheta___3() - dt2;
+
+    } else {
+        theta_1fin = 0;
+        dt1 = getActuator()->gettheta_1();
+        dt2 = dt1*2;
+        theta___3fin = getActuator()->getArm()->gettheta___3() - dt2;
+    }
+
+    //determines the final position of rot 1 in steps
+    double p_1fin = getActuator()->getF().Image(theta_1fin);
+    p_1fin = Max(0., round(p_1fin));
+
+    //determines the final position of rot 2 in steps
+    p___3fin = getActuator()->getArm()->getF().Image(theta___3fin);
+    p___3fin = Max(0., round(p___3fin));
+
+    //build a message instruction and set up
+    TMessageInstruction *MI = new TMessageInstruction();
+    MI->setId(getActuator()->getId());
+    MI->Instruction.setName("MM");
+    MI->Instruction.Args.setCount(2);
+    MI->Instruction.Args[0] = p_1fin;
+    MI->Instruction.Args[1] = p___3fin;
+
+    //add the message instruction to the MP
+    Positioning::TMessageList *ML = new Positioning::TMessageList();
+    ML->Add(MI);
+    MP.Add(ML);
+
+    //determines if it is necessary abate the arm for recovery the security position
+    bool necessary_abate = !getActuator()->p___3IsInSafeArea(p___3fin);
+
+    //indicates if sill be necessary abate the arm for recovery the security position
+    return necessary_abate;
+}
+
+//add amessage instruction to abate the arm to security position
+void TRoboticPositioner::addMIforAbatement(void)
+{
+    //get the limit security position of rotor 2
+    double theta___3saf = getActuator()->gettheta___3saf();
+    //translate to steps
+    double p___3saf = getActuator()->getArm()->getF().Image(theta___3saf);
+    //determine the firs stable position less than the limit security position
+    double p___3fin = floor(p___3saf);
+
+    //make a rutinary check
+    if(p___3fin < 0)
+        throw EImpossibleError("final position of rotor 2 can not be less zero");
+
+    //build a message instruction and set up
+    TMessageInstruction *MI = new TMessageInstruction();
+    MI->setId(getActuator()->getId());
+    MI->Instruction.setName("M2");
+    MI->Instruction.Args.setCount(1);
+    MI->Instruction.Args[0] = p___3fin;
+
+    //add the message instruction to the MP
+    Positioning::TMessageList *ML = new Positioning::TMessageList();
+    ML->Add(MI);
+    MP.Add(ML);
 }
 
 //MÉTODOS PARA DETERMINAR LA DISTANCIA MÁXIMA RECORRIDA

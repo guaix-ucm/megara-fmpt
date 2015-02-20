@@ -204,13 +204,17 @@ public:
         void translatePositioningProgram(string& str, int CBId,
             const TPairPositionAnglesList& IPL, const TMotionProgram& MP);
 
-        //Translate the depositioning progam to the format stablished for
+        //Translate a motion progam to the format stablished for
         //the interface FMPT-MCS.
         //Preconditions:
         //  All message of instructions of the motion program
         //  shall be addressed to an existing RP.
-        void translateDepositioningProgram(string& str, int CBId,
+        void translateMotionProgram(string& str, int CBId, const string& label,
             const TPairPositionAnglesList& IPL, const TMotionProgram& MP);
+
+        //Values for label:
+        //  "obs depos" for depositioning programs
+        //  "obs pos" for positioning programs
 };
 
 //---------------------------------------------------------------------------

@@ -34,6 +34,8 @@
 
 //---------------------------------------------------------------------------
 
+using namespace Lists;
+
 //namespace for models
 namespace Models {
 
@@ -63,7 +65,7 @@ public:
 //---------------------------------------------------------------------------
 //class TPositionerCenterList:
 
-class TPositionerCenterList : public Lists::TPointersList<TPositionerCenter> {
+class TPositionerCenterList : public TPointersList<TPositionerCenter> {
 public:
     //set the PCL in text format
     void setTableText(const string& S);

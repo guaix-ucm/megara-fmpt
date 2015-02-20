@@ -18,10 +18,10 @@ ActuatorInstance:
     PAkd = Pre
 CMFInstance:
     SF1->vmaxabs = 1
-    SF2->vmaxabs = 2
+    SF2->vmaxabs = 2.462121213
     RF1->vmaxabs = 1
-    RF2->vmaxabs = 2
-    MFM = Square
+    RF2->vmaxabs = 2.462121213
+    MFM = Ramp
     SSM = Free
     RSM = Free
     Id1 = 155

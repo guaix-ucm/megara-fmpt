@@ -389,41 +389,62 @@ void TMotionProgramValidator::getRPsIncludedInMP(TRoboticPositionerList& RPL,
 }
 
 //Determines if the execution of a motion program, starting from
-//given initial positions, produce some dynamic collision.
+//given initial positions, avoid collisions.
 //Preconditions:
-//  All RPs ofthe Fiber MOS Model shall be in their initial positions
+//  All RPs included in the MP:
+//      must be enabled the quantifiers of their rotors.
+//  All RPs of the FMM:
+//      shall be in their initial positions;
+//      must have the adecuate SPM.
 //Postconditions:
-//  All RPs of the Fiber MOS Model will be configured for MP validation
-//  All RPs of the fiber MOS Model will be in their final positions,
-//  or the first position where the collision was detected.
-//  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+//  If the MP produces a collision, all RPs of the FMM:
+//      will have disabled the quantifiers of their rotors;
+//      will have stacked the initial status of the quantifiers of their rotors;
+//      will be in the first position where collission was detected.
+//  If the MP avoid collisions, all RPs of the FMM:
+//      will have the quantifiers of their rotors in their initial status;
+//      will be in their final positions.
 //Inputs:
-//  MP: motion program
+//  MP: motion program to be validated
 //Outputs:
-//  motionProgramIsntValid: flag indicating if the motion program
-//      produces dynamic collision:
-//          false: motion program avoid dynamic collision
-//          true: motion program not avoid dynamic collision
-bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) const
+//  motionProgramIsValid: flag indicating if the motion program
+//      avoid collisions.
+//Notes:
+//  The validation process of a MP consume a component of the SPM, even
+//  when the process is successfully passed. So if a MP pass the validation
+//  process with a value of SPM, the validation shall be make with
+//  the value of SPM inmediately lower.
+//  The validation method of a MP will be used during the generation process
+//  with the individual MP of each RP, and at the end of the process for
+//  validate the generated recovery program.
+bool TMotionProgramValidator::motionProgramIsValid(const TMotionProgram &MP) const
 {
-    //CONFIGURES ALL RPs OF THE Fiber MOS Model:
-
-    //set the purpose to Validation
-    getFiberMOSModel()->RPL.SetPurpose(pVal);
-
-    //disable the quantifiers
-    getFiberMOSModel()->RPL.SetQuantifys(false, false);
-
-    //CHECK THE INITIAL POSITIONS:
+    //CHECK THE PRECONDITIONS:
 
     //get the list of RPs included in the MP
     TRoboticPositionerList RPL;
     getRPsIncludedInMP(RPL, MP);
 
+    //all RPs included in the MP, must be enabled the quantifiers of their rotors
+    for(int i=0; i<RPL.getCount();  i++) {
+        TRoboticPositioner *RP = RPL[i];
+        if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
+            throw EImproperCall("all RPs included in the MP, must be enabled the quantifiers of their rotors");
+    }
+
+    //CONFIGURES ALL RPs OF THE Fiber MOS Model:
+
+    //stack the initial status of the quantifiers of the rotors
+    getFiberMOSModel()->RPL.PushQuantifys();
+    //disable the quantifiers
+    getFiberMOSModel()->RPL.SetQuantifys(false, false);
+
+    //SOLVE THE TRIVIAL CASE:
+
     //determines if there is a collision
     //in the RPs included in the MP
     bool collision = RPL.ThereIsCollision();
-    //if there is a collision
+    //solve the trivial case
     if(collision)
         //indicates that the motion program notavoid dynamic collision
         return true;
@@ -431,14 +452,14 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
     //CHECK THE FOLLOWING STEPPING POSITIONS TO END:
 
     /*
-     * Determine the IPL and the MP just before validation
+     * Determine inputs just before validation
      * */
 
     strWriteToFile("RPL_included.txt", RPL.getText().str);
 
     TPairPositionAnglesList IPL;
     getFiberMOSModel()->RPL.GetPositions(IPL);
-    strWriteToFile("IPL_interna.txt", IPL.getColumnText().str);
+    strWriteToFile("IPL_intern.txt", IPL.getColumnText().str);
 
     strWriteToFile("MP_intern.txt", MP.getText().str);
 
@@ -474,11 +495,11 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
             Tfmin = calculateTfmin(RPL);
             //if there is collision
             if(Tfmin <= 0)
-                //indicates that the motion program produces a collision
-                return true;
+                //indicates that the motion program not avoid dynamic collision
+                return false;
             //calculates and applies the minimun jump time of the RPL
             double Tmin = calculateTminmin(RPL);
-            if(Tfmin < Tmin)
+            if(Tmin > Tfmin)
                 Tfmin = Tmin;
 
             //advance simulation
@@ -498,11 +519,14 @@ bool TMotionProgramValidator::motionProgramIsntValid(const TMotionProgram &MP) c
         //if there is collision
         if(Tfmin <= 0)
             //indicates that the motion program not avoid dynamic collision
-            return true;
+            return false;
     }
 
+    //restore and discard the initial status of the quantifiers of the rotors
+    getFiberMOSModel()->RPL.RestoreAndPopQuantifys();
+
     //indicates that motion program avoid dynamic collision
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------

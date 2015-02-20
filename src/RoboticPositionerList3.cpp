@@ -805,12 +805,12 @@ void TRoboticPositionerList::translatePositioningProgram(string& str, int CBId,
 //    Clone(RPL);
 }
 
-//Translate the depositioning progam to the format stablished for
+//Translate a motion progam to the format stablished for
 //the interface FMPT-MCS.
 //Preconditions:
 //  All message of instructions of the motion program
 //  shall be addressed to an existing RP.
-void TRoboticPositionerList::translateDepositioningProgram(string& str, int CBId,
+void TRoboticPositionerList::translateMotionProgram(string& str, int CBId, const string& label,
     const TPairPositionAnglesList& IPL, const TMotionProgram& MP)
 {
     //VERIFIES THE PRECONDITIONS:
@@ -839,7 +839,7 @@ void TRoboticPositionerList::translateDepositioningProgram(string& str, int CBId
     SetPositions(IPL);
 
     //print the star delimiter of motion program cluster
-    str = "obs depos_"+IntToStr(CBId).str+" {";
+    str = label+"_"+IntToStr(CBId).str+" {";
 
     //for each list of message of instructions of the motion program
     for(int i=0; i<MP.getCount(); i++) {

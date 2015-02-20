@@ -966,7 +966,7 @@ template <class T> inline T *TPointersList<T>::getFirstPointer(void) const
     if(getCount() < 1)
         throw EImproperCall("list items number Count chould be one almost");
 
-    return Items.First;
+    return Items.getFirst();
 }
 
 template <class T> inline T *TPointersList<T>::getLastPointer(void) const
