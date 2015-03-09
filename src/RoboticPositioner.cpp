@@ -40,7 +40,7 @@ namespace Models {
 //##########################################################################
 
 void  StrPrintControlMode(AnsiString& S,
-                                    TControlMode cm)
+                          TControlMode cm)
 {
     switch(cm) {
     case cmSinc: S +=  AnsiString("Sinc"); break;
@@ -49,7 +49,7 @@ void  StrPrintControlMode(AnsiString& S,
     throw EImpossibleError("unknown value in type TControlMode");
 }
 void  StrReadControlMode(TControlMode& cm,
-                                   const AnsiString &S, int &i)
+                         const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -159,7 +159,7 @@ TControlMode StrToControlMode(const AnsiString& S)
 //##########################################################################
 
 void  StrPrintFaultType(AnsiString& S,
-                                  TFaultType ft)
+                        TFaultType ft)
 {
     switch(ft) {
     case ftUnk: S +=  AnsiString("Unk"); break;
@@ -169,7 +169,7 @@ void  StrPrintFaultType(AnsiString& S,
     throw EImpossibleError("unknown value in type TFaultType");
 }
 void  StrReadFaultType(TFaultType& ft,
-                                 const AnsiString &S, int &i)
+                       const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -292,62 +292,93 @@ TItemsList<TRoboticPositioner*> TRoboticPositioner::Builts;
 //---------------------------------------------------------------------------
 //PROPIEDADES DE SEGURIDAD:
 
-//PROPIEDADES DE TOLERANCIA:
+//TOLERANCES:
 
 void TRoboticPositioner::setEo(double _Eo)
 {
-    //el valor de Eo debe ser no negativo
+    //check the precondition
     if(_Eo < 0)
         throw EImproperArgument("Eo value should be nonnegative");
 
-    __Eo = _Eo; //asigna el nuevo valor
+    //set the new value
+    __Eo = _Eo;
 
-    //ERROR: se ha dispuesto asignar E0 = 0 para
-    //reducir el SPM y evitar una colisión dinámica
-    //en el ejemplo original.
-
-    //asimila Eo
+    //assimilates the new value
     CalculateSPMComponents();
 }
 void TRoboticPositioner::setEp(double _Ep)
 {
-    //el valor de Ep debe ser no negativo
+    //check the precondition
     if(_Ep < 0)
         throw EImproperArgument("Ep value should be nonnegative");
 
-    __Ep = _Ep; //asigna el nuevo valor
+    //set the new value
+    __Ep = _Ep;
 
-    //asimila Ep
+    //assimilates the new value
     CalculateSPMComponents();
 }
 
 void TRoboticPositioner::setTstop(double _Tstop)
 {
-    //el valor de Tstop debe ser no negativo
+    //check the precondition
     if(_Tstop < 0)
         throw EImproperArgument("Tstop value should be nonnegative");
 
-    __Tstop = _Tstop; //asigna el nuevo valor
+    //set the new value
+    __Tstop = _Tstop;
 
-    //asimila Tstop
+    //assimilates the new value
     CalculateSPMComponents();
 }
 void TRoboticPositioner::setTshiff(double _Tshiff)
 {
-    //el valor de Tshiff debe ser no negativo
+    //check the precondition
     if(_Tshiff < 0)
         throw EImproperArgument("Tshiff value should be nonnegative");
 
-    __Tshiff = _Tshiff; //asigna el nuevo valor
+    //set the new value
+    __Tshiff = _Tshiff;
 
-    //asimila Tshiff
+    //assimilates the new value
     CalculateSPMComponents();
 }
 
-//------------------------------------------------------------------
-//PROPIEDADES DE SEGURIDAD EN FORMATO TEXTO:
+void TRoboticPositioner::setSPMadd(double _SPMadd)
+{
+    //check the precondition
+    if(_SPMadd < 0)
+        throw EImproperArgument("SPM add should be nonnegative");
 
-//PROPIEDADES DE TOLERANCIA EN FORMATO TEXTO:
+    //set the new value
+    __SPMadd = _SPMadd;
+
+    //assimilates the new value
+    CalculateSPMComponents();
+}
+
+//STATUS PROPERTIES:
+
+void TRoboticPositioner::setFaultProbability(double _FaultProbability)
+{
+    //la probabilidad de fallo FaultProbability debe estar en [0, 1]
+    if(_FaultProbability<0 || 1<_FaultProbability)
+        throw EImproperArgument("fault probability FaultProbability should be in [0, 1]");
+
+    //asigna el valor
+    __FaultProbability = _FaultProbability;
+}
+
+void TRoboticPositioner::setDsec(double _Dsec)
+{
+    if(_Dsec < 0)
+        throw EImproperArgument("additional security distance during retraction Dsec should be nonnegative");
+
+    p_Dsec = _Dsec;
+}
+
+//------------------------------------------------------------------
+//TOLERANCE PROPERTIES IN TEXTFORMAT:
 
 AnsiString TRoboticPositioner::getEoText(void) const
 {
@@ -397,18 +428,21 @@ void TRoboticPositioner::setTshiffText(const AnsiString &S)
         throw;
     }
 }
-void TRoboticPositioner::setFaultProbability(double _FaultProbability)
+AnsiString TRoboticPositioner::getSPMaddText(void) const
 {
-    //la probabilidad de fallo FaultProbability debe estar en [0, 1]
-    if(_FaultProbability<0 || 1<_FaultProbability)
-        throw EImproperArgument("fault probability FaultProbability should be in [0, 1]");
-
-    //asigna el valor
-    __FaultProbability = _FaultProbability;
+    return FloatToStr(getSPMadd());
+}
+void TRoboticPositioner::setSPMaddText(const AnsiString &S)
+{
+    try {
+        setSPMadd(StrToFloat_(S));
+    } catch(...) {
+        throw;
+    }
 }
 
 //---------------------------------------------------------------------------
-//PROPIEDADES DE ESTADO EN FORMATO TEXTO:
+//STATUS PROPERTIES IN TEXTFORMAT:
 
 AnsiString TRoboticPositioner::getDisabledText(void) const
 {
@@ -479,7 +513,8 @@ AnsiString TRoboticPositioner::getToleranceText(void) const
     S += AnsiString("    Eo = ")+getEoText()+AnsiString("\r\n");
     S += AnsiString("    Ep = ")+getEpText()+AnsiString("\r\n");
     S += AnsiString("    Tstop = ")+getTstopText()+AnsiString("\r\n");
-    S += AnsiString("    Tshiff = ")+getTshiffText();
+    S += AnsiString("    Tshiff = ")+getTshiffText()+AnsiString("\r\n");
+    S += AnsiString("    SPMadd = ")+getSPMaddText();
 
     return S;
 }
@@ -526,6 +561,7 @@ AnsiString TRoboticPositioner::getInstanceText(void) const
     S += AnsiString("    Ep = ")+getEpText()+AnsiString("\r\n");
     S += AnsiString("    Tstop = ")+getTstopText()+AnsiString("\r\n");
     S += AnsiString("    Tshiff = ")+getTshiffText()+AnsiString("\r\n");
+    S += AnsiString("    SPMadd = ")+getSPMaddText()+AnsiString("\r\n");
 
     S += "Status:\r\n";
     S += AnsiString("    Disabled = ")+getDisabledText()+AnsiString("\r\n");
@@ -564,7 +600,7 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
 
 //compara los identificadores de dos posicionadores
 int  TRoboticPositioner::CompareIds(TRoboticPositioner *FP1,
-                                              TRoboticPositioner *FP2)
+                                    TRoboticPositioner *FP2)
 {
     return TActuator::CompareIds(
                 FP1->getActuator(), FP2->getActuator());
@@ -628,20 +664,22 @@ void  TRoboticPositioner::PrintPositionPPARow(AnsiString& S,
 }
 
 //lee una instancia en una cadena
-void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
-                                                 const AnsiString& S, int &i)
+void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &RP,
+                                       const AnsiString& S, int &i)
 {
+    //CHECK THE PRECONDITIONS:
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el puntero FP debería apauntar a un posicionador construído
-    if(FP == NULL)
-        throw EImproperArgument("pointer FP should point to built fiberpositioner");
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-    //el índice i debería indicar a una posición de la cadena de texto S
     if(i<1 || S.Length()+1<i)
         throw EImproperArgument("index i should indicate a position in the string S");
+
+    //MAKE ACTIONS:
 
     //estado de la máquina de estados de lectura
     //      0: esperando etiqueta "ActuatorInstance:"
@@ -653,15 +691,16 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
     //      6: esperando separador y asignación a Ep
     //      7: esperando separador y asignación a Tstop
     //      8: esperando separador y asignación a Tshiff
-    //      9: esperando etiqueta "Status:"
-    //      10: esperando asignación a Disabled
-    //      11: esperando asignación a FaultProbability
-    //      12: esperando asignación a FaultType
-    //      13: instancia de posicionador leida con éxito
+    //      9: esperando separador y asignación a SPMadd
+    //      10: esperando etiqueta "Status:"
+    //      11: esperando asignación a Disabled
+    //      12: esperando asignación a FaultProbability
+    //      13: esperando asignación a FaultType
+    //      14: instancia de posicionador leida con éxito
     int status = 0;
 
     //variables tampón
-    TRoboticPositioner _FP(FP);
+    TRoboticPositioner _RP(RP);
 
     do {
         switch(status) {
@@ -676,7 +715,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
         case 1: //esperando instancia de Actuator
             try {
             StrTravelSeparators(S, i);
-            TActuator *aux = _FP.getActuator();
+            TActuator *aux = _RP.getActuator();
             TActuator::ReadInstance(aux, S, i);
         }catch(...) {
             throw;
@@ -695,7 +734,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
         case 3: //esperando instancia de CMF
             try {
             StrTravelSeparators(S, i);
-            TComposedMotionFunction *aux = &_FP.CMF;
+            TComposedMotionFunction *aux = &_RP.CMF;
             TComposedMotionFunction::ReadInstance(aux, S, i);
         }catch(...) {
             throw;
@@ -717,7 +756,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S,i);
-            _FP.setEo(aux);
+            _RP.setEo(aux);
         }catch(...) {
             throw;
         }
@@ -730,7 +769,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S,i);
-            _FP.setEp(aux);
+            _RP.setEp(aux);
         }catch(...) {
             throw;
         }
@@ -743,7 +782,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S,i);
-            _FP.setTstop(aux);
+            _RP.setTstop(aux);
         }catch(...) {
             throw;
         }
@@ -756,13 +795,26 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S,i);
-            _FP.setTshiff(aux);
+            _RP.setTshiff(aux);
         }catch(...) {
             throw;
         }
             status++;
             break;
-        case 9: //esperando etiqueta "Status:"
+        case 9: //esperando separador y asignación a SPMadd
+            try {
+            StrTravelSeparators(S, i);
+            StrTravelLabel("SPMadd", S, i);
+            StrTravelLabel("=", S, i);
+            double aux;
+            StrReadFloat(aux, S,i);
+            _RP.setSPMadd(aux);
+        }catch(...) {
+            throw;
+        }
+            status++;
+            break;
+        case 10: //esperando etiqueta "Status:"
             try {
             StrTravelLabel("Status:", S, i);
         }catch(...) {
@@ -770,40 +822,40 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
         }
             status++;
             break;
-        case 10: //esperando asignación a Disabled
+        case 11: //esperando asignación a Disabled
             try {
             StrTravelSeparators(S, i);
             StrTravelLabel("Disabled", S, i);
             StrTravelLabel("=", S, i);
             bool aux;
             StrReadBool(aux, S, i);
-            _FP.Disabled = aux;
+            _RP.Disabled = aux;
         }catch(...) {
             throw;
         }
             status++;
             break;
-        case 11: //esperando asignación a FaultProbability
+        case 12: //esperando asignación a FaultProbability
             try {
             StrTravelSeparators(S, i);
             StrTravelLabel("FaultProbability", S, i);
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _FP.setFaultProbability(aux);
+            _RP.setFaultProbability(aux);
         }catch(...) {
             throw;
         }
             status++;
             break;
-        case 12: //esperando asignación a FaultType
+        case 13: //esperando asignación a FaultType
             try {
             StrTravelSeparators(S, i);
             StrTravelLabel("FaultType", S, i);
             StrTravelLabel("=", S, i);
             TFaultType aux;
             StrReadFaultType(aux, S, i);
-            _FP.FaultType = aux;
+            _RP.FaultType = aux;
         }catch(...) {
             throw;
         }
@@ -812,10 +864,10 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
 
         }
         //mientras no se haya leido la instancia de posicionador con éxito
-    } while(status < 13);
+    } while(status < 14);
 
     //asigna la variable tampón
-    FP->Clone(&_FP);
+    RP->Clone(&_RP);
 }
 
 //---------------------------------------------------------------------------
@@ -824,13 +876,16 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &FP,
 //build a RP by default
 TRoboticPositioner::TRoboticPositioner(void) :
     //inicializa las propiedades de tolerancia
-    __Eo(0.001), __Ep(0.01),
-    __Tstop(1), __Tshiff(1),
+    __Eo(MEGARA_Eo), __Ep(MEGARA_Ep),
+    __Tstop(MEGARA_Tstop), __Tshiff(MEGARA_Tshiff),
+    __SPMadd(MEGARA_SPMadd),
+    //inicializa las propiedades de estado
+    __FaultProbability(0), p_Dsec(1),
     //contruye e inicializa las propiedades de control
     CMF(),
     //inicializa las propiedades de estado
-    Disabled(false), __FaultProbability(0), FaultType(ftUnk),
-    ControlMode(cmSinc), MP()
+    Disabled(false), FaultType(ftUnk),
+    ControlMode(cmSinc), MPturn(), MPretraction()
 {
     //contruye el actuador del posicionador
     //con el identificador 0
@@ -848,13 +903,16 @@ TRoboticPositioner::TRoboticPositioner(void) :
 TRoboticPositioner::TRoboticPositioner(int _Id, TDoublePoint _P0,
                                        double _thetaO1) :
     //inicializa las propiedades de tolerancia
-    __Eo(0.000001), __Ep(0.00001),
-    __Tstop(0.001), __Tshiff(0.001),
+    __Eo(MEGARA_Eo), __Ep(MEGARA_Ep),
+    __Tstop(MEGARA_Tstop), __Tshiff(MEGARA_Tshiff),
+    __SPMadd(MEGARA_SPMadd),
+    //inicializa las propiedades de estado
+    __FaultProbability(0), p_Dsec(1),
     //contruye e inicializa las propiedades de control
     CMF(),
     //construye e inicializa las propiedades de estado
-    Disabled(false), __FaultProbability(0), FaultType(ftUnk),
-    ControlMode(cmSinc)
+    Disabled(false), FaultType(ftUnk),
+    ControlMode(cmSinc), MPturn(), MPretraction()
 {
     //el número de identificación Id debe ser mayor que cero
     if(_Id < 1)
@@ -887,6 +945,7 @@ void TRoboticPositioner::CopyTolerance(const TRoboticPositioner *RP)
     __Ep = RP->getEp();
     __Tstop = RP->getTstop();
     __Tshiff = RP->getTshiff();
+    __SPMadd = RP->getSPMadd();
 }
 void TRoboticPositioner::CopyTolerance(const TRoboticPositioner& RP)
 {
@@ -895,6 +954,7 @@ void TRoboticPositioner::CopyTolerance(const TRoboticPositioner& RP)
     __Ep = RP.getEp();
     __Tstop = RP.getTstop();
     __Tshiff = RP.getTshiff();
+    __SPMadd = RP.getSPMadd();
 }
 //copy all status properties of a RP
 void TRoboticPositioner::CopyStatus(const TRoboticPositioner *RP)
@@ -907,6 +967,9 @@ void TRoboticPositioner::CopyStatus(const TRoboticPositioner *RP)
     setFaultProbability(RP->getFaultProbability());
     FaultType = RP->FaultType;
     ControlMode = RP->ControlMode;
+    MPturn.Clone(RP->MPturn);
+    MPretraction.Clone(RP->MPretraction);
+    p_Dsec = RP->p_Dsec;
 }
 void TRoboticPositioner::CopyStatus(const TRoboticPositioner& RP)
 {
@@ -914,6 +977,9 @@ void TRoboticPositioner::CopyStatus(const TRoboticPositioner& RP)
     setFaultProbability(RP.getFaultProbability());
     FaultType = RP.FaultType;
     ControlMode = RP.ControlMode;
+    MPturn.Clone(RP.MPturn);
+    MPretraction.Clone(RP.MPretraction);
+    p_Dsec = RP.p_Dsec;
 }
 
 //copy all properties of a RP
@@ -1022,123 +1088,40 @@ TRoboticPositioner::~TRoboticPositioner()
 //MÉTODOS PARA CALCULAR LOS VALORES RECOMENDADOS DE
 //LAS COMPONENTES DE SPM:
 
-//calcula la componente de SPM para absorber el error de recuperación:
-//      SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
-//      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->Ra)*
-//      Tstop mm
+//SPM recovery in mm:
+//  SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
+//      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tstop;
 double TRoboticPositioner::SPMrec(void) const
 {
     return (CMF.getvmaxabs1()*getActuator()->getrbs()*getActuator()->getr_max() +
             CMF.getvmaxabs2()*getActuator()->getArm()->getrbs()*getActuator()->getArm()->getL1V())*getTstop();
 }
 
-//Calcula el márgen perimetral de seguridad para evitar:
-//- el error mecánico debido al mecanizado del actuador;
-//- el error mecánico de orientación en el anclaje del posicionador;
-//- el error mecánico de posicionamiento en el anclaje del posicionador;
-//- el error numérico de las operaciones matemáticas del modelo;
-//- el error de posición debido a variaciones de velocidad;
-//  al desplazarse de un paso a otro.
-//- el error de posición debido a la falta de correspondencia de
-//  F(theta_1) y Arm->F(theta___3) con al realidad.
-//Todos los errores serán absorbidos por Eo y Ep
-//en la siguiente fórmula:
-//      SPMsta = Eo*r_max + Ep
-//Donde:
-//      Eo: margen de error de orientación en rad;
-//      Ep: margen de error de posición en mm.
+//static SPM in mm:
+//  SPMsta = Eo*Actuator->r_max + Ep;
 double TRoboticPositioner::SPMsta(void) const
 {
-    return getEo()*getActuator()->getr_max() + getEp(); //calcula y devuelve el valor
+    return getEo()*getActuator()->getr_max() + getEp();
 }
 
-//calcula la componente de SPM para absorber el error dinámico
-//      SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
-//      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->Ra)*
-//      Tshiff + (Actuator->rbs*Actuator->r_max +
-//      Actuator->Arm->rbs*Actuator->Arm->Ra) mm
+//dynamic SPM:
+//  SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
+//      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tshiff + SPMadd;
 double TRoboticPositioner::SPMdyn(void) const
 {
     return (CMF.getvmaxabs1()*getActuator()->getrbs()*getActuator()->getr_max() +
-            CMF.getvmaxabs2()*getActuator()->getArm()->getrbs()*getActuator()->getArm()->getL1V())*
-            getTshiff() + (getActuator()->getrbs()*getActuator()->getr_max() +
-                      getActuator()->getArm()->getrbs()*getActuator()->getArm()->getL1V());
+            CMF.getvmaxabs2()*getActuator()->getArm()->getrbs()*getActuator()->getArm()->getL1V())*getTshiff() +
+            getSPMadd();
 }
 
-/*//Calcula el margen perimetral de seguridad para
-//validación o programación:
-//      SPMtop = r_max/1000*(8/M_PI*w1 + 4/M_PI*w2)
-//Donde:
-//      r_max: radio apical del posicionador;
-//      w1: velocidad angular máxima del eje 1 en rad/s;
-//      w2: velocidad angular máxima del eje 2 en rad/s.
-double TRoboticPositioner::SPMtop(double w1, double w2) const
-{
-        //la velocidad angular del eje 1 debe ser no negativa
-        if(w1 < 0)
-                throw EImproperArgument("angular velociti of rot 1 should be nonnegative");
-
-        //la velocidad angular del eje 2 debe ser no negativa
-        if(w2 < 0)
-                throw EImproperArgument("angular velociti of rot 2 should be nonnegative");
-
-        //ADVERENCIA: los valores de w1 y w2 deberían ser corregidos
-        //en función de las derivadas de G(p_1) y Arm->G(p___3).
-        //Pero si las funciones G son aproximadamente lineales,
-        //realmente no hace falta por que el valor devuelto por SPMtop
-        //solo tiene que ser orientativo, pudiendo elegir el valor
-        //que se desee.
-
-        //calcula y devuelve el valor
-        return r_max*(8/M_PI*w1 + 4/M_PI*w2);
-}
-
-//asigna un valor a SPM según el propósito
-//      SPM = SPMerr + SPMtop + SPMtop + SPMpro; cuando Popose=sPro
-//      SPM = SPMerr + SPMtop;   cuando Popose=sVal
-//      SPM = SPMerr;    cuando Popose=sExe
-void TRoboticPositioner::SetSPM(TPurpose Purpose,
-        double Eo, double Ep,
-        double w1, double w2)
-{
-        //el cueficiente de error de orientación Eo debe ser mayor que cero
-        if(Eo <= 0)
-                throw EImproperArgument("orientation error coefficient Eo should be upper zero");
-
-        //el cueficiente de error de posición Ep debe ser mayor que cero
-        if(Ep <= 0)
-                throw EImproperArgument("position error coefficient Ep should be upper zero");
-
-        //la velocidad angular del eje 1 debe ser no negativa
-        if(w1 < 0)
-                throw EImproperArgument("angular velociti of rot 1 should be nonnegative");
-
-        //la velocidad angular del eje 2 debe ser no negativa
-        if(w2 < 0)
-                throw EImproperArgument("angular velociti of rot 2 should be nonnegative");
-
-        switch(Purpose) {
-                case pPro:
-                        Arm->SPM = GetSPMerr(Eo, Ep) + GetSPMtop(w1, w2) + GetSPMtop(w1, w2);
-                        break;
-                case pVal:
-                        Arm->SPM = GetSPMerr(Eo, Ep) + GetSPMtop(w1, w2);
-                        break;
-                case pExe:
-                        Arm->SPM = GetSPMerr(Eo, Ep);
-                        break;
-                default:
-                        throw EImpossibleError("value unknown for property Purpose");
-        }
-}
-  */
 //--------------------------------------------------------------------------
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
 //asigna conjuntamente los márgenes de segudidad
-//      (Eo, Ep, Tstop, Tshiff)
+//      (Eo, Ep, Tstop, Tshiff, SPMadd)
 void TRoboticPositioner::SetTolerances(double _Eo, double _Ep,
-                                       double _Tstop, double _Tshiff)
+                                       double _Tstop, double _Tshiff,
+                                       double _SPMadd)
 {
     //el valor de Eo debe ser no negativo
     if(_Eo < 0)
@@ -1161,6 +1144,7 @@ void TRoboticPositioner::SetTolerances(double _Eo, double _Ep,
     __Ep = _Ep;
     __Tstop = _Tstop;
     __Tshiff = _Tshiff;
+    __SPMadd = _SPMadd;
 
     //asimila (Eo, Ep, Tstop, Tshiff)
     CalculateSPMComponents();
@@ -1170,7 +1154,7 @@ void TRoboticPositioner::SetTolerances(double _Eo, double _Ep,
 //MÉTODOS DE ASIMILACIÓN:
 
 //A partir de:
-//      (Eo, Ep, Tstop, Tshiff)
+//      (Eo, Ep, Tstop, Tshiff, SPMadd)
 //      FP->rmax
 //determina:
 //      (SPMrec, SPMsta, SPMdyn, SPMmin)
@@ -1179,7 +1163,7 @@ void TRoboticPositioner::CalculateSPMComponents(void)
     //CALULA LAS COMPONENTES DE SPM:
 
     double aux = SPMsta();
-    getActuator()->SetSPMComponents(SPMrec(), aux, SPMdyn(), aux);//, Actuator->SPMoff);
+    getActuator()->SetSPMComponents(SPMrec(), aux, SPMdyn(), aux);
     getActuator()->getBarrier()->setSPM(aux);
 }
 
@@ -1196,7 +1180,7 @@ void TRoboticPositioner::SetSPMoff(double PAem, double Pem)
     if(Pem < 0)
         throw EImproperArgument("Pem value should be nonnegative");
 
-    //calcula y devuelve el valor
+    //calculates and assign the value
     getActuator()->setSPMoff(PAem*getActuator()->getrmax() + Pem);
 }
 
@@ -1514,7 +1498,7 @@ void TRoboticPositioner::programRetractArmToSafeArea(void)
     if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
         throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
 
-/*    //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
+    /*    //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
 
     switch(CMF.getMFM()) {
     case mfmSquare: {
@@ -1623,7 +1607,7 @@ void TRoboticPositioner::programGoDirectlyToCartesianP_3(double _x_3, double _y_
     //y determina si la posición está dentro del dominio
     double theta_1, theta___3;
     bool isindomine = getActuator()->AnglesToGoP_3(theta_1, theta___3,
-                                              r_3, theta_3);
+                                                   r_3, theta_3);
 
     //la posición (x_3, y_3) debería estar dentro del dominio de P_3
     if(!isindomine)
@@ -1729,7 +1713,7 @@ bool TRoboticPositioner::addMIforRetraction(void)
     //calculates the necessary displacement of rotor 1 in radians
     double dt1 = dt2/2;
 
-    //determines the final position of rot 1 in radians
+    //determines the final position of the rotors in radians
     double theta_1fin, theta___3fin;
     if(getActuator()->gettheta_1() > dt1) {
         theta_1fin = getActuator()->gettheta_1() - dt1;
@@ -1750,7 +1734,7 @@ bool TRoboticPositioner::addMIforRetraction(void)
     p___3fin = getActuator()->getArm()->getF().Image(theta___3fin);
     p___3fin = Max(0., round(p___3fin));
 
-    //build a message instruction and set up
+    //build a message instruction and set it
     TMessageInstruction *MI = new TMessageInstruction();
     MI->setId(getActuator()->getId());
     MI->Instruction.setName("MM");
@@ -1761,7 +1745,7 @@ bool TRoboticPositioner::addMIforRetraction(void)
     //add the message instruction to the MP
     Positioning::TMessageList *ML = new Positioning::TMessageList();
     ML->Add(MI);
-    MP.Add(ML);
+    MPretraction.Add(ML);
 
     //determines if it is necessary abate the arm for recovery the security position
     bool necessary_abate = !getActuator()->p___3IsInSafeArea(p___3fin);
@@ -1794,7 +1778,7 @@ void TRoboticPositioner::addMIforAbatement(void)
     //add the message instruction to the MP
     Positioning::TMessageList *ML = new Positioning::TMessageList();
     ML->Add(MI);
-    MP.Add(ML);
+    MPretraction.Add(ML);
 }
 
 //MÉTODOS PARA DETERMINAR LA DISTANCIA MÁXIMA RECORRIDA

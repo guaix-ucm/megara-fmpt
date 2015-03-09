@@ -215,6 +215,9 @@ public:
 
     //PROPIEDADES EN FORMATO TEXTO:
 
+    AnsiString getamaxabsText(void) const;
+    void setamaxabsText(const AnsiString&);
+
     //imprime las porpiedades del objeto
     //concatenadas con su nombre separadas por puntos
     AnsiString getText(void);
@@ -222,16 +225,19 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //inicialize:
-    //  amax=amaxabs=MEGARA_AMAXABSDEF,
-    //  vmax=vmaxabs=MEGARA_VMAXABSDEF,
+    //  amax=amaxabs,
+    //  vmax=vmaxabs,
     //  psta=0, pfin=0;
     //and assimilate the parameters
-    TRampFunction(double _amaxabs=MEGARA_AMAXABSDEF,
-                  double _vmaxabs=MEGARA_VMAXABSDEF);
+    TRampFunction(double _amaxabs,
+                  double _vmaxabs);
     //clona una función rampa
     TRampFunction(TRampFunction*);
     //copia todas las propiedades de una función rampa
     void Copy(TMotionFunction *_RampFunction);
+
+    //initalize all properties except (vmaxabs, amaxabs)
+    void reset(void);
 
     //asigna (psta, pfin) conjuntamente
     void SetInterval(double _psta, double _pfin);

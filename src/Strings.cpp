@@ -427,10 +427,74 @@ int StrCountLines(const AnsiString &String)
 
     return count;
 }
-//divide una cadena por cada "\r\n" que encuentre
-void StrDivideInLines(TStrings *Lines, const AnsiString &String)
+//determines if there is the substring "\r\n" in the position i of a string
+bool thereIsntEndline(const string& str, int i)
 {
-    //pointer Lines shall point to built string list
+    if(i<0 || i>str.length())
+        throw EImproperArgument("index i should indicates a position of string");
+
+    int remaining = str.length() - 1 - i;
+
+    if(remaining<2 || str[i]!='\r' || str[i+1]!='\n')
+        return true;
+
+    return false;
+}
+//divide una cadena por cada "\r\n" que encuentre
+void StrDivideInLines(TStrings *Lines, const AnsiString &S)
+{
+    if(Lines == NULL)
+        throw EImproperArgument("pointerLines shouldpoint to build string list");
+
+    //initialize the output
+    Lines->Clear();
+
+    //initialize index to positions of the string
+    int i = 1;
+
+    //solve the trivial basic case
+    if(i > S.Length())
+        return;
+
+    do {
+        //actualize index to the first position of the next substring
+        int ifirst = i;
+
+        //advances i to the post-last position of the string, or find "\r\n"
+        while(i<=S.Length() && thereIsntEndline(S.str, i-1))
+            i++;
+
+        //if has reached the post-last position of the string,
+        //get the substring in the interval [ifirst, i-1]
+        //only if it is not empty
+        if(i >= S.Length()) {
+            int count = i - ifirst;
+            if(count > 0) {
+                AnsiString SubString;
+                SubString = S.SubString(ifirst, count);
+                Lines->Add(SubString);
+            }
+        }
+
+        //if has found the endline,
+        //get the substring in the interval [ifirst, i-1]
+        else {
+            int count = i - ifirst;
+            AnsiString SubString;
+            SubString = S.SubString(ifirst, count);
+            Lines->Add(SubString);
+
+            //Note that substring [ifirst, i-1] could be empty.
+
+            //advances index i to the first position of the next substring
+            //or the post-last position of the string
+            i += 2;
+        }
+
+    //while there is a remaining position in the string
+    } while(i <= S.Length());
+
+    /*    //pointer Lines shall point to built string list
     if(Lines == NULL)
         throw EImproperArgument("pointer Strings shall point to built string list");
 
@@ -478,25 +542,56 @@ void StrDivideInLines(TStrings *Lines, const AnsiString &String)
     }
 
     //añade la última línea
-    Lines->Add(S);
+    Lines->Add(S);*/
 }
 void StrDivideInLines(TStrings& Lines, const AnsiString &S)
 {
     //initialize the output
     Lines.Clear();
 
-    //indicates the first char of the string
+    //initialize index to positions of the string
     int i = 1;
 
-    //cheack the trivial basic case
+    //solve the trivial basic case
     if(i > S.Length())
         return;
 
     do {
-        //initialize ifrist
+        //actualize index to the first position of the next substring
         int ifirst = i;
 
-        //search the pos-position of the actual line
+        //advances i to the post-last position of the string, or find "\r\n"
+        while(i<=S.Length() && thereIsntEndline(S.str, i-1))
+            i++;
+
+        //if has reached the post-last position of the string,
+        //get the substring in the interval [ifirst, i-1]
+        //only if it is not empty
+        if(i >= S.Length()) {
+            int count = i - ifirst;
+            if(count > 0) {
+                AnsiString SubString;
+                SubString = S.SubString(ifirst, count);
+                Lines.Add(SubString);
+            }
+        }
+
+        //if has found the endline,
+        //get the substring in the interval [ifirst, i-1]
+        else {
+            int count = i - ifirst;
+            AnsiString SubString;
+            SubString = S.SubString(ifirst, count);
+            Lines.Add(SubString);
+
+            //Note that substring [ifirst, i-1] could be empty.
+
+            //advances index i to the first position of the next substring
+            //or the post-last position of the string
+            i += 2;
+        }
+
+/*        //search the pos-position of the actual line
         while(i<=S.Length() && S[i]!='\r')
             i++;
         i++;
@@ -520,8 +615,8 @@ void StrDivideInLines(TStrings& Lines, const AnsiString &S)
             Lines.Add(S.SubString(ifirst, count));
         else
             Lines.Add(AnsiString(""));
-
-    //while there is a position for travel
+*/
+    //while there is a remaining position in the string
     } while(i <= S.Length());
 }
 //divide una cadena en palabras

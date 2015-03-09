@@ -28,16 +28,145 @@
 
 #include <limits> //std::numeric_limits
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 //espacio de nombres de posicionamiento
 namespace Positioning {
+
+//Get the list of RPs includes in a MP.
+//Precondition:
+//  All message of instruction in the MP shall be addressed
+//  to an existent RP of the Fiber MOS Model.
+void getRPsIncludedInMP(TRoboticPositionerList& RPL,
+                        const TMotionProgram& MP,
+                        const TFiberMOSModel& FMM)
+{
+    //CHECK THE PRECONDITION:
+
+    //chack if all message of instruction in the MP are addressed to an existent RP of the Fiber MOS Model
+    for(int i=0; i<MP.getCount(); i++) {
+        const TMessageList *ML = MP.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int k = FMM.RPL.SearchId(MI->getId());
+            if(k >= FMM.RPL.getCount())
+                throw EImproperArgument("all message of instruction in the MP shall be addressed to an existent RP of the Fiber MOS Model");
+        }
+    }
+
+    //ADD THE RPs TO THE RPL:
+
+    //initialize the output
+    RPL.Clear();
+
+    //add the RPs avoiding repetitions
+    for(int i=0; i<MP.getCount(); i++) {
+        const TMessageList *ML = MP.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //search the identifier RP in the Fiber MOS Model
+            int k = FMM.RPL.SearchId(MI->getId());
+            //if not has found the identifier Id
+            if(k >= FMM.RPL.getCount())
+                //indicates lateral effect
+                throw EImpossibleError("lateral effect");
+            //if has found the identifier Id
+            else {
+                //actualice the RPL avoiding repetitions
+                TRoboticPositioner *RP = FMM.RPL[k];
+                int l = RPL.SearchId(RP->getActuator()->getId());
+                if(l >= RPL.getCount())
+                    RPL.Add(FMM.RPL[k]);
+            }
+        }
+    }
+}
+
+//Get the list of RPs included in a pair of MPs.
+//Precondition:
+//  All message of instruction in the MPs shall be addressed
+//  to an existent RP of the Fiber MOS Model.
+void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
+                     const TMotionProgram& MP1, const TMotionProgram& MP2,
+                     const TFiberMOSModel& FMM)
+{
+    //CHECK THE PRECONDITION:
+
+    for(int i=0; i<MP1.getCount(); i++) {
+        const TMessageList *ML = MP1.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int k = FMM.RPL.SearchId(MI->getId());
+            if(k >= FMM.RPL.getCount())
+                throw EImproperArgument("all message of instruction in the MP1 shall be addressed to an existent RP of the Fiber MOS Model");
+        }
+    }
+    for(int i=0; i<MP2.getCount(); i++) {
+        const TMessageList *ML = MP2.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            int k = FMM.RPL.SearchId(MI->getId());
+            if(k >= FMM.RPL.getCount())
+                throw EImproperArgument("all message of instruction in the MP2 shall be addressed to an existent RP of the Fiber MOS Model");
+        }
+    }
+
+    //ADD THE RPs TO THE RPL:
+
+    //initialize the RPL
+    RPL.Clear();
+
+    //add the RPs avoiding repetitions
+    for(int i=0; i<MP1.getCount(); i++) {
+        const TMessageList *ML = MP1.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //search the identifier RP in the Fiber MOS Model
+            int k = FMM.RPL.SearchId(MI->getId());
+            //if not has found the identifier Id
+            if(k >= FMM.RPL.getCount())
+                //indicates lateral effect
+                throw EImpossibleError("lateral effect");
+            //if has found the identifier Id
+            else {
+                //actualice the RPL avoiding repetitions
+                TRoboticPositioner *RP = FMM.RPL[k];
+                int l = RPL.SearchId(RP->getActuator()->getId());
+                if(l >= RPL.getCount())
+                    RPL.Add(FMM.RPL[k]);
+            }
+        }
+    }
+    for(int i=0; i<MP2.getCount(); i++) {
+        const TMessageList *ML = MP2.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //search the identifier RP in the Fiber MOS Model
+            int k = FMM.RPL.SearchId(MI->getId());
+            //if not has found the identifier Id
+            if(k >= FMM.RPL.getCount())
+                //indicates lateral effect
+                throw EImpossibleError("lateral effect");
+            //if has found the identifier Id
+            else {
+                //actualice the RPL avoiding repetitions
+                TRoboticPositioner *RP = FMM.RPL[k];
+                int l = RPL.SearchId(RP->getActuator()->getId());
+                if(l >= RPL.getCount())
+                    RPL.Add(FMM.RPL[k]);
+            }
+        }
+    }
+}
 
 //###########################################################################
 //TMotionProgramValidator:
 //###########################################################################
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //BUILDING AND DESTROYING METHODS:
 
 //built a validator of motion programs
@@ -59,12 +188,14 @@ TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *_FiberMOSModel)
 double TMotionProgramValidator::calculateTf(const TRoboticPositioner *RP,
                                             const TRoboticPositioner *RPA) const
 {
-    //pointer RP should point to built RP
+    //CHECK THE PRECONDITIONS:
+
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built RP");
-    //pointer RPA should point to built RP
     if(RPA == NULL)
         throw EImproperArgument("pointer RPA should point to built RP");
+
+    //MAKE ACTIONS:
 
     //calcula la distancia entre los contornos de los brazos de los RPs
     double D = RP->getActuator()->getArm()->getContour().DistanceMin(RPA->getActuator()->getArm()->getContour());
@@ -74,101 +205,6 @@ double TMotionProgramValidator::calculateTf(const TRoboticPositioner *RP,
     //si los brazos colisionan entre si
     if(Df < 0)
         return 0; //indica que el tiempo libre es cero
-
-    /*        //CALCULA UNA COTA SUPERIOR PARA EL DESPLAZAMIENTO LONGITUDINAL:
-
-        //cota superior de la aproximación (limitada inferiormente)
-        double atop = Max(Df, RP->getActuator()->getSPMmin() + RPA->getActuator()->getSPMmin());
-        //cota superio del desplazamiento longitudinal de cada posicionador
-        double dtop = atop/2;
-
-        //-------------------------------------------------------------------
-        //CALCULA EL TIEMPO LIBRE DEL POSICIONADOR RP:
-
-        double Tf1; //tiempo libre del posicionador RP
-        if(RP->CMF.getMF1()==NULL && RP->CMF.getMF2()==NULL) //si no se mueve ningún eje
-                Tf1 = MAXDOUBLE;//el tiempo libre es infinito
-        else { //si se mueve algún eje
-                //calcula la velocidad lineal máxima en mm/ms del ápice del brazo
-                double vmax;
-                if(RP->CMF.getMF1()!=NULL && RP->CMF.getMF2()==NULL) { //si solo se mueve el eje 1
-                        //calcula la velocidad angular del eje 1 en rad/ms
-                        double w1 = RP->CMF.getMF1()->getvmaxabs()/RP->getActuator()->getSB1()*M_2PI;
-                        //calcula la velocidad lineal máxima en mm/ms
-                        vmax = w1*RP->getActuator()->getr_max();
-                }
-                else if(RP->CMF.getMF1()==NULL && RP->CMF.getMF2()!=NULL) { //si solo se mueve el eje 2
-                        //calcula la velocidad angular del eje 2 en rad/ms
-                        double w2 = RP->CMF.getMF2()->getvmaxabs()/RP->getActuator()->getArm()->getSB2()*M_2PI;
-                        //calcula la velocidad lineal máxima en mm/ms
-                        vmax = w2*RP->getActuator()->getArm()->getL1V();
-                }
-                else { //si se mueven ambos ejes
-                        //calcula la velocidad angular del eje 1 en rad/ms
-                        double w1 = RP->CMF.getMF1()->getvmaxabs()/RP->getActuator()->getSB1()*M_2PI;
-                        //calcula la velocidad angular del eje 2 en rad/ms
-                        double w2 = RP->CMF.getMF2()->getvmaxabs()/RP->getActuator()->getArm()->getSB2()*M_2PI;
-                        //calcula la velocidad lineal máxima en mm/ms
-                        vmax = w1*RP->getActuator()->getr_max() + w2*RP->getActuator()->getArm()->getL1V();
-                }
-
-                //calcula el tiempo libre en ms
-                if(vmax != 0)
-                        Tf1 = dtop/vmax;
-                else
-                        Tf1 = MAXDOUBLE;
-        }
-
-        //-------------------------------------------------------------------
-        //CALCULA EL TIEMPO LIBRE DEL POSICIONADOR RPA:
-
-        double Tf2; //tiempo libre del posicionador RPA
-        if(RPA->CMF.getMF1()==NULL && RPA->CMF.getMF2()==NULL) //si no se mueve ningún eje
-                Tf2 = MAXDOUBLE;//el tiempo libre es infinito
-        else { //si se mueve algún eje
-                //calcula la velocidad lineal máxima en mm/ms delápice del brazo
-                double vmax;
-                if(RPA->CMF.getMF1()!=NULL && RPA->CMF.getMF2()==NULL) { //si solo se mueve el eje 1
-                        //calcula la velocidad angular del eje 1 en rad/ms
-                        double w1 = RPA->CMF.getMF1()->getvmaxabs()/RPA->getActuator()->getSB1()*M_2PI;
-                        //calcula la velocidad lineal máxima en mm/ms
-                        vmax = w1*RPA->getActuator()->getr_max();
-                }
-                else if(RPA->CMF.getMF1()==NULL && RPA->CMF.getMF2()!=NULL) { //si solo se mueve el eje 2
-                        //calcula la velocidad angular del eje 2 en rad/ms
-                        double w2 = RPA->CMF.getMF2()->getvmaxabs()/RPA->getActuator()->getArm()->getSB2()*M_2PI;
-                        //calcula la velocidad lineal máxima en mm/ms
-                        vmax = w2*RPA->getActuator()->getArm()->getL1V();
-                }
-                else { //si seueven ambos ejes
-                        //calcula la velocidad angular del eje 1 en rad/ms
-                        double w1 = RPA->CMF.getMF1()->getvmaxabs()/RPA->getActuator()->getSB1()*M_2PI;
-                        //calcula la velocidad angular del eje 2 en rad/ms
-                        double w2 = RPA->CMF.getMF2()->getvmaxabs()/RPA->getActuator()->getArm()->getSB2()*M_2PI;
-                        //calcula la velocidad lineal máxima en mm/ms
-                        vmax = w1*RPA->getActuator()->getr_max() + w2*RPA->getActuator()->getArm()->getL1V();
-                }
-
-                //calcula el tiempo libre en ms
-                if(vmax != 0)
-                        Tf2 = dtop/vmax;
-                else
-                        Tf2 = MAXDOUBLE;
-        }
-
-        //-------------------------------------------------------------------
-
-        //NOTA: no es necesario calcular el límite superior
-        //del desplazamiento longitudinal, porque si el tiempo libre sale
-        //muy grande, las funciones de movimiento llevarán
-        //los brazos a sus posiciones finales.
-
-        //CALCULA Y DEVUELVE EL TIEMPO DE DESPLAZAMIENTO LIBRE DE COLISIÓN:
-
-        //selecciona el tiempo libre menor
-        double Tf = Min(Tf1, Tf2);
-        //devuelve el tiempo libre
-        return Tf;*/
 
     //calculates an upper top for longitudinal velocity
     double vmaxabs1 = RP->calculatevmaxabs();
@@ -339,55 +375,6 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
     return Tminmin;
 }
 
-//Get the list of RPs includes in a MP.
-//Precondition:
-//  All message of instruction in the MP shall be addressed
-//  to an existent RP of the Fiber MOS Model.
-void TMotionProgramValidator::getRPsIncludedInMP(TRoboticPositionerList& RPL,
-                                                 const TMotionProgram& MP) const
-{
-    //CHECK THE PRECONDITION:
-
-    //chack if all message of instruction in the MP are addressed to an existent RP of the Fiber MOS Model
-    for(int i=0; i<MP.getCount(); i++) {
-        const TMessageList *ML = MP.GetPointer(i);
-        for(int j=0; j<ML->getCount(); j++) {
-            const TMessageInstruction *MI = ML->GetPointer(j);
-            int k = getFiberMOSModel()->RPL.SearchId(MI->getId());
-            if(k >= getFiberMOSModel()->RPL.getCount())
-                throw EImproperArgument("all message of instruction in the MP shall be addressed to an existent RP of the Fiber MOS Model");
-        }
-    }
-
-    //ADD THE RPs TO THE RPL:
-
-    //initialize the RPL
-    RPL.Clear();
-
-    //for each message instruction list of the motion program
-    for(int i=0; i<MP.getCount(); i++) {
-        const TMessageList *ML = MP.GetPointer(i);
-        for(int j=0; j<ML->getCount(); j++) {
-            const TMessageInstruction *MI = ML->GetPointer(j);
-
-            //search the identifier RP in the Fiber MOS Model
-            int k = getFiberMOSModel()->RPL.SearchId(MI->getId());
-            //if not has found the identifier Id
-            if(k >= getFiberMOSModel()->RPL.getCount())
-                //indicates lateral effect
-                throw EImpossibleError("lateral effect");
-            //if has found the identifier Id
-            else {
-                //actualice the RPL avoiding repetitions
-                TRoboticPositioner *RP = getFiberMOSModel()->RPL[k];
-                int l = RPL.SearchId(RP->getActuator()->getId());
-                if(l >= RPL.getCount())
-                    RPL.Add(getFiberMOSModel()->RPL[k]);
-            }
-        }
-    }
-}
-
 //Determines if the execution of a motion program, starting from
 //given initial positions, avoid collisions.
 //Preconditions:
@@ -423,7 +410,7 @@ bool TMotionProgramValidator::motionProgramIsValid(const TMotionProgram &MP) con
 
     //get the list of RPs included in the MP
     TRoboticPositionerList RPL;
-    getRPsIncludedInMP(RPL, MP);
+    getRPsIncludedInMP(RPL, MP, *getFiberMOSModel());
 
     //all RPs included in the MP, must be enabled the quantifiers of their rotors
     for(int i=0; i<RPL.getCount();  i++) {
@@ -446,26 +433,10 @@ bool TMotionProgramValidator::motionProgramIsValid(const TMotionProgram &MP) con
     bool collision = RPL.ThereIsCollision();
     //solve the trivial case
     if(collision)
-        //indicates that the motion program notavoid dynamic collision
-        return true;
+        //indicates that the motion program not avoid dynamic collision
+        return false;
 
     //CHECK THE FOLLOWING STEPPING POSITIONS TO END:
-
-    /*
-     * Determine inputs just before validation
-     * */
-
-    strWriteToFile("RPL_included.txt", RPL.getText().str);
-
-    TPairPositionAnglesList IPL;
-    getFiberMOSModel()->RPL.GetPositions(IPL);
-    strWriteToFile("IPL_intern.txt", IPL.getColumnText().str);
-
-    strWriteToFile("MP_intern.txt", MP.getText().str);
-
-    /*
-     *
-     * */
 
     //search a collision in each gesture
     for(int i=0; i<MP.getCount(); i++) {
@@ -529,7 +500,48 @@ bool TMotionProgramValidator::motionProgramIsValid(const TMotionProgram &MP) con
     return true;
 }
 
-//--------------------------------------------------------------------------
+//Validate a pair (PP, DP).
+//Inputs:
+//- (PP, DP):the pair to validate.
+//- not_operative_Ids: identifier list containing the disabling estatus
+//  of the Real Fiber MOS.
+//Outputs:
+//- pairPPDPisValid: flag indicating if all RPs includes in the pair
+//  are operatives.
+bool TMotionProgramValidator::pairPPDPisValid(const TMotionProgram &PP, const TMotionProgram &DP,
+                      const TVector<int>& not_operative_Ids) const
+{
+    //check the preconditions
+    for(int i=0; i<int(not_operative_Ids.getCount()); i++) {
+        int Id = not_operative_Ids[i];
+        int j = getFiberMOSModel()->RPL.SearchId(Id);
+        if(j >= getFiberMOSModel()->RPL.getCount())
+            throw EImproperArgument("disablesRPs shall contains only Ids of the RPs in the Fiber MOS Model");
+    }
+
+    try {
+        //gets the list of RPs in the pair (PP, DP)
+        TRoboticPositionerList RPL;
+        getRPsIncludedInMPs(RPL, PP, DP, *getFiberMOSModel());
+
+        //check if all RPs included are enabled
+        for(int i=0; i<RPL.getCount(); i++) {
+            TRoboticPositioner *RP = RPL[i];
+            int Id = RP->getActuator()->getId();
+            int j = not_operative_Ids.Search(Id);
+            if(j >= not_operative_Ids.getCount())
+                return false;
+        }
+
+        //indicates that all RPs included are enabled
+        return true;
+
+    } catch(Exception& E) {
+        throw E;
+    }
+}
+
+//---------------------------------------------------------------------------
 
 } //namespace Positiong
 

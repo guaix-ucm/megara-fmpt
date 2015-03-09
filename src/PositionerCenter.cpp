@@ -115,6 +115,12 @@ void TPositionerCenterList::setTableText(const string& str)
 //get the TPL
 void TSPPPList::getTPL(TTargetPointList& TPL)
 {
+    //initialize the TPL
+    TPL.Cleat();
+
+    //add the TPLs corresponding to the SPPP which accomplish the two following conditions:
+    //  SPPP->Bid.length() > 0
+    //  SPPP->Enabled
     for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
         if(SPPP->Bid.length() > 0) { //if the SPPP correspond to an PP
@@ -133,8 +139,8 @@ void TSPPPList::getTPL(TTargetPointList& TPL)
             }
         }
     }
-}
-*/
+}*/
+
 //build a PositionerCenterList by default
 TPositionerCenterList::TPositionerCenterList(void) : TPointersList<TPositionerCenter>()
 {

@@ -49,15 +49,6 @@ class TMessageList : public TPointersList<TMessageInstruction> {
     //        AnsiString __Label; void SetLabel(const AnsiString&);
 
 public:
-    /*        //PROPIEDADES EN FORMATO TEXTO:
-
-        //etiqueta de la lista de mensajes
-        //debe ser una cadena de texto imprimible
-        //valor por defecto: ""
-        __property AnsiString Label = {read=__Label, write=SetLabel};
-
-        //NOTA: cada lista de mensajes debe tener una etiqueta
-*/
     //MÉTODOS ESTÁTICOS:
 
     //imprime una lista en una cadena de texto
@@ -75,33 +66,38 @@ public:
                                            TMessageInstruction::Print,
                                            TMessageInstruction::Read) {;}
 
-    //imprime los mensajes de una lista en una caja de lista
-    //#void Print(QListWidget*);
+    //PUBLIC METHODS:
+
+    //construye un clon de una lista de MIs basada en punteros
+    TMessageList(const TMessageList*);
+
+    //determines if a ML is different to this ML
+    bool operator!=(const TMessageList&) const;
 };
 
 //--------------------------------------------------------------------------
 //TMotionProgram:
 //--------------------------------------------------------------------------
 
-//programa de movimiento
+//class motion program
 class TMotionProgram : public TPointersList<TMessageList> {
 public:
-    //contruye un programa de posicionamientos
+    //get the non empty coments of the motion program
+    //in column text format
+    string getCommentsColumnText(void) const;
+
+    //builds a motion program
     TMotionProgram(int _Capacity=7) :
         TPointersList<TMessageList>(_Capacity,
                                     NULL, NULL, NULL,
                                     TMessageList::PrintMessageList,
                                     TMessageList::ReadMessageList) {;}
-    /*#
-        //imprime las etiquetas de las listas de mensajes de un programa
-        //en una caja de lista
-        void Print(QListWidget *LB);
 
-        //imprime el programa de movimiento en un memorando
-        void Print(QTextEdit*);*/
+    //determines if a MP is different to this MP
+    bool operator!=(const TMotionProgram&) const;
 };
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 } //namespace Positiong
 

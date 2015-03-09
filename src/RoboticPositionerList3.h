@@ -196,14 +196,14 @@ public:
 
         //METHODS TO TRANSLATE MOTION PROGRAMS:
 
-        //Translate the positioning progam to the format stablished for
+/*        //Translate the positioning progam to the format stablished for
         //the interface FMPT-MCS.
         //Preconditions:
         //  All message of instructions of the motion program
         //  shall be addressed to an existing RP.
         void translatePositioningProgram(string& str, int CBId,
             const TPairPositionAnglesList& IPL, const TMotionProgram& MP);
-
+*/
         //Translate a motion progam to the format stablished for
         //the interface FMPT-MCS.
         //Preconditions:

@@ -446,7 +446,7 @@ public:
         //determine if all operative RPs of the list are in the origin
         bool allOperativeRPsAreInTheOrigin(void) const;
 
-        //METHODS FORJOINTLY DISOPLACEMENT:
+        //METHODS FOR JOINTLY DISOPLACEMENT:
 
         //mueve los ejes de los posicionadores
         //a sus orígenes de coordenadas
@@ -584,6 +584,13 @@ public:
         //posiciones aleatorias con distribución uniforme en su dominio
         //en las que no colisionan entre si
         int RandomizeP3WithoutCollisionSelected(void);
+
+        //METHODS RELATED WITH THE MP:
+
+        //search the RP with the minimun Dsec
+        int searchDsecMin(double DsecMin) const;
+        //get the minimun Dsec
+        double DsecMin() const;
 };
 
 //---------------------------------------------------------------------------

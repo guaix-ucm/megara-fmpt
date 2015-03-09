@@ -455,7 +455,7 @@ void  TRoboticPositionerList1::ReadInstance(TRoboticPositionerList1* &RPL,
 TRoboticPositionerList1::TRoboticPositionerList1(void) :
     TItemsList<TRoboticPositioner*>(100),
     //propiedades de seguridad
-    __PAem(0.000001), __Pem(0.0001)
+    __PAem(MEGARA_PAem), __Pem(MEGARA_Pem)
 {
     //point the default functions
     Compare = TRoboticPositioner::CompareIds;
@@ -1553,10 +1553,8 @@ void TRoboticPositionerList1::RestorePositions(void)
                 //apunta el posicionador indicado para facilitar su acceso
                 RP = Items[i];
 
-                //restaura la posición del cilindro
-                RP->getActuator()->Restoretheta_1();
-                //restaura la posición del brazo
-                RP->getActuator()->getArm()->Restoretheta___3();
+                //restaura la posición del actuador
+                RP->getActuator()->Restorethetas();
         }
 }
 //desempila la siguiente posición apilada de cada posicionador
@@ -2100,6 +2098,38 @@ int TRoboticPositionerList1::RandomizeP3WithoutCollisionSelected(void)
         }
 
         return count;
+}
+
+//METHODS RELATED WITH THE MP:
+
+//search the RP with the minimun Dsec
+int TRoboticPositionerList1::searchDsecMin(double DsecMin) const
+{
+    if(getCount() <= 0)
+        throw EImproperCall("there aren't RPs forsearch the minimun Dsec");
+
+        TRoboticPositioner *RP = getFirst();
+        DsecMin = RP->getDsec();
+        int iMin = 0;
+        for(int i=1; i<getCount(); i++) {
+            RP = Items[i];
+            if(RP->getDsec() < DsecMin) {
+                DsecMin = RP->getDsec();
+                iMin = i;
+            }
+        }
+        return iMin;
+}
+//get the minimun Dsec
+double TRoboticPositionerList1::DsecMin() const
+{
+    double DsecMin = std::numeric_limits<double>::max();
+
+    if(getCount() <= 0)
+        return DsecMin;
+
+    searchDsecMin(DsecMin);
+    return DsecMin;
 }
 
 //---------------------------------------------------------------------------

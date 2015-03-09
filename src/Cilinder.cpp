@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Cilinder.cpp
-//Contenido: cilindro de un actuador
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Cilinder.cpp
+//Content: cilinder of an actuator of a RP
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Cilinder.h"
@@ -322,7 +322,7 @@ void TCilinder::setP0(TDoublePoint _P0)
     getBarrier()->setP0(getP0()); //mueve la barrera a la nueva posición
 }
 
-double TCilinder::getL0(void) const
+/*double TCilinder::getL0(void) const
 {
     return getP0().Mod();
 }
@@ -365,7 +365,7 @@ void TCilinder::settheta0(double _theta0)
     getArm()->setP1(NewP1()); //mueve el brazo a la nueva posición
     getBarrier()->setP0(getP0()); //mueve la barrera a la nueva posición
 }
-
+*/
 //PROPIEDADES DE LOCALIZACIÓN
 //DE SOLO LECTURA:
 
@@ -827,7 +827,7 @@ void TCilinder::setP0Text(const AnsiString &S)
     }
 }
 
-AnsiString TCilinder::getL0Text(void) const
+/*AnsiString TCilinder::getL0Text(void) const
 {
     return FloatToStr(getL0());
 }
@@ -851,7 +851,7 @@ void TCilinder::settheta0Text(const AnsiString &S)
         throw;
     }
 }
-
+*/
 //PROPIEDADES DE LOCALIZACIÓN
 //DE SOLO LECTURA EN FORMATO TEXTO:
 
@@ -1009,9 +1009,9 @@ AnsiString TCilinder::getLocationText(void) const
     S += "R/W:\r\n";
 
     S += AnsiString("    P0 = ")+getP0Text()+AnsiString("\r\n");
-    S += AnsiString("    L0 = ")+getL0Text()+AnsiString("\r\n");
+/*    S += AnsiString("    L0 = ")+getL0Text()+AnsiString("\r\n");
     S += AnsiString("    theta0 = ")+gettheta0Text()+AnsiString("\r\n");
-
+*/
     S += "R:\r\n";
 
     S += AnsiString("    rmax = ")+getrmaxText()+AnsiString("\r\n");
@@ -1153,10 +1153,10 @@ TCilinder::TCilinder(TDoublePoint _P0, double _thetaO1) :
     //INICIALIZA LAS PROPIEDADES DE CUANTIFICACIÓN:
 
     //añade los puntos de la función de compresión
-    __F.Add(-M_2PI, -double(MEGARA_SB2));
+    __F.Add(-M_2PI, -double(MEGARA_SB1));
     __F.Add(0., 0.);
-    __F.Add(M_2PI, double(MEGARA_SB2));
-    __F.Add(2*M_2PI, double(2*MEGARA_SB2));
+    __F.Add(M_2PI, double(MEGARA_SB1));
+    __F.Add(2*M_2PI, double(2*MEGARA_SB1));
     //elimina las incongruencias del formato texto
     //de la función de compansión
     __F.setPointsText(getF().getPointsText());
@@ -1167,9 +1167,9 @@ TCilinder::TCilinder(TDoublePoint _P0, double _thetaO1) :
     //inicializa las propiedades de cuantificación
     __Quantify_ = true;
 
-    //inicializa las porpiedades de posición y orientación
+/*    //inicializa las porpiedades de posición y orientación
     __P0 = _P0;
-    /*        __L0 = Mod(P0);
+            __L0 = Mod(P0);
         if(L0 > 0)
                 __theta0 = ArgPos(P0);
         else
@@ -1195,14 +1195,6 @@ TCilinder::TCilinder(TDoublePoint _P0, double _thetaO1) :
 
     //construye la barrera del área de exclusión con sus propiedades por defecto
     __Barrier = new TBarrier(getP0(), getthetaO1());
-    /*        //asigna el valor por defecto a la barrera del área de exclusión
-        TContourFigureList _Contour_;
-        TArc *Arc = new TArc(TDoublePoint(r_max, 0), TDoublePoint(-r_max, 0), TDoublePoint(0, 0), r_max);
-        _Contour_.Add((TContourFigure*)Arc);
-        Arc = new TArc(TDoublePoint(-r_max, 0), TDoublePoint(r_max, 0), TDoublePoint(0, 0), r_max);
-        _Contour_.Add((TContourFigure*)Arc);
-        Barrier->Contour_Text = _Contour_.Text;
-        Destroy(_Contour_);*/
 }
 
 //copia un conjunto de propiedades de un cilindro

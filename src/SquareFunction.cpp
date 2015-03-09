@@ -56,7 +56,7 @@ void TSquareFunction::setvmaxabs(double _vmaxabs)
                 __T = __Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -88,7 +88,7 @@ void TSquareFunction::setpsta(double _psta)
                 __T = __Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -119,7 +119,7 @@ void TSquareFunction::setpfin(double _pfin)
                 __T = __Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -154,7 +154,7 @@ void TSquareFunction::setD(double _D)
                 __T = __Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -180,7 +180,7 @@ void TSquareFunction::setT(double _T)
         __T = _T; //asigna el nuevo valor
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -248,7 +248,7 @@ void TSquareFunction::CalculateMilestones()
 }
 
 //calcula la distancia máxima que se pueden recorrer en el tiempo 'T'
-//(Smax)
+//(Dmax)
 void TSquareFunction::CalculateDistances()
 {
         __Dmax = __vmax*__T;
@@ -303,7 +303,7 @@ TSquareFunction::TSquareFunction(double _vmaxabs) :
         __T = Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo 'T'
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -354,6 +354,30 @@ void TSquareFunction::Copy(TMotionFunction *_SquareFunction)
         __vc = SquareFunction->__vc;
 }
 
+//initalize all properties except (vmaxabs)
+void TSquareFunction::reset(void)
+{
+    //INITIALIZE THE INHERITED PREOPERTIES:
+
+    __psta = 0;
+    __pfin = 0;
+    __vmax = 0;
+
+    __Tmin = 0;
+    __D = 0;
+
+    __Dmax = 0;
+    __vcmin = 0;
+    __vcmax = 0;
+    __vc = 0;
+
+    __T = 0;
+
+    //INITIALIZE THE OWN PROPERTIES:
+
+    __vmax = getvmaxabs();
+}
+
 //asigna (psta, pfin) conjuntamente
 void TSquareFunction::SetInterval(double _psta, double _pfin)
 {
@@ -372,7 +396,7 @@ void TSquareFunction::SetInterval(double _psta, double _pfin)
                 __T = __Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:
@@ -405,7 +429,7 @@ void TSquareFunction::InvertTime(void)
         CalculateMilestones();
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
-        //(Smax)
+        //(Dmax)
         CalculateDistances();
 
         //calcula los límites del dominio de las variables:

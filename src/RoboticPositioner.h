@@ -131,7 +131,7 @@ TFaultType StrToFaultType(const AnsiString& S);
 //        GoDirectlyToCartesianP_3, //va directamente a (x_3, y_3)
 //        GoDirectlyToCartesianP3, //va directamente a (x3, y3)
 
-//ADVERTENCIA: para mantener el formalismo estricto se define TFibeRPositioner
+//ADVERTENCIA: para mantener el formalismo estricto se define TRoboticPositioner
 //con una propiedad de la clase TActuator, evitándose intergar las propiedades
 //de TActuator en la clase TRoboticPositioner. De este odo se obtienen algunas
 //ventajas:
@@ -155,9 +155,13 @@ protected:
         double __Tstop;
         double __Tshiff;
 
+        double __SPMadd;
+
         //ESTATUS PROPERTIES:
 
         double __FaultProbability;
+
+        double p_Dsec;
 
 public:
         //STATIC PROPERTIES:
@@ -209,6 +213,12 @@ public:
         double getTshiff(void) const {return __Tshiff;}
         void setTshiff(double);
 
+        //SPM additional to add to SPMdyn
+        //must be nonnegative
+        //default value: 0.1 mm
+        double getSPMadd(void) const {return __SPMadd;}
+        void setSPMadd(double);
+
         //STATUS PROPERTIES:
 
         //disabling status of the RP
@@ -246,15 +256,17 @@ public:
         bool getOperative(void) const {
             return getFaultProbability()<=0 && !Disabled;}
 
-/*        //latch to avoid destruction
-        //default value: false
-        bool Latch;
-
-        //latch should be enabled when RP has attachet other structure.
-        //Only attached structures shall change the latch status.
-*/
         //individual MP attached to the RP
-        Positioning::TMotionProgram MP;
+        //for turn the rotor 1
+        Positioning::TMotionProgram MPturn;
+        //individual MP attached to the RP
+        //for retract the arm
+        Positioning::TMotionProgram MPretraction;
+        //additional security distance during retraction
+        //must be nonnegative
+        //default value: 1 mm
+        double getDsec(void) const {return p_Dsec;}
+        void setDsec(double);
 
         //------------------------------------------------------------------
         //PROPERTIES IN TEXT FORMAT:
@@ -282,6 +294,9 @@ public:
         void setTstopText(const AnsiString&);
         AnsiString getTshiffText(void) const;
         void setTshiffText(const AnsiString&);
+
+        AnsiString getSPMaddText(void) const;
+        void setSPMaddText(const AnsiString&);
 
         //STATUS PROPERTIES IN TEXT FORMAT:
 
@@ -410,28 +425,20 @@ public:
         //-------------------------------------------------------------------
         //METHODS TO CALCULATE THE RECOMMENDED VALUES OF THE SPMCOMPONENTS:
 
-        //calcula la componente de SPM para absorber el error de recuperación:
-        //      SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
-        //              CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->Ra)*
-        //              Tstop mm
+        //SPM recovery in mm:
+        //  SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
+        //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tstop;
         double SPMrec(void) const;
 
-        //Calcula el márgen perimetral de seguridad para evitar:
-        //- el error mecánico debido al mecanizado del actuador;
-        //- el error mecánico de orientación en el anclaje del posicionador;
-        //- el error mecánico de posicionamiento en el anclaje del posicionador;
-        //- el error numérico de las operaciones matemáticas del modelo;
-        //- el error de posición debido a variaciones de velocidad;
-        //  al desplazarse de un paso a otro.
-        //- el error de posición debido a la falta de correspondencia de
-        //  F(theta_1) y Arm->F(theta___3) con al realidad.
-        //Todos los errores serán absorbidos por Eo y Ep
-        //en la siguiente fórmula:
-        //      SPMsta = Eo*r_max + Ep
-        //Donde:
-        //      Eo: margen de error de orientación en rad;
-        //      Ep: margen de error de posición en mm.
+        //static SPM in mm:
+        //  SPMsta = Eo*Actuator->r_max + Ep;
         double SPMsta(void) const;
+
+        //SPMsta must be enough large to include:
+        //- the mechanical error due to mechanization of the actuator;
+        //- the position error of the RPs;
+        //- the orientation error of the RPs;
+        //- the positioning error due the to imprecisión of F(theta_1) and Arm->F(theta___3).
 
         //ADVERENCIA: no confundir (Eo, Ep) con (PAem, Pem); (Eo, Ep)
         //se refiere al error de posición y orientación al colocar
@@ -439,66 +446,37 @@ public:
 
         //NOTA: la alinealidad de las funciones G(p_1) y Arm->G(p___3)
         //no tiene por que implicar un eror de posición a lo largo de
-        //la trayectoria de P3, ya que los ángulos p_1 y p___3 son calculados
-        //teniendo en cuenta dicha alinealidad.
+        //la trayectoria de P3, ya que las posiciones p_1 y p___3 son
+        //calculadas teniendo en cuenta dicha alinealidad.
         //De este modo solo habrá que tener en cuenta el salto más grande
         //de cada eje para determinar la contribución de F en Ep.
 
-        //calcula la componente de SPM para absorber el error dinámico
-        //      SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
-        //              CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->Ra)*
-        //              Tshiff + (Actuator->rbs*Actuator->r_max +
-        //              Actuator->Arm->rbs*Actuator->Arm->Ra) mm
+        //dynamic SPM:
+        //  SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
+        //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tshiff + SPMadd;
         double SPMdyn(void) const;
 
-/*        //Calcula el margen perimetral de seguridad para
-        //validación o programación:
-        //      SPMtop = r_max*(8/M_PI*w1 + 4/M_PI*w2)
-        //Donde:
-        //      r_max: radio apical del posicionador;
-        //      w1: velocidad angular máxima del eje 1 en rad/ms;
-        //      w2: velocidad angular máxima del eje 2 en rad/ms.
-        double GetSPMtop(double w1=0.3, double w2=0.3) const;
+        //SPMdyn must be enough large to include:
+        //- temporal shiff between the start of the movements;
+        //- motion funtion not correspond exactly the indicated in the model;
+        //- ambiguity in position due the quantification of the rotors;
+        //- asymmetrical radial motion due to motion velocity of rotor2
+        //  is not double of velocity of rotor 1 in all moment.
 
-        //w1 y w2 se determinan a partir de CMF del siguiente modo:
-        //      w1 = CMF.vmaxabs1/SB1*M_2PI;
-        //      w2 = CMF.vmaxabs2/Arm->SB2*M_2PI.
-        //Los valores de w1 y w2 deberían ser corregidos
-        //en función de las derivadas de G(p_1) y Arm->G(p___3).
-        //Pero si las funciones G son aproximadamente lineales,
-        //realmente no hace falta por que el valor devuelto por SPMtop
-        //solo tiene que ser orientativo, pudiendo elegir el valor
-        //que se desee.
-
-        //asigna un valor a SPM según el propósito
-        //      SPM = SPMerr + SPMtop + SPMtop + SPMpro; cuando Popose=sPro
-        //      SPM = SPMerr + SPMtop;                   cuando Popose=sVal
-        //      SPM = SPMerr;                            cuando Popose=sExe
-        void SetSPM(TPurpose Purpose,
-                double Eo=0.002, double Ep=0.002,
-                double w1=0.3, double w2=0.3);
-
-        //ADVERTENCIA: el valor devuelto por SPMtop solo es orientativo
-        //pudiendo elegir un valor diferente para SPMval y/o SPMpro.
-        //Por ello w1maxabs y w2maxabs son calculados mediante:
-        //      double w1 = CMF.vmaxabs1/SB1*M_2PI;
-        //      double w2 = CMF.vmaxabs2/Arm->SB2*M_2PI;
-        //sin tener en cuenta el efecto de la alinealidad de las funciones
-        //G(p_1) y Arm->G(p___3).
-  */
         //-------------------------------------------------------------------
         //METHODS FOR JOINTLY SET:
 
         //asigna conjuntamente las tolerancias
-        //      {Eo, Ep, Tstop, Tshiff}
+        //      (Eo, Ep, Tstop, Tshiff, SPMadd)
         void SetTolerances(double _Eo, double _Ep,
-                double _Tstop, double _Tshiff);
+                           double _Tstop, double _Tshiff,
+                           double _SPMadd);
 
         //------------------------------------------------------------------
         //ASSIMILATION METHODS:
 
         //A partir de:
-        //      (Eo, Ep, Tstop, Tshiff)
+        //      (Eo, Ep, Tstop, Tshiff, SPMadd)
         //      rmax
         //Determina:
         //      (SPMrec, SPMsta, SPMdyn, SPMmin)
@@ -506,7 +484,7 @@ public:
 
         //asigna la componente de SPM para absorber el desplazamiento
         //por corrección del offset
-        //      SPMoff = PAem*Actuator->rmax + Pem mm
+        //      Actuator->SPMoff = PAem*Actuator->rmax + Pem mm
         void SetSPMoff(double PAem, double Pem);
 
         //--------------------------------------------------------------------------

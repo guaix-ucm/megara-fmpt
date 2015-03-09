@@ -631,17 +631,8 @@ TRoboticPositionerList2::TRoboticPositionerList2(void) :
     //propiedades del mapa
     __xmin(-106.08), __xmax(106.08),
     __ymin(-102), __ymax(102),
-    Cells(50), __J(0)/*#,
-          Color(Qt::green)*/
+    Cells(50), __J(0)
 {
-    /*        //el puntero ListRoboticPositioners debería apuntar a una lista de posicionadores construida
-        if(_ListRoboticPositioners == NULL)
-                throw EImproperArgument("pointer ListRoboticPositioners should point to built robotic positioners list");
-
-        //apunta los objetos externos
-        __ListRoboticPositioners = _ListRoboticPositioners;
-  */
-
     //calcula el lado máximo de una célula de la regilla
     double qmax = MEGARA_L/sqrt(2.) - ERR_NUM;
 

@@ -43,6 +43,7 @@ namespace Models {
 //mensaje de instrucción
 class TMessageInstruction {
         int __Id;
+        string p_Comment;
 
 public:
         //PROPIEDADES DEL MENSAJE:
@@ -60,6 +61,11 @@ public:
         //y a continuación los argumentos. P.e:
         //      Instruction.Name = "G1";
         //      Instruction.Args.First = p1;
+
+        //comment
+        //default value: ""
+        string getComment(void) const{return p_Comment;}
+        void setComment(const string&);
 
         //PROPIEDADES EN FORMATO TEXTO:
 
@@ -105,6 +111,9 @@ public:
         void Copy(const TMessageInstruction *MI);
         //asigna las propiedades de un mensaje
         TMessageInstruction& operator=(const TMessageInstruction &MI);
+
+        //determine if a MI is different to this MI
+        bool operator!=(const TMessageInstruction&) const;
 };
 
 //---------------------------------------------------------------------------

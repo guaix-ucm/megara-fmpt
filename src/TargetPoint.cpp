@@ -206,7 +206,7 @@ void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
 //if the RP already has an attached target point
 //  throw an exception EImproperArgument
 TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
-        double x, double y) : Selected(false)//#, Color(Qt::red)
+        double x, double y)
 {
         //el puntero RoboticPositioner debería apuntar a un RP construido
         if(_RoboticPositioner == NULL)
@@ -227,7 +227,7 @@ TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
         Builts.Add(this);
 }
 TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
-        TDoublePoint _TargetP3) : Selected(false)//#, Color(Qt::red)
+        TDoublePoint _TargetP3)
 {
         //el puntero RoboticPositioner debería apuntar a un RP construido
         if(_RoboticPositioner == NULL)
@@ -335,51 +335,6 @@ double TTargetPoint::MoveToTargetP3(void)
         return d;
 }
 
-//---------------------------------------------------------------------------
-//GRAPHICAL METHODS:
-
-//indicates the part of the target point which can be grabbed
-//on the givenpoint
-//      1: point which is a circunference (TargetP3, 0.75)
-//      0: none;
-int TTargetPoint::Grab(TDoublePoint P)
-{
-        //si está en el punto
-        if(IntersectionPointCircle(P, TargetP3, 0.75))
-                return 1; //agarra el punto
-
-        return 0;
-}
-/*#
-//print the target point in the canvas of the picture
-//of a ploter shapes
-void TTargetPoint::Paint(TPloterShapes *PS)
-{
-        //el puntero PS debería apuntar a un trazador de formas construido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-        //si el punto objetivo está seleccionado
-        if(Selected) {
-                //configura el color de la pluma
-                if(double(Luminance(PS->getBackColor())) < 255.*1.5)
-                                PS->setPenColor(Qt::white);
-                else
-                                PS->setPenColor(Qt::black);
-
-                //dibuja el punto objetivo
-                PS->Circunference(TargetP3, 0.61);
-        }
-        //si el punto objetivo no está seleccionado
-        else {
-                //dibuja el punto objetivo con su color correspondiente
-                PS->setPenColor(Color);
-
-                //dibuja el punto objetivo
-                PS->Circunference(TargetP3, 0.61);
-        }
-}
-*/
 //---------------------------------------------------------------------------
 
 } //namespace Positioning

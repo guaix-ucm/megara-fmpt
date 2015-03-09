@@ -1387,7 +1387,7 @@ template <class T> TPointersList<T>::TPointersList(int _Capacity,
 template <class T> TPointersList<T>::TPointersList(const TPointersList *L)
 //se construye aquí el array deslizante por defecto
 {
-    //debe apuntar a una lista construida
+    //check the precondition
     if(L == NULL)
         throw EImproperArgument("pointer L should point to built list");
 

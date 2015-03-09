@@ -24,8 +24,11 @@
 //---------------------------------------------------------------------------
 
 #include "Instruction.h"
+#include "Strings.h"
 
 //---------------------------------------------------------------------------
+
+using namespace Strings;
 
 //espacio de nombres de modelos
 namespace Models {
@@ -303,6 +306,28 @@ TInstruction& TInstruction::operator=(const TInstruction& Instruction)
     Args = Instruction.Args;
 
     return *this;
+}
+
+//determines if an instruction is different to this instruction
+bool TInstruction::operator!=(const TInstruction& I) const
+{
+    AnsiString NameThis = StrTrim(getName());
+    AnsiString NameOther = StrTrim(I.getName());
+    if(NameThis != NameOther)
+        return true;
+
+    if(Args.getCount() != I.Args.getCount())
+        return true;
+
+    for(int i=0; i<Args.getCount(); i++) {
+        double argThis = Args[i];
+        double argOther = I.Args[i];
+
+        if(argThis != argOther)
+            return true;
+    }
+
+    return false;
 }
 
 //---------------------------------------------------------------------------

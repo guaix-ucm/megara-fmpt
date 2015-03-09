@@ -748,129 +748,6 @@ AnsiString TActuator::getRetText(void) const
     return FloatToStr(getRet());
 }
 
-//PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-void TActuator::setLabel(const AnsiString &S)
-{
-    //la etiqueta Label debe ser una cadena imprimible
-    if(!StrIsPrintable(S))
-        throw EImproperArgument("label Label should be a printable string");
-
-    __Label = S; //asigna el nuevo valor
-}
-
-/*#AnsiString TActuator::getDefaultColorText(void) const
-{
-    return ColorToString(DefaultColor);
-}
-void TActuator::setDefaultColorText(const AnsiString &S)
-{
-    try {
-        DefaultColor = StringToColor(S);
-    } catch(...) {
-        throw;
-    }
-}
-
-AnsiString TActuator::getColorCilinderText(void) const
-{
-    return ColorToString(ColorCilinder);
-}
-void TActuator::setColorCilinderText(const AnsiString &S)
-{
-    try {
-        ColorCilinder = StringToColor(S);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TActuator::getColorArmText(void) const
-{
-    return ColorToString(ColorArm);
-}
-void TActuator::setColorArmText(const AnsiString &S)
-{
-    try {
-        ColorArm = StringToColor(S);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TActuator::getColorLimitDomainP3Text(void) const
-{
-    return ColorToString(ColorLimitDomainP3);
-}
-void TActuator::setColorLimitDomainP3Text(const AnsiString &S)
-{
-    try {
-        ColorLimitDomainP3 = StringToColor(S);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TActuator::getColorLimitDomainManeuveringText(void) const
-{
-    return ColorToString(ColorLimitDomainManeuvering);
-}
-void TActuator::setColorLimitDomainManeuveringText(const AnsiString &S)
-{
-    try {
-        ColorLimitDomainManeuvering = StringToColor(S);
-    } catch(...) {
-        throw;
-    }
-}
-*/
-AnsiString TActuator::getPaintBodyText(void) const
-{
-    return BoolToStr(PaintBody, true);
-}
-void TActuator::setPaintBodyText(const AnsiString &S)
-{
-    try {
-        PaintBody = StrToBool(S);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TActuator::getPaintLimitDomainP3Text(void) const
-{
-    return BoolToStr(PaintLimitDomainP3, true);
-}
-void TActuator::setPaintLimitDomainP3Text(const AnsiString &S)
-{
-    try {
-        PaintLimitDomainP3 = StrToBool(S);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TActuator::getPaintLimitDomainManeuveringText(void) const
-{
-    return BoolToStr(PaintLimitDomainManeuvering, true);
-}
-void TActuator::setPaintLimitDomainManeuveringText(const AnsiString &S)
-{
-    try {
-        PaintLimitDomainManeuvering = StrToBool(S);
-    } catch(...) {
-        throw;
-    }
-}
-
-AnsiString TActuator::getSelectedText(void) const
-{
-    return BoolToStr(Selected, true);
-}
-void TActuator::setSelectedText(const AnsiString &S)
-{
-    try {
-        Selected = StrToBool(S);
-    } catch(...) {
-        throw;
-    }
-}
-
 //---------------------------------------------------------------------------
 //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
@@ -964,28 +841,6 @@ AnsiString TActuator::getAreaText(void) const
 
     return S;
 }
-AnsiString TActuator::getGraphicsText(void) const
-{
-    //PROPIEDADES GRAFÍCAS:
-
-    AnsiString S;
-
-    S = "R/W:\r\n";
-
-    S += AnsiString("    Label = ")+getLabel()+AnsiString("\r\n");
-    /*#    S += AnsiString("    ColorCilinder = ")+getColorCilinderText()+AnsiString("\r\n");
-    S += AnsiString("    ColorArm = ")+getColorArmText()+AnsiString("\r\n");
-    S += AnsiString("    ColorLimitDomainP3 = ")+getColorLimitDomainP3Text()+AnsiString("\r\n");
-    S += AnsiString("    ColorLimitDomainManeuvering = ")+getColorLimitDomainManeuveringText()+AnsiString("\r\n");
-*/
-    S += AnsiString("    PaintBody = ")+getPaintBodyText()+AnsiString("\r\n");
-    S += AnsiString("    PaintLimitDomainP3 = ")+getPaintLimitDomainP3Text()+AnsiString("\r\n");
-    S += AnsiString("    PaintLimitDomainManeuvering = ")+getPaintLimitDomainManeuveringText()+AnsiString("\r\n");
-
-    S += AnsiString("    Selected = ")+getSelectedText();
-
-    return S;
-}
 
 AnsiString TActuator::getAllText(void) const
 {
@@ -997,8 +852,7 @@ AnsiString TActuator::getAllText(void) const
     S += AnsiString("Security:\r\n")+StrIndent(getSecurityText())+AnsiString("\r\n");
     S += AnsiString("Status:\r\n")+StrIndent(getStatusText())+AnsiString("\r\n");
     S += AnsiString("Limits:\r\n")+StrIndent(getLimitsText())+AnsiString("\r\n");
-    S += AnsiString("Area:\r\n")+StrIndent(getAreaText())+AnsiString("\r\n");
-    S += AnsiString("Graphics:\r\n")+StrIndent(getGraphicsText());
+    S += AnsiString("Area:\r\n")+StrIndent(getAreaText());
 
     return S;
 }
@@ -1614,7 +1468,7 @@ TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
     //construye e inciializa el cilindro
     TCilinder(_P0, _thetao_),
     //inicializa las propiedades de estado
-    __PAkd(kdPre), __Purpose(pAll),
+    __PAkd(kdPre), __Purpose(pGen),
     Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
     Pending(true), Collision(false)
 {
@@ -1627,13 +1481,13 @@ TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
     //----------------------------------------
     //inicializa las propiedades de seguridad:
 
-    //inicializa las componentes del SPM:
-
-    __SPMrec = (0.3*getrbs()*getr_max() + 0.3*getArm()->getrbs()*getArm()->getL1V())*0.001;
-    __SPMsta = MEGARA_SPMsta;
-    __SPMdyn = (0.3*getrbs()*getr_max() + 0.3*getArm()->getrbs()*getArm()->getL1V())*0.001 + (getrbs()*getr_max() + getArm()->getrbs()*getArm()->getL1V());
-    __SPMmin = MEGARA_SPMsta;
-    __SPMoff = 0.000001*MEGARA_r_max + 0.0001;
+    //initialize the SPM components
+    __SPMrec = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tstop;
+    __SPMsta = MEGARA_Eo*getr_max() + MEGARA_Ep;
+    __SPMdyn = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tshiff +
+            MEGARA_SPMadd;
+    __SPMmin = getSPMsta();
+    __SPMoff = MEGARA_PAem*getrmax() + MEGARA_Pem;
 
     //----------------------------------------
     //inicializa las propiedades de estado
@@ -1655,19 +1509,6 @@ TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
     //inicializa las propiedades de área
 
     setr_3maxnom(getr_3max());
-
-    //----------------------------------------
-    //inicializa las propiedades gráficas
-    __Label = "''";
-    /*#    ColorCilinder = DefaultColor;
-    ColorArm = DefaultColor;
-    ColorLimitDomainP3 = DefaultColor;
-    ColorLimitDomainManeuvering = DefaultColor;
-    ColorCollision = Qt::red;*/
-    PaintBody = true;
-    PaintLimitDomainP3 = false;
-    PaintLimitDomainManeuvering = false;
-    Selected = false;
 }
 
 //copia las propiedades de seguridad de un actuador
@@ -1733,25 +1574,6 @@ void TActuator::CopyArea(const TActuator *A)
     __Set = A->__Set;
     __Ret = A->__Ret;
 }
-//copia las propiedades gráficas de un actuador
-void TActuator::CopyGraphics(const TActuator *A)
-{
-    //el puntero A debe apuntar a un actuador contruido
-    if(A == NULL)
-        throw EImproperArgument("pointer A should point to built fiber posicionator");
-
-    //copia las propiedades
-    __Label = A->__Label;
-    /*#    ColorCilinder = A->ColorCilinder;
-    ColorArm = A->ColorArm;
-    ColorLimitDomainP3 = A->ColorLimitDomainP3;
-    ColorLimitDomainManeuvering = A->ColorLimitDomainManeuvering;
-    ColorCollision = A->ColorCollision;*/
-    PaintBody = A->PaintBody;
-    PaintLimitDomainP3 = A->PaintLimitDomainP3;
-    PaintLimitDomainManeuvering = A->PaintLimitDomainManeuvering;
-    Selected = A->Selected;
-}
 
 //copia todas las propiedades de un actuador
 void TActuator::Clone(const TActuator *A)
@@ -1769,8 +1591,6 @@ void TActuator::Clone(const TActuator *A)
     CopyStatus(A);
     //copia las propiedades límite
     CopyLimits(A);
-    //copia las propiedades gráficas
-    CopyGraphics(A);
 }
 
 //vuilda clone of an actuator
@@ -1786,7 +1606,6 @@ TActuator::TActuator(const TActuator *A) :
     CopyStatus(A);
     CopyLimits(A);
     CopyArea(A);
-    CopyGraphics(A);
 }
 
 //destruye un actuador

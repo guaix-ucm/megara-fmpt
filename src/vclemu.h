@@ -124,6 +124,8 @@ public:
     //if index i not indicate a position in the string S
     //  throw an exception EImproperArgument
     void Insert(int i, char c);
+    //insert a substring in a position of the string
+    void Insert(int i, const AnsiString&);
 
     //obtiene la subcadena en el intervalo [offset, offset+count]
     //si offset o count no indican una posición de la cadena Src:
@@ -165,6 +167,11 @@ public:
 
 //---------------------------------------------------------------------------
 //FUNCIONES DE CONVERSIÓN:
+
+//translate from double to string
+string floattostr(double value);
+//translate from int to string
+string inttostr(int value);
 
 //traduce de AnsiString a double
 double StrToFloat(const AnsiString& S);

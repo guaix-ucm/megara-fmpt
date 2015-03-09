@@ -255,33 +255,6 @@ public:
         //Comprueba que las posiciones finales son compatibles:
         //      Outsiders.SearchCollisions(indices)
         //------------------------------------------------------------------
-
-        //MÉTODOS DE INTERFAZ:
-
-        //selecciona todos los puntos objetivo de la lista
-        void SelectAll(void);
-        //deselecciona todos los puntos objetivo de la lista
-        void DeselectAll(void);
-
-        //imprime los puntos objetivo en una caja de lista
-        //#void PrintTargetPoints(QListWidget *LB);
-        //imprime los puntos objetivo en el lienzo de la fotografía
-        //de un trazador de formas
-        //#void PaintTargetPoints(TPloterShapes *PS);
-
-        //busca el primer punto objetivo que está bajo el punto P
-        //y que parte del punto objetivo puede ser agarrado en
-        //el punto indicado:
-        //      i: índice al punto objetivo bajo el punto P;
-        //      dominio i: [0, TargetPoints.Count];
-        //      n: parte del punto objetivo agarrada;
-        //         valores posibles:
-        //            0: niguna;
-        //            1: punto objetivo.
-        //valores de retorno:
-        //      false: ninguna parte agarrada
-        //      true: alguna parte agarrada
-        bool Grab(int &i, int &n, TDoublePoint P);
 };
 
 //---------------------------------------------------------------------------

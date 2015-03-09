@@ -59,120 +59,91 @@ void  TMessageList::ReadMessageList(TMessageList *L,
         throw;
     }
 }
-/*
-//PROPIEDADES EN FORMATO TEXTO:
 
-void TMessageList::SetLabel(const AnsiString &S)
+//determines if a ML is different to this ML
+bool TMessageList::operator!=(const TMessageList& ML) const
 {
-        //la etiqueta Label debería ser un acadena de texto imprimible
-        if(StrIsntPrintable(S))
-                throw EImproperArgument("label Label should be a printable string");
+    if(ML.getCount() != getCount())
+        return true;
 
-        //asigna el nuevo valor
-        __Label = S;
+    for(int i=0; i<getCount(); i++) {
+        const TMessageInstruction *MIthis = Items[i];
+        const TMessageInstruction *MIother = ML.GetPointer(i);
 
-        //la cadena S debería contener al menos los caracteres delimitadores []
-        if(S.Length() < 2)
-                throw EImproperArgument("string '"+S+"' should contain the delimiters characters [] almost");
+        if(*MIthis != *MIother)
+            return true;
+    }
 
-        //segrega el primer caracter de la cadena
-        char ch = S[1];
-
-        //el primer caracter de la cadena de texto S debería ser '['
-        if(ch != '[')
-                throw EImproperArgument("first char in string '"+S+"' should be '['");
-
-        //segrega el último caractr de la cadena
-        ch = S[S.Length()];
-
-        //el último caracter de la cadena de texto S debería ser '['
-        if(ch != ']')
-                throw EImproperArgument("last char in string '"+S+"' should be ']'");
-
-        //la cadena S debería ser imprimible
-        if(StrIsntPrintable(S))
-                throw EImproperArgument("string '"+S+"' should be a printable string");
-
-        //la cadena S debería contener una sola linea de texto
-        if(StrCountLines(S) != 1)
-                throw EImproperArgument("string '"+S+"' should contain only one line text");
-
-        //asigna el nuevo valor
-        __LabelText = S;
-}    */
-
-//MÉTODOS PÚBLICOS:
-/*#
-//imprime los mensajes de una lista y adscribe la lista
-void TMessageList::Print(QListWidget *LB)
-{
-        //el puntero LB debería apuntar a una caja de lista contruida
-        if(LB == NULL)
-                throw EImproperArgument("pointer LB should point to built list box");
-
-        //limpia la caja de lista en congruencia con el estado inicial
-        LB->clear();
-
-        //por cada mensaje de la lista
-        for(int i=0; i<getCount(); i++) {
-                //imprime el mensaje indicado
-            QString QS(Items[i]->getText().c_str());
-                LB->addItem(QS);
-        }
+    return false;
 }
-*/
+
+//PUBLIC METHODS:
+
+//construye un clon de una lista de MIs basada en punteros
+TMessageList::TMessageList(const TMessageList *L)
+//se construye aquí el array deslizante por defecto
+{
+    //check the precondition
+    if(L == NULL)
+        throw EImproperArgument("pointer L should point to built list");
+
+    //clona el array deslizante
+    Items.Clone(L->Items);
+
+    //apunta a las mismas funciones externas
+    Compare = L->Compare;
+    Evaluate = L->Evaluate;
+    Assign = L->Assign;
+    Print = L->Print;
+    Read = L->Read;
+}
+
+//determines if a MP is different to this MP
+bool TMotionProgram::operator!=(const TMotionProgram& MP) const
+{
+    if(MP.getCount() != getCount())
+        return true;
+
+    for(int i=0; i<getCount(); i++) {
+        const TMessageList *MLthis = Items[i];
+        const TMessageList *MLother = MP.GetPointer(i);
+
+        if(*MLthis != *MLother)
+            return true;
+    }
+
+    return false;
+}
+
 //--------------------------------------------------------------------------
 //TMotionProgram
 //--------------------------------------------------------------------------
-/*#
-//imprime las etiquetas de las listas de mensajes de un programa
-//en una caja de lista
-void TMotionProgram::Print(QListWidget *LB)
+
+//get the non empty coments of the motion program
+//in column text format
+string TMotionProgram::getCommentsColumnText(void) const
 {
-        //el puntero LB debería apuntar a una caja de lista contruida
-        if(LB == NULL)
-                throw EImproperArgument("pointer LB should point to built list box");
+    string str;
 
-        //limpia la caja de lista en congruencia con el estado inicial
-        LB->clear();
+    for(int i=0; i<getCount(); i++) {
+        const TMessageList *ML = Items[i];
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
 
-        //por cada lista de mensajes del programa
-        for(int i=0; i<getCount(); i++) {
-                //imprime la etiqueta indicada
-            QString QS("message list "); //quizás debería ser Items[i]->Label
-            QS += IntToStr(i).c_str();
-                LB->addItem(QS);
+            if(MI->getComment().length() > 0) {
+                if(str.length() > 0)
+                    str += "\r\n";
+                str += "group"+inttostr(i+1);
+                str += ": "+MI->getText().str;
+                str += ": "+MI->getComment();
+            }
         }
+    }
+
+    return str;
 }
 
-//imprime el programa de movimiento en un memorando
-void TMotionProgram::Print(QTextEdit *Memo)
-{
-//        //todas las listas de mensajes deben tener apuntada la función de impresión TMessageInstruction::Print
-  //      for(int i=0; i<Count; i++)
-    //            if(Items[i]->Print != TMessageInstruction::Print)
-      //                  throw EImproperCall("all message list should be pointed the print function TMessageInstruction::Print");
 
-        //el puntero Memo debería apuntar a un memorando contruido
-        if(Memo == NULL)
-                throw EImproperArgument("pointer Memo should point to built memo");
-
-        //limpia el memorando en congruencia con el estado inicial
-        Memo->clear();
-
-        //por cada lista de mensajes del programa
-        for(int i=0; i<getCount(); i++) {
-                //apunta la lista de mensajes indicada para facilitar su acceso
-                TMessageList *ML = Items[i];
-                //imprime la etiqueta de la lista de mensajes
-                QString QS("MessajeList");
-                QS += IntToStr(i+1).c_str();
-                Memo->append(QS);
-                //imprime la lista de mensajes indentada
-                Memo->append(StrIndent(ML->getColumnText()).c_str());
-        }
-}
-*/
 //--------------------------------------------------------------------------
 
 } //namespace Positiong

@@ -704,7 +704,7 @@ void TRoboticPositionerList::TimerTimer(void)
 */
 //METHODS TO TRANSLATE MOTION PROGRAMS:
 
-//Translate the positioning progam to the format stablished for
+/*//Translate the positioning progam to the format stablished for
 //the interface FMPT-MCS.
 //Preconditions:
 //  All message of instructions of the motion program
@@ -778,6 +778,7 @@ void TRoboticPositionerList::translatePositioningProgram(string& str, int CBId,
                 else
                     //print the same final position
                     str += " "+RP->getActuator()->getp_1Text().str;
+                str += "\t#Comments:";
 
                 //print the identifier of RP and the identifier of the rotor
                 str += "\r\n\trp"+strInsertChar(RP->getActuator()->getIdText(), 2).str+" r2";
@@ -788,6 +789,7 @@ void TRoboticPositionerList::translatePositioningProgram(string& str, int CBId,
                 else
                     //print the same final position
                     str += " "+RP->getActuator()->getArm()->getp___3Text().str;
+                str += "\t#"+MI->getComment();
             }
         }
 
@@ -804,7 +806,7 @@ void TRoboticPositionerList::translatePositioningProgram(string& str, int CBId,
     //recovers the initial status of the RPs
 //    Clone(RPL);
 }
-
+*/
 //Translate a motion progam to the format stablished for
 //the interface FMPT-MCS.
 //Preconditions:
@@ -889,7 +891,7 @@ void TRoboticPositionerList::translateMotionProgram(string& str, int CBId, const
                 else
                     //print the same final position
                     str += " "+RP->getActuator()->getArm()->getp___3Text().str;
-            }
+           }
         }
 
         //print the end delimiter of group i

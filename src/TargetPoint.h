@@ -65,17 +65,7 @@ public:
         //point where sall be positioned the point P3 of the attached RP
         TDoublePoint TargetP3;
 
-        //GRAPHICAL PROPERTIES:
-
-        //indicates if the target point is attached
-        //default value: false
-        bool Selected;
-
-        //color of thetarget point
-        //defaultcolor: clYellow
-        //#QColor Color;
-
-        //PROPERTIES IN TEXTFORMAT:
+        //PROPERTIES IN TEXT FORMAT:
 
         //TargetP3 in text format
         AnsiString getTargetP3Text(void);
@@ -163,18 +153,6 @@ public:
         //When the quantification of the rotors is enabled, will be quantified
         //first the rotor 1, and after the rotor 2, in any case, uncheking
         //which is the neares stable point.
-
-        //GRAPHICAL METHODS:
-
-        //indicates the part of the target point which can be grabbed
-        //on the givenpoint
-        //      1: point which is a circunference (TargetP3, 0.75)
-        //      0: none;
-        int Grab(TDoublePoint P);
-
-        //print the target point in the canvas of the picture
-        //of a ploter shapes
-        //#void Paint(TPloterShapes *PS);
 };
 
 //---------------------------------------------------------------------------

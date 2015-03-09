@@ -79,13 +79,16 @@ public:
 
         //MÉTODOS DE CONTRUCCIÓN Y COPIA:
 
-        //inicializa {vmax=vmaxabs=MEGARA_VMAXABSDEF, tini=0, tfin=0}
+        //inicializa {vmax=vmaxabs, tini=0, tfin=0}
         //y asimila los parámetros
-        TSquareFunction(double _vmaxabs=MEGARA_VMAXABSDEF);
+        TSquareFunction(double _vmaxabs);
         //clona una función cuadrada
         TSquareFunction(TSquareFunction*);
         //copia todas las propiedades una función cuadrada
         void Copy(TMotionFunction *_SquareFunction);
+
+        //initalize all properties except (vmaxabs)
+        void reset(void);
 
         //asigna (psta, pfin) conjuntamente
         void SetInterval(double _psta, double _pfin);

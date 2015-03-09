@@ -29,12 +29,30 @@
 #include "FiberMOSModel2.h"
 #include "MotionProgram.h"
 
-using namespace Models;
+#include <vector>
 
 //--------------------------------------------------------------------------
 
+using namespace Models;
+
 //namespace for positioning
 namespace Positioning {
+
+//Get the list of RPs includes in a MP.
+//Precondition:
+//  All message of instruction in the MP shall be addressed
+//  to an existent RP of the Fiber MOS Model.
+void getRPsIncludedInMP(TRoboticPositionerList& RPL,
+                        const TMotionProgram& MP,
+                        const TFiberMOSModel& FMM);
+
+//Get the list of RPs included in a pair of MPs.
+//Precondition:
+//  All message of instruction in the MPs shall be addressed
+//  to an existent RP of the Fiber MOS Model.
+void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
+                     const TMotionProgram& MP1, const TMotionProgram& MP2,
+                     const TFiberMOSModel& FMM);
 
 //###########################################################################
 //TMotionProgramValidator:
@@ -93,13 +111,6 @@ public:
     //the RPs of a list
     double calculateTminmin(const TRoboticPositionerList& RPL) const;
 
-    //Get the list of RPs includes in a MP.
-    //Precondition:
-    //  All message of instruction in the MP shall be addressed
-    //  to an existent RP of the Fiber MOS Model.
-    void getRPsIncludedInMP(TRoboticPositionerList& RPL,
-                            const TMotionProgram& MP) const;
-
     //Determines if the execution of a motion program, starting from
     //given initial positions, avoid collisions.
     //Preconditions:
@@ -130,11 +141,22 @@ public:
     //  validate the generated recovery program.
     bool motionProgramIsValid(const TMotionProgram &MP) const;
 
-    //Validation process can end of two ways:
-    //- If the motion program not produce a dynamic collision, being all RPs
+    //Validation of a MP can end of two ways:
+    //- If the MP not produce a dynamic collision, being all RPs
     //  in their final positions.
-    //- If the motion program produce a dynamic collisions, being all RPs
+    //- If the MP produce a dynamic collisions, being all RPs
     //  in the firs position where collision has been detected.
+
+    //Validate a pair (PP, DP).
+    //Inputs:
+    //- (PP, DP):the pair to validate.
+    //- not_operative_Ids: identifier list containing the disabling estatus
+    //  of the Real Fiber MOS.
+    //Outputs:
+    //- pairPPDPisValid: flag indicating if all RPs includes in the pair
+    //  are operatives.
+    bool pairPPDPisValid(const TMotionProgram &PP, const TMotionProgram &DP,
+                          const TVector<int>& not_operative_Ids) const;
 };
 
 //---------------------------------------------------------------------------

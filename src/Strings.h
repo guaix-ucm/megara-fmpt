@@ -120,9 +120,11 @@ void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
 //cuenta las líneas de texto contenidas en una cadena de texto imprimible
 //si la cadena String no es imprimible lanza una excepción EImproperArgument
 int StrCountLines(const AnsiString &String);
+//determines if there is the substring "\r\n" in the position i of a string
+bool thereIsntEndline(const string& str, int i);
 //divide una cadena por cada "\r\n" que encuentre
-void StrDivideInLines(TStrings *Lines, const AnsiString &String);
-void StrDivideInLines(TStrings& Lines, const AnsiString &String);
+void StrDivideInLines(TStrings *Lines, const AnsiString &S);
+void StrDivideInLines(TStrings& Lines, const AnsiString &S);
 //divide una cadena en palabras
 //obtiene cada palabra hasta cada secuencia de espacios o tabuladores
 void StrDivideInWords(TStrings *Words, const AnsiString &String);

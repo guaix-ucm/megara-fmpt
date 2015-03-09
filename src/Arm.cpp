@@ -1954,7 +1954,7 @@ void  TArm::ReadInstance(TArm* &A,
 //build an arm
 //with the position and orientation indicated
 TArm::TArm(TDoublePoint _P1, double _thetaO2) :
-        //build the prIvate properties
+        //build the private properties
         __Contour____(8),
         __F(),
         __G(), __Q(),
@@ -2010,7 +2010,10 @@ TArm::TArm(TDoublePoint _P1, double _thetaO2) :
 
         //inicializa las propiedades de posición
         __P1 = _P1;
-        __SPM = MEGARA_SPMall_p;
+
+        //initialize the SPM
+        __SPM = MEGARA_SPMgen_p;
+
 
         //------------------------------------------------------------------
         //ASSIMILATES THE VALUES OF THE TEMPLATE:

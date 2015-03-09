@@ -209,11 +209,23 @@ void AnsiString::SetLength(int n)
 //  throw an exception EImproperArgument
 void AnsiString::Insert(int i, char c)
 {
-    //index i shall indicates a position in the string
+    //check the precondition
     if(i<0 || Length()+1<i)
         throw EImproperArgument("index i shall indicates a position in the string");
 
     str.insert(i-1, sizeof(typeof(c)), c);
+}
+//insert a substring in a position of the string
+void AnsiString::Insert(int i, const AnsiString& S)
+{
+    //check the precondition
+    if(i<0 || Length()+1<i)
+        throw EImproperArgument("index i shall indicates a position in the string");
+
+    for(int i=1; i<=S.Length(); i++) {
+        char c = S[i];
+        str.insert(i, sizeof(typeof(c)), c);
+    }
 }
 
 //obtiene la subcadena en el intervalo [offset, offset+count]
@@ -334,12 +346,8 @@ uint AnsiString::ToUHex() const
 //---------------------------------------------------------------------------
 //FUNCIONES DE CONVERSIÓN:
 
-double StrToFloat(const AnsiString& S)
-{
-    return S.ToDouble();
-}
-//traduce de double a AnsiString
-AnsiString FloatToStr(double value)
+//translate from double to string
+string floattostr(double value)
 {
     stringstream ss;
 
@@ -355,7 +363,29 @@ AnsiString FloatToStr(double value)
     //  87.035553	->  "87.03555299999999"
     //  -70.35		->  "-70.34999999999999"
 
-    AnsiString S(ss.str());
+    return ss.str();
+}
+//translate from int to string
+string inttostr(int value)
+{
+    stringstream ss;
+
+    bool ok = (ss << value);
+    if(!ok) {
+        throw EImproperArgument(AnsiString("can't convert int to string"));
+    }
+
+    return ss.str();
+}
+
+double StrToFloat(const AnsiString& S)
+{
+    return S.ToDouble();
+}
+//traduce de double a AnsiString
+AnsiString FloatToStr(double value)
+{
+    AnsiString S(floattostr(value));
     return S;
 }
 
@@ -367,14 +397,7 @@ int StrToInt(const AnsiString& S)
 //traduce de integer a AnsiString
 AnsiString IntToStr(int value)
 {
-    stringstream ss;
-
-    bool ok = (ss << value);
-    if(!ok) {
-        throw EImproperArgument(AnsiString("can't convert int to string"));
-    }
-
-    AnsiString S(ss.str());
+    AnsiString S(inttostr(value));
     return S;
 }
 

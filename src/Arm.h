@@ -28,6 +28,7 @@
 
 #include "Barrier.h"
 #include "FiberMOSModelConstants.h"
+#include "Constants.h"
 
 //---------------------------------------------------------------------------
 
@@ -180,42 +181,6 @@ protected:
         TDoublePoint __V;
 
         TContourFigureList __Contour;
-
-        //##################################################################
-        //PROPIEDADES EN FORMATO TEXTO:
-        //##################################################################
-
-        //------------------------------------------------------------------
-        //PROPIEDADES DE PLANTILLA
-        //DE LECTURA/ESCRITURA EN FORMATO TEXTO:
-
-        //PROPIEDADES DE PLANTILLA
-        //DE SOLO LECTURA EN FORMATO TEXTO:
-
-        //-------------------------------------------------------------------
-        //PROPIEDADES DE ORIENTACIÓN EN RADIANES
-        //DE LECTURA/ESCRITURA EN FORMATO TEXTO:
-
-        //-------------------------------------------------------------------
-        //PROPIEDADES DE CUANTIFICACIÓN
-        //DE LECTURA/ESCRITURA EN FORMATO TEXTO:
-
-        //------------------------------------------------------------------
-        //PROPIEDADES DE ORIENTACIÓN EN PASOS
-        //DELECTURA/ESCRITURA EN FORMATO TEXTO:
-
-        //------------------------------------------------------------------
-        //PROPIEDADES DE LOCALIZACIÓN
-        //DE LECTUTURA/ESCRITURA EN FORMATO TEXTO:
-
-        //PROPIEDADES DE LOCALIZACIÓN
-        //DE SOLO LECTURA EN FORMATO TEXTO:
-
-        //------------------------------------------------------------------
-        //CONJUNTOS DE TODAS LAS PROPIEDADES EN FORMATO TEXTO:
-
-        //------------------------------------------------------------------
-        //CONJUNTOS DE LAS PROPIEDADES DE INSTANCIA EN FORMATO TEXTO:
 
         //##################################################################
         //MÉTODOS PRIVADOS:
@@ -552,6 +517,17 @@ public:
         //como referencia en escritura. Esto no pasa en lectura,
         //ya que theta___2 puede salirse de su dominio, (por que es aproximado).
 
+        //ORIENTATION PROPERTIES IN RAD R:
+
+        //first position angle of rotor 2 in rad
+        //  theta___3first = max(0, theta___3min)
+        double gettheta___3first(void) const {
+            return max(0., gettheta___3min());}
+        //last position angle of rotor 2 in rad
+        //  theta___3last = min(M_2PI, theta___3max)
+        double gettheta___3last(void) const {
+            return min(M_2PI, gettheta___3max());}
+
         //-------------------------------------------------------------------
         //PROPIEDADES DE CUANTIFICACIÓN
         //DE LECTURA/ESCRITURA:
@@ -688,9 +664,19 @@ public:
         //      ninguna asignación a p___3 puede dar error
         //      es cuantificada tambien la lectura evitando el error numérico
 
-       //ADVERTENCIA: el controlador puede estar concebido para
-       //trabajar solamente con valores no negativos de p___3,
-       //de modo que Min(p___3) = Max(0, p___3min).
+        //ORIENTATION PROPERTIES IN STEPS R/W:
+
+        //first stable position angle of rotor 2 in steps:
+        //  p___3first = ceil(F(theta___3first));
+        double getp___3first(void) const {
+            return ceil(getF().Image(gettheta___3first()));}
+        //las stable position angle of rotor 2 in steps:
+        //  p___3last = floor(F(theta___3last));
+        double getp___3last(void) const {
+            return floor(getF().Image(gettheta___3last()));}
+
+        //Note that F(0) shall be 0 for avoid negative positions in steps,
+        //and the controller of therotor could notwork with negativevalues.
 
         //------------------------------------------------------------------
         //PROPIEDADES DE LOCALIZACIÓN

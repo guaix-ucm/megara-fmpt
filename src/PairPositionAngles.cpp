@@ -269,7 +269,7 @@ TPairPositionAngles::TPairPositionAngles(TRoboticPositioner *_RoboticPositioner)
     //point the extern objects
     p_RoboticPositioner = _RoboticPositioner;
 
-    //inicializa las propiedades
+    //initialize the properties
     p_1 = 0;
     p___3 = 0;
 }

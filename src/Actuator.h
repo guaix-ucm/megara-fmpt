@@ -124,35 +124,6 @@ protected:
     double __Set;
     double __Ret;
 
-    //##################################################################
-    //PROPIEDADES EN FORMATO TEXTO:
-    //##################################################################
-
-    //COMPONENTES DE SPM EN FORMATO TEXTO:
-
-    //VALOR DE SPM PARA CADA OCASIÓN EN FORMATO TEXTO:
-
-    //------------------------------------------------------------------
-    //PROPIEDADES DE ESTADO EN FORMATO TEXTO:
-
-    //------------------------------------------------------------------
-    //COTAS ÚTILES EN FORMATO TEXTO:
-
-    //------------------------------------------------------------------
-    //PROPIEDADES DE ÁREA EN FORMATO TEXTO:
-
-    //------------------------------------------------------------------
-    //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-    AnsiString __Label;
-
-    //------------------------------------------------------------------
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    //##################################################################
-    //MÉTODOS PRIVADOS:
-    //##################################################################
-
     //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
 
@@ -171,67 +142,69 @@ public:
 
     //SPM para absorber el error de recuperación aproximada
     //debe ser no negativo
-    //valor por defecto: (0.3*rbs*r_max + 0.3*Arm->rbs*Arm->Ra)*1 mm
+    //defeult value:
+    //  (MEGARA_VMAXABS1*rbs*r_max + MEGARA_VMAXABS2*Arm->rbs*Arm->L1V)*
+    //      MEGARA_Tstop
     double getSPMrec(void) const {return __SPMrec;}
     void setSPMrec(double);
 
     //SPM para absorber el error mecánico y numérico
     //debe ser no negativo
-    //valor por defecto: MEGARA_SPMsta mm
+    //defeult value:
+    //  MEGARA_Eo*r_max + MEGARA_Ep
     double getSPMsta(void) const {return __SPMsta;}
     void setSPMsta(double);
     //SPM para absorber el desfase temporal de los posicionadores
     //y  las variaciones de velocidad debidas a los motores paso a paso
     //debe ser no negativo
-    //valor por defecto: (0.3*rbs*r_max + 0.3*Arm->rbs*Arm->Ra)*1 +
-    //                   + (rbs*r_max + Arm->rbs*Arm->Ra) mm
+    //defeult value:
+    //  (MEGARA_VMAXABS1*rbs*r_max + MEGARA_VMAXABS2*Arm->rbs*Arm->L1V)*
+    //      MEGARA_Tshiff + SPMadd
     double getSPMdyn(void) const {return __SPMdyn;}
     void setSPMdyn(double);
     //SPM para absorber la incertidumbre del salto mínimo
     //durante la programación
     //debe ser no negativo
-    //valor por defecto: MEGARA_SPMsta mm
+    //defeult value:
+    //  SPMsta
     double getSPMmin(void) const {return __SPMmin;}
     void setSPMmin(double);
     //SPM para absorver las aproximaciones producidas
     //por corrección del offset
     //debe ser no negativo
-    //valor por defecto: 0.001*MEGARA_rmax + 0.1 mm
+    //defeult value:
+    //  MEGARA_PAem*rmax + MEGARA_Pem
     double getSPMoff(void) const {return __SPMoff;}
     void setSPMoff(double);
 
+    //Calculating the SPM components in a RP:
+    //  SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
+    //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tstop;
+    //  SPMsta = Eo*Actuator->r_max + Ep;
+    //  SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
+    //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tshiff + SPMadd;
+    //  SPMmin = SPMsta;
+    //  SPMoff = PAem*Actuator->rmax + Pem;
 
-    //Valores recomendados para las componentes de SPM
-    //(de un actuador determinado):
-    //      SPMrec = (CMF.vmaxabs1*rbs*r_max + CMF.vmaxabs2*Arm->rbs*Arm->Ra)*
-    //              *Tstop_em mm
-    //      SPMsta = Eo*r_max + Ep mm
-    //      SPMdyn = (CMF.vmaxabs1*rbs*r_max + CMF.vmaxabs2*Arm->rbs*Arm->Ra)*
-    //              *Tshif_em +
-    //              + (rbs*r_max + Arm->rbs*Arm->Ra) mm
-    //      SPMmin = SPMsta mm
-    //      SPMoff = PAem*rmax + Pem mm
-
-    //Donde se emplean las siguientes propiedades del posicionador:
+    //Where are employed the following properties of a RP:
     //      CMF.vmaxabs1: velócidad máxima absoluta del eje 1 en pasos/s.
     //      rbs: radianes por paso del eje 1.
     //      r_max: radio apical del actuador.
     //      CMF.vmaxabs1: velócidad máxima absoluta del eje 2 en pasos/s.
     //      Arm->rbs: radianes por paso del eje 2.
-    //      Arm->Ra: radio apical del brazo.
+    //      Arm->L1V: radio apical del brazo.
     //      rmax: coordenada radial máxima de P3 en S0.
-    //      L03max: distancia máxima entre P0 y P3.
 
     //Donde se emplean las siguientes propiedades, cuyos valores deben ser
     //proporcionados por el fabricante:
-    //      Tstop_em: tiempo máximo entre el último almacenamiento
+    //      Tstop: tiempo máximo entre el último almacenamiento
     //              de la posición y la detención de ambos ejes.
     //              Valor por defecto para MEGARA: 1 ms.
     //      Eo: margen de error de orientación por mecanizado.
     //              Valor por defecto para MEGARA: 0.001 rad.
     //      Ep: margen de error de posición por mecanizado.
     //              Valor por defecto para MEGARA: 0.01 mm.
-    //      Tshif_em: desfase temporal entre posicionadores en movimeinto.
+    //      Tshif: desfase temporal entre posicionadores en movimeinto.
     //              Valor por defecto para MEGARA: 1 ms.
     //      PAem: margen de error de orientación de S0.
     //              Valor por defecto para MEGARA: 0.001 rad.
@@ -313,7 +286,7 @@ public:
     //      pPro: programación
     //      pVal: validación
     //      pExe: ejecución
-    //valor por defecto: pAll
+    //valor por defecto: pGen
     TPurpose getPurpose(void) const {return __Purpose;}
     void setPurpose(TPurpose);
 
@@ -324,7 +297,7 @@ public:
     //              Arm->SPM = SPMgen_p
     //      si Porporse == pVal
     //              Arm->SPM = SPMval_p
-    //      si Porporse == pexe
+    //      si Porporse == pExe
     //              Arm->SPM = SPMexe_p
     //si PAkd == kdApp,
     //      si Porporse == pAll
@@ -333,7 +306,7 @@ public:
     //              Arm->SPM = SPMgen_a
     //      si Porporse == pVal
     //              Arm->SPM = SPMval_a
-    //      si Porporse == pexe
+    //      si Porporse == pExe
     //              Arm->SPM = SPMexe_a
     //si PAkd == kdUnk,
     //      Barrier->SPM = SPMsta
@@ -616,36 +589,6 @@ public:
     AnsiString getSetText(void) const;
     AnsiString getRetText(void) const;
 
-    //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-    //etiqueta de identificación del objeto
-    //debe ser una cadena imprimible
-    //valor por defecto: ""
-    AnsiString getLabel(void) const {return __Label;}
-    void setLabel(const AnsiString&);
-
-    AnsiString getDefaultColorText(void) const;
-    void setDefaultColorText(const AnsiString&);
-
-    AnsiString getColorCilinderText(void) const;
-    void setColorCilinderText(const AnsiString&);
-    AnsiString getColorArmText(void) const;
-    void setColorArmText(const AnsiString&);
-    AnsiString getColorLimitDomainP3Text(void) const;
-    void setColorLimitDomainP3Text(const AnsiString&);
-    AnsiString getColorLimitDomainManeuveringText(void) const;
-    void setColorLimitDomainManeuveringText(const AnsiString&);
-
-    AnsiString getPaintBodyText(void) const;
-    void setPaintBodyText(const AnsiString&);
-    AnsiString getPaintLimitDomainP3Text(void) const;
-    void setPaintLimitDomainP3Text(const AnsiString&);
-    AnsiString getPaintLimitDomainManeuveringText(void) const;
-    void setPaintLimitDomainManeuveringText(const AnsiString&);
-
-    AnsiString getSelectedText(void) const;
-    void setSelectedText(const AnsiString&);
-
     //------------------------------------------------------------------
     //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
@@ -661,9 +604,6 @@ public:
     //conjunto de propiedades de área en formato texto
     //en formato asignaciones de texto
     AnsiString getAreaText(void) const;
-    //conjunto de propiedades gráficas en formato texto
-    //en formato asignaciones de texto
-    AnsiString getGraphicsText(void) const;
 
     //conjunto de otras propiedades en formato texto
     //en formato asignaciones de texto
@@ -776,8 +716,6 @@ public:
     void CopyLimits(const TActuator*);
     //copia las propiedades de área de un actuador
     void CopyArea(const TActuator*);
-    //copia las propiedades gráficas de un posicioandor
-    void CopyGraphics(const TActuator*);
 
     //copia todas las propiedades de un actuador
     void Clone(const TActuator*);

@@ -296,43 +296,6 @@ public:
         void SearchCollinding(TVector<int> &indices);
         //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
         void GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
-
-        //MÉTODOS GRÁFICOS:
-
-        //establece el estado de la bandera de pintado
-        //del cuerpo de las áreas de exlución
-        void SetPaintBody(bool);
-
-        //asigna un color a todos los posicionadores de la lista
-        //#void SetAllColors(QColor Color);
-        //selecciona todos los posicionadores de la lista
-        void SelectAll(void);
-        //deselecciona todos los posicionadores de la lista
-        void DeselectAll(void);
-
-        //imprime la lista de posicionadores en el lienzo de la fotografía
-        //con los colores indicados
-        //imprime el lienzo de la fotografía en el lienzo de la caja de pintura
-        //#void PaintExclusionAreas(TPloterShapes *PS);
-        //dibuja el límite circular del dominio conjunto de los posicionadores
-        //#void PaintLimitDomain(TPloterShapes *PS);
-
-        //busca el primer área de exclusión que está bajo el punto P
-        //y que parte del área de exclusión puede ser agarrado en
-        //el punto indicado:
-        //      i: índice al área de exclusión bajo el punto P;
-        //      dominio i: [0, Count];
-        //      n: parte del área de exclusión agarrada;
-        //      valores posibles:
-        //              0: niguna;
-        //              1: alguna;
-        //valores de retorno:
-        //      false: ninguna parte agarrada
-        //      true: alguna parte agarrada
-        bool Grab(int &i, int &n, TDoublePoint P);
-
-        //dibuja la lista de áreas de exclusión en un trazador de formas
-        //#void Paint(TPloterShapes*);
 };
 /*
 //lista de áreas de exclusión en formato texto

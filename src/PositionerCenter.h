@@ -70,7 +70,7 @@ public:
     //set the PCL in text format
     void setTableText(const string& S);
 
-    //get the PCL
+    //get the TPL
 //    void getPCL(TTargetPointList& TPL);
 
     //build a PositionerCenterList by default

@@ -134,6 +134,9 @@ public:
 
     //asigna una instrucción
     TInstruction& operator=(const TInstruction&);
+
+    //determines if an instruction is different to this instruction
+    bool operator!=(const TInstruction&) const;
 };
 
 //---------------------------------------------------------------------------

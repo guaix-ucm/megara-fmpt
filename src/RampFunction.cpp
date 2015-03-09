@@ -28,9 +28,12 @@
 #include "RampFunction.h"
 #include "Exceptions.h"
 #include "Scalars.h"
+#include "StrPR.h"
+
 //---------------------------------------------------------------------------
 
 using namespace Mathematics;
+using namespace Strings;
 
 //espacio de nombres de funciones de movimiento
 namespace MotionFunctions {
@@ -282,6 +285,19 @@ void TRampFunction::setTc(double _Tc)
 
 //------------------------------------------------------------------
 //PROPIEDADES EN FORMATO TEXTO:
+
+AnsiString TRampFunction::getamaxabsText(void) const
+{
+        return FloatToStr(__amaxabs);
+}
+void TRampFunction::setamaxabsText(const AnsiString& S)
+{
+        try {
+                setamaxabs(StrToFloat_(S));
+        } catch(...) {
+                throw;
+        }
+}
 
 AnsiString TRampFunction::getText(void)
 {
@@ -583,8 +599,8 @@ void TRampFunction::CalculateVariables_Tc(void)
 //MÉTODOS PÚBLICOS:
 
 //inicialize:
-//  amax=amaxabs=MEGARA_AMAXABSDEF,
-//  vmax=vmaxabs=MEGARA_VMAXABSDEF,
+//  amax=amaxabs,
+//  vmax=vmaxabs,
 //  psta=0, pfin=0;
 //and assimilate the parameters
 TRampFunction::TRampFunction(double _amaxabs,
@@ -691,6 +707,48 @@ void TRampFunction::Copy(TMotionFunction *_RampFunction)
         __ac = RampFunction->__ac;
         __Tr = RampFunction->__Tr;
         __Tc = RampFunction->__Tc;
+}
+
+//initalize all properties except (vmaxabs, amaxabs)
+void TRampFunction::reset(void)
+{
+    //INITIALIZE THE INHERITED PROPERTIES:
+
+    __psta = 0;
+    __pfin = 0;
+    __vmax = 0;
+
+    __Tmin = 0;
+    __D = 0;
+
+    __Dmax = 0;
+    __vcmin = 0;
+    __vcmax = 0;
+    __vc = 0;
+    __T = 0;
+
+    //INITIALIZE THE OWN PROPERTIES:
+
+    //calcula los hitos previos a la elección de 'T'
+    //(vmax, amax, Tspr, Dspr, Tv, Dv, av)
+    CalculateMilestones();
+
+    //elige 'T' adecuado para que la función v(t) pueda ser triangular
+    __T = __Tv;
+
+    //calcula las distancias máximas que se pueden recorrer en el tiempo 'T'
+    //(Dmax, Dv)
+    CalculateDistances();
+
+    //calcula los límites del dominio de las variables:
+    //[amin, amax], [vcmin, vcmax], [Trmin, Trmax], [Tcmin, Tcmax]
+    CalculateBoundaries();
+
+    //elige Tc lo más próximo a v(t) triangular
+    __Tc = __Tcmin;
+
+    //calcula las variables correspondientes a 'Tc'
+    CalculateVariables_Tc();
 }
 
 //asigna (psta, pfin)

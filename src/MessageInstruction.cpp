@@ -46,6 +46,11 @@ void TMessageInstruction::setId(int _Id)
         __Id = _Id;
 }
 
+void TMessageInstruction::setComment(const string& _Comment)
+{
+    p_Comment = _Comment;
+}
+
 //PROPIEDADES EN FORMATO TEXTO:
 
 AnsiString TMessageInstruction::getIdText(void) const
@@ -224,13 +229,13 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
 //MÉTODOS PÚBLICOS:
 
 //construye un mensaje con los valores por defecto
-TMessageInstruction::TMessageInstruction(void) : __Id(0), Instruction()
+TMessageInstruction::TMessageInstruction(void) : __Id(0), Instruction(), p_Comment("")
 {
 }
 //construye un mensaje con los valores por defecto
 TMessageInstruction::TMessageInstruction(int _Id,
         AnsiString InstructionText) :
-        Instruction()
+        Instruction(), p_Comment()
 {
         try {
                 setId(_Id);
@@ -241,7 +246,7 @@ TMessageInstruction::TMessageInstruction(int _Id,
 }
 //clona un ensaje
 TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
-        __Id(), Instruction()
+        __Id(), Instruction(), p_Comment()
 {
         try {
                 Copy(MI);
@@ -260,6 +265,7 @@ void TMessageInstruction::Copy(const TMessageInstruction *MI)
         //copia las propiedades
         __Id = MI->__Id;
         Instruction = MI->Instruction;
+        p_Comment = MI->p_Comment;
 }
 //asigna las propiedades de un mensaje
 TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &MI)
@@ -267,9 +273,25 @@ TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &M
         //copia las propiedades
         __Id = MI.__Id;
         Instruction = MI.Instruction;
+        p_Comment = MI.p_Comment;
 
         //devuelve una referencia a este mensaje para poder concatenar asignaciones
         return *this;
+}
+
+//determine if a MI is different to this MI
+bool TMessageInstruction::operator!=(const TMessageInstruction& MI) const
+{
+    if(getId() != MI.getId())
+        return true;
+
+    if(Instruction != MI.Instruction)
+        return true;
+
+    if(getComment() != MI.getComment())
+        return true;
+
+    return false;
 }
 
 //---------------------------------------------------------------------------
