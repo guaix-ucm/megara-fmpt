@@ -25,7 +25,7 @@
 
 #include "FileMethods.h"
 #include "MotionProgramGenerator.h"
-#include "SPPP.h"
+#include "FMOSATable.h"
 #include "PositionerCenter.h"
 #include "Strings.h"
 #include "TextFile.h"
@@ -89,12 +89,6 @@ string help(void)
     str += "\r\n\t<dir_RP>: absolute or relative path to dir containing a RP instance.";
     str += "\r\n\tApply a RP instance to the Fiber MOS Model instance.";
     str += "\r\n";
-/*    str += "\r\n$ fmpt_saa enable";
-    str += "\r\n\tEnable not faulty RPs of the Fiber MOS Model instance.";
-    str += "\r\n";
-    str += "\r\n$ fmpt_saa disable <Pid list>";
-    str += "\r\n\tDisable the indicated RPs of the Fiber MOS Model instance.";
-    str += "\r\n";*/
 
     str += "\r\n$ fmpt_saa generateDP <path_FMOSA>";
     str += "\r\n\t<path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
@@ -108,8 +102,8 @@ string help(void)
     str += "\r\n\t<path_PP>: absolute or relative path to file containing the PP.";
     str += "\r\n\t<path_DP>: absolute or relative path to file containing the DP.";
     str += "\r\n\t[Pid list]: optional identifier list of RPs to be disabled.";
-    str += "\r\n\tCheck the RPs includes in a pair (PP, DP).";
-    str += "\r\n\tThe instance of the Fiber MOS Model not changes.";
+    str += "\r\n\tCheck the enabling status of the RPs included in a pair (PP, DP).";
+    str += "\r\n\tThe instance of the Fiber MOS Model will not be written.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa regeneratePPDP <path_PP> <path_DP> <path_FMOSA> [Pid list]";
     str += "\r\n\t<path_PP>: absolute or relative path to file containing the PP.";
@@ -117,7 +111,7 @@ string help(void)
     str += "\r\n\t<path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
     str += "\r\n\t[Pid list]: optional identifier list of RPs to be disabled.";
     str += "\r\n\tAttempt regenerate a pair (PP, DP).";
-    str += "\r\n\tThe instance of the Fiber MOS Model not changes.";
+    str += "\r\n\tThe instance of the Fiber MOS Model will not be written.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa aboutof";
     str += "\r\n\tPrint the about of legend.";
@@ -128,6 +122,7 @@ string help(void)
     //  - Determine the RPs included in a pair of MPs.
     //  - Enable all not faulty RPs of the FMM instance,
     //  - Disable the indicated PRs of the FMM instance,
+    //  - Print the samples includes in the directory data/Samples
 
     return str;
 }
@@ -231,16 +226,16 @@ void generateDP(TFiberMOSModel& FMM, string& path, string& log_filename)
         //LOAD SETTINGS FROM FILES:
 
         //load the FMOSA table from a file
-        TSPPPList SPPPL;
+        TFMOSATable FMOSA;
         unsigned int Bid;
         string str;
         strReadFromFile(str, path);
-        SPPPL.setTableText(Bid, str);
+        FMOSA.setTableText(Bid, str);
         append("FMOSA table loaded from '"+path+"'.", log_filename.c_str());
 
         //get the allocation from the FMOSA table
         TMotionProgramGenerator MPG(&FMM);
-        SPPPL.getTPL(MPG);
+        FMOSA.getAllocations(MPG);
         append("Allocations got from the FMOSA table.", log_filename.c_str());
 
         //MAKE THE OPERATIONS:
@@ -372,16 +367,16 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
         //LOAD SETTINGS FROM FILES:
 
         //load the FMOSA table from a file
-        TSPPPList SPPPL;
+        TFMOSATable FMOSA;
         unsigned int Bid;
         string str;
         strReadFromFile(str, path);
-        SPPPL.setTableText(Bid, str);
+        FMOSA.setTableText(Bid, str);
         append("FMOSA table loaded from '"+path+"'.", log_filename.c_str());
 
         //get the allocation from the FMOSA table
         TMotionProgramGenerator MPG(&FMM);
-        SPPPL.getTPL(MPG);
+        FMOSA.getAllocations(MPG);
         append("Allocations got from the FMOSA table.", log_filename.c_str());
 
         //MAKE THE OPERATIONS:
@@ -630,10 +625,10 @@ void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, strin
             throw EImproperArgument("DP Bid should be equal to PP Bid");
 
         //load the FMOSA table from a file
-        TSPPPList SPPPL;
+        TFMOSATable FMOSA;
         unsigned int FMOSA_Bid;
         strReadFromFile(str, path_FMOSA);
-        SPPPL.setTableText(FMOSA_Bid, str);
+        FMOSA.setTableText(FMOSA_Bid, str);
         append("FMOSA table loaded from '"+path_FMOSA+"'.", log_filename.c_str());
 
         if(FMOSA_Bid!=PP_Bid || FMOSA_Bid!=DP_Bid)
@@ -641,7 +636,7 @@ void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, strin
 
         //get the data from the FMOSA table
         TMotionProgramGenerator MPG(&FMM);
-        SPPPL.getTPL(MPG);
+        FMOSA.getAllocations(MPG);
         append("Got data from  the FMOSA table.", log_filename.c_str());
 
         //-------------------------------------------------------------------
@@ -798,8 +793,6 @@ int main(int argc, char *argv[])
     //
     //###################################################################
 
-    //-----------------------------------------------------------------------
-
     //initalize the log file
     string log_filename = "fmpt_saa.log";
     char mode[] = "w";
@@ -830,10 +823,11 @@ int main(int argc, char *argv[])
         //-----------------------------------------------------------------------
         //MAKE ACTIONS:
 
-        //if the program is run without the necessary arguments
+        //if the program is run without the necessary comand
+        //warn that happened, print the help and finish the program
         if(argc <= 1) {
             //indicates that happened
-            append("Missing arguments.", log_filename.c_str());
+            append("Missing command.", log_filename.c_str());
 
             //print the help
             append("\r\n"+help(), log_filename.c_str());
@@ -843,7 +837,7 @@ int main(int argc, char *argv[])
         }
 
         //indicates that the program is running
-        append("FMPT SAA 1.3.0 is running...", log_filename.c_str());
+        append("FMPT SAA 1.3.1 is running...", log_filename.c_str());
 
         //print  the arguments
         string str;
@@ -1101,6 +1095,6 @@ int main(int argc, char *argv[])
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
-    0;
+    return 0;
 }
 

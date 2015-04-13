@@ -41,13 +41,13 @@ libfmtp_la_SOURCES = vclemu.cpp \
     MessageInstruction.cpp \
     SkyPoint.cpp \
     ProjectionPoint.cpp \
-    SPPP.cpp \
+    FMOSATable.cpp \
     PositionerCenter.cpp \
     Tile.cpp \
     TelescopeProjectionModel.cpp \
     MotionProgram.cpp \
-    TargetPoint.cpp \
-    TargetPointList.cpp \
+    Allocation.cpp \
+    AllocationList.cpp \
     MotionProgramValidator.cpp \
     MotionProgramGenerator.cpp \
     vclemu.h \
@@ -93,13 +93,13 @@ libfmtp_la_SOURCES = vclemu.cpp \
     MessageInstruction.h \
     SkyPoint.h \
     ProjectionPoint.h \
-    SPPP.h \
+    FMOSATable.h \
     PositionerCenter.h \
     Tile.h \
     TelescopeProjectionModel.h \
     MotionProgram.h \
-    TargetPoint.h \
-    TargetPointList.h \
+    Allocation.h \
+    AllocationList.h \
     MotionProgramValidator.h \
     MotionProgramGenerator.h
 
@@ -154,13 +154,13 @@ pkginclude_HEADERS = vclemu.h \
     MessageInstruction.h \
     SkyPoint.h \
     ProjectionPoint.h \
-    SPPP.h \
+    FMOSATable.h \
     PositionerCenter.cpp \
     Tile.h \
     TelescopeProjectionModel.h \
     MotionProgram.h \
-    TargetPoint.h \
-    TargetPointList.h \
+    Allocation.h \
+    AllocationList.h \
     MotionProgramValidator.h \
     MotionProgramGenerator.h
 

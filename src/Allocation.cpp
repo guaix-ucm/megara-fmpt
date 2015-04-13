@@ -17,13 +17,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TargetPoint.cpp
-//Content: target point attached to a RP
-//Last update: 27/09/2013
+//File: TAllocation.cpp
+//Content: class allocation
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#include "TargetPoint.h"
+#include "Allocation.h"
 #include "Geometry.h"
 #include "Strings.h" //StrTrim
 #include "StrPR.h" //StrReadInt
@@ -36,23 +35,23 @@ using namespace Strings;
 namespace Positioning {
 
 //---------------------------------------------------------------------------
-//TTargetPoint:
+//TAllocation:
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 //STATIC PROPERTIES:
 
 //list of built objects
-TItemsList<TTargetPoint*> TTargetPoint::Builts;
+TItemsList<TAllocation*> TAllocation::Builts;
 
 //---------------------------------------------------------------------------
 //PROPERTIES IN TEXT FORMAT:
 
-AnsiString TTargetPoint::getPPText(void)
+AnsiString TAllocation::getPPText(void)
 {
         return DPointToStr(PP);
 }
-void TTargetPoint::setPPText(const AnsiString &S)
+void TAllocation::setPPText(const AnsiString &S)
 {
         try {
                 PP = StrToDPoint(S);
@@ -64,7 +63,7 @@ void TTargetPoint::setPPText(const AnsiString &S)
 
 //SETS OF PROPERTIES IN TEXT FORMAT:
 
-AnsiString TTargetPoint::getText(void)
+AnsiString TAllocation::getText(void)
 {
         AnsiString S;
 
@@ -72,7 +71,7 @@ AnsiString TTargetPoint::getText(void)
 
         return S;
 }
-void TTargetPoint::setText(const AnsiString&)
+void TAllocation::setText(const AnsiString&)
 {
 }
 
@@ -80,7 +79,7 @@ void TTargetPoint::setText(const AnsiString&)
 //STATIC METHODS:
 
 //compare the identifiers of the RPs attached to two target points
-int  TTargetPoint::CompareIds(TTargetPoint *TPA1, TTargetPoint *TPA2)
+int  TAllocation::CompareIds(TAllocation *TPA1, TAllocation *TPA2)
 {
         //el puntero TPA1 no debe ser nulo
         if(TPA1 == NULL)
@@ -101,14 +100,14 @@ int  TTargetPoint::CompareIds(TTargetPoint *TPA1, TTargetPoint *TPA2)
 
 //get the labels of the properties
 //in row text format
-AnsiString TTargetPoint::GetIdPPLabelsRow(void)
+AnsiString TAllocation::GetIdPPLabelsRow(void)
 {
         return AnsiString("Id\t")+TDoublePoint::xLabel+AnsiString("\t")+TDoublePoint::yLabel;
 }
 
 //travel the labels of the properties
 //in a text string from the position i
-void  TTargetPoint::TravelLabels(const AnsiString& S, int& i)
+void  TAllocation::TravelLabels(const AnsiString& S, int& i)
 {
     try {
         //atraviesa los separadores hasta el próximo caracter no separador
@@ -131,7 +130,7 @@ void  TTargetPoint::TravelLabels(const AnsiString& S, int& i)
 
 //read the values of the properties
 //in a text string from the position i
-void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
+void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
                                       const AnsiString& S, int& i)
 {
     //estado de lectura:
@@ -200,7 +199,7 @@ void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
 //build a target point attached a RP
 //if the RP already has an attached target point
 //  throw an exception EImproperArgument
-TTargetPoint::TTargetPoint(TRoboticPositioner *_RP,
+TAllocation::TAllocation(TRoboticPositioner *_RP,
         double x, double y)
 {
         //check the precondition
@@ -221,7 +220,7 @@ TTargetPoint::TTargetPoint(TRoboticPositioner *_RP,
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);
 }
-TTargetPoint::TTargetPoint(TRoboticPositioner *_RP,
+TAllocation::TAllocation(TRoboticPositioner *_RP,
         TDoublePoint _PP)
 {
         //el puntero RP debería apuntar a un RP construido
@@ -241,10 +240,10 @@ TTargetPoint::TTargetPoint(TRoboticPositioner *_RP,
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);
 }
-//destroy a targetpoint
+//destroy a TAllocation
 //if thereisn't a built target point
 //  throw an exception EImproperCall
-TTargetPoint::~TTargetPoint()
+TAllocation::~TAllocation()
 {
         //debe haber algún punto objetivo construido
         if(Builts.getCount() < 1)
@@ -269,7 +268,7 @@ TTargetPoint::~TTargetPoint()
 
 //determines if the target point is out of the domain
 //of thepoint P3 of the attached RP
-bool TTargetPoint::IsOutDomainP3(void)
+bool TAllocation::IsOutDomainP3(void)
 {
         if(getRP()->getActuator()->PointIsOutDomainP3(PP))
                 return true;
@@ -278,7 +277,7 @@ bool TTargetPoint::IsOutDomainP3(void)
 }
 //determines if the target point is in the secure area
 //of thepoint P3 of the attached RP
-bool TTargetPoint::IsInSafeAreaP3(void)
+bool TAllocation::IsInSafeAreaP3(void)
 {
         //determina si el punto objetivo está en el dominio del posicionador
         //adscrito y calcula las posiciones angulares de los ejes
@@ -298,7 +297,7 @@ bool TTargetPoint::IsInSafeAreaP3(void)
 
 //randomize the point PP with uniform distribution
 //in the domain of the point P3 of its attached RP
-void TTargetPoint::RandomizePP(void)
+void TAllocation::RandomizePP(void)
 {
         PP = getRP()->getActuator()->RandomP3();
 }
@@ -307,7 +306,7 @@ void TTargetPoint::RandomizePP(void)
 //and return the distance from the stable position to the target point
 //if the the point PP isn't on the domain of its attached RP:
 //  throw an exception EImpropercall
-double TTargetPoint::MoveToPP(void)
+double TAllocation::MoveToPP(void)
 {
         //determines if the target point is in the domain of the attached RP
         //and calculates the position angles of the rotors

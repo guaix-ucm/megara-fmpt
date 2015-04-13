@@ -27,8 +27,8 @@
 #define MOTIONPROGRAMGENERATOR_H
 
 #include "MotionProgramValidator.h"
-#include "TargetPointList.h"
-#include "SPPP.h"
+#include "AllocationList.h"
+#include "FMOSATable.h"
 #include "FiberMOSModel2.h"
 #include "MotionProgram.h"
 
@@ -53,7 +53,7 @@ namespace Positioning {
 
 //class motion program generator
 class TMotionProgramGenerator : public TMotionProgramValidator,
-        public TTargetPointList {
+        public TAllocationList {
 protected:
     //-----------------------------------------------------------------------
     //SETTING PARAMETERS OF THE ALGORITHMS:

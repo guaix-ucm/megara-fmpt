@@ -17,17 +17,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: SPPP.h
-//Content: structure containing propeties of SP and PP
+//File: FMOSATable.h
+//Content: class FMOSA table
 //Last update: 23/01/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#ifndef SPPP_H
-#define SPPP_H
+#ifndef FMOSATable_H
+#define FMOSATable_H
 
 #include "MotionProgramValidator.h"
-#include "TargetPointList.h"
+#include "AllocationList.h"
 #include "FiberMOSModel2.h"
 #include "MotionProgram.h"
 #include "PointersList.h"
@@ -97,18 +97,18 @@ public:
 };
 
 //---------------------------------------------------------------------------
-//class TSPPPList:
+//class TFMOSATable:
 
-class TSPPPList : public TPointersList<TSPPP> {
+class TFMOSATable : public TPointersList<TSPPP> {
 public:
-    //set the SPPPL in text format
+    //set a FMOSA table in text format
     void setTableText(unsigned int& Bid, const string& str);
 
-    //get the TPL
-    void getTPL(TTargetPointList& TPL);
+    //get the allocations which accomplish: there_is_Bid && Enabled
+    void getAllocations(TAllocationList& AL);
 
-    //build a SPPP list by default
-    TSPPPList(void);
+    //build a FMOSA table by default
+    TFMOSATable(void);
 };
 
 //---------------------------------------------------------------------------
@@ -117,4 +117,4 @@ public:
 
 //---------------------------------------------------------------------------
 
-#endif // SPPP_H
+#endif // FMOSATable_H

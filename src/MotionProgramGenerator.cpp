@@ -1431,7 +1431,7 @@ void TMotionProgramGenerator::addMessageListToGoToTheOrigins(TMotionProgram& DP,
 //attached to a robotic positionerlist
 TMotionProgramGenerator::TMotionProgramGenerator(TFiberMOSModel *_FiberMOSModel) :
     TMotionProgramValidator(_FiberMOSModel),
-    TTargetPointList(&(_FiberMOSModel->RPL)),
+    TAllocationList(&(_FiberMOSModel->RPL)),
     p_MSD(1),
     NRmin(3), NBmin(1), PrMax(0)
 {
@@ -1969,7 +1969,7 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
     //CHECK THE PRECONDITIONS OF THE TPL:
 
     for(int i=0; i<getCount(); i++) {
-        TTargetPoint *TP = Items[i];
+        TAllocation *TP = Items[i];
 
         TRoboticPositioner *RP = TP->getRP();
         int j = getFiberMOSModel()->RPL.Search(RP);
@@ -1981,7 +1981,7 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
             throw EImproperArgument("all PPs included in the TPL must be in the scope of their allocated RP");
     }
 
-    i = searchTargetPoint(RP);
+    i = searchAllocation(RP);
     if(i >= getCount())
         throw EImproperArgument("the RP must be included in the TPL");
 
@@ -1997,8 +1997,8 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
         //Here the RPR is adjacent to the RP to be replaced.
 
         //determines if the PP allocated to the RP is in the scope of the RPR
-        i = searchTargetPoint(RP);
-        TTargetPoint *TP = Items[i];
+        i = searchAllocation(RP);
+        TAllocation *TP = Items[i];
         bool is_in_domain = RPR->getActuator()->PointIsInDomainP3(TP->PP);
 
         if(is_in_domain) {
@@ -2006,7 +2006,7 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
             //Here the PP allocated to the RP, is in the scope of the RPR.
 
             if(RPR->getOperative()) {
-                int j = searchTargetPoint(RPR);
+                int j = searchAllocation(RPR);
                 if(j >= getCount()) {
 
                     //Here the RPR is adjacent, operative and it is not allocated.
@@ -2022,9 +2022,9 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
                         //this must be in the security area
                         if(RPA->getOperative()) {
                             if(RPA->getActuator()->ArmIsInSafeArea()) {
-                                int l = searchTargetPoint(RPA);
+                                int l = searchAllocation(RPA);
                                 if(l < getCount()) {
-                                    TTargetPoint *TP = Items[l];
+                                    TAllocation *TP = Items[l];
                                     TDoublePoint PP = TP->PP;
                                     if(RPA->getActuator()->pointIsInSecurityArea(PP))
                                         k++;
@@ -2085,7 +2085,7 @@ bool TMotionProgramGenerator::allocationIsMustType(int i) const
     //MAKE ACTIONS:
 
     //point the indicated allocation for facilitate its access
-    TTargetPoint *TP = Items[i];
+    TAllocation *TP = Items[i];
 
     //check if the allocation corresponds to a reference source,
     //and the CB contains the minimun number of reference sources NRmin.
@@ -2151,7 +2151,7 @@ bool TMotionProgramGenerator::attemptRegenerate(TVector<int>& Excluded,
         if(j >= getFiberMOSModel()->RPL.getCount())
             throw EImproperArgument("all RPs included in the pair (PP,DP) must be in the Fiber MOS Model");
 
-        j = searchTargetPoint(RP);
+        j = searchAllocation(RP);
         if(j >= getCount())
             throw EImproperArgument("all RPs included in the pair (PP,DP) must have an allocation in the MPG");
     }
@@ -2165,7 +2165,7 @@ bool TMotionProgramGenerator::attemptRegenerate(TVector<int>& Excluded,
 
         //if the allocation if must type
         //indicates that the pair (PP, DP) can not be regenerated
-        int j = searchTargetPoint(RP);
+        int j = searchAllocation(RP);
         if(j >= getCount())
             throw EImpossibleError("lateral effect");
         bool allocation_is_must = allocationIsMustType(j);

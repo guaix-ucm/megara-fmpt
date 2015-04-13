@@ -17,19 +17,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TargetPointList.h
-//Content: lista de puntos objetivo
-//Last update: 06/05/2014
+//File: TAllocationList.h
+//Content: class allocation list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#ifndef TARGETPOINTLIST_H
-#define TARGETPOINTLIST_H
+#ifndef TALLOCATIONLIST_H
+#define TALLOCATIONLIST_H
 
-#include "TargetPoint.h"
+#include "Allocation.h"
 #include "RoboticPositionerList3.h"
-
-//##include <QListWidget>
 
 //---------------------------------------------------------------------------
 
@@ -40,8 +37,8 @@ namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-//class target points list
-class TTargetPointList : public TItemsList<TTargetPoint*> {
+//class allocation list
+class TAllocationList : public TItemsList<TAllocation*> {
 protected:
         TRoboticPositionerList *__RoboticPositionerList;
 
@@ -52,31 +49,31 @@ public:
 
         //PROPERTIES IN TEXT FORMAT:
 
-        //target point list in text format
-        AnsiString getTargetPointsText(void);
-        void setTargetPointsText(AnsiString&);
+        //allocation list in text format
+        AnsiString geTAllocationsText(void);
+        void seTAllocationsText(AnsiString&);
 
         //BUILDING AND DESTROYING METHODS:
 
-        //build a target point list, attached to a RP list
-        TTargetPointList(TRoboticPositionerList *_RoboticPositionerList);
+        //build a allocation list, attached to a RP list
+        TAllocationList(TRoboticPositionerList *_RoboticPositionerList);
 
-        //destroy the targetpoint and destroy the list
-        ~TTargetPointList();
+        //destroy the TAllocation and destroy the list
+        ~TAllocationList();
 
         //SEARCHING METHODS:
 
-        //search the target point attached to a RP
-        int searchTargetPoint(const TRoboticPositioner *RP) const;
-        //search the target point attached to an identified RP
-        int searchTargetPoint(int Id) const;
+        //search the allocation attached to a RP
+        int searchAllocation(const TRoboticPositioner *RP) const;
+        //search the allocation attached to an identified RP
+        int searchAllocation(int Id) const;
 
         //OBJETOS INDICADOS:
 
         //añade un punto objetivo para el posicionador indicado de la lista
-        void AddTargetPoint(int i);
+        void AddAllocation(int i);
         //borra el punto objetivo indicada de la lista
-        void DeleteTargetPoint(int i);
+        void DeleteAllocation(int i);
 
         //OBJETOS SELECCIONADOS DE LA LISTA:
 
@@ -180,7 +177,7 @@ public:
 
         //busca los puntos objetivo que están fuera del dominio
         //de sus posicionadores adscritos
-        void SearchOutDomineTargetPoints(TVector<int> &indices);
+        void SearchOutDomineTAllocations(TVector<int> &indices);
 
         //Determina la invalidez de una lista de puntos objetivo
         //para ser programada.
@@ -218,13 +215,13 @@ public:
 
         //levanta las banderas indicadoras de determinación de colisión
         //pendiente de todos los posicionadores adscritos a los puntos objetivo
-        void EnablePendingCollisionDetermineTargetPoints(void);
+        void EnablePendingCollisionDetermineTAllocations(void);
 
         //El siguiente método debe invocarse una vez desplazados
         //los posicionadores a los puntos objetivo:
 
         //busca los puntos objetivo que colisionan con otros puntos objetivo
-        void SearchCollindingTargetPoints(TVector<int> &indices);
+        void SearchCollindingTAllocations(TVector<int> &indices);
 
         //ADVERTENCIA: cuando la cuantificación de alguno de los ejes
         //de los posicioandores adscritos esta deactivada, SearchCollinding
@@ -269,4 +266,4 @@ public:
 } //namespace Positioning
 
 //---------------------------------------------------------------------------
-#endif // TARGETPOINTLIST_H
+#endif // TALLOCATIONLIST_H

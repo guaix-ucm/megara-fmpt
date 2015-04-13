@@ -17,13 +17,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: SPPP.cpp
-//Content: structure containing propeties of SP and PP
+//File: FMOSATable.cpp
+//Content: class FMOSA table
 //Last update: 23/01/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#include "SPPP.h"
+#include "FMOSATable.h"
 #include "Strings.h"
 #include "StrPR.h"
 
@@ -162,7 +162,7 @@ TSPPP& TSPPP::operator=(const TSPPP& SPPP)
 }
 
 //---------------------------------------------------------------------------
-//class TSPPPList:
+//class TFMOSATable:
 
 char strFirstNonseparatorChar(const string& str)
 {
@@ -172,8 +172,8 @@ char strFirstNonseparatorChar(const string& str)
     return 0;
 }
 
-//set the SPPPL in text format
-void TSPPPList::setTableText(unsigned int& Bid, const string& str)
+//set a FMOSA table in text format
+void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 {
     //divide the string S in lines
     TStrings Strings;
@@ -239,7 +239,7 @@ void TSPPPList::setTableText(unsigned int& Bid, const string& str)
 
     //read all lines (using a tampon variable) until the close label @@EOS@
     try {
-        TSPPPList SPPPL;
+        TFMOSATable SPPPL;
 
         while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
             TSPPP *SPPP = new TSPPP();
@@ -274,8 +274,8 @@ void TSPPPList::setTableText(unsigned int& Bid, const string& str)
     Bid = Items[0]->Bid;
 }
 
-//get the TPL
-void TSPPPList::getTPL(TTargetPointList& TPL)
+//get the allocations which accomplish: there_is_Bid && Enabled
+void TFMOSATable::getAllocations(TAllocationList& AL)
 {
     for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
@@ -283,25 +283,25 @@ void TSPPPList::getTPL(TTargetPointList& TPL)
             if(SPPP->Enabled) { //if the PP is allocated to the RP
                 //extract the Id from the SPPP
                 int Id = SPPP->Pid;
-                //search the RP in the RPL attached to the TPL
-                int j = TPL.getRoboticPositionerList()->SearchId(Id);
+                //search the RP in the RPL attached to the AL
+                int j = AL.getRoboticPositionerList()->SearchId(Id);
                 //if has found the RP, build and attach a TP
-                if(j < TPL.getRoboticPositionerList()->getCount()) {
+                if(j < AL.getRoboticPositionerList()->getCount()) {
                     //copy the properties in a TP nd add the TP to the MPG
-                    TRoboticPositioner *RP = TPL.getRoboticPositionerList()->Get(j);
-                    TTargetPoint *TP = new TTargetPoint(RP, SPPP->X, SPPP->Y);
+                    TRoboticPositioner *RP = AL.getRoboticPositionerList()->Get(j);
+                    TAllocation *TP = new TAllocation(RP, SPPP->X, SPPP->Y);
                     TP->PP.Type = SPPP->Type;
                     TP->PP.Priority = SPPP->Pr;
-                    //add the TP to the TPL
-                    TPL.Add(TP);
+                    //add the TP to the AL
+                    AL.Add(TP);
                 }
             }
         }
     }
 }
 
-//build a SPPPList by default
-TSPPPList::TSPPPList(void) : TPointersList<TSPPP>()
+//build a FMOSA table by default
+TFMOSATable::TFMOSATable(void) : TPointersList<TSPPP>()
 {
 }
 

@@ -17,14 +17,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TargetPoint.h
-//Content: targetpoint attached to a RP
-//Last update: 06/05/2014
+//File: TAllocation.h
+//Content: class allocation
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#ifndef TARGETPOINT_H
-#define TARGETPOINT_H
+#ifndef TALLOCATION_H
+#define TALLOCATION_H
 
 #include "FiberMOSModel2.h"
 
@@ -37,15 +36,15 @@ using namespace Models;
 namespace Positioning {
 
 //---------------------------------------------------------------------------
-//TTargetPoint:
+//TAllocation:
 //---------------------------------------------------------------------------
 
 //class target point
-class TTargetPoint {
+class TAllocation {
         //STATIC PROPERTIES:
 
         //list of pointers to built target points
-        static TItemsList<TTargetPoint*> Builts;
+        static TItemsList<TAllocation*> Builts;
 
         //Allows to control the construction of a single target point by RP,
         //and the destruction of existing target point.
@@ -81,8 +80,8 @@ public:
         //STATIC METHODS:
 
         //compare the identifiers of the RPs attached to two target points
-        static int  CompareIds(TTargetPoint *TPA1,
-                TTargetPoint *TPA2);
+        static int  CompareIds(TAllocation *TPA1,
+                TAllocation *TPA2);
         //this method shall be pointed in a pointer list
         //to allow the functioning of shorting and comparing methods
 
@@ -103,15 +102,15 @@ public:
         //build a target point attached a RP
         //if the RP already has an attached target point
         //  throw an exception EImproperArgument
-        TTargetPoint(TRoboticPositioner *_RoboticPositioner,
+        TAllocation(TRoboticPositioner *_RoboticPositioner,
                 double x, double y);
-        TTargetPoint(TRoboticPositioner *_RoboticPositioner,
+        TAllocation(TRoboticPositioner *_RoboticPositioner,
                 TDoublePoint _PP);
 
-        //destroy a targetpoint
+        //destroy a TAllocation
         //if thereisn't a built target point
         //  throw an exception EImproperCall
-        ~TTargetPoint();
+        ~TAllocation();
 
         //CHECKING METHODS:
 
@@ -161,4 +160,4 @@ public:
 } //namespace Positioning
 
 //---------------------------------------------------------------------------
-#endif // TARGETPOINT_H
+#endif // TALLOCATION_H
