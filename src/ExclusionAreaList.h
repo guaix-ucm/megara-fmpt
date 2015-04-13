@@ -209,8 +209,6 @@ public:
         void Destroy(int i);
         //destruye todas las áreas de exclusión de la lista
         void Destroy(void);
-        //destruye las áreas de exclusión seleccionadas de la lista
-        int DestroySelected(void);
 
         //MÉTODOS DE BÚSQUEDA DE ÁREAS DE EXCLUSIÓN:
 

@@ -39,17 +39,20 @@ namespace Positioning {
 //  to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMP(TRoboticPositionerList& RPL,
                         const TMotionProgram& MP,
-                        const TFiberMOSModel& FMM)
+                        const TFiberMOSModel *FMM)
 {
     //CHECK THE PRECONDITION:
+
+    if(FMM == NULL)
+        throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
 
     //chack if all message of instruction in the MP are addressed to an existent RP of the Fiber MOS Model
     for(int i=0; i<MP.getCount(); i++) {
         const TMessageList *ML = MP.GetPointer(i);
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
-            int k = FMM.RPL.SearchId(MI->getId());
-            if(k >= FMM.RPL.getCount())
+            int k = FMM->RPL.SearchId(MI->getId());
+            if(k >= FMM->RPL.getCount())
                 throw EImproperArgument("all message of instruction in the MP shall be addressed to an existent RP of the Fiber MOS Model");
         }
     }
@@ -66,18 +69,18 @@ void getRPsIncludedInMP(TRoboticPositionerList& RPL,
             const TMessageInstruction *MI = ML->GetPointer(j);
 
             //search the identifier RP in the Fiber MOS Model
-            int k = FMM.RPL.SearchId(MI->getId());
+            int k = FMM->RPL.SearchId(MI->getId());
             //if not has found the identifier Id
-            if(k >= FMM.RPL.getCount())
+            if(k >= FMM->RPL.getCount())
                 //indicates lateral effect
                 throw EImpossibleError("lateral effect");
             //if has found the identifier Id
             else {
                 //actualice the RPL avoiding repetitions
-                TRoboticPositioner *RP = FMM.RPL[k];
+                TRoboticPositioner *RP = FMM->RPL[k];
                 int l = RPL.SearchId(RP->getActuator()->getId());
                 if(l >= RPL.getCount())
-                    RPL.Add(FMM.RPL[k]);
+                    RPL.Add(FMM->RPL[k]);
             }
         }
     }
@@ -89,16 +92,19 @@ void getRPsIncludedInMP(TRoboticPositionerList& RPL,
 //  to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
                      const TMotionProgram& MP1, const TMotionProgram& MP2,
-                     const TFiberMOSModel& FMM)
+                     const TFiberMOSModel* FMM)
 {
     //CHECK THE PRECONDITION:
+
+            if(FMM == NULL)
+                throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
 
     for(int i=0; i<MP1.getCount(); i++) {
         const TMessageList *ML = MP1.GetPointer(i);
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
-            int k = FMM.RPL.SearchId(MI->getId());
-            if(k >= FMM.RPL.getCount())
+            int k = FMM->RPL.SearchId(MI->getId());
+            if(k >= FMM->RPL.getCount())
                 throw EImproperArgument("all message of instruction in the MP1 shall be addressed to an existent RP of the Fiber MOS Model");
         }
     }
@@ -106,8 +112,8 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
         const TMessageList *ML = MP2.GetPointer(i);
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
-            int k = FMM.RPL.SearchId(MI->getId());
-            if(k >= FMM.RPL.getCount())
+            int k = FMM->RPL.SearchId(MI->getId());
+            if(k >= FMM->RPL.getCount())
                 throw EImproperArgument("all message of instruction in the MP2 shall be addressed to an existent RP of the Fiber MOS Model");
         }
     }
@@ -124,18 +130,18 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
             const TMessageInstruction *MI = ML->GetPointer(j);
 
             //search the identifier RP in the Fiber MOS Model
-            int k = FMM.RPL.SearchId(MI->getId());
+            int k = FMM->RPL.SearchId(MI->getId());
             //if not has found the identifier Id
-            if(k >= FMM.RPL.getCount())
+            if(k >= FMM->RPL.getCount())
                 //indicates lateral effect
                 throw EImpossibleError("lateral effect");
             //if has found the identifier Id
             else {
                 //actualice the RPL avoiding repetitions
-                TRoboticPositioner *RP = FMM.RPL[k];
+                TRoboticPositioner *RP = FMM->RPL[k];
                 int l = RPL.SearchId(RP->getActuator()->getId());
                 if(l >= RPL.getCount())
-                    RPL.Add(FMM.RPL[k]);
+                    RPL.Add(FMM->RPL[k]);
             }
         }
     }
@@ -145,18 +151,18 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
             const TMessageInstruction *MI = ML->GetPointer(j);
 
             //search the identifier RP in the Fiber MOS Model
-            int k = FMM.RPL.SearchId(MI->getId());
+            int k = FMM->RPL.SearchId(MI->getId());
             //if not has found the identifier Id
-            if(k >= FMM.RPL.getCount())
+            if(k >= FMM->RPL.getCount())
                 //indicates lateral effect
                 throw EImpossibleError("lateral effect");
             //if has found the identifier Id
             else {
                 //actualice the RPL avoiding repetitions
-                TRoboticPositioner *RP = FMM.RPL[k];
+                TRoboticPositioner *RP = FMM->RPL[k];
                 int l = RPL.SearchId(RP->getActuator()->getId());
                 if(l >= RPL.getCount())
-                    RPL.Add(FMM.RPL[k]);
+                    RPL.Add(FMM->RPL[k]);
             }
         }
     }
@@ -394,23 +400,23 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
 //Inputs:
 //  MP: motion program to be validated
 //Outputs:
-//  motionProgramIsValid: flag indicating if the motion program
+//  validateMotionProgram: flag indicating if the motion program
 //      avoid collisions.
 //Notes:
-//  The validation process of a MP consume a component of the SPM, even
+//- The validation process of a MP consume a component of the SPM, even
 //  when the process is successfully passed. So if a MP pass the validation
 //  process with a value of SPM, the validation shall be make with
 //  the value of SPM inmediately lower.
-//  The validation method of a MP will be used during the generation process
+//- The validation method of a MP will be used during the generation process
 //  with the individual MP of each RP, and at the end of the process for
 //  validate the generated recovery program.
-bool TMotionProgramValidator::motionProgramIsValid(const TMotionProgram &MP) const
+bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) const
 {
     //CHECK THE PRECONDITIONS:
 
     //get the list of RPs included in the MP
     TRoboticPositionerList RPL;
-    getRPsIncludedInMP(RPL, MP, *getFiberMOSModel());
+    getRPsIncludedInMP(RPL, MP, getFiberMOSModel());
 
     //all RPs included in the MP, must be enabled the quantifiers of their rotors
     for(int i=0; i<RPL.getCount();  i++) {
@@ -500,36 +506,27 @@ bool TMotionProgramValidator::motionProgramIsValid(const TMotionProgram &MP) con
     return true;
 }
 
-//Validate a pair (PP, DP).
+//Validate a pair (PP, DP) in a limited way.
 //Inputs:
 //- (PP, DP):the pair to validate.
-//- not_operative_Ids: identifier list containing the disabling estatus
-//  of the Real Fiber MOS.
 //Outputs:
-//- pairPPDPisValid: flag indicating if all RPs includes in the pair
+//- checkPairPPDP: flag indicating if all RPs includes in the pair
 //  are operatives.
-bool TMotionProgramValidator::pairPPDPisValid(const TMotionProgram &PP, const TMotionProgram &DP,
-                      const TVector<int>& not_operative_Ids) const
+//Preconditions:
+//- The status of the Fiber MOS Model must correspond to the status of
+//  the real Fiber MOS.
+bool TMotionProgramValidator::checkPairPPDP(const TMotionProgram &PP,
+                     const TMotionProgram &DP) const
 {
-    //check the preconditions
-    for(int i=0; i<int(not_operative_Ids.getCount()); i++) {
-        int Id = not_operative_Ids[i];
-        int j = getFiberMOSModel()->RPL.SearchId(Id);
-        if(j >= getFiberMOSModel()->RPL.getCount())
-            throw EImproperArgument("disablesRPs shall contains only Ids of the RPs in the Fiber MOS Model");
-    }
-
     try {
         //gets the list of RPs in the pair (PP, DP)
         TRoboticPositionerList RPL;
-        getRPsIncludedInMPs(RPL, PP, DP, *getFiberMOSModel());
+        getRPsIncludedInMPs(RPL, PP, DP, getFiberMOSModel());
 
         //check if all RPs included are enabled
         for(int i=0; i<RPL.getCount(); i++) {
             TRoboticPositioner *RP = RPL[i];
-            int Id = RP->getActuator()->getId();
-            int j = not_operative_Ids.Search(Id);
-            if(j >= not_operative_Ids.getCount())
+            if(!RP->getOperative())
                 return false;
         }
 

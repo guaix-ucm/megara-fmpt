@@ -1223,34 +1223,6 @@ void StrPaint(TCanvas *Canvas, const AnsiString &S,
     Canvas->TextOut(TopLeft.x, TopLeft.y, S);
 }
 */
-//---------------------------------------------------------------------------
-//FORMATOS DE PRESENTACIÓN:
-
-//inserta un salto de linea y un tabulador delante de cada elemento de una lista
-//delimitada por {} y elementos separados por ','
-void StrListToColumnForm(AnsiString &D, const AnsiString &O, int &i)
-{
-/*
-    //la cadena de texto O debería ser imprimible
-    if(StrIsntPrintable(O))
-        throw EImproperArgument("string O should be printable");
-
-    D = "";
-
-    //estado de lectura
-    //      0: esperando '{'
-    //      1: esperando ' ' o primer caracter de palabra
-    //      2: leyendo palabra y esperando ' ', ',' o '}'
-    //      3: lista  con éxito
-    int status = 0;
-
-    char c; //O[i]
-
-    do {
-        c = O[i];
-    } while(status < 3);
-  */
-}
 
 //---------------------------------------------------------------------------
 

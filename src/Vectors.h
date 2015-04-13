@@ -77,141 +77,143 @@ typedef struct {
 
 //clase punto bidimensional
 class TDoublePoint {
-        AnsiString GetxText(void) const; void SetxText(const AnsiString&);
-        AnsiString GetyText(void) const; void SetyText(const AnsiString&);
-
-        AnsiString GetText(void) const; void SetText(const AnsiString&);
-        AnsiString GetRowText(void) const;
-
 public:
-        static AnsiString xLabel;
-        static AnsiString yLabel;
+    //labelof property x
+    //dafault value: "x"
+    static AnsiString xLabel;
+    //labelof property y
+    //dafault value: "y"
+    static AnsiString yLabel;
 
-        double x;
-        double y;
+    //abcisa of the point
+    //default value: 0
+    double x;
+    //ordinate of the point
+    //default value: 0
+    double y;
 
-        //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
+    //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
-        AnsiString getxText(void) const; void setxText(const AnsiString&);
-        AnsiString getyText(void) const; void setyText(const AnsiString&);
+    AnsiString getxText(void) const; void setxText(const AnsiString&);
+    AnsiString getyText(void) const; void setyText(const AnsiString&);
 
-        //CONJUNTOS DEPROPIEDADES EN FORMATO TEXTO:
+    //CONJUNTOS DEPROPIEDADES EN FORMATO TEXTO:
 
-        AnsiString getText(void) const; void setText(const AnsiString&);
-        AnsiString getRowText(void) const;
+    AnsiString getText(void) const; void setText(const AnsiString&);
+    AnsiString getRowText(void) const;
 
-        //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
-        //DE LAS PROPIEDADES EN FORMATO TEXTO:
+    //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
+    //DE LAS PROPIEDADES EN FORMATO TEXTO:
 
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato texto entre paréntesis
-        static AnsiString GetLabels(void);
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato línea de texto
-        static AnsiString GetRowLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato texto entre paréntesis
+    static AnsiString GetLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato línea de texto
+    static AnsiString GetRowLabels(void);
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACION:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACION:
 
-        //contruye un punto
-        TDoublePoint(void) : x(0), y(0) {;}
-        TDoublePoint(double _x, double _y) : x(_x), y(_y) {;}
+    //contruye un punto
+    TDoublePoint(void) : x(0), y(0) {;}
+    TDoublePoint(double _x, double _y) : x(_x), y(_y) {;}
 
-        //copia un punto
-        void Copy(TDoublePoint);
-        TDoublePoint& operator=(const TDoublePoint&);
+    //copia un punto
+    void Copy(TDoublePoint);
+    TDoublePoint& operator=(const TDoublePoint&);
 
-        //MÉTODOS DE CONFIGURACIÓN:
+    //MÉTODOS DE CONFIGURACIÓN:
 
-        //randomiza las coordenadas
-        //distribución uniforme en un intervalo
-        void Randomize(double xmin, double xmax, double ymin, double ymax);
+    //randomiza las coordenadas
+    //distribución uniforme en un intervalo
+    void Randomize(double xmin, double xmax, double ymin, double ymax);
 
-        //MÉTODOS SIN ARGUMENTOS:
+    //MÉTODOS SIN ARGUMENTOS:
 
-        //calcula el módulo del punto:
-        //      Mathematics::Mod(x, y);
-        double Mod(void) const;
-        //calcula el argumento del punto:
-        //      Mathematics::Arg(x, y);
-        double Arg(void) const;
+    //calcula el módulo del punto:
+    //      Mathematics::Mod(x, y);
+    double Mod(void) const;
+    //calcula el argumento del punto:
+    //      Mathematics::Arg(x, y);
+    double Arg(void) const;
 };
 
 //clase rectángulo
 class TDoubleRect {
-        TDoublePoint GetLeftBottom(void) const;
-        void SetLeftBottom(const TDoublePoint&);
-        TDoublePoint GetRightTop(void) const;
-        void SetRightTop(const TDoublePoint&);
+    TDoublePoint GetLeftBottom(void) const;
+    void SetLeftBottom(const TDoublePoint&);
+    TDoublePoint GetRightTop(void) const;
+    void SetRightTop(const TDoublePoint&);
 
-        AnsiString GetLeftText(void) const; void SetLeftText(const AnsiString&);
-        AnsiString GetBottomText(void) const; void SetBottomText(const AnsiString&);
-        AnsiString GetRightText(void) const; void SetRightText(const AnsiString&);
-        AnsiString GetTopText(void) const; void SetTopText(const AnsiString&);
+    AnsiString GetLeftText(void) const; void SetLeftText(const AnsiString&);
+    AnsiString GetBottomText(void) const; void SetBottomText(const AnsiString&);
+    AnsiString GetRightText(void) const; void SetRightText(const AnsiString&);
+    AnsiString GetTopText(void) const; void SetTopText(const AnsiString&);
 
-        AnsiString GetText(void) const; void SetText(const AnsiString&);
-        AnsiString GetRowText(void) const;
+    AnsiString GetText(void) const; void SetText(const AnsiString&);
+    AnsiString GetRowText(void) const;
 
 public:
-        //ETIQUETAS:
+    //ETIQUETAS:
 
-        static AnsiString LeftLabel;
-        static AnsiString BottomLabel;
-        static AnsiString RightLabel;
-        static AnsiString TopLabel;
+    static AnsiString LeftLabel;
+    static AnsiString BottomLabel;
+    static AnsiString RightLabel;
+    static AnsiString TopLabel;
 
-        //PROPIEDADES INDIVIDUALES:
+    //PROPIEDADES INDIVIDUALES:
 
-        double Left;
-        double Bottom;
-        double Right;
-        double Top;
+    double Left;
+    double Bottom;
+    double Right;
+    double Top;
 
-        //CONJUNTOS DE PROPIEDADES:
+    //CONJUNTOS DE PROPIEDADES:
 
-        TDoublePoint getLeftBottom(void) const;
-        void setLeftBottom(const TDoublePoint&);
-        TDoublePoint getRightTop(void) const;
-        void setRightTop(const TDoublePoint&);
+    TDoublePoint getLeftBottom(void) const;
+    void setLeftBottom(const TDoublePoint&);
+    TDoublePoint getRightTop(void) const;
+    void setRightTop(const TDoublePoint&);
 
-        //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
+    //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
-        AnsiString getLeftText(void) const; void setLeftText(const AnsiString&);
-        AnsiString getBottomText(void) const; void setBottomText(const AnsiString&);
-        AnsiString getRightText(void) const; void setRightText(const AnsiString&);
-        AnsiString getTopText(void) const; void setTopText(const AnsiString&);
+    AnsiString getLeftText(void) const; void setLeftText(const AnsiString&);
+    AnsiString getBottomText(void) const; void setBottomText(const AnsiString&);
+    AnsiString getRightText(void) const; void setRightText(const AnsiString&);
+    AnsiString getTopText(void) const; void setTopText(const AnsiString&);
 
-        //CONJUNTOS DEPROPIEDADES EN FORMATOTEXTO:
+    //CONJUNTOS DEPROPIEDADES EN FORMATOTEXTO:
 
-        AnsiString getText(void) const; void setText(const AnsiString&);
-        AnsiString getRowText(void) const;
+    AnsiString getText(void) const; void setText(const AnsiString&);
+    AnsiString getRowText(void) const;
 
-        //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
-        //DE LAS PROPIEDADES EN FORMATO TEXTO:
+    //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
+    //DE LAS PROPIEDADES EN FORMATO TEXTO:
 
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato texto entre paréntesis
-        static AnsiString GetLabels(void);
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato línea de texto
-        static AnsiString GetRowLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato texto entre paréntesis
+    static AnsiString GetLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato línea de texto
+    static AnsiString GetRowLabels(void);
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACION:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACION:
 
-        //contruye un rectángulo
-        TDoubleRect(void) : Left(0), Bottom(0), Right(0), Top(0) {;}
-        TDoubleRect(double L, double B, double R, double T) :
-                Left(L), Bottom(B), Right(R), Top(T) {;}
+    //contruye un rectángulo
+    TDoubleRect(void) : Left(0), Bottom(0), Right(0), Top(0) {;}
+    TDoubleRect(double L, double B, double R, double T) :
+        Left(L), Bottom(B), Right(R), Top(T) {;}
 
-        //copia un rectángulo
-        void Copy(TDoubleRect);
-        TDoubleRect& operator=(const TDoubleRect&);
+    //copia un rectángulo
+    void Copy(TDoubleRect);
+    TDoubleRect& operator=(const TDoubleRect&);
 
-        //MÉTODOS DE CONFIGURACIÓN:
+    //MÉTODOS DE CONFIGURACIÓN:
 
-        //randomiza las coordenadas
-        //distribución uniforme en un intervalo
-        void Randomize(double Lmin, double Lmax, double Bmin, double Bmax,
-                double Rmin, double Rmax, double Tmin, double Tmax);
+    //randomiza las coordenadas
+    //distribución uniforme en un intervalo
+    void Randomize(double Lmin, double Lmax, double Bmin, double Bmax,
+                   double Rmin, double Rmax, double Tmin, double Tmax);
 
 };
 
@@ -225,38 +227,38 @@ public:
 class TPhasor {
 protected:
 
-        double r;
+    double r;
 
 public:
-        //amplitud en unidades de longitud
-        //debe ser no negativo
-        //valor por defect0: 0
-        double getr(void) const {return r;} void setr(double);
-        //fase en radianes
-        //puede ser cualquier valor real
-        //valor por defecto: 0
-        double theta;
+    //amplitud en unidades de longitud
+    //debe ser no negativo
+    //valor por defect0: 0
+    double getr(void) const {return r;} void setr(double);
+    //fase en radianes
+    //puede ser cualquier valor real
+    //valor por defecto: 0
+    double theta;
 
-        //fasor en formato complex
-        complex<double> getComplex(void);
-        //fasor en formato texto
-        AnsiString getText(void);
+    //fasor en formato complex
+    complex<double> getComplex(void);
+    //fasor en formato texto
+    AnsiString getText(void);
 
-        //MÉTODOS:
+    //MÉTODOS:
 
-        //construye un un fasor inicializándolo a (0, 0)
+    //construye un un fasor inicializándolo a (0, 0)
     TPhasor(void) : r(0), theta(0) {;}
-        //construye un un fasor inicializándolo a (r, theta)
+    //construye un un fasor inicializándolo a (r, theta)
     TPhasor(double _r, double _theta);
-        //construye un fasor a partir de un complejo
-        TPhasor(const complex<double> &c);
-        //construye un clon de un fasor
-        TPhasor(const TPhasor &P) : r(P.r), theta(P.theta) {;}
+    //construye un fasor a partir de un complejo
+    TPhasor(const complex<double> &c);
+    //construye un clon de un fasor
+    TPhasor(const TPhasor &P) : r(P.r), theta(P.theta) {;}
 
-        //asigna las propiedades de un fasor a este fasor
-        TPhasor& operator=(const TPhasor& P);
-        //traduce y asigna un complejo a este fasor
-        TPhasor& operator=(const complex<double>& c);
+    //asigna las propiedades de un fasor a este fasor
+    TPhasor& operator=(const TPhasor& P);
+    //traduce y asigna un complejo a este fasor
+    TPhasor& operator=(const complex<double>& c);
 };
 
 //---------------------------------------------------------------------------
@@ -264,32 +266,32 @@ public:
 
 class TVector3D {
 public:
-        //coordenadas cartesianas
-        double x, y, z;
+    //coordenadas cartesianas
+    double x, y, z;
 
-        //módulo del vector
-        double getModule(void) const {return sqrt(x*x + y*y + z*z);}
+    //módulo del vector
+    double getModule(void) const {return sqrt(x*x + y*y + z*z);}
 
-        //contruye un vector tridimensional
-        TVector3D(double _x=0, double _y=0, double _z=0) :
-                x(_x), y(_y), z(_z) {;}
+    //contruye un vector tridimensional
+    TVector3D(double _x=0, double _y=0, double _z=0) :
+        x(_x), y(_y), z(_z) {;}
 
-        //asignación de un vector
-        TVector3D &operator=(const TVector3D&);
+    //asignación de un vector
+    TVector3D &operator=(const TVector3D&);
 
-        //suma de componentes
-        TVector3D operator+(const TVector3D&) const;
-        //resta de componentes
-        TVector3D operator-(const TVector3D&) const;
-        //producto por un escalar
-        TVector3D operator*(double t) const;
-        //división por un escalar
-        TVector3D operator/(double t) const;
+    //suma de componentes
+    TVector3D operator+(const TVector3D&) const;
+    //resta de componentes
+    TVector3D operator-(const TVector3D&) const;
+    //producto por un escalar
+    TVector3D operator*(double t) const;
+    //división por un escalar
+    TVector3D operator/(double t) const;
 
-        //producto interno (producto punto) por un vector
-        double Dot(const TVector3D&) const;
-        //producto vectorial por un vector
-        TVector3D Cross(const TVector3D&) const;
+    //producto interno (producto punto) por un vector
+    double Dot(const TVector3D&) const;
+    //producto vectorial por un vector
+    TVector3D Cross(const TVector3D&) const;
 };
 
 //---------------------------------------------------------------------------
@@ -379,11 +381,11 @@ double Azimut(double x, double y, double z);// {return Arg(x, y);}
 //traduce de coordenadas esféricas con theta en [-pi/2, pi/2] y phi en R
 //a coordenadas cartesianas
 void SphericToCartesian(double &x, double &y, double &z,
-        double theta, double phi, double r);
+                        double theta, double phi, double r);
 //traduce de coordenadas cartesianas a coordenadas esféricas
 //con theta en [-pi/2, pi/2] y phi en [-pi, pi]
 void CartesianToSpheric(double &theta, double &phi, double &r,
-        double x, double y, double z);
+                        double x, double y, double z);
 
 //ADVERTENCIA: las coordenadas polares que aquí estamos utilizando
 //tienen el origen de phi en el ecuador.
@@ -398,7 +400,7 @@ double Angle(const TVector3D &vini, const TVector3D &vfin);
 //      y calcular los versores u' y v' correspondientes a girar u y v
 //      gamma radianes en torno de w.
 void RotateVectors(TVector3D &u_, TVector3D &v_, TVector3D &w,
-        const TVector3D &U, const TVector3D &V, double gamma);
+                   const TVector3D &U, const TVector3D &V, double gamma);
 
 //---------------------------------------------------------------------------
 

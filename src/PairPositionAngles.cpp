@@ -28,6 +28,7 @@
 #include "Strings.h"
 #include "Geometry.h"
 #include "Scalars.h"
+#include "RoboticPositioner.h"
 
 //---------------------------------------------------------------------------
 
@@ -257,7 +258,7 @@ void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
     PPA->Copy(&_PPA);
 }
 
-//BUILDING AND DESTROYING METHODS:
+//PUBLIC METHODS:
 
 //builds a PPA
 TPairPositionAngles::TPairPositionAngles(TRoboticPositioner *_RoboticPositioner)
@@ -282,8 +283,6 @@ TPairPositionAngles::TPairPositionAngles(TPairPositionAngles *PPA)
         throw;
     }
 }
-
-//COPY METHODS:
 
 //copy all properties of a PPA
 void TPairPositionAngles::Copy(TPairPositionAngles *PPA)
@@ -365,7 +364,7 @@ void TPairPositionAnglesList::setText(const AnsiString &S)
     }
 }
 
-//BUILDING AND DESTROYING METHODS:
+//PUBLIC METHODS:
 
 
 //built a PPA list
@@ -423,6 +422,36 @@ void TPairPositionAnglesList::Randomize(double p_1min, double p_1max,
     } catch(...) {
         throw;
     }
+}
+
+
+//check if all PPAs are addresed to different RPs
+bool TPairPositionAnglesList::notAllPPAsAreAddresedToDifferentRPs(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        const TPairPositionAngles *PPAi = Items[i];
+
+        for(int j=i+1; j<getCount(); j++) {
+            const TPairPositionAngles *PPAj = Items[j];
+
+            if(PPAi->getId() == PPAj->getId())
+                return true;
+        }
+    }
+    return false;
+}
+
+//check if all Ids of a list are in the PPA list
+bool TPairPositionAnglesList::notAllIdsAreFound(const TVector<int>& Ids) const
+{
+    for(int i=0; i<Ids.getCount(); i++) {
+        int Id = Ids[i];
+
+        int j = SearchId(Id);
+        if(j >= getCount())
+            return true;
+    }
+    return false;
 }
 
 //---------------------------------------------------------------------------

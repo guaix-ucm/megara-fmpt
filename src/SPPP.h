@@ -43,32 +43,56 @@ namespace Models {
 class TSPPP {
 public:
     //SP properties:
-    string Name;    //name of the SP
-    double RA;
-    double Dec;
-    string Mag;
-    string Type;
+    string Name;        //name ("")                 (can be empty)
+    double RA;          //rect ascension (0)
+    double Dec;         //declination (0)
+    double Mag;         //magnitude (0)             (can be empty)
+    TPointType Type;    //type (ptUNKNOWN)
 
-    //allocation properties
-    string Pr;      //if Name is empty this is empty
-    string Bid;     //if Name is empty this is empty
-    string Pid;     //Id of the RP
+    //Allocation properties
+    unsigned int Pr;    //allocation priority (0)   (can be empty)
+    unsigned int Bid;   //Id of the CB (0)          (can be empty)
+    unsigned int Pid;   //Id of the RP (0)
 
     //PP properties:
-    double X;
-    double Y;
-    bool Enabled;       //indicates if the point is allocated
+    double X;           //abcise (0)
+    double Y;           //ordinate (0)
+    bool Enabled;       //indicates if the point is allocated to the RP (false)
 
-    //coment about the point
-    string Comment; //if Name is empty this is empty
+    //Allocation properties:
+    bool notAllocated;  //indicates if the point is not allocated in other CB
+                        //(true)    (could be empty)
+    bool allocateInAll; //indicates if the point must be allocated in all CBs
+                        //(false)   (could be empty)
+    string Comment;     //coment ("")               (can be empty)
+
+    //Used to generate a pair (PP,DP):
+    //  Type, [Bid], Pid, X, Y, Enabled
+
+    //If field Bid is not empty, all fields (except Name and Comment)
+    //shall be filled.
+    //If field Bid is not empty, the SPPP correspond to a PP.
+    //If field Enabled is true, the PP is allocated to the RP.
+
+    //Used to determine if an allocation is of must type
+    //when attempt regenerate a pair (PP,DP):
+    //  Type, [Pr], [Bid], Pid, X, Y, Enabled, [notAllocated], [allocateInAll]
+
+    //flags indicating fields which can be empty (except Name and Comment):
+    //default value: false
+    bool there_is_Mag;
+    bool there_is_Pr;
+    bool there_is_Bid;
+    bool there_is_notAllocated;
+    bool there_is_allocateInAll;
 
     //set the structure in text format
-    void setText(const string& S);
+    void setText(const string& str);
 
     //build a structure by default
     TSPPP(void);
 
-    //copy all properties of am object of the same type
+    //copy all properties of an object of the same type
     TSPPP& operator=(const TSPPP&);
 };
 
@@ -78,12 +102,12 @@ public:
 class TSPPPList : public TPointersList<TSPPP> {
 public:
     //set the SPPPL in text format
-    void setTableText(const string& S);
+    void setTableText(unsigned int& Bid, const string& str);
 
     //get the TPL
     void getTPL(TTargetPointList& TPL);
 
-    //build a SPPPList by default
+    //build a SPPP list by default
     TSPPPList(void);
 };
 

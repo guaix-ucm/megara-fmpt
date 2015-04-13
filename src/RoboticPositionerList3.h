@@ -143,7 +143,13 @@ public:
         void SetCollisions(bool);
 
         //------------------------------------------------------------------
-        //METHODS TO CHECK PRECONDITIONS:
+        //METHODS FOR CHECK PRECONDITIONS:
+
+        //determines if there is some pointer to NULL RP
+        bool thereIsSomeNullPointer(void) const;
+
+        //determines if there is some repeated pointer
+        bool thereIsSomeRepeatedPointer(void) const;
 
         //determina si todos los posicionadores operativos en
         //posiciones de inseguridad están en la lista Abatibles
@@ -153,6 +159,10 @@ public:
         //determina si todos los posicionadores de la lista
         //están operativos en posiciones de inseguridad
         bool NotAllPositionersAreOperativesInUnsafetyPositions(void) const;
+
+        //determines if some RP of the Fiber MOS Model
+        //could start sudenly motion
+        bool thereIsSomeOperativeRPwithDynamicFaul(void) const;
 
         //------------------------------------------------------------------
         //METHODS FOR PROGRAMMING:
@@ -193,28 +203,6 @@ public:
         //      lanza EImproperCall
         //no actualiza k
         void MoveFin(void);
-
-        //METHODS TO TRANSLATE MOTION PROGRAMS:
-
-/*        //Translate the positioning progam to the format stablished for
-        //the interface FMPT-MCS.
-        //Preconditions:
-        //  All message of instructions of the motion program
-        //  shall be addressed to an existing RP.
-        void translatePositioningProgram(string& str, int CBId,
-            const TPairPositionAnglesList& IPL, const TMotionProgram& MP);
-*/
-        //Translate a motion progam to the format stablished for
-        //the interface FMPT-MCS.
-        //Preconditions:
-        //  All message of instructions of the motion program
-        //  shall be addressed to an existing RP.
-        void translateMotionProgram(string& str, int CBId, const string& label,
-            const TPairPositionAnglesList& IPL, const TMotionProgram& MP);
-
-        //Values for label:
-        //  "obs depos" for depositioning programs
-        //  "obs pos" for positioning programs
 };
 
 //---------------------------------------------------------------------------

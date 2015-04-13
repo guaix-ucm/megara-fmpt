@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ExclusionArea.cpp
-//Contenido: área de exclusión compuesta por barrera, posición y orientación
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: ExclusionArea.cpp
+//Content: class exclusion area
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 //#include <values.h>
@@ -128,45 +127,6 @@ void TExclusionArea::setPendingText(const AnsiString &S)
 {
         try {
                 Pending = StrToBool(S);
-        } catch(...) {
-                throw;
-        }
-}
-
-//PROPIEDADES GRÁFICAS ENFORMATO TEXTO:
-/*#
-AnsiString TExclusionArea::getColorText(void) const
-{
-        return ColorToString(Color);
-}
-void TExclusionArea::setColorText(const AnsiString &S)
-{
-        try {
-                Color = StringToColor(S);
-        } catch(...) {
-                throw;
-        }
-}*/
-AnsiString TExclusionArea::getPaintBodyText(void) const
-{
-        return BoolToStr(PaintBody, true);
-}
-void TExclusionArea::setPaintBodyText(const AnsiString &S)
-{
-        try {
-                PaintBody = StrToBool(S);
-        } catch(...) {
-                throw;
-        }
-}
-AnsiString TExclusionArea::getSelectedText(void) const
-{
-        return BoolToStr(Selected, true);
-}
-void TExclusionArea::setSelectedText(const AnsiString &S)
-{
-        try {
-                Selected = StrToBool(S);
         } catch(...) {
                 throw;
         }
@@ -511,8 +471,7 @@ TExclusionArea::TExclusionArea(void) :
         __Eo(MEGARA_Eo), __Ep(MEGARA_Ep),
         __Id(0),
         Adjacents(64, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
-        Pending(true),
-        /*#Color(Qt::gray), */PaintBody(true), Selected(false)
+        Pending(true)
 {
         //asimilalas propiedades de inicialización
         CalculateSPM();
@@ -528,8 +487,7 @@ TExclusionArea::TExclusionArea(int _Id, TDoublePoint _P0, double _thetaO1) :
         Barrier(_P0, _thetaO1),
         __Eo(MEGARA_Eo), __Ep(MEGARA_Ep),
         Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
-        Pending(true),
-        /*#Color(Qt::gray), */PaintBody(true), Selected(false)
+        Pending(true)
 {
         //el número de identificación Id debe ser mayor que cero
         if(_Id < 1)
@@ -560,10 +518,6 @@ void TExclusionArea::Copy(const TExclusionArea *EA)
         __Id = EA->__Id;
         Adjacents.Clone(EA->Adjacents);
         Pending = EA->Pending;
-
-        //#Color = EA->Color;
-        PaintBody = EA->PaintBody;
-        Selected = EA->Selected;
 }
 
 //contruye un clon de un área de exclusión
@@ -875,78 +829,6 @@ void TExclusionArea::SearchCollindingPendingAdjacent(TItemsList<TActuator*> &Col
         }*/
 }
 
-//-------------------------------------------------------------------
-//MÉTODOS GRÁFICOS:
-
-//indica que parte del EA puede ser agarrada en el punto indicado
-//      1: barrera;
-//      0: niguna;
-int TExclusionArea::Grab(TDoublePoint P)
-{
-        //si el punto P está dentro del contorno de la barrera
-        if(Barrier.Covers(P))
-                return 1; //agarra la barrera
-
-        return 0;
-}
-/*#
-//dibuja un EA en un trazador
-void TExclusionArea::Paint(TPloterShapes *PS)
-{
-        //el puntero PS debería apuntar a un trazdor de formas contruido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to builts ploter shapes");
-
-        //si el EA está seleccionado
-        if(Selected) {
-                //configura el color de la pluma
-                if(double(Luminance(PS->getBackColor())) < 255.*1.5)
-                        PS->setPenColor(Qt::white);
-                else
-                        PS->setPenColor(Qt::black);
-
-                //si tiene que dibujar el cuerpo
-                if(PaintBody)
-                        //dibuja la barrera resaltada
-                        Barrier.Paint(PS, PS->getPenColor());
-        }
-        //si el EA no está seleccionado
-        else {
-                //si tiene que dibujar el cuerpo
-                if(PaintBody)
-                        //dibuja la barrera con su color correspondiente
-                        Barrier.Paint(PS, Color);
-        }
-}
-//dibuja el EA en un trazador
-void TExclusionArea::PaintSimplified(TPloterShapes *PS)
-{
-        //el puntero PS debería apuntar a un trazdor de formas contruido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to builts ploter shapes");
-
-        //si el EA está seleccionado
-        if(Selected) {
-                //configura el color de la pluma
-                if(double(Luminance(PS->getBackColor())) < 255.*1.5)
-                        PS->setPenColor(Qt::white);
-                else
-                        PS->setPenColor(Qt::black);
-
-                //si tiene que dibujar el cuerpo
-                if(PaintBody)
-                        //dibuja la barrera resaltada
-                        Barrier.Paint(PS, PS->getPenColor());
-        }
-        //si el EA no está seleccionado
-        else {
-                //si tiene que dibujar el cuerpo
-                if(PaintBody)
-                        //dibuja la barrera con su color correspondiente
-                        Barrier.Paint(PS, Color);
-        }
-}
-*/
 //---------------------------------------------------------------------------
 
 } //namespace Models

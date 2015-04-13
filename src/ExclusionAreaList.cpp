@@ -406,27 +406,6 @@ void TExclusionAreaList::Destroy(void)
         //vacia la lista
         Clear();
 }
-//destruye las áreas de exclusión seleccionados de la lista
-int TExclusionAreaList::DestroySelected(void)
-{
-        TExclusionArea *EA;
-        int count = 0;
-
-        //por cada posición de la lista
-        for(int i=0; i<getCount(); i++) {
-                //apunta el área de exclusión indicada para facilitar su acceso
-                EA = Items[i];
-                //si el área de exclusión está seleccionado
-                if(EA->Selected) {
-                        //destruye el área de exclusión
-                        Delete(i);
-                        //contabiliza el área de exclusión seleccionado
-                        count++;
-                }
-        }
-
-        return count;
-}
 
 //MÉTODOS DE BÚSQUEDA DE ÁREAS DE EXCLUSIÓN:
 

@@ -44,7 +44,7 @@ namespace Positioning {
 //  to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMP(TRoboticPositionerList& RPL,
                         const TMotionProgram& MP,
-                        const TFiberMOSModel& FMM);
+                        const TFiberMOSModel *FMM);
 
 //Get the list of RPs included in a pair of MPs.
 //Precondition:
@@ -52,7 +52,7 @@ void getRPsIncludedInMP(TRoboticPositionerList& RPL,
 //  to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
                      const TMotionProgram& MP1, const TMotionProgram& MP2,
-                     const TFiberMOSModel& FMM);
+                     const TFiberMOSModel *FMM);
 
 //###########################################################################
 //TMotionProgramValidator:
@@ -129,17 +129,17 @@ public:
     //Inputs:
     //  MP: motion program to be validated
     //Outputs:
-    //  motionProgramIsValid: flag indicating if the motion program
+    //  validateMotionProgram: flag indicating if the motion program
     //      avoid collisions.
     //Notes:
-    //  The validation process of a MP consume a component of the SPM, even
+    //- The validation process of a MP consume a component of the SPM, even
     //  when the process is successfully passed. So if a MP pass the validation
     //  process with a value of SPM, the validation shall be make with
     //  the value of SPM inmediately lower.
-    //  The validation method of a MP will be used during the generation process
+    //- The validation method of a MP will be used during the generation process
     //  with the individual MP of each RP, and at the end of the process for
     //  validate the generated recovery program.
-    bool motionProgramIsValid(const TMotionProgram &MP) const;
+    bool validateMotionProgram(const TMotionProgram &MP) const;
 
     //Validation of a MP can end of two ways:
     //- If the MP not produce a dynamic collision, being all RPs
@@ -147,16 +147,18 @@ public:
     //- If the MP produce a dynamic collisions, being all RPs
     //  in the firs position where collision has been detected.
 
-    //Validate a pair (PP, DP).
+    //Validate a pair (PP, DP) in a limited way.
     //Inputs:
     //- (PP, DP):the pair to validate.
-    //- not_operative_Ids: identifier list containing the disabling estatus
-    //  of the Real Fiber MOS.
     //Outputs:
-    //- pairPPDPisValid: flag indicating if all RPs includes in the pair
+    //- checkPairPPDP: flag indicating if all RPs includes in the pair
     //  are operatives.
-    bool pairPPDPisValid(const TMotionProgram &PP, const TMotionProgram &DP,
-                          const TVector<int>& not_operative_Ids) const;
+    //Preconditions:
+    //- The status of the Fiber MOS Model must correspond to the status of
+    //  the real Fiber MOS.
+    bool checkPairPPDP(const TMotionProgram &PP,
+                         const TMotionProgram &DP) const;
+
 };
 
 //---------------------------------------------------------------------------

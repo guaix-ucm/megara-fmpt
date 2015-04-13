@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ProjectionPoint.cpp
-//Contenido: punto de proyección
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: ProjectionPoint.cpp
+//Content: projection point
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "ProjectionPoint.h"
@@ -31,24 +31,24 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
 //--------------------------------------------------------------------------
 //TProjectionPoint
 //--------------------------------------------------------------------------
 
-//PROPIEDADES ESTÁTICAS:
+//STATIC PROPERTIES:
 
-//inicializa el
-//color por defecto con el que son contruidos los puntos de proyección
-//valor por defecto: clWhite
-//#QColor TProjectionPoint::DefaultColor = Qt::white;
-
-//PROPIEDADES ESTÁTICAS:
-
-AnsiString TProjectionPoint::RowIdent = AnsiString("Id          ")+
-        AnsiString("x                       ")+AnsiString("y");
+//label of property Id
+//default value: "Id"
+AnsiString TProjectionPoint::IdLabel = "Id";
+/*//label of property x
+//default value: "x"
+AnsiString TProjectionPoint::xLabel = "x";
+//label of property y
+//default value: "y"
+AnsiString TProjectionPoint::yLabel = "y";*/
 
 //PROPIEDADES:
 
@@ -80,7 +80,40 @@ void TProjectionPoint::setIdText(const AnsiString &S)
     }
 }
 
+/*AnsiString TProjectionPoint::getxText(void) const
+{
+        return FloatToStr(x);
+}
+void TProjectionPoint::setxText(const AnsiString& S)
+{
+        try {
+                x = StrToFloat_(S);
+        }catch(...) {
+                throw;
+        }
+}
+AnsiString TProjectionPoint::getyText(void) const
+{
+        return FloatToStr(y);
+}
+void TProjectionPoint::setyText(const AnsiString& S)
+{
+        try {
+                y = StrToFloat_(S);
+        }catch(...) {
+                throw;
+        }
+}*/
+
 //CONJUNTOS DE PROPIEDADES DEFINITORIAS EN FORMATO TEXTO:
+
+//get the labels of the properties
+//in row text format
+//  IdLabel+"\t"+xLabel+"\t"+yLabel
+AnsiString TProjectionPoint::getRowLabels(void)
+{
+    return IdLabel+AnsiString("\t")+xLabel+AnsiString("\t")+yLabel;
+}
 
 AnsiString TProjectionPoint::getRowText(void) const
 {
@@ -88,9 +121,9 @@ AnsiString TProjectionPoint::getRowText(void) const
 
     S = getIdText();
     StrFill(S, 12, ' ');
-    S += P.getxText();
+    S += getxText();
     StrFill(S, 12+24, ' ');
-    S += P.getyText();
+    S += getyText();
 
     return S;
 }
@@ -99,46 +132,6 @@ void TProjectionPoint::setRowText(const AnsiString &S)
     try {
         int i = 1;
         ReadRow(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TProjectionPoint::getColText(void) const
-{
-    AnsiString S;
-
-    S = getIdText()+AnsiString("\r\n");
-    S += P.getxText()+AnsiString("\r\n");
-    S += P.getyText();
-
-    return S;
-}
-void TProjectionPoint::setColText(const AnsiString &S)
-{
-    try {
-        int i = 1;
-        ReadCol(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TProjectionPoint::getAssignsText(void) const
-{
-    AnsiString S;
-
-    S = AnsiString("Id = ")+getIdText()+AnsiString("\r\n");
-    S += AnsiString("x = ")+P.getxText()+AnsiString("\r\n");
-    S += AnsiString("y = ")+P.getyText();
-
-    return S;
-}
-void TProjectionPoint::setAssignsText(const AnsiString &S)
-{
-    try {
-        int i = 1;
-        ReadAssigns(this, S, i);
         StrTravelToEnd(S, i);
     } catch(...) {
         throw;
@@ -156,24 +149,6 @@ void  TProjectionPoint::PrintRow(AnsiString &S,
         throw EImproperArgument("pointer PP should point to built projection point");
 
     S += PP->getRowText();
-}
-void  TProjectionPoint::PrintCol(AnsiString &S,
-                                           TProjectionPoint *PP)
-{
-    //el puntero PP debería apuntar a un círculo
-    if(PP == NULL)
-        throw EImproperArgument("pointer PP should point to built projection point");
-
-    S += PP->getColText();
-}
-void  TProjectionPoint::PrintAssigns(AnsiString &S,
-                                               TProjectionPoint *PP)
-{
-    //el puntero PP debería apuntar a un círculo
-    if(PP == NULL)
-        throw EImproperArgument("pointer PP should point to built projection point");
-
-    S += PP->getAssignsText();
 }
 
 //lee las propiedades de un círculo en una cadena
@@ -226,7 +201,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
         case 1: //esperando asignación a x
             try {
             StrReadWord(Value, S, i);
-            _PP.P.setxText(Value);
+            _PP.setxText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property x"));
             } catch(...) {
@@ -239,7 +214,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
         case 2: //esperando asignación a y
             try {
             StrReadWord(Value, S, i);
-            _PP.P.setyText(Value);
+            _PP.setyText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property y"));
             } catch(...) {
@@ -254,32 +229,17 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
     //asigna la variable tampón
     *PP = _PP;
 }
-void  TProjectionPoint::ReadCol(TProjectionPoint *PP,
-                                          const AnsiString &S, int &i)
-{
-}
-void  TProjectionPoint::ReadAssigns(TProjectionPoint *PP,
-                                              const AnsiString &S, int &i)
-{
-}
 
 //MÉTODOS PÚBLICOS:
 
 //contruye un punto de proyección
 TProjectionPoint::TProjectionPoint(TSkyPoint *_SkyPoint) :
-    TCircle()
+    TDoublePoint(), Type(ptUNKNOWN), Priority(0)
 {
-    //el puntero SkyPoint debería apuntar a un punto de cielo contruido
-    if(_SkyPoint == NULL)
-        throw EImproperArgument("pointer SkyPoint should point to built sky point");
+    //Pointer SkyPoint can be NULL.
 
     //apunta los objetos externos
     __SkyPoint = _SkyPoint;
-
-    //inicializa las propiedades
-    __R = 0.75;
-    Selected = false;
-    //#Color = DefaultColor;
 }
 //clona un punto de proyección
 TProjectionPoint::TProjectionPoint(TProjectionPoint *PP)
@@ -302,41 +262,25 @@ void TProjectionPoint::Copy(TProjectionPoint *PP)
 
     //asigna las propiedades
     __SkyPoint = PP->__SkyPoint;
-    P = PP->P;
-    __R = PP->__R;
-    //#Color = PP->Color;
+    x = PP->x;
+    y = PP->y;
 }
 TProjectionPoint &TProjectionPoint::operator=(const TProjectionPoint &PP)
 {
     //asigna las propiedades
     __SkyPoint = PP.__SkyPoint;
-    P = PP.P;
-    __R = PP.__R;
-    //#Color = PP.Color;
+    x = PP.x;
+    y = PP.y;
 
     return *this;
 }
-
-//randomiza el punto de proyección
-void TProjectionPoint::Randomize(double xmin, double xmax, double ymin, double ymax)
+TProjectionPoint &TProjectionPoint::operator=(const TDoublePoint &P)
 {
-    P.x = RandomUniform(xmin, xmax);
-    P.y = RandomUniform(ymin, ymax);
-}
+    //asigna las propiedades
+    x = P.x;
+    y = P.y;
 
-//MÉTODOS DE INTERFAZ:
-
-//indica que parte del punto objetivo
-//puede ser agarrado en el punto indicado
-//      1: punto (TargetP3, 0.75)
-//      0: niguna;
-int TProjectionPoint::Grab(TDoublePoint Q)
-{
-    //si está en el punto
-    if(IntersectionPointCircle(Q, P, getR()))
-        return 1; //agarra el punto
-
-    return 0;
+    return *this;
 }
 
 //--------------------------------------------------------------------------
@@ -350,7 +294,7 @@ AnsiString TProjectionPointList::getText(void)
     AnsiString S;
 
     //añade la cabecera
-    S = TProjectionPoint::RowIdent+AnsiString("\r\n");
+    S = TProjectionPoint::getRowLabels()+AnsiString("\r\n");
     for(int i=0; i<getCount(); i++)
         S += Items[i]->getRowText()+AnsiString("\r\n");
 
@@ -369,7 +313,7 @@ void TProjectionPointList::setText(const AnsiString &S)
 
     //la primera linea debería tener los identificadores de los campos
     //de la lista de puntos de proyección
-    if(/*StrNotHasSameWords(SL->String[0], TProjectionPoint::RowIdent)*/SL->Strings[0] != TProjectionPoint::RowIdent)
+    if(StrNotHasSameWords(SL->Strings[0], TProjectionPoint::getRowLabels())/*SL->Strings[0] != TProjectionPoint::getRowLabels()*/)
         throw EImproperArgument("row identifiers not found");
 
     //variable tampón
@@ -484,7 +428,7 @@ void TProjectionPointList::BuildSpiderwebNodes(int n, double D)
                 node = new TProjectionPoint();
                 //determina el nodo
                 double alfa = m/double(n);
-                node->P = (1-alfa)*V[i-1] + alfa*V[i];
+                *node = (1-alfa)*V[i-1] + alfa*V[i];
                 //añade el nuevo nodo
                 Add(node);
             }
@@ -495,7 +439,7 @@ void TProjectionPointList::BuildSpiderwebNodes(int n, double D)
             node = new TProjectionPoint();
             //determina el nodo
             double alfa = m/double(n);
-            node->P = (1-alfa)*V[5] + alfa*V[0];
+            *node = (1-alfa)*V[5] + alfa*V[0];
             //añade el nuevo nodo
             Add(node);
         }
@@ -504,8 +448,8 @@ void TProjectionPointList::BuildSpiderwebNodes(int n, double D)
         //contruye el nodo
         node = new TProjectionPoint();
         //determina el nodo
-        node->P.x = 0;
-        node->P.y = 0;
+        node->x = 0;
+        node->y = 0;
         //añade el nuevo nodo
         Add(node);
     }
@@ -576,74 +520,6 @@ void TProjectionPointList::DeleteAllocatedPoints(TAllocationListList &EP)
                         DeleteId(AL->ProjectionPoints[j]->Id);
         }
 }        */
-
-//MÉTODOS DE INTERFAZ:
-/*#
-//imprime los puntos de proyección en una caja de lista
-void TProjectionPointList::Print(QTextEdit *M)
-{
-    //el puntero M debería apuntar a un memorando construido
-    if(M == NULL)
-        throw EImproperArgument("pointer M should point to built memo");
-
-    M->clear();
-    QString QS = TProjectionPoint::RowIdent.c_str();
-    M->append(QS);
-    for(int i=0; i<getCount(); i++) {
-        QS = Items[i]->getRowText().c_str();
-        M->append(QS);
-    }
-}
-
-//dibuja los puntos de cielo en la fotografía de un trazador de formas
-void TProjectionPointList::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debe apuntar a un trazador de formas construido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-    //por cada punto de cielo de la lista
-    for(int i=0; i<getCount(); i++)
-        //pinta el punto de proyecciíon indicado
-        Items[i]->Paint(PS);
-}
-*/
-
-//selecciona todos los puntos objetivo de la lista
-void TProjectionPointList::SelectAll(void)
-{
-    for(int i=0; i<getCount(); i++)
-        Items[i]->Selected = true;
-}
-//deselecciona todos los puntos objetivo de la lista
-void TProjectionPointList::DeselectAll(void)
-{
-    for(int i=0; i<getCount(); i++)
-        Items[i]->Selected = false;
-}
-
-//busca el primer punto de proyección que está bajo el punto P
-//y que parte del punto objetivo puede ser agarrado en
-//el punto indicado:
-//      i: índice al punto de proyección bajo el punto P;
-//      dominio i: [0, Count];
-//      n: parte del punto de proyección agarrada;
-// valores posibles:
-//    0: niguna;
-//    1: punto objetivo.
-//valores de retorno:
-//      false: ninguna parte agarrada
-//      true: alguna parte agarrada
-bool TProjectionPointList::Grab(int &i, int &n, TDoublePoint P)
-{
-    for(i=0; i<getCount(); i++) {
-        n = Items[i]->Grab(P);
-        if(n > 0)
-            return true;
-    }
-
-    return false;
-}
 
 //---------------------------------------------------------------------------
 

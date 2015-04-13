@@ -66,12 +66,6 @@ class TArc;
 //clase abstracta figura geométrica
 class TFigure {
 protected:
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-
 public:
         //PROPIEDADES ESTÁTICAS:
 
@@ -202,12 +196,6 @@ protected:
 
         double __R;
 
-        //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
-
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-
 public:
         //PROPIEDADES ESTÁTICAS:
 
@@ -241,7 +229,6 @@ public:
         //conjunto de propiedades de definición
         //en formato asignaciones
         AnsiString getAssignsText(void) const;
-        void setAssignsText(const AnsiString&);
 
         //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
         //DE LAS PROPIEDADES EN FORMATO TEXTO:
@@ -282,9 +269,6 @@ public:
         //lee las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
         static void  ReadRow(TCircle*, const AnsiString&, int&);
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato de asignaciones
-        static void  ReadAssigns(TCircle*, const AnsiString&, int&);
 
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
@@ -349,12 +333,6 @@ protected:
 
         double __R;
 
-        //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
-
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-
 public:
         //PROPIEDADES ESTÁTICAS:
 
@@ -364,17 +342,17 @@ public:
 
         //PROPIEDADES DE DEFINICIÓN:
 
-        //centro del círculo
+        //centro de la circunferencia
         //valor por defecto: (0, 0)
         TDoublePoint P;
-        //radio del círculo
+        //radio de la circunferencia
         //debe ser mayor que cero
         //valor por defecto: 1
         double getR(void) const {return __R;} void setR(double);
 
         //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
 
-        //radio del círculo
+        //radio de la circunferencia
         AnsiString getRText(void) const; void setRText(const AnsiString&);
 
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
@@ -388,7 +366,6 @@ public:
         //conjunto de propiedades de definición
         //en formato asignaciones
         AnsiString getAssignsText(void) const;
-        void setAssignsText(const AnsiString&);
 
         //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
         //DE LAS PROPIEDADES EN FORMATO TEXTO:
@@ -432,10 +409,6 @@ public:
         //lee las propiedades de un objeto en una cadena de texto
         //en formato línea de texto
         static void  ReadRow(TCircunference*, const AnsiString&, int&);
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato de asignaciones
-        static void  ReadAssigns(TCircunference*,
-                const AnsiString&, int&);
 
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 

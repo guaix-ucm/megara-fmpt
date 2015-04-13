@@ -307,21 +307,6 @@ AnsiString TCircle::getAssignsText(void) const
 
     return S;
 }
-void TCircle::setAssignsText(const AnsiString& S)
-{
-    try {
-        int i = 1;
-        ReadAssigns(this, S, i);
-        StrTravelToEnd(S, i);
-
-        StrTravelSeparatorsIfAny(S, i);
-        if(i <= S.Length())
-            throw EImproperArgument("string S shouldcontain a single circle only");
-
-    } catch(...) {
-        throw;
-    }
-}
 
 //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
 //DE LAS PROPIEDADES EN FORMATO TEXTO:
@@ -595,10 +580,6 @@ void  TCircle::ReadRow(TCircle *C,
 
     //asigna la variable tampón
     *C = _C;
-}
-void  TCircle::ReadAssigns(TCircle *C,
-                                     const AnsiString& S, int& i)
-{
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
@@ -898,21 +879,6 @@ AnsiString TCircunference::getAssignsText(void) const
 
     return S;
 }
-void TCircunference::setAssignsText(const AnsiString& S)
-{
-    try {
-        int i = 1;
-        ReadAssigns(this, S, i);
-        StrTravelToEnd(S, i);
-
-        StrTravelSeparatorsIfAny(S, i);
-        if(i <= S.Length())
-            throw EImproperArgument("string S shouldcontain a single circle only");
-
-    } catch(...) {
-        throw;
-    }
-}
 
 //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
 //DE LAS PROPIEDADES EN FORMATO TEXTO:
@@ -1186,10 +1152,6 @@ void  TCircunference::ReadRow(TCircunference *C,
 
     //asigna la variable tampón
     *C = _C;
-}
-void  TCircunference::ReadAssigns(TCircunference *C,
-                                            const AnsiString& S, int& i)
-{
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:

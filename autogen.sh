@@ -1,3 +1,4 @@
 #! /bin/sh
 
-autoreconf -s -i -m -f
+autoreconf -s -i -m -f  
+#-I /usr/share/aclocal

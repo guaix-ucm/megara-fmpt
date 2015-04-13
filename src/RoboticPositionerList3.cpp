@@ -493,8 +493,42 @@ void TRoboticPositionerList::SetCollisions(bool Collision)
                 Items[i]->getActuator()->Collision = Collision;
 }
 
-//------------------------------------------------------------------
-//MÉTODOS PARACOMPROBAR LAS PRECONDICIONES:
+//---------------------------------------------------------------------------
+//METHODS FOR CHECK PRECONDITIONS:
+
+//determines if there is some pointer to NULL RP
+bool TRoboticPositionerList::thereIsSomeNullPointer(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+
+        if(RP == NULL)
+            return true;
+
+        for(int j=0; j<RP->getActuator()->Adjacents.getCount(); j++) {
+            TRoboticPositioner *RPA = RP->getActuator()->Adjacents[j];
+
+            if(RPA == NULL)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+//determines if there is some repeated pointer
+bool TRoboticPositionerList::thereIsSomeRepeatedPointer(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RPi = Items[i];
+        for(int j=i+1; j<getCount(); j++) {
+            TRoboticPositioner *RPj = Items[j];
+            if(RPj == RPi)
+                return true;
+        }
+    }
+    return false;
+}
 
 //determina si todos los posicionadores operativos en
 //posiciones de inseguridad están en la lista Abatibles
@@ -538,6 +572,19 @@ bool TRoboticPositionerList::NotAllPositionersAreOperativesInUnsafetyPositions(v
 
         //indica que todos los posicionadores de la lista están operativos en positiones de inseguridad
         return false;
+}
+
+//determines if some RP of the Fiber MOS Model
+//could start sudenly motion
+bool TRoboticPositionerList::thereIsSomeOperativeRPwithDynamicFaul(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->getOperative() && RP->FaultType==ftDyn)
+            return true;
+    }
+
+    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -639,9 +686,6 @@ void TRoboticPositionerList::Move(double t)
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición correspondiente al instante t
                 Items[i]->Move(t);
-
-        //actualiza la interfaz
-//        PaintAll();
 }
 
 //mueve los posicionadores de fibra a sus posiciones inciiales
@@ -654,9 +698,6 @@ void TRoboticPositionerList::MoveSta(void)
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición inicial
                 Items[i]->MoveSta();
-
-        //actualiza la interfaz
-//        PaintAll();
 }
 //mueve los RPs a sus posiciones finales
 //si el puntero PainAll no apunta a una función
@@ -668,244 +709,6 @@ void TRoboticPositionerList::MoveFin(void)
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición final
                 Items[i]->MoveFin();
-
-        //actualiza la interfaz
-//        PaintAll();
-}
-
-/*#//realiza una iteración
-//si el puntero PainAll no apunta a una función
-//      lanza EImproperCall
-void TRoboticPositionerList::TimerTimer(void)
-{
-        //si el tiempo acumulado ha alcanzado al tiempo de desplazamiento
-        while(t >= getTdis()) {
-                //detiene el temporizador
-                getTimer()->stop();
-                return; //no hace nada más
-        }
-
-        //actualiza el contador
-        t += getTit();
-
-        //mueve los posicionadores al instante t
-        Move(t);
-
-        //si debe mostrar el proceso
-        if(PaintAll != NULL)
-                PaintAll(); //actualiza la interfaz
-
-        //si detecta una colisión
-        if(ThereIsCollision()) {
-                getTimer()->stop(); //detiene la ejecución
-//                Collision = true; //indica que ha detectado una colisión
-        }
-}
-*/
-//METHODS TO TRANSLATE MOTION PROGRAMS:
-
-/*//Translate the positioning progam to the format stablished for
-//the interface FMPT-MCS.
-//Preconditions:
-//  All message of instructions of the motion program
-//  shall be addressed to an existing RP.
-void TRoboticPositionerList::translatePositioningProgram(string& str, int CBId,
-    const TPairPositionAnglesList& IPL, const TMotionProgram& MP)
-{
-    //VERIFIES THE PRECONDITIONS:
-
-    //all message of instructions of the motion program shall be addressed to an existing RP
-    for(int i=0; i<MP.getCount(); i++) {
-        const TMessageList *ML = MP.GetPointer(i);
-        for(int j=0; j<ML->getCount(); j++) {
-            const TMessageInstruction *MI = ML->GetPointer(j);
-            int k = SearchId(MI->getId());
-            if(k >= getCount())
-                throw EImproperArgument("invalid motion program because contains a message of instrucction addressed to a nonexistent RP");
-        }
-    }
-
-    //the initial position list must has a PPA for each RP
-    if(IPL.getCount() != getCount())
-        throw EImproperArgument("the initialposition list must have a PPA for each RP");
-
-    //TRANSLATE THE MOTION PROGRAM:
-
-    //stores the initial status of the RPs
-//    TRoboticPositionerList1 RPL(this);
-
-    //for each RP of the Fiber MOS Model
-    SetPositions(IPL);
-
-    //print the star delimiter of motion program cluster
-    str = "obs pos_"+IntToStr(CBId).str+" {";
-
-    //for each list of message of instructions of the motion program
-    for(int i=0; i<MP.getCount(); i++) {
-        //points the indicated message list to facilitate its access
-        const TMessageList *ML = MP.GetPointer(i);
-
-        //initialices the CMF of all RPs
-        this->ClearInstructions();
-
-        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
-
-        //print the start delimiter of goup i
-        str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
-
-        //for each MI of the list
-        for(int j=0; j<ML->getCount(); j++) {
-            //point the indicated MI to facilitate its access
-            const TMessageInstruction *MI = ML->GetPointer(j);
-
-            //search the RP to which the message is addressed
-            int k = SearchId(MI->getId());
-
-            //point the found RP to facilitate its access
-            TRoboticPositioner *RP = Items[k];
-
-            //set the instruction to the RP
-            RP->setInstruction(MI->Instruction);
-
-            //if there is a gesture programmedfor the RP
-            if(RP->CMF.getMF1()!=NULL || RP->CMF.getMF2()!=NULL) {
-                //print the identifier of RP and the identifier of the rotor
-                str += "\r\n\trp"+strInsertChar(RP->getActuator()->getIdText(), 2).str+" r1";
-                //print the programmed a motion for rotor 1
-                if(RP->CMF.getMF1()!=NULL && RP->CMF.getMF1()->getpfinText()!=RP->getActuator()->getp_1Text())
-                    //print the new final position
-                    str += " "+RP->CMF.getMF1()->getpfinText().str;
-                else
-                    //print the same final position
-                    str += " "+RP->getActuator()->getp_1Text().str;
-                str += "\t#Comments:";
-
-                //print the identifier of RP and the identifier of the rotor
-                str += "\r\n\trp"+strInsertChar(RP->getActuator()->getIdText(), 2).str+" r2";
-                //print the programmed a motion for rotor 2
-                if(RP->CMF.getMF2()!=NULL && RP->CMF.getMF2()->getpfinText()!=RP->getActuator()->getArm()->getp___3Text())
-                    //print the new final position
-                    str += " "+RP->CMF.getMF2()->getpfinText().str;
-                else
-                    //print the same final position
-                    str += " "+RP->getActuator()->getArm()->getp___3Text().str;
-                str += "\t#"+MI->getComment();
-            }
-        }
-
-        //print the end delimiter of group i
-        str += "\r\n\t}";
-
-        //MOVE ALL RPs TO ITS PROGRAMMED FINAL POSITIONS:
-
-        MoveFin();
-    }
-    //print the end delimiter of motion program cluster
-    str += "\r\n}";
-
-    //recovers the initial status of the RPs
-//    Clone(RPL);
-}
-*/
-//Translate a motion progam to the format stablished for
-//the interface FMPT-MCS.
-//Preconditions:
-//  All message of instructions of the motion program
-//  shall be addressed to an existing RP.
-void TRoboticPositionerList::translateMotionProgram(string& str, int CBId, const string& label,
-    const TPairPositionAnglesList& IPL, const TMotionProgram& MP)
-{
-    //VERIFIES THE PRECONDITIONS:
-
-    //all message of instructions of the motion program shall be addressed to an existing RP
-    for(int i=0; i<MP.getCount(); i++) {
-        const TMessageList *ML = MP.GetPointer(i);
-        for(int j=0; j<ML->getCount(); j++) {
-            const TMessageInstruction *MI = ML->GetPointer(j);
-            int k = SearchId(MI->getId());
-            if(k >= getCount())
-                throw EImproperArgument("invalid motion program because contains a message of instrucction addressed to a nonexistent RP");
-        }
-    }
-
-    //the initial position list must has a PPA for each RP
-    if(IPL.getCount() != getCount())
-        throw EImproperArgument("the initialposition list must have a PPA for each RP");
-
-    //TRANSLATE THE MOTION PROGRAM:
-
-    //stores the initial status of the RPs
-//    TRoboticPositionerList1 RPL(this);
-
-    //for each RP of the Fiber MOS Model
-    SetPositions(IPL);
-
-    //print the star delimiter of motion program cluster
-    str = label+"_"+IntToStr(CBId).str+" {";
-
-    //for each list of message of instructions of the motion program
-    for(int i=0; i<MP.getCount(); i++) {
-        //points the indicated message list to facilitate its access
-        const TMessageList *ML = MP.GetPointer(i);
-
-        //initialices the CMF of all RPs
-        this->ClearInstructions();
-
-        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
-
-        //print the start delimiter of goup i
-        str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
-
-        //for each MI of the list
-        for(int j=0; j<ML->getCount(); j++) {
-            //point the indicated MI to facilitate its access
-            const TMessageInstruction *MI = ML->GetPointer(j);
-
-            //search the RP to which the message is addressed
-            int k = SearchId(MI->getId());
-
-            //point the found RP to facilitate its access
-            TRoboticPositioner *RP = Items[k];
-
-            //set the instruction to the RP
-            RP->setInstruction(MI->Instruction);
-
-            //if there is a gesture programmedfor the RP
-            if(RP->CMF.getMF1()!=NULL || RP->CMF.getMF2()!=NULL) {
-                //print the identifier of RP and the identifier of the rotor
-                str += "\r\n\trp"+strInsertChar(RP->getActuator()->getIdText(), 2).str+" r1";
-                //print the programmed a motion for rotor 1
-                if(RP->CMF.getMF1()!=NULL && RP->CMF.getMF1()->getpfinText()!=RP->getActuator()->getp_1Text())
-                    //print the new final position
-                    str += " "+RP->CMF.getMF1()->getpfinText().str;
-                else
-                    //print the same final position
-                    str += " "+RP->getActuator()->getp_1Text().str;
-
-                //print the identifier of RP and the identifier of the rotor
-                str += "\r\n\trp"+strInsertChar(RP->getActuator()->getIdText(), 2).str+" r2";
-                //print the programmed a motion for rotor 2
-                if(RP->CMF.getMF2()!=NULL && RP->CMF.getMF2()->getpfinText()!=RP->getActuator()->getArm()->getp___3Text())
-                    //print the new final position
-                    str += " "+RP->CMF.getMF2()->getpfinText().str;
-                else
-                    //print the same final position
-                    str += " "+RP->getActuator()->getArm()->getp___3Text().str;
-           }
-        }
-
-        //print the end delimiter of group i
-        str += "\r\n\t}";
-
-        //MOVE ALL RPs TO ITS PROGRAMMED FINAL POSITIONS:
-
-        MoveFin();
-    }
-    //print the end delimiter of motion program cluster
-    str += "\r\n}";
-
-    //recovers the initial status of the RPs
-//    Clone(RPL);
 }
 
 //---------------------------------------------------------------------------

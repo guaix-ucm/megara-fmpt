@@ -92,8 +92,6 @@ public:
 
         //destruye todos los objetos de la lista
         void Destroy(void);
-        //destruye los objetos seleccionadas de la lista
-        int DestroySelected(void);
 
         //MÉTODOS PARA CONTRUIR Y DESTRUIR POSICIONADORES:
 
@@ -132,10 +130,6 @@ public:
         //con distribución uniforme en sus dominios
         //en las que no colisionan entre si
         void RandomizeWithoutCollision(void);
-        //lleva los ejes de los posicionadores seleccionados a
-        //posiciones aleatorias con distribución uniforme en
-        //sus dominios en las que no colisionan entre si
-        int RandomizeWithoutCollisionSelected(void);
 
         //MÉTODOS DE RANDOMIZADO DE P3:
 
@@ -143,10 +137,6 @@ public:
         //con distribución uniforme en su dominio
         //en las que no colisionan entre si
         void RandomizeP3WithoutCollision(void);
-        //lleva el punto P3 de los posicionadores seleccioandos a
-        //posiciones aleatorias con distribución uniforme en su dominio
-        //en las que no colisionan entre si
-        int RandomizeP3WithoutCollisionSelected(void);
 
 /*        //------------------------------------------------------------------
         //MÉTODOS DE ARCHIVO:

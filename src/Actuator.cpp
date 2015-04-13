@@ -2225,7 +2225,7 @@ bool TActuator::ArmIsInSafeArea(void) const
         return false;
 }
 
-//determine if sny rotor of the actuator is out the origin
+//determines if any rotor of the actuator is out the origin
 bool TActuator::isOutTheOrigin(void) const
 {
     //determines the origin of each rotor
@@ -2445,6 +2445,31 @@ double TActuator::DistanceP3WithAdjacent(void)
 
 //DETERMINACIÓN DE POSICIÓN RELATIVA:
 
+//determines ifapoint is in the security area
+bool TActuator::pointIsInSecurityArea(TDoublePoint P)
+{
+
+    //determines the position angles for position the point P3
+    //in the point
+    double theta_1, theta___3;
+    bool is_in_domain = AnglesToGoP3(theta_1, theta___3, P.x, P.y);
+
+    //if the point is in the domain
+    if(is_in_domain) {
+        //determines the nearest stable position for position the point P3
+        //ascloserasposssible the point P
+        double p_1nsp, p___3nsp;
+        GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+
+        //determine is the position angle of rotor 2 is in the security area
+        //andindicates if the point is in se security area
+        if(p___3IsInSafeArea(p___3nsp))
+            return true;
+    }
+    //indicates that the point is out the security area
+    return false;
+}
+
 //determina si un punto está fuera del área invasiva
 bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
 {
@@ -2456,7 +2481,7 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
         //indica que el punto está fuera del área no invasiva
         return true;
 
-    //guar la configuración original
+    //guarda la configuración original
     double p_1bak = getp_1();
     double p___3bak = getArm()->getp___3();
     bool Quantify_bak = getQuantify_();
@@ -2556,6 +2581,67 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
     getArm()->setp___3(p___3bak);
     //indica que el punto está dentro del área no invasiva
     return true;
+}
+
+//deterines if this actuator is invading the maneuvering domain
+//of other actuator A
+bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
+{
+    if(A == NULL)
+        throw EImproperArgument("pinter A shouldpointto built actuator");
+
+    double D; //distance netween conturs
+    double Dfree; //freedistance between contours
+
+    switch(getPAkd()) {
+    case kdPre:
+        //caulculate the distance between the contour of the arm
+        //and the limit of maneuvering domain of the other actuator
+        D = getArm()->getContour().DistanceMin(A->getP0()) - A->getr_max(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        //calculate the free distance
+        Dfree = D - getSPMgen_p() - A->getSPMsta();
+
+        if(Dfree >= 0)
+            return true;
+        else
+            return false;
+
+        break;
+
+    case kdApp:
+        //caulculate the distance between the contour of the arm
+        //and the limit of maneuvering domain of the other actuator
+        D = getArm()->getContour().DistanceMin(A->getP0()) - A->getr_max(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        //calculate the free distance
+        Dfree = D - getSPMgen_a() - A->getSPMsta();
+
+        if(Dfree >= 0)
+            return true;
+        else
+            return false;
+
+        break;
+
+    case kdUnk:
+        //caulculate the distance between the contour of the barrier
+        //and the limit of maneuvering domain of the other actuator
+        D = getBarrier()->getContour().DistanceMin(A->getP0()) - A->getr_max(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        //calculate the free distance
+        Dfree = D - getSPMsta() - A->getSPMsta();
+
+        if(Dfree >= 0)
+            return true;
+        else
+            return false;
+
+        break;
+
+    default:
+        throw EImpossibleError("unknowledge value of PAkd");
+    }
 }
 
 //--------------------------------------------------------------------------

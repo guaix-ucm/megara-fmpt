@@ -323,7 +323,7 @@ public:
         //con el identificador indicado
         const TRoboticPositioner *SearchIdPointer(int Id) const;
         //search the first free identifier starting fron Id
-        int searchFirstFreeId(int Id);
+        int searchFirstFreeId(int Id) const;
 
         //busca el primer posicionador de la lista
         //en cuyo dominio de P3 se encuentra un punto
@@ -412,7 +412,7 @@ public:
         //METHODS FOR JOINTLY READING:
 
         //get the PPA list in steps
-        void GetPositions(TPairPositionAnglesList& PPAL);
+        void GetPositions(TPairPositionAnglesList& PPAL) const;
 
         //METHODS FOR JOINTLY ALLOCATION:
 

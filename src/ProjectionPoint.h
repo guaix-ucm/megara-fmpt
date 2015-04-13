@@ -17,10 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ProjectionPoint.h
-//Contenido: punto de proyección
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: ProjectionPoint.h
+//Content: projection point
+//Last update: 06/05/2014
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef PROJECTIONPOINT_H
@@ -32,133 +32,93 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
 //---------------------------------------------------------------------------
 //TProjectionPoint
 //---------------------------------------------------------------------------
 
-//punto de proyección
-class TProjectionPoint : public TCircle {
+//class projection point
+class TProjectionPoint : public TDoublePoint {
 protected:
-    //OBJETOS EXTERNOS ADSCRITOS:
+    //ATACHED EXTERN OBJECTS:
 
     TSkyPoint *__SkyPoint;
 
-    //PROPIEDADES:
-
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    //CONJUNTOS DE PROPIEDADES DEFINITORIAS EN FORMATO TEXTO:
-
 public:
-    //OBJETOS EXTERNOS ADSCRITOS:
+    //STATIC PROPERTIES:
+
+    //label of property Id
+    //default value: "Id"
+    static AnsiString IdLabel;
+
+    //ATACHED EXTERN OBJECTS:
 
     //punto de cielo externo adscrito
     //valor por defecto: NULL
     TSkyPoint *getSkyPoint(void) const {return __SkyPoint;}
 
-    //PROPIEDADES:
+    //PROPERTIES:
 
     //número de identificación del punto de proyección
     //      SkyPoint->Id
     //debe ser no negativo
     int getId(void) const; void setId(int);
 
-    //indica si el punto objetivo está seleccionado
-    //valor por defecto: false
-    bool Selected;
+    //type of point:
+    //  ptUNKNOWN: unknown type
+    //  ptSOURCE: scientific source
+    //  ptREFERENCE_SOURCE: reference source
+    //  ptBLANK: background of sky
+    //default value: ptUNKNOWN
+    TPointType Type;
 
-    //color por defecto con el que son contruidos los puntos de proyección
-    //valor por defecto: clWhite
-    //#static QColor DefaultColor;
+    //allocation Priority
+    //devault value: 0
+    unsigned int Priority;
 
-    //PROPIEDADES EN FORMATO TEXTO:
+    //PROPERTIES IN TEXT FORMAT:
 
     //número de identificación del punto de proyección
     AnsiString getIdText(void) const; void setIdText(const AnsiString&);
 
-    //CONJUNTOS DE PROPIEDADES DEFINITORIAS EN FORMATO TEXTO:
+    //SETS OF PROPERTIES IN TEXT FORMAT:
 
-    //las etiquetas de todas las propiedades en fila
-    //valor por defecto:
-    //      "Id          "+
-    //      "x                       "+
-    //      "y"
-    static AnsiString RowIdent;
+    //get the labels of the properties
+    //in row text format
+    //  IdLabel+"\t"+xLabel+"\t"+yLabel
+    static AnsiString getRowLabels(void);
 
     //todas las propiedades en fila
     AnsiString getRowText(void) const; void setRowText(const AnsiString&);
-    //todas las propiedades en columna
-    AnsiString getColText(void) const; void setColText(const AnsiString&);
-    //todas las propiedades en asignaciones
-    AnsiString getAssignsText(void) const;
-    void setAssignsText(const AnsiString&);
 
-    //Formatos de texto:
-    //      fila: los valores de las propiedades ordenados
-    //              y separados por espacios;
-    //      columna: los valores de las propiedades ordenados
-    //              y separados por "\r\n";
-    //      asignaciones: las asignaciones a las propiedades ordenadas
-    //              y separadas por "\r\n".
-    //
-    //Las columnas de valores enteros tendrán un indentado
-    //de 12 caracteres ya que el valor entero más largo tiene
-    //13 caracteres.
-    //
-    //Las columnas de valores en punto flotante tendrán un indentado
-    //de 24 caracteres ya que el valor en punto flotante más largo tiene
-    //23 caracteres.
-
-    //MÉTODOS ESTÁTICOS DE LISTA:
+    //STATIC METHODS:
 
     //imprime las propiedades de un punto de proyección en una cadena
-    static void  PrintRow(AnsiString &S,
-                                    TProjectionPoint *PP);
-    static void  PrintCol(AnsiString &S,
-                                    TProjectionPoint *PP);
-    static void  PrintAssigns(AnsiString &S,
-                                        TProjectionPoint *PP);
+    static void  PrintRow(AnsiString &S, TProjectionPoint *PP);
 
     //lee las propiedades de un punto de proyección en una cadena
-    static void  ReadRow(TProjectionPoint *PP,
-                                   const AnsiString &S, int &i);
-    static void  ReadCol(TProjectionPoint *PP,
-                                   const AnsiString &S, int &i);
-    static void  ReadAssigns(TProjectionPoint *PP,
-                                       const AnsiString &S, int &i);
+    static void  ReadRow(TProjectionPoint *PP, const AnsiString &S, int &i);
 
-    //MÉTODOS PÚBLICOS:
+    //PUBLIC METHODS:
 
-    //contruye un punto de proyección adscrito a un punto de cielo
+    //build a PP attached to a SP
     TProjectionPoint(TSkyPoint *_SkyPoint=NULL);
-    //clona un punto de proyección
+    //build a clon of a PP
     TProjectionPoint(TProjectionPoint*);
 
-    //ADVERTENCIA: los puntos de proyección sin punto de cielo adscrito
-    //no podrán ser deproyectados.
+    //WARNING: PPs without attached SP can not be deprojected.
 
-    //MÉTODOS DE COPIA:
+    //COPY METHODS:
 
-    //copia las propiedades de un punto de proyección
+    //copy the properties of a PP
     void Copy(TProjectionPoint*);
-    TProjectionPoint &operator=(const TProjectionPoint&);
+    TProjectionPoint& operator=(const TProjectionPoint&);
+    //copy the properties of a DP
+    TProjectionPoint& operator=(const TDoublePoint&);
 
-    //ADVERTENCIA: el punto de proyección copia quedará adscrito
-    //al mismo punto de cielo.
-
-    //randomiza el punto de proyección
-    void Randomize(double xmin, double xmax, double ymin, double ymax);
-
-    //MÉTODOS GRÁFICOS:
-
-    //indica que parte del punto objetivo
-    //puede ser agarrado en el punto indicado
-    //      1: punto (P, R)
-    //      0: niguna;
-    int Grab(TDoublePoint Q);
+    //WARNING: the PP will be attached to the same SP.
 };
 
 //---------------------------------------------------------------------------
@@ -167,8 +127,6 @@ public:
 
 //clase lista de puntos de cielo
 class TProjectionPointList : public TPointersList<TProjectionPoint> {
-    //PROPIEDADES DE INTERFAZ:
-
 public:
     //PROPIEDADES DE INTERFAZ:
 
@@ -213,36 +171,6 @@ public:
         void DeleteAllocatedPoints(TAllocationPairList *APL);
         void DeleteAllocatedPoints(TAllocationListList &EP);
   */
-
-    //MÉTODOS GRÁFICOS:
-/*#
-    //imprime los puntos de proyección en una caja de lista
-    void Print(QListWidget *LB);
-    //imprime los puntos de proyección en un memorando
-    void Print(QTextEdit *M);
-
-    //dibuja los puntos de proyección en la fotografía de un trazador de formas
-    void Paint(TPloterShapes *PS);
-*/
-
-    //selecciona todos los puntos objetivo de la lista
-    void SelectAll(void);
-    //deselecciona todos los puntos objetivo de la lista
-    void DeselectAll(void);
-
-    //busca el primer punto de proyección que está bajo el punto P
-    //y que parte del punto objetivo puede ser agarrado en
-    //el punto indicado:
-    //      i: índice al punto de proyección bajo el punto P;
-    //      dominio i: [0, Count];
-    //      n: parte del punto de proyección agarrada;
-    //         valores posibles:
-    //            0: niguna;
-    //            1: punto objetivo.
-    //valores de retorno:
-    //      false: ninguna parte agarrada
-    //      true: alguna parte agarrada
-    bool Grab(int &i, int &n, TDoublePoint P);
 };
 
 //---------------------------------------------------------------------------

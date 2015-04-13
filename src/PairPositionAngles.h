@@ -26,10 +26,10 @@
 #ifndef PAIRPOSITIONANGLES_H
 #define PAIRPOSITIONANGLES_H
 
-#include "RoboticPositioner.h"
 #include "ProjectionPoint.h"
 #include "Figure.h"
 #include "PointersList.h"
+#include "Vector.h"
 
 //---------------------------------------------------------------------------
 
@@ -39,6 +39,9 @@ namespace Models {
 //---------------------------------------------------------------------------
 //TPairPositionAngles
 //---------------------------------------------------------------------------
+
+//predeclares classes to avoid loops
+class TRoboticPositioner;
 
 //class pait position angles
 class TPairPositionAngles {
@@ -111,7 +114,7 @@ public:
     static void  ReadRow(TPairPositionAngles *PPA,
                          const AnsiString &S, int &i);
 
-    //BUILDING AND DESTROYING METHODS:
+    //PUBLIC METHODS:
 
     //build a PPA attached to a RP
     TPairPositionAngles(TRoboticPositioner *_RoboticPositioner= NULL);
@@ -119,8 +122,6 @@ public:
     TPairPositionAngles(TPairPositionAngles*);
 
     //WARNING: the PPA without attached PP can't be regenerated.
-
-    //COPY METHODS:
 
     //copy all properties of a PPA
     void Copy(TPairPositionAngles*);
@@ -147,7 +148,7 @@ public:
 
     //WARNING: setText will build new PPAs without attached PP.
 
-    //BUILDING AND DESTROYING METHODS:
+    //PUBLIC METHODS:
 
     //builds a PPA list
     TPairPositionAnglesList(void);
@@ -164,6 +165,12 @@ public:
     //randomize the PPAs of the list
     void Randomize(double p_1min, double p_1max,
                    double p___3min, double p___3max);
+
+    //check if all PPAs are addresed to different RPs
+    bool notAllPPAsAreAddresedToDifferentRPs(void) const;
+
+    //check if all Ids of a list are in the PPA list
+    bool notAllIdsAreFound(const TVector<int>& Ids) const;
 };
 
 //---------------------------------------------------------------------------

@@ -98,6 +98,11 @@ public:
         static void  Read(TMessageInstruction *MI,
                 const AnsiString &S, int &i);
 
+        //read an instruction in a text string
+        //in the FMPT-MCS interfaz format
+        static void  readInterface(TMessageInstruction *MI,
+                                   const string& str, unsigned int &i);
+
         //MÉTODOS PÚBLICOS:
 
         //construye un mensaje con los valores por defecto

@@ -141,7 +141,17 @@ void StrReadLabel(AnsiString &Reading, const AnsiString &Label,
 //la posición indicada de una cadena de texto
 void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i);
 
-//ADVERTENCIA: las funciones de lectura deetiquetas no pueden ser empleadas
+//trabel a label from
+//the indicated position of a string
+//if it is not possible travel all lavel, return false
+bool strTravelLabel_(const string& label, const string& str, unsigned int& i);
+
+//trabel a label from
+//the indicated position of a string
+//if it is not possible travel all lavel, return false
+void strTravelLabel(const string& label, const string& str, unsigned int& i);
+
+//ADVERTENCIA: las funciones de lectura de etiquetas no pueden ser empleadas
 //con cadenas que empiecen por caracteres separadores.
 
 //busca una sentencia de asignación a partir de
@@ -164,6 +174,13 @@ void StrTravelSeparatorsIfAny(const AnsiString&, int&);
 //atraviesa uno o más separadores
 void StrTravelSeparators(const AnsiString&, int&);
 
+//travel one or more separators
+void strTravelSeparators(const string& str, unsigned int& i);
+
+//travel string from the indicated position
+//to find a nonseparator character
+void strTravelSeparatorsIfAny(const string&, unsigned int&);
+
 //---------------------------------------------------------------------------
 //Funciones para tipos numéricos:
 
@@ -178,8 +195,10 @@ void  StrReadInt(int &n, const AnsiString &S, int &i);
 //lanza una excepción EImproperArgument
 int StrToInt_(const AnsiString &S);
 
-//NOTA: StrReadIntStr funciona perfectamente pero ha sido aislada para
-//impedir su uso inadvertido.
+//read an integer in the indicated position of a text string
+void strReadIntStr(string& dst, const string& src, unsigned int& i);
+//read an integer in the indicated position of a text string
+void strReadInt(int& value, const string& src, unsigned int& i);
 
 //imprime el valor de una variable double en una cadena de texto
 void  StrPrintFloat(AnsiString &S, double x);
@@ -193,6 +212,11 @@ void  StrReadFloat(double &x, const AnsiString &S, int &i);
 //si S contiene algo más que un valor en punto flotante
 //lanza una excepción EImproperArgument
 double StrToFloat_(const AnsiString &S);
+
+//read an float in the indicated position of a text string
+void strReadFloatStr(string& dst, const string& src, unsigned int& i);
+//read an float in the indicated position of a text string
+void strReadFloat(double& value, const string& src, unsigned int& i);
 
 //Imprime el valor de una variable lógica al final de una cadena de texto.
 //Utiliza los identificadores:

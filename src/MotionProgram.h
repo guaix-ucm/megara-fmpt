@@ -28,6 +28,7 @@
 
 #include "MessageInstruction.h"
 #include "PointersList.h"
+#include "PairPositionAngles.h"
 
 //##include <QListWidget>
 //##include <QTextEdit>
@@ -95,6 +96,40 @@ public:
 
     //determines if a MP is different to this MP
     bool operator!=(const TMotionProgram&) const;
+
+    //get the list of RP identifiers includes in a MP
+    void getAllIncludedIds(TVector<int>& Ids) const;
+
+    //Get a motion progam in the interface format of the MCS.
+    //Inputs:
+    //  label: string labeling all the MP.
+    //  Bid: univoque identifier of the CB.
+    //  SPL: starting position list for all RPs of the Fiber MOS.
+    //Preconditions:
+    //  All PPAs of the IPL must be addresed to different RPs.
+    //  All RPs included in the MP, must be in included in the IPL.
+    void getInterfaceText(string& str, const string& label, unsigned int Bid,
+        const TPairPositionAnglesList& SPL) const;
+
+    //Values for label:
+    //  "obs depos" for depositioning programs
+    //  "obs pos" for positioning programs
+
+    //SPL shall be:
+    //  IPL if the MP is a PP
+    //  OPL if the MP is a DP
+
+    //A MP, must...
+    //- can exist without be executable by the FMM;
+    //- can be manipulated without the FMM;
+    //- not necessary coincide with the propietary format of the RPs.
+
+    //Set a motion progam in the interface format of the MCS.
+    void setInterfaceText(string& label, unsigned int& Bid,
+                          const string& str);
+
+    //exclude the isntructions addressed to a determined RP
+    void excludeRP(int Id);
 };
 
 //---------------------------------------------------------------------------

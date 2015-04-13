@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2014-2015 Isaac MoralesDurán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -845,7 +845,7 @@ public:
     //determina si el brazo está dentro del área de seguridad
     bool ArmIsInSafeArea(void) const;
 
-    //determine if sny rotor of the actuator is out the origin
+    //determines if any rotor of the actuator is out the origin
     bool isOutTheOrigin(void) const;
 
     //MÉTODOS PARA DETERMINAR EL PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL EJE 1:
@@ -894,10 +894,17 @@ public:
 
     //MÉTODOS PARA DETERMINAR EN QUE ÁREA SE ENCUENTRA UN PUNTO:
 
+    //determines if a point is in the security area
+    bool pointIsInSecurityArea(TDoublePoint);
+
     //determina si un punto está fuera del área no invasiva
     bool P3IsOutNoninvasiveArea(TDoublePoint P);
     //determina si un punto está dentro del área invasiva
     bool P3IsInNoninvasiveArea(TDoublePoint P);
+
+    //deterines if this actuator is invading the maneuvering domain
+    //of other actuator A
+    bool notInvadeManeuveringDomain(const TActuator *A) const;
 
     //------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR LAS COLISIONES

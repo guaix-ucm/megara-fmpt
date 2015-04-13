@@ -1309,7 +1309,7 @@ template <class T> void TPointersList<T>::setText(const AnsiString &S)
 //traduce de lista a formato columna de texto
 template <class T> AnsiString TPointersList<T>::getRowText(void) const
 {
-    //el puntero Print deberí aapuntar a una función de impresión
+    //el puntero Print debería apuntar a una función de impresión
     if(Print == NULL)
         throw EImproperCall("pointer Print should point to print function");
 
@@ -2649,7 +2649,7 @@ template <class T> const T& TPoinList<T>::operator[](int i) const
 //traduce de lista a formato texto
 template <class T> AnsiString TPoinList<T>::GetListText(void) const
 {
-        //el puntero Print deberí aapuntar a una función de impresión
+        //el puntero Print debería apuntar a una función de impresión
         if(Print == NULL)
                 throw EImproperCall("pointer Print should point to print function");
 
@@ -2788,7 +2788,7 @@ template <class T> void TPoinList<T>::SetListText(const AnsiString &S)
 //traduce de lista a formato columna de texto
 template <class T> AnsiString TPoinList<T>::GetColumnText(void) const
 {
-        //el puntero Print deberí aapuntar a una función de impresión
+        //el puntero Print debería apuntar a una función de impresión
         if(Print == NULL)
                 throw EImproperCall("pointer Print should point to print function");
 

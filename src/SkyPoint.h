@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: SkyPoint.h
-//Contenido: punto de cielo
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: SkyPoint.h
+//Content: sky point
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef SKYPOINT_H
@@ -39,17 +38,26 @@ using namespace Lists;
 namespace Models {
 
 //---------------------------------------------------------------------------
+//TPointType:
+//---------------------------------------------------------------------------
+
+//type of point
+//  ptUNKNOWN: unknown type
+//  ptSOURCE: scientific source
+//  ptREFERENCE: reference source
+//  ptBLANK: sky backgound
+enum TPointType {ptUNKNOWN, ptSOURCE, ptREFERENCE, ptBLANK};
+
+void  strPrinTPointType(string& str, TPointType value);
+void  strReadSkyPointType(TPointType& value, const string &str, unsigned int &i);
+string skyPointTypeToStr(TPointType value);
+TPointType strToSkyPointType(const string& str);
+
+//---------------------------------------------------------------------------
 //TSkyPoint:
 //---------------------------------------------------------------------------
 
-//tipo de punto de cielo
-//      coUnk: unknown SP
-//      coSci: scientific SP
-//      coRef: reference-source SP
-//      coBla: blank SP
-enum TSkyPointType {coUnk, coSci, coRef, coBla};
-
-//clase SP
+//class sky point
 class TSkyPoint {
 protected:
     //PROPIEDADES DEFINITORIAS:
@@ -61,10 +69,6 @@ protected:
 
     double __Tint;
     AnsiString __Name;
-
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATOT EXTO:
 
 public:
     //PROPIEDADES ESTÁTICAS:
@@ -91,6 +95,11 @@ public:
     //debe ser imprimible
     //valor por defecto: "Type"
     static AnsiString TypeLabel;
+
+    //label of the property Priority
+    //must be printable
+    //default value: "Priority"
+    static AnsiString PriorityLabel;
 
     //PROPIEDADES DEFINITORIAS:
 
@@ -125,13 +134,13 @@ public:
     //valor por defecto: 0
     double getTint(void) const {return __Tint;} void setTint(double);
 
-    //tipo de SP
-    //      coUnk: unknown SP
-    //      coSci: scientific SP
-    //      coRef: reference-source SP
-    //      coBla: blank SP
-    //valor por defecto: coUnk
-    TSkyPointType Type;
+    //type of point
+    //  ptUNKNOWN: unknown type
+    //  ptSOURCE: scientific source
+    //  ptREFERENCE: reference source
+    //  ptBLANK: sky backgound
+    //default value: ptUNKNOWN
+    TPointType Type;
 
     //nombre del punto de cielo
     //debe estar entre comillas simples
@@ -144,6 +153,10 @@ public:
 
     //NOTA: 23 es precisamente el número máximo de caracteres de un valor
     //en punto flotante para double.
+
+    //allocation Priority
+    //devault value: 0
+    unsigned int Priority;
 
     //PROPIEDADES EN FORMATO TEXTO:
 

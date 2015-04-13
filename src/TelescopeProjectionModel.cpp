@@ -809,11 +809,11 @@ void TTelescopeProjectionModel::Project(TSkyPointList& SPL)
         //contruye el punto de proyección adscrito
         PP = new TProjectionPoint(SP);
         //proyecta la ubicación del punto de cielo
-        Project(PP->P, SP->getRA(), SP->getDEC());
+        Project(*PP, SP->getRA(), SP->getDEC());
         //añade el punto de proyección a la lista
         ProjectionPointList.Add(PP);
         //si el punto de proyección está dentro del plano focal
-        if(PointIsInFocalPlane(PP->P))
+        if(PointIsInFocalPlane(*PP))
             //añade el punto de proyección a la lista de internos
             ListInnerProjectionPoints.Add(PP);
     }
@@ -897,7 +897,6 @@ void TTelescopeProjectionModel::RandomizeProjectionPoints(void)
 void TTelescopeProjectionModel::DeprojectProjectionPoints(void)
 {
     TProjectionPoint *PP;
-    int j;
     TSkyPoint *CO;
 
     //por cada punto de proyección de la lista
@@ -911,7 +910,7 @@ void TTelescopeProjectionModel::DeprojectProjectionPoints(void)
             CO = PP->getSkyPoint();
             //proyecta el punto del plano focal sobre la esfera celeste
             double RA, DEC;
-            Deproject(RA, DEC, PP->P);
+            Deproject(RA, DEC, *PP);
             CO->SetPosition(RA, DEC);
         }
     }

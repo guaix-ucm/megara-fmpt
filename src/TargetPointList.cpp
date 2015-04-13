@@ -48,17 +48,17 @@ AnsiString TTargetPointList::getTargetPointsText(void)
                 TP = Items[i];
 
                 //imprime el identificador
-                aux = IntToStr(TP->getRoboticPositioner()->getActuator()->getId());
+                aux = IntToStr(TP->getRP()->getActuator()->getId());
                 while(aux.Length() < 8)
                         aux += char(32);
 
                 //imprime x
-                aux += FloatToStr(TP->TargetP3.x);
+                aux += FloatToStr(TP->PP.x);
                 while(aux.Length() < 32)
                         aux += char(32);
 
                 //imprime y
-                aux += FloatToStr(TP->TargetP3.y);
+                aux += FloatToStr(TP->PP.y);
                 aux += "\r\n";
 
                 S += aux;
@@ -191,23 +191,23 @@ TTargetPointList::~TTargetPointList()
 //---------------------------------------------------------------------------
 
 //busca el punto objetivo adscrito a un posicionador
-int TTargetPointList::SearchTargetPoint(TRoboticPositioner *RP)
+int TTargetPointList::searchTargetPoint(const TRoboticPositioner *RP) const
 {
         //el puntero RP debe apuntar a un RP construido
         if(RP == NULL)
                 throw EImproperArgument("pointer RP should point to built RP");
 
         int i = 0;
-        while(i<getCount() && Items[i]->getRoboticPositioner()!=RP)
+        while(i<getCount() && Items[i]->getRP()!=RP)
                 i++;
 
         return i;
 }
 //busca el punto objetivo adscrito a un posicionador identificado
-int TTargetPointList::SearchTargetPoint(int Id)
+int TTargetPointList::searchTargetPoint(int Id) const
 {
         int i = 0;
-        while(i<getCount() && Items[i]->getRoboticPositioner()->getActuator()->getId()!=Id)
+        while(i<getCount() && Items[i]->getRP()->getActuator()->getId()!=Id)
                 i++;
 
         return i;
@@ -228,7 +228,7 @@ void TTargetPointList::AddTargetPoint(int i)
         TRoboticPositioner *RP = getRoboticPositionerList()->Get(i);
 
         //busca el punto objetivo adscrito al posicionador
-        i = SearchTargetPoint(RP);
+        i = searchTargetPoint(RP);
 
         //si el posicionador indicado i ya tiene un ponto objetivo adscrito
         if(i > getRoboticPositionerList()->getCount())
@@ -273,11 +273,11 @@ int TTargetPointList::AddP3Selected(void)
                 //si el posicionador está seleccionado
                 if(RP->getActuator()->Selected) {
                         //busca el posicionador en la lista de puntos objetivo
-                        j = SearchTargetPoint(RP->getActuator()->getId());
+                        j = searchTargetPoint(RP->getActuator()->getId());
                         //si el posicionador ya tiene un punto objetivo asignado
                         if(j < getCount())
-                                //asignala posición del posicionador al punto objetivo
-                                Items[j]->TargetP3 = RP->getActuator()->getArm()->getP3();
+                                //asigna la posición del posicionador al punto objetivo
+                                Items[j]->PP = RP->getActuator()->getArm()->getP3();
                         else //si el posicionador no tiene un punto objetivo asignado
                                 //añade un punto objetivo con sus coordenadas actuales
                                 Add(new TTargetPoint(RP, RP->getActuator()->getArm()->getP3()));
@@ -303,7 +303,7 @@ int TTargetPointList::DeleteSelected(void)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //si el posicionador adscrito está seleccionado
-                if(TP->getRoboticPositioner()->getActuator()->Selected) {
+                if(TP->getRP()->getActuator()->Selected) {
                         //destruye el punto objetivo
                         DeleteTargetPoint(i);
                         //contabilizael posicionador adscrito seleccionado
@@ -328,7 +328,7 @@ int TTargetPointList::SetP3oSelected(void)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //si el posicionador adscrito está seleccionado
-                if(TP->getRoboticPositioner()->getActuator()->Selected) {
+                if(TP->getRP()->getActuator()->Selected) {
                         //asigna el P0 del posicionador adscrito al punto objetivo
                         TP->SetP3o();
                         //contabiliza el posicionador seleccionado
@@ -352,7 +352,7 @@ int TTargetPointList::SetP3Selected(void)
                 //apunta el punto objetivo para facilitar su acceso
                 TP = Items[i];
                 //si el posicionador adscrito está seleccionado
-                if(TP->getRoboticPositioner()->getActuator()->Selected) {
+                if(TP->getRP()->getActuator()->Selected) {
                         //asigna la posición actual del posicioandor
                         TP->SetP3();
                         //contabiliza el posicionador seleccionado
@@ -377,9 +377,9 @@ int TTargetPointList::RandomizeSelected(void)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //si elposicionador adscrito está seleccionado
-                if(TP->getRoboticPositioner()->getActuator()->Selected) {
+                if(TP->getRP()->getActuator()->Selected) {
                         //randomiza el punto en el dominio de su RP adscrito
-                        Items[i]->Randomize();
+                        Items[i]->RandomizePP();
                         //contabiliza el posicionador seleccionado
                         acum++;
                 }
@@ -420,7 +420,7 @@ int TTargetPointList::RandomizeWithoutCollisionSelected(void)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //apunta el posicionador adscrito para facilitar su acceso
-                RP = TP->getRoboticPositioner();
+                RP = TP->getRP();
 
                 //sielposicionador adscrito está seleccionado
                 if(RP->getActuator()->Selected) {
@@ -437,9 +437,9 @@ int TTargetPointList::RandomizeWithoutCollisionSelected(void)
                         //repite
                         do {
                                 //randomiza el punto en el dominio de su RP adscrito
-                                TP->Randomize();
+                                TP->RandomizePP();
                                 //mueve el posicionador al punto objetivo
-                                TP->MoveToTargetP3();
+                                TP->MoveToPP();
                                 //determina is hay colisión
                                 collision = RP->getActuator()->ThereIsCollisionWithAdjacent();
                         //mientras el brazo del posicionador invada a sus adyacentes
@@ -459,7 +459,7 @@ int TTargetPointList::RandomizeWithoutCollisionSelected(void)
                 //por cada punto objetivo de la lista
                 for(int i=0; i<getCount(); i++) {
                         //apunta el posicionador para faciltiar su acceso
-                        RP = Items[i]->getRoboticPositioner();
+                        RP = Items[i]->getRP();
 
                         //si el posicionador está seleccionado
                         if(RP->getActuator()->Selected) {
@@ -495,9 +495,9 @@ int TTargetPointList::MoveToTargetP3Selected(void)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //si el posicionador adscrito está seleccionado
-                if(TP->getRoboticPositioner()->getActuator()->Selected) {
+                if(TP->getRP()->getActuator()->Selected) {
                         //asigna el punto objetivo a su RP adscrito
-                        TP->MoveToTargetP3();
+                        TP->MoveToPP();
                         //contabiliza el posicionador seleccionado
                         acum++;
                 }
@@ -523,11 +523,11 @@ void TTargetPointList::AddP3(void)
                 RP = getRoboticPositionerList()->Get(i);
 
                 //busca el posicionador en la lista de puntos objetivo
-                j=SearchTargetPoint(RP->getActuator()->getId());
+                j = searchTargetPoint(RP->getActuator()->getId());
                 //si el posicionador ya tiene un punto objetivo asignado
                 if(j < getCount())
                         //asigna la posición del posicionador al punto objetivo
-                        Items[j]->TargetP3 = RP->getActuator()->getArm()->getP3();
+                        Items[j]->PP = RP->getActuator()->getArm()->getP3();
                 else//si el posicionador no tiene un punto objetivo asignado
                         //añade un punto objetivo con sus coordenadas actuales
                         Add(new TTargetPoint(RP, RP->getActuator()->getArm()->getP3()));
@@ -554,7 +554,7 @@ void TTargetPointList::SetPO3(void)
 {
         //todos los posicionadores adscritos deben estar en la lista
         TVector<int> indices;
-        SearchMissingRoboticPositioners(indices);
+        SearchMissingRPs(indices);
         if(indices.getCount() > 0)
                 throw EImproperCall("there are missing RPs in the target point assignations list");
 
@@ -582,14 +582,14 @@ void TTargetPointList::Randomize(void)
         //todos los posicionadores de fibra adscritos a
         //los puntos objetivo deben estar en la lista
         TVector<int> indices;
-        SearchMissingRoboticPositioners(indices);
+        SearchMissingRPs(indices);
         if(indices.getCount() > 0)
                 throw EImproperCall("there are missing RPs in the assignaments list");
 
         //por cada asignación de la lista
         for(int i=0; i<getCount(); i++)
                 //randomiza el punto en el dominio de su RP adscrito
-                Items[i]->Randomize();
+                Items[i]->RandomizePP();
 }
 
 //randomiza los puntos objetivo con distribución uniforme
@@ -600,7 +600,7 @@ void TTargetPointList::RandomizeWithoutCollision(void)
         //todos los posicionadores de fibra adscritos a
         //los puntos objetivo deben estar en la lista
         TVector<int> indices;
-        SearchMissingRoboticPositioners(indices);
+        SearchMissingRPs(indices);
         if(indices.getCount() > 0)
                 throw EImproperCall("there are missing RPs in the assignaments list");
 
@@ -629,7 +629,7 @@ void TTargetPointList::RandomizeWithoutCollision(void)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //apunta el posicionador adscrito para facilitar su acceso
-                RP = TP->getRoboticPositioner();
+                RP = TP->getRP();
 
                 //guarda la configuración inicial del posicionador
                 Quantify_.Add(char(RP->getActuator()->getQuantify_()));
@@ -644,9 +644,9 @@ void TTargetPointList::RandomizeWithoutCollision(void)
                 //repite
                 do {
                         //randomiza el punto en el dominio de su RP adscrito
-                        TP->Randomize();
+                        TP->RandomizePP();
                         //mueve el posicionador al punto objetivo
-                        TP->MoveToTargetP3();
+                        TP->MoveToPP();
                         //determina si hay colisión
                         collision = RP->getActuator()->ThereIsCollisionWithAdjacent();
                 //mientras el brazo del posicionador invada a sus adyacentes
@@ -658,7 +658,7 @@ void TTargetPointList::RandomizeWithoutCollision(void)
         //por cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++) {
                 //apunta el posicionador indicado para faciltiar su acceso
-                RP = Items[i]->getRoboticPositioner();
+                RP = Items[i]->getRP();
 
                 //restaura la posición de los ejes
                 RP->getActuator()->getArm()->settheta___3(theta__3[i]);
@@ -687,7 +687,7 @@ void TTargetPointList::MoveToTargetP3(void)
             RPL.Print = TRoboticPositioner::PrintId;
             for(int i=0; i<indices.getCount(); i++) {
                 TTargetPoint *TP = Items[indices[i]];
-                RPL.Add(TP->getRoboticPositioner());
+                RPL.Add(TP->getRP());
             }
 
             //indicates the error
@@ -697,7 +697,7 @@ void TTargetPointList::MoveToTargetP3(void)
         //para cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++)
                 //asigna el punto objetivo a su RP adscrito
-                Items[i]->MoveToTargetP3();
+                Items[i]->MoveToPP();
 }
 
 //---------------------------------------------------------------------------
@@ -705,24 +705,23 @@ void TTargetPointList::MoveToTargetP3(void)
 //---------------------------------------------------------------------------
 
 //busca los puntos objetivo adscritos a posicionadores repetidos
-void TTargetPointList::SearchRepeatedRoboticPositioners(TVector<int> &indices)
+void TTargetPointList::SearchRepeatedRPs(TVector<int> &indices)
 {
         //inicializa la ista de índices
         indices.Clear();
 
-        TTargetPoint *TP;
         //por cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++)
                 //por cada punto objetivo posterior de la lista
                 for(int j=i+1; j<getCount(); j++)
                         //si el posicionador adscrito es el mismo
-                        if(Items[i]->getRoboticPositioner() == Items[j]->getRoboticPositioner())
+                        if(Items[i]->getRP() == Items[j]->getRP())
                                 indices.Add(j); //añade el índice al punto objetivo
 }
 
 //busca los puntos objetivo adscritos a posicionadores ausentes
 //en la lista de posicionadores RoboticPositionerList
-void TTargetPointList::SearchMissingRoboticPositioners(TVector<int> &indices)
+void TTargetPointList::SearchMissingRPs(TVector<int> &indices)
 {
         TTargetPoint *TP;
         int j;
@@ -737,7 +736,7 @@ void TTargetPointList::SearchMissingRoboticPositioners(TVector<int> &indices)
                 TP = Items[i];
 
                 //busca el posicionador adscrito en la lista de posicionadores
-                j = getRoboticPositionerList()->Search(TP->getRoboticPositioner());
+                j = getRoboticPositionerList()->Search(TP->getRP());
 
                 //si el posicionador no está en la lista de posicionadores
                 if(j >= getRoboticPositionerList()->getCount())
@@ -763,12 +762,12 @@ void TTargetPointList::SearchOutDomineTargetPoints(TVector<int> &indices)
                 TP = Items[i];
 
                 //apunta el posicionador adscrito para facilitar su acceso
-                RP = TP->getRoboticPositioner();
+                RP = TP->getRP();
 
                 //traduce el punto a coordenadas angulares de los ejes
                 //y determina si está en el dominio del posicionador
                 double theta_1, theta___3;
-                bool isindomine = RP->getActuator()->AnglesToGoP3(theta_1, theta___3, TP->TargetP3.x, TP->TargetP3.y);
+                bool isindomine = RP->getActuator()->AnglesToGoP3(theta_1, theta___3, TP->PP.x, TP->PP.y);
 
                 //si el punto objetivo está fuera del dominio del posicionador
                 if(!isindomine)
@@ -792,7 +791,7 @@ int TTargetPointList::Invalid(TVector<int> &indices)
         //se logra controlando las adiciones
 
         //busca posicionadores adscritos ausentes
-        SearchMissingRoboticPositioners(indices);
+        SearchMissingRPs(indices);
         if(indices.getCount() > 0) //si ha encontrado algún posicionador ausente
                 return 1; //indica que ha encontrado posicionadores ausentes
 
@@ -847,11 +846,11 @@ void TTargetPointList::SegregateInOut(TRoboticPositionerList &Inners,
 
                 //apunta el posicionador adscrito
                 //para facilitar su acceso
-                RP = TP->getRoboticPositioner();
+                RP = TP->getRP();
 
                 //traduce el punto a coordenadas angulares de los ejes
                 //y determina si el punto objetivo está en el dominio del posicionador
-                isindomain = RP->getActuator()->AnglesToGoP3(theta_1, theta___3, TP->TargetP3.x, TP->TargetP3.y);
+                isindomain = RP->getActuator()->AnglesToGoP3(theta_1, theta___3, TP->PP.x, TP->PP.y);
 
                 //el punto objetivo no puede estar fuera del dominio de su posicionador adscrito
                 if(!isindomain)
@@ -879,7 +878,7 @@ void TTargetPointList::PushPositions(void)
         //por cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++) {
                 //apunta el posicionador adscrito inicado para facilitar su acceso
-                RP = Items[i]->getRoboticPositioner();
+                RP = Items[i]->getRP();
 
                 //apila la posición de sus ejes
                 RP->getActuator()->Pushtheta_1();
@@ -894,7 +893,7 @@ void TTargetPointList::RestorePositions(void)
         //por cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++) {
                 //apunta el posicionador adscrito indicado para facilitar su acceso
-                RP = Items[i]->getRoboticPositioner();
+                RP = Items[i]->getRP();
 
                 //restaura y desempila la posición de sus ejes
                 RP->getActuator()->getArm()->Restoretheta___3();
@@ -909,7 +908,7 @@ void TTargetPointList::PopPositions(void)
         //por cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++) {
                 //apunta el posicionador adscrito indicado para facilitar su acceso
-                RP = Items[i]->getRoboticPositioner();
+                RP = Items[i]->getRP();
 
                 //desempila la posición de sus ejes
                 RP->getActuator()->getArm()->Poptheta___3();
@@ -924,7 +923,7 @@ void TTargetPointList::RestoreAndPopPositions(void)
         //por cada punto objtivo de la lista
         for(int i=0; i<getCount(); i++) {
                 //apunta el posicionador adscrito indicado para facilitar su acceso
-                RP = Items[i]->getRoboticPositioner();
+                RP = Items[i]->getRP();
 
                 //restaura y desempila la posición de sus ejes
                 RP->getActuator()->getArm()->Restoretheta___3();
@@ -943,7 +942,7 @@ void TTargetPointList::RestoreAndPopPositions(void)
 void TTargetPointList::EnablePendingCollisionDetermineTargetPoints(void)
 {
         for(int i=0; i<getCount(); i++)
-                Items[i]->getRoboticPositioner()->getActuator()->Pending = true;
+                Items[i]->getRP()->getActuator()->Pending = true;
 }
 
 //busca los puntos objetivo que colisionan con otros puntos objetivo
@@ -966,12 +965,12 @@ void TTargetPointList::SearchCollindingTargetPoints(TVector<int> &indices)
                 //apunta el punto objetivo indicado para facilitar su acceso
                 TP = Items[i];
                 //apunta el posicionador para facilitar su acceso
-                RP = TP->getRoboticPositioner();
+                RP = TP->getRP();
                 //guarda las posiciones actuales
                 theta_1.Add(RP->getActuator()->gettheta_1());
                 theta___3.Add(RP->getActuator()->getArm()->gettheta___3());
                 //mueve el posicionador a su punto objetivo
-                TP->MoveToTargetP3();
+                TP->MoveToPP();
         }
 
         //reinicia el vector de índices en congruencia
@@ -995,7 +994,7 @@ void TTargetPointList::SearchCollindingTargetPoints(TVector<int> &indices)
                 if(indices.Search(i) >= indices.getCount()) {
                         //apunta el posicionador adscrito al punto objetivo indicado
                         //para facilitar su acceso
-                        RP = Items[i]->getRoboticPositioner();
+                        RP = Items[i]->getRP();
                         //busca los posicionadores adyacentes que colisionan
                         RP->getActuator()->SearchCollindingPendingAdjacent(RPs);
                         //indica que ya ha determinado el estado de colisión del brazo del posicionador
@@ -1006,7 +1005,7 @@ void TTargetPointList::SearchCollindingTargetPoints(TVector<int> &indices)
                         //añade los índices a los puntos objetivo adscritos a los posicionadores con los que colisiona
                         for(int j=0; j<RPs.getCount(); j++) {
                                 //busca un punto objetivo adscrito al posicioandor indicado
-                                int k = SearchTargetPoint((TRoboticPositioner*)RPs[j]);
+                                int k = searchTargetPoint((TRoboticPositioner*)RPs[j]);
                                 //si hay un punto objetivo adscrito al posicionador
                                 if(k < getCount()) {
                                         //si el índice no está en la lista
@@ -1030,7 +1029,7 @@ void TTargetPointList::SearchCollindingTargetPoints(TVector<int> &indices)
         //por cada punto objetivo de la lista
         for(int i=0; i<getCount(); i++) {
                 //apunta el posicionador indicado para facilitar su acceso
-                RP = Items[i]->getRoboticPositioner();
+                RP = Items[i]->getRP();
                 //asigna los valores indicados de las listas
                 RP->getActuator()->settheta_1(theta_1[i]);
                 RP->getActuator()->getArm()->settheta___3(theta___3[i]);
@@ -1039,6 +1038,31 @@ void TTargetPointList::SearchCollindingTargetPoints(TVector<int> &indices)
         //orde la lista de índices
         if(indices.getCount() > 1)
                 indices.SortInc(0, indices.getCount()-1);
+}
+
+//COUNT OF ALLOCATION TYPES:
+
+//count the number of reference sources in the SPPP list
+unsigned int TTargetPointList::countNR(void) const
+{
+    unsigned int count = 0;
+    for(int i=0; i<getCount(); i++) {
+        const TTargetPoint *TP = Items[i];
+        if(TP->PP.Type == ptREFERENCE)
+            count++;
+    }
+    return count;
+}
+//count the number of blanks in the SPPP list
+unsigned int TTargetPointList::countNB(void) const
+{
+    unsigned int count = 0;
+    for(int i=0; i<getCount(); i++) {
+        const TTargetPoint *TP = Items[i];
+        if(TP->PP.Type == ptBLANK)
+            count++;
+    }
+    return count;
 }
 
 //---------------------------------------------------------------------------

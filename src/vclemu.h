@@ -168,10 +168,22 @@ public:
 //---------------------------------------------------------------------------
 //FUNCIONES DE CONVERSIÓN:
 
+//The more large integer has 13 characters,
+//including the sign.
+//The more large double has 23 caracteres,
+//including the sign, the exponent and the sign of the exponent.
+
 //translate from double to string
 string floattostr(double value);
 //translate from int to string
 string inttostr(int value);
+
+//translate from string to double
+double strtofloat(const string&);
+//translate from string to int
+int strtoint(const string&);
+//translate from string to bool
+bool strtobool(const string&);
 
 //traduce de AnsiString a double
 double StrToFloat(const AnsiString& S);
@@ -213,7 +225,7 @@ QColor StringToColor(const AnsiString&);
 int mkpath(const string& dir);
 
 //obtiene la ruta del directorio actual
-AnsiString GetCurrentDir(void);
+string getCurrentDir(void);
 //construye un directorio
 void ForceDirectories(const AnsiString&);
 

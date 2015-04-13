@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ExclusionArea.h
-//Contenido: área de exclusión compuesta por barrera, posición y orientación
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: ExclusionArea.h
+//Content: class exclusion area
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef EXCLUSIONAREA_H
@@ -51,285 +50,240 @@ namespace Models {
 
 //clase área de exclusión
 class TExclusionArea {
-        //PROPIEDADES DEL ÁREA DE EXCLUSIÓN:
+    //PROPIEDADES DEL ÁREA DE EXCLUSIÓN:
 
-        double __Eo;
-        double __Ep;
+    double __Eo;
+    double __Ep;
 
-        int __Id;
-
-        //PROPIEDADES EN FORMATO TEXTO:
-
-
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
+    int __Id;
 
 public:
-        //PROPIEDADES ESTÁTICAS:
+    //PROPIEDADES ESTÁTICAS:
 
-        //lista de objetos construidos
-        static TItemsList<TExclusionArea*> Builts;
+    //lista de objetos construidos
+    static TItemsList<TExclusionArea*> Builts;
 
-        //La lista de objetos contruidos es útil para:
-        //- determinar los identificadores que se encuentran repetidos;
-        //- obtener identificadores unívocos;
-        //- controlar la integridad de memoria.
+    //La lista de objetos contruidos es útil para:
+    //- determinar los identificadores que se encuentran repetidos;
+    //- obtener identificadores unívocos;
+    //- controlar la integridad de memoria.
 
-        //El objeto estático Builts debe ser contruido
-        //antes de invocar al contructor mediante:
-        //      TItemList<TExclusionArea*> TExclusionArea::Builts;
-        //para ello esta sentencia deberá ser insertada en el mismo
-        //archivo donde se invoca al constructor, antes de la invocación.
-        //Si se insertase en este archivo o en su correspondiente .cpp,
-        //sería invocado después de llamar al constructor.
+    //El objeto estático Builts debe ser contruido
+    //antes de invocar al contructor mediante:
+    //      TItemList<TExclusionArea*> TExclusionArea::Builts;
+    //para ello esta sentencia deberá ser insertada en el mismo
+    //archivo donde se invoca al constructor, antes de la invocación.
+    //Si se insertase en este archivo o en su correspondiente .cpp,
+    //sería invocado después de llamar al constructor.
 
-        //PROPIEDADES DEL ÁREA DE EXCLUSIÓN:
+    //PROPIEDADES DEL ÁREA DE EXCLUSIÓN:
 
-        //barrera del área de exclusión
-        TBarrier Barrier;
+    //barrera del área de exclusión
+    TBarrier Barrier;
 
-        //margen de error de orientación en S0
-        //      Valor por defecto: MEGARA_Eo rad
-        double getEo(void) const {return __Eo;} void setEo(double);
-        //margen de error de posición en S0
-        //      Valor por defecto: MEGARA_Ep mm
-        double getEp(void) const {return __Ep;} void setEp(double);
+    //margen de error de orientación en S0
+    //      Valor por defecto: MEGARA_Eo rad
+    double getEo(void) const {return __Eo;} void setEo(double);
+    //margen de error de posición en S0
+    //      Valor por defecto: MEGARA_Ep mm
+    double getEp(void) const {return __Ep;} void setEp(double);
 
-        //número de identificación
-        //debe ser mayor que cero
-        //valor por defecto: 0
-        int getId(void) const {return __Id;} void setId(int);
-        //lista de posicionadores de RPs lo bastante cerca
-        //para que puedan colisionar con la barrera
-        //valor por defecto:
-        //      Adjacents.Capacity = 6;
-        //      Adjacents.Compare = TRoboticPositioner::CompareIds;
-        //      Adjacents.Print = TRoboticPositioner::PrintId;
-        TItemsList<TRoboticPositioner*> Adjacents;
+    //número de identificación
+    //debe ser mayor que cero
+    //valor por defecto: 0
+    int getId(void) const {return __Id;} void setId(int);
+    //lista de posicionadores de RPs lo bastante cerca
+    //para que puedan colisionar con la barrera
+    //valor por defecto:
+    //      Adjacents.Capacity = 6;
+    //      Adjacents.Compare = TRoboticPositioner::CompareIds;
+    //      Adjacents.Print = TRoboticPositioner::PrintId;
+    TItemsList<TRoboticPositioner*> Adjacents;
 
-        //indica si la barrera del EA será tenida en cuenta
-        //en la determinación de distancias y colisiones
-        //valor por defecto: true
-        bool Pending;
+    //indica si la barrera del EA será tenida en cuenta
+    //en la determinación de distancias y colisiones
+    //valor por defecto: true
+    bool Pending;
 
-        //La propiedad Pending será usada en los métodos:
-        //      ThereIsCollisionWithPendingAdjacent
-        //      SearchCollindingPendingAdjacent
-        //con objeto de evitar aplicar el método de determinación de colisión
-        //más de una vez entre cada par de brazos.
+    //La propiedad Pending será usada en los métodos:
+    //      ThereIsCollisionWithPendingAdjacent
+    //      SearchCollindingPendingAdjacent
+    //con objeto de evitar aplicar el método de determinación de colisión
+    //más de una vez entre cada par de brazos.
 
-        //PROPIEDADES GRÁFICAS:
+    //PROPIEDADES EN FORMATO TEXTO:
 
-        //color del EA
-        //valor por defecto: clGray
-        //#QColor Color;
-        //indica si debe dibujarse el EA
-        //valor por defecto: true
-        bool PaintBody;
-        //indica el estado de selección del EA
-        //valor por defecto: false
-        bool Selected;
+    //dirección en memoria de la barrera
+    //en formato texto
+    AnsiString getBarrierAddressText(void) const {
+        return IntToHex(reinterpret_cast<intptr_t>(&Barrier), 8);}
 
-        //cuando el EA está seleccionada, Paint la dibuja resaltada
+    AnsiString getEoText(void) const; void setEoText(const AnsiString&);
+    AnsiString getEpText(void) const; void setEpText(const AnsiString&);
 
-        //PROPIEDADES EN FORMATO TEXTO:
+    AnsiString getIdText(void) const;
+    void setIdText(const AnsiString&);
 
-        //dirección en memoria de la barrera
-        //en formato texto
-        AnsiString getBarrierAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&Barrier), 8);}
+    //Adjacents.Text
 
-        AnsiString getEoText(void) const; void setEoText(const AnsiString&);
-        AnsiString getEpText(void) const; void setEpText(const AnsiString&);
+    AnsiString getPendingText(void) const;
+    void setPendingText(const AnsiString&);
 
-        AnsiString getIdText(void) const;
-        void setIdText(const AnsiString&);
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //Adjacents.Text
+    //conjunto de todas las propiedades
+    //en formato de asignaciones
+    AnsiString getAllText(void) const;
 
-        AnsiString getPendingText(void) const;
-        void setPendingText(const AnsiString&);
+    //instancia del posicionador
+    //en formato de asignaciones
+    AnsiString getInstanceText(void) const;
+    void setInstanceText(const AnsiString&);
 
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
+    //conjunto de propiedades de origen (Id, x0, y0, thetaO1)
+    //en formato línea de texto
+    //en formato asignaciones de texto
+    AnsiString getOriginsText(void) const;
 
-        AnsiString getColorText(void) const;
-        void setColorText(const AnsiString&);
-        AnsiString getPaintBodyText(void) const;
-        void setPaintBodyText(const AnsiString&);
-        AnsiString getSelectedText(void) const;
-        void setSelectedText(const AnsiString&);
+    //###################################################################
+    //MÉTODOS PÚBLICOS:
+    //###################################################################
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //-------------------------------------------------------------------
+    //MÉTODOS ESTÁTICOS:
 
-        //conjunto de todas las propiedades
-        //en formato de asignaciones
-        AnsiString getAllText(void) const;
+    //compara los identificadores de dos EAs
+    static int  CompareIds(TExclusionArea *EA1,
+                           TExclusionArea *EA2);
 
-        //instancia del posicionador
-        //en formato de asignaciones
-        AnsiString getInstanceText(void) const;
-        void setInstanceText(const AnsiString&);
+    //imprime el identificador de un EA
+    static void  PrintId(AnsiString &S, TExclusionArea *EA);
 
-        //conjunto de propiedades de origen (Id, x0, y0, thetaO1)
-        //en formato línea de texto
-        //en formato asignaciones de texto
-        AnsiString getOriginsText(void) const;
+    //Los métodos estáticos:
+    //      CompareIds
+    //      PrintId
+    //serán apuntados en la lista de EAs (del tipo TExclusionAreaList),
+    //para permitir su ordenacíon en función de los identificadores
+    //y permitir la impresión de los mismos.
 
-        //###################################################################
-        //MÉTODOS PÚBLICOS:
-        //###################################################################
+    //obtiene las etiquetas de las propiedades de origen
+    //en formato fila de texto
+    static AnsiString GetOriginsLabelsRow(void);
+    //atraviesa las etiquetas de las propiedades de origen
+    //en formato fila de texto
+    static void  TravelOriginsLabelsRow(const AnsiString&, int&);
 
-        //-------------------------------------------------------------------
-        //MÉTODOS ESTÁTICOS:
+    //imprime los valores de las propiedades de orien de un EA
+    //al final de una cadena de texto
+    //en formato fila de texto
+    static void  PrintOriginsRow(AnsiString& S,
+                                 TExclusionArea *EA);
+    //lee los valores de las propiedades de orien para un EA
+    //desde la posición indicada de una cadena de texto
+    //en formato fila de texto
+    static void  ReadOriginsRow(TExclusionArea *EA,
+                                const AnsiString& S, int &i);
 
-        //compara los identificadores de dos EAs
-        static int  CompareIds(TExclusionArea *EA1,
-                TExclusionArea *EA2);
+    //lee una instancia del EA
+    //desde la posición indicada de una cadena de texto
+    //en formato de asignaciones
+    static void  ReadInstance(TExclusionArea* &B,
+                              const AnsiString& S, int &i);
 
-        //imprime el identificador de un EA
-        static void  PrintId(AnsiString &S, TExclusionArea *EA);
+    //-------------------------------------------------------------------
+    //MÉTODOS DE CONSTRUCCIÓN,COPIA Y CLONACIÓN:
 
-        //Los métodos estáticos:
-        //      CompareIds
-        //      PrintId
-        //serán apuntados en la lista de EAs (del tipo TExclusionAreaList),
-        //para permitir su ordenacíon en función de los identificadores
-        //y permitir la impresión de los mismos.
+    //contruye un área de exclusión
+    //con los valores por defecto
+    TExclusionArea(void);
+    //construye un área de exclusión
+    //con los valores indicados
+    //si el número de identificación es menor que uno
+    //      lanza una execepción EImproperArgument
+    TExclusionArea(int _Id, TDoublePoint _P0, double _thetaO1=0);
 
-        //obtiene las etiquetas de las propiedades de origen
-        //en formato fila de texto
-        static AnsiString GetOriginsLabelsRow(void);
-        //atraviesa las etiquetas de las propiedades de origen
-        //en formato fila de texto
-        static void  TravelOriginsLabelsRow(const AnsiString&, int&);
+    //ADVERTENCIA: para poder contruir clones de áreas de exclusión
+    //la duplicidad de números de identificación está permitida.
+    //El control de duplicidad de identificadores debe llevarse
+    //en todo caso mediante métodos. Al fin y al cabo en el mundo real
+    //será posible configurar dos objetos para que tengan el mismo
+    //identificador.
 
-        //imprime los valores de las propiedades de orien de un EA
-        //al final de una cadena de texto
-        //en formato fila de texto
-        static void  PrintOriginsRow(AnsiString& S,
-                TExclusionArea *EA);
-        //lee los valores de las propiedades de orien para un EA
-        //desde la posición indicada de una cadena de texto
-        //en formato fila de texto
-        static void  ReadOriginsRow(TExclusionArea *EA,
-                const AnsiString& S, int &i);
+    //copia un área de exclusión
+    void Copy(const TExclusionArea *EA);
 
-        //lee una instancia del EA
-        //desde la posición indicada de una cadena de texto
-        //en formato de asignaciones
-        static void  ReadInstance(TExclusionArea* &B,
-                const AnsiString& S, int &i);
+    //contruye un clon de unárea de exclusión
+    TExclusionArea(const TExclusionArea *EA);
 
-        //-------------------------------------------------------------------
-        //MÉTODOS DE CONSTRUCCIÓN,COPIA Y CLONACIÓN:
+    //libera la memoria dinámica y borra el objeto de Builts
+    //si el objeto no está en Builts lanza EImproperCall
+    ~TExclusionArea();
 
-        //contruye un área de exclusión
-        //con los valores por defecto
-        TExclusionArea(void);
-        //construye un área de exclusión
-        //con los valores indicados
-        //si el número de identificación es menor que uno
-        //      lanza una execepción EImproperArgument
-        TExclusionArea(int _Id, TDoublePoint _P0, double _thetaO1=0);
+    //-------------------------------------------------------------------
+    //MÉTODOS PARA CALCULAR LOS VALORES RECOMENDADOS DE
+    //LAS COMPONENTES DE SPM:
 
-        //ADVERTENCIA: para poder contruir clones de áreas de exclusión
-        //la duplicidad de números de identificación está permitida.
-        //El control de duplicidad de identificadores debe llevarse
-        //en todo caso mediante métodos. Al fin y al cabo en el mundo real
-        //será posible configurar dos objetos para que tengan el mismo
-        //identificador.
+    //Calcula el márgen perimetral de seguridad para evitar:
+    //- el error mecánico debido al mecanizado del área de exclusión;
+    //- el error mecánico de orientación en el anclaje del área de exclusión;
+    //- el error mecánico de posicionamiento en el anclaje del área de exclusión;
+    //- el error numérico de las operaciones matemáticas del modelo;
+    //Todos los errores serán absorbidos por Eo y Ep
+    //en la siguiente fórmula:
+    //      SPMsta = Eo*r_max + Ep
+    //Donde:
+    //      Eo: margen de error de orientación en rad;
+    //      Ep: margen de error de posición en mm.
+    double SPMsta(void) const;
 
-        //copia un área de exclusión
-        void Copy(const TExclusionArea *EA);
+    //-------------------------------------------------------------------
+    //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
-        //contruye un clon de unárea de exclusión
-        TExclusionArea(const TExclusionArea *EA);
+    //asigna las propiedades de origen
+    void SetOrigins(int _Id, double _x0, double _y0, double _thetaO1);
 
-        //libera la memoria dinámica y borra el objeto de Builts
-        //si el objeto no está en Builts lanza EImproperCall
-        ~TExclusionArea();
+    //asigna conjuntamente las tolerancias
+    //      (Eo, Ep)
+    void SetTolerances(double _Eo, double _Ep);
 
-        //-------------------------------------------------------------------
-        //MÉTODOS PARA CALCULAR LOS VALORES RECOMENDADOS DE
-        //LAS COMPONENTES DE SPM:
+    //------------------------------------------------------------------
+    //MÉTODOS DE ASIMILACIÓN:
 
-        //Calcula el márgen perimetral de seguridad para evitar:
-        //- el error mecánico debido al mecanizado del área de exclusión;
-        //- el error mecánico de orientación en el anclaje del área de exclusión;
-        //- el error mecánico de posicionamiento en el anclaje del área de exclusión;
-        //- el error numérico de las operaciones matemáticas del modelo;
-        //Todos los errores serán absorbidos por Eo y Ep
-        //en la siguiente fórmula:
-        //      SPMsta = Eo*r_max + Ep
-        //Donde:
-        //      Eo: margen de error de orientación en rad;
-        //      Ep: margen de error de posición en mm.
-        double SPMsta(void) const;
+    //A partir de:
+    //      (Eo, Ep)
+    //      r_max
+    //Determina:
+    //      (Barrier.SPM)
+    void CalculateSPM(void);
 
-        //-------------------------------------------------------------------
-        //MÉTODOS DE ASIGNACIÓN CONJUNTA:
+    //-------------------------------------------------------------------
+    //MÉTODOS DE COLISIÓN:
 
-        //asigna las propiedades de origen
-        void SetOrigins(int _Id, double _x0, double _y0, double _thetaO1);
+    //determina los RPs adyacentes que pueden colisionar con la barrera
+    void DetermineAdjacents(const TItemsList<TRoboticPositioner*>&);
+    //determina los RPs adyacentes en estado de colisión con la barrera
+    void SearchCollinding(TItemsList<TRoboticPositioner*>&);
 
-        //asigna conjuntamente las tolerancias
-        //      (Eo, Ep)
-        void SetTolerances(double _Eo, double _Ep);
+    //------------------------------------------------------------------
+    //MÉTODOS PARA DETERMINAR LAS COLISIONES CON RPs ADYACENTES:
 
-        //------------------------------------------------------------------
-        //MÉTODOS DE ASIMILACIÓN:
+    //determina si hay colisión con un actuador adyacente
+    bool ThereIsCollision(const TActuator*);
+    //determina si hay colisión con un actuador adyacente
+    bool ThereIsCollisionWithAdjacent(void);
+    //Busca los posicionadores adyacentes cuyo
+    //brazo colisiona con la barrera de este área de exclusión.
+    void SearchCollindingAdjacent(
+            TItemsList<TActuator*> &Collindings);
 
-        //A partir de:
-        //      (Eo, Ep)
-        //      r_max
-        //Determina:
-        //      (Barrier.SPM)
-        void CalculateSPM(void);
-
-        //-------------------------------------------------------------------
-        //MÉTODOS DE COLISIÓN:
-
-        //determina los RPs adyacentes que pueden colisionar con la barrera
-        void DetermineAdjacents(const TItemsList<TRoboticPositioner*>&);
-        //determina los RPs adyacentes en estado de colisión con la barrera
-        void SearchCollinding(TItemsList<TRoboticPositioner*>&);
-
-        //------------------------------------------------------------------
-        //MÉTODOS PARA DETERMINAR LAS COLISIONES CON RPs ADYACENTES:
-
-        //determina si hay colisión con un actuador adyacente
-        bool ThereIsCollision(const TActuator*);
-        //determina si hay colisión con un actuador adyacente
-        bool ThereIsCollisionWithAdjacent(void);
-        //Busca los posicionadores adyacentes cuyo
-        //brazo colisiona con la barrera de este área de exclusión.
-        void SearchCollindingAdjacent(
-                TItemsList<TActuator*> &Collindings);
-
-        //Determina si hay colisión con un actuador adyacente
-        //con evalauación de colisión pendiente.
-        bool ThereIsCollisionWithPendingAdjacent(void);
-        //Busca los posicionadores adyacentes
-        //con evalauación de colisión pendiente
-        //cuyo brazo colisiona con la barrera de este área de exlusión.
-        void SearchCollindingPendingAdjacent(
-                TItemsList<TActuator*> &Collindings);
-
-        //------------------------------------------------------------------
-        //MÉTODOS DE GRÁFICOS:
-
-        //indica que parte del EA puede ser agarrada en el punto indicado
-        //      1: barrera;
-        //      0: niguna;
-        int Grab(TDoublePoint P);
-
-        //dibuja el EA en un trazador
-        //#void Paint(TPloterShapes*);
-        //dibuja el EA en un trazador
-        //#void PaintSimplified(TPloterShapes*);
+    //Determina si hay colisión con un actuador adyacente
+    //con evalauación de colisión pendiente.
+    bool ThereIsCollisionWithPendingAdjacent(void);
+    //Busca los posicionadores adyacentes
+    //con evalauación de colisión pendiente
+    //cuyo brazo colisiona con la barrera de este área de exlusión.
+    void SearchCollindingPendingAdjacent(
+            TItemsList<TActuator*> &Collindings);
 };
 
 //---------------------------------------------------------------------------

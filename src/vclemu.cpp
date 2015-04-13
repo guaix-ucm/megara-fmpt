@@ -280,7 +280,7 @@ int AnsiString::ToInt() const
         int value;
         bool ok = (ss >> value);
         if(!ok) {
-            throw EImproperArgument(AnsiString("can't convert string to double"));
+            throw EImproperArgument(AnsiString("can't convert string to int"));
         }
 
         //WARNING: if precision is upper to digits10 decimals, conversión to
@@ -376,6 +376,73 @@ string inttostr(int value)
     }
 
     return ss.str();
+}
+
+//translate from string to double
+double strtofloat(const string& str)
+{
+    try {
+        stringstream ss(str);
+        ss.precision(std::numeric_limits<double>::digits10);
+        double value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to double"));
+        }
+
+        //WARNING: if precision is upper to digits10 decimals, conversión to
+        //string can introduce numerial error for somevalues.Example:
+        //  value       ->  string
+        //  87.035553	->  "87.03555299999999"
+        //  -70.35		->  "-70.34999999999999"
+
+        return value;
+
+    } catch(...) {
+            throw;
+    }
+}
+//translate from string to int
+int strtoint(const string& str)
+{
+    try {
+        istringstream ss(str);
+        ss.precision(std::numeric_limits<double>::digits10);
+        int value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to int"));
+        }
+
+        //WARNING: if precision is upper to digits10 decimals, conversión to
+        //string can introduce numerial error for somevalues.Example:
+        //  value       ->  string
+        //  87.035553	->  "87.03555299999999"
+        //  -70.35		->  "-70.34999999999999"
+
+        return value;
+
+    } catch(...) {
+            throw;
+    }
+}
+//translate from string to bool
+bool strtobool(const string& str)
+{
+    try {
+        istringstream ss(str);
+        ss.precision(std::numeric_limits<double>::digits10);
+        bool value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to bool"));
+        }
+
+        return value;
+
+    } catch(...) {
+            throw;
+    }
 }
 
 double StrToFloat(const AnsiString& S)
@@ -569,12 +636,12 @@ int mkpath(const string& path)
 }
 
 //obtiene la ruta del directorio actual
-AnsiString GetCurrentDir(void)
+string getCurrentDir(void)
 {
     char cwd[PATH_MAX];
 
     if(getcwd(cwd, PATH_MAX) != NULL)
-        return AnsiString(cwd);
+        return string(cwd);
     else
         throw Exception("error calling funtion getcwd");
 }

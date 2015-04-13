@@ -48,14 +48,14 @@ TItemsList<TTargetPoint*> TTargetPoint::Builts;
 //---------------------------------------------------------------------------
 //PROPERTIES IN TEXT FORMAT:
 
-AnsiString TTargetPoint::getTargetP3Text(void)
+AnsiString TTargetPoint::getPPText(void)
 {
-        return DPointToStr(TargetP3);
+        return DPointToStr(PP);
 }
-void TTargetPoint::setTargetP3Text(const AnsiString &S)
+void TTargetPoint::setPPText(const AnsiString &S)
 {
         try {
-                TargetP3 = StrToDPoint(S);
+                PP = StrToDPoint(S);
 
         } catch(...) {
                 throw;
@@ -68,7 +68,7 @@ AnsiString TTargetPoint::getText(void)
 {
         AnsiString S;
 
-        S = IntToStr(getRoboticPositioner()->getActuator()->getId())+AnsiString(": ")+getTargetP3Text();
+        S = IntToStr(getRP()->getActuator()->getId())+AnsiString(": ")+getPPText();
 
         return S;
 }
@@ -90,10 +90,10 @@ int  TTargetPoint::CompareIds(TTargetPoint *TPA1, TTargetPoint *TPA2)
         if(TPA2 == NULL)
                 throw EImproperArgument("pointer TPA2 should not be null");
 
-        if(TPA1->getRoboticPositioner()->getActuator()->getId() < TPA2->getRoboticPositioner()->getActuator()->getId())
+        if(TPA1->getRP()->getActuator()->getId() < TPA2->getRP()->getActuator()->getId())
                 return -1;
 
-        if(TPA1->getRoboticPositioner()->getActuator()->getId() > TPA2->getRoboticPositioner()->getActuator()->getId())
+        if(TPA1->getRP()->getActuator()->getId() > TPA2->getRP()->getActuator()->getId())
                 return 1;
 
         return 0;
@@ -101,7 +101,7 @@ int  TTargetPoint::CompareIds(TTargetPoint *TPA1, TTargetPoint *TPA2)
 
 //get the labels of the properties
 //in row text format
-AnsiString TTargetPoint::GetIdTargetP3LabelsRow(void)
+AnsiString TTargetPoint::GetIdPPLabelsRow(void)
 {
         return AnsiString("Id\t")+TDoublePoint::xLabel+AnsiString("\t")+TDoublePoint::yLabel;
 }
@@ -141,16 +141,11 @@ void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
     //      3: punto objetivo leido con éxito
     int status = 0;
 
-    //caracter indicado S[i]
-    char c;
-
     //variables tampón en formato conveniente
     int _Id;
     double _x, _y;
 
     do {
-        c = S[i]; //asigna el próximo caracter
-
         //reacciona según el estado y al caracter
         switch(status) {
         case 0: //esperando valor para Id
@@ -205,43 +200,43 @@ void  TTargetPoint::ReadSeparated(int& Id, double& x, double& y,
 //build a target point attached a RP
 //if the RP already has an attached target point
 //  throw an exception EImproperArgument
-TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
+TTargetPoint::TTargetPoint(TRoboticPositioner *_RP,
         double x, double y)
 {
-        //el puntero RoboticPositioner debería apuntar a un RP construido
-        if(_RoboticPositioner == NULL)
-                throw EImproperArgument("pointer RoboticPositioner should point to built fiber positioner");
+        //check the precondition
+        if(_RP == NULL)
+                throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-        //el RP RoboticPositioner no debería estar adscrito a
+        //el RP RP no debería estar adscrito a
         //un punto objetivo previamente construido
         for(int i=0; i<Builts.getCount(); i++)
-                if(_RoboticPositioner == Builts[i]->getRoboticPositioner())
-                        throw EImproperArgument("Fiber positioner FibeRPositioner should not be assigned to an previously built target point");
+                if(_RP == Builts[i]->getRP())
+                        throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
 
         //asigna los valores
-        __RoboticPositioner = _RoboticPositioner;
-        TargetP3.x = x;
-        TargetP3.y = y;
+        __RP = _RP;
+        PP.x = x;
+        PP.y = y;
 
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);
 }
-TTargetPoint::TTargetPoint(TRoboticPositioner *_RoboticPositioner,
-        TDoublePoint _TargetP3)
+TTargetPoint::TTargetPoint(TRoboticPositioner *_RP,
+        TDoublePoint _PP)
 {
-        //el puntero RoboticPositioner debería apuntar a un RP construido
-        if(_RoboticPositioner == NULL)
-                throw EImproperArgument("pointer RoboticPositioner should point to built fiber positioner");
+        //el puntero RP debería apuntar a un RP construido
+        if(_RP == NULL)
+                throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-        //el RP RoboticPositioner no debería estar adscrito a
+        //el RP RP no debería estar adscrito a
         //un punto objetivo previamente construido
         for(int i=0; i<Builts.getCount(); i++)
-                if(_RoboticPositioner == Builts[i]->getRoboticPositioner())
-                        throw EImproperArgument("Fiber positioner FibeRPositioner should not be assigned to an previously built target point");
+                if(_RP == Builts[i]->getRP())
+                        throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
 
         //asigna los valores
-        __RoboticPositioner = _RoboticPositioner;
-        TargetP3 = _TargetP3;
+        __RP = _RP;
+        PP = _PP;
 
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);
@@ -276,7 +271,7 @@ TTargetPoint::~TTargetPoint()
 //of thepoint P3 of the attached RP
 bool TTargetPoint::IsOutDomainP3(void)
 {
-        if(getRoboticPositioner()->getActuator()->PointIsOutDomainP3(TargetP3))
+        if(getRP()->getActuator()->PointIsOutDomainP3(PP))
                 return true;
 
         return false;
@@ -288,10 +283,10 @@ bool TTargetPoint::IsInSafeAreaP3(void)
         //determina si el punto objetivo está en el dominio del posicionador
         //adscrito y calcula las posiciones angulares de los ejes
         double theta_1, theta___3;
-        bool isindomain = getRoboticPositioner()->getActuator()->AnglesToGoP3(theta_1, theta___3, TargetP3.x, TargetP3.y);
+        bool isindomain = getRP()->getActuator()->AnglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
         //si no está en el dominio o no está dentro del área de seguridad
-        if(!isindomain || getRoboticPositioner()->getActuator()->theta___3IsOutSafeArea(theta___3))
+        if(!isindomain || getRP()->getActuator()->theta___3IsOutSafeArea(theta___3))
                 return false; //indica que no está en el área de seguridad
 
         //indica que está en el área de seguridad
@@ -299,37 +294,37 @@ bool TTargetPoint::IsInSafeAreaP3(void)
 }
 
 //---------------------------------------------------------------------------
-//MOVING METHODS:
+//MOTION METHODS:
 
-//randomize the point TargetP3 with uniform distribution
+//randomize the point PP with uniform distribution
 //in the domain of the point P3 of its attached RP
-void TTargetPoint::Randomize(void)
+void TTargetPoint::RandomizePP(void)
 {
-        TargetP3 = getRoboticPositioner()->getActuator()->RandomP3();
+        PP = getRP()->getActuator()->RandomP3();
 }
 
-//assign the point TargetP3 to the point P3 of its attached RP
+//assign the point PP to the point P3 of its attached RP
 //and return the distance from the stable position to the target point
-//if the the point TargetP3 isn't on the domain of its attached RP:
+//if the the point PP isn't on the domain of its attached RP:
 //  throw an exception EImpropercall
-double TTargetPoint::MoveToTargetP3(void)
+double TTargetPoint::MoveToPP(void)
 {
         //determines if the target point is in the domain of the attached RP
         //and calculates the position angles of the rotors
         double theta_1, theta___3;
-        bool isindomain = getRoboticPositioner()->getActuator()->AnglesToGoP3(theta_1, theta___3, TargetP3.x, TargetP3.y);
+        bool isindomain = getRP()->getActuator()->AnglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
-        //target point TargetP3 should be in the point P3 domain of his allocated RP
+        //target point PP should be in the point P3 domain of his allocated RP
         if(!isindomain)
-                throw EImproperCall("target point TargetP3 should be in the point P3 domain of his allocated RP");
+                throw EImproperCall("target point PP should be in the point P3 domain of his allocated RP");
 
         //determines the stable position more closer to the target point
         //and determines the distance fromthe stable position to the target point
         double p_1nsp, p___3nsp;
-        double d = getRoboticPositioner()->getActuator()->GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+        double d = getRP()->getActuator()->GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
 
         //assign the positions to the rotors
-        getRoboticPositioner()->getActuator()->SetAnglesSteps(p_1nsp, p___3nsp);
+        getRP()->getActuator()->SetAnglesSteps(p_1nsp, p___3nsp);
 
         //returns the distance fromthe stable position to the target point
         return d;

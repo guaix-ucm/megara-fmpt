@@ -34,7 +34,124 @@
 namespace Models {
 
 //---------------------------------------------------------------------------
-//TSkyPoint
+//TPointType:
+//---------------------------------------------------------------------------
+
+void  strPrinTPointType(string& str, TPointType value)
+{
+    switch(value) {
+    case ptUNKNOWN: str += "UNKNOWN"; break;
+    case ptSOURCE: str += "SOURCE"; break;
+    case ptREFERENCE: str += "REFERENCE"; break;
+    case ptBLANK: str += "BLANK"; break;
+    }
+    throw EImpossibleError("unknowledge value in type TPointType");
+}
+void  strReadSkyPointType(TPointType& value, const string& str, unsigned int& i)
+{
+    //Here it is now required that text string str is printable.
+
+    //check the precondition
+    if(str.length() < i)
+        throw EImproperArgument("index i should indicate a position in the string str");
+
+    //Length of the known possible values of the string:
+    //      strlen("UNKNOWN"): 7
+    //      strlen("SOURCE"): 6
+    //      strlen("REFERENCE"): 9
+    //      strlen("BLANK"): 5
+
+    //copy the index in an auxiliary variable
+    unsigned int i_ = i;
+
+    //advance the auxiliary index to the nextnon separator character
+    strTravelSeparatorsIfAny(str, i_);
+
+    //determine if the label is "REFERENCE" and return the corresponding value if any
+    bool label_found = strTravelLabel_("REFERENCE", str, i_);
+    if(label_found) {
+        i = i_;
+        value = ptREFERENCE;
+        return;
+    }
+
+    //determine if the label is "UNKNOWN" and return the corresponding value if any
+    label_found = strTravelLabel_("UNKNOWN", str, i_);
+    if(label_found) {
+        i = i_;
+        value = ptUNKNOWN;
+        return;
+    }
+
+    //determine if the label is "SOURCE" and return the corresponding value if any
+    label_found = strTravelLabel_("SOURCE", str, i_);
+    if(label_found) {
+        i = i_;
+        value = ptSOURCE;
+        return;
+    }
+
+    //determine if the label is "BLANK" and return the corresponding value if any
+    label_found = strTravelLabel_("BLANK", str, i_);
+    if(label_found) {
+        i = i_;
+        value = ptBLANK;
+        return;
+    }
+
+    throw EImproperArgument("there is a value of type TPointType from position i in string text S");
+}
+string skyPointTypeToStr(TPointType value)
+{
+    switch(value) {
+    case ptUNKNOWN: return "UNKNOWN";
+    case ptSOURCE: return "SOURCE";
+    case ptREFERENCE: return "REFERENCE";
+    case ptBLANK: return "BLANK";
+    }
+    throw EImpossibleError("unknowledge value in variable of type TPointType");
+}
+TPointType strToSkyPointType(const string& str)
+{
+    //Here it is now required that text string str is printable.
+
+    //Length of the known possible values of the string:
+    //      strlen("UNKNOWN"): 7
+    //      strlen("SOURCE"): 6
+    //      strlen("REFERENCE"): 9
+    //      strlen("BLANK"): 5
+
+    //copy the index in an auxiliary variable
+    unsigned int i_ = 0;
+
+    //advance the auxiliary index to the nextnon separator character
+    strTravelSeparatorsIfAny(str, i_);
+
+    //determine if the label is "REFERENCE" and return the corresponding value if any
+    bool label_found = strTravelLabel_("REFERENCE", str, i_);
+    if(label_found)
+        return ptREFERENCE;
+
+    //determine if the label is "UNKNOWN" and return the corresponding value if any
+    label_found = strTravelLabel_("UNKNOWN", str, i_);
+    if(label_found)
+        return ptUNKNOWN;
+
+    //determine if the label is "SOURCE" and return the corresponding value if any
+    label_found = strTravelLabel_("SOURCE", str, i_);
+    if(label_found)
+        return ptSOURCE;
+
+    //determine if the label is "BLANK" and return the corresponding value if any
+    label_found = strTravelLabel_("BLANK", str, i_);
+    if(label_found)
+        return ptBLANK;
+
+    throw EImproperArgument("there is a value of type TPointType from position i in string text S");
+}
+
+//---------------------------------------------------------------------------
+//TSkyPoint:
 //---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
@@ -45,6 +162,7 @@ AnsiString TSkyPoint::RALabel = "RA";
 AnsiString TSkyPoint::DECLabel = "DEC";
 AnsiString TSkyPoint::TintLabel = "Tint";
 AnsiString TSkyPoint::TypeLabel = "Type";
+AnsiString TSkyPoint::PriorityLabel = "Priority";
 
 //---------------------------------------------------------------------------
 //PROPIEDADES DEFINITORIAS:
@@ -154,23 +272,23 @@ AnsiString TSkyPoint::getTypeText(void) const
 {
     AnsiString S;
     switch(Type) {
-    case coUnk: S = "Unk"; break;
-    case coSci: S = "Sci"; break;
-    case coRef: S = "Ref"; break;
-    case coBla: S = "Bla"; break;
+    case ptUNKNOWN: S = "UNKNOWN"; break;
+    case ptSOURCE: S = "SOURCE"; break;
+    case ptREFERENCE: S = "REFERENCE"; break;
+    case ptBLANK: S = "BLANK"; break;
     }
     return S;
 }
 void TSkyPoint::setTypeText(const AnsiString &S)
 {
-    if(S == "Unk")
-        Type = coUnk;
-    else if(S == "Sci")
-        Type = coSci;
-    else if(S == "Ref")
-        Type = coRef;
-    else if(S == "Bla")
-        Type = coBla;
+    if(S == "UNKNOWN")
+        Type = ptUNKNOWN;
+    else if(S == "SOURCE")
+        Type = ptSOURCE;
+    else if(S == "REFERENCE")
+        Type = ptREFERENCE;
+    else if(S == "BLANK")
+        Type = ptBLANK;
     else
         throw EImproperArgument("sky point type should be known");
 }
@@ -509,7 +627,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
     int status = 0;
 
     //variables auxiliares
-    TSkyPoint _SP(SP); //variabletampón
+    TSkyPoint _SP(SP); //variable tampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -576,7 +694,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
 
 //contruye un punto de cielo
 TSkyPoint::TSkyPoint(void) :
-    __Id(0), __RA(0), __DEC(0), __Tint(0), Type(coUnk)
+    __Id(0), __RA(0), __DEC(0), __Tint(0), Type(ptUNKNOWN), Priority(0)
 {
     setName("\'\'");
 }

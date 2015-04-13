@@ -226,6 +226,59 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
         *MI = _MI;
 }
 
+//read an instruction in a text string
+//in the FMPT-MCS interfaz format
+void  TMessageInstruction::readInterface(TMessageInstruction *MI,
+                                         const string& str, unsigned int &i)
+{
+    if(MI == NULL)
+        throw EImproperArgument("pointer MI should point to built message instruction");
+
+    if(str.length() < i)
+        throw EImproperArgument("index i should indicate a position in the string str");
+
+    try {
+        //tampon variables
+        int RPId1, RPId2;
+        double p_1, p___3;
+
+        strTravelSeparatorsIfAny(str, i);
+        strTravelLabel("rp", str, i);
+        strReadInt(RPId1, str, i);
+        strTravelSeparators(str, i);
+        strTravelLabel("r1", str, i);
+        strTravelSeparators(str, i);
+        strReadFloat(p_1, str, i);
+        strTravelSeparators(str, i);
+        strTravelLabel("rp", str, i);
+        strReadInt(RPId2, str, i);
+
+        if(RPId2 != RPId1)
+            throw EImproperArgument("unequal RP identifiers");
+
+        strTravelSeparators(str, i);
+        strTravelLabel("r2",str, i);
+        strTravelSeparators(str, i);
+        strReadFloat(p___3, str, i);
+
+        if(RPId1 < 0)
+            throw EImproperArgument("RP identifier should be nonnegative");
+
+        //Note that RP identifier could be zero.
+
+        //set the tampon variables
+        MI->Instruction.setName("MM");
+        MI->Instruction.Args.setCount(2);
+        MI->Instruction.Args[0] = p_1;
+        MI->Instruction.Args[1] = p___3;
+        MI->setId(RPId1);
+
+    } catch(Exception& E) {
+        E.Message.str.insert(0, "reading instruction: ");
+        throw E;
+    }
+}
+
 //MÉTODOS PÚBLICOS:
 
 //construye un mensaje con los valores por defecto

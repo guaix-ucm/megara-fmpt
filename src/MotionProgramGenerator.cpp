@@ -25,14 +25,14 @@
 
 #include "MotionProgramGenerator.h"
 #include "MessageInstruction.h"
+#include "SkyPoint.h"
 
-//#include <values.h>
 #include <unistd.h>
-//#include "Windows.h" //Sleep
-
 #include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
+
+using namespace Models;
 
 //spacename for positioning
 namespace Positioning {
@@ -658,7 +658,7 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
 
     //determine the list of RPs includes in the MPs
     TRoboticPositionerList RPL;
-    getRPsIncludedInMPs(RPL, MPturn, MPretraction, *getFiberMOSModel());
+    getRPsIncludedInMPs(RPL, MPturn, MPretraction, getFiberMOSModel());
 
     if(RPL.getCount() != 1)
         throw EImproperArgument("the motion programs MPturn and MP retraction should be included only a RP");
@@ -679,7 +679,7 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
     //MAKE ACTIONS:
 
     //validate MPturn
-    bool valid = motionProgramIsValid(RP->MPturn);
+    bool valid = validateMotionProgram(RP->MPturn);
 
     //Here the RP included in the MPturn, has in the position from which start the retraction.
 
@@ -689,7 +689,7 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
         RP->getActuator()->getArm()->setSPM(SPMbak + RP->getDsec());
 
         //validate MPretraction
-        valid = motionProgramIsValid(RP->MPretraction);
+        valid = validateMotionProgram(RP->MPretraction);
 
         //Here el RP has in the final-security position.
 
@@ -1432,8 +1432,8 @@ void TMotionProgramGenerator::addMessageListToGoToTheOrigins(TMotionProgram& DP,
 TMotionProgramGenerator::TMotionProgramGenerator(TFiberMOSModel *_FiberMOSModel) :
     TMotionProgramValidator(_FiberMOSModel),
     TTargetPointList(&(_FiberMOSModel->RPL)),
-    //__dt_jmp(-M_PI/36)
-    p_MSD(1)
+    p_MSD(1),
+    NRmin(3), NBmin(1), PrMax(0)
 {
 }
 //destroy the targetpoints and destroy the MPG
@@ -1693,7 +1693,7 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     getFiberMOSModel()->RPL.SetPurpose(pVal);
 
     //determines if the generated MP is valid
-    bool valid = motionProgramIsValid(MP);
+    bool valid = validateMotionProgram(MP);
 
     //WARNING: here all RPs retracted must be in security positions,
     //to allow add a message list to go to the origins.
@@ -1907,7 +1907,7 @@ bool TMotionProgramGenerator::generatePairPPDP(TRoboticPositionerList& Collided,
 
         //validate the PP
         getFiberMOSModel()->RPL.SetPositions(IPL);
-        success = motionProgramIsValid(PP);
+        success = validateMotionProgram(PP);
 
         //move the RPs to the initial positions
         getFiberMOSModel()->RPL.SetPositions(IPL);
@@ -1922,103 +1922,296 @@ bool TMotionProgramGenerator::generatePairPPDP(TRoboticPositionerList& Collided,
 }
 
 //---------------------------------------------------------------------------
-/*
-//A not operative RP is a simple case if:
-//1. There is a certain garantee that none RP is goin to start sudenly
-//   if it is not preceded of the corresponding instruction.
-//2. The replacement RP must exist and be available:
-//   a) The point to be observed (it is to say, the PP allocated to
-//      the RP to be replaced, and not the observing point of the RP),
-//      must be in the scope of other RP.
-//   b) The adjacent RP, or some of their adjacents, must be operative
-//      and not allocated.
-//3. The unsecurity area of the replacement RP is clear
-//   and will stay clear:
-//   a) The RP to be replaced is stoped in security position.
-//   b) All not operative RPs, adjacent to the replacement RP (allocated
-//      or not), are stopped out of the insecurity area of
-//      the replacement RP.
-//   c) none of the operative RPs adjacents to the replacement RP,
-//      can has a observing position in the insecurity area.
 
-//determines if a RP is a simple case
-bool TMotionProgramGenerator::RPisAsimpleCase(const TRoboticPositioner *RP, const TTargetPointList& TPL) const
+//search the replacement RPs of a RP
+//Inputs:
+//  RP: the RP to be replaced.
+//Outputs:(
+//  RPRs: list of replacement RPs.
+//Preconditions of the FMM:
+//- All pointer of the Fiber MOS Model must point to built RPs.
+//- All pointer of the fiber MOS Model must point to different RPs.
+//- None operative RP of the Fiber MOS Model must has a dynamic fault.
+//Preconditions of the RP:
+//- Pointer RP must point to built robotic positioner.
+//- The RP must be in the Fiber MOS Model.
+//Preconditions of the TPL:
+//- All RPs included in the TPL must be in the Fiber MOS Model.
+//- All PPs included in the TPL must be in the scope of their allocated RP.
+//- The RP must be included in the TPL.
+//Postconditions:
+//- If the list RPRs is not empty, the RP is a simple case,
+//  and can be replaced by any of the replacement RPs.
+//  In other case the RP is not a simple case.
+void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
+                          const TRoboticPositioner *RP) const
 {
-    //check the precondition
+    //CHECK THE PRECONDITIONS OF THE FMM:
+
+    if(getFiberMOSModel()->RPL.thereIsSomeNullPointer())
+        throw EImproperCall("all pointers of the Fiber MOS Model should point to build RPs");
+
+    if(getFiberMOSModel()->RPL.thereIsSomeRepeatedPointer())
+        throw EImproperCall("all pointer of the fiber MOS Model should point to different RPs");
+
+    if(getFiberMOSModel()->RPL.thereIsSomeOperativeRPwithDynamicFaul())
+        throw EImproperCall("none operative RP of the Fiber MOS Model should has a dynamic fault");
+
+    //CHECK THE PRECONDITIONS OF THE RP:
+
     if(RP == NULL)
-        throw EImproperArgument("pointer RP should point to build robotic positioner");
-    for(int i=0; i<RP->Adjacents.getCount(); i++) {
-        TRoboticPositioner *RPA = RP->Adjacents[i];
-        if(RPA == NULL)
-            throw EImproperArgument("all pointers of RP->Adjacents should point to build robotic positioner");
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
+
+    int i = getFiberMOSModel()->RPL.Search(RP);
+    if(i >= getFiberMOSModel()->RPL.getCount())
+        throw EImproperArgument("the RP should be in the Fiber MOS Model");
+
+    //CHECK THE PRECONDITIONS OF THE TPL:
+
+    for(int i=0; i<getCount(); i++) {
+        TTargetPoint *TP = Items[i];
+
+        TRoboticPositioner *RP = TP->getRP();
+        int j = getFiberMOSModel()->RPL.Search(RP);
+        if(j >= getFiberMOSModel()->RPL.getCount())
+            throw EImproperArgument("all RPs included in the TPL must be in the Fiber MOS Model");
+
+        TDoublePoint PP = TP->PP;
+        if(RP->getActuator()->PointIsOutDomainP3(PP.x, PP.y))
+            throw EImproperArgument("all PPs included in the TPL must be in the scope of their allocated RP");
     }
 
-    //check if the RPs not are going to start sudenly moving
-    if(RP->getOperative() && RP->FaultType==ftDyn)
-        return false;
-    for(int i=0; i<RP->Adjacents.getCount(); i++) {
-        TRoboticPositioner *RPA = RP->Adjacents[i];
-        if(RPA->getOperative() && RPA->FaultType==ftDyn)
-            return false;
+    i = searchTargetPoint(RP);
+    if(i >= getCount())
+        throw EImproperArgument("the RP must be included in the TPL");
+
+    //MAKE ACTIONS:
+
+    //initialize the output
+    RPRs.Clear(); //replacement RPs
+
+    //search the replacement RPs
+    for(i=0; i<RP->getActuator()->Adjacents.getCount(); i++) {
+        TRoboticPositioner *RPR = RP->getActuator()->Adjacents[i];
+
+        //Here the RPR is adjacent to the RP to be replaced.
+
+        //determines if the PP allocated to the RP is in the scope of the RPR
+        i = searchTargetPoint(RP);
+        TTargetPoint *TP = Items[i];
+        bool is_in_domain = RPR->getActuator()->PointIsInDomainP3(TP->PP);
+
+        if(is_in_domain) {
+
+            //Here the PP allocated to the RP, is in the scope of the RPR.
+
+            if(RPR->getOperative()) {
+                int j = searchTargetPoint(RPR);
+                if(j >= getCount()) {
+
+                    //Here the RPR is adjacent, operative and it is not allocated.
+
+                    //check if the unsecurity area of the replacement RP is clear and will stay clear
+                    bool clear = true;
+                    int k = 0;
+                    while(clear && k<RPR->getActuator()->Adjacents.getCount()) {
+                        TRoboticPositioner *RPA = RPR->getActuator()->Adjacents[k];
+
+                        //if the RPA is operative
+                        //must be in security area, and if it has allocated PP,
+                        //this must be in the security area
+                        if(RPA->getOperative()) {
+                            if(RPA->getActuator()->ArmIsInSafeArea()) {
+                                int l = searchTargetPoint(RPA);
+                                if(l < getCount()) {
+                                    TTargetPoint *TP = Items[l];
+                                    TDoublePoint PP = TP->PP;
+                                    if(RPA->getActuator()->pointIsInSecurityArea(PP))
+                                        k++;
+                                    else
+                                        clear = false;
+                                } else
+                                    k++;
+
+                            } else
+                                clear = false;
+                        }
+
+                        //if the RPA is not operative
+                        //must be non invading the maneuvering domain of the RPR
+                        else {
+                            if(RPA->getActuator()->notInvadeManeuveringDomain(RPR->getActuator()))
+                                k++;
+                            else
+                                clear = false;
+                        }
+
+                    }
+
+                    //if the unsecurity area is clear and stay clear,add the RPR to the list
+                    if(clear)
+                        RPRs.Add(RPR);
+                }
+            }
+        }
     }
-
-    //check if exist some replacement RP
-    int i = TPL.SearchRP(RP);
-    TTargetPoint *TP = TPL.GetPointer(i);
-    TRoboticPositionerList RPL;
-    getFiberMOSModel()->RPL.SearchPositioners(RPL, TP->TargetP3);
-    if(RPL.getCount() <= 0)
-        return false;
-
-    //check if some replacement RP is abailable
-
 }
 
-//Attempt regenerate a pais (PP, DP).
+//The data (MRmin, NBmin, PrMax) are the same for all points in the CB.
+//The data All must be defined for each point.
+
+//Determines if an allocation if of must type.
+//Inputs:
+//  i: index to the allocation for determine if it is must type.
+//Outputs:
+//  allocationIsMustType: indicates if the allocation is of must type.
+//Preconditions:
+//- Index i should indicate to an allocation of this MPG.
+bool TMotionProgramGenerator::allocationIsMustType(int i) const
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(i<0 || getCount()<=i)
+        throw EImproperArgument("index i should indicate to an allocation of this MPG");
+
+/*    const TSPPP *SPPP = SPPPL.GetPointer(i);
+
+    if(!SPPP->there_is_Mag || !SPPP->there_is_Pr || !SPPP->there_is_Bid || !SPPP->there_is_notAllocated || !SPPP->there_is_allocateInAll)
+        throw EImproperArgument("the SPPP should have filled all fields");
+
+    if(SPPP->Enabled != true)
+        throw EImproperArgument("the PP should be allocated to the RP");
+*/
+    //MAKE ACTIONS:
+
+    //point the indicated allocation for facilitate its access
+    TTargetPoint *TP = Items[i];
+
+    //check if the allocation corresponds to a reference source,
+    //and the CB contains the minimun number of reference sources NRmin.
+    unsigned int NR = countNR();
+    if(TP->PP.Type==ptREFERENCE && NR<=NRmin)
+        return true;
+
+    //check if the allocation corresponds to a blank,
+    //and the CB contains the minimun number of blanks NBmin.
+    unsigned int NB = countNB();
+    if(TP->PP.Type==ptBLANK && NB<=NBmin)
+        return true;
+
+    //check if if the allocation has a priority in [0, PrMax],
+    //and it is not allocated in other CB.
+    if(TP->PP.Priority <= PrMax/* && TP->notAllocated*/)
+        return true;
+
+/*    //check if has been indicated that the point must be allocated in all CBs
+    if(TP->allocateInAll)
+        return true;
+*/
+    //indicates that the allocation is not must type
+    return false;
+}
+
+//Attempt regenerate a pair (PP, DP).
 //Inputs:
 //- (PP, DP): the pair to regenerate.
-//- SPPPL: SPPP list containing the table with the fields (Type, Pid, X, Y)
 //Outputs:
-//- pairPPDPisRegenerated: flag indicating if the pair (PP, DP)
+//- attemptRegenerate: flag indicating if the pair (PP, DP)
 //  has been regenerated.
 //- (PP, DP): the regenerated pair, if any.
+//- Excluded: list of identifiers of the excluded RPs, if Any.
 //Preconditions:
+//- All RPs included in the pair (PP, DP):
+//  must be in the FMM;
+//  must have an allocation in the MPG.
 //- The status of the Fiber MOS Model must correspond to
 //  the status of the real Fiber MOS.
-bool TMotionProgramGenerator::pairPPDPcanBeRegenerated(const TMotionProgram& PP,
-                               const TMotionProgram& DP,
-                               const TSPPP& SPPPL)
+//- The allocations shall contains the properties enough to
+//  make the regeneration (Type, Pr, Pid, X, Y).
+bool TMotionProgramGenerator::attemptRegenerate(TVector<int>& Excluded,
+                       TMotionProgram& PP, TMotionProgram& DP) const
 {
     //determine the list of not operative RPs included in the pair (PP, DP)
     TRoboticPositionerList RPL;
-    getRPsIncludedInMPs(RPL, PP, DP);
+    getRPsIncludedInMPs(RPL, PP, DP, getFiberMOSModel());
     int i = 0;
     while(i < RPL.getCount()) {
         TRoboticPositioner *RP = RPL[i];
         if(RP->getOperative())
-            i++;
-        else
             RPL.Delete(i);
+        else
+            i++;
     }
 
+    //check the preconditions
+    for(int i=0; i<RPL.getCount(); i++) {
+        TRoboticPositioner *RP = RPL[i];
+
+        int j = getFiberMOSModel()->RPL.Search(RP);
+        if(j >= getFiberMOSModel()->RPL.getCount())
+            throw EImproperArgument("all RPs included in the pair (PP,DP) must be in the Fiber MOS Model");
+
+        j = searchTargetPoint(RP);
+        if(j >= getCount())
+            throw EImproperArgument("all RPs included in the pair (PP,DP) must have an allocation in the MPG");
+    }
+
+    //initialize the output
+    Excluded.Clear();
+
+    //determines if there is some point of must type allocated to a not operative RP
+    for(int i=0; i<RPL.getCount(); i++) {
+        TRoboticPositioner *RP = RPL[i];
+
+        //if the allocation if must type
+        //indicates that the pair (PP, DP) can not be regenerated
+        int j = searchTargetPoint(RP);
+        if(j >= getCount())
+            throw EImpossibleError("lateral effect");
+        bool allocation_is_must = allocationIsMustType(j);
+        if(allocation_is_must)
+            return false; //indicates that the pair (PP, DP) can not be regenerated
+
+        //exclude the RP from the pair (PP,DP)
+        PP.excludeRP(RP->getActuator()->getId());
+        DP.excludeRP(RP->getActuator()->getId());
+
+        //add the identifier of the RP excluded to the list
+        Excluded.Add(RP->getActuator()->getId());
+    }
+
+    return true;
+/*    //search the list of replacement RPs for each RP
+    TPointersList<TRoboticPositionerList> RPRss;
+    for(int i=0; i<RPL.getCount(); i++) {
+        TRoboticPositioner *RP = RPL[i];
+
+        TRoboticPositionerList *RPRs = new TRoboticPositionerList();
+        searchReplacementRPs(RPRs, RP);
+        if(RPRs.getCount() <= 0)
+            return false;
+        RPRss.Add(RPRs);
+    }
 
     //attemp solve all not operative RPs included in the pair (PP, DP)
     for(int i=0; i<RPL.getCount(); i++) {
         TRoboticPositioner *RP = RPL[i];
 
         //Si se trata de un caso sencillo:
-            //Asigna el punto al RP adyacente (más conveniente) satisfaciendo los requerimientos.
+        //Asigna el punto al RP adyacente (más conveniente) satisfaciendo los requerimientos.
         //Si no se trata de un caso sencillo:
-            //Si el punto asignado es de tipo must:
-                //Indica que no es posible regenerar el par (PP, DP).
+        //Si el punto asignado es de tipo must:
+        //Indica que no es posible regenerar el par (PP, DP).
 
-            //Si la posición actual es de seguridad:
-                //borra la asignación del RP.
-            //Si la posición actual es de inseguridad:
-                //borra la asignación del RP y de todos los RPs adyacentes con PP asignado en posición de inseguridad.
+        //Si la posición actual es de seguridad:
+        //borra la asignación del RP.
+        //Si la posición actual es de inseguridad:
+        //borra la asignación del RP y de todos los RPs adyacentes con PP asignado en posición de inseguridad.
     }
+
+    return false;*/
 }
-*/
+
 //---------------------------------------------------------------------------
 
 } //namespace Positioning

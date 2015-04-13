@@ -1167,13 +1167,8 @@ TCilinder::TCilinder(TDoublePoint _P0, double _thetaO1) :
     //inicializa las propiedades de cuantificación
     __Quantify_ = true;
 
-/*    //inicializa las porpiedades de posición y orientación
+    //inicializa las porpiedades de posición y orientación
     __P0 = _P0;
-            __L0 = Mod(P0);
-        if(L0 > 0)
-                __theta0 = ArgPos(P0);
-        else
-                __theta0 = 0;*/
 
     //------------------------------------------------------------------
     //ASIMILA LOS VALORES DE INICIALIZACIÓN:

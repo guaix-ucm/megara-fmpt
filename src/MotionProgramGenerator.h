@@ -280,21 +280,7 @@ public:
     //-----------------------------------------------------------------------
     //SETTING PARAMETERS OF THE ALGORITHMS:
 
-    //jump (in negative direction) in radians, it is performed each time
-    //that a collission is detected during the radial retraction
-    //shall be upper zero
-    //default value: -M_PI/36 rad
-//    double getdt_jmp(void) const {return __dt_jmp;}
-
-    //It is desirable that the jump is expressed in radians and not in steps,
-    //for several reasons:
-    // - If the number of steps change, the jump not should vary.
-    // - The rotor position and their domain limits, are stored in radians
-    //   so that the checking belonging to domain, could introduce numerical
-    //   errors.
-
-    //Note that when the jump correspond to a integer number of steps, when
-    //quantification is enabled, the rotors do not change their positions.
+    //PARAMETERS TO GENERATE PAIRS (PP, DP):
 
     //maximun security distance between RPs during radial retraction
     //this is additional to the SPM
@@ -302,6 +288,21 @@ public:
     //default value: 1 mm
     double getMSD(void) const {return p_MSD;}
     void setMSD(double);
+
+    //PARAMETERS TO REGENRATE PAIRS (PP, DP):
+
+    //minimun number of reference sources in each CB
+    //must be nonnegative
+    //default value: 3
+    unsigned int NRmin;
+    //minimun number of blanksin each CB
+    //must be nonnegative
+    //default value: 1
+    unsigned int NBmin;
+    //maximun prioritywith mandatory allocation
+    //must be upper zero
+    //default value: 0
+    unsigned int PrMax;
 
     //-----------------------------------------------------------------------
     //BUILDING AND DESTROYING METHODS:
@@ -428,54 +429,133 @@ public:
         TMotionProgram& DP, const TRoboticPositionerList& Outsiders);
 
     //-----------------------------------------------------------------------
-/*
+
     //A not operative RP is a simple case if:
-    //1. There is a certain garantee that none RP is goin to start sudenly
-    //   if it is not preceded of the corresponding instruction.
-    //2. The replacement RP must exist and be available:
+    //1. The replacement RP exist and be available:
     //   a) The point to be observed (it is to say, the PP allocated to
     //      the RP to be replaced, and not the observing point of the RP),
     //      must be in the scope of other RP.
     //   b) The adjacent RP, or some of their adjacents, must be operative
     //      and not allocated.
-    //3. The unsecurity area of the replacement RP is clear
+    //2. The unsecurity area of the replacement RP is clear
     //   and will stay clear:
-    //   a) The RP to be replaced is stoped in security position.
-    //   b) All not operative RPs, adjacent to the replacement RP (allocated
-    //      or not), are stopped out of the insecurity area of
-    //      the replacement RP.
-    //   c) none of the operative RPs adjacents to the replacement RP,
-    //      can has a observing position in the insecurity area.
+    //   a) The operative RPs adjacents to the replacement RP,
+    //      are stopped in security area and if it has allocated a PP,
+    //      this is in the security area.
+    //   b) The not operative RPs adjacent to the replacement RP,
+    //      are stopped non invading the maneuvering domain of
+    //      the replacement RP. (This RPs could be allocated,
+    //      and this set includes the RP to be replaced).
 
-    //determines if a RP is a simple case
-    bool RPisAsimpleCase(const TRoboticPositioner *RP) const;
+    //search the replacement RPs of a RP
+    //Inputs:
+    //  RP: the RP to be replaced.
+    //Outputs:(
+    //  RPRs: list of replacement RPs.
+    //Preconditions of the FMM:
+    //- All pointer of the Fiber MOS Model must point to built RPs.
+    //- All pointer of the fiber MOS Model must point to different RPs.
+    //- None operative RP of the Fiber MOS Model must has a dynamic fault.
+    //Preconditions of the RP:
+    //- Pointer RP must point to built robotic positioner.
+    //- The RP must be in the Fiber MOS Model.
+    //Preconditions of the TPL:
+    //- All RPs included in the TPL must be in the Fiber MOS Model.
+    //- All PPs included in the TPL must be in the scope of their allocated RP.
+    //- The RP must be included in the TPL.
+    //Postconditions:
+    //- If the list RPRs is not empty, the RP is a simple case,
+    //  and can be replaced by any of the replacement RPs.
+    //  In other case the RP is not a simple case.
+    void searchReplacementRPs(TRoboticPositionerList& RPRs,
+                              const TRoboticPositioner *RP) const;
 
-    //A PP is the type must when:
-    //  1. Correspond to a reference source, and the CB contains the minimun
-    //     number of reference sources.
-    //  2. Correspond to a blank, and the CB contains the minimun
-    //     number of blanks.
-    //  3. Has apriority upper to MPMA, and it is not allocated in other CB.
-    //  4. Has been indicated that the point must be allocated in all CBs.
+    //A PP is the type must when occur some of the following circunstances:
+    //  1. Corresponds to a reference source, and the CB contains the minimun
+    //     number of reference sources NRmin or less.
+    //  2. Corresponds to a blank, and the CB contains the minimun
+    //     number of blanks NBmin or less.
+    //  3. Has a priority in [0, PrMax], and it is not allocated in other CB.
+    //  4. Not has been allocated in other CB.
+    //  5. Has been indicated that the point must be allocated in all CBs.
 
-    //determines if a PP if of must type
-    bool
+    //The SPPP list contains the following data by each point:
+    //
+    //SP properties:
+    //string Name;        //name ("")                 (can be empty)
+    //double RA;          //rect ascension (0)
+    //double Dec;         //declination (0)
+    //double Mag;         //magnitude (0)             (can be empty)
+    //TPointType Type;    //type (ptUNKNOWN)
+    //                    //{sptUNKNOWN, sptSOURCE, sptREFERENCE, sptBLANK}
+    //Allocation properties
+    //unsigned int Pr;    //allocation priority (0)   (can be empty)
+    //unsigned int Bid;   //Id of the CB (0)          (can be empty)
+    //unsigned int Pid;   //Id of the RP (0)
+    //
+    //PP properties:
+    //double X;           //abcise (0)
+    //double Y;           //ordinate (0)
+    //bool Enabled;       //indicates if the point is allocated to the RP (false)
+    //
+    //Allocation properties:
+    //string Comment;     //coment ("")               (can be empty)
 
-    //Attempt regenerate a pais (PP, DP).
+    //The FMPT is interested in the following data by each point:
+    //TSkyPointType Type; //type (sptUNKNOWN)
+    //unsigned int Pr;    //allocation priority (0)   (can be empty)
+    //unsigned int Bid;   //Id of the CB (0)          (can be empty)
+    //unsigned int Pid;   //Id of the RP (0)
+    //double X;           //abcise (0)
+    //double Y;           //ordinate (0)
+    //bool Enabled;       //indicates if the point is allocated to the RP (false)
+
+    //If Enable==false, the allocation must be ignored.
+    //All Bid must be equals each other.
+
+    //From this information can be determined the following data:
+    //  NR: number of reference sources in the CB.
+    //  NB: number of blanks in the CB.
+
+    //But for atempt regenerates a pair (PP, DP),
+    //are necessary the following data:
+    //  NRmin: minimun number of reference sources in the CB.
+    //  NBmin: minimun number of blanks in the CB.
+    //  PrMax: maximun priority with mandatory allocation.
+    //      Points with priorities in [0, PrMax] have mandatory allocation.
+    //  notAllocated: indicates that el point not has been allocated in other CB.
+    //  allocateInAll: indicates if the point must be allocated in all CBs.
+
+    //The data (NRmin, NBmin, PrMax) are the same for all points in the CB.
+    //The data (noAllocated, allocateInAll) must be defined for each point.
+
+    //Determines if an allocation if of must type.
+    //Inputs:
+    //  i: index to the allocation for determine if it is must type.
+    //Outputs:
+    //  allocationIsMustType: indicates if the allocation is of must type.
+    //Preconditions:
+    //- Index i should indicate to an allocation of this MPG.
+    bool allocationIsMustType(int i) const;
+
+    //Attempt regenerate a pair (PP, DP).
     //Inputs:
     //- (PP, DP): the pair to regenerate.
-    //- SPPPL: SPPP list containing the table with the fields (Type, Pid, X, Y)
     //Outputs:
-    //- pairPPDPisRegenerated: flag indicating if the pair (PP, DP)
+    //- attemptRegenerate: flag indicating if the pair (PP, DP)
     //  has been regenerated.
     //- (PP, DP): the regenerated pair, if any.
+    //- Excluded: list of identifiers of the excluded RPs, if Any.
     //Preconditions:
+    //- All RPs included in the pair (PP, DP):
+    //  must be in the FMM;
+    //  must have an allocation in the MPG.
     //- The status of the Fiber MOS Model must correspond to
     //  the status of the real Fiber MOS.
-    bool pairPPDPcanBeRegenerated(const TMotionProgram& PP,
-                                  const TMotionProgram& DP,
-                                  const TSPPP& SPPPL);
-*/
+    //- The allocations shall contains the properties enough to
+    //  make the regeneration (Type, Pr, Pid, X, Y).
+    bool attemptRegenerate(TVector<int>& Excluded,
+                           TMotionProgram& PP, TMotionProgram& DP) const;
 };
 
 //---------------------------------------------------------------------------

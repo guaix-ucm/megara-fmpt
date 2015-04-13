@@ -222,7 +222,7 @@ void StrPaint(TCanvas *Canvas, const AnsiString &S,
 
 //inserta un salto de linea y un tabulador delante de cada elemento de una lista
 //delimitada por {} y elementos separados por ','
-void StrListToColumnForm(AnsiString &D, const AnsiString &O, int &i);
+//  void StrListToColumnForm(AnsiString &D, const AnsiString &S);
 //ERROR: esta función está por definir. No usar.
 
 //---------------------------------------------------------------------------

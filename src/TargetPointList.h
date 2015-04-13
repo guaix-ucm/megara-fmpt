@@ -40,7 +40,7 @@ namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-//classlist of target points
+//class target points list
 class TTargetPointList : public TItemsList<TTargetPoint*> {
 protected:
         TRoboticPositionerList *__RoboticPositionerList;
@@ -67,9 +67,9 @@ public:
         //SEARCHING METHODS:
 
         //search the target point attached to a RP
-        int SearchTargetPoint(TRoboticPositioner *RP);
+        int searchTargetPoint(const TRoboticPositioner *RP) const;
         //search the target point attached to an identified RP
-        int SearchTargetPoint(int Id);
+        int searchTargetPoint(int Id) const;
 
         //OBJETOS INDICADOS:
 
@@ -168,13 +168,13 @@ public:
         //desplazar los posicionadores a sus puntos objetivo:
 
         //busca los puntos objetivo adscritos a posicionadores repetidos
-        void SearchRepeatedRoboticPositioners(TVector<int> &indices);
+        void SearchRepeatedRPs(TVector<int> &indices);
 
         //busca los puntos objetivo adscritos a posicionadores ausentes
         //en la lista de posicionadores RoboticPositionerList
-        void SearchMissingRoboticPositioners(TVector<int> &indices);
+        void SearchMissingRPs(TVector<int> &indices);
 
-        //El método SearchMissigRoboticPositioners es necesario
+        //El método SearchMissigRPs es necesario
         //porque la lista de puntos objetivo adscrita (RoboticPositionerList)
         //puede ser manipulada.
 
@@ -232,6 +232,13 @@ public:
         //los ejes que tengan la cuantificación activada, con lo cual
         //el punto P3 de los posicionadores podría no coincidir exactamente
         //con el punto obejtivo.
+
+        //COUNT OF ALLOCATION TYPES:
+
+        //count the number of reference sources in the SPPP list
+        unsigned int countNR(void) const;
+        //count the number of blanks in the SPPP list
+        unsigned int countNB(void) const;
 
         //------------------------------------------------------------------
         //Utilización de los métodos:

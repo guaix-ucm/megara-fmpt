@@ -865,7 +865,7 @@ const TRoboticPositioner *TRoboticPositionerList1::SearchIdPointer(int Id) const
 }
 
 //search the first free identifier starting fron Id
-int TRoboticPositionerList1::searchFirstFreeId(int Id)
+int TRoboticPositionerList1::searchFirstFreeId(int Id) const
 {
     do {
         //search the actual Id
@@ -1202,11 +1202,8 @@ void TRoboticPositionerList1::Assimilate(void)
 //MÉTODOS DE LECTURA CONJUNTA:
 
 //get the PPA list in steps
-void TRoboticPositionerList1::GetPositions(TPairPositionAnglesList& PPAL)
+void TRoboticPositionerList1::GetPositions(TPairPositionAnglesList& PPAL) const
 {
-        //adjust the length of PPAL
-//        PPAL.setCount(getCount());
-
     //initialize the PPA list
     PPAL.Clear();
 
@@ -1214,7 +1211,7 @@ void TRoboticPositionerList1::GetPositions(TPairPositionAnglesList& PPAL)
     for(int i=0; i<getCount(); i++) {
         //point the indicated RP to facilitate its access
         TRoboticPositioner *RP = Items[i];
-        //builds a PPAattached to the RP
+        //builds a PPA attached to the RP
         TPairPositionAngles *PPA = new TPairPositionAngles(RP);
         //assign the position angles of the rotors
         PPA->p_1 = RP->getActuator()->getp_1();

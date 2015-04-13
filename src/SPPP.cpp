@@ -49,26 +49,72 @@ void TSPPP::setText(const string& str)
     try {
         //translate the values and assign to a tampon variable
         TSPPP SPPP;
+
+        //trims Name property
         SPPP.Name = StrTrim(Strings[0]).str;
-        SPPP.RA = StrToFloat_(Strings[1]);
-        SPPP.Dec = StrToFloat_(Strings[2]);
-        SPPP.Mag = StrTrim(Strings[3]).str;
-        SPPP.Type = StrTrim(Strings[4]).str;
 
-        SPPP.Pr = StrTrim(Strings[5]).str;
-        SPPP.Bid = StrTrim(Strings[6]).str;
-        SPPP.Pid = StrTrim(Strings[7]).str;
+        //translate the (RA, Dec) properties
+        SPPP.RA = strtofloat(Strings[1].str);
+        SPPP.Dec = strtofloat(Strings[2].str);
 
-        SPPP.X = StrToFloat_(Strings[8]);
-        SPPP.Y = StrToFloat_(Strings[9]);
+        //translate Mag property (if it is not empty)
+        string aux = StrTrim(Strings[3]).str;
+        if(aux.length() > 0) {
+            SPPP.Mag = strtofloat(aux);
+            SPPP.there_is_Mag = true;
+        } else
+            SPPP.there_is_Mag = false;
 
-        //SPPP.Enabled = StrToBool_(Strings[10]);
-        if(StrTrim(Strings[10])=="0")
-            SPPP.Enabled = false;
-        else
-            SPPP.Enabled = true;
+        //translate Type property
+        SPPP.Type = strToSkyPointType(Strings[4].str);
 
+        //translate Pr property (if it is not empty)
+        aux = StrTrim(Strings[5]).str;
+        if(aux.length() > 0) {
+            SPPP.Pr = strtoint(aux);
+            SPPP.there_is_Pr = true;
+        } else
+            SPPP.there_is_Pr = false;
+
+        //translate Bid property (if it is not empty)
+        aux = StrTrim(Strings[6]).str;
+        if(aux.length() > 0) {
+            SPPP.Bid = strtoint(aux);
+            SPPP.there_is_Bid = true;
+        } else
+            SPPP.there_is_Bid = false;
+
+        //translate PP properties
+        SPPP.Pid = strtoint(Strings[7].str);
+        SPPP.X = strtofloat(Strings[8].str);
+        SPPP.Y = strtofloat(Strings[9].str);
+        SPPP.Enabled = strtobool(Strings[10].str);
+
+/*        //translate notAllocated property (if it is not empty)
+        aux = StrTrim(Strings[11]).str;
+        if(aux.length() > 0) {
+            SPPP.notAllocated = strtobool(aux);
+            SPPP.there_is_notAllocated = true;
+        } else
+            SPPP.there_is_notAllocated = false;
+
+        //translate allocateInAll property (if it is not empty)
+        aux = StrTrim(Strings[12]).str;
+        if(aux.length() > 0) {
+            SPPP.allocateInAll = strtobool(aux);
+            SPPP.there_is_allocateInAll = true;
+        } else
+            SPPP.there_is_allocateInAll = false;
+*/
+        SPPP.there_is_notAllocated = true;
+        SPPP.there_is_allocateInAll = true;
+
+        //trims Comment property
         SPPP.Comment = StrTrim(Strings[11]).str;
+
+        //check the precondition
+        if(there_is_Bid && (!there_is_Mag || !there_is_Pr || !there_is_notAllocated || !there_is_allocateInAll))
+            throw EImproperArgument("if field Bid is not empty, all fields (except Name) shall be filled");
 
         //assign the tampon variable
         *this = SPPP;
@@ -79,15 +125,12 @@ void TSPPP::setText(const string& str)
 }
 
 //build a structure by default
-TSPPP::TSPPP() : RA(0), Dec(0),
-      X(0), Y(0), Enabled(false)
+TSPPP::TSPPP() : RA(0), Dec(0), Type(ptUNKNOWN), Pr(0), Bid(0), Pid(0),
+      X(0), Y(0), Enabled(false), notAllocated(true), allocateInAll(false),
+      there_is_Mag(false), there_is_Pr(false), there_is_Bid(false),
+      there_is_notAllocated(false), there_is_allocateInAll(false)
 {
     Name = "";
-    Mag = "";
-    Type = "";
-    Pr = "";
-    Bid = "";
-    Pid = "";
     Comment = "";
 }
 
@@ -105,7 +148,15 @@ TSPPP& TSPPP::operator=(const TSPPP& SPPP)
     X = SPPP.X;
     Y = SPPP.Y;
     Enabled = SPPP.Enabled;
+    notAllocated = SPPP.notAllocated;
+    allocateInAll = SPPP.allocateInAll;
     Comment = SPPP.Comment;
+
+    there_is_Mag = SPPP.there_is_Mag;
+    there_is_Pr = SPPP.there_is_Pr;
+    there_is_Bid = SPPP.there_is_Bid;
+    there_is_notAllocated = SPPP.there_is_notAllocated;
+    there_is_allocateInAll = SPPP.there_is_allocateInAll;
 
     return *this;
 }
@@ -122,7 +173,7 @@ char strFirstNonseparatorChar(const string& str)
 }
 
 //set the SPPPL in text format
-void TSPPPList::setTableText(const string& str)
+void TSPPPList::setTableText(unsigned int& Bid, const string& str)
 {
     //divide the string S in lines
     TStrings Strings;
@@ -211,6 +262,16 @@ void TSPPPList::setTableText(const string& str)
     if(StrTrim(Strings[i]) != AnsiString("@@EOS@@"))
         throw EImproperArgument("missing closing label @@EOS@@ in string S");
 
+    //check the preconditions
+    for(int i=1; i<getCount(); i++) {
+        TSPPP *SPPP = Items[i];
+
+        if(SPPP->Bid != Items[0]->Bid)
+            throw EImproperArgument("all Bid should be equal each other");
+    }
+
+    //return the Bid value
+    Bid = Items[0]->Bid;
 }
 
 //get the TPL
@@ -218,16 +279,19 @@ void TSPPPList::getTPL(TTargetPointList& TPL)
 {
     for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
-        if(SPPP->Bid.length() > 0) { //if the SPPP correspond to an PP
-            if(SPPP->Enabled) { //if the point is allocated
+        if(SPPP->there_is_Bid) { //if the SPPP correspond to an PP
+            if(SPPP->Enabled) { //if the PP is allocated to the RP
                 //extract the Id from the SPPP
-                int Id = StrToInt_(SPPP->Pid);
+                int Id = SPPP->Pid;
                 //search the RP in the RPL attached to the TPL
                 int j = TPL.getRoboticPositionerList()->SearchId(Id);
                 //if has found the RP, build and attach a TP
                 if(j < TPL.getRoboticPositionerList()->getCount()) {
                     //copy the properties in a TP nd add the TP to the MPG
-                    TTargetPoint *TP = new TTargetPoint(TPL.getRoboticPositionerList()->Get(j), SPPP->X, SPPP->Y);
+                    TRoboticPositioner *RP = TPL.getRoboticPositionerList()->Get(j);
+                    TTargetPoint *TP = new TTargetPoint(RP, SPPP->X, SPPP->Y);
+                    TP->PP.Type = SPPP->Type;
+                    TP->PP.Priority = SPPP->Pr;
                     //add the TP to the TPL
                     TPL.Add(TP);
                 }

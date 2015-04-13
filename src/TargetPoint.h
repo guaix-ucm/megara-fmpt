@@ -47,29 +47,30 @@ class TTargetPoint {
         //list of pointers to built target points
         static TItemsList<TTargetPoint*> Builts;
 
-        //Allows to control the construction of asingletarget point by RP,
+        //Allows to control the construction of a single target point by RP,
         //and the destruction of existing target point.
 
         //DYNAMIC PROPERTIES:
 
-        TRoboticPositioner *__RoboticPositioner;
+        TRoboticPositioner *__RP;
 
         //INTERFACE PROPERTIES:
 
 public:
         //DYNAMIC PROPERTIES:
 
-        //pointer to the attached RP
-        TRoboticPositioner *getRoboticPositioner(void) const {return __RoboticPositioner;}
+        //pointer to the allocated RP
+        TRoboticPositioner *getRP(void) const {return __RP;}
 
-        //point where sall be positioned the point P3 of the attached RP
-        TDoublePoint TargetP3;
+        //PP allocated to the RP
+        //where shall be positioned the point P3 of the attached RP
+        TProjectionPoint PP;
 
         //PROPERTIES IN TEXT FORMAT:
 
-        //TargetP3 in text format
-        AnsiString getTargetP3Text(void);
-        void setTargetP3Text(const AnsiString&);
+        //PP in text format
+        AnsiString getPPText(void);
+        void setPPText(const AnsiString&);
 
         //SETS OF PROPERTIES IN TEXT FORMAT:
 
@@ -87,7 +88,7 @@ public:
 
         //get the labels of the properties
         //in row text format
-        static AnsiString GetIdTargetP3LabelsRow(void);
+        static AnsiString GetIdPPLabelsRow(void);
 
         //travel the labels of the properties
         //in a text string from the position i
@@ -105,7 +106,7 @@ public:
         TTargetPoint(TRoboticPositioner *_RoboticPositioner,
                 double x, double y);
         TTargetPoint(TRoboticPositioner *_RoboticPositioner,
-                TDoublePoint _TargetP3);
+                TDoublePoint _PP);
 
         //destroy a targetpoint
         //if thereisn't a built target point
@@ -121,15 +122,15 @@ public:
         //of thepoint P3 of the attached RP
         bool IsInSafeAreaP3(void);
 
-        //MOVING METHODS:
+        //MOTION METHODS:
 
-        //assign the point P3o of the attacheed RP to the point TargetP3
-        void SetP3o(void) {TargetP3 = getRoboticPositioner()->getActuator()->getP3o();}
-        //assign the point P3 of the attacheed RP to the point TargetP3
-        void SetP3(void) {TargetP3 = getRoboticPositioner()->getActuator()->getArm()->getP3();}
-        //randomize the point TargetP3 with uniform distribution
+        //assign the point P3o of the attacheed RP to the point PP
+        void SetP3o(void) {PP = getRP()->getActuator()->getP3o();}
+        //assign the point P3 of the attacheed RP to the point PP
+        void SetP3(void) {PP = getRP()->getActuator()->getArm()->getP3();}
+        //randomize the point PP with uniform distribution
         //in the domain of the point P3 of its attached RP
-        void Randomize(void);
+        void RandomizePP(void);
 
         //There are three ways to randomize a point in the domain of a RP:
         //  - Randomizing the angular positions of their rotors in their
@@ -142,14 +143,14 @@ public:
         //    thepoint is inthedomain of the RP.
         //Themethod Ramize, implement the las way.
 
-        //assign the point TargetP3 to the point P3 of its attached RP
+        //assign the point PP to the point P3 of its attached RP
         //and return the distance from the stable position to the target point
-        //if the the point TargetP3 isn't on the domain of its attached RP:
+        //if the the point PP isn't on the domain of its attached RP:
         //  throw an exception EImpropercall
-        double MoveToTargetP3(void);
+        double MoveToPP(void);
 
-        //NOTE: method MoveToTargetP3 will move the rotors of the RP to the
-        //positions corresponding to the P3 is positioned on the TargetP3.
+        //NOTE: method MoveToPP will move the rotors of the RP to the
+        //positions corresponding to the P3 is positioned on the PP.
         //When the quantification of the rotors is enabled, will be quantified
         //first the rotor 1, and after the rotor 2, in any case, uncheking
         //which is the neares stable point.

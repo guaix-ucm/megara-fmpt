@@ -142,14 +142,6 @@ void TFiberMOSModel1::Destroy(void)
         //destruye las áreas de exclusión
         RPL.Destroy();
 }
-//destruye los objetos seleccionadas de la lista
-int TFiberMOSModel1::DestroySelected(void)
-{
-        int Count = EAL.DestroySelected();
-        Count += RPL.DestroySelected();
-
-        return Count;
-}
 
 //MÉTODOS PARA CONTRUIR Y DESTRUIR POSICIONADORES:
 
@@ -207,11 +199,12 @@ bool TFiberMOSModel1::ThereIsCollision(void)
 //el brazo de algún otro posicionador adyacente
 void TFiberMOSModel1::SearchCollinding(TVector<int> &indices)
 {
-
+    //TBD
 }
 //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
 void TFiberMOSModel1::GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL)
 {
+    //TBD
 }
 
 //RANDOMIZADO DE LOS EJES:
@@ -234,39 +227,6 @@ void TFiberMOSModel1::RandomizeWithoutCollision(void)
                         //mientras colisione con algún adyacente
                 } while(RP->Actuator->ThereIsCollisionWithPendingAdjacent());*/
 }
-//lleva los ejes de los posicionadores seleccionados a
-//posiciones aleatorias con distribución uniforme en
-//sus dominios en las que no colisionan entre si
-int TFiberMOSModel1::RandomizeWithoutCollisionSelected(void)
-{
-/*        TRoboticPositioner *RP;
-        bool collision;
-        int j;
-        int count = 0;
-
-        //para cada posicionador de la lista de osicionadores
-        for(int i=0; i<Count; i++) {
-                collision = false;
-                do {
-                        //apunta el posicionador indicado para facilitar su acceso
-                        RP = Items[i];
-                        if(RP->Actuator->Selected) {
-                                //lleva randomiza los ejes del posicionador
-                                RP->Actuator->Randomizep_1();
-                                RP->Actuator->Arm->Randomizep___3();
-                                //determina si hay colisión
-                                collision = RP->Actuator->ThereIsCollisionWithPendingAdjacent();
-                                //si no hay colisión
-                                if(!collision)
-                                        //contabiliza el posicionador seleccionado
-                                        count++;
-                        }
-                //mientras colisione con algún adyacente
-                } while(collision);
-        }
-
-        return count;*/
-}
 
 //RANDOMIZADO DE P3:
 
@@ -286,38 +246,6 @@ void TFiberMOSModel1::RandomizeP3WithoutCollision(void)
                         RP->Actuator->RandomizeP3();
                         //mientras colisione con algún adyacente
                 } while(RP->Actuator->ThereIsCollisionWithPendingAdjacent());*/
-}
-//lleva el punto P3 de los posicionadores seleccioandos a
-//posiciones aleatorias con distribución uniforme en su dominio
-//en las que no colisionan entre si
-int TFiberMOSModel1::RandomizeP3WithoutCollisionSelected(void)
-{
-/*        TRoboticPositioner *RP;
-        bool collision;
-        int j;
-        int count = 0;
-
-        //para cada posicionador de la lista de osicionadores
-        for(int i=0; i<Count; i++) {
-                collision = false;
-                do {
-                        //apunta el posicionador indicado para facilitar su acceso
-                        RP = Items[i];
-                        if(RP->Actuator->Selected) {
-                                //randomiza el punto P3
-                                RP->Actuator->RandomizeP3();
-                                //determina si hay colisión
-                                collision = RP->Actuator->ThereIsCollisionWithPendingAdjacent();
-                                //si no hay colisión
-                                if(!collision)
-                                        //contabiliza el posicionador seleccionado
-                                        count++;
-                        }
-                //mientras colisione con algún adyacente
-                } while(collision);
-        }
-
-        return count;*/
 }
 
 /*//---------------------------------------------------------------------------

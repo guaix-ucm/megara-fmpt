@@ -485,49 +485,49 @@ void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i)
     if(j <= Label.Length())
         //indica que no se ha encontrado la etiqueta
         throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+}
 
-/*
-    //estado de lectura:
-    //      0: esperando ' ', '\t', '\r' (cuando la etiqueta no empieza por '\r') o etiqueta
-    //      1: etiqueta leida con éxito
-    int status = 0;
+//trabel a label from
+//the indicated position of a string
+//if it is not possible travel all lavel, return false
+bool strTravelLabel_(const string& label, const string& str, unsigned int& i)
+{
+    //check the precondition
+    if(str.length() <= i)
+        throw EImproperArgument("index i should indicate a position of the string str");
 
-    //variables auxiliares
-    char c; //S[i]
+    //travel the string to achieve the end of some string or find some unequal char
+    unsigned int j = 0;
+    while(i<str.length() && j<label.length() && str[i]==label[j]) {
+        i++;
+        j++;
+    }
 
-    do {
-        c = S[i];
+    //indicates the result in funtion if the label was whole traveled
+    if(j < label.length())
+        return false;
+    return true;
+}
 
-        //esperando ' ', '\t', '\r' o etiqueta
-        if(c==' ' || c=='\t') {
-            i++;
-            if(i > S.Length())
-                throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
-        } else if(c=='\r' && Label[1]!='\r') {
-            StrTravelLabel("\r\n", S, i);
-            if(i > S.Length())
-                throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
-        } else {
-            char c1, c2;
+//trabel a label from
+//the indicated position of a string
+//if it is not possible travel all lavel, return false
+void strTravelLabel(const string& label, const string& str, unsigned int& i)
+{
+    //check the precondition
+    if(str.length() <= i)
+        throw EImproperArgument("index i should indicate a position of the string str");
 
-            for(int j=1; j<=Label.Length(); j++) {
-                c1 = Label[j];
+    //travel the string to achieve the end of some string or find some unequal char
+    unsigned int j = 0;
+    while(i<str.length() && j<label.length() && str[i]==label[j]) {
+        i++;
+        j++;
+    }
 
-                if(i > S.Length())
-                    throw EImproperArgument(AnsiString("'")+AnsiString(c1)+AnsiString("' not found"));
-
-                c2 = S[i];
-
-                //si los caracteres no coinciden
-                if(c1 != c2)
-                    throw EImproperArgument(AnsiString("'")+AnsiString(c2)+AnsiString("' should be '")+AnsiString(c1)+AnsiString("'"));
-                else
-                    i++;
-            }
-            //indica que ha leido la etiqueta con éxito
-            status++;
-        }
-    } while(status < 1);*/
+    //indicates the result in funtion if the label was whole traveled
+    if(j < label.length())
+        throw EImproperArgument("label not found: \""+label+"\"");
 }
 
 /*
@@ -786,6 +786,154 @@ void StrTravelSeparators(const AnsiString &S, int &i)
         } while(status < 2);
 }
 
+//travel one or more separators
+void strTravelSeparators(const string& str, unsigned int& i)
+{
+    //check the precondition
+    if(str.length() < i)
+        throw EImproperArgument("index i should indicate a position in string S");
+
+    //reading status:
+    //  0: waiting first ' ', '\t' or '\r'
+    //  1: waiting first '\n' (if first separator is "\r\n")
+    //  2: waiting ' ', '\t' or '\r' or post-last position
+    //  3: waiting '\n'
+    //  4: non separator character or post-last position found
+    int status = 0;
+
+    do {
+        //if and has finished the string
+        if(i >= str.length()) {
+            //reacts according to the status
+            switch(status) {
+            case 0: //waiting first ' ', '\t' or '\r'
+                throw EImproperArgument("first separator not found");
+
+            case 1: //waiting first '\n' (if first separator is "\r\n")
+                throw EImproperArgument("first \\n not found");
+
+            case 2: //waiting ' ', '\t' or '\r' or post-last position
+                status++;
+                break;
+
+            case 3: //waiting '\n'
+                throw EImproperArgument("\\n not found");
+
+            default:
+                throw EImpossibleError("lateral effect");
+            }
+        }
+
+        //if i indicates a char of the strings
+        else {
+            char c = str[i++]; //gest the char
+
+            //reacts according to the status
+            switch(status) {
+            case 0: //waiting first ' ', '\t' or '\r'
+                if(c==' ' || c=='\t')
+                    status = 2;
+                else if(c == '\r')
+                    status++;
+                else
+                    throw EImproperArgument("first separator not found");
+                break;
+
+            case 1: //waiting first '\n' (if first separator is "\r\n")
+                if(c == '\n')
+                    status++;
+                else
+                    throw EImproperArgument("first \\n not found");
+                break;
+
+            case 2: //waiting ' ', '\t' or '\r' or post-last position
+                if(c==' ' || c=='\t')
+                    ; //do nothing (keep the status)
+                else if(c == '\r')
+                    status++;
+                else {
+                    i--;
+                    status = 4;
+                }
+                break;
+
+            case 3: //waiting '\n'
+                if(c == '\n')
+                    status--;
+                else
+                    throw EImproperArgument("\\n not found");
+                break;
+            }
+        }
+
+    //while non separator character or post-last position not found
+    } while(status < 4);
+}
+
+//travelstring from the indicated position
+//to find a nonseparator character
+void strTravelSeparatorsIfAny(const string& str, unsigned int& i)
+{
+    //Here it is not required that string str is printable.
+
+    if(str.length() < i)
+        throw EImproperArgument("index i should indicates a position of the string str");
+
+    //NSC: non separator character.
+
+    //reading status
+    //  0: waiting separator (' ', '\t' or '\r') or NSC
+    //  1: waiting '\n'
+    //  2: string finidhed or NSC found
+    int status = 0;
+
+    do {
+        //if string finished
+        if(i >= str.length())
+            status = 2; //finish the searching
+
+        //if not string finished
+        else {
+            //get the next char
+            char c = str[i];
+
+            //reacts according the status and the char
+            switch(status) {
+            case 0: //waiting separator (' ', '\t' or '\r') or NSC
+                if(c==' ' || c=='\t') {
+                    i++;
+                } else if(c=='\r') {
+                    i++;
+                    status++;
+                } else {
+                    status = 2;
+                }
+                break;
+
+            case 1: //waiting '\n'
+                if(c == '\n') {
+                    i++;
+                    status--;
+                } else {
+                    i--;
+                    status = 2;
+                }
+                break;
+
+            case 2: //string finished or NSC found
+                break;
+
+            default:
+                EImpossibleError("lateral effect");
+            }
+        }
+
+    //while:
+    //- not not string finished
+    //- and NSC not found
+    } while(status < 2);
+}
+
 //---------------------------------------------------------------------------
 
 //escudriña S a partir de i en busca de un número entero
@@ -924,6 +1072,117 @@ int StrToInt_(const AnsiString &S)
         } catch(...) {
                 throw;
         }
+}
+
+//read an integer in the indicated position of a text string
+void strReadIntStr(string& dst, const string& src, unsigned int& i)
+{
+    //Note that it is not required that source string is printable.
+
+    //check the precondition
+    if(i > src.length())
+        throw EImproperArgument("index i should indicate a position of the string src");
+
+    //reading status:
+    //  0: waiting ' ', '\t', '\r', '+', '-' or first decimal char
+    //  1: waiting '\n'
+    //  2: waiting first decimal char
+    //  3: waiting decimal char or other char
+    //  4: integer value readed successfully
+    int status = 0;
+
+    //tampon variable
+    string _dst;
+
+    do {
+        //if the index i indicates a char of the source string
+        if(i < src.length()) {
+            char c = src[i++]; //get the next char
+
+            //reacts according the status and the char
+            switch(status) {
+            case 0: //waiting ' ', '\t', '\r', '+', '-' or first decimal char
+                if(c==' ' || c=='\t')
+                    ; //do nothing (keep the status)
+                else if(c == '\r')
+                    status++;
+                else if(c=='+' || c=='-' || ('0'<=c && c<='9')) {
+                    _dst += c;
+                    status = 2;
+                } else
+                    throw EImproperArgument("integer value not found");
+                break;
+
+            case 1: //waiting '\n'
+                if(c != '\n')
+                    throw EImproperArgument("'\\n' notfound");
+                else
+                    status--;
+                break;
+
+            case 2: //waiting first decimal char
+                if(c<'0' || '9'<c)
+                    throw EImproperArgument("integer value not found");
+                else {
+                    _dst += c;
+                    status++;
+                }
+                break;
+
+            case 3: //waiting decimal char or not decimal char
+                if(c<'0' || '9'<c) {
+                    i--;
+                    status++;
+                } else
+                    _dst += c;
+                break;
+
+            default:
+                throw EImpossibleError("lateral effect");
+            }
+        }
+        //if the source string has finished
+        else {
+            switch(status) {
+            case 0: //waiting ' ', '\t', '\r', '+', '-' or first decimal char
+                throw EImproperArgument("integer value not found");
+                break;
+
+            case 1: //waiting '\n'
+                throw EImproperArgument("'\\n' not found");
+                break;
+
+            case 2: //waiting first decimal char
+                throw EImproperArgument("fist decinal char not found");
+                break;
+
+            case 3: //waiting decimal char or other char
+                status++;
+                break;
+
+            default:
+                throw EImpossibleError("lateral effect");
+            }
+        }
+
+    //while the integer value has not readed successfully
+    } while(status < 4);
+
+    //set the tampon variables
+    dst = _dst;
+}
+//read an integer in the indicated position of a text string
+void strReadInt(int& value, const string& src, unsigned int& i)
+{
+    try {
+        string dst;
+        strReadIntStr(dst, src, i);
+        value = strtoint(dst);
+
+    } catch(Exception& E) {
+        E.Message.Insert(0, "reading integer: ");
+        throw E;
+    }
 }
 
 //imprime el valor de una variable double en una cadena de texto
@@ -1134,6 +1393,186 @@ double StrToFloat_(const AnsiString &S)
         } catch(...) {
                 throw;
         }
+}
+
+//read an float in the indicated position of a text string
+void strReadFloatStr(string& dst, const string& src, unsigned int& i)
+{
+    //Note that it is not required that source string is printable.
+
+    //check the precondition
+    if(i > src.length())
+        throw EImproperArgument("index i should indicate a position of the string src");
+
+    //reading status:
+    //  0: waiting ' ', '\t', '\r', '+', '-' or first decimal char
+    //  1: waiting '\n'
+    //  2: waiting first decimal char
+    //  3: waiting decimal char or decimal separator or 'e'/'E' or other char
+    //  4: waiting decimal char or 'e'/'E' or other char
+    //  5: waiting '+', '-' or first decimal char
+    //  6: waiting first decimal char
+    //  7: waiting decimal char or other char
+    //  8: floating point readed successfully
+    int status = 0;
+
+    //tampon variable
+    string _dst;
+
+    do {
+        //if the index i indicates a char of the source string
+        if(i < src.length()) {
+            char c = src[i++]; //get the next char
+
+            //reacts according the status and the char
+            switch(status) {
+            case 0: // waiting ' ', '\t', '\r', '+', '-' or first decimal char
+                if(c==' ' || c=='\t')
+                    ; //do nothing and keep the status
+                else if(c == '\r')
+                    status++;
+                else if(c=='+' || c=='-') {
+                    _dst += c;
+                    status = 2;
+                } else if('0'<=c && c<='9') {
+                    _dst += c;
+                    status = 3;
+                } else
+                    throw EImproperArgument("floating point value not found");
+                break;
+
+            case 1: //waiting '\n'
+                if(c != '\n')
+                    throw EImproperArgument("'\\n' not found");
+                else
+                    status--;
+                break;
+
+            case 2: // waiting first decimal char
+                if(c<'0' || '9'<c)
+                    throw EImproperArgument("floating point value not found");
+                else {
+                    _dst += c;
+                    status++;
+                }
+                break;
+
+            case 3: //waiting decimal char or decimal separator or 'e'/'E' or other char
+                if('0'<=c && c <='9')
+                    _dst += c;
+                else if(c == get_decimal_separator()) {
+                    _dst += c;
+                    status++;
+                } else if(c=='e' || c=='E') {
+                    _dst += c;
+                    status = 5;
+                } else {
+                    i--;
+                    status = 8;
+                }
+                break;
+
+            case 4: //waiting decimal char or 'e'/'E' or other char
+                if('0'<=c && c<='9')
+                    _dst += c;
+                else if(c=='e' || c=='E') {
+                    _dst += c;
+                    status++;
+                } else {
+                    i--;
+                    status = 8;
+                }
+                break;
+
+            case 5: //waiting '+', '-' or first decimal char
+                if(c=='+' || c=='-') {
+                    _dst += c;
+                    status++;
+                } else if('0'<=c && c<='9') {
+                    _dst += c;
+                    status = 7;
+                } else {
+                    i--;
+                    status = 8;
+                }
+                break;
+
+            case 6: //waiting first decimal char
+                if('0'<=c && c<='9') {
+                    _dst += c;
+                    status++;
+                } else {
+                    while(src[i]<'0' || '9'<src[i])
+                        i--;
+                    status = 8;
+                }
+                break;
+
+            case 7: //waiting decimal char or other char
+                if(c<'0' || '9'<c) {
+                    i--;
+                    status = 8;
+                } else
+                    _dst += c;
+                break;
+
+            default:
+                throw EImpossibleError("lateral effect");
+            }
+        }
+        //if the source string has finished
+        else {
+            //reacts according the status
+            switch(status) {
+            case 0: // waiting ' ', '\t', '\r', '+', '-' or first decimal char
+            case 1: //waiting '\n'
+            case 2: //waiting first decimal char
+                throw EImproperArgument("floating point value notfound");
+                break;
+
+            case 3: //waiting decimal char or decimal separator or 'e'/'E'
+            case 4: //waiting decimal char or 'e'/'E'
+                status = 8;
+                break;
+
+            case 5: //waiting '+', '-' or first decimal char
+                i--;
+                status = 8;
+                break;
+
+            case 6: //waiting first decimal char
+                while(src[i]<'0' || '9'<src[i])
+                    i--;
+                status = 8;
+                break;
+
+            case 7: //waiting decimal char or other char
+                status = 8;
+                break;
+
+            default:
+                throw EImpossibleError("lateral effect");
+            }
+        }
+
+    //while the floating point value has not readed successfully
+    } while(status < 8);
+
+    //set the tampon variables
+    dst = _dst;
+}
+//read an float in the indicated position of a text string
+void strReadFloat(double& value, const string& src, unsigned int& i)
+{
+    try {
+        string dst;
+        strReadFloatStr(dst, src, i);
+        value = strtofloat(dst);
+
+    } catch(Exception& E) {
+        E.Message.Insert(0, "reading integer: ");
+        throw E;
+    }
 }
 
 //Imprime el valor de una variable lógica al final de una cadena de texto.
