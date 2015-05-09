@@ -52,10 +52,10 @@ namespace Models {
 class TExclusionArea {
     //PROPIEDADES DEL ÁREA DE EXCLUSIÓN:
 
-    double __Eo;
-    double __Ep;
+    double p_Eo;
+    double p_Ep;
 
-    int __Id;
+    int p_Id;
 
 public:
     //PROPIEDADES ESTÁTICAS:
@@ -83,15 +83,15 @@ public:
 
     //margen de error de orientación en S0
     //      Valor por defecto: MEGARA_Eo rad
-    double getEo(void) const {return __Eo;} void setEo(double);
+    double getEo(void) const {return p_Eo;} void setEo(double);
     //margen de error de posición en S0
     //      Valor por defecto: MEGARA_Ep mm
-    double getEp(void) const {return __Ep;} void setEp(double);
+    double getEp(void) const {return p_Ep;} void setEp(double);
 
     //número de identificación
     //debe ser mayor que cero
     //valor por defecto: 0
-    int getId(void) const {return __Id;} void setId(int);
+    int getId(void) const {return p_Id;} void setId(int);
     //lista de posicionadores de RPs lo bastante cerca
     //para que puedan colisionar con la barrera
     //valor por defecto:
@@ -200,7 +200,7 @@ public:
     //con los valores indicados
     //si el número de identificación es menor que uno
     //      lanza una execepción EImproperArgument
-    TExclusionArea(int _Id, TDoublePoint _P0, double _thetaO1=0);
+    TExclusionArea(int Id, TDoublePoint P0, double thetaO1=0);
 
     //ADVERTENCIA: para poder contruir clones de áreas de exclusión
     //la duplicidad de números de identificación está permitida.
@@ -240,11 +240,11 @@ public:
     //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
     //asigna las propiedades de origen
-    void SetOrigins(int _Id, double _x0, double _y0, double _thetaO1);
+    void SetOrigins(int Id, double x0, double y0, double thetaO1);
 
     //asigna conjuntamente las tolerancias
     //      (Eo, Ep)
-    void SetTolerances(double _Eo, double _Ep);
+    void SetTolerances(double Eo, double Ep);
 
     //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:

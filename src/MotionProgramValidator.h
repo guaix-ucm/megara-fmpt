@@ -63,20 +63,20 @@ class TMotionProgramValidator {
 protected:
     //EXTERN-ATTACHED OBJECTS:
 
-    TFiberMOSModel *__FiberMOSModel;
+    TFiberMOSModel *p_FiberMOSModel;
 
 public:
     //EXTERN-ATTACHED OBJECTS:
 
     //extern attached Fiber MOS Model
     TFiberMOSModel *getFiberMOSModel(void) const {
-        return __FiberMOSModel;}
+        return p_FiberMOSModel;}
 
     //BUILDING AND DESTROYING METHODS:
 
     //built a validator of motion programs
     //attached to an extern Fiber MOS Model
-    TMotionProgramValidator(TFiberMOSModel *_FiberMOSModel);
+    TMotionProgramValidator(TFiberMOSModel *FiberMOSModel);
 
     //METHODS TO VALIDATE MOTION PROGRAMS:
 

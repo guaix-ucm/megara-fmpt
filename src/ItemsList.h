@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ItemsList.h
-//Contenido: lista de elementos genéricos
-//Última actualización: 19/08/2013
-//Autor: Isaac Morales Durán
+//File: ItemsList.h
+//Content: lista de elementos genéricos
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ITEMSLIST_H
@@ -29,7 +28,6 @@
 #include "SlideArray.h" //SlideArray
 #include "StrPR.h" //namespace Strings
 #include "Scalars.h" //RandomUniform
-//#include "..\0_VCL\vclclemu.h" //AnsiString
 
 #include <typeinfo> //namespace std
 
@@ -39,19 +37,12 @@ using namespace std; //type_info
 using namespace Strings; //StrTravelToEnd
 using namespace Mathematics; //RandomUniform
 
-//espacio de nombres de funciones y clases de objetos
-//relacionados con listas, vectores y matrices
+//namespace for lists
 namespace Lists {
 
 //---------------------------------------------------------------------------
-//clase TItemsList
+//class TItemsList
 //---------------------------------------------------------------------------
-
-//template <class T> class __rtti TItemsList {...}; define listas genéricas
-//del tipo de datos que se especifique, con todo tipo de métodos para su
-//manipulación.
-
-//NOTA: __rtti permite determinar el tipo de objeto en tiempo de ejecución.
 
 //clase lista de elementos genéricos
 template <class T> class TItemsList /*#: public QObject*/ {
@@ -64,24 +55,6 @@ protected:
 
     //array deslizante de elementos
     TSlideArray<T> Items;
-
-    //PROPIEDADES DE DIMENSIONAMIENTO:
-
-
-    //PROPIEDADES DE ACCESO A ELEMENTOS:
-
-
-    //------------------------------------------------------------------
-    //PROPIEDADES DEPENDIENTES DE LAS FUNCIONES EXTERNAS
-    //------------------------------------------------------------------
-
-    //COMPARANDO ELEMENTOS
-
-
-    //EVALUANDO ELEMENTOS
-
-
-    //PROPIEDADES EN FORMATO TEXTO:
 
 
 public:
@@ -235,12 +208,12 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //constructor general
-    TItemsList(int _Capacity=8,
-               int ( *_Compare)(T, T)=NULL,
-               double ( *_Evaluate)(T)=NULL,
-               void ( *_Assign)(T&, double)=NULL,
-               void ( *_Print)(AnsiString&, T)=NULL,
-               void ( *_Read)(T&, const AnsiString&, int&)=NULL);
+    TItemsList(int Capacity=8,
+               int ( *Compare)(T, T)=NULL,
+               double ( *Evaluate)(T)=NULL,
+               void ( *Assign)(T&, double)=NULL,
+               void ( *Print)(AnsiString&, T)=NULL,
+               void ( *Read)(T&, const AnsiString&, int&)=NULL);
 
     //ADVERTENCIA: declarar los argumentos por referencia constantes es
     //necesario para evitar las advertencias cuando son pasadas variables
@@ -460,7 +433,7 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
 
     //variables tampón
     T Item;
-    TSlideArray<T> _Items;
+    TSlideArray<T> Items;
 
     //avanza el índice hasta el comienzo de la lista
     StrTravelSeparatorsIfAny(S, i);
@@ -472,7 +445,7 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
             //lee el próximo elemento
             L->Read(Item, S, i);
             //añade el elemento a la lista tampón
-            _Items.AddLast(Item);
+            Items.AddLast(Item);
             //avanza el índice hasta el próximo caracter no separador
             StrTravelSeparators(S, i);
         } catch(...) {
@@ -486,8 +459,8 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
 
     //copia las variables tampón
     L->Clear();
-    for(int j=0; j<_Items.getCount(); j++)
-        L->Add(_Items[j]);
+    for(int j=0; j<Items.getCount(); j++)
+        L->Add(Items[j]);
 }
 //lee una lista de una cadena de texto
 //en formato de fila de texto
@@ -518,20 +491,20 @@ template <class T> void  TItemsList<T>::ReadSeparatedForBuiltItems(TItemsList<T>
     //APLICA LA FUNCIÓN DE LECTURA A CADA ELEMENTO DE LA LISTA:
 
     //lista tampón
-    TSlideArray<T> _Items(L->Items); //clona los elementos de la lista
+    TSlideArray<T> Items(L->Items); //clona los elementos de la lista
 
     try {
         //por cada elemento de la lista
-        for(int j=0; j<_Items.getCount(); j++)
+        for(int j=0; j<Items.getCount(); j++)
             //aplica la función de lectura al elemento
-            L->Read(_Items[j], S, i);
+            L->Read(Items[j], S, i);
 
     } catch(...) {
         throw;
     }
 
     //clona la lista tampón
-    L->Items.Clone(_Items);
+    L->Items.Clone(Items);
 }
 
 //imprime una lista en una cadena de texto
@@ -590,7 +563,7 @@ template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
     //      4: lista convertida con éxito
     int status = 0;
     //lista tampón
-    TSlideArray<T> _Items;
+    TSlideArray<T> Items;
     //elemento auxiliar
     T Item;
 
@@ -645,14 +618,14 @@ template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
                 break;
             default:
                 try {
-                _Items.NewLast();
+                Items.NewLast();
                 L->Read(Item, S, i);
-                _Items.setLast(Item);
+                Items.setLast(Item);
                 if(i > S.Length())
                     throw EImproperArgument("',' or '}' not found");
                 status++;
             } catch(EImproperArgument &E) {
-                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(_Items.getCount()));
+                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(Items.getCount()));
                 } catch(...) {
                 throw;
             }
@@ -698,14 +671,14 @@ template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
                 break;
             default:
                 try {
-                _Items.NewLast();
+                Items.NewLast();
                 L->Read(Item, S, i);
-                _Items.setLast(Item);
+                Items.setLast(Item);
                 if(i > S.Length())
                     throw EImproperArgument("',' or '}' not found");
                 status--;
             } catch(EImproperArgument &E) {
-                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(_Items.getCount()));
+                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(Items.getCount()));
                 } catch(...) {
                 throw;
             }
@@ -717,9 +690,9 @@ template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
 
     //ASIGNA LOS ELEMENTOS:
 
-    L->setCount(_Items.getCount());
-    for(int i=0; i<_Items.getCount(); i++)
-        L->Set(i, _Items[i]);
+    L->setCount(Items.getCount());
+    for(int i=0; i<Items.getCount(); i++)
+        L->Set(i, Items[i]);
 }
 //lee una lista de una cadena de texto
 //en formato de lista de texto
@@ -754,7 +727,7 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
     //APLICA LA FUNCIÓN DE LECTURA A CADA ELEMENTO DE LA LISTA:
 
     //lista tampón
-    TSlideArray<T> _Items(L->Items); //clona los elementos de la lista
+    TSlideArray<T> Items(L->Items); //clona los elementos de la lista
     //puntero a elemento
     T *Item;
 
@@ -763,22 +736,22 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
     try {
         //busca el primer elemento construido
         int j=0;
-        while(j<_Items.Count && _Items[j]==NULL)
+        while(j<Items.getCount() && Items[j]==NULL)
             j++;
         //si no ha encontrado un elemento consturido
-        if(j >= _Items.Count)
+        if(j >= Items.getCount())
             return; //no lee nada
         //asigna el puntero indicado para facilitar su acceso
-        Item = &(_Items[j]);
+        Item = &(Items[j]);
         //atraviesa el caracter delimitador de inicio de lista
         StrTravelLabel("{", S, i);
         //aplica la función de lectura al elemento
         L->Read(Item, S, i);
 
         //por cada puntero adicional de la lista
-        for(j; j<_Items.Count; j++) {
+        for(j; j<Items.getCount(); j++) {
             //apunta el elemento indicado para facilitar su acceso
-            Item = &(_Items[j]);
+            Item = &(Items[j]);
             //siel puntero apunta a un elemento construido
             if(Item != NULL) {
                 //atraviesa el caracter delimitador de lista
@@ -796,7 +769,7 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
     }
 
     //clona la lista tampón
-    L->Items->Clone(_Items);
+    L->Items->Clone(Items);
 }
 
 //---------------------------------------------------------------------------
@@ -825,26 +798,26 @@ template <class T> void Destroy(TItemsList<T*> &L)
 //PROPIEDADES DE DIMENSIONAMIENTO:
 
 //redimensiona el buffer
-template <class T> void TItemsList<T>::setCapacity(int _Capacity)
+template <class T> void TItemsList<T>::setCapacity(int Capacity)
 {
     try {
         //redimensiona la capacidad del array deslizante
-        if(_Capacity != getCapacity())
-            Items.setCapacity(_Capacity);
+        if(Capacity != getCapacity())
+            Items.setCapacity(Capacity);
     } catch(...) {
         throw;
     }
 }
 
 //redimensiona la lista reservando o liberando elementos por la dcha
-template <class T> void TItemsList<T>::setCount(int _Count)
+template <class T> void TItemsList<T>::setCount(int Count)
 {
     try {
         //redimensiona el array deslizante
-        if(_Count < getCount())
-            Items.DelLast(getCount() - _Count);
-        else if(_Count > getCount())
-            Items.NewLast(_Count - getCount());
+        if(Count < getCount())
+            Items.DelLast(getCount() - Count);
+        else if(Count > getCount())
+            Items.NewLast(Count - getCount());
     } catch(...) {
         throw;
     }
@@ -1264,19 +1237,19 @@ template <class T> void TItemsList<T>::setColumnText(const AnsiString &S)
 //---------------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
 
-template <class T> TItemsList<T>::TItemsList(int _Capacity,
-                                             int ( *_Compare)(T, T),
-                                             double ( *_Evaluate)(T),
-                                             void ( *_Assign)(T&, double),
-                                             void ( *_Print)(AnsiString&, T),
-                                             void ( *_Read)(T&, const AnsiString&, int&)) :
-    Items(_Capacity, 0)
+template <class T> TItemsList<T>::TItemsList(int Capacity,
+                                             int ( *t_Compare)(T, T),
+                                             double ( *t_Evaluate)(T),
+                                             void ( *t_Assign)(T&, double),
+                                             void ( *t_Print)(AnsiString&, T),
+                                             void ( *t_Read)(T&, const AnsiString&, int&)) :
+    Items(Capacity, 0)
 {
-    Compare = _Compare;
-    Evaluate = _Evaluate;
-    Assign = _Assign;
-    Print = _Print;
-    Read = _Read;
+    Compare = t_Compare;
+    Evaluate = t_Evaluate;
+    Assign = t_Assign;
+    Print = t_Print;
+    Read = t_Read;
 }
 
 //construye un clon de una lista de elementos
@@ -1478,7 +1451,7 @@ template <class T> void TItemsList<T>::Add(TItemsList<T>& L,
                                            int i1, int i2)
 {
     //los indices deben apuntar a elementos de L
-    if(i1<0  || L.Count<=i1 || i2<0  || L.Count<=i2)
+    if(i1<0  || L.getCount()<=i1 || i2<0  || L.getCount()<=i2)
         throw EImproperArgument("index out bounds");
 
     //el intervalo [i1, i2] debe ser positivo
@@ -1575,7 +1548,7 @@ template <class T> void TItemsList<T>::Copy(const TItemsList<T>& L,
                                             int i1, int i2)
 {
     //los indices i1 e i2 deben apuntar a elementos de L
-    if(i1<0  || L.Count<=i1 || i2<0  || L.Count<=i2)
+    if(i1<0  || L.getCount()<=i1 || i2<0  || L.getCount()<=i2)
         throw EImproperArgument("index out bounds");
 
     //el intervalo [i1, i2] debe ser positivo

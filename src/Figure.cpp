@@ -233,21 +233,21 @@ AnsiString TCircle::RLabel = "R";
 
 //PROPIEDADES DE DEFINICIÓN:
 
-void TCircle::setR(double _R)
+void TCircle::setR(double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna el nuevo valor
-    __R = _R;
+    p_R = R;
 }
 
 //CONJUNTOS DE PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
 AnsiString TCircle::getRText(void) const
 {
-    return FloatToStr(__R);
+    return FloatToStr(p_R);
 }
 void TCircle::setRText(const AnsiString& S)
 {
@@ -429,7 +429,7 @@ void  TCircle::Read(TCircle *C,
     int status = 0;
 
     //variables tampón en formato conveniente
-    TCircle _C;
+    TCircle t_C;
 
     do {
         //reacciona según el estado
@@ -447,7 +447,7 @@ void  TCircle::Read(TCircle *C,
             try {
             TDoublePoint aux;
             StrReadDPoint(&aux, S, i);
-            _C.P = aux;
+            t_C.P = aux;
         } catch(...) {
             throw;
         }
@@ -467,7 +467,7 @@ void  TCircle::Read(TCircle *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.setR(aux);
+            t_C.setR(aux);
         } catch(...) {
             throw;
         }
@@ -487,7 +487,7 @@ void  TCircle::Read(TCircle *C,
     } while(status < 5);
 
     //asigna la variable tampón
-    *C = _C;
+    *C = t_C;
 }
 void  TCircle::ReadRow(TCircle *C,
                                  const AnsiString& S, int& i)
@@ -511,7 +511,7 @@ void  TCircle::ReadRow(TCircle *C,
     int status = 0;
 
     //variables auxiliares
-    TCircle _C(C); //variable tampón
+    TCircle t_C(C); //variable tampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -528,7 +528,7 @@ void  TCircle::ReadRow(TCircle *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.P.x = aux;
+            t_C.P.x = aux;
         } catch(...) {
             throw;
         }
@@ -548,7 +548,7 @@ void  TCircle::ReadRow(TCircle *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.P.y = aux;
+            t_C.P.y = aux;
         } catch(...) {
             throw;
         }
@@ -568,7 +568,7 @@ void  TCircle::ReadRow(TCircle *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.setR(aux);
+            t_C.setR(aux);
         } catch(...) {
             throw;
         }
@@ -579,39 +579,39 @@ void  TCircle::ReadRow(TCircle *C,
     } while(status < 5);
 
     //asigna la variable tampón
-    *C = _C;
+    *C = t_C;
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
 //contruye un objeto
 TCircle::TCircle(void) : TFigure(),
-    __R(1)
+    p_R(1)
 {
     P.x = 0;
     P.y = 0;
 }
-TCircle::TCircle(double x, double y, double _R)
+TCircle::TCircle(double x, double y, double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna el nuevo valor
     P.x = x;
     P.y = y;
-    __R = _R;
+    p_R = R;
 
 }
-TCircle::TCircle(TDoublePoint _P, double _R)
+TCircle::TCircle(TDoublePoint P, double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna el nuevo valor
-    P = _P;
-    __R = _R;
+    P = P;
+    p_R = R;
 
 }
 
@@ -624,14 +624,14 @@ void TCircle::Copy(TCircle *C)
 
     //asigna las propiedades
     P = C->P;
-    __R = C->__R;
+    p_R = C->p_R;
     //#Color = C->Color;
 }
 TCircle& TCircle::operator=(const TCircle &C)
 {
     //asigna las propiedades
     P = C.P;
-    __R = C.__R;
+    p_R = C.p_R;
     //#Color = C.Color;
 
     return *this;
@@ -650,15 +650,15 @@ TCircle::TCircle(TCircle *PP)
 //MÉTODOS DE CONFIGURACIÓN:
 
 //asigna conjuntamente los valores de las propiedades de definición
-void TCircle::SetValues(TDoublePoint _P, double _R)
+void TCircle::SetValues(TDoublePoint P, double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna los nuevos valores
-    P = _P;
-    __R = _R;
+    P = P;
+    p_R = R;
 }
 
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
@@ -668,15 +668,15 @@ double TCircle::DistancePoint(TDoublePoint Q)
 {
     double d = Mod(Q - P);
 
-    if(d <= __R)
+    if(d <= p_R)
         return 0;
     else
-        return d - __R;
+        return d - p_R;
 }
 //calcula la distancia máxima entre la figura y un punto
 double TCircle::DistancePointMax(TDoublePoint Q)
 {
-    return Mod(Q - P) + __R;
+    return Mod(Q - P) + p_R;
 }
 
 //calcula la distancia mínima entre la figura y una circulo
@@ -686,7 +686,7 @@ double TCircle::DistanceCircle(TCircle *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceCircleCircle(P, __R, C->P, C->getR());
+    return DistanceCircleCircle(P, p_R, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circunferencia
 double TCircle::DistanceCircunference(TCircunference *C)
@@ -695,7 +695,7 @@ double TCircle::DistanceCircunference(TCircunference *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceCircleCircunference(P, __R, C->P, C->getR());
+    return DistanceCircleCircunference(P, p_R, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
@@ -705,7 +705,7 @@ double TCircle::DistanceSegment(TSegment *S)
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceCircleSegment(P, __R, S->getPa(), S->getPb());
+    return DistanceCircleSegment(P, p_R, S->getPa(), S->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
 double TCircle::DistanceArc(TArc *A)
@@ -714,7 +714,7 @@ double TCircle::DistanceArc(TArc *A)
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceCircleArc(P, __R, A->getPa(), A->getPb(), A->getPc(), A->getR());
+    return DistanceCircleArc(P, p_R, A->getPa(), A->getPb(), A->getPc(), A->getR());
 }
 
 //calcula la distancia mínima entre la figura y otra figura
@@ -791,7 +791,7 @@ void TCircle::Paint(TPloterShapes *PS)
     //configura el color de la pluma
     PS->setPenColor(Color);
     //pinta un circulito en el lugar del objeto
-    PS->Circle(P, __R);
+    PS->Circle(P, p_R);
 }
 */
 //--------------------------------------------------------------------------
@@ -805,21 +805,21 @@ AnsiString TCircunference::RLabel = "R";
 
 //PROPIEDADES DE DEFINICIÓN:
 
-void TCircunference::setR(double _R)
+void TCircunference::setR(double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna el nuevo valor
-    __R = _R;
+    p_R = R;
 }
 
 //CONJUNTOS DE PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
 AnsiString TCircunference::getRText(void) const
 {
-    return FloatToStr(__R);
+    return FloatToStr(p_R);
 }
 void TCircunference::setRText(const AnsiString& S)
 {
@@ -943,9 +943,9 @@ int  TCircunference::CompareR(const TCircunference *C1,
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
-    if(C1->__R < C2->__R)
+    if(C1->p_R < C2->p_R)
         return -1;
-    if(C1->__R > C2->__R)
+    if(C1->p_R > C2->p_R)
         return 1;
     return 0;
 }
@@ -1001,7 +1001,7 @@ void  TCircunference::Read(TCircunference *C,
     int status = 0;
 
     //variables tampón en formato conveniente
-    TCircunference _C;
+    TCircunference t_C;
 
     do {
         //reacciona según el estado
@@ -1019,7 +1019,7 @@ void  TCircunference::Read(TCircunference *C,
             try {
             TDoublePoint aux;
             StrReadDPoint(&aux, S, i);
-            _C.P = aux;
+            t_C.P = aux;
         } catch(...) {
             throw;
         }
@@ -1039,7 +1039,7 @@ void  TCircunference::Read(TCircunference *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.setR(aux);
+            t_C.setR(aux);
         } catch(...) {
             throw;
         }
@@ -1059,7 +1059,7 @@ void  TCircunference::Read(TCircunference *C,
     } while(status < 5);
 
     //asigna la variable tampón
-    *C = _C;
+    *C = t_C;
 }
 void  TCircunference::ReadRow(TCircunference *C,
                                         const AnsiString& S, int& i)
@@ -1083,7 +1083,7 @@ void  TCircunference::ReadRow(TCircunference *C,
     int status = 0;
 
     //variables auxiliares
-    TCircunference _C(C); //variable tampón
+    TCircunference t_C(C); //variable tampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -1100,7 +1100,7 @@ void  TCircunference::ReadRow(TCircunference *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.P.x = aux;
+            t_C.P.x = aux;
         } catch(...) {
             throw;
         }
@@ -1120,7 +1120,7 @@ void  TCircunference::ReadRow(TCircunference *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.P.y = aux;
+            t_C.P.y = aux;
         } catch(...) {
             throw;
         }
@@ -1140,7 +1140,7 @@ void  TCircunference::ReadRow(TCircunference *C,
             try {
             double aux;
             StrReadFloat(aux, S, i);
-            _C.setR(aux);
+            t_C.setR(aux);
         } catch(...) {
             throw;
         }
@@ -1151,39 +1151,39 @@ void  TCircunference::ReadRow(TCircunference *C,
     } while(status < 5);
 
     //asigna la variable tampón
-    *C = _C;
+    *C = t_C;
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
 //contruye un objeto
 TCircunference::TCircunference(void) : TFigure(),
-    __R(1)
+    p_R(1)
 {
     P.x = 0;
     P.y = 0;
 }
-TCircunference::TCircunference(double x, double y, double _R)
+TCircunference::TCircunference(double x, double y, double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna el nuevo valor
     P.x = x;
     P.y = y;
-    __R = _R;
+    p_R = R;
 
 }
-TCircunference::TCircunference(TDoublePoint _P, double _R)
+TCircunference::TCircunference(TDoublePoint P, double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna el nuevo valor
-    P = _P;
-    __R = _R;
+    P = P;
+    p_R = R;
 
 }
 
@@ -1196,14 +1196,14 @@ void TCircunference::Copy(TCircunference *C)
 
     //asigna las propiedades
     P = C->P;
-    __R = C->__R;
+    p_R = C->p_R;
     //#Color = C->Color;
 }
 TCircunference& TCircunference::operator=(const TCircunference &C)
 {
     //asigna las propiedades
     P = C.P;
-    __R = C.__R;
+    p_R = C.p_R;
     //#Color = C.Color;
 
     return *this;
@@ -1222,15 +1222,15 @@ TCircunference::TCircunference(TCircunference *PP)
 //MÉTODOS DE CONFIGURACIÓN:
 
 //asigna conjuntamente los valores de las propiedades de definición
-void TCircunference::SetValues(TDoublePoint _P, double _R)
+void TCircunference::SetValues(TDoublePoint P, double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //asigna los nuevos valores
-    P = _P;
-    __R = _R;
+    P = P;
+    p_R = R;
 }
 
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
@@ -1239,17 +1239,17 @@ void TCircunference::SetValues(TDoublePoint _P, double _R)
 double TCircunference::DistancePoint(TDoublePoint Q)
 {
     double d = Mod(Q - P);
-    if(d < __R)
-        return __R - d;
-    else if(d > __R)
-        return d - __R;
+    if(d < p_R)
+        return p_R - d;
+    else if(d > p_R)
+        return d - p_R;
     else
         return 0;
 }
 //calcula la distancia máxima entre la figura y un punto
 double TCircunference::DistancePointMax(TDoublePoint Q)
 {
-    return Mod(Q - P) + __R;
+    return Mod(Q - P) + p_R;
 }
 
 //calcula la distancia mínima entre la figura y una circulo
@@ -1259,7 +1259,7 @@ double TCircunference::DistanceCircle(TCircle *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceCircunferenceCircle(P, __R, C->P, C->getR());
+    return DistanceCircunferenceCircle(P, p_R, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circunferencia
 double TCircunference::DistanceCircunference(TCircunference *C)
@@ -1268,7 +1268,7 @@ double TCircunference::DistanceCircunference(TCircunference *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceCircunferenceCircunference(P, __R, C->P, C->getR());
+    return DistanceCircunferenceCircunference(P, p_R, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
@@ -1278,7 +1278,7 @@ double TCircunference::DistanceSegment(TSegment *S)
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceCircunferenceSegment(P, __R, S->getPa(), S->getPb());
+    return DistanceCircunferenceSegment(P, p_R, S->getPa(), S->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
 double TCircunference::DistanceArc(TArc *A)
@@ -1287,7 +1287,7 @@ double TCircunference::DistanceArc(TArc *A)
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceCircunferenceArc(P, __R, A->getPa(), A->getPb(),
+    return DistanceCircunferenceArc(P, p_R, A->getPa(), A->getPb(),
                                     A->getPc(), A->getR());
 }
 
@@ -1365,7 +1365,7 @@ void TCircunference::Paint(TPloterShapes *PS)
     //configura el color de la pluma
     PS->setPenColor(Color);
     //pinta un circulito en el lugar del objeto
-    PS->Circunference(P, __R);
+    PS->Circunference(P, p_R);
 }
 */
 //--------------------------------------------------------------------------
@@ -1414,15 +1414,15 @@ TContourFigure::~TContourFigure()
 
 //coordenadas cartesianas del punto inicial
 //valor por defecto: (0, 0)
-void TSegment::setPa(TDoublePoint _Pa)
+void TSegment::setPa(TDoublePoint Pa)
 {
-    __Pa = _Pa;
+    p_Pa = Pa;
 }
 //coordenadas cartesianas del punto final
 //valor por defecto: (0, 0)
-void TSegment::setPb(TDoublePoint _Pb)
+void TSegment::setPb(TDoublePoint Pb)
 {
-    __Pb = _Pb;
+    p_Pb = Pb;
 }
 
 //CONUNTOS DE PROPIEDADES EN FORMATO TEXTO:
@@ -1430,8 +1430,8 @@ void TSegment::setPb(TDoublePoint _Pb)
 AnsiString TSegment::getText(void) const
 {
     return AnsiString("(")+
-            __Pa.getText()+AnsiString(", ")+
-            __Pb.getText()+AnsiString(")");
+            p_Pa.getText()+AnsiString(", ")+
+            p_Pb.getText()+AnsiString(")");
 }
 void TSegment::setText(const AnsiString& S)
 {
@@ -1444,7 +1444,7 @@ void TSegment::setText(const AnsiString& S)
 }
 AnsiString TSegment::getRowText(void) const
 {
-    return __Pa.getText()+AnsiString("\t")+__Pb.getText();
+    return p_Pa.getText()+AnsiString("\t")+p_Pb.getText();
 }
 void TSegment::setRowText(const AnsiString& S)
 {
@@ -1506,7 +1506,7 @@ void  TSegment::Read(TContourFigure *O_,
     int status = 0;
 
     //variable tampón en formato conveniente
-    TDoublePoint _Pa, _Pb;
+    TDoublePoint Pa, Pb;
 
     do {
         //reacciona según el estado
@@ -1522,7 +1522,7 @@ void  TSegment::Read(TContourFigure *O_,
 
         case 1: //esperando separador o valor para Pa
             try {
-            StrReadDPoint(&_Pa, S, i);
+            StrReadDPoint(&Pa, S, i);
         } catch(...) {
             throw;
         }
@@ -1540,7 +1540,7 @@ void  TSegment::Read(TContourFigure *O_,
 
         case 3: //esperando separador o TDoublePoint Pb
             try {
-            StrReadDPoint(&_Pb, S, i);
+            StrReadDPoint(&Pb, S, i);
         } catch(...) {
             throw;
         }
@@ -1561,7 +1561,7 @@ void  TSegment::Read(TContourFigure *O_,
 
     //asigna la variable tampón
     try {
-        O->SetValues(_Pa,_Pb);
+        O->SetValues(Pa, Pb);
     } catch(...) {
         throw;
     }
@@ -1591,14 +1591,14 @@ void  TSegment::ReadRow(TContourFigure *O_,
     int status = 0;
 
     //variable tampón en formato conveniente
-    TDoublePoint _Pa, _Pb;
+    TDoublePoint Pa, Pb;
 
     do {
         //reacciona según el estado
         switch(status) {
         case 0: //esperando separador o valor para Pa
             try {
-            StrReadDPoint(&_Pa, S, i);
+            StrReadDPoint(&Pa, S, i);
         } catch(...) {
             throw;
         }
@@ -1616,7 +1616,7 @@ void  TSegment::ReadRow(TContourFigure *O_,
 
         case 2: //esperando separador o TDoublePoint Pb
             try {
-            StrReadDPoint(&_Pb, S, i);
+            StrReadDPoint(&Pb, S, i);
         } catch(...) {
             throw;
         }
@@ -1628,7 +1628,7 @@ void  TSegment::ReadRow(TContourFigure *O_,
 
     //asigna la variable tampón
     try {
-        O->SetValues(_Pa,_Pb);
+        O->SetValues(Pa, Pb);
     } catch(...) {
         throw;
     }
@@ -1639,22 +1639,22 @@ void  TSegment::ReadRow(TContourFigure *O_,
 //contruye un objeto
 TSegment::TSegment(void) : TContourFigure()
 {
-    __Pa.x = 0;
-    __Pa.y = 0;
-    __Pb.x = 0;
-    __Pb.y = 0;
+    p_Pa.x = 0;
+    p_Pa.y = 0;
+    p_Pb.x = 0;
+    p_Pb.y = 0;
 }
 TSegment::TSegment(double ax, double ay, double bx, double by) : TContourFigure()
 {
-    __Pa.x = ax;
-    __Pa.y = ay;
-    __Pb.x = bx;
-    __Pb.y = by;
+    p_Pa.x = ax;
+    p_Pa.y = ay;
+    p_Pb.x = bx;
+    p_Pb.y = by;
 }
-TSegment::TSegment(TDoublePoint _Pa, TDoublePoint _Pb) : TContourFigure()
+TSegment::TSegment(TDoublePoint Pa, TDoublePoint Pb) : TContourFigure()
 {
-    __Pa = _Pa;
-    __Pb = _Pb;
+    p_Pa = Pa;
+    p_Pb = Pb;
 }
 
 //copia las propiedades de un objeto
@@ -1665,15 +1665,15 @@ void TSegment::Copy(TSegment *O)
         throw EImproperArgument("pointer O should point to built segment");
 
     //asigna las propiedades
-    __Pa = O->__Pa;
-    __Pb = O->__Pb;
+    p_Pa = O->p_Pa;
+    p_Pb = O->p_Pb;
     //#Color = O->Color;
 }
 TSegment& TSegment::operator=(const TSegment &O)
 {
     //asigna las propiedades
-    __Pa = O.__Pa;
-    __Pb = O.__Pb;
+    p_Pa = O.p_Pa;
+    p_Pb = O.p_Pb;
     //#Color = O.Color;
 
     return *this;
@@ -1692,11 +1692,11 @@ TSegment::TSegment(TSegment *O)
 //MÉTODOS DE CONFIGURACIÓN:
 
 //asigna conjuntamente los valores de las propiedades de definición
-void TSegment::SetValues(TDoublePoint _Pa, TDoublePoint _Pb)
+void TSegment::SetValues(TDoublePoint Pa, TDoublePoint Pb)
 {
     //asigna los nuevos valores
-    __Pa = _Pa;
-    __Pb = _Pb;
+    p_Pa = Pa;
+    p_Pb = Pb;
 }
 
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
@@ -1704,12 +1704,12 @@ void TSegment::SetValues(TDoublePoint _Pa, TDoublePoint _Pb)
 //calcula la distancia mínima entre la figura y un punto
 double TSegment::DistancePoint(TDoublePoint Q)
 {
-    return DistanceSegmentPoint(__Pa, __Pb, Q);
+    return DistanceSegmentPoint(p_Pa, p_Pb, Q);
 }
 //calcula la distancia máxima entre la figura y un punto
 double TSegment::DistancePointMax(TDoublePoint Q)
 {
-    return DistanceSegmentPointMax(__Pa, __Pb, Q);
+    return DistanceSegmentPointMax(p_Pa, p_Pb, Q);
 }
 
 //calcula la distancia mínima entre la figura y una circulo
@@ -1719,7 +1719,7 @@ double TSegment::DistanceCircle(TCircle *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceSegmentCircle(__Pa, __Pb, C->P, C->getR());
+    return DistanceSegmentCircle(p_Pa, p_Pb, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circunferencia
 double TSegment::DistanceCircunference(TCircunference *C)
@@ -1728,7 +1728,7 @@ double TSegment::DistanceCircunference(TCircunference *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceSegmentCircunference(__Pa, __Pb, C->P, C->getR());
+    return DistanceSegmentCircunference(p_Pa, p_Pb, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
@@ -1738,7 +1738,7 @@ double TSegment::DistanceSegment(TSegment *S)
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceSegmentSegment(__Pa, __Pb, S->__Pa, S->__Pb);
+    return DistanceSegmentSegment(p_Pa, p_Pb, S->p_Pa, S->p_Pb);
 }
 //calcula la distancia mínima entre la figura y un arco
 double TSegment::DistanceArc(TArc *A)
@@ -1747,7 +1747,7 @@ double TSegment::DistanceArc(TArc *A)
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceSegmentArc(__Pa, __Pb, A->getPa(), A->getPb(),
+    return DistanceSegmentArc(p_Pa, p_Pb, A->getPa(), A->getPb(),
                               A->getPc(), A->getR());
 }
 
@@ -1802,19 +1802,19 @@ void TSegment::GetRotated(TFigure *F, double theta)
     const double SIN = sin(theta);
 
     //asigna los puntos rotados
-    S->__Pa.x = __Pa.x*COS - __Pa.y*SIN;
-    S->__Pa.y = __Pa.x*SIN + __Pa.y*COS;
-    S->__Pb.x = __Pb.x*COS - __Pb.y*SIN;
-    S->__Pb.y = __Pb.x*SIN + __Pb.y*COS;
+    S->p_Pa.x = p_Pa.x*COS - p_Pa.y*SIN;
+    S->p_Pa.y = p_Pa.x*SIN + p_Pa.y*COS;
+    S->p_Pb.x = p_Pb.x*COS - p_Pb.y*SIN;
+    S->p_Pb.y = p_Pb.x*SIN + p_Pb.y*COS;
 }
 //traslada la figura geométrica según el vector V
 void TSegment::Translate(TDoublePoint V)
 {
     //traslada los puntos de la figura
-    __Pa.x += V.x;
-    __Pa.y += V.y;
-    __Pb.x += V.x;
-    __Pb.y += V.y;
+    p_Pa.x += V.x;
+    p_Pa.y += V.y;
+    p_Pb.x += V.x;
+    p_Pb.y += V.y;
 }
 
 //MÉTODOS GRÁFICOS:
@@ -1830,7 +1830,7 @@ void TSegment::Paint(TPloterShapes *PS)
     //configura el color de la pluma
     PS->setPenColor(Color);
     //pinta un circulito en el lugar del objeto
-    PS->Segment(__Pa, __Pb);
+    PS->Segment(p_Pa, p_Pb);
 }
 */
 //--------------------------------------------------------------------------
@@ -1839,67 +1839,67 @@ void TSegment::Paint(TPloterShapes *PS)
 
 //PROPIEDADES DE DEFINICIÓN:
 
-void TArc::setPa(TDoublePoint _Pa)
+void TArc::setPa(TDoublePoint Pa)
 {
     //el vértice Pa no debe coincidir con el centro Pc
-    if(_Pa == __Pc)
+    if(Pa == p_Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
 
     //el punto Pa debe estar en el entorno del arco
-    if(!IsInRangeArc(_Pa))
+    if(!IsInRangeArc(Pa))
         throw EImproperArgument("point Pa should be in range of arc");
 
     //asigna el nuevo valor
-    __Pa = _Pa;
+    p_Pa = Pa;
 }
-void TArc::setPb(TDoublePoint _Pb)
+void TArc::setPb(TDoublePoint Pb)
 {
     //el vértice Pb no debe coincidir con el centro Pc
-    if(_Pb == __Pc)
+    if(Pb == p_Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
 
     //el punto Pb debe estar en el entorno del arco
-    if(!IsInRangeArc(_Pb))
+    if(!IsInRangeArc(Pb))
         throw EImproperArgument("point Pb should be in range of arc");
 
     //asigna el nuevo valor
-    __Pb = _Pb;
+    p_Pb = Pb;
 }
-void TArc::setPc(TDoublePoint _Pc)
+void TArc::setPc(TDoublePoint Pc)
 {
     //el centro Pc no debe coincidir con el vértice Pa
-    if(_Pc == __Pa)
+    if(Pc == p_Pa)
         throw EImproperArgument("center Pc should not be equal vertex Pa");
     //el centro Pc no debe coincidir con el vértice Pb
-    if(_Pc == __Pb)
+    if(Pc == p_Pb)
         throw EImproperArgument("center Pc should not be equal vertex Pb");
 
     //el punto Pc debe estar en el entorno del centro del arco
-    if(Abs(Mod(__Pa - _Pc) - __R)>ERR_NUM || Abs(Mod(__Pb - _Pc) - __R)>ERR_NUM)
+    if(Abs(Mod(p_Pa - Pc) - p_R)>ERR_NUM || Abs(Mod(p_Pb - Pc) - p_R)>ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
 
     //asigna el nuevo valor
-    __Pc = _Pc;
+    p_Pc = Pc;
 }
-void TArc::setR(double _R)
+void TArc::setR(double R)
 {
     //el radio debe ser mayor que cero
-    if(_R <= 0)
+    if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
     //el radio R debe ser tal que Pa y Pb estén en el entorno del arco
-    if(Abs(Mod(__Pa - __Pc) - _R)>ERR_NUM || Abs(Mod(__Pb - __Pc) - _R)>ERR_NUM)
+    if(Abs(Mod(p_Pa - p_Pc) - R)>ERR_NUM || Abs(Mod(p_Pb - p_Pc) - R)>ERR_NUM)
         throw EImproperArgument("radio R should be such that Pa and Pb are in range arc");
 
     //asigna el nuevo valor
-    __R = _R;
+    p_R = R;
 }
 
 //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
 AnsiString TArc::getPaText(void) const
 {
-    return DPointToStr(__Pa);
+    return DPointToStr(p_Pa);
 }
 void TArc::setPaText(const AnsiString& S)
 {
@@ -1911,7 +1911,7 @@ void TArc::setPaText(const AnsiString& S)
 }
 AnsiString TArc::getPbText(void) const
 {
-    return DPointToStr(__Pb);
+    return DPointToStr(p_Pb);
 }
 void TArc::setPbText(const AnsiString& S)
 {
@@ -1923,7 +1923,7 @@ void TArc::setPbText(const AnsiString& S)
 }
 AnsiString TArc::getPcText(void) const
 {
-    return DPointToStr(__Pc);
+    return DPointToStr(p_Pc);
 }
 void TArc::setPcText(const AnsiString& S)
 {
@@ -1935,7 +1935,7 @@ void TArc::setPcText(const AnsiString& S)
 }
 AnsiString TArc::getRText(void) const
 {
-    return FloatToStr(__R);
+    return FloatToStr(p_R);
 }
 void TArc::setRText(const AnsiString& S)
 {
@@ -2032,10 +2032,10 @@ void  TArc::Read(TContourFigure *_O,
     int status = 0;
 
     //variables tampón en formato conveniente
-    TDoublePoint _Pa; //punto central
-    TDoublePoint _Pb; //punto incial (en sentido dextrógiro)
-    TDoublePoint _Pc; //punto final (en sentido dextrógiro)
-    double _R; //radio
+    TDoublePoint Pa; //punto central
+    TDoublePoint Pb; //punto incial (en sentido dextrógiro)
+    TDoublePoint Pc; //punto final (en sentido dextrógiro)
+    double R; //radio
 
     do {
         //reacciona según el estado
@@ -2051,7 +2051,7 @@ void  TArc::Read(TContourFigure *_O,
 
         case 1: //esperando separador o TDoublePoint Pa
             try {
-            StrReadDPoint(&_Pa, S, i);
+            StrReadDPoint(&Pa, S, i);
         } catch(...) {
             throw;
         }
@@ -2069,7 +2069,7 @@ void  TArc::Read(TContourFigure *_O,
 
         case 3: //esperando separador o TDoublePoint Pb
             try {
-            StrReadDPoint(&_Pb, S, i);
+            StrReadDPoint(&Pb, S, i);
         } catch(...) {
             throw;
         }
@@ -2087,7 +2087,7 @@ void  TArc::Read(TContourFigure *_O,
 
         case 5: //esperando separador o TDoublePoint Pc
             try {
-            StrReadDPoint(&_Pc, S, i);
+            StrReadDPoint(&Pc, S, i);
         } catch(...) {
             throw;
         }
@@ -2105,7 +2105,7 @@ void  TArc::Read(TContourFigure *_O,
 
         case 7: //esperando separador o TDoublePoint R
             try {
-            StrReadFloat(_R, S, i);
+            StrReadFloat(R, S, i);
         } catch(...) {
             throw;
         }
@@ -2126,7 +2126,7 @@ void  TArc::Read(TContourFigure *_O,
 
     //asigna las variables tampón
     try {
-        O->SetValues(_Pa, _Pb, _Pc, _R);
+        O->SetValues(Pa, Pb, Pc, R);
     } catch(...) {
         throw;
     }
@@ -2160,17 +2160,17 @@ void  TArc::ReadRow(TContourFigure *_O,
     int status = 0;
 
     //variables tampón en formato conveniente
-    TDoublePoint _Pa; //punto central
-    TDoublePoint _Pb; //punto incial (en sentido dextrógiro)
-    TDoublePoint _Pc; //punto final (en sentido dextrógiro)
-    double _R; //radio
+    TDoublePoint Pa; //punto central
+    TDoublePoint Pb; //punto incial (en sentido dextrógiro)
+    TDoublePoint Pc; //punto final (en sentido dextrógiro)
+    double R; //radio
 
     do {
         //reacciona según el estado
         switch(status) {
         case 0: //esperando separador o TDoublePoint Pa
             try {
-            StrReadDPoint(&_Pa, S, i);
+            StrReadDPoint(&Pa, S, i);
         } catch(...) {
             throw;
         }
@@ -2188,7 +2188,7 @@ void  TArc::ReadRow(TContourFigure *_O,
 
         case 2: //esperando separador o TDoublePoint Pb
             try {
-            StrReadDPoint(&_Pb, S, i);
+            StrReadDPoint(&Pb, S, i);
         } catch(...) {
             throw;
         }
@@ -2206,7 +2206,7 @@ void  TArc::ReadRow(TContourFigure *_O,
 
         case 4: //esperando separador o TDoublePoint Pc
             try {
-            StrReadDPoint(&_Pc, S, i);
+            StrReadDPoint(&Pc, S, i);
         } catch(...) {
             throw;
         }
@@ -2224,7 +2224,7 @@ void  TArc::ReadRow(TContourFigure *_O,
 
         case 6: //esperando separador o TDoublePoint R
             try {
-            StrReadFloat(_R, S, i);
+            StrReadFloat(R, S, i);
         } catch(...) {
             throw;
         }
@@ -2236,7 +2236,7 @@ void  TArc::ReadRow(TContourFigure *_O,
 
     //asigna las variables tampón
     try {
-        O->SetValues(_Pa, _Pb, _Pc, _R);
+        O->SetValues(Pa, Pb, Pc, R);
     } catch(...) {
         throw;
     }
@@ -2246,55 +2246,55 @@ void  TArc::ReadRow(TContourFigure *_O,
 
 //contruye un objeto
 TArc::TArc(void) : TContourFigure(),
-    __R(1)
+    p_R(1)
 {
-    __Pa.x = 1;
-    __Pa.y = 0;
-    __Pb.x = 1;
-    __Pb.y = 0;
-    __Pc.x = 0;
-    __Pc.y = 0;
+    p_Pa.x = 1;
+    p_Pa.y = 0;
+    p_Pb.x = 1;
+    p_Pb.y = 0;
+    p_Pc.x = 0;
+    p_Pc.y = 0;
 }
 TArc::TArc(double ax, double ay, double bx, double by, double cx, double cy,
-           double _R) : TContourFigure()
+           double R) : TContourFigure()
 {
     //ADVERTENCIA: aquí no debe usarse la función IsArc, por que
     //dicha función no indica la causa de que (Pa, Pb, Pc, R)
     //no sea un arco.
 
     //asigna las coordenadas a puntos auxiliares
-    TDoublePoint _Pa; _Pa.x = ax; _Pa.y = ay;
-    TDoublePoint _Pb; _Pb.x = bx; _Pb.y = by;
-    TDoublePoint _Pc; _Pc.x = cx; _Pc.y = cy;
+    TDoublePoint Pa; Pa.x = ax; Pa.y = ay;
+    TDoublePoint Pb; Pb.x = bx; Pb.y = by;
+    TDoublePoint Pc; Pc.x = cx; Pc.y = cy;
 
     //el vértice Pa no debe coincidir con el centro Pc
-    if(_Pa == _Pc)
+    if(Pa == Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
 
     //el vértice Pb no debe coincidir con el centro Pc
-    if(_Pb == _Pc)
+    if(Pb == Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
 
     //el radio R debería ser no negativo
-    if(_R < 0)
+    if(R < 0)
         throw EImproperArgument("radio R should be nonnegative");
 
     //el punto Pa debe estar en el entorno de un punto del arco
-    if(Abs(Mod(_Pa - _Pc) - _R) > ERR_NUM)
+    if(Abs(Mod(Pa - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
 
     //el punto Pb debe estar en el entorno de un punto del arco
-    if(Abs(Mod(_Pb - _Pc) - _R) > ERR_NUM)
+    if(Abs(Mod(Pb - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pb should be in range of a point in the arc");
 
     //asigna los nuevos valores
-    __Pa = _Pa;
-    __Pb = _Pb;
-    __Pc = _Pc;
-    __R = _R;
+    p_Pa = Pa;
+    p_Pb = Pb;
+    p_Pc = Pc;
+    p_R = R;
 }
-TArc::TArc(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc,
-           double _R) :
+TArc::TArc(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
+           double R) :
     TContourFigure()
 {
     //ADVERTENCIA: aquí no debe usarse la función IsArc, por que
@@ -2302,30 +2302,30 @@ TArc::TArc(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc,
     //no sea un arco.
 
     //el vértice Pa no debe coincidir con el centro Pc
-    if(_Pa == _Pc)
+    if(Pa == Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
 
     //el vértice Pb no debe coincidir con el centro Pc
-    if(_Pb == _Pc)
+    if(Pb == Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
 
     //el radio R debería ser no negativo
-    if(_R < 0)
+    if(R < 0)
         throw EImproperArgument("radio R should be nonnegative");
 
     //el punto Pa debe estar en el entorno de un punto del arco
-    if(Abs(Mod(_Pa - _Pc) - _R) > ERR_NUM)
+    if(Abs(Mod(Pa - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
 
     //el punto Pb debe estar en el entorno de un punto del arco
-    if(Abs(Mod(_Pb - _Pc) - _R) > ERR_NUM)
+    if(Abs(Mod(Pb - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pb should be in range of a point in the arc");
 
     //asigna los nuevos valores
-    __Pa = _Pa;
-    __Pb = _Pb;
-    __Pc = _Pc;
-    __R = _R;
+    p_Pa = Pa;
+    p_Pb = Pb;
+    p_Pc = Pc;
+    p_R = R;
 }
 
 //copia las propiedades de un objeto
@@ -2336,19 +2336,19 @@ void TArc::Copy(TArc *O)
         throw EImproperArgument("pointer O should point to built segment");
 
     //asigna las propiedades
-    __Pa = O->__Pa;
-    __Pb = O->__Pb;
-    __Pc = O->__Pc;
-    __R = O->__R;
+    p_Pa = O->p_Pa;
+    p_Pb = O->p_Pb;
+    p_Pc = O->p_Pc;
+    p_R = O->p_R;
     //#Color = O->Color;
 }
 TArc& TArc::operator=(const TArc &O)
 {
     //asigna las propiedades
-    __Pa = O.__Pa;
-    __Pb = O.__Pb;
-    __Pc = O.__Pc;
-    __R = O.__R;
+    p_Pa = O.p_Pa;
+    p_Pb = O.p_Pb;
+    p_Pc = O.p_Pc;
+    p_R = O.p_R;
     //#Color = O.Color;
 
     return *this;
@@ -2371,7 +2371,7 @@ TArc::TArc(TArc *O)
 bool TArc::IsInRangeArc(TDoublePoint P)
 {
     //si el punto P está a una distancia del arco superior a epsilon
-    if(Abs(Mod(P - __Pc) - __R) > ERR_NUM)
+    if(Abs(Mod(P - p_Pc) - p_R) > ERR_NUM)
         return false; //indica que P no está en el entorno del arco
 
     return true; //indica que P si está en el entorno del arrco
@@ -2382,38 +2382,38 @@ bool TArc::IsInRangeArc(TDoublePoint P)
 //      Pa o Pb es igual a Pc,
 //      R no es mayor que cero,
 //      Pa o Pb no está en el entorno del arco,
-void TArc::SetValues(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc, double _R)
+void TArc::SetValues(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R)
 {
     //ADVERTENCIA: aquí no debe usarse la función IsArc, por que
     //dicha función no indica la causa de que (Pa, Pb, Pc, R)
     //no sea un arco.
 
     //el vértice Pa no debe coincidir con el centro Pc
-    if(_Pa == _Pc)
+    if(Pa == Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
 
     //el vértice Pb no debe coincidir con el centro Pc
-    if(_Pb == _Pc)
+    if(Pb == Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
 
     //el radio R debería ser no negativo
-    if(_R < 0)
+    if(R < 0)
         throw EImproperArgument("radio R should be nonnegative");
 
     //el punto Pa debe estar en el entorno de un punto del arco
-    if(Abs(Mod(_Pa - _Pc) - _R) > ERR_NUM)
+    if(Abs(Mod(Pa - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
 
     //el punto Pb debe estar en el entorno de un punto del arco
-    double aux = Abs(Mod(_Pb - _Pc) - _R);
+    double aux = Abs(Mod(Pb - Pc) - R);
     if(aux > ERR_NUM)
         throw EImproperArgument("point Pb should be in range of a point in the arc");
 
     //asigna los nuevos valores
-    __Pa = _Pa;
-    __Pb = _Pb;
-    __Pc = _Pc;
-    __R = _R;
+    p_Pa = Pa;
+    p_Pb = Pb;
+    p_Pc = Pc;
+    p_R = R;
 }
 
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
@@ -2421,12 +2421,12 @@ void TArc::SetValues(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc, doubl
 //calcula la distancia mínima entre la figura y un punto
 double TArc::DistancePoint(TDoublePoint Q)
 {
-    return DistanceArcPoint(__Pa, __Pb, __Pc, __R, Q);
+    return DistanceArcPoint(p_Pa, p_Pb, p_Pc, p_R, Q);
 }
 //calcula la distancia máxima entre la figura y un punto
 double TArc::DistancePointMax(TDoublePoint Q)
 {
-    return DistanceArcPointMax(__Pa, __Pb, __Pc, __R, Q);
+    return DistanceArcPointMax(p_Pa, p_Pb, p_Pc, p_R, Q);
 }
 
 //calcula la distancia mínima entre la figura y una circunferencia
@@ -2436,7 +2436,7 @@ double TArc::DistanceCircunference(TCircunference *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceArcCircunference(__Pa, __Pb, __Pc, __R, C->P, C->getR());
+    return DistanceArcCircunference(p_Pa, p_Pb, p_Pc, p_R, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circulo
 double TArc::DistanceCircle(TCircle *C)
@@ -2445,7 +2445,7 @@ double TArc::DistanceCircle(TCircle *C)
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceArcCircle(__Pa, __Pb, __Pc, __R, C->P, C->getR());
+    return DistanceArcCircle(p_Pa, p_Pb, p_Pc, p_R, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
@@ -2455,7 +2455,7 @@ double TArc::DistanceSegment(TSegment *S)
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceArcSegment(__Pa, __Pb, __Pc, __R, S->getPa(), S->getPb());
+    return DistanceArcSegment(p_Pa, p_Pb, p_Pc, p_R, S->getPa(), S->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
 double TArc::DistanceArc(TArc *A)
@@ -2464,8 +2464,8 @@ double TArc::DistanceArc(TArc *A)
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceArcArc(__Pa, __Pb, __Pc, __R,
-                          A->__Pa, A->__Pb, A->__Pc, A->__R);
+    return DistanceArcArc(p_Pa, p_Pb, p_Pc, p_R,
+                          A->p_Pa, A->p_Pb, A->p_Pc, A->p_R);
 }
 
 //calcula la distancia mínima entre la figura y otra figura
@@ -2518,23 +2518,23 @@ void TArc::GetRotated(TFigure *F, double theta)
     const double SIN = sin(theta);
 
     //asigna los puntos rotados
-    A->__Pa.x = __Pa.x*COS - __Pa.y*SIN;
-    A->__Pa.y = __Pa.x*SIN + __Pa.y*COS;
-    A->__Pb.x = __Pb.x*COS - __Pb.y*SIN;
-    A->__Pb.y = __Pb.x*SIN + __Pb.y*COS;
-    A->__Pc.x = __Pc.x*COS - __Pc.y*SIN;
-    A->__Pc.y = __Pc.x*SIN + __Pc.y*COS;
+    A->p_Pa.x = p_Pa.x*COS - p_Pa.y*SIN;
+    A->p_Pa.y = p_Pa.x*SIN + p_Pa.y*COS;
+    A->p_Pb.x = p_Pb.x*COS - p_Pb.y*SIN;
+    A->p_Pb.y = p_Pb.x*SIN + p_Pb.y*COS;
+    A->p_Pc.x = p_Pc.x*COS - p_Pc.y*SIN;
+    A->p_Pc.y = p_Pc.x*SIN + p_Pc.y*COS;
 }
 //traslada la figura geométrica según el vector V
 void TArc::Translate(TDoublePoint V)
 {
     //traslada los puntos de la figura
-    __Pa.x += V.x;
-    __Pb.x += V.x;
-    __Pc.x += V.x;
-    __Pa.y += V.y;
-    __Pb.y += V.y;
-    __Pc.y += V.y;
+    p_Pa.x += V.x;
+    p_Pb.x += V.x;
+    p_Pc.x += V.x;
+    p_Pa.y += V.y;
+    p_Pb.y += V.y;
+    p_Pc.y += V.y;
 }
 
 //MÉTODOS GRÁFICOS:
@@ -2550,7 +2550,7 @@ void TArc::Paint(TPloterShapes *PS)
     //configura el color de la pluma
     PS->setPenColor(Color);
     //pinta un circulito en el lugar del objeto
-    PS->Arc(__Pa, __Pb, __Pc, __R);
+    PS->Arc(p_Pa, p_Pb, p_Pc, p_R);
 }
 */
 //--------------------------------------------------------------------------

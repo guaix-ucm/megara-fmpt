@@ -52,10 +52,10 @@ namespace Models {
 
 //clase conexión de la pseudoslit
 class TConection {
-        int __RPId;
-        int __SpaxelId;
-        int __FiberId;
-        double __s;
+        int p_RPId;
+        int p_SpaxelId;
+        int p_FiberId;
+        double p_s;
 
 public:
         //etiquetas
@@ -67,21 +67,21 @@ public:
         //identificador único del RP del que proviene la fibra
         //debe ser no negativo
         //valor por defecto: 0 (indefinido)
-        int getRPId(void) const {return __RPId;}
+        int getRPId(void) const {return p_RPId;}
         void setRPId(int);
         //identificador único del spaxel de la microlente
         //debe estar en [0, 7]
         //valor por defecto: 0 (indefinido)
-        int getSpaxelId(void) const {return __SpaxelId;}
+        int getSpaxelId(void) const {return p_SpaxelId;}
         void setSpaxelId(int);
         //identificador único de la Fibra
         //debe ser no negativo
         //valor por defecto: 0 (indefinido)
-        int getFiberId(void) const {return __FiberId;}
+        int getFiberId(void) const {return p_FiberId;}
         void setFiberId(int);
         //posición relativa en la pseudoslit
         //valor por defecto: 0
-        double gets(void) const {return __s;}
+        double gets(void) const {return p_s;}
         void sets(double);
 
         //PROPIEDADES EN FORMATO TEXTO:
@@ -108,23 +108,23 @@ public:
         static void TravelLabelsRow(const AnsiString& S, int& i);
 
         //construye una conexión con los valores por defecto
-        TConection(void) : __RPId(0), __SpaxelId(0), __FiberId(0), __s(0) {;}
+        TConection(void) : p_RPId(0), p_SpaxelId(0), p_FiberId(0), p_s(0) {;}
 
         //asigna las propiedades atómicamente
         //si no es posible asignar todas las propiedades:
         //      lanza una excepción EImproperArgument
-        void Set(int _RPId, int _SpaxelId, int _FiberId, double _s);
+        void Set(int RPId, int SpaxelId, int FiberId, double s);
 };
 
 //clase Fiber Connection Model
 class TFiberConnectionModel {
-        double __R;
+        double p_R;
 
 public:
         //distancia entre centros de los spaxeles
         //debe ser mayor que cero
         //valor por defecto: 0.443 mm
-        double getR(void) const {return __R;} void setR(double);
+        double getR(void) const {return p_R;} void setR(double);
 
         //La distancia entre spaxel de la microlente
         //tiene una precisión de +/- 5 um.

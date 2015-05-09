@@ -194,7 +194,7 @@ class TCircle : public TFigure {
 protected:
         //PROPIEDADES DE DEFINICIÓN:
 
-        double __R;
+        double p_R;
 
 public:
         //PROPIEDADES ESTÁTICAS:
@@ -211,7 +211,7 @@ public:
         //radio del círculo
         //debe ser mayor que cero
         //valor por defecto: 1
-        double getR(void) const {return __R;} void setR(double);
+        double getR(void) const {return p_R;} void setR(double);
 
         //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
 
@@ -274,8 +274,8 @@ public:
 
         //contruye un objeto
         TCircle(void);
-        TCircle(double x, double y, double _R);
-        TCircle(TDoublePoint _P, double _R);
+        TCircle(double x, double y, double R);
+        TCircle(TDoublePoint P, double R);
 
         //copia las propiedades de un objeto
         void Copy(TCircle*);
@@ -287,7 +287,7 @@ public:
         //MÉTODOS DE CONFIGURACIÓN:
 
         //asigna conjuntamente los valores de las propiedades de definición
-        void SetValues(TDoublePoint _P, double _R);
+        void SetValues(TDoublePoint P, double R);
 
         //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
@@ -331,7 +331,7 @@ class TCircunference : public TFigure {
 protected:
         //PROPIEDADES DE DEFINICIÓN:
 
-        double __R;
+        double p_R;
 
 public:
         //PROPIEDADES ESTÁTICAS:
@@ -348,7 +348,7 @@ public:
         //radio de la circunferencia
         //debe ser mayor que cero
         //valor por defecto: 1
-        double getR(void) const {return __R;} void setR(double);
+        double getR(void) const {return p_R;} void setR(double);
 
         //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
 
@@ -414,8 +414,8 @@ public:
 
         //contruye un objeto
         TCircunference(void);
-        TCircunference(double x, double y, double _R);
-        TCircunference(TDoublePoint _P, double _R);
+        TCircunference(double x, double y, double R);
+        TCircunference(TDoublePoint P, double R);
 
         //copia las propiedades de un objeto
         void Copy(TCircunference*);
@@ -427,7 +427,7 @@ public:
         //MÉTODOS DE CONFIGURACIÓN:
 
         //asigna conjuntamente los valores de las propiedades de definición
-        void SetValues(TDoublePoint _P, double _R);
+        void SetValues(TDoublePoint P, double R);
 
         //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
@@ -475,19 +475,19 @@ class TContourFigure : public TFigure {
 protected:
         //PROPIEDADES DE DEFINICIÓN:
 
-        TDoublePoint __Pa;
-        TDoublePoint __Pb;
+        TDoublePoint p_Pa;
+        TDoublePoint p_Pb;
 
 public:
         //PROPIEDADES DE DEFINICIÓN:
 
         //vértice Pa de la figura
         //valor por defecto: {0, 0}
-        TDoublePoint getPa(void) const {return __Pa;}
+        TDoublePoint getPa(void) const {return p_Pa;}
         virtual void setPa(TDoublePoint) = 0;
         //vértice Pb de la figura
         //valor por defecto: {0, 0}
-        TDoublePoint getPb(void) const {return __Pb;}
+        TDoublePoint getPb(void) const {return p_Pb;}
         virtual void setPb(TDoublePoint) = 0;
 
         //MÉTODOS ESTÁTICOS DE LISTA:
@@ -532,10 +532,10 @@ public:
 
         //coordenadas cartesianas del punto inicial
         //valor por defecto: (0, 0)
-        void setPa(TDoublePoint _Pa);
+        void setPa(TDoublePoint Pa);
         //coordenadas cartesianas del punto final
         //valor por defecto: (0, 0)
-        void setPb(TDoublePoint _Pb);
+        void setPb(TDoublePoint Pb);
 
         //ADVERTENCIA: Pa y Pb pueden coincidir.
 
@@ -571,7 +571,7 @@ public:
         //contruye un objeto
         TSegment(void);
         TSegment(double ax, double ay, double bx, double by);
-        TSegment(TDoublePoint _Pa, TDoublePoint _Pb);
+        TSegment(TDoublePoint Pa, TDoublePoint Pb);
 
         //copia las propiedades de un objeto
         void Copy(TSegment*);
@@ -583,7 +583,7 @@ public:
         //MÉTODOS DE CONFIGURACIÓN:
 
         //asigna conjuntamente los valores de las propiedades de definición
-        void SetValues(TDoublePoint _Pa, TDoublePoint _Pb);
+        void SetValues(TDoublePoint Pa, TDoublePoint Pb);
 
         //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
@@ -627,8 +627,8 @@ class TArc : public TContourFigure {
 protected:
         //PROPIEDADES DE DEFINICIÓN:
 
-        TDoublePoint __Pc;
-        double __R;
+        TDoublePoint p_Pc;
+        double p_R;
 
         //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
@@ -653,12 +653,12 @@ public:
         //debe ser distinto de los vértices
         //debe estar en el entorno del centro del arco
         //valor por defecto: {0, 0}
-        TDoublePoint getPc(void) const {return __Pc;} void setPc(TDoublePoint);
+        TDoublePoint getPc(void) const {return p_Pc;} void setPc(TDoublePoint);
         //radio del arco
         //debe ser mayor que cero
         //el radio R debe ser tal que Pa y Pb estén en el entorno del arco
         //valor por defecto: 1
-        double getR(void) const {return __R;} void setR(double);
+        double getR(void) const {return p_R;} void setR(double);
 
         //ADVERTENCIA: el radio R debe ser mayor que cero, ya que
         //Pa y Pb no pueden coincidir con Pc.
@@ -703,9 +703,9 @@ public:
         //contruye un objeto
         TArc(void);
         TArc(double ax, double ay, double bx, double by, double cx, double cy,
-                double _R);
-        TArc(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc,
-                double _R);
+                double R);
+        TArc(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
+                double R);
 
         //copia las propiedades de un objeto
         void Copy(TArc*);
@@ -757,8 +757,8 @@ public:
         //      Pa o Pb es igual a Pc,
         //      R no es mayor que cero,
         //      Pa o Pb no está en el entorno del arco,
-        void SetValues(TDoublePoint _Pa, TDoublePoint _Pb, TDoublePoint _Pc,
-                double _R);
+        void SetValues(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
+                double R);
 
         //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 

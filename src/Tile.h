@@ -43,9 +43,9 @@ namespace Models {
 
 //azulejo
 class TTile {
-    int __Id;
-    double __DEC;
-    double __R_;
+    int p_Id;
+    double p_DEC;
+    double p_R_;
 
 public:
     //PROPIEDADES ESTÁTICAS:
@@ -74,7 +74,7 @@ public:
     //número de identificación del azulejo
     //debe ser no negativo
     //valor por defecto: 0
-    int getId(void) const {return __Id;} void setId(int);
+    int getId(void) const {return p_Id;} void setId(int);
 
     //NOTA: 23 es precisamente el número máximo de caracteres de un valor
     //en punto flotante para double.
@@ -95,12 +95,12 @@ public:
     //declinación del centro del azulejo en coordenadas celestes
     //debe estar en [-pi/2, pi/2]
     //valor por defecto: 0 rad
-    double getDEC(void) const {return __DEC;} void setDEC(double);
+    double getDEC(void) const {return p_DEC;} void setDEC(double);
 
     //radio del azulejo en radianes
     //debe ser mayor que cero
     //valor por defecto: 2.9088902912790199E-3 rad (= 10 arcmin)
-    double getR_(void) const {return __R_;} void setR_(double);
+    double getR_(void) const {return p_R_;} void setR_(double);
 
     //lista de puntos de cielo del azulejo
     TSkyPointList SkyPointList;
@@ -176,7 +176,7 @@ public:
     //MÉTODOS:
 
     //mueve el azulejo al punto indicado
-    void Move(double _RA, double _DEC);
+    void Move(double RA, double DEC);
 
     //segrega los puntos de cielo del catálogo en el azulejo incluyendo
     //aquellos que estén en el interior del círculo (RA, DEC, 1.2*R_)

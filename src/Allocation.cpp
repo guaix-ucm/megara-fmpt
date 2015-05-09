@@ -141,8 +141,8 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
     int status = 0;
 
     //variables tampón en formato conveniente
-    int _Id;
-    double _x, _y;
+    int t_Id;
+    double t_x, t_y;
 
     do {
         //reacciona según el estado y al caracter
@@ -152,7 +152,7 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
                 //avanza el índice hasta el próximo caracter no separador
                 StrTravelSeparatorsIfAny(S, i);
                 //lee el valor para Id
-                StrReadInt(_Id, S, i);
+                StrReadInt(t_Id, S, i);
                 //pasa a leer el valor para x
                 status++;
             } catch(...) {
@@ -164,7 +164,7 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
                 //atraviesa el separador obligatorio
                 StrTravelSeparators(S, i);
                 //lee el valor para x
-                StrReadFloat(_x, S, i);
+                StrReadFloat(t_x, S, i);
                 //pasa a leer el valor para y
                 status++;
             } catch(...) {
@@ -176,7 +176,7 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
                 //atraviesa el separador obligatorio
                 StrTravelSeparators(S, i);
                 //lee el valor para y
-                StrReadFloat(_y, S, i);
+                StrReadFloat(t_y, S, i);
                 //pasa a asignar la variable tampón
                 status++;
             } catch(...) {
@@ -188,9 +188,9 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
     } while(status < 3);
 
     //asigna las propiedades
-    Id = _Id;
-    x = _x;
-    y = _y;
+    Id = t_Id;
+    x = t_x;
+    y = t_y;
 }
 
 //---------------------------------------------------------------------------
@@ -199,43 +199,41 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
 //build a target point attached a RP
 //if the RP already has an attached target point
 //  throw an exception EImproperArgument
-TAllocation::TAllocation(TRoboticPositioner *_RP,
-        double x, double y)
+TAllocation::TAllocation(TRoboticPositioner *RP, double x, double y)
 {
         //check the precondition
-        if(_RP == NULL)
+        if(RP == NULL)
                 throw EImproperArgument("pointer RP should point to built robotic positioner");
 
         //el RP RP no debería estar adscrito a
         //un punto objetivo previamente construido
         for(int i=0; i<Builts.getCount(); i++)
-                if(_RP == Builts[i]->getRP())
+                if(RP == Builts[i]->getRP())
                         throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
 
         //asigna los valores
-        __RP = _RP;
+        p_RP = RP;
         PP.x = x;
         PP.y = y;
 
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);
 }
-TAllocation::TAllocation(TRoboticPositioner *_RP,
-        TDoublePoint _PP)
+TAllocation::TAllocation(TRoboticPositioner *RP, TDoublePoint t_PP)
 {
         //el puntero RP debería apuntar a un RP construido
-        if(_RP == NULL)
+        if(RP == NULL)
                 throw EImproperArgument("pointer RP should point to built robotic positioner");
 
         //el RP RP no debería estar adscrito a
         //un punto objetivo previamente construido
         for(int i=0; i<Builts.getCount(); i++)
-                if(_RP == Builts[i]->getRP())
+                if(RP == Builts[i]->getRP())
                         throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
 
         //asigna los valores
-        __RP = _RP;
-        PP = _PP;
+        p_RP = RP;
+        PP = t_PP;
 
         //apunta el nuevo punto objetivo a la lista de construidos
         Builts.Add(this);

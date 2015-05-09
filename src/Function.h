@@ -55,33 +55,33 @@ namespace Operators {
 
 class TFunction {
 protected:
-    bool Periodic; //true: T-periódica; false: aperiódica
-    double T; //periodo de la función periódica
+    bool p_Periodic; //true: T-periódica; false: aperiódica
+    double p_T; //periodo de la función periódica
 
     //Es conveniente disponer las coordenadas de los puntos de muestreo en
     //vectores separados para poder acceder a las propiedades de cada
     //vector, sean: Min, Max, First, Last, etc;
     //o para facilitar la adición ordenada.
-    //Tambien conviene disponer una variable __Count que sirva de referente
+    //Tambien conviene disponer una variable p_Count que sirva de referente
     //del tamaño primitivo en los métodos que añaden o borran puntos de
     //muestreo.
 
-    int Count; //nº de puntos específicos de la función
-    TVector<double> X; //vector de ordenadas
-    TVector<double> Y; //vector de abcisas
+    int p_Count; //nº de puntos específicos de la función
+    TVector<double> p_X; //vector de ordenadas
+    TVector<double> p_Y; //vector de abcisas
 
 public:
     AnsiString Label; //texto descriptivo de la función
-    bool getPeriodic(void) const {return Periodic;}
+    bool getPeriodic(void) const {return p_Periodic;}
     void setPeriodic(bool);
-    double getT(void) const {return T;}
+    double getT(void) const {return p_T;}
     void setT(double);
-    int getCount(void) const {return Count;}
+    int getCount(void) const {return p_Count;}
 
     //ACCESO A LOS PUNTOS DE MUESTREO:
 
     //asigna los vectores de abcisas y ordenadas
-    void Set(const TVector<double>& _X, const TVector<double>& _Y);
+    void Set(const TVector<double>& X, const TVector<double>& Y);
 
     //abcisa indicada
     double getX(int) const;
@@ -94,30 +94,30 @@ public:
     void setP(int, TDoublePoint);
 
     //primera abcisa
-    double getXFirst(void) const {return X.getFirst();}
-    void setXFirst(double _XFirst) {X.setFirst(_XFirst);}
+    double getXFirst(void) const {return p_X.getFirst();}
+    void setXFirst(double XFirst) {p_X.setFirst(XFirst);}
     //úñtima abcisa
-    double getXLast(void) const {return X.getLast();}
-    void setXLast(double _XLast) {X.setLast(_XLast);}
+    double getXLast(void) const {return p_X.getLast();}
+    void setXLast(double XLast) {p_X.setLast(XLast);}
     //primera ordenada
-    double getYFirst(void) const {return Y.getFirst();}
-    void setYFirst(double _YFirst) {Y.setFirst(_YFirst);}
+    double getYFirst(void) const {return p_Y.getFirst();}
+    void setYFirst(double YFirst) {p_Y.setFirst(YFirst);}
     //última ordenada
-    double getYLast(void) const {return Y.getLast();}
-    void setYLast(double _YLast) {Y.setLast(_YLast);}
+    double getYLast(void) const {return p_Y.getLast();}
+    void setYLast(double YLast) {p_Y.setLast(YLast);}
     //odenada mínima
-    double getYMin(void) const {return Y.getMin();}
+    double getYMin(void) const {return p_Y.getMin();}
     //ordenada máxima
-    double getYMax(void) const {return Y.getMax();}
+    double getYMax(void) const {return p_Y.getMax();}
     //media de las ordenadas
-    double getYAve(void) const {return Y.getAve();}
+    double getYAve(void) const {return p_Y.getAve();}
 
     //PROPIEDADES EN FORMATO TEXTO:
 
     //vector de abcisas en formato texto
-    AnsiString getXText(void) const {return X.getText();}
+    AnsiString getXText(void) const {return p_X.getText();}
     //vector de ordenadas en formato texto
-    AnsiString getYText(void) const {return Y.getText();}
+    AnsiString getYText(void) const {return p_Y.getText();}
 
     //puntoa de la función en formato texto
     //{(x2 y2)...(xCount yCount)}

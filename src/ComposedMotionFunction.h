@@ -148,44 +148,39 @@ TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S);
 class TComposedMotionFunction {
     //PROPIEDADES DE LECTURA/ESCRITURA:
 
-    TSquareFunction *__SF1, *__SF2;
-    TRampFunction *__RF1, *__RF2;
+    TSquareFunction *p_SF1, *p_SF2;
+    TRampFunction *p_RF1, *p_RF2;
 
-    TMotionFunctionMode __MFM;
-    TSquareSynchronismMode __SSM;
-    TRampSynchronismMode __RSM;
+    TMotionFunctionMode p_MFM;
+    TSquareSynchronismMode p_SSM;
+    TRampSynchronismMode p_RSM;
 
-    TMotionFunction *__MF1, *__MF2;
+    TMotionFunction *p_MF1, *p_MF2;
 
-    //        double GetT(void);  void SetT(double);
+    double p_tsta1;
+    double p_tsta2;
 
-    double __tsta1;
-    double __tsta2;
-
-    int __Id1;
-    int __Id2;
-
-    //PROPIEDADES DE SOLO LECTURA:
-
+    int p_Id1;
+    int p_Id2;
 
     //-------------------------------------------------------------------
     //PROPIEDADES DE LECTURA/ESCRITURA EN FORMATO TEXTO:
 
-    AnsiString __Label;
+    AnsiString p_Label;
 
 public:
     //-------------------------------------------------------------------
     //PROPIDADES DE LECTURA/ESCRITURA:
 
     //función cuadrada del eje 1
-    TSquareFunction *getSF1(void) const {return __SF1;}
+    TSquareFunction *getSF1(void) const {return p_SF1;}
     //función cuadrada del eje 2
-    TSquareFunction *getSF2(void) const {return __SF2;}
+    TSquareFunction *getSF2(void) const {return p_SF2;}
 
     //función rampa del eje 1
-    TRampFunction *getRF1(void) const {return __RF1;}
+    TRampFunction *getRF1(void) const {return p_RF1;}
     //función rampa del eje 2
-    TRampFunction *getRF2(void) const {return __RF2;}
+    TRampFunction *getRF2(void) const {return p_RF2;}
 
     //modo de función de movimiento
     //valores posible:
@@ -194,7 +189,7 @@ public:
     //      smfRamp: los punteros a funciones de movimeinto
     //              apuntan a funciones rampa o a nulo
     //valor por defecto: smfRamp
-    TMotionFunctionMode getMFM(void) const {return __MFM;}
+    TMotionFunctionMode getMFM(void) const {return p_MFM;}
     void setMFM(TMotionFunctionMode);
 
     //modo de sincronismo de las funciones cuadradas
@@ -204,7 +199,7 @@ public:
     //      ssmMaxTmin: SF2->T = SF1->T = Max(SF1->Tmin, SF2->Tmin);
     //      ssmDouTmin: SF1->T = SF1->Tmin*2; SF2->T = SF2->Tmin;
     //valor por defecto ssfFree
-    TSquareSynchronismMode getSSM(void) const {return __SSM;}
+    TSquareSynchronismMode getSSM(void) const {return p_SSM;}
     void setSSM(TSquareSynchronismMode);
 
     //modo de sincronismo de las funciones rampa
@@ -217,7 +212,7 @@ public:
     //      rsmMaxTv: RF2->T = RF1->T = Max(RF1->Tv, RF2->Tv);
     //      rsmDouTv: RF1->T = RF1->Tv*2; RF2->T = RF2->Tv;
     //valor por defecto: rsmFree
-    TRampSynchronismMode getRSM(void) const {return __RSM;}
+    TRampSynchronismMode getRSM(void) const {return p_RSM;}
     void setRSM(TRampSynchronismMode);
 
     //la sincronización de ejes puede afectar a los gestos compuestos:
@@ -228,10 +223,10 @@ public:
 
     //puntero a la función de movimiento seleccionada del eje 1
     //valor por defecto: NULL
-    TMotionFunction *getMF1(void) const {return __MF1;}
+    TMotionFunction *getMF1(void) const {return p_MF1;}
     //puntero a la función de movimiento seleccionada del eje 2
     //valor por defecto: NULL
-    TMotionFunction *getMF2(void) const {return __MF2;}
+    TMotionFunction *getMF2(void) const {return p_MF2;}
 
     //cuando:
     //      MF1==NULL && MF2==NULL: gira ningún eje
@@ -242,29 +237,29 @@ public:
     //periodo de desplazamiento del gesto
     //      T = Max(tend1, tend2)
     //cuando T es cambiado,
-    //los periodos de los ejes mantienen la proporción
+    //los periodos de los rotores mantienen la proporción
     //valor mínimo: t.q. MF1->T==MF1->Tmin && MF2->T>=MF2->Tmin ||
     //      MF1->T>=MF1->Tmin && MF2->T==MF2->Tmin
-    //        __property double T = {read=GetT, write=SetT};
+    //double GetT(void);  void SetT(double);
 
     //instante de inicio de la función de movimeinto del eje 1
     //valor por defecto: 0
-    double gettsta1(void) const {return __tsta1;}
+    double gettsta1(void) const {return p_tsta1;}
     void settsta1(double);
     //instante de inicio de la función de movimeinto del eje 2
     //valor por defecto: 0
-    double gettsta2(void) const {return __tsta2;}
+    double gettsta2(void) const {return p_tsta2;}
     void settsta2(double);
 
     //identificador de la microcontroladora de rot 1
     //debe ser un número no negativo
     //valor por defecto: 0
-    int getId1(void) const {return __Id1;}
+    int getId1(void) const {return p_Id1;}
     void setId1(int);
     //identificador de la microcontroladora de rot 2
     //debe ser un número no negativo
     //valor por defecto: 0
-    int getId2(void) const {return __Id2;}
+    int getId2(void) const {return p_Id2;}
     void setId2(int);
 
     //PROPIEDADES DE SOLO LECTURA:
@@ -298,7 +293,7 @@ public:
     //nombre de la función de movimiento compuesto
     //debe ser una cadena imprimible
     //valor por defecto: ""
-    AnsiString getLabel(void) const {return __Label;}
+    AnsiString getLabel(void) const {return p_Label;}
     void setLabel(AnsiString);
 
     //dirección en memoria de la función SF1 en formato texto

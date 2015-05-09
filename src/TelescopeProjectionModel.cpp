@@ -48,14 +48,14 @@ namespace Models {
 TProjectionCircle::TProjectionCircle(void) : TCircle()
 {
     //inicializa las constantes
-    __O.x = 0;
-    __O.y = 0;
+    p_O.x = 0;
+    p_O.y = 0;
 
     //inicializa las propiedades heredadas
-    __R = 0;
+    p_R = 0;
     //#Color = DefaultColor;
 }
-TProjectionCircle::TProjectionCircle(TDoublePoint _P, double _R) : TCircle(_P, _R)
+TProjectionCircle::TProjectionCircle(TDoublePoint P, double R) : TCircle(P, R)
 {
     //inicializa las propiedades heredadas
     //#Color = DefaultColor;
@@ -68,7 +68,7 @@ TProjectionCircle::TProjectionCircle(TProjectionCircle *PC) : TCircle(PC)
         throw EImproperArgument("pointer PC should point to built projection circle");
 
     //copia las propiedades no heredadas
-    __O = PC->__O;
+    p_O = PC->p_O;
     //#Color = PC->Color;
 }
 
@@ -144,14 +144,14 @@ void TProjectionCircleList::Paint(TPloterShapes *PS)
 
 //PROPIEDADES:
 
-void TFocalPlane::setR(double _R)
+void TFocalPlane::setR(double R)
 {
     //el radio del plano focal R debería ser mayor que cero
-    if(_R <= 0)
-        throw EImproperArgument(AnsiString("focal plane radio '")+FloatToStr(_R)+AnsiString("' should be upper zero"));
+    if(R <= 0)
+        throw EImproperArgument(AnsiString("focal plane radio '")+FloatToStr(R)+AnsiString("' should be upper zero"));
 
     //asigna el nuevo valor
-    __R = _R;
+    p_R = R;
 }
 
 //MÉTODOS PÚBLICOS:
@@ -161,8 +161,8 @@ void TFocalPlane::setR(double _R)
 //con 331 puntos de traslación equidistantes L/5 mm
 //distribuidos en 19 capas exagonales más el central
 TFocalPlane::TFocalPlane(void) :
-    __R(GTC_R),
-    __ProjectionCircle(NULL),
+    p_R(GTC_R),
+    p_ProjectionCircle(NULL),
     ProjectionPointList(),
     ListInnerProjectionPoints(),
     //#Color(Qt::yellow),
@@ -171,8 +171,8 @@ TFocalPlane::TFocalPlane(void) :
 {
     try {
         //inicializa el punto origen de coordenadas
-        __O.x = 0;
-        __O.y = 0;
+        p_O.x = 0;
+        p_O.y = 0;
     } catch(...) {
         throw;
     }
@@ -185,15 +185,15 @@ void TFocalPlane::CopyFocalPlane(TFocalPlane *FP)
     if(FP == NULL)
         throw EImproperArgument("pointer FP should point to built focal plane");
 
-    __R = FP->__R;
+    p_R = FP->p_R;
     //#Color = FP->Color;
     PaintCircunference = FP->PaintCircunference;
     PaintProjectionCircle = FP->PaintProjectionCircle;
     ProjectionPointList = FP->ProjectionPointList;
     if(FP->getProjectionCircle() != NULL)
-        __ProjectionCircle = new TProjectionCircle(FP->getProjectionCircle());
+        p_ProjectionCircle = new TProjectionCircle(FP->getProjectionCircle());
     else
-        __ProjectionCircle = NULL;
+        p_ProjectionCircle = NULL;
 
     ListInnerProjectionPoints.Clear();
     for(int i=0; i<ProjectionPointList.getCount(); i++)
@@ -213,9 +213,9 @@ void TFocalPlane::Clear(void)
 {
     ProjectionPointList.Clear();
     ListInnerProjectionPoints.Clear();
-    if(__ProjectionCircle != NULL) {
-        delete __ProjectionCircle;
-        __ProjectionCircle = NULL;
+    if(p_ProjectionCircle != NULL) {
+        delete p_ProjectionCircle;
+        p_ProjectionCircle = NULL;
     }
 }
 /*#
@@ -257,51 +257,51 @@ AnsiString TTelescopeProjectionModel::scaleinvLabel = "scaleinv";
 
 //PROPIDADES DEFINITORIAS:
 
-void TTelescopeProjectionModel::setRA(double _RA)
+void TTelescopeProjectionModel::setRA(double RA)
 {
     //asigna el nuevo valor
-    __RA = _RA;
+    p_RA = RA;
     //asimila el nuevo valor
     DeterminePlanes();
 }
-void TTelescopeProjectionModel::setDEC(double _DEC)
+void TTelescopeProjectionModel::setDEC(double DEC)
 {
     //la declinación DEC debería estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("declination '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
 
     //asigna el nuevo valor
-    __DEC = _DEC;
+    p_DEC = DEC;
     //asimila el nuevo valor
     DeterminePlanes();
 }
-void TTelescopeProjectionModel::setPA(double _PA)
+void TTelescopeProjectionModel::setPA(double PA)
 {
     //asigna el nuevo valor
-    __PA = _PA;
+    p_PA = PA;
     //asimila el nuevo valor
     DeterminePlanes();
 }
 
-void TTelescopeProjectionModel::setR(double _R)
+void TTelescopeProjectionModel::setR(double R)
 {
     //el radio del plano focal debe ser mayor que cero
-    if(_R == 0)
+    if(R == 0)
         throw EImproperArgument("focal plane radio R should be upper zero");
 
     //asigna el nuevo valor
-    __R = _R;
+    p_R = R;
     //asimila el nuevo valor
     DeterminePlanes();
 }
-void TTelescopeProjectionModel::setangview(double _angview)
+void TTelescopeProjectionModel::setangview(double angview)
 {
     //el ángulo de visión debe ser mayor que cero
-    if(_angview == 0)
+    if(angview == 0)
         throw EImproperArgument("the angle of view angview should be upper zero");
 
     //asigna el nuevo valor
-    __angview = _angview;
+    p_angview = angview;
     //asimila el nuevo valor
     DeterminePlanes();
 }
@@ -435,10 +435,10 @@ void TTelescopeProjectionModel::DeterminePlanes(void)
     RotateVectors(v, w, aux, v, w, getPA());
 
     //calcula el ángulo de visión en rad
-    __angview_rad = getangview()*M_PI/double(180*3600);
+    p_angview_rad = getangview()*M_PI/double(180*3600);
     //calcula la escala y la escala inversa
-    __scale = getR()/getangview();
-    __scaleinv = getangview()/getR();
+    p_scale = getR()/getangview();
+    p_scaleinv = getangview()/getR();
 
     //define el plano de proyección X a partir del versor director u
     A1 = u.x;
@@ -587,8 +587,8 @@ void  TTelescopeProjectionModel::ReadAssigns(TTelescopeProjectionModel *TPM,
 //contruye un telescopio
 TTelescopeProjectionModel::TTelescopeProjectionModel(void) : TFocalPlane(),
     //inicializa las propiedades definitorias
-    __RA(0), __DEC(0), __PA(0),
-    __R(850), __angview(1031.305)
+    p_RA(0), p_DEC(0), p_PA(0),
+    p_R(850), p_angview(1031.305)
 {
     //asimila la configuración
     DeterminePlanes();
@@ -614,65 +614,65 @@ void TTelescopeProjectionModel::Copy(TTelescopeProjectionModel *T)
     CopyFocalPlane(T);
 
     //copia las demás propiedades
-    __RA = T->__RA;
-    __DEC = T->__DEC;
-    __PA = T->__PA;
-    __R = T->__R;
-    __angview_rad = T->__angview_rad;
-    __angview_rad = T->__angview_rad;
-    __scale = T->__scale;
-    __scaleinv = T->__scaleinv;
+    p_RA = T->p_RA;
+    p_DEC = T->p_DEC;
+    p_PA = T->p_PA;
+    p_R = T->p_R;
+    p_angview_rad = T->p_angview_rad;
+    p_angview_rad = T->p_angview_rad;
+    p_scale = T->p_scale;
+    p_scaleinv = T->p_scaleinv;
 }
 
 //--------------------------------------------------------------------------
 
 //asigna conjuntamente las propiedades de configuración
-void TTelescopeProjectionModel::Set(double _RA, double _DEC, double _PA,
-                                    double _R, double _angview)
+void TTelescopeProjectionModel::Set(double RA, double DEC, double PA,
+                                    double R, double angview)
 {
     //la declinación DEC debería estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("declination '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
     //el radio del plano focal debe ser mayor que cero
-    if(_R == 0)
+    if(R == 0)
         throw EImproperArgument("focal plane radio R should be upper zero");
     //el ángulo de visión debe ser mayor que cero
-    if(_angview == 0)
+    if(angview == 0)
         throw EImproperArgument("the angle of view angview should be upper zero");
 
     //asigna los nuevos valores
-    __RA = _RA;
-    __DEC = _DEC;
-    __PA = _PA;
-    __R = _R;
-    __angview = _angview;
+    p_RA = RA;
+    p_DEC = DEC;
+    p_PA = PA;
+    p_R = R;
+    p_angview = angview;
 }
 
 //apunta el telescopio en una dirección
-void TTelescopeProjectionModel::Point(double _RA, double _DEC)
+void TTelescopeProjectionModel::Point(double RA, double DEC)
 {
     //la declinación theta' debería estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("declination '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
 
     //asigna el nuevo valor
-    __RA = _RA;
-    __DEC = _DEC;
+    p_RA = RA;
+    p_DEC = DEC;
     //asimila el nuevo valor
     DeterminePlanes();
 }
 
 //apunta el telescopio y orienta el plano focal
-void TTelescopeProjectionModel::PointAndOrientate(double _RA, double _DEC, double _PA)
+void TTelescopeProjectionModel::PointAndOrientate(double RA, double DEC, double PA)
 {
     //la declinación theta' debería estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("declination '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
 
     //asigna el nuevo valor
-    __RA = _RA;
-    __DEC = _DEC;
-    __PA = _PA;
+    p_RA = RA;
+    p_DEC = DEC;
+    p_PA = PA;
     //asimila el nuevo valor
     DeterminePlanes();
 }
@@ -762,14 +762,14 @@ void TTelescopeProjectionModel::Deproject(double &RA, double &DEC, TDoublePoint 
 
 //adscribe un azulejo al telescopio y
 //apunta el telescopio al centro
-void TTelescopeProjectionModel::Point(TTile *_Tile)
+void TTelescopeProjectionModel::Point(TTile *Tile)
 {
     //el puntero Tile debería apuntar a un azulejo contruido
-    if(_Tile == NULL)
+    if(Tile == NULL)
         throw EImproperArgument("pointer Tile should point to built tile");
 
     //adscribe el azulejo externo
-    __Tile = _Tile;
+    p_Tile = Tile;
     //apunta el telescopio al centro del azulejo
     Point(getTile()->RA, getTile()->getDEC());
 
@@ -855,7 +855,7 @@ void TTelescopeProjectionModel::Project(void)
     //si no hay un círculo de proyección
     if(getProjectionCircle() == NULL)
         //contruye el círculo de proyección
-        __ProjectionCircle = new TProjectionCircle();
+        p_ProjectionCircle = new TProjectionCircle();
 
     //proyecta el centro del azulejo sobre el plano focal
     //y lo asigna al centro del círculo de proyección

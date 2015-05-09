@@ -23,8 +23,8 @@
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#ifndef _VECTORS_H
-#define _VECTORS_H
+#ifndef VECTORS_H
+#define VECTORS_H
 
 #include "vclemu.h" //AnsiString
 
@@ -116,7 +116,7 @@ public:
 
     //contruye un punto
     TDoublePoint(void) : x(0), y(0) {;}
-    TDoublePoint(double _x, double _y) : x(_x), y(_y) {;}
+    TDoublePoint(double t_x, double t_y) : x(t_x), y(t_y) {;}
 
     //copia un punto
     void Copy(TDoublePoint);
@@ -227,13 +227,13 @@ public:
 class TPhasor {
 protected:
 
-    double r;
+    double p_r;
 
 public:
     //amplitud en unidades de longitud
     //debe ser no negativo
     //valor por defect0: 0
-    double getr(void) const {return r;} void setr(double);
+    double getr(void) const {return p_r;} void setr(double);
     //fase en radianes
     //puede ser cualquier valor real
     //valor por defecto: 0
@@ -247,13 +247,13 @@ public:
     //MÉTODOS:
 
     //construye un un fasor inicializándolo a (0, 0)
-    TPhasor(void) : r(0), theta(0) {;}
+    TPhasor(void) : p_r(0), theta(0) {;}
     //construye un un fasor inicializándolo a (r, theta)
-    TPhasor(double _r, double _theta);
+    TPhasor(double r, double theta);
     //construye un fasor a partir de un complejo
     TPhasor(const complex<double> &c);
     //construye un clon de un fasor
-    TPhasor(const TPhasor &P) : r(P.r), theta(P.theta) {;}
+    TPhasor(const TPhasor &P) : p_r(P.p_r), theta(P.theta) {;}
 
     //asigna las propiedades de un fasor a este fasor
     TPhasor& operator=(const TPhasor& P);
@@ -273,8 +273,8 @@ public:
     double getModule(void) const {return sqrt(x*x + y*y + z*z);}
 
     //contruye un vector tridimensional
-    TVector3D(double _x=0, double _y=0, double _z=0) :
-        x(_x), y(_y), z(_z) {;}
+    TVector3D(double t_x=0, double t_y=0, double t_z=0) :
+        x(t_x), y(t_y), z(t_z) {;}
 
     //asignación de un vector
     TVector3D &operator=(const TVector3D&);

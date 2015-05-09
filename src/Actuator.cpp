@@ -315,57 +315,57 @@ TPurpose StrToPurpose(const AnsiString& S)
 
 //COMPONENTES DE SPM:
 
-void TActuator::setSPMrec(double _SPMrec)
+void TActuator::setSPMrec(double SPMrec)
 {
     //el SPM de recuperación (SPMrec) debe ser no negativo
-    if(_SPMrec < 0)
+    if(SPMrec < 0)
         throw EImproperArgument("the recovery SPM (SPMrec) should be nonnegative");
 
-    __SPMrec = _SPMrec; //asigna el nuevo valor
+    p_SPMrec = SPMrec; //asigna el nuevo valor
 
     //asimila SPMrec
     AssignSPM();
 }
-void TActuator::setSPMsta(double _SPMsta)
+void TActuator::setSPMsta(double SPMsta)
 {
     //el SPM staánico (SPMsta) debe ser no negativo
-    if(_SPMsta < 0)
+    if(SPMsta < 0)
         throw EImproperArgument("the staerical SPM (SPMsta) should be nonnegative");
 
-    __SPMsta = _SPMsta; //asigna el nuevo valor
+    p_SPMsta = SPMsta; //asigna el nuevo valor
 
     //asimila SPMsta
     AssignSPM();
 }
-void TActuator::setSPMdyn(double _SPMdyn)
+void TActuator::setSPMdyn(double SPMdyn)
 {
     //el SPM dinánico (SPMdyn) debe ser no negativo
-    if(_SPMdyn < 0)
+    if(SPMdyn < 0)
         throw EImproperArgument("the dynamic SPM (SPMdyn) should be nonnegative");
 
-    __SPMdyn = _SPMdyn; //asigna el nuevo valor
+    p_SPMdyn = SPMdyn; //asigna el nuevo valor
 
     //asimila SPMdyn
     AssignSPM();
 }
-void TActuator::setSPMmin(double _SPMmin)
+void TActuator::setSPMmin(double SPMmin)
 {
     //el SPM de salto mínimo (SPMmin) debe ser no negativo
-    if(_SPMmin < 0)
+    if(SPMmin < 0)
         throw EImproperArgument("the minimum jump SPM (SPMmin) should be nonnegative");
 
-    __SPMmin = _SPMmin; //asigna el nuevo valor
+    p_SPMmin = SPMmin; //asigna el nuevo valor
 
     //asimila SPMmin
     AssignSPM();
 }
-void TActuator::setSPMoff(double _SPMoff)
+void TActuator::setSPMoff(double SPMoff)
 {
     //el SPM de desplazamiento (SPMoff) debe ser no negativo
-    if(_SPMoff < 0)
+    if(SPMoff < 0)
         throw EImproperArgument("the offset SPM (SPMoff) should be nonnegative");
 
-    __SPMoff = _SPMoff; //asigna el nuevo valor
+    p_SPMoff = SPMoff; //asigna el nuevo valor
 
     //asimila SPMoff
     AssignSPM();
@@ -410,98 +410,98 @@ double TActuator::getSPMall_a(void) const
 //---------------------------------------------------------------------------
 //PROPIEDADES DE ESTADO:
 
-void TActuator::setPAkd(TKnowledgeDegree _PAkd)
+void TActuator::setPAkd(TKnowledgeDegree PAkd)
 {
     //si el nuevo valor difiere del actual
-    if(_PAkd != getPAkd()) {
+    if(PAkd != getPAkd()) {
         //asigna el nuevo valor
-        __PAkd = _PAkd;
+        p_PAkd = PAkd;
 
         //asimila PAkd
         AssignSPM();
     }
 }
-void TActuator::setPurpose(TPurpose _Purpose)
+void TActuator::setPurpose(TPurpose Purpose)
 {
     //siel nuevo valor difiere del actual
-    if(_Purpose != getPurpose()) {
+    if(Purpose != getPurpose()) {
         //asigna el nuevo valor
-        __Purpose = _Purpose;
+        p_Purpose = Purpose;
 
         //asimila Purpose
         AssignSPM();
     }
 }
 
-void TActuator::setId(int _Id)
+void TActuator::setId(int Id)
 {
     //el número de identificación Id debe ser no negativo
-    if(_Id < 0)
+    if(Id < 0)
         throw EImproperArgument("number identifier Id should be nonnegative");
 
     //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
 
-    __Id = _Id; //asigna el nuevo valor
+    p_Id = Id; //asigna el nuevo valor
 }
 
 //--------------------------------------------------------------------------
 //PROPIEDADES DE ÁREA:
 
-void TActuator::setr_3maxnom(double _r_3maxnom)
+void TActuator::setr_3maxnom(double r_3maxnom)
 {
     //el radio nominal del dominio de P3 r_3maxnom debe ser mayor que cero
-    if(_r_3maxnom <= 0)
+    if(r_3maxnom <= 0)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be upper zero");
 
     //el radio nominal del dominio de P3 r_3maxnom debe ser menor que infinito
-    if(std::numeric_limits<double>::max() <= _r_3maxnom)
+    if(std::numeric_limits<double>::max() <= r_3maxnom)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be less infinite");
 
     //el número de posicionadores adyacentes Adjacents.Count debería estar en [0, 6]
     if(Adjacents.getCount()<0 || 6<Adjacents.getCount())
         throw EImproperArgument("adjacent ositioner number Adjacents.Count should be in [0, 6]");
 
-    __r_3maxnom = _r_3maxnom; //asigna el nuevo valor
+    p_r_3maxnom = r_3maxnom; //asigna el nuevo valor
 
     //------------------------------------------------------------------
 
     //renombra el radio para simplificar la notación
-    double &r = __r_3maxnom;
+    double &r = p_r_3maxnom;
 
     //calcula el área del círculo de radio r
-    __Sc = M_PI*r*r;
+    p_Sc = M_PI*r*r;
 
     //calcula el área de una porción exagonal del círculo de radio r
-    __Sw = getSc()/6;
+    p_Sw = getSc()/6;
 
     //calcula el coseno de PI/6
     double aux = sqrt(0.75);
 
     //calcula el área participativa de una porción triangular
     //del exágono cinrcunscrito en la circunferencia de radio r
-    __Sp = r*r*aux/2;
+    p_Sp = r*r*aux/2;
 
     //calcula el área de uno de los segmentos de circunferencia
     //en las inmediaciones del exágono circunscrito
     //en la circunferencia de radio r
-    __Ss = getSw() - getSp(); //= r*r*(M_PI/6 - aux/2)
+    p_Ss = getSw() - getSp(); //= r*r*(M_PI/6 - aux/2)
 
     //calcula el área exclusiva de una porción exagonal
     //del círculode radio r
-    __Se = getSp() - getSs(); //= r*r*(aux - M_PI/6)
+    p_Se = getSp() - getSs(); //= r*r*(aux - M_PI/6)
 
     //calcula el ratio entre área exclusiva y el área participativa
-    __Re = getSe()/getSp();
+    p_Re = getSe()/getSp();
 
     //calcula el número de posicionadores no adyacentes
     aux = double(6 - Adjacents.getCount());
 
     //calcula el área participativa total
-    __Spt = aux*getSw() + Adjacents.getCount()*getSp(); //r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
+    p_Spt = aux*getSw() + Adjacents.getCount()*getSp(); //r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
     //calcula el área exclusiva total
-    __Set = aux*getSw() + Adjacents.getCount()*getSe(); //r*r*(sqrt(0.75) - M_PI/6);
+    p_Set = aux*getSw() + Adjacents.getCount()*getSe(); //r*r*(sqrt(0.75) - M_PI/6);
     //calcula el ratio entre Set y Spt
-    __Ret = getSet()/getSpt(); //2 - M_PI/(3*sqrt(0.75))
+    p_Ret = getSet()/getSpt(); //2 - M_PI/(3*sqrt(0.75))
 }
 
 //##########################################################################
@@ -1016,8 +1016,8 @@ void  TActuator::ReadInstance(TActuator* &A,
     int status = 0;
 
     //variables tampón
-    double _theta_1min, _theta_1max, _theta_1,_theta_O3;
-    TActuator _A(A);
+    double theta_1min, theta_1max, theta_1, theta_O3o;
+    TActuator t_A(A);
 
     do {
         switch(status) {
@@ -1027,7 +1027,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _A.setL01(aux);
+            t_A.setL01(aux);
         }catch(...) {
             throw;
         }
@@ -1038,7 +1038,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelSeparators(S, i);
             StrTravelLabel("theta_1min", S, i);
             StrTravelLabel("=", S, i);
-            StrReadFloat(_theta_1min, S, i);
+            StrReadFloat(theta_1min, S, i);
         }catch(...) {
             throw;
         }
@@ -1049,7 +1049,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelSeparators(S, i);
             StrTravelLabel("theta_1max", S, i);
             StrTravelLabel("=", S, i);
-            StrReadFloat(_theta_1max, S, i);
+            StrReadFloat(theta_1max, S, i);
         }catch(...) {
             throw;
         }
@@ -1060,7 +1060,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelSeparators(S, i);
             StrTravelLabel("theta_1", S, i);
             StrTravelLabel("=", S, i);
-            StrReadFloat(_theta_1, S, i);
+            StrReadFloat(theta_1, S, i);
         }catch(...) {
             throw;
         }
@@ -1071,7 +1071,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelSeparators(S, i);
             StrTravelLabel("theta_O3o", S, i);
             StrTravelLabel("=", S, i);
-            StrReadFloat(_theta_O3, S, i);
+            StrReadFloat(theta_O3o, S, i);
         }catch(...) {
             throw;
         }
@@ -1084,7 +1084,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _A.SetQuantification(aux);
+            t_A.SetQuantification(aux);
         }catch(...) {
             throw;
         }
@@ -1100,7 +1100,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             break;
         case 7: //esperando instancia de Arm
             try {
-            TArm *aux = _A.getArm();
+            TArm *aux = t_A.getArm();
             TArm::ReadInstance(aux, S, i);
         }catch(...) {
             throw;
@@ -1114,7 +1114,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelLabel("=", S, i);
             TKnowledgeDegree aux;
             StrReadKnowledgeDegree(aux, S, i);
-            _A.setPAkd(aux);
+            t_A.setPAkd(aux);
         }catch(...) {
             throw;
         }
@@ -1127,13 +1127,13 @@ void  TActuator::ReadInstance(TActuator* &A,
     //asigna las variables tampón
     try {
         //aisgna los conjuntos atóicos de valores a la variable tampón
-        _A.SetOrientationRadians(_theta_1min, _theta_1max, _theta_1, _theta_O3);
+        t_A.SetOrientationRadians(theta_1min, theta_1max, theta_1, theta_O3o);
 
     }catch(...) {
         throw;
     }
     //asigna la variable tampón
-    A->Clone(&_A);
+    A->Clone(&t_A);
 }
 
 //obtiene las etiquetas de las propiedades de origen de un posicionador
@@ -1235,63 +1235,24 @@ void  TActuator::ReadOriginsRow(TActuator* &A,
     if(i<1 || S.Length()+1<i)
         throw EImproperArgument("index i should indicate a position in the string S");
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando valor para Id
-    //      1: esperando separador y valor para x0
-    //      2: esperando separador y valor para y0
-    //      3: esperando separador y valor para thetaO1
-    //      4: conjunto devalores leido con éxito
-    int status = 0;
+    //tampon variables
+    int Id;
+    double x0, y0;
+    double thetaO1;
 
-    //variables tampón
-    int _Id;
-    double _x0, _y0;
-    double _thetaO1;
-
-    do {
-        switch(status) {
-        case 0: //esperando valor para Id
-            try {
-            StrReadInt(_Id, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando separador y valor para x0
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(_x0, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando separador y valor para y0
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(_y0, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando separador y valor para thetaO1
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(_thetaO1, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido el conjunto de valores con éxito
-    } while(status < 4);
-
-    //asigna las variables tampón
     try {
-        A->SetOrigins(_Id, _x0, _y0, _thetaO1);
+        //read the values and the separators
+        StrReadInt(Id, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(x0, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(y0, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(thetaO1, S, i);
+
+        //set the tampon variable
+        A->SetOrigins(Id, x0, y0, thetaO1);
+
     }catch(...) {
         throw;
     }
@@ -1393,59 +1354,28 @@ void  TActuator::ReadPositionP3Row(TActuator* &A,
     if(i<1 || S.Length()+1<i)
         throw EImproperArgument("index i should indicate a position in the string S");
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando valor para Id
-    //      1: esperando separador y valor para x3
-    //      2: esperando separador y valor para y3
-    //      3: conjunto devalores leido con éxito
-    int status = 0;
+    //tampon variables
+    int Id;
+    double x3, y3;
 
-    //variables tampón
-    int _Id;
-    double _x3, _y3;
-
-    do {
-        switch(status) {
-        case 0: //esperando valor para Id
-            try {
-            StrReadInt(_Id, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando separador y valor para x3
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(_x3, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando separador y valor para y3
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(_y3, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido el conjunto de valores con éxito
-    } while(status < 3);
-
-    //El método de lectura de las posiciones debe asignar el identificador
-    //y no comrpobar que coincide, ya que la lectura de una lista puede
-    //tener desordenados los elementos.
-
-    //asigna las variables tampón
     try {
-        A->SetPositionP3(_Id, _x3, _y3);
+        //read the values and the separators
+        StrReadInt(Id, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(x3, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(y3, S, i);
+
+        //set thetampon variables
+        A->SetPositionP3(Id, x3, y3);
+
     }catch(...) {
         throw;
     }
+
+    //El método de lectura de las posiciones debe asignar el identificador
+    //y no comprobar que coincide, ya que la lectura de una lista puede
+    //tener desordenados los elementos.
 }
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
@@ -1464,16 +1394,16 @@ void  TActuator::PrintPositionPPARow(AnsiString& S, TActuator *A)
 
 //construye un actuador
 //con los valores indicados
-TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
+TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     //construye e inciializa el cilindro
-    TCilinder(_P0, _thetao_),
+    TCilinder(P0, thetao_),
     //inicializa las propiedades de estado
-    __PAkd(kdPre), __Purpose(pGen),
+    p_PAkd(kdPre), p_Purpose(pGen),
     Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
     Pending(true), Collision(false)
 {
     //el número de identificación Id debe ser no negativo
-    if(_Id < 0)
+    if(Id < 0)
         throw EImproperArgument("identification number Id should be nonnegative");
 
     //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
@@ -1482,28 +1412,28 @@ TActuator::TActuator(int _Id, TDoublePoint _P0, double _thetao_) :
     //inicializa las propiedades de seguridad:
 
     //initialize the SPM components
-    __SPMrec = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tstop;
-    __SPMsta = MEGARA_Eo*getr_max() + MEGARA_Ep;
-    __SPMdyn = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tshiff +
+    p_SPMrec = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tstop;
+    p_SPMsta = MEGARA_Eo*getr_max() + MEGARA_Ep;
+    p_SPMdyn = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tshiff +
             MEGARA_SPMadd;
-    __SPMmin = getSPMsta();
-    __SPMoff = MEGARA_PAem*getrmax() + MEGARA_Pem;
+    p_SPMmin = getSPMsta();
+    p_SPMoff = MEGARA_PAem*getrmax() + MEGARA_Pem;
 
     //----------------------------------------
     //inicializa las propiedades de estado
 
     //inicializa el identificador
-    __Id = _Id;
+    p_Id = Id;
 
     //----------------------------------------
     //inicializa las cotas útiles
 
-    __r_min = getr_max();
-    __r_saf = getr_max();
-    __r_2saf = getL02max();
-    __theta___2saf = M_PI;
-    __theta___3saf = M_PI;
-    __theta_2rad = Max(0., gettheta_1min()) + M_PI/2;
+    p_r_min = getr_max();
+    p_r_saf = getr_max();
+    p_r_2saf = getL02max();
+    p_theta___2saf = M_PI;
+    p_theta___3saf = M_PI;
+    p_theta_2rad = Max(0., gettheta_1min()) + M_PI/2;
 
     //----------------------------------------
     //inicializa las propiedades de área
@@ -1519,11 +1449,11 @@ void TActuator::CopySecurity(const TActuator *A)
         throw EImproperArgument("pointer A should point to built fiberpositioner");
 
     //copia las componentes de SPM
-    __SPMrec = A->__SPMrec;
-    __SPMsta = A->__SPMsta;
-    __SPMdyn = A->__SPMdyn;
-    __SPMmin = A->__SPMmin;
-    __SPMoff = A->__SPMoff;
+    p_SPMrec = A->p_SPMrec;
+    p_SPMsta = A->p_SPMsta;
+    p_SPMdyn = A->p_SPMdyn;
+    p_SPMmin = A->p_SPMmin;
+    p_SPMoff = A->p_SPMoff;
 }
 //copia las propiedades de estado de un actuador
 void TActuator::CopyStatus(const TActuator *A)
@@ -1532,10 +1462,10 @@ void TActuator::CopyStatus(const TActuator *A)
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built actuator");
 
-    __PAkd = A->__PAkd;
-    __Purpose = A->__Purpose;
+    p_PAkd = A->p_PAkd;
+    p_Purpose = A->p_Purpose;
 
-    __Id = A->__Id;
+    p_Id = A->p_Id;
     Adjacents.Clone(A->Adjacents);
     Pending = A->Pending;
     Collision = A->Collision;
@@ -1548,12 +1478,12 @@ void TActuator::CopyLimits(const TActuator *A)
         throw EImproperArgument("pointer A should point to built actuator");
 
     //copia las cotas útiles
-    __r_min = A->__r_min;
-    __r_saf = A->__r_saf;
-    __r_2saf = A->__r_2saf;
-    __theta___2saf = A->__theta___2saf;
-    __theta___3saf = A->__theta___3saf;
-    __theta_2rad = A->__theta_2rad;
+    p_r_min = A->p_r_min;
+    p_r_saf = A->p_r_saf;
+    p_r_2saf = A->p_r_2saf;
+    p_theta___2saf = A->p_theta___2saf;
+    p_theta___3saf = A->p_theta___3saf;
+    p_theta_2rad = A->p_theta_2rad;
 }
 //copia las propiedades de área de un actuador
 void TActuator::CopyArea(const TActuator *A)
@@ -1563,16 +1493,16 @@ void TActuator::CopyArea(const TActuator *A)
         throw EImproperArgument("pointer A should point to built fiber posicionator");
 
     //copia las propiedades
-    __r_3maxnom = A->__r_3maxnom;
-    __Sc = A->__Sc;
-    __Sw = A->__Sw;
-    __Sp = A->__Sp;
-    __Ss = A->__Ss;
-    __Se = A->__Se;
-    __Re = A->__Re;
-    __Spt = A->__Spt;
-    __Set = A->__Set;
-    __Ret = A->__Ret;
+    p_r_3maxnom = A->p_r_3maxnom;
+    p_Sc = A->p_Sc;
+    p_Sw = A->p_Sw;
+    p_Sp = A->p_Sp;
+    p_Ss = A->p_Ss;
+    p_Se = A->p_Se;
+    p_Re = A->p_Re;
+    p_Spt = A->p_Spt;
+    p_Set = A->p_Set;
+    p_Ret = A->p_Ret;
 }
 
 //copia todas las propiedades de un actuador
@@ -1640,10 +1570,10 @@ void TActuator::CalculateSafeParameters(void)
         A.setp_1(0);
         A.getArm()->setp___3(0);
         //deteremina r_min
-        __r_min = A.getArm()->getContour().DistanceMax(A.getP0());
+        p_r_min = A.getArm()->getContour().DistanceMax(A.getP0());
 
         TActuator *AA;
-        double _r_saf;
+        double r_saf;
         //por cada posicionador adyacente
         for(int i=0; i<Adjacents.getCount(); i++) {
             //apunta el actuador indicado para facilitar su acceso
@@ -1651,15 +1581,15 @@ void TActuator::CalculateSafeParameters(void)
 
             //calcula la distancia de seguridad
             double aux = Mod(AA->getP0() - A.getP0());
-            _r_saf = aux - AA->getr_max() - AA->getSPMgen_a() - A.getArm()->getSPM();
+            r_saf = aux - AA->getr_max() - AA->getSPMgen_a() - A.getArm()->getSPM();
 
             //ADVERTENCIA: el SPM del brazo de los actuadores
             //adyacentes no ha sido modificado, de ahí que se
             //reste AA->SPMgen_a en vez de AA->Arm->SPM.
 
             //actualiza r_saf
-            if(_r_saf < getr_saf())
-                __r_saf = _r_saf;
+            if(r_saf < getr_saf())
+                p_r_saf = r_saf;
 
             //Nótese que r_saf podría salir negativo.
         }
@@ -1716,73 +1646,73 @@ void TActuator::CalculateSafeParameters(void)
         //contiene M_PI unidades de double.
 
         //registra las corodenadas angulares
-        __r_2saf = A.getr_2();
-        __theta___3saf = __theta___2saf = A.getArm()->gettheta___2();
+        p_r_2saf = A.getr_2();
+        p_theta___3saf = p_theta___2saf = A.getArm()->gettheta___2();
     }
 
     //si no hay posicionadores adyacentes
     else {
         //restaura el valor por defecto de los parámetros de seguridad
-        __r_min = getr_max();
-        __r_saf = getr_max();
-        __r_2saf = getr_2();
-        __theta___2saf = M_PI;
-        __theta___3saf = M_PI;
+        p_r_min = getr_max();
+        p_r_saf = getr_max();
+        p_r_2saf = getr_2();
+        p_theta___2saf = M_PI;
+        p_theta___3saf = M_PI;
     }
-    __theta_2rad = Max(0., gettheta_1min()) + M_PI/2;
+    p_theta_2rad = Max(0., gettheta_1min()) + M_PI/2;
 }
 
 //-------------------------------------------------------------------
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
 //asigna las propiedades angulares (theta_1min, theta_1max,theta_1)
-void TActuator::SetOrientationRadians(double _theta_1min, double _theta_1max,
-                                      double _theta_1, double _theta_O3o)
+void TActuator::SetOrientationRadians(double theta_1min, double theta_1max,
+                                      double theta_1, double theta_O3o)
 {
     //el ángulo theta_1min debe estar en el dominio de F(theta_1)
-    if(!getF().BelongToDomain(_theta_1min))
+    if(!getF().BelongToDomain(theta_1min))
         throw EImproperArgument("angle theta_1min should be in domain F(theta_1)");
 
     //el ángulo theta_1max debe estar en el domaxio de F(theta_1)
-    if(!getF().BelongToDomain(_theta_1max))
+    if(!getF().BelongToDomain(theta_1max))
         throw EImproperArgument("angle theta_1max should be in domain F(theta_1)");
 
     //el ángulo theta_1min no debe ser mayor que el ángulo theta_1max
-    if(_theta_1min > _theta_1max)
+    if(theta_1min > theta_1max)
         throw EImproperArgument("angle theta_1min should not be upper than angle theta_1max");
 
     //el ángulo theta_1 debe estar en su dominio [theta_1min, theta_1max]
-    if(IsntInDomaintheta_1(_theta_1))
+    if(IsntInDomaintheta_1(theta_1))
         throw EImproperArgument("angle theta_1 should be in his domain [theta_1min, theta_1max]");
 
     //PROCESA [theta_1min, theta_1max]:
 
     //asignalos nuevos límites del intervalo
-    __theta_1min = _theta_1min;
-    __theta_1max = _theta_1max;
+    p_theta_1min = theta_1min;
+    p_theta_1max = theta_1max;
 
     //configura la función de cuantificación
-    __Q.Set(1, getp_1min(), getp_1max());
+    p_Q.Set(1, getp_1min(), getp_1max());
 
     //PROCESA (theta_1, theta_O3):
 
     //si la cuantificación está activada
     if(getQuantify_())
         //cuantifica el nuevo valor
-        _theta_1 = Qtheta_1(_theta_1);
+        theta_1 = Qtheta_1(theta_1);
 
     //ADVERTENCIA: la cuantificación podría dar lugar a que theta_1
     //quedara ligeramente fuera de su dominio.
 
     //constriñe theta_1 a su dominio
-    if(_theta_1 < gettheta_1min())
-        _theta_1 = gettheta_1min();
-    else if(_theta_1 > gettheta_1max())
-        _theta_1 = gettheta_1max();
+    if(theta_1 < gettheta_1min())
+        theta_1 = gettheta_1min();
+    else if(theta_1 > gettheta_1max())
+        theta_1 = gettheta_1max();
 
     //asigna los nuevos valores
-    __theta_1 = _theta_1;
-    __theta_O3o = _theta_O3o;
+    p_theta_1 = theta_1;
+    p_theta_O3o = theta_O3o;
 
     //cambiar la orientación del posicinador
     //puede modificar la posición y orientación
@@ -1793,20 +1723,20 @@ void TActuator::SetOrientationRadians(double _theta_1min, double _theta_1max,
     getBarrier()->Set(getP0(), getthetaO1());
 }
 //asigna las propiedades de cuantificación
-void TActuator::SetQuantification(double _SB1)
+void TActuator::SetQuantification(double SB1)
 {
     //DEFINE LA FUNCIÓN F A PARTIR DE SB1:
 
     //inicializa la función
-    __F.Clear();
+    p_F.Clear();
     //añade los puntos de la función de compresión
-    __F.Add(-M_2PI, -double(_SB1));
-    __F.Add(0., 0.);
-    __F.Add(M_2PI, double(_SB1));
-    __F.Add(double(2*M_2PI), double(2*_SB1));
+    p_F.Add(-M_2PI, -double(SB1));
+    p_F.Add(0., 0.);
+    p_F.Add(M_2PI, double(SB1));
+    p_F.Add(double(2*M_2PI), double(2*SB1));
     //elimina las incongruencias del formato texto
     //de la función de compansión
-    __F.setPointsText(getF().getPointsText());
+    p_F.setPointsText(getF().getPointsText());
 
     //asimila F
     ProcessateF();
@@ -1814,17 +1744,17 @@ void TActuator::SetQuantification(double _SB1)
 }
 
 //asigna las propiedades de origen
-void TActuator::SetOrigins(int _Id, double _x0, double _y0, double _thetaO1)
+void TActuator::SetOrigins(int Id, double x0, double y0, double thetaO1)
 {
     //el número de identificación Id debe ser mayor que cero
-    if(_Id <= 0)
+    if(Id <= 0)
         throw EImproperArgument("identificator number Idshould beupper zero");
 
     //asigna los nuevos valores
-    __Id = _Id;
-    __P0.x = _x0;
-    __P0.y = _y0;
-    __thetaO1 = _thetaO1;
+    p_Id = Id;
+    p_P0.x = x0;
+    p_P0.y = y0;
+    p_thetaO1 = thetaO1;
 
     //desplazar el posicionador cambiará la ubicación del brazo
     //pero no su orientación
@@ -1833,11 +1763,11 @@ void TActuator::SetOrigins(int _Id, double _x0, double _y0, double _thetaO1)
     //modifica la posición y orientación del origen de coordenadas del brazo
 
     /*        //asimila P0:
-        __L0 = P0.Mod();
+        p_L0 = P0.Mod();
         if(L0 != 0)
-                __theta0 = P0.Arg();
+                p_theta0 = P0.Arg();
         else
-                __theta0 = 0;
+                p_theta0 = 0;
   */
     //asimila (P0, thetaO1)
     getArm()->Set(NewP1(), getthetaO3());
@@ -1899,10 +1829,10 @@ void TActuator::setPositionPPASteps(double p_1, double p___3)
 //asigna las propiedades de identificación y posición
 //si el punto (x3, y3) no está en el dominio del actuador
 //      lanza EImproperArgument
-void TActuator::SetPositionP3(int _Id, double x3, double y3)
+void TActuator::SetPositionP3(int Id, double x3, double y3)
 {
     //el número de identificación Id debe ser no negativo
-    if(_Id < 0)
+    if(Id < 0)
         throw EImproperArgument("number identifier Id should be nonnegative");
 
     //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
@@ -1922,54 +1852,54 @@ void TActuator::SetPositionP3(int _Id, double x3, double y3)
 
     //el punto a asignar debería estar en el dominio del posicionador
     if(!AnglesToGoP_3(theta_1, theta___3, r_3, theta_3))
-        throw EImproperFileLoadedValue(AnsiString("point to assign should be in the domine of the RP ")+IntToStr(_Id));
+        throw EImproperFileLoadedValue(AnsiString("point to assign should be in the domine of the RP ")+IntToStr(Id));
 
     //asigna el identificador
-    __Id = _Id;
+    p_Id = Id;
     //asigna el punto
     SetAnglesRadians(theta_1, theta___3);
 }
 
 //asigna las componentes del SPM
-void TActuator::SetSPMComponents(double _SPMrec, double _SPMsta,
-                                 double _SPMdyn, double _SPMmin)//, double _SPMoff)
+void TActuator::SetSPMComponents(double SPMrec, double SPMsta,
+                                 double SPMdyn, double SPMmin)//, double SPMoff)
 {
     //el SPM de recuperación (SPMrec) debe ser no negativo
-    if(_SPMrec < 0)
+    if(SPMrec < 0)
         throw EImproperArgument("the recovery SPM (SPMrec) should be nonnegative");
 
     //el SPM estático (SPMsta) debe ser no negativo
-    if(_SPMsta < 0)
+    if(SPMsta < 0)
         throw EImproperArgument("the static SPM (SPMsta) should be nonnegative");
 
     //el SPM dynánico (SPMdyn) debe ser no negativo
-    if(_SPMdyn < 0)
+    if(SPMdyn < 0)
         throw EImproperArgument("the dynamic SPM (SPMdyn) should be nonnegative");
 
     //el SPM de salto mínimo (SPMmin) debe ser no negativo
-    if(_SPMmin < 0)
+    if(SPMmin < 0)
         throw EImproperArgument("the minimum jump SPM (SPMmin) should be nonnegative");
 
     /*        //el SPM de corrección del desplazamiento (SPMoff) debe ser no negativo
-        if(_SPMoff < 0)
+        if(SPMoff < 0)
                 throw EImproperArgument("the offset SPM (SPMoff) should be nonnegative");
   */
-    __SPMrec = _SPMrec; //asigna el nuevo valor
-    __SPMsta = _SPMsta; //asigna el nuevo valor
-    __SPMdyn = _SPMdyn; //asigna el nuevo valor
-    __SPMmin = _SPMmin; //asigna el nuevo valor
-    //        __SPMoff = _SPMoff; //asigna el nuevo valor
+    p_SPMrec = SPMrec; //asigna el nuevo valor
+    p_SPMsta = SPMsta; //asigna el nuevo valor
+    p_SPMdyn = SPMdyn; //asigna el nuevo valor
+    p_SPMmin = SPMmin; //asigna el nuevo valor
+    //        p_SPMoff = SPMoff; //asigna el nuevo valor
 
     //asimila las componentes de SPM
     AssignSPM();
 }
 
 //asigna las propiedades de estado (PAkd, Purpose, Faul, disabled)
-void TActuator::SetStatus(TKnowledgeDegree _PAkd, TPurpose _Purpose)
+void TActuator::SetStatus(TKnowledgeDegree PAkd, TPurpose Purpose)
 {
     //asigna los valores
-    __PAkd = _PAkd;
-    __Purpose = _Purpose;
+    p_PAkd = PAkd;
+    p_Purpose = Purpose;
 
     //ASIMILA LOS VALORES:
 

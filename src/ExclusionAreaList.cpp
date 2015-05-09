@@ -305,8 +305,8 @@ TExclusionAreaList::TExclusionAreaList(void) :
         PaintExclusionAreas_(true), PaintLimitDomain_(false)
 {
         //inicializa las propiedades de localización
-        __O.x = 0;
-        __O.y = 0;
+        p_O.x = 0;
+        p_O.y = 0;
 
         //asimila las propiedades inicializadas
 //        AssimilateSizingAndLocation();
@@ -320,14 +320,14 @@ void TExclusionAreaList::CopyLocation(const TExclusionAreaList *EAL)
         if(EAL == NULL)
                 throw EImproperArgument("pointer EAL should point to built exclusion area list");
 
-        __O = EAL->getO();
+        p_O = EAL->getO();
 
-        __rmax = EAL->getrmax();
+        p_rmax = EAL->getrmax();
 /*
-        __xmin = EAL->xmin;
-        __xmax = EAL->xmax;
-        __ymin = EAL->ymin;
-        __ymax = EAL->ymax;*/
+        p_xmin = EAL->xmin;
+        p_xmax = EAL->xmax;
+        p_ymin = EAL->ymin;
+        p_ymax = EAL->ymax;*/
 }
 //copia las propiedades gráficas
 //      (LimitDomainColor, PaintEclusionAreas_, PaintLimitDomain_)
@@ -603,8 +603,8 @@ void TExclusionAreaList::CalculateLocationParameters(void)
 
         TExclusionArea *EA;
         double LO0;
-        double _rmax;
-        __rmax = 0; //inicializa la distancia máxima
+        double rmax;
+        p_rmax = 0; //inicializa la distancia máxima
 
         //por cada área de exclusión de la lista
         for(int i=0; i<getCount(); i++) {
@@ -614,23 +614,23 @@ void TExclusionAreaList::CalculateLocationParameters(void)
                 //calcula el módulo al centro del posicionador
                 LO0 = Mod(EA->Barrier.getP0() - getO());
                 //calcula la distancia máxima a P3
-                _rmax = LO0 + EA->Barrier.getr_max();
+                rmax = LO0 + EA->Barrier.getr_max();
                 //actualiza la distancia máxima
-                if(_rmax > __rmax)
-                        __rmax = _rmax;
+                if(rmax > p_rmax)
+                        p_rmax = rmax;
 /*
                 //actualiza xmin
                 if(EA->xmin < xmin)
-                        __xmin = EA->xmin;
+                        p_xmin = EA->xmin;
                 //actualiza xmax
                 if(EA->xmax > xmax)
-                        __xmax = EA->xmax;
+                        p_xmax = EA->xmax;
                 //actualiza ymin
                 if(EA->ymin < ymin)
-                        __ymin = EA->ymin;
+                        p_ymin = EA->ymin;
                 //actualiza ymax
                 if(EA->ymax > ymax)
-                        __ymax = EA->ymax;*/
+                        p_ymax = EA->ymax;*/
         }
 }
 

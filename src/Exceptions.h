@@ -43,49 +43,49 @@ using namespace std;
 //invocación indevida de método o función
 class EImproperCall : public Exception {
 public:
-    EImproperCall(AnsiString _Message) : Exception(_Message) {;}
+    EImproperCall(AnsiString Message) : Exception(Message) {;}
 };
 
 //argumento de método o función incorrecto
 class EImproperArgument : public Exception {
 public:
-    EImproperArgument(AnsiString _Message) : Exception(_Message) {;}
+    EImproperArgument(AnsiString Message) : Exception(Message) {;}
 };
 
 //estado o configuración local incorrecta
 class EImproperSetting : public Exception {
 public:
-    EImproperSetting(AnsiString _Message) : Exception(_Message) {;}
+    EImproperSetting(AnsiString Message) : Exception(Message) {;}
 };
 
 //no puede completar una operación, un argumento o una función
 class ECantComplete : public Exception {
 public:
-    ECantComplete(AnsiString _Message) : Exception(_Message) {;}
+    ECantComplete(AnsiString Message) : Exception(Message) {;}
 };
 
 //operación completada
 class EComplete : public Exception {
 public:
-    EComplete(AnsiString _Message) : Exception(_Message) {;}
+    EComplete(AnsiString Message) : Exception(Message) {;}
 };
 
 //no puede encontrar solución
 class ECantFindSolution : public Exception {
 public:
-    ECantFindSolution(AnsiString _Message) : Exception(_Message) {;}
+    ECantFindSolution(AnsiString Message) : Exception(Message) {;}
 };
 
 //valor cargado de archivo inapropiado
 class EImproperFileLoadedValue : public Exception {
 public:
-        EImproperFileLoadedValue(AnsiString _Message) : Exception(_Message) {;}
+        EImproperFileLoadedValue(AnsiString Message) : Exception(Message) {;}
 };
 
 /*//objeto no construido
 class ENoBuiltObject : public Exception {
 public:
-        ENoBuiltObject(AnsiString _Message) : Exception(_Message) {;}
+        ENoBuiltObject(AnsiString Message) : Exception(Message) {;}
 };
 
 //ENoBuiltObject sirve para indicar que un objeto que se está intentando
@@ -96,7 +96,7 @@ public:
 //error imposible
 class EImpossibleError : public Exception {
 public:
-        EImpossibleError(AnsiString _Message) : Exception(_Message) {;}
+        EImpossibleError(AnsiString Message) : Exception(Message) {;}
 };
 
 //EImpossibleError sirve para indicar los errores que en teoría nunca

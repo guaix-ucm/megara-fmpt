@@ -47,36 +47,36 @@ TItemsList<TExclusionArea*> TExclusionArea::Builts;
 //---------------------------------------------------------------------------
 //PROPIEDADES:
 
-void TExclusionArea::setEo(double _Eo)
+void TExclusionArea::setEo(double Eo)
 {
         //el valor de Eo debe ser no negativo
-        if(_Eo < 0)
+        if(Eo < 0)
                 throw EImproperArgument("Eo value should be nonnegative");
 
-        __Eo = _Eo; //asignaelnuevo valor
+        p_Eo = Eo; //asignaelnuevo valor
 
         //asimila Eo
         CalculateSPM();
 }
-void TExclusionArea::setEp(double _Ep)
+void TExclusionArea::setEp(double Ep)
 {
         //el valor de Ep debe ser no negativo
-        if(_Ep < 0)
+        if(Ep < 0)
                 throw EImproperArgument("Ep value should be nonnegative");
 
-        __Ep = _Ep; //asignaelnuevo valor
+        p_Ep = Ep; //asignaelnuevo valor
 
         //asimila Ep
         CalculateSPM();
 }
 
-void TExclusionArea::setId(int _Id)
+void TExclusionArea::setId(int Id)
 {
         //el número de identificación Id debería ser mayor que cero
-        if(_Id <= 0)
+        if(Id <= 0)
                 throw EImproperArgument("identification number Id should be upper zero");
 
-        __Id = _Id; //asigna el nuevo valor
+        p_Id = Id; //asigna el nuevo valor
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
@@ -327,15 +327,15 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
         int status = 0;
 
         //variables tampón
-        int _Id;
-        double _x0, _y0;
-        double _thetaO1;
+        int Id;
+        double x0, y0;
+        double thetaO1;
 
         do {
                 switch(status) {
                         case 0: //esperando valor para Id
                                 try {
-                                        StrReadInt(_Id, S, i);
+                                        StrReadInt(Id, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -344,7 +344,7 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
                         case 1: //esperando separador y valor para x0
                                 try {
                                         StrTravelSeparators(S, i);
-                                        StrReadFloat(_x0, S, i);
+                                        StrReadFloat(x0, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -353,7 +353,7 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
                         case 2: //esperando separador y valor para y0
                                 try {
                                         StrTravelSeparators(S, i);
-                                        StrReadFloat(_y0, S, i);
+                                        StrReadFloat(y0, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -362,7 +362,7 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
                         case 3: //esperando separador y valor para thetaO1
                                 try {
                                         StrTravelSeparators(S, i);
-                                        StrReadFloat(_thetaO1, S, i);
+                                        StrReadFloat(thetaO1, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -374,7 +374,7 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
 
         //asigna las variables tampón
         try {
-                EA->SetOrigins(_Id, _x0, _y0, _thetaO1);
+                EA->SetOrigins(Id, x0, y0, thetaO1);
         }catch(...) {
                 throw;
         }
@@ -406,7 +406,7 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
         int status = 0;
 
         //variables tampón
-        TExclusionArea _EA(EA);
+        TExclusionArea t_EA(EA);
 
         do {
                 switch(status) {
@@ -420,7 +420,7 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
                                 break;
                         case 1: //esperando instancia de Barrier
                                 try {
-                                        TBarrier *aux = &_EA.Barrier;
+                                        TBarrier *aux = &t_EA.Barrier;
                                         TBarrier::ReadInstance((TBarrier*&)aux, S, i);
                                 }catch(...) {
                                         throw;
@@ -432,9 +432,9 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
                                         StrTravelSeparators(S, i);
                                         StrTravelLabel("Eo", S, i);
                                         StrTravelLabel("=", S, i);
-                                        double _Eo;
-                                        StrReadFloat(_Eo, S, i);
-                                        _EA.setEo(_Eo);
+                                        double Eo;
+                                        StrReadFloat(Eo, S, i);
+                                        t_EA.setEo(Eo);
                                 }catch(...) {
                                         throw;
                                 }
@@ -445,9 +445,9 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
                                         StrTravelSeparators(S, i);
                                         StrTravelLabel("Ep", S, i);
                                         StrTravelLabel("=", S, i);
-                                        double _Ep;
-                                        StrReadFloat(_Ep, S, i);
-                                        _EA.setEp(_Ep);
+                                        double Ep;
+                                        StrReadFloat(Ep, S, i);
+                                        t_EA.setEp(Ep);
                                 }catch(...) {
                                         throw;
                                 }
@@ -458,7 +458,7 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
         } while(status < 4);
 
         //asigna la variable tampón
-        EA->Copy(&_EA);
+        EA->Copy(&t_EA);
 }
 
 //---------------------------------------------------------------------------
@@ -468,8 +468,8 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
 //con los valores por defecto
 TExclusionArea::TExclusionArea(void) :
         Barrier(TDoublePoint(0, 0), 0),
-        __Eo(MEGARA_Eo), __Ep(MEGARA_Ep),
-        __Id(0),
+        p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
+        p_Id(0),
         Adjacents(64, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
         Pending(true)
 {
@@ -483,20 +483,20 @@ TExclusionArea::TExclusionArea(void) :
 //con los valores indicados
 //si el número de identificación es menor que uno
 //      lanza una execepción EImproperArgument
-TExclusionArea::TExclusionArea(int _Id, TDoublePoint _P0, double _thetaO1) :
-        Barrier(_P0, _thetaO1),
-        __Eo(MEGARA_Eo), __Ep(MEGARA_Ep),
+TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
+        Barrier(P0, thetaO1),
+        p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
         Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
         Pending(true)
 {
         //el número de identificación Id debe ser mayor que cero
-        if(_Id < 1)
+        if(Id < 1)
                 throw EImproperArgument("identification number Id should be upper zero");
 
         //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
 
         //inicializa las propiedades
-        __Id = _Id;
+        p_Id = Id;
 
         //asimilalas propiedades de inicialización
         CalculateSPM();
@@ -513,9 +513,9 @@ void TExclusionArea::Copy(const TExclusionArea *EA)
                 throw EImproperArgument("pointer EA ahould point to built exclusion area");
 
         Barrier.Copy(&EA->Barrier);
-        __Eo = EA->__Eo;
-        __Ep = EA->__Ep;
-        __Id = EA->__Id;
+        p_Eo = EA->p_Eo;
+        p_Ep = EA->p_Ep;
+        p_Id = EA->p_Id;
         Adjacents.Clone(EA->Adjacents);
         Pending = EA->Pending;
 }
@@ -582,33 +582,33 @@ double TExclusionArea::SPMsta(void) const
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
 //asigna las propiedades de origen
-void TExclusionArea::SetOrigins(int _Id, double _x0, double _y0, double _thetaO1)
+void TExclusionArea::SetOrigins(int Id, double x0, double y0, double thetaO1)
 {
         //el número de identificación Id debe ser mayor que cero
-        if(_Id <= 0)
+        if(Id <= 0)
                 throw EImproperArgument("identificator number Idshould beupper zero");
 
         //asigna los nuevos valores
-        __Id = _Id;
+        p_Id = Id;
 
         //asimila (P0, thetaO1)
-        Barrier.Set(TDoublePoint(_x0, _y0), _thetaO1);
+        Barrier.Set(TDoublePoint(x0, y0), thetaO1);
 }
 
 //asigna conjuntamente las tolerancias
 //      (Eo, Ep)
-void TExclusionArea::SetTolerances(double _Eo, double _Ep)
+void TExclusionArea::SetTolerances(double Eo, double Ep)
 {
         //el valor de Eo debe ser no negativo
-        if(_Eo < 0)
+        if(Eo < 0)
                 throw EImproperArgument("Eo value should be nonnegative");
 
         //el valor de Ep debe ser no negativo
-        if(_Ep < 0)
+        if(Ep < 0)
                 throw EImproperArgument("Ep value should be nonnegative");
 
-        __Eo = _Eo; //asignaelnuevo valor
-        __Ep = _Ep; //asignaelnuevo valor
+        p_Eo = Eo; //asignaelnuevo valor
+        p_Ep = Ep; //asignaelnuevo valor
 
         //asimila (Eo, Ep)
         CalculateSPM();

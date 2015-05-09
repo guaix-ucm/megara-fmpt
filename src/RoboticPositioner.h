@@ -145,21 +145,21 @@ class TRoboticPositioner {
 protected:
         //MECHANICAL PROPERTIES:
 
-        TActuator *__Actuator;
+        TActuator *p_Actuator;
 
         //TOLERANCES:
 
-        double __Eo;
-        double __Ep;
+        double p_Eo;
+        double p_Ep;
 
-        double __Tstop;
-        double __Tshiff;
+        double p_Tstop;
+        double p_Tshiff;
 
-        double __SPMadd;
+        double p_SPMadd;
 
         //ESTATUS PROPERTIES:
 
-        double __FaultProbability;
+        double p_FaultProbability;
 
         double p_Dsec;
 
@@ -185,7 +185,7 @@ public:
         //MECHANICAL PROPERTIES:
 
         //actuator of the RP
-        TActuator *getActuator(void) const {return __Actuator;}
+        TActuator *getActuator(void) const {return p_Actuator;}
 
         //CONTROL PROPERTIES:
 
@@ -196,27 +196,27 @@ public:
 
         //orientation error margin in S0
         //default value: MEGARA_Eo rad
-        double getEo(void) const {return __Eo;}
+        double getEo(void) const {return p_Eo;}
         void setEo(double);
         //position error margin in S0
         //default value: MEGARA_Ep mm
-        double getEp(void) const {return __Ep;}
+        double getEp(void) const {return p_Ep;}
         void setEp(double);
 
         //maximun time betweem last storage of the position angles,
         //and rotors detention.
         //default value: MEGARA_Tstop ms
-        double getTstop(void) const {return __Tstop;}
+        double getTstop(void) const {return p_Tstop;}
         void setTstop(double);
         //maximun time shift between RPs in motion.
         //  default value: MEGARA_Tshiff ms
-        double getTshiff(void) const {return __Tshiff;}
+        double getTshiff(void) const {return p_Tshiff;}
         void setTshiff(double);
 
         //SPM additional to add to SPMdyn
         //must be nonnegative
         //default value: 0.1 mm
-        double getSPMadd(void) const {return __SPMadd;}
+        double getSPMadd(void) const {return p_SPMadd;}
         void setSPMadd(double);
 
         //STATUS PROPERTIES:
@@ -227,7 +227,7 @@ public:
         //probability of fault
         //shall be in [0, 1]
         //default value: 0
-        double getFaultProbability(void) const {return __FaultProbability;}
+        double getFaultProbability(void) const {return p_FaultProbability;}
         void setFaultProbability(double);
         //type of fault:
         //  ftUnk: unknoledge
@@ -390,8 +390,8 @@ public:
         TRoboticPositioner(void);
         //build a RP with the indicated values
         //if Id is less 1 throw an exception EimproperArgument
-        TRoboticPositioner(int _Id, TDoublePoint _P0,
-                double _thetaO1=MEGARA_thetaO1);
+        TRoboticPositioner(int Id, TDoublePoint P0,
+                double thetaO1=MEGARA_thetaO1);
 
         //WARNING: duplicity of identifiers is allowed.
 
@@ -468,9 +468,9 @@ public:
 
         //asigna conjuntamente las tolerancias
         //      (Eo, Ep, Tstop, Tshiff, SPMadd)
-        void SetTolerances(double _Eo, double _Ep,
-                           double _Tstop, double _Tshiff,
-                           double _SPMadd);
+        void SetTolerances(double Eo, double Ep,
+                           double Tstop, double Tshiff,
+                           double SPMadd);
 
         //------------------------------------------------------------------
         //ASSIMILATION METHODS:
@@ -574,7 +574,7 @@ public:
         //program turn of rotor 1 to theta_1
         //if theta_1 is out rotor 1 domain:
         //  throw an exception EImproperArgument
-        void programTurnCilinderTotheta_1(double _theta_1);
+        void programTurnCilinderTotheta_1(double theta_1);
         //gira el cilindro hasta theta_2
 //        void TurnCilinderTotheta_2(double theta_2);
         //gira el cilindro hasta theta_3

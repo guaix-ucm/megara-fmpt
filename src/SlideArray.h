@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: SlideArray.h
-//Contenido: lista de elementos genéricos
-//Última actualización: 23/05/2013
-//Autor: Isaac Morales Durán
+//File: SlideArray.h
+//Content: template for slide array
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef SLIDEARRAY_H
@@ -30,12 +29,11 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de funciones y clases de objetos
-//relacionados con listas, vectores y matrices
+//namespace for lists
 namespace Lists {
 
 //---------------------------------------------------------------------------
-//clase TSlideArray
+//class TSlideArray
 //---------------------------------------------------------------------------
 
 //TslideArray define arrays deslizantes
@@ -44,23 +42,23 @@ namespace Lists {
 //un array de una forma rápida y eficiente. Además reduce a la mitad los
 //tiempos de inserción y borrado.
 
-//clase array deslizante
+//class slide array
 template <class T> class TSlideArray {
 protected:
-    int Capacity;
-    int Count;
+    int p_Capacity;
+    int p_Count;
 
-    int ifirst; //índice al primer elemento reservado
-    int ilast; //índice al último elemento reservado
+    int p_ifirst; //índice al primer elemento reservado
+    int p_ilast; //índice al último elemento reservado
 
 public:
     T *Items; //aray de elementos
 
     //número de elementos del array
-    int getCapacity(void) const {return Capacity;}
+    int getCapacity(void) const {return p_Capacity;}
     void setCapacity(int);
     //número de elementos reservados del array
-    int getCount(void) const {return Count;}
+    int getCount(void) const {return p_Count;}
 
     //accede al primer elemento reservado
     //      First = ITems[ifirs]
@@ -74,7 +72,7 @@ public:
         //MÉTODOS PÚBLICOS:
 
     //construye un array deslizante
-    TSlideArray(int _Capacity=8, int _Count=0);
+    TSlideArray(int Capacity=8, int Count=0);
     //construye un clon de un array deslizante
     TSlideArray(TSlideArray &SA);
     //libera la memoria ocupada por el array deslizante
@@ -131,26 +129,26 @@ public:
 //Métodos de la clase TSlideArray:
 //---------------------------------------------------------------------------
 
-template <class T> void TSlideArray<T>::setCapacity(int _Capacity)
+template <class T> void TSlideArray<T>::setCapacity(int Capacity)
 {
     //el número de elementos Capacity no debe ser menor que el número de elementos reservados Count
-    if(_Capacity < Count)
+    if(Capacity < p_Count)
         throw EImproperArgument("items number Capacity should not be less reserved items number Count");
 
     //construye un nuevo array
-    T *NewItems = new T[_Capacity];
+    T *NewItems = new T[Capacity];
 
     //copia los elementos en el nuevo array
-    if(Count) {
-        int i=ifirst; //índice para Items
+    if(p_Count) {
+        int i = p_ifirst; //índice para Items
         int j=0; //índice para NewItems
-        if(ifirst <= ilast)
-            for(; i<=ilast; i++)
+        if(p_ifirst <= p_ilast)
+            for(; i<=p_ilast; i++)
                 NewItems[j++] = Items[i];
         else {
-            for(; i<Capacity; i++)
+            for(; i<p_Capacity; i++)
                 NewItems[j++] = Items[i];
-            for(i=0; i<=ilast; i++)
+            for(i=0; i<=p_ilast; i++)
                 NewItems[j++] = Items[i];
         }
     }
@@ -158,91 +156,91 @@ template <class T> void TSlideArray<T>::setCapacity(int _Capacity)
     //apunta el nuevo array
     delete Items;
     Items = NewItems;
-    Capacity = _Capacity;
+    p_Capacity = Capacity;
 
     //actualiza los límites de la ventana de reserva
-    ifirst = 0;
-    if(Count)
-        ilast = Count - 1;
+    p_ifirst = 0;
+    if(p_Count)
+        p_ilast = p_Count - 1;
     else
-        ilast = Capacity - 1;
+        p_ilast = p_Capacity - 1;
 }
 
 template <class T> inline const T &TSlideArray<T>::getFirst(void) const
 {
     //el número de elementos reservados Count debería ser al menos uno
-    if(Count < 1)
+    if(p_Count < 1)
         throw EImproperCall("reserved items number Count chould be one almost");
 
-    return Items[ifirst];
+    return Items[p_ifirst];
 }
 template <class T> inline void TSlideArray<T>::setFirst(T &item)
 {
     //el número de elementos reservados Count debería ser al menos uno
-    if(Count < 1)
+    if(p_Count < 1)
         throw EImproperCall("reserved items number Count chould be one almost");
 
-    Items[ifirst] = item;
+    Items[p_ifirst] = item;
 }
 
 template <class T> inline const T &TSlideArray<T>::getLast(void) const
 {
     //el número de elementos reservados Count debería ser al menos uno
-    if(Count < 1)
+    if(p_Count < 1)
         throw EImproperCall("reserved items number Count chould be one almost");
 
-    return Items[ilast];
+    return Items[p_ilast];
 }
 template <class T> inline void TSlideArray<T>::setLast(T &item)
 {
     //el número de elementos reservados Count debería ser al menos uno
-    if(Count < 1)
+    if(p_Count < 1)
         throw EImproperCall("reserved items number Count chould be one almost");
 
-    Items[ilast] = item;
+    Items[p_ilast] = item;
 }
 
 //---------------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
 
 //construye un array deslizante
-template <class T> TSlideArray<T>::TSlideArray(int _Capacity, int _Count) :
-        ifirst(0)
+template <class T> TSlideArray<T>::TSlideArray(int Capacity, int Count) :
+        p_ifirst(0)
 {
     //el número de elementos Capacity debería ser no menor que uno
-    if(_Capacity < 1)
+    if(Capacity < 1)
         throw EImproperArgument("items number Capacity should be not less one");
 
     //el número de elementos reservados Count debería estar en [0, Capacity]
-    if(_Count<0 || _Capacity<_Count)
+    if(Count<0 || Capacity<Count)
         throw EImproperArgument("reserved items number Count should be in [0, Capacity]");
 
     //reserva los elementos
-    Items = new T[_Capacity];
-    Capacity = _Capacity;
-    Count = _Count;
+    Items = new T[Capacity];
+    p_Capacity = Capacity;
+    p_Count = Count;
 
     //inicializa ilast
-    if(_Count)
-        ilast = _Count - 1;
+    if(Count)
+        p_ilast = Count - 1;
     else
-        ilast = _Capacity - 1;
+        p_ilast = Capacity - 1;
 }
 
 //construye un clon de un array deslizante
 template <class T> TSlideArray<T>::TSlideArray(TSlideArray &SA)
 {
     //copia las propiedades
-    Capacity = SA.Capacity;
-    Count = SA.Count;
-    ifirst = SA.ifirst;
-    ilast = SA.ilast;
+    p_Capacity = SA.p_Capacity;
+    p_Count = SA.p_Count;
+    p_ifirst = SA.p_ifirst;
+    p_ilast = SA.p_ilast;
 
     //reserva el array
-    Items = new T[Capacity];
+    Items = new T[p_Capacity];
 
     //copia los elementos
-    for(int i=0; i<Capacity; i++)
+    for(int i=0; i<p_Capacity; i++)
         Items[i] = SA.Items[i];
 }
 
@@ -253,13 +251,13 @@ template <class T> TSlideArray<T>::TSlideArray(TSlideArray &SA)
 template <class T> inline const T &TSlideArray<T>::Get(int i) const
 {
     //el índice i debe indicar un elemento reservado del array deslizante
-    if(i<0 || Count<=i)
+    if(i<0 || p_Count<=i)
         throw EImproperArgument("index i should indicate an reserved item in slide array");
 
     //determina la posición del elemento
-    i += ifirst;
-    if(i >= Capacity)
-        i -= Capacity;
+    i += p_ifirst;
+    if(i >= p_Capacity)
+        i -= p_Capacity;
 
     return Items[i];
 }
@@ -267,13 +265,13 @@ template <class T> inline const T &TSlideArray<T>::Get(int i) const
 template <class T> inline void TSlideArray<T>::Set(int i, const T &item)
 {
     //el índice i debe indicar un elemento reservado del array deslizante
-    if(i<0 || Count<=i)
+    if(i<0 || p_Count<=i)
         throw EImproperArgument("index i should indicate an reserved item in slide array");
 
     //determina la posición del elemento
-    i += ifirst;
-    if(i >= Capacity)
-        i -= Capacity;
+    i += p_ifirst;
+    if(i >= p_Capacity)
+        i -= p_Capacity;
 
     Items[i] = item;
 }
@@ -282,13 +280,13 @@ template <class T> inline void TSlideArray<T>::Set(int i, const T &item)
 template <class T> inline T& TSlideArray<T>::operator[](int i)
 {
     //el índice i debe indicar un elemento reservado del array deslizante
-    if(i<0 || Count<=i)
+    if(i<0 || p_Count<=i)
         throw EImproperArgument("index i should indicate an reserved item in slide array");
 
     //determina la posición del elemento
-    i += ifirst;
-    if(i >= Capacity)
-        i -= Capacity;
+    i += p_ifirst;
+    if(i >= p_Capacity)
+        i -= p_Capacity;
 
     return Items[i];
 }
@@ -296,13 +294,13 @@ template <class T> inline T& TSlideArray<T>::operator[](int i)
 template <class T> inline const T& TSlideArray<T>::operator[](int i) const
 {
     //el índice i debe indicar un elemento reservado del array deslizante
-    if(i<0 || Count<=i)
+    if(i<0 || p_Count<=i)
         throw EImproperArgument("index i should indicate an reserved item in slide array");
 
     //determina la posición del elemento
-    i += ifirst;
-    if(i >= Capacity)
-        i -= Capacity;
+    i += p_ifirst;
+    if(i >= p_Capacity)
+        i -= p_Capacity;
 
     return Items[i];
 }
@@ -318,32 +316,32 @@ template <class T> inline void TSlideArray<T>::NewFirst(int N)
         throw EImproperArgument("number items to add N should be not less one");
 
     //si se desborda la capacidad redimensiona
-    int _Count = Count + N;
-    if(_Count > Capacity)
-        setCapacity(2*_Count);
+    int Count = p_Count + N;
+    if(Count > p_Capacity)
+        setCapacity(2*Count);
 
     //reserva los elementos
-    Count = _Count;
+    p_Count = Count;
 
     //despalza ifirst N elementos a la izquierda
-    ifirst -= N;
-    if(ifirst < 0)
-        ifirst += Capacity;
+    p_ifirst -= N;
+    if(p_ifirst < 0)
+        p_ifirst += p_Capacity;
 }
 //borra N elementos reservados por el principio
 template <class T> inline void TSlideArray<T>::DelFirst(int N)
 {
     //el número de elementos a borrar N no debería ser mayor que el número de elementos de la array Count
-    if(N > Count)
+    if(N > p_Count)
         throw EImproperArgument("number items to delete N should not be upper array items number Count");
 
     //avanza ifirst n pasos
-    ifirst += N;
-    if(ifirst >= Capacity)
-        ifirst -= Capacity;
+    p_ifirst += N;
+    if(p_ifirst >= p_Capacity)
+        p_ifirst -= p_Capacity;
 
     //descuenta los elementos
-    Count -= N;
+    p_Count -= N;
 }
 
 //añade N elementos reservados por el final
@@ -354,32 +352,32 @@ template <class T> inline void TSlideArray<T>::NewLast(int N)
         throw EImproperArgument("number items to add N should be not less one");
 
     //si se desborda la capacidad redimensiona
-    int NewCount = Count + N;
-    if(NewCount > Capacity)
+    int NewCount = p_Count + N;
+    if(NewCount > p_Capacity)
         setCapacity(2*NewCount);
 
     //reserva los elementos
-    Count = NewCount;
+    p_Count = NewCount;
 
     //desplaza ilast N elementos a la derecha
-    ilast += N;
-    if(ilast >= Capacity)
-        ilast -= Capacity;
+    p_ilast += N;
+    if(p_ilast >= p_Capacity)
+        p_ilast -= p_Capacity;
 }
 //borra N elementos reservados por el final
 template <class T> inline void TSlideArray<T>::DelLast(int N)
 {
     //el número de elementos a borrar N no debería ser mayor que el número de elementos de la array Count
-    if(N > Count)
+    if(N > p_Count)
         throw EImproperArgument("number items to delete N should not be upper array items number Count");
 
     //retrocede ilast n pasos
-    ilast -= N;
-    if(ilast < 0)
-        ilast += Capacity;
+    p_ilast -= N;
+    if(p_ilast < 0)
+        p_ilast += p_Capacity;
 
     //descuenta los elementos
-    Count -= N;
+    p_Count -= N;
 }
 
 //desliza la ventana de reserva N posiciones a la izquierda
@@ -390,14 +388,14 @@ template <class T> inline void TSlideArray<T>::SlideLeft(int N)
         throw EImproperArgument("n < 1");
 
     //desplaza ifirst a la izda
-    ifirst -= N;
-    if(ifirst < 0)
-        ifirst += (Capacity - 1 - ifirst)/Capacity*Capacity;
+    p_ifirst -= N;
+    if(p_ifirst < 0)
+        p_ifirst += (p_Capacity - 1 - p_ifirst)/p_Capacity*p_Capacity;
 
     //desplaza ilast a la izda
-    ilast -= N;
-    if(ilast < 0)
-        ilast += (Capacity - 1 - ilast)/Capacity*Capacity;
+    p_ilast -= N;
+    if(p_ilast < 0)
+        p_ilast += (p_Capacity - 1 - p_ilast)/p_Capacity*p_Capacity;
 }
 //desliza la ventana de reserva N posiciones a la derecha
 template <class T> inline void TSlideArray<T>::SlideRight(int N)
@@ -407,14 +405,14 @@ template <class T> inline void TSlideArray<T>::SlideRight(int N)
         throw EImproperArgument("n < 1");
 
     //desplaza ifirst a la dcha
-    ifirst += N;
-    if(ifirst >= Capacity)
-        ifirst %= Capacity;
+    p_ifirst += N;
+    if(p_ifirst >= p_Capacity)
+        p_ifirst %= p_Capacity;
 
     //desplaza ilast a la dcha
-    ilast += N;
-    if(ilast >= Capacity)
-        ilast %= Capacity;
+    p_ilast += N;
+    if(p_ilast >= p_Capacity)
+        p_ilast %= p_Capacity;
 }
 
 //añade un elemento por el final
@@ -423,7 +421,7 @@ template <class T> void TSlideArray<T>::AddLast(const T &item)
     //reserva un elemento por el final
     NewLast();
     //asigna el elemento
-    Set(Count-1, item);
+    Set(p_Count-1, item);
 }
 //añade un elemento por el principio
 template <class T> void TSlideArray<T>::AddFirst(const T &item)
@@ -437,13 +435,13 @@ template <class T> void TSlideArray<T>::AddFirst(const T &item)
 template <class T> void TSlideArray<T>::Insert(int i, const T &item)
 {
     //el índice i debería apuntar a una posición en [0, Count]
-    if(i<0 || Count<i)
+    if(i<0 || p_Count<i)
         throw EImproperArgument("index i should indicate a position in [0, Count]");
 
     //NOTA: cuando inserta debe poder insertar hasta en la posúltima posición.
 
     //si la posición está en la primera mitad
-    if(i <= Count/2) {
+    if(i <= p_Count/2) {
         //reserva un elemento por el principio
         NewFirst();
         //Desplaza los elementos
@@ -453,7 +451,7 @@ template <class T> void TSlideArray<T>::Insert(int i, const T &item)
         //reserva un elemento por el final
         NewLast();
         //Desplaza los elementos
-        for(int j=Count-1; j>i; j--)
+        for(int j=p_Count-1; j>i; j--)
             Set(j, Get(j-1));
     }
 
@@ -468,32 +466,32 @@ template <class T> void TSlideArray<T>::Insert(int i, const T &item)
 template <class T> void TSlideArray<T>::Clone(const TSlideArray& SA)
 {
     //cambia la longitud del array
-    if(Capacity != SA.Capacity) {
+    if(p_Capacity != SA.p_Capacity) {
         delete Items;
-        Items = new T[SA.Capacity];
+        Items = new T[SA.p_Capacity];
     }
 
     //copia las propiedades
-    Capacity = SA.Capacity;
-    Count = SA.Count;
-    ifirst = SA.ifirst;
-    ilast = SA.ilast;
+    p_Capacity = SA.p_Capacity;
+    p_Count = SA.p_Count;
+    p_ifirst = SA.p_ifirst;
+    p_ilast = SA.p_ilast;
 
     //copia los elementos
-    for(int i=0; i<Capacity; i++)
+    for(int i=0; i<p_Capacity; i++)
         Items[i] = SA.Items[i];
 }
 //equipara el número de elementos reservados del array y los copia
 template <class T> void TSlideArray<T>::Copy(const TSlideArray& SA)
 {
     //equipara el número de elementos reservados
-    if(Count < SA.Count)
-            DelLast(SA.Count - Count);
-    else if(Count > SA.Count)
-            NewLast(Count - SA.Count);
+    if(p_Count < SA.p_Count)
+            DelLast(SA.p_Count - p_Count);
+    else if(p_Count > SA.p_Count)
+            NewLast(p_Count - SA.p_Count);
 
     //copia los elementos reservados
-    for(int i=0; i<Count; i++)
+    for(int i=0; i<p_Count; i++)
         Set(i, SA[i]);
 }
 

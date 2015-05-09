@@ -37,100 +37,100 @@ namespace Models {
 //calculates the sizing of a cell (qx, qy)
 void TRoboticPositionerList2::CalculateSize(void)
 {
-    __qx = (getxmax() - getxmin())/double(getJ());
-    __qy = (getymax() - getymin())/double(getI());
+    p_qx = (getxmax() - getxmin())/double(getJ());
+    p_qy = (getymax() - getymin())/double(getI());
 }
 
 //---------------------------------------------------------------------------
 //MAPPING INTERVAL:
 
-void TRoboticPositionerList2::setxmin(double _xmin)
+void TRoboticPositionerList2::setxmin(double xmin)
 {
     //check the precondition
-    if(_xmin >= getxmax())
+    if(xmin >= getxmax())
         throw EImproperArgument("lower limit xmin hould be less upper limit xmax");
 
     //assign and assimilates the new value
-    __xmin = _xmin;
-    __qx = (getxmax() - getxmin())/double(getJ());
+    p_xmin = xmin;
+    p_qx = (getxmax() - getxmin())/double(getJ());
 }
-void TRoboticPositionerList2::setxmax(double _xmax)
+void TRoboticPositionerList2::setxmax(double xmax)
 {
     //check the precondition
-    if(_xmax <= getxmin())
+    if(xmax <= getxmin())
         throw EImproperArgument("upper limit xmax should be upper to lower limit xmin");
 
     //assign and assimilates the new value
-    __xmax = _xmax;
-    __qx = (getxmax() - getxmin())/double(getJ());
+    p_xmax = xmax;
+    p_qx = (getxmax() - getxmin())/double(getJ());
 }
-void TRoboticPositionerList2::setymin(double _ymin)
+void TRoboticPositionerList2::setymin(double ymin)
 {
     //el límite inferior ymin debería ser inferior al límite superior ymax
-    if(_ymin >= getymax())
+    if(ymin >= getymax())
         throw EImproperArgument("lower limit ymin should be less upper limit ymax");
 
     //assign and assimilates the new value
-    __ymin = _ymin;
-    __qy = (getymax() - getymin())/double(getI());
+    p_ymin = ymin;
+    p_qy = (getymax() - getymin())/double(getI());
 }
-void TRoboticPositionerList2::setymax(double _ymax)
+void TRoboticPositionerList2::setymax(double ymax)
 {
     //el límite superior ymin debería ser inferior al límite inferior ymax
-    if(_ymax <= getymin())
+    if(ymax <= getymin())
         throw EImproperArgument("upper limit ymax should be upper to lower limit ymin");
 
     //assign and assimilates the new value
-    __ymax = _ymax;
-    __qy = (getymax() - getymin())/double(getI());
+    p_ymax = ymax;
+    p_qy = (getymax() - getymin())/double(getI());
 }
 
 //---------------------------------------------------------------------------
 //CELLS OF THE MAP:
 
-void TRoboticPositionerList2::setI(int _I)
+void TRoboticPositionerList2::setI(int I)
 {
     //cheack the precondition
-    if(_I < 1)
+    if(I < 1)
         throw EImproperArgument("cells matrix's number rows I should be upper zero");
 
     //capture the original value
     double iini = getI();
 
     //assign the new value
-    Cells.setCount(_I);
+    p_Cells.setCount(I);
 
     //build the new rows
     for(int i=iini; i<getI(); i++) {
-        Cells[i].setCount(getJ());
+        p_Cells[i].setCount(getJ());
         for(int j=0; j<getJ(); j++)
-            Cells[i][j].Print = TRoboticPositioner::PrintId;
+            p_Cells[i][j].Print = TRoboticPositioner::PrintId;
     }
 
     //assimilates the new value
-    __qy = (getymax() - getymin())/double(getI());
+    p_qy = (getymax() - getymin())/double(getI());
 }
-void TRoboticPositionerList2::setJ(int _J)
+void TRoboticPositionerList2::setJ(int J)
 {
     //cheack the precondition
-    if(_J < 1)
+    if(J < 1)
         throw EImproperArgument("cells matrix's number columns J should be upper zero");
 
     //capture the original value
     double jini = getJ();
 
     //assign the new value
-    __J = _J;
+    p_J = J;
 
     //build the new columns
     for(int i=0; i<getI(); i++) {
-        Cells[i].setCount(getJ());
+        p_Cells[i].setCount(getJ());
         for(int j=jini; j<getJ(); j++)
-            Cells[i][j].Print = TRoboticPositioner::PrintId;
+            p_Cells[i][j].Print = TRoboticPositioner::PrintId;
     }
 
     //assimilates the new value
-    __qx = (getxmax() - getxmin())/double(getJ());
+    p_qx = (getxmax() - getxmin())/double(getJ());
 }
 
 //PROPERTIES IN TEXT FORMAT:
@@ -259,7 +259,7 @@ AnsiString TRoboticPositionerList2::getCellsText(void) const
     //make a rutinary check
     for(int i=0; i<getI(); i++)
         for(int j=0; j<getJ(); j++)
-            if(Cells[i][j].Print == NULL)
+            if(p_Cells[i][j].Print == NULL)
                 throw EImpossibleError("lateral effect");
 
     AnsiString S;
@@ -271,7 +271,7 @@ AnsiString TRoboticPositionerList2::getCellsText(void) const
     //print the cells of the matrix
     for(int i=0; i<getI(); i++)
         for(int j=0; j<getJ(); j++)
-            S += AnsiString("Cells[")+IntToStr(i)+AnsiString("][")+IntToStr(j)+AnsiString("] = ")+Cells[i][j].getText()+AnsiString("\r\n");
+            S += AnsiString("Cells[")+IntToStr(i)+AnsiString("][")+IntToStr(j)+AnsiString("] = ")+p_Cells[i][j].getText()+AnsiString("\r\n");
 
     return S;
 }
@@ -557,23 +557,23 @@ void  TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
     if(p<1 || S.Length()+1<p)
         throw EImproperArgument("index p should indicate a position in the string S");
 
-    int _I; //núnmero de filas de la nueva matriz
-    int _J; //número de columnas d el anueva matriz
+    int I; //núnmero de filas de la nueva matriz
+    int J; //número de columnas d el anueva matriz
 
     try {
         //lee las dimensiones de la matriz
-        ReadIText(_I, S, p);
-        ReadJText(_J, S, p);
+        ReadIText(I, S, p);
+        ReadJText(J, S, p);
     } catch(...) {
         throw;
     }
 
     //contruye una matriz de celdas tampón
-    TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > _Cells;
+    TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > Cells;
     //redimensiona la matriz
-    _Cells.setCount(_I);
-    for(int i=0; i<_I; i++)
-        _Cells[i].setCount(_J);
+    Cells.setCount(I);
+    for(int i=0; i<I; i++)
+        Cells[i].setCount(J);
 
     AnsiString Label; //etiqueta de una asignación
     AnsiString Ident; //identificador de una asignación
@@ -584,9 +584,9 @@ void  TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
 
     try {
         //por cada fila de la matriz de celdas
-        for(int i=0; i<_I; i++)
+        for(int i=0; i<I; i++)
             //por cada columna de la matriz de celdas
-            for(int j=0; j<_J; j++) {
+            for(int j=0; j<J; j++) {
                 //contruye la etiqueta
                 Label = AnsiString("Cells[")+IntToStr(i)+AnsiString("][")+IntToStr(j)+AnsiString("]");
                 //lee el identificador de la asignación
@@ -598,7 +598,7 @@ void  TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
 
                 //apunta la lista de punteros a posicionador de la célula indicada
                 //para facilitar su acceso
-                RPs = _Cells[i].GetPointer(j);
+                RPs = Cells[i].GetPointer(j);
                 //apunta los vectores identificados en la célula
                 for(int k=0; k<Ids.getCount(); k++) {
                     //asigna el identificador indicado para facilitar su acceso
@@ -619,7 +619,7 @@ void  TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
     }
 
     //asigna las variables tampón
-    RPL->SetMapCells(_Cells);
+    RPL->SetMapCells(Cells);
 }
 
 //-------------------------------------------------------------------
@@ -629,9 +629,9 @@ void  TRoboticPositionerList2::ReadCells(TRoboticPositionerList2 *RPL,
 TRoboticPositionerList2::TRoboticPositionerList2(void) :
     TRoboticPositionerList1(),
     //propiedades del mapa
-    __xmin(-106.08), __xmax(106.08),
-    __ymin(-102), __ymax(102),
-    Cells(50), __J(0)
+    p_xmin(-106.08), p_xmax(106.08),
+    p_ymin(-102), p_ymax(102),
+    p_Cells(50), p_J(0)
 {
     //calcula el lado máximo de una célula de la regilla
     double qmax = MEGARA_L/sqrt(2.) - ERR_NUM;
@@ -668,18 +668,18 @@ void TRoboticPositionerList2::CopyCells(const TRoboticPositionerList2 *RPL)
     //inicializa la matriz
     for(int i=0; i<getI(); i++)
         for(int j=0; j<getJ(); j++)
-            Cells[i][j].Clear();
+            p_Cells[i][j].Clear();
 
     //añade los posiciondores correspondientes a cada celda
     for(int i=0; i<getI(); i++)
         for(int j=0; j<getJ(); j++) {
-            const TItemsList<TRoboticPositioner*> *RPs = RPL->Cells[i].GetPointer(j);
+            const TItemsList<TRoboticPositioner*> *RPs = RPL->p_Cells[i].GetPointer(j);
             for(int k=0; k<RPs->getCount(); k++) {
                 const TRoboticPositioner *RP = RPs->Get(k);
                 int l = 0;
                 while(l<getCount() && Items[l]->getActuator()->getId()!=RP->getActuator()->getId())
                     l++;
-                Cells[i][j].Add(Items[l]);
+                p_Cells[i][j].Add(Items[l]);
             }
         }
 
@@ -692,18 +692,18 @@ void TRoboticPositionerList2::CopyMap(const TRoboticPositionerList2 *RPL)
         throw EImproperArgument("pointer RPL should point to built robotic positioner map");
 
     //asigna las propiedades de configuración
-    __xmin = RPL->getxmin();
-    __xmax = RPL->getxmax();
-    __ymin = RPL->getymin();
-    __ymax = RPL->getymax();
+    p_xmin = RPL->getxmin();
+    p_xmax = RPL->getxmax();
+    p_ymin = RPL->getymin();
+    p_ymax = RPL->getymax();
 
     //clona la matriz de listas de punteros a posicionador
     CopyCells(RPL);
-    __J = RPL->getJ();
+    p_J = RPL->getJ();
 
     //asigna las propiedades derivadas
-    __qx = RPL->getqx();
-    __qy = RPL->getqy();
+    p_qx = RPL->getqx();
+    p_qy = RPL->getqy();
 }
 
 //clone a RPL including:
@@ -745,16 +745,16 @@ void TRoboticPositionerList2::Clone(const TRoboticPositionerList2 *RPL)
 /*TRoboticPositionerList2 &TRoboticPositionerList2::operator=(const TRoboticPositionerList2 &RPL)
 {
         //asigna las propiedades de configuración
-        __xmin = RPL.xmin;
-        __xmax = RPL.xmax;
-        __ymin = RPL.ymin;
-        __ymax = RPL.ymax;
+        p_xmin = RPL.xmin;
+        p_xmax = RPL.xmax;
+        p_ymin = RPL.ymin;
+        p_ymax = RPL.ymax;
         //copia las celdas
         Cells = RPL.Cells;
-        __J = RPL.J;
+        p_J = RPL.J;
         //asigna las propiedades derivadas
-        __qx = RPL.qx;
-        __qy = RPL.qy;
+        p_qx = RPL.qx;
+        p_qy = RPL.qy;
 
         return *this;
 }                       */
@@ -773,35 +773,35 @@ TRoboticPositionerList2::TRoboticPositionerList2(const TRoboticPositionerList2 *
 //MAP METHODS:
 
 //set the limmits of the mapping interval
-void TRoboticPositionerList2::SetMapInterval(double _xmin, double _xmax,
-                                             double _ymin, double _ymax)
+void TRoboticPositionerList2::SetMapInterval(double xmin, double xmax,
+                                             double ymin, double ymax)
 {
     //el límite superior xmax deberíar mayor que el límite inferior xmin
-    if(_xmax <= _xmin)
+    if(xmax <= xmin)
         throw EImproperArgument("upper limit xmax should be upper to lower limit xmin");
 
     //el límite superior ymax deberíar mayor que el límite inferior ymin
-    if(_ymax <= _ymin)
+    if(ymax <= ymin)
         throw EImproperArgument("upper limit ymax should be upper to lower limit ymin");
 
     //asigna los nuevos valores
-    __xmin = _xmin;
-    __xmax = _xmax;
-    __ymin = _ymin;
-    __ymax = _ymax;
+    p_xmin = xmin;
+    p_xmax = xmax;
+    p_ymin = ymin;
+    p_ymax = ymax;
 
     //asimila los nuevos valores
     CalculateSize();
 }
 //set the dimensions of the cell matrix
-void TRoboticPositionerList2::SetMapDimensions(int _I, int _J)
+void TRoboticPositionerList2::SetMapDimensions(int I, int J)
 {
     //el número de filas de la matriz de celdas debería ser mayor que cero
-    if(_I < 1)
+    if(I < 1)
         throw EImproperArgument("cells matrix's number rows I should be upper zero");
 
     //el número de columnas de la matriz de celdas debería ser mayor que cero
-    if(_J < 1)
+    if(J < 1)
         throw EImproperArgument("cells matrix's number columns J should be upper zero");
 
     //guarda las dimensiones inciales
@@ -809,50 +809,50 @@ void TRoboticPositionerList2::SetMapDimensions(int _I, int _J)
     double jini = getJ();
 
     //asigna el nuevo número de columnas
-    __J = _J;
+    p_J = J;
 
     //apunta la función de impresión de identificador de posicionador
     //en las nuevas columnas
     for(int i=0; i<getI(); i++) {
-        Cells[i].setCount(getJ());
+        p_Cells[i].setCount(getJ());
         for(int j=jini; j<getJ(); j++)
-            Cells[i][j].Print = TRoboticPositioner::PrintId;
+            p_Cells[i][j].Print = TRoboticPositioner::PrintId;
     }
 
     //asigna el nuevo número de filas
-    Cells.setCount(_I);
+    p_Cells.setCount(I);
 
     //apunta la función de impresión de identificador de posicionador
     //en las nuevas filas
     for(int i=iini; i<getI(); i++) {
-        Cells[i].setCount(getJ());
+        p_Cells[i].setCount(getJ());
         for(int j=0; j<getJ(); j++)
-            Cells[i][j].Print = TRoboticPositioner::PrintId;
+            p_Cells[i][j].Print = TRoboticPositioner::PrintId;
     }
 
     //asimila los nuevos valores
     CalculateSize();
 }
 //set the content of the cell matrix
-void TRoboticPositionerList2::SetMapCells(TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > >& _Cells)
+void TRoboticPositionerList2::SetMapCells(TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > >& Cells)
 {
     //el número de filas de la matriz de celdas debería ser mayor que cero
-    if(_Cells.getCount() < 1)
+    if(Cells.getCount() < 1)
         throw EImproperArgument("cells matrix number rows should be upper zero");
 
     //todas las filas de la matriz de celdas deberían tener el mismo número de columnas
-    for(int i=1; i<_Cells.getCount(); i++)
-        if(_Cells[i].getCount() != _Cells.getFirst().getCount())
+    for(int i=1; i<Cells.getCount(); i++)
+        if(Cells[i].getCount() != Cells.getFirst().getCount())
             throw EImproperArgument("all rows in cells matriz should have the same number column");
 
     //el número de columnas de la matriz de celdas debería ser mayor que cero
-    if(_Cells.getFirst().getCount() < 1)
+    if(Cells.getFirst().getCount() < 1)
         throw EImproperArgument("cells matrix number column should be upper zero");
 
     //todos los punteros a posicionador de la matriz de celdas deben estar en la lista
-    for(int i=0; i<_Cells.getCount(); i++)
-        for(int j=0; j<_Cells.getFirst().getCount(); j++) {
-            TItemsList<TRoboticPositioner*> RPL = _Cells[i][j];
+    for(int i=0; i<Cells.getCount(); i++)
+        for(int j=0; j<Cells.getFirst().getCount(); j++) {
+            TItemsList<TRoboticPositioner*> RPL = Cells[i][j];
             for(int k=0; k<RPL.getCount(); k++) {
                 TRoboticPositioner *RP = RPL.Get(k);
                 int l = 0;
@@ -864,10 +864,10 @@ void TRoboticPositionerList2::SetMapCells(TPointersList<TPointersList<TItemsList
         }
 
     //copia la matriz
-    Cells = _Cells;
+    p_Cells = Cells;
 
     //asimila el nuevo valor
-    __J = Cells.getFirst().getCount();
+    p_J = p_Cells.getFirst().getCount();
     CalculateSize();
 
     //Nótese que la copia de una matriz de listas no implica
@@ -876,7 +876,7 @@ void TRoboticPositionerList2::SetMapCells(TPointersList<TPointersList<TItemsList
     //apunta la función de impresión en todas las listas de punteros a posicionador
     for(int i=0; i<getI(); i++)
         for(int j=0;  j<getJ(); j++)
-            Cells[i][j].Print = TRoboticPositioner::PrintId;
+            p_Cells[i][j].Print = TRoboticPositioner::PrintId;
 }
 
 //maps the RPs in the mapping interval
@@ -927,7 +927,7 @@ void TRoboticPositionerList2::Map(void)
                     //si la celda invade el dominio del posicionador
                     if(RP->getActuator()->PolysegmentInvadeDomainP3(cell))
                         //añade el posicionador a la lista de la celda
-                        Cells[i][j].Add(RP);
+                        p_Cells[i][j].Add(RP);
                 }
             }
         }
@@ -1075,7 +1075,7 @@ TItemsList<TRoboticPositioner*> *TRoboticPositionerList2::RoboticPositionersCell
         throw EImproperArgument("point P should be in [xmin, xmax]x[ymin, ymax]");
 
     //devuelve el contenido de la celda correspondiente
-    return Cells[ifloor(P.y)].GetPointer(jfloor(P.x));
+    return p_Cells[ifloor(P.y)].GetPointer(jfloor(P.x));
 }
 
 //search the RPs whose scope is a point

@@ -56,10 +56,10 @@ int TProjectionPoint::getId(void) const
 {
     return getSkyPoint()->getId();
 }
-void TProjectionPoint::setId(int _Id)
+void TProjectionPoint::setId(int Id)
 {
     try {
-        getSkyPoint()->setId(_Id);
+        getSkyPoint()->setId(Id);
     } catch(...) {
         throw;
     }
@@ -172,7 +172,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
     int status = 0;
 
     //variables auxiliares
-    TProjectionPoint _PP(PP); //variabletampón
+    TProjectionPoint t_PP(PP); //variabletampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -188,7 +188,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
         case 0: //esperando asignación a Id
             try {
             StrReadWord(Value, S, i);
-            _PP.setIdText(Value);
+            t_PP.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -201,7 +201,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
         case 1: //esperando asignación a x
             try {
             StrReadWord(Value, S, i);
-            _PP.setxText(Value);
+            t_PP.setxText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property x"));
             } catch(...) {
@@ -214,7 +214,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
         case 2: //esperando asignación a y
             try {
             StrReadWord(Value, S, i);
-            _PP.setyText(Value);
+            t_PP.setyText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property y"));
             } catch(...) {
@@ -227,19 +227,19 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
     } while(status < 3);
 
     //asigna la variable tampón
-    *PP = _PP;
+    *PP = t_PP;
 }
 
 //MÉTODOS PÚBLICOS:
 
 //contruye un punto de proyección
-TProjectionPoint::TProjectionPoint(TSkyPoint *_SkyPoint) :
+TProjectionPoint::TProjectionPoint(TSkyPoint *SkyPoint) :
     TDoublePoint(), Type(ptUNKNOWN), Priority(0)
 {
     //Pointer SkyPoint can be NULL.
 
     //apunta los objetos externos
-    __SkyPoint = _SkyPoint;
+    p_SkyPoint = SkyPoint;
 }
 //clona un punto de proyección
 TProjectionPoint::TProjectionPoint(TProjectionPoint *PP)
@@ -261,14 +261,14 @@ void TProjectionPoint::Copy(TProjectionPoint *PP)
         throw EImproperArgument("pointer PP should point to built proyection point");
 
     //asigna las propiedades
-    __SkyPoint = PP->__SkyPoint;
+    p_SkyPoint = PP->p_SkyPoint;
     x = PP->x;
     y = PP->y;
 }
 TProjectionPoint &TProjectionPoint::operator=(const TProjectionPoint &PP)
 {
     //asigna las propiedades
-    __SkyPoint = PP.__SkyPoint;
+    p_SkyPoint = PP.p_SkyPoint;
     x = PP.x;
     y = PP.y;
 

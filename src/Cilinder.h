@@ -49,42 +49,42 @@ class TCilinder {
 protected:
     //SIZING PROPERTIES R/W:
 
-    double __L01;
+    double p_L01;
 
     //ORIENTATION PROPERTIES IN RAD R/W:
 
-    double __thetaO1;
+    double p_thetaO1;
 
-    double __theta_1min;
-    double __theta_1max;
+    double p_theta_1min;
+    double p_theta_1max;
 
-    double __theta_1;
+    double p_theta_1;
 
-    double __theta_O3o;
+    double p_theta_O3o;
 
     //QUANTIFICATION PROPERTIES R/W:
 
-    TFunction __F;
+    TFunction p_F;
 
-    bool __Quantify_;
+    bool p_Quantify_;
 
     //QUANTIFICATION PROPERTIES R:
 
-    TFunction __G;
+    TFunction p_G;
 
-    double __SB1;
-    double __rbs;
+    double p_SB1;
+    double p_rbs;
 
-    TQuantificator __Q;
+    TQuantificator p_Q;
 
     //LOCATION PROPERTIES R/W:
 
-    TDoublePoint __P0;
+    TDoublePoint p_P0;
 
     //COMPOSED PROPERTIES:
 
-    TArm *__Arm;
-    TBarrier *__Barrier;
+    TArm *p_Arm;
+    TBarrier *p_Barrier;
 
     //##################################################################
     //PRIVATE METHODS:
@@ -119,7 +119,7 @@ public:
     //distance from P0 to P1
     //must be upper zero
     //default value: MEGARA_L mm
-    double getL01(void) const {return __L01;} void setL01(double);
+    double getL01(void) const {return p_L01;} void setL01(double);
 
     //NOTA: se ha preferido llamar L01 a la distancia de P0 a P1
     //en vez de R0, porque el sistema se compone de antebrazo y brazo.
@@ -174,33 +174,33 @@ public:
 
     //orientation of the coordinate system S1 respect to S0
     //default value: 3./4.*M_2PI rad
-    double getthetaO1(void) const {return __thetaO1;}
+    double getthetaO1(void) const {return p_thetaO1;}
     void setthetaO1(double);
 
     //lower limit for theta_1
     //must be in the domain of F
     //shall be lower or equal to theta_1max
     //default value: MEGARA_theta_1min rad
-    double gettheta_1min(void) const {return __theta_1min;}
+    double gettheta_1min(void) const {return p_theta_1min;}
     void settheta_1min(double);
     //upper limit for theta_1
     //must be in the domain of F
     //shall be upper or equal to theta_1min
     //default value: MEGARA_theta_1max rad
-    double gettheta_1max(void) const {return __theta_1max;}
+    double gettheta_1max(void) const {return p_theta_1max;}
     void settheta_1max(double);
 
     //angular coordinate of P1 in S1 in rad
     //must be in the domain of F
     //getting:
-    //  return __theta_1;
+    //  return p_theta_1;
     //setting:
     //  if(Quantify_)
-    //      __theta_1 = Qtheta_1(theta_1);
+    //      p_theta_1 = Qtheta_1(theta_1);
     //  else
-    //      __theta_1 = theta_1;
+    //      p_theta_1 = theta_1;
     //default value: 0 rad
-    double gettheta_1(void) const {return __theta_1;}
+    double gettheta_1(void) const {return p_theta_1;}
     void settheta_1(double);
 
     //stack for values of theta_1
@@ -215,7 +215,7 @@ public:
     //orientation of the coordinate system S3 respect S1
     //when theta_1 == 0
     //default value: M_PI
-    double gettheta_O3o(void) const {return __theta_O3o;}
+    double gettheta_O3o(void) const {return p_theta_O3o;}
     void settheta_O3o(double);
 
     //theta_O3o es el nexo de unión entre los sistemas de coordenadas
@@ -251,7 +251,7 @@ public:
     //default value:
     //  {(M_2PI, MEGARA_SB1), (0, 0), (M_2PI, MEGARA_SB1),
     //  2*(M_2PI, MEGARA_SB1)}
-    const TFunction& getF(void) const {return (const TFunction&)__F;}
+    const TFunction& getF(void) const {return (const TFunction&)p_F;}
     void setF(const TFunction &_F);
 
     //Note that the following restriction are not impossed:
@@ -269,7 +269,7 @@ public:
 
     //interrupt for enabling and disabling the quantificator of the rotor 1
     //default value: true
-    bool getQuantify_(void) const {return __Quantify_;}
+    bool getQuantify_(void) const {return p_Quantify_;}
     void setQuantify_(bool);
 
     //When Quantify_ change to enabled theta_1 is assigned to own:
@@ -280,12 +280,12 @@ public:
     //angular coordinate of P1 in S1 in rad
     //must be in the domain of F(theta_1)
     //getting:
-    //  return __theta_1;
+    //  return p_theta_1;
     //setting:
     //  if(Quantify_)
-    //      __theta_1 = Qtheta_1(theta_1);
+    //      p_theta_1 = Qtheta_1(theta_1);
     //  else
-    //      __theta_1 = theta_1;
+    //      p_theta_1 = theta_1;
     //default value: 0 rad
     //
     //angular position of P1 in S1 in steps
@@ -297,9 +297,9 @@ public:
     //  return p_1;
     //setting:
     //  if(Quantify_)
-    //      __theta_1 = G(Q(p_1)); //this is ever successfully executed
+    //      p_theta_1 = G(Q(p_1)); //this is ever successfully executed
     //  else
-    //      __theta_1 = G(p_1);
+    //      p_theta_1 = G(p_1);
     //default value: Q(F(0)) steps
 
     //stack for values of Quantify_
@@ -314,21 +314,21 @@ public:
     //is the inferse of F
     //default value:
     //  G.Inverse(getF());;
-    const TFunction& getG(void) const {return (const TFunction&)__G;}
+    const TFunction& getG(void) const {return (const TFunction&)p_G;}
 
     //steps back for rotor 1
     //default value: F(M_2PI) steps
     //note that F(M_2PI) == MEGARA_SB1
-    double getSB1(void) const {return __SB1;}
+    double getSB1(void) const {return p_SB1;}
     //radian by stepss avergage in [0, M_2PI]
     //      rbs = M_2PI/SB1;
     //default value: M_2PI/SB1 rad
-    double getrbs(void) const {return __rbs;}
+    double getrbs(void) const {return p_rbs;}
 
     //quantification function of p_1
     //default value: (1, [p_1min, p_1max])
     const TQuantificator& getQ(void) const {
-        return (const TQuantificator&)__Q;}
+        return (const TQuantificator&)p_Q;}
 
     //NOTA: la constricción al dominio de p_1 se realiza en la función
     //de cuantificación Q, cuyo dominio imagen es [Q.Qmin, Q.Qmax].
@@ -356,7 +356,7 @@ public:
     //getting:
     //      p_1min = F(theta_1min)
     //setting:
-    //      __tehta_1min = G(p_1min)
+    //      p_tehta_1min = G(p_1min)
     //default value: F(MEGARA_theta_1min) steps
     double getp_1min(void) const; void setp_1min(double);
     //upper limit for p_1
@@ -364,7 +364,7 @@ public:
     //getting:
     //      p_1max = F(theta_1max)
     //setting:
-    //      __tehta_1max = G(p_1max)
+    //      p_tehta_1max = G(p_1max)
     double getp_1max(void) const; void setp_1max(double);
 
     //angular position of P1 in S1 in steps
@@ -376,9 +376,9 @@ public:
     //  return p_1;
     //setting:
     //  if(Quantify_)
-    //      __theta_1 = G(Q(p_1)); //this is ever successfully executed
+    //      p_theta_1 = G(Q(p_1)); //this is ever successfully executed
     //  else
-    //      __theta_1 = G(p_1);
+    //      p_theta_1 = G(p_1);
     //default value: Q(F(0)) steps
     double getp_1(void) const; void setp_1(double);
 
@@ -400,7 +400,7 @@ public:
     //LOCATION PROPERTIES R/W:
 
     //posición del eje 1 o centro del posicionador de fibra respecto S0
-    TDoublePoint getP0(void) const {return __P0;}
+    TDoublePoint getP0(void) const {return p_P0;}
     void setP0(TDoublePoint);
     //Arm->P1 es la posición del eje 2 respecto S0
     //Arm->P2 es la posición del centro del cabezal del brazo respecto S0
@@ -409,10 +409,10 @@ public:
     /*        //coordenadas polar radial de P0 en el momento de
         //construirse el posicionador
         //debe ser no negativo
-        double getL0(void) const; void setL0(double _L0);
+        double getL0(void) const; void setL0(double L0);
         //coordenadas polar angular de P0 en el momento de
         //construirse el posicionador
-        double gettheta0(void) const; void settheta0(double _theta0);
+        double gettheta0(void) const; void settheta0(double theta0);
 
         //NOTA: (L0, heta0) es guardado en el posicionador
         //para ser utilizado en el bastidor.
@@ -485,9 +485,9 @@ public:
     //COMPOSED PROPERTIES:
 
     //brazo del posicionador de fibra
-    TArm *getArm(void) const {return __Arm;}
+    TArm *getArm(void) const {return p_Arm;}
     //barrera que delimita el área de exclusión
-    TBarrier *getBarrier(void) const {return __Barrier;}
+    TBarrier *getBarrier(void) const {return p_Barrier;}
 
     //ADVERTENCIA: el brazo y la barrera encapsulan todas las propiedades
     //debidas a sus disposiciones sobre el cilindro.
@@ -661,7 +661,7 @@ public:
 
     //construye un actuador de fibra
     //con la posición y orientación indicadas
-    TCilinder(TDoublePoint _P0, double _thetaO1=MEGARA_thetaO1);
+    TCilinder(TDoublePoint P0, double thetaO1=MEGARA_thetaO1);
 
     //copia un conjunto de propiedades de un actuador de fibra
     void CopySizing(const TCilinder*);
@@ -710,17 +710,17 @@ public:
 
     //determina si un ángulo en radianes
     //está fuera del intervalo [theta_1min, theta_1max]
-    bool IsntInDomaintheta_1(double _theta_1) const;
+    bool IsntInDomaintheta_1(double theta_1) const;
     //determina si un ángulo pasos
     //está fuera del intervalo [p_1min, p_1max]
-    bool IsntInDomainp_1(double _p_1) const;
+    bool IsntInDomainp_1(double p_1) const;
 
     //determina si un ángulo en radianes
     //está dentro del intervalo [theta_1min, theta_1max]
-    bool IsInDomaintheta_1(double _theta_1) const;
+    bool IsInDomaintheta_1(double theta_1) const;
     //determina si un ángulo pasos
     //está dentro del intervalo [p_1min, p_1max]
-    bool IsInDomainp_1(double _p_1) const;
+    bool IsInDomainp_1(double p_1) const;
 
     //IsntInDomainp_1 traduce la coordenada a radianes antes de comprobar
     //si está en dominio, para evitar los errores numéricos de
@@ -739,8 +739,8 @@ public:
 
     //cambia conjuntamente las propiedades de plantilla
     //si no especifica argumentos se asignarán valores por defecto
-    void SetTemplate(double _L01=MEGARA_L, double _L12=MEGARA_L, double _L13=MEGARA_L,
-                     double _theta___3=0, double _R3=0.75);
+    void SetTemplate(double L01=MEGARA_L, double L12=MEGARA_L, double L13=MEGARA_L,
+                     double theta___3=0, double R3=0.75);
 
     //desactiva la cuantificación de los ejes del posicionador
     void DisableQuantification(void);
@@ -791,12 +791,12 @@ public:
 
     //cambia la posición y orientación
     //del origen de coordenadas simultaneamente
-    void MoveOrigin(TDoublePoint _P0, double _thetaO1);
+    void MoveOrigin(TDoublePoint P0, double thetaO1);
 
     //asigna conjuntamente theta_1 y theta___3
-    void SetAnglesRadians(double _theta_1, double _theta___3);
+    void SetAnglesRadians(double theta_1, double theta___3);
     //asigna conjuntamente p_1 y p___3
-    void SetAnglesSteps(double _p_1, double _p___3);
+    void SetAnglesSteps(double p_1, double p___3);
 
     //mueve los ejes hasta el origen de coordenadas
     void SetAnglesZeroSteps(void);
@@ -833,10 +833,10 @@ public:
 
     //Dado el ángulo theta_3 (en S1) calcula theta___3 para que P3 vaya a él;
     //si el ángulo no está dentro del dominio devuelve falso.
-    bool theta___3ToGotheta_3(double &_theta___3, double _theta_3);
+    bool theta___3ToGotheta_3(double &_theta___3, double theta_3);
     //Dado el radio r_3 (en S1) calcula theta___3 para que P3 vaya a él;
     //si el radio no está dentro del dominio devuelve falso.
-    bool theta___3ToGor_3(double &_theta___3, double _r_3);
+    bool theta___3ToGor_3(double &_theta___3, double r_3);
 
     //determina las posiciones angulares estables que hacen que
     //la fibra de este posicionador se ubique lo más cerca posible
@@ -996,12 +996,12 @@ public:
 
     //asigna coordenadas polares a P_3
     //si el punto no está en el dominio de P_3 lanza una excepción
-    void SetPolarP_3(double _r_3, double _theta_3);
+    void SetPolarP_3(double r_3, double theta_3);
 
     //asigna coordenadas cartesianas a P_3
     //si el punto no está en el dominio de P_3 lanza una excepción
-    void SetCartesianP_3(double _x_3, double _y_3);
-    void SetCartesianP_3(TDoublePoint _P_3);
+    void SetCartesianP_3(double x_3, double y_3);
+    void SetCartesianP_3(TDoublePoint P_3);
 
     //genera un punto con distribución uniforme en
     //el dominio cartesiano de P3 hasta que dicho punto

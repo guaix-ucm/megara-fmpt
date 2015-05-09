@@ -64,11 +64,11 @@ void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
 {
     try {
         //build a tampon variable
-        TRoboticPositioner _RP;
+        TRoboticPositioner t_RP;
         //read and assign the content of the files
-        readAndAssign(_RP, dir);
+        readAndAssign(t_RP, dir);
         //clone the tampon variable
-        RP.Clone(&_RP);
+        RP.Clone(&t_RP);
 
     } catch(...) {
         throw;
@@ -128,18 +128,18 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir)
 {
     try {
         //contruye una lista tampón
-        TRoboticPositionerList _RPL;
+        TRoboticPositionerList t_RPL;
 
         string str;
 
         //lee y asigna la lista de orígenes de coordenadas de la lista de posicionadores
         strReadFromFile(str, dir+"/RoboticPositionerOriginsTable.txt");
-        _RPL.setOriginsTableText(str);
+        t_RPL.setOriginsTableText(str);
 
         //por cada posicionador de la lista
-        for(int i=0; i<_RPL.getCount(); i++) {
+        for(int i=0; i<t_RPL.getCount(); i++) {
             //apunta el posicionador indicado para facilitar su acceso
-            TRoboticPositioner *RP = _RPL[i];
+            TRoboticPositioner *RP = t_RPL[i];
 
             //construye el nombre del subdirectorio que contiene la instancia del posicionador
             string subdir = dir+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
@@ -171,20 +171,20 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir)
 
         //lee y asigna la instancia de la lista de posicionadores
         strReadFromFile(str, dir+AnsiString("/Instance.txt").str);
-        _RPL.setInstanceText(str);
+        t_RPL.setInstanceText(str);
 
         //El mapa de RPs puede ser cargado de un archivo, o puede ser
         //determinado tras la asimilación mediante el método:
         //      void TRoboticPositioneer::GenerateMap(void);
 
         //asimila los parámetros de dimensionamiento
-        _RPL.Assimilate();
+        t_RPL.Assimilate();
 
         //clona la lista tampón
-        RPL.Clone(&_RPL);
+        RPL.Clone(&t_RPL);
 
         //desturye los RPs de la lista tampón
-        _RPL.Destroy();
+        t_RPL.Destroy();
 
         //RPs of thetampon list must be destroyed here, because
         //the RPL is a list of pointers.
@@ -236,18 +236,18 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir,
 {
     try {
         //contruye una lista tampón
-        TExclusionAreaList _EAL;
+        TExclusionAreaList t_EAL;
 
         string str;
 
         //lee y asigna la tabla de orígenes de coordenadas
         strReadFromFile(str, dir+"/ExclusionAreaOriginsTable.txt");
-        _EAL.setOriginsTableText(str);
+        t_EAL.setOriginsTableText(str);
 
         //por cada área de exclusión de la lista
-        for(int i=0; i<_EAL.getCount(); i++) {
+        for(int i=0; i<t_EAL.getCount(); i++) {
             //apunta el área de exclusión indicada para facilitar su acceso
-            TExclusionArea *EA = _EAL[i];
+            TExclusionArea *EA = t_EAL[i];
 
             //construye el nombre del subdirectorio que contiene la instancia del área de exclusión
             string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
@@ -263,15 +263,15 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir,
 
         //lee y asigna la instancia de la lista de EAs
         //                strReadFromFile(S, dir+"/Instance.txt");
-        //              _EAL.InstanceText = S;
+        //              t_EAL.InstanceText = S;
 
         //clona la lista tampón
-        EAL.Clone(&_EAL);
+        EAL.Clone(&t_EAL);
         //asimila los parámetros de dimensionamiento
         EAL.Assimilate(RPL);
 
         //desturye las EAs de la lista tampón
-        //                _EAL.Destroy();
+        //                t_EAL.Destroy();
 
         //Las EAs de la lista tampón no deben
         //ser destruidas porque se trata de una lista de punteros
@@ -317,17 +317,17 @@ void readInstanceFromDir(TFiberMOSModel *FMM, const string& dir)
 
     try {
         //contruye una variable tampón
-        TFiberMOSModel _FMM;
+        TFiberMOSModel t_FMM;
 
         //lee las instancias de las listas de objetos del directorio
-        readInstanceFromDir(_FMM.RPL, dir);
-        readInstanceFromDir(_FMM.EAL, dir, _FMM.RPL);
+        readInstanceFromDir(t_FMM.RPL, dir);
+        readInstanceFromDir(t_FMM.EAL, dir, t_FMM.RPL);
 
         //lee las demás propiedades de la instancia
         //del archivo 'Instance.txt'
         string str;
         strReadFromFile(str, dir+"/Instance.txt");
-        _FMM.setInstanceText(str);
+        t_FMM.setInstanceText(str);
 
         //Note that here is not necessary assimilate the instance
         //because the reading of each list producess the assimilation.
@@ -369,23 +369,23 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
 {
     try {
         //contruye una variable tampón
-        TFiberMOSModel _FMM;
+        TFiberMOSModel t_FMM;
 
         //lee las instancias de las listas de objetos del directorio
-        readInstanceFromDir(_FMM.RPL, dir);
-        readInstanceFromDir(_FMM.EAL, dir, _FMM.RPL);
+        readInstanceFromDir(t_FMM.RPL, dir);
+        readInstanceFromDir(t_FMM.EAL, dir, t_FMM.RPL);
 
         //lee las demás propiedades de la instancia
         //del archivo 'Instance.txt'
         string str;
         strReadFromFile(str, dir+"/Instance.txt");
-        _FMM.setInstanceText(str);
+        t_FMM.setInstanceText(str);
 
         //Note that here is not necessary assimilate the instance
         //because the reading of each list producess the assimilation.
 
         //clona la variable tampón
-        FMM.Clone(&_FMM);
+        FMM.Clone(&t_FMM);
         //asimila las propiedades
         FMM.Assimilate();
 
@@ -428,16 +428,16 @@ void readInstanceFromDir(TFiberConnectionModel *FCM, const string& dir)
         throw EImproperArgument("pointer FCM should point to built Fiber Connection Model");
     try {
         //construye una variable tampón
-        TFiberConnectionModel _FCM;
+        TFiberConnectionModel t_FCM;
 
         //lee la tabla de conexiones de la pseudoslit en una cadena de texto
         string str;
         strReadFromFile(str, dir+"/Connections.txt");
         //asigna la cadena de texto a la tabla de conexiones de la pseudoslit
-        _FCM.setConnectionsText(str);
+        t_FCM.setConnectionsText(str);
 
         //clona la variable tampón
-        //        FCM->Clone(_FCM);
+        //        FCM->Clone(t_FCM);
 
     } catch(...) {
         throw;
@@ -464,16 +464,16 @@ void readInstanceFromDir(TFiberConnectionModel& FCM, const string& dir)
 {
     try {
         //construye una variable tampón
-        TFiberConnectionModel _FCM;
+        TFiberConnectionModel t_FCM;
 
         //lee la tabla de conexiones de la pseudoslit en una cadena de texto
         string str;
         strReadFromFile(str, dir+"/Connections.txt");
         //asigna la cadena de texto a la tabla de conexiones de la pseudoslit
-        _FCM.setConnectionsText(str);
+        t_FCM.setConnectionsText(str);
 
         //clona la variable tampón
-        //        FCM.Clone(_FCM);
+        //FCM.Clone(t_FCM);
 
     } catch(...) {
         throw;

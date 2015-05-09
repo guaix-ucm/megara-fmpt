@@ -36,19 +36,19 @@ namespace Models {
 
 //PROPIDADES DEL MENSAJE:
 
-void TMessageInstruction::setId(int _Id)
+void TMessageInstruction::setId(int Id)
 {
         //el número de identificación Id debería ser no negativo
-        if(_Id < 0)
-                throw EImproperArgument(AnsiString("identification number '")+IntToStr(_Id)+AnsiString("' should be nonnegative"));
+        if(Id < 0)
+                throw EImproperArgument(AnsiString("identification number '")+IntToStr(Id)+AnsiString("' should be nonnegative"));
 
         //asigna el nuevo valor
-        __Id = _Id;
+        p_Id = Id;
 }
 
-void TMessageInstruction::setComment(const string& _Comment)
+void TMessageInstruction::setComment(const string& Comment)
 {
-    p_Comment = _Comment;
+    p_Comment = Comment;
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
@@ -136,7 +136,7 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
 
         char c; //caracter indicado de la cadena
         AnsiString Word; //palabra leida
-        TMessageInstruction _MI; //variables tampón
+        TMessageInstruction t_MI; //variables tampón
 
         do {
                 c = S[i]; //lee el próximo caracter de la cadena
@@ -168,7 +168,7 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
                                                 break;
                                         case ':':
                                                 try {
-                                                        _MI.getIdText() = Word;
+                                                        t_MI.getIdText() = Word;
                                                 } catch(EImproperArgument &E) {
                                                         throw EImproperArgument(E.Message+AnsiString(" for property Id"));
                                                 } catch(...) {
@@ -196,7 +196,7 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
                                                 break;
                                         case ':':
                                                 try {
-                                                        _MI.setIdText(Word);
+                                                        t_MI.setIdText(Word);
                                                 } catch(...) {
                                                         throw;
                                                 }
@@ -212,7 +212,7 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
                                 break;
                         case 3: //leyendo la instrucción
                                 try {
-                                        TInstruction::Read(&(_MI.Instruction), S, i);
+                                        TInstruction::Read(&(t_MI.Instruction), S, i);
                                 } catch(...) {
                                         throw;
                                 }
@@ -223,7 +223,7 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
         } while(status < 4);
 
         //asigna la variable tampón
-        *MI = _MI;
+        *MI = t_MI;
 }
 
 //read an instruction in a text string
@@ -282,16 +282,15 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
 //MÉTODOS PÚBLICOS:
 
 //construye un mensaje con los valores por defecto
-TMessageInstruction::TMessageInstruction(void) : __Id(0), Instruction(), p_Comment("")
+TMessageInstruction::TMessageInstruction(void) : p_Id(0), Instruction(), p_Comment("")
 {
 }
 //construye un mensaje con los valores por defecto
-TMessageInstruction::TMessageInstruction(int _Id,
-        AnsiString InstructionText) :
+TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
         Instruction(), p_Comment()
 {
         try {
-                setId(_Id);
+                setId(Id);
                 Instruction.setText(InstructionText);
         } catch(...) {
                 throw;
@@ -299,7 +298,7 @@ TMessageInstruction::TMessageInstruction(int _Id,
 }
 //clona un ensaje
 TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
-        __Id(), Instruction(), p_Comment()
+        p_Id(), Instruction(), p_Comment()
 {
         try {
                 Copy(MI);
@@ -316,7 +315,7 @@ void TMessageInstruction::Copy(const TMessageInstruction *MI)
                 throw EImproperArgument("pointer MI should point to built instruction message");
 
         //copia las propiedades
-        __Id = MI->__Id;
+        p_Id = MI->p_Id;
         Instruction = MI->Instruction;
         p_Comment = MI->p_Comment;
 }
@@ -324,7 +323,7 @@ void TMessageInstruction::Copy(const TMessageInstruction *MI)
 TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &MI)
 {
         //copia las propiedades
-        __Id = MI.__Id;
+        p_Id = MI.p_Id;
         Instruction = MI.Instruction;
         p_Comment = MI.p_Comment;
 

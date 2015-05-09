@@ -60,10 +60,10 @@ int TPairPositionAngles::getId(void) const
 {
     return getRoboticPositioner()->getActuator()->getId();
 }
-/*void TPairPositionAngles::setId(int _Id)
+/*void TPairPositionAngles::setId(int Id)
 {
     try {
-        getRoboticPositioner()->setId(_Id);
+        getRoboticPositioner()->setId(Id);
     } catch(...) {
         throw;
     }
@@ -199,7 +199,7 @@ void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
     int status = 0;
 
     //variables auxiliares
-    TPairPositionAngles _PPA(PPA); //tampon variable
+    TPairPositionAngles t_PPA(PPA); //tampon variable
     AnsiString Value; //tampon string
 
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
@@ -214,7 +214,7 @@ void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
         case 0: //waiting value for Id
             try {
                 StrReadWord(Value, S, i);
-//                _PPA.setIdText(Value);
+//                t_PPA.setIdText(Value);
             } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -228,7 +228,7 @@ void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
         case 1: //waiting value for p_1
             try {
                 StrReadWord(Value, S, i);
-                _PPA.setp_1Text(Value);
+                t_PPA.setp_1Text(Value);
             } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property p_1"));
             } catch(...) {
@@ -242,7 +242,7 @@ void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
         case 2: //waiting valuefor p___3
             try {
                 StrReadWord(Value, S, i);
-                _PPA.setp___3Text(Value);
+                t_PPA.setp___3Text(Value);
             } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property p___3"));
             } catch(...) {
@@ -255,20 +255,18 @@ void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
     } while(status < 3);
 
     //assign the tampon variable
-    PPA->Copy(&_PPA);
+    PPA->Copy(&t_PPA);
 }
 
 //PUBLIC METHODS:
 
 //builds a PPA
-TPairPositionAngles::TPairPositionAngles(TRoboticPositioner *_RoboticPositioner)
+TPairPositionAngles::TPairPositionAngles(TRoboticPositioner *RP)
 {
-/*    //pointer RoboticPositioner should point to buit robotic positioner
-    if(_RoboticPositioner == NULL)
-        throw EImproperArgument("pointer RoboticPositioner should point to buit projection point");
-*/
+    //Pointer RP can be null.
+
     //point the extern objects
-    p_RoboticPositioner = _RoboticPositioner;
+    p_RoboticPositioner = RP;
 
     //initialize the properties
     p_1 = 0;

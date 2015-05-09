@@ -48,14 +48,14 @@ class TQuantificator {
 protected:
         //PARÁMETROS DE CONFIGURACIÓN:
 
-        double __q;
-        double __xmin;
-        double __xmax;
+        double p_q;
+        double p_xmin;
+        double p_xmax;
 
         //PARÁMETROS DE CONFIGURACIÓN DERIVADOS:
 
-        int __Qmin;
-        int __Qmax;
+        int p_Qmin;
+        int p_Qmax;
 
         //PROPIEDADES EN FORMATO TEXTO:
 
@@ -76,34 +76,34 @@ public:
         //q debe ser distinto de cero
         //q puede ser negativo
         //valor por defecto: 1
-        double getq(void) const {return __q;} void setq(double);
+        double getq(void) const {return p_q;} void setq(double);
         //límite inferior del dominio de definición de la función
         //no debe ser mayor que xmax
         //valor por defecto: -1
-        double getxmin(void) const {return __xmin;} void setxmin(double);
+        double getxmin(void) const {return p_xmin;} void setxmin(double);
         //límite superior del dominio de definición de la función
         //no debe ser menor que xmin
         //valor por defecto: 1
-        double getxmax(void) const {return __xmax;} void setxmax(double);
+        double getxmax(void) const {return p_xmax;} void setxmax(double);
 
         //PARÁMETROS DE CONFIGURACIÓN DERIVADOS:
 
         //límite inferior del dominio imagen de la función
-        int getQmin(void) const {return __Qmin;}
+        int getQmin(void) const {return p_Qmin;}
         //límite superior del dominio imagen de la función
-        int getQmax(void) const {return __Qmax;}
+        int getQmax(void) const {return p_Qmax;}
 
         //PROPIEDADES EN FORMATO TEXTO:
 
-        AnsiString getqText(void) const {return FloatToStr(__q);}
+        AnsiString getqText(void) const {return FloatToStr(p_q);}
         void setqText(AnsiString&);
-        AnsiString getxminText(void) const {return FloatToStr(__xmin);}
+        AnsiString getxminText(void) const {return FloatToStr(p_xmin);}
         void setxminText(AnsiString&);
-        AnsiString getxmaxText(void) const {return FloatToStr(__xmax);}
+        AnsiString getxmaxText(void) const {return FloatToStr(p_xmax);}
         void setxmaxText(AnsiString&);
 
-        AnsiString getQminText(void) const {return FloatToStr(__Qmin);}
-        AnsiString getQmaxText(void) const {return FloatToStr(__Qmax);}
+        AnsiString getQminText(void) const {return FloatToStr(p_Qmin);}
+        AnsiString getQmaxText(void) const {return FloatToStr(p_Qmax);}
 
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
@@ -140,7 +140,7 @@ public:
                 const AnsiString &S, int &i);
 
         //contruye un cuantificador
-        TQuantificator(double _q=1, double _xmin=-1, double _xmax=1);
+        TQuantificator(double q=1, double xmin=-1, double xmax=1);
         //copia todas las propiedades de un cuantificador
         void Copy(const TQuantificator*);
         void Copy(const TQuantificator&);
@@ -153,7 +153,7 @@ public:
         bool operator!=(const TQuantificator& Q) const;
 
         //configura el cuantificador
-        void Set(double _q,  double _xmin, double _xmax);
+        void Set(double q,  double xmin, double xmax);
 
         //cuantifica un valor
         int Quantifice(double x) const;

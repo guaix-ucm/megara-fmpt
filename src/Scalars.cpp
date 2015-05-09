@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: _Scalars.cpp
+//Archivo: Scalars.cpp
 //Contenido: funciones escalares
 //Última actualización: 07/05/2014
 //Autor: Isaac Morales Durán
@@ -465,27 +465,27 @@ QColor ComplementaryColor(QColor Color)
 
 //PROPIEDADES DE LA VARIABLE IDENTIFICADA:
 
-void TIdDouble::setId(const int _Id)
+void TIdDouble::setId(const int Id)
 {
     //el número de identificación Id debería ser no negativo
-    if(_Id < 0) {
-        throw EImproperArgument(AnsiString("identification number '")+IntToStr(_Id)+AnsiString("' should be nonnegative"));
+    if(Id < 0) {
+        throw EImproperArgument(AnsiString("identification number '")+IntToStr(Id)+AnsiString("' should be nonnegative"));
     }
 
     //asigna el nuevo valor
-    Id = _Id;
+    p_Id = Id;
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
 
 AnsiString TIdDouble::getIdText(void) const
 {
-    return IntToStr(Id);
+    return IntToStr(p_Id);
 }
 void TIdDouble::setIdText(const AnsiString& S)
 {
     try {
-        Id = StrToInt_(S);
+        p_Id = StrToInt_(S);
     } catch(...) {
         throw;
     }
@@ -537,15 +537,15 @@ double  TIdDouble::Evaluate(TIdDouble ID)
 }
 
 //asigna un valor a un elemento
-void  TIdDouble::Assign(TIdDouble &ID, double _Value)
+void  TIdDouble::Assign(TIdDouble &ID, double Value)
 {
-    ID.Value = _Value;
+    ID.Value = Value;
 }
 
 //imprime un elemento en una cadena
 void  TIdDouble::Print(AnsiString &S, TIdDouble ID)
 {
-    S += AnsiString("(")+IntToStr(ID.Id)+AnsiString(": ")+FloatToStr(ID.Value)+AnsiString(")");
+    S += AnsiString("(")+IntToStr(ID.getId())+AnsiString(": ")+FloatToStr(ID.Value)+AnsiString(")");
 }
 
 //escudriña una cadena en busca de un elemento
@@ -569,8 +569,8 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
     int status = 0;
 
     //variables auxiliares
-    TIdDouble _ID; //variable tampón
-    int aux; //variable local para pasar por referencia en vez de _ID.Id
+    TIdDouble t_ID; //variable tampón
+    int aux; //variable local para pasar por referencia en vez de t_ID.Id
 
     do {
         char c = S[i];
@@ -610,7 +610,7 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
                 break;
             default:
                 StrReadInt(aux, S, i);
-                _ID.Id = aux;
+                t_ID.setId(aux);
                 status = 2;
             }
             break;
@@ -649,7 +649,7 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
                     throw EImproperArgument("value 'Value' not found");
                 break;
             default:
-                StrReadFloat(_ID.Value, S, i);
+                StrReadFloat(t_ID.Value, S, i);
                 status = 4;
             }
             break;
@@ -675,7 +675,7 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
                 //NOTA:
                 //sería posible determinar si el número de punto flotante contiene un punto decimal o no
                 //sustituyento:
-                //      StrReadFloat(_ID.Value, S, i);
+                //      StrReadFloat(ID.Value, S, i);
                 //por:
                 //      try {
                 //              //segrega un punto flotante a aprtir de i
@@ -702,7 +702,7 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
     } while(status < 5);
 
     //asigna la variable tampón
-    ID = _ID;
+    ID = t_ID;
 }
 
 //MÉTODOS ESTÁTICOS PARA LISTAS DE PUNTEROS:
@@ -735,13 +735,13 @@ double  TIdDouble::Evaluate(const TIdDouble *ID)
 }
 
 //asigna un valor a un elemento
-void  TIdDouble::Assign(TIdDouble *ID, double _Value)
+void  TIdDouble::Assign(TIdDouble *ID, double Value)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
         throw EImproperArgument("pinter ID should point to built identified double");
 
-    ID->Value = _Value;
+    ID->Value = Value;
 }
 
 //imprime un elemento en una cadena
@@ -751,7 +751,7 @@ void  TIdDouble::Print(AnsiString &S, const TIdDouble *ID)
     if(ID == NULL)
         throw EImproperArgument("pinter ID should point to built identified double");
 
-    S += AnsiString("(")+IntToStr(ID->Id)+AnsiString(": ")+FloatToStr(ID->Value)+AnsiString(")");
+    S += AnsiString("(")+IntToStr(ID->getId())+AnsiString(": ")+FloatToStr(ID->Value)+AnsiString(")");
 }
 
 //escudriña una cadena en busca de un elemento
@@ -779,8 +779,8 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
     int status = 0;
 
     //variables auxiliares
-    TIdDouble _ID; //variable tampón
-    int aux; //variable local para pasar por referencia en vez de _ID.Id
+    TIdDouble t_ID; //variable tampón
+    int aux; //variable local para pasar por referencia en vez de t_ID.Id
 
     do {
         char c = S[i];
@@ -820,7 +820,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
                 break;
             default:
                 StrReadInt(aux, S, i);
-                _ID.Id = aux;
+                t_ID.setId(aux);
                 status = 2;
             }
             break;
@@ -859,7 +859,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
                     throw EImproperArgument("value Value not found");
                 break;
             default:
-                StrReadFloat(_ID.Value, S, i);
+                StrReadFloat(t_ID.Value, S, i);
                 status = 4;
             }
             break;
@@ -885,7 +885,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
                 //NOTA:
                 //sería posible determinar si el número de punto flotante contiene un punto decimal o no
                 //sustituyento:
-                //      StrReadFloat(_ID.Value, S, i);
+                //      StrReadFloat(ID.Value, S, i);
                 //por:
                 //      try {
                 //              //segrega un punto flotante a aprtir de i
@@ -912,7 +912,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
     } while(status < 5);
 
     //asigna la variable tampón
-    *(ID) = _ID;
+    *(ID) = t_ID;
 }
 
 //---------------------------------------------------------------------------
@@ -921,7 +921,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
 //copia un elemento
 TIdDouble &TIdDouble::operator=(const TIdDouble &ID)
 {
-    Id = ID.Id;
+    p_Id = ID.p_Id;
     Value = ID.Value;
     return *this;
 }
@@ -930,23 +930,23 @@ TIdDouble &TIdDouble::operator=(const TIdDouble &ID)
 //TInterval:
 //---------------------------------------------------------------------------
 
-void TInterval::setlmin(double _lmin)
+void TInterval::setlmin(double lmin)
 {
     //el límite inferior del intervalo lmin debe ser menor o igual que el límite superior
-    if(_lmin > lmax)
+    if(lmin > p_lmax)
         throw EImproperArgument("interval lowest limit lmin should be less or equal to upper limit");
 
     //asigna el nuevo valor
-    lmin = _lmin;
+    p_lmin = lmin;
 }
-void TInterval::setlmax(double _lmax)
+void TInterval::setlmax(double lmax)
 {
     //el límite superior del intervalo lmax debe ser mayor o igual que el límite inferior
-    if(_lmax > lmin)
+    if(lmax > p_lmin)
         throw EImproperArgument("interval upper limit lmin should be upper or equal to lower limit");
 
     //asigna el nuevo valor
-    lmax = _lmax;
+    p_lmax = lmax;
 }
 
 AnsiString TInterval::getText(void)
@@ -981,7 +981,7 @@ void  TInterval::Print(AnsiString &S, const TInterval *I)
     case itClose: S += "["; break;
     }
 
-    S += FloatToStr(I->lmin)+AnsiString(", ")+FloatToStr(I->lmax);
+    S += FloatToStr(I->getlmin())+AnsiString(", ")+FloatToStr(I->getlmax());
 
     switch(I->IntervalType) {
     case itOpen: S += ")"; break;
@@ -1012,8 +1012,8 @@ void  TInterval::Read(TInterval *I, const AnsiString &S, int &i)
     //variables tampón en formato conveniente
     char dl; //delimitador izquierdo
     char dr; //delimitador derecho
-    double _lmin; //límite inferior
-    double _lmax; //límite superior
+    double lmin; //límite inferior
+    double lmax; //límite superior
 
     do {
         c = S[i]; //asigna el próximo caracter
@@ -1057,7 +1057,7 @@ void  TInterval::Read(TInterval *I, const AnsiString &S, int &i)
                 break;
             default:
                 try {
-                StrReadFloat(_lmin, S, i);
+                StrReadFloat(lmin, S, i);
             } catch(...) {
                 throw;
             }
@@ -1100,7 +1100,7 @@ void  TInterval::Read(TInterval *I, const AnsiString &S, int &i)
                 break;
             default:
                 try {
-                StrReadFloat(_lmax, S, i);
+                StrReadFloat(lmax, S, i);
             } catch(...) {
                 throw;
             }
@@ -1133,7 +1133,7 @@ void  TInterval::Read(TInterval *I, const AnsiString &S, int &i)
 
     //asigna las propiedades
     try {
-        I->SetLimits(_lmin, _lmax);
+        I->SetLimits(lmin, lmax);
 
         if(dl=='(' && dr==')') {
             I->IntervalType = itOpen;
@@ -1153,28 +1153,28 @@ void  TInterval::Read(TInterval *I, const AnsiString &S, int &i)
 //MÉTODOS PÚBLICOS:
 
 //construye un intervalo
-TInterval::TInterval(TIntervalType _IntervalType,
-                     double _lmin, double _lmax) : IntervalType(_IntervalType)
+TInterval::TInterval(TIntervalType t_IntervalType,
+                     double lmin, double lmax) : IntervalType(t_IntervalType)
 {
     //el límite superior lmax debería ser mayor o igual que el límite inferior lmin
-    if(_lmax < _lmin)
+    if(lmax < lmin)
         throw EImproperArgument("upper limit lmax should be upper or equal lower limit lmin");
 
     //inicializa los valores
-    lmin = _lmin;
-    lmax = _lmax;
+    p_lmin = lmin;
+    p_lmax = lmax;
 }
 
 //asigna los límites del intervalo simultaneamente
-void TInterval::SetLimits(double _lmin, double _lmax)
+void TInterval::SetLimits(double lmin, double lmax)
 {
     //el límite superior lmax debería ser mayor o igual que el límite inferior lmin
-    if(_lmax < _lmin)
+    if(lmax < lmin)
         throw EImproperArgument("upper limit lmax should be upper or equal lower limit lmin");
 
     //asigna los nuevos valores
-    lmin = _lmin;
-    lmax = _lmax;
+    p_lmin = lmin;
+    p_lmax = lmax;
 }
 /*
 //---------------------------------------------------------------------------
@@ -1286,7 +1286,7 @@ TPairIntegers::TPairIntegers(void) : x(0), y(0)
 {
 }
 //contruye un par de enteros con los valores indicados
-TPairIntegers::TPairIntegers(int _x, int _y) : x(_x), y(_y)
+TPairIntegers::TPairIntegers(int t_x, int t_y) : x(t_x), y(t_y)
 {
 }
 
@@ -1362,8 +1362,8 @@ void  TPair::Read(TPair *P, const AnsiString &S, int &i)
     char c;
 
     //variables tampón en formato conveniente
-    double _x; //límite inferior
-    double _y; //límite superior
+    double t_x; //límite inferior
+    double t_y; //límite superior
 
     do {
         c = S[i]; //asigna el próximo caracter
@@ -1406,7 +1406,7 @@ void  TPair::Read(TPair *P, const AnsiString &S, int &i)
                 break;
             default:
                 try {
-                StrReadFloat(_x, S, i);
+                StrReadFloat(t_x, S, i);
             } catch(...) {
                 throw;
             }
@@ -1449,7 +1449,7 @@ void  TPair::Read(TPair *P, const AnsiString &S, int &i)
                 break;
             default:
                 try {
-                StrReadFloat(_y, S, i);
+                StrReadFloat(t_y, S, i);
             } catch(...) {
                 throw;
             }
@@ -1481,7 +1481,7 @@ void  TPair::Read(TPair *P, const AnsiString &S, int &i)
 
     //asigna las variables tampón
     try {
-        P->SetValues(_x, _y);
+        P->SetValues(t_x, t_y);
     } catch(...) {
         throw;
     }
@@ -1490,16 +1490,16 @@ void  TPair::Read(TPair *P, const AnsiString &S, int &i)
 //MÉTODOS PÚBLICOS:
 
 //construye un par
-TPair::TPair(double _x, double _y) : x(_x), y(_y)
+TPair::TPair(double t_x, double t_y) : x(t_x), y(t_y)
 {
 }
 
 //asigna simultaneamente los valores al par
-void TPair::SetValues(double _x, double _y)
+void TPair::SetValues(double t_x, double t_y)
 {
     //asigna los nuevos valores
-    x = _x;
-    y = _y;
+    x = t_x;
+    y = t_y;
 }
 /*comentado para evitar tener que traducirlo
 //---------------------------------------------------------------------------
@@ -1675,7 +1675,7 @@ void  TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
         int status = 0;
 
         //variables tampón en formato conveniente
-        TPairIB _P;
+        TPairIB t_P;
 
         do {
                 //reacciona según el estado y el caracter
@@ -1693,7 +1693,7 @@ void  TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
                                 try {
                                         int aux;
                                         StrReadInt(aux, S, i);
-                                        _P.x = aux;
+                                        t_P.x = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -1713,7 +1713,7 @@ void  TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
                                 try {
                                         bool aux;
                                         StrReadBool(aux, S, i);
-                                        _P.y = aux;
+                                        t_P.y = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -1734,7 +1734,7 @@ void  TPairIB::Read(TPairIB *P, const AnsiString &S, int &i)
 
         //copia la variable tampón
         try {
-                *P = _P;
+                *P = t_P;
         } catch(...) {
                 throw;
         }
@@ -1774,7 +1774,7 @@ void  TPairIB::ReadRow(TPairIB *P, const AnsiString &S, int &i)
         int status = 0;
 
         //variables tampón en formato conveniente
-        TPairIB _P;
+        TPairIB t_P;
 
         do {
                 //reacciona según el estado y al caracter
@@ -1783,7 +1783,7 @@ void  TPairIB::ReadRow(TPairIB *P, const AnsiString &S, int &i)
                                 try {
                                         int aux;
                                         StrReadInt(aux, S, i);
-                                        _P.x = aux;
+                                        t_P.x = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -1803,7 +1803,7 @@ void  TPairIB::ReadRow(TPairIB *P, const AnsiString &S, int &i)
                                 try {
                                         bool aux;
                                         StrReadBool(aux, S, i);
-                                        _P.y = aux;
+                                        t_P.y = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -1815,7 +1815,7 @@ void  TPairIB::ReadRow(TPairIB *P, const AnsiString &S, int &i)
 
         //copia la variable tampón
         try {
-                *P = _P;
+                *P = t_P;
         } catch(...) {
                 throw;
         }
@@ -1906,7 +1906,7 @@ TPairIB::TPairIB(void) : x(0), y(0.)
 }
 //construye un objeto de la clase
 //con los valores indicados
-TPairIB::TPairIB(int _x, int _y) : x(_x), y(_y)
+TPairIB::TPairIB(int t_x, int t_y) : x(t_x), y(t_y)
 {
 }
 
@@ -2095,7 +2095,7 @@ void  TPairID::Read(TPairID *P, const AnsiString &S, int &i)
         int status = 0;
 
         //variables tampón en formato conveniente
-        TPairID _P;
+        TPairID t_P;
 
         do {
                 //reacciona según el estado y el caracter
@@ -2113,7 +2113,7 @@ void  TPairID::Read(TPairID *P, const AnsiString &S, int &i)
                                 try {
                                         int aux;
                                         StrReadInt(aux, S, i);
-                                        _P.x = aux;
+                                        t_P.x = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2133,7 +2133,7 @@ void  TPairID::Read(TPairID *P, const AnsiString &S, int &i)
                                 try {
                                         double aux;
                                         StrReadFloat(aux, S, i);
-                                        _P.y = aux;
+                                        t_P.y = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2154,7 +2154,7 @@ void  TPairID::Read(TPairID *P, const AnsiString &S, int &i)
 
         //copia la variable tampón
         try {
-                *P = _P;
+                *P = t_P;
         } catch(...) {
                 throw;
         }
@@ -2194,7 +2194,7 @@ void  TPairID::ReadRow(TPairID *P, const AnsiString &S, int &i)
         int status = 0;
 
         //variables tampón en formato conveniente
-        TPairID _P;
+        TPairID t_P;
 
         do {
                 //reacciona según el estado y al caracter
@@ -2203,7 +2203,7 @@ void  TPairID::ReadRow(TPairID *P, const AnsiString &S, int &i)
                                 try {
                                         int aux;
                                         StrReadInt(aux, S, i);
-                                        _P.x = aux;
+                                        t_P.x = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2223,7 +2223,7 @@ void  TPairID::ReadRow(TPairID *P, const AnsiString &S, int &i)
                                 try {
                                         double aux;
                                         StrReadFloat(aux, S, i);
-                                        _P.y = aux;
+                                        t_P.y = aux;
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2235,7 +2235,7 @@ void  TPairID::ReadRow(TPairID *P, const AnsiString &S, int &i)
 
         //copia la variable tampón
         try {
-                *P = _P;
+                *P = t_P;
         } catch(...) {
                 throw;
         }
@@ -2326,7 +2326,7 @@ TPairID::TPairID(void) : x(0), y(0.)
 }
 //construye un objeto de la clase
 //con los valores indicados
-TPairID::TPairID(int _x, int _y) : x(_x), y(_y)
+TPairID::TPairID(int t_x, int t_y) : x(t_x), y(t_y)
 {
 }
 
@@ -2524,7 +2524,7 @@ void  TPairIS::Read(TPairIS *P, const AnsiString &S, int &i)
         int status = 0;
 
         //variables tampón en formato conveniente
-        TPairIS _P;
+        TPairIS t_P;
 
         do {
                 //reacciona según el estado y el caracter
@@ -2540,7 +2540,7 @@ void  TPairIS::Read(TPairIS *P, const AnsiString &S, int &i)
 
                         case 1: //esperando valor para x
                                 try {
-                                        StrReadInt(_P.x, S, i);
+                                        StrReadInt(t_P.x, S, i);
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2558,7 +2558,7 @@ void  TPairIS::Read(TPairIS *P, const AnsiString &S, int &i)
 
                         case 3: //esperando valor para y
                                 try {
-                                        StrReadStringBetweenChars(_P.y, S, i);
+                                        StrReadStringBetweenChars(t_P.y, S, i);
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2579,7 +2579,7 @@ void  TPairIS::Read(TPairIS *P, const AnsiString &S, int &i)
 
         //asigna la variable tampón
         try {
-                *P = _P;
+                *P = t_P;
         } catch(...) {
                 throw;
         }
@@ -2685,14 +2685,14 @@ void  TPairIS::ReadRow(TPairIS *P, const AnsiString &S, int &i)
         int status = 0;
 
         //variables tampón en formato conveniente
-        TPairIS _P;
+        TPairIS t_P;
 
         do {
                 //reacciona según el estado y al caracter
                 switch(status) {
                         case 0: //esperando valor para x
                                 try {
-                                        StrReadInt(_P.x, S, i);
+                                        StrReadInt(t_P.x, S, i);
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2710,7 +2710,7 @@ void  TPairIS::ReadRow(TPairIS *P, const AnsiString &S, int &i)
 
                         case 2: //esperando valor para y
                                 try {
-                                        StrReadStringBetweenChars(_P.y, S, i);
+                                        StrReadStringBetweenChars(t_P.y, S, i);
                                         status++;
                                 } catch(...) {
                                         throw;
@@ -2722,7 +2722,7 @@ void  TPairIS::ReadRow(TPairIS *P, const AnsiString &S, int &i)
 
         //asigna la variable tampón
         try {
-                *P = _P;
+                *P = t_P;
         } catch(...) {
                 throw;
         }
@@ -2735,7 +2735,7 @@ TPairIS::TPairIS(void) : x(0), y(0.)
 {
 }
 //contruye un par con los valores indicados
-TPairIS::TPairIS(int _x, int _y) : x(_x), y(_y)
+TPairIS::TPairIS(int t_x, int t_y) : x(t_x), y(t_y)
 {
 }
 
@@ -2765,78 +2765,78 @@ AnsiString TTernIntegers::zLabel = "z";
 
 AnsiString TTernIntegers::getxText(void) const
 {
-        return IntToStr(x);
+    return IntToStr(x);
 }
 void TTernIntegers::setxText(const AnsiString &S)
 {
-        try {
-                x = StrToInt_(S);
-        } catch(...) {
-                throw;
-        }
+    try {
+        x = StrToInt_(S);
+    } catch(...) {
+        throw;
+    }
 }
 AnsiString TTernIntegers::getyText(void) const
 {
-        return IntToStr(y);
+    return IntToStr(y);
 }
 void TTernIntegers::setyText(const AnsiString &S)
 {
-        try {
-                y = StrToInt_(S);
-        } catch(...) {
-                throw;
-        }
+    try {
+        y = StrToInt_(S);
+    } catch(...) {
+        throw;
+    }
 }
 AnsiString TTernIntegers::getzText(void) const
 {
-        return IntToStr(z);
+    return IntToStr(z);
 }
 void TTernIntegers::setzText(const AnsiString &S)
 {
-        try {
-                z = StrToInt_(S);
-        } catch(...) {
-                throw;
-        }
+    try {
+        z = StrToInt_(S);
+    } catch(...) {
+        throw;
+    }
 }
 
 //CONJUNTOS DE PROTIEDADES EN FORMATO TEXTO:
 
 AnsiString TTernIntegers::getText(void) const
 {
-        AnsiString S;
+    AnsiString S;
 
-        S = AnsiString("(")+getxText()+AnsiString(", ")+getyText()+AnsiString(", ")+getzText()+AnsiString(")");
+    S = AnsiString("(")+getxText()+AnsiString(", ")+getyText()+AnsiString(", ")+getzText()+AnsiString(")");
 
-        return S;
+    return S;
 }
 void TTernIntegers::setText(const AnsiString &S)
 {
-        try {
-                int i = 1;
-                Read((TTernIntegers*)this, S, i);
-        } catch(...) {
-                throw;
-        }
+    try {
+        int i = 1;
+        Read((TTernIntegers*)this, S, i);
+    } catch(...) {
+        throw;
+    }
 }
 AnsiString TTernIntegers::getRowText(void) const
 {
-        AnsiString S;
+    AnsiString S;
 
-        //NOTA: 0x09 corresponde al caracter tabulador horizontal
+    //NOTA: 0x09 corresponde al caracter tabulador horizontal
 
-        S = getxText()+AnsiString("\t")+getyText()+AnsiString("\t")+getzText();
+    S = getxText()+AnsiString("\t")+getyText()+AnsiString("\t")+getzText();
 
-        return S;
+    return S;
 }
 void TTernIntegers::setRowText(const AnsiString &S)
 {
-        try {
-                int i = 1;
-                ReadRow((TTernIntegers*)this, S, i);
-        } catch(...) {
-                throw;
-        }
+    try {
+        int i = 1;
+        ReadRow((TTernIntegers*)this, S, i);
+    } catch(...) {
+        throw;
+    }
 }
 
 //FUNCIONES ESTÁTICAS:
@@ -2849,187 +2849,187 @@ void TTernIntegers::setRowText(const AnsiString &S)
 //si TI1->x == TI2.x
 //      devuelve 0
 int  TTernIntegers::Comparexs(const TTernIntegers *TI1,
-        const TTernIntegers *TI2)
+                              const TTernIntegers *TI2)
 {
-        //el puntero TI1 debe apuntar a una terna construida
-        if(TI1 == NULL)
-                throw EImproperArgument("pointer TI1 should point to built tern");
-        //el puntero TI2 debe apuntar a una terna construida
-        if(TI2 == NULL)
-                throw EImproperArgument("pointer TI2 should point to built tern");
+    //el puntero TI1 debe apuntar a una terna construida
+    if(TI1 == NULL)
+        throw EImproperArgument("pointer TI1 should point to built tern");
+    //el puntero TI2 debe apuntar a una terna construida
+    if(TI2 == NULL)
+        throw EImproperArgument("pointer TI2 should point to built tern");
 
-        //devuelve el valor conrrespondiente
-        if(TI1->x < TI2->x)
-                return -1;
-        if(TI1->x > TI2->x)
-                return 1;
-        return 0;
+    //devuelve el valor conrrespondiente
+    if(TI1->x < TI2->x)
+        return -1;
+    if(TI1->x > TI2->x)
+        return 1;
+    return 0;
 }
 
 //obtiene las etiquetas en formato texto:
 //      (xLabel, yLabel, zLabel)
 AnsiString TTernIntegers::GetLabels(void)
 {
-        return AnsiString("(")+xLabel+AnsiString(", ")+yLabel+AnsiString(", ")+zLabel+AnsiString(")");
+    return AnsiString("(")+xLabel+AnsiString(", ")+yLabel+AnsiString(", ")+zLabel+AnsiString(")");
 }
 //función de impresión de elementos tipo TTernIntegers
 void  TTernIntegers::Print(AnsiString &S, const TTernIntegers *TI)
 {
-        //el puntero TI debe apuntar a un par de enteros contruido
-        if(TI == NULL)
-                throw EImproperArgument("pointer TI should point to built integer pair");
+    //el puntero TI debe apuntar a un par de enteros contruido
+    if(TI == NULL)
+        throw EImproperArgument("pointer TI should point to built integer pair");
 
-        S += TI->getText();
+    S += TI->getText();
 }
 //función de lectura de elementos tipo TTernIntegers
 void  TTernIntegers::Read(TTernIntegers *TI, const AnsiString &S, int &i)
 {
-        //NOTA: no se exige que la cadena de texto S sea imprimible,
-        //de modo que cuando se quiera imprimir uno de sus caracteres,
-        //si no es imprimible saldrá el caracter por defecto.
+    //NOTA: no se exige que la cadena de texto S sea imprimible,
+    //de modo que cuando se quiera imprimir uno de sus caracteres,
+    //si no es imprimible saldrá el caracter por defecto.
 
-        //el puntero TI  debería apuntar a una terna par GetLabels() construida
-        if(TI == NULL)
-                throw EImproperArgument(AnsiString("pointer P should point to built tern ")+GetLabelsRow());
+    //el puntero TI  debería apuntar a una terna par GetLabels() construida
+    if(TI == NULL)
+        throw EImproperArgument(AnsiString("pointer P should point to built tern ")+GetLabelsRow());
 
-        //el índice i debería indicar a una posición de la cadena de texto S
-        if(i<1 || S.Length()+1<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+    //el índice i debería indicar a una posición de la cadena de texto S
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-        //estado de lectura:
-        //      0: esperando '(' y valor para x
-        //      1: esperando ',' y valor para y
-        //      2: esperando ',', valor para z y ')'
-        //      3: terna leída con éxito
-        int status = 0;
+    //estado de lectura:
+    //      0: esperando '(' y valor para x
+    //      1: esperando ',' y valor para y
+    //      2: esperando ',', valor para z y ')'
+    //      3: terna leída con éxito
+    int status = 0;
 
-        //variables tampón en formato conveniente
-        int x, y, z;
+    //variables tampón en formato conveniente
+    int x, y, z;
 
-        do {
-                //reacciona según el estado y al caracter
-                switch(status) {
-                        case 0: //esperando '(' y valor para x
-                                try {
-                                        StrTravelLabel("(", S, i);
-                                        StrReadInt(x, S, i);
-                                        status++;
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
+    do {
+        //reacciona según el estado y al caracter
+        switch(status) {
+        case 0: //esperando '(' y valor para x
+            try {
+            StrTravelLabel("(", S, i);
+            StrReadInt(x, S, i);
+            status++;
+        } catch(...) {
+            throw;
+        }
+            break;
 
-                        case 1: //esperando ',' y valor para y
-                                try {
-                                        StrTravelLabel(",", S, i);
-                                        StrReadInt(y, S, i);
-                                        status++;
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
+        case 1: //esperando ',' y valor para y
+            try {
+            StrTravelLabel(",", S, i);
+            StrReadInt(y, S, i);
+            status++;
+        } catch(...) {
+            throw;
+        }
+            break;
 
-                        case 2: //esperando ',', valor para z y ')'
-                                try {
-                                        StrTravelLabel(",", S, i);
-                                        StrReadInt(z, S, i);
-                                        StrTravelLabel(")", S, i);
-                                        status++;
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
+        case 2: //esperando ',', valor para z y ')'
+            try {
+            StrTravelLabel(",", S, i);
+            StrReadInt(z, S, i);
+            StrTravelLabel(")", S, i);
+            status++;
+        } catch(...) {
+            throw;
+        }
+            break;
 
-                }
+        }
         //mientras no se haya leido la terna con éxito
-        } while(status < 3);
+    } while(status < 3);
 
-        //asigna las variables tampón
-        TI->x = x;
-        TI->y = y;
-        TI->z = z;
+    //asigna las variables tampón
+    TI->x = x;
+    TI->y = y;
+    TI->z = z;
 }
 
 //obtiene las etiquetas en formato fila de texto:
 //      xLabel+"\t"+yLabel+"\t"+zLabel
 AnsiString TTernIntegers::GetLabelsRow(void)
 {
-        return xLabel+AnsiString("\t")+yLabel+AnsiString("\t")+zLabel;
+    return xLabel+AnsiString("\t")+yLabel+AnsiString("\t")+zLabel;
 }
 //función de impresión de elementos tipo TTernIntegers
 void  TTernIntegers::PrintRow(AnsiString &S, const TTernIntegers *TI)
 {
-        //el puntero TI debe apuntar a un par de enteros contruido
-        if(TI == NULL)
-                throw EImproperArgument("pointer TI should point to built integer pair");
+    //el puntero TI debe apuntar a un par de enteros contruido
+    if(TI == NULL)
+        throw EImproperArgument("pointer TI should point to built integer pair");
 
-        S += TI->getRowText();
+    S += TI->getRowText();
 }
 //función de lectura de elementos tipo TTernIntegers
 void  TTernIntegers::ReadRow(TTernIntegers *TI, const AnsiString &S, int &i)
 {
-        //NOTA: no se exige que la cadena de texto S sea imprimible,
-        //de modo que cuando se quiera imprimir uno de sus caracteres,
-        //si no es imprimible saldrá el caracter por defecto.
+    //NOTA: no se exige que la cadena de texto S sea imprimible,
+    //de modo que cuando se quiera imprimir uno de sus caracteres,
+    //si no es imprimible saldrá el caracter por defecto.
 
-        //el puntero TI  debería apuntar a una terna par GetLabels() construida
-        if(TI == NULL)
-                throw EImproperArgument(AnsiString("pointer P should point to built tern ")+GetLabelsRow());
+    //el puntero TI  debería apuntar a una terna par GetLabels() construida
+    if(TI == NULL)
+        throw EImproperArgument(AnsiString("pointer P should point to built tern ")+GetLabelsRow());
 
-        //el índice i debería indicar a una posición de la cadena de texto S
-        if(i<1 || S.Length()+1<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+    //el índice i debería indicar a una posición de la cadena de texto S
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-        //estado de lectura:
-        //      0: esperando valor para x
-        //      1: esperando separador y valor para y
-        //      2: esperando separador y valor para z
-        //      3: terna leída con éxito
-        int status = 0;
+    //estado de lectura:
+    //      0: esperando valor para x
+    //      1: esperando separador y valor para y
+    //      2: esperando separador y valor para z
+    //      3: terna leída con éxito
+    int status = 0;
 
-        //variables tampón en formato conveniente
-        int x, y, z;
+    //variables tampón en formato conveniente
+    int x, y, z;
 
-        do {
-                //reacciona según el estado y al caracter
-                switch(status) {
-                        case 0: //esperando valor para x
-                                try {
-                                        StrReadInt(x, S, i);
-                                        status++;
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
+    do {
+        //reacciona según el estado y al caracter
+        switch(status) {
+        case 0: //esperando valor para x
+            try {
+            StrReadInt(x, S, i);
+            status++;
+        } catch(...) {
+            throw;
+        }
+            break;
 
-                        case 1: //esperando separador y valor para y
-                                try {
-                                        StrTravelSeparators(S, i);
-                                        StrReadInt(y, S, i);
-                                        status++;
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
+        case 1: //esperando separador y valor para y
+            try {
+            StrTravelSeparators(S, i);
+            StrReadInt(y, S, i);
+            status++;
+        } catch(...) {
+            throw;
+        }
+            break;
 
-                        case 2: //esperando separador y valor para z
-                                try {
-                                        StrTravelSeparators(S, i);
-                                        StrReadInt(z, S, i);
-                                        status++;
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
+        case 2: //esperando separador y valor para z
+            try {
+            StrTravelSeparators(S, i);
+            StrReadInt(z, S, i);
+            status++;
+        } catch(...) {
+            throw;
+        }
+            break;
 
-                }
+        }
         //mientras no se haya leido la terna con éxito
-        } while(status < 3);
+    } while(status < 3);
 
-        //asigna las variables tampón
-        TI->x = x;
-        TI->y = y;
-        TI->z = z;
+    //asigna las variables tampón
+    TI->x = x;
+    TI->y = y;
+    TI->z = z;
 }
 
 //MÉTODOS PÚBLICOS:
@@ -3039,20 +3039,20 @@ TTernIntegers::TTernIntegers(void) : x(0), y(0), z(0)
 {
 }
 //contruye un par de enteros con los valores indicados
-TTernIntegers::TTernIntegers(int _x, int _y, int _z) : x(_x), y(_y), z(_z)
+TTernIntegers::TTernIntegers(int t_x, int t_y, int t_z) : x(t_x), y(t_y), z(t_z)
 {
 }
 
 //copia las propiedades de un par
 TTernIntegers& TTernIntegers::operator=(const TTernIntegers &TI)
 {
-        //copia las propiedades
-        x = TI.x;
-        y = TI.y;
-        z = TI.z;
+    //copia las propiedades
+    x = TI.x;
+    y = TI.y;
+    z = TI.z;
 
-        //devuelve una referencia a este objeto para permitir anidar las asignaciones
-        return *this;
+    //devuelve una referencia a este objeto para permitir anidar las asignaciones
+    return *this;
 }
 
 //---------------------------------------------------------------------------

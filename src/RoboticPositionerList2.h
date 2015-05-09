@@ -40,22 +40,22 @@ class TRoboticPositionerList2 : public TRoboticPositionerList1 {
 protected:
     //MAPPING INTERVAL:
 
-    double __xmin;
-    double __xmax;
-    double __ymin;
-    double __ymax;
+    double p_xmin;
+    double p_xmax;
+    double p_ymin;
+    double p_ymax;
 
     //CELL MATRIX OF THE MAP:
 
     //cell matrix
-    TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > Cells;
+    TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > p_Cells;
 
-    int __J;
+    int p_J;
 
     //DERIVED PARAMETERS:
 
-    double __qx;
-    double __qy;
+    double p_qx;
+    double p_qy;
 
     //ASSIMILATION METHODS:
 
@@ -68,22 +68,22 @@ public:
     //lower limit of the interval x of the map
     //shall be lower than upper limit
     //default value: -106.08 mm
-    double getxmin(void) const {return __xmin;}
+    double getxmin(void) const {return p_xmin;}
     void setxmin(double);
     //upper limit of the interval x of the map
     //shall be upper than lower limit
     //default value: 106.08 mm
-    double getxmax(void) const {return __xmax;}
+    double getxmax(void) const {return p_xmax;}
     void setxmax(double);
     //lower limit of the interval y of the map
     //shall be lower than upper limit
     //default value: -102 mm
-    double getymin(void) const {return __ymin;}
+    double getymin(void) const {return p_ymin;}
     void setymin(double);
     //upper limit of the interval y of the map
     //shall be upper than lower limit
     //default value: 102 mm
-    double getymax(void) const {return __ymax;}
+    double getymax(void) const {return p_ymax;}
     void setymax(double);
 
     //WARNING: the mapping interval shall contains the focal plane,
@@ -94,11 +94,11 @@ public:
     //number of rows of the grid
     //shall be upper zero
     //default value: 50
-    int getI(void) const {return Cells.getCount();} void setI(int);
+    int getI(void) const {return p_Cells.getCount();} void setI(int);
     //number of columns of the grid
     //shall be upper zero
     //default value: 52
-    int getJ(void) const {return __J;} void setJ(int);
+    int getJ(void) const {return p_J;} void setJ(int);
 
     //ADVICE: cell matriz dimensions shall be such that the diagonal of each cell
     //doesnot exceed L, so that the side of each cell should be at most:
@@ -114,11 +114,11 @@ public:
     //base of a cell
     //      qx = (xmax - xmin)/J
     //default value: 4.08 mm
-    double getqx(void) const {return __qx;}
+    double getqx(void) const {return p_qx;}
     //hight of a cell
     //      qy = (ymax - ymin)/I
     //default value: 4.08 mm
-    double getqy(void) const {return __qy;}
+    double getqy(void) const {return p_qy;}
 
     //PROPERTIES IN TEXT FORMAT:
 
@@ -216,9 +216,9 @@ public:
     //MAP METHODS:
 
     //set the limmits of the mapping interval
-    void SetMapInterval(double _xmin, double _xmax, double _ymin, double _ymax);
+    void SetMapInterval(double xmin, double xmax, double ymin, double ymax);
     //set the dimensions of the cell matrix
-    void SetMapDimensions(int _I, int _J);
+    void SetMapDimensions(int I, int J);
     //set the content of the cell matrix
     void SetMapCells(TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > &_Cells);
 

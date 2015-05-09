@@ -59,7 +59,7 @@ namespace Models {
 
 //clase instrucción de posicionador
 class TInstruction {
-    AnsiString __Name;
+    AnsiString p_Name;
 
 public:
     //PROPIEDADES DE LA INTRUCCIÓN:
@@ -75,7 +75,7 @@ public:
     //      "ST": inicia el desplazamiento programado;
     //      "SP": detine el desplazamiento (si se está realizando).
     //valor por defecto: ""
-    AnsiString getName(void) const {return __Name;} void setName(AnsiString);
+    AnsiString getName(void) const {return p_Name;} void setName(AnsiString);
     //argumentos del comando
     //un argumento puede tener cualquier valor (incluso negativo)
     //valor por defecto: {}

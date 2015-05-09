@@ -113,7 +113,7 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //construye un vector con la capacidad inicial indicada
-    TVector(int _Capacity=8);
+    TVector(int Capacity=8);
 
     //constructor de copia
     TVector(TVector *);
@@ -272,8 +272,8 @@ template <class T> AnsiString TVector<T>::getRowHexText(void)
 //MÉTODOS PÚBLICOS:
 
 //construye un vector con la capacidad inicial indicada
-template <class T> TVector<T>::TVector(int _Capacity) :
-    TItemsList<T>(_Capacity)
+template <class T> TVector<T>::TVector(int Capacity) :
+    TItemsList<T>(Capacity)
 {
     //el tipo T debería ser numérico
     if(!Numerical(typeid(T)))
@@ -312,14 +312,14 @@ template <class T> TVector<T>::TVector(TVector *V)
 }
 
 //redimensiona el vector y completa con ceros
-template <class T> void TVector<T>::SetDimension(int _Dimension)
+template <class T> void TVector<T>::SetDimension(int Dimension)
 {
     //la dimensión debe ser no negativa
-    if(_Dimension < 0)
+    if(Dimension < 0)
         throw EImproperArgument("Dimension should be non-negative");
 
     int i = this->getCount(); //indica al primer nuevo parámetro
-    this->setCount(_Dimension); //redimensiona el vector
+    this->setCount(Dimension); //redimensiona el vector
     for(i; i<this->getCount(); i++) //a cada nuevo parámetro
         this->Items[i] = 0; //le asigna cero
 }

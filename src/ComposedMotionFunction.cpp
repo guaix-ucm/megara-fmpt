@@ -557,99 +557,99 @@ TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S)
 ///---------------------------------------------------------------------------
 //PROPIEDADES DE CONFIGURACIÓN:
 
-void TComposedMotionFunction::setMFM(TMotionFunctionMode _MFM)
+void TComposedMotionFunction::setMFM(TMotionFunctionMode MFM)
 {
-    __MFM = _MFM; //asigna el nuevo valor
+    p_MFM = MFM; //asigna el nuevo valor
 
     //apunta la funcion correspondiente al eje 1
-    if(__MF1 != NULL)
-        switch(__MFM) {
+    if(p_MF1 != NULL)
+        switch(p_MFM) {
         case mfmSquare:
-            __MF1 = __SF1;
+            p_MF1 = p_SF1;
             break;
         case mfmRamp:
-            __MF1 = __RF1;
+            p_MF1 = p_RF1;
             break;
         }
 
     //apunta la funcion correspondiente al eje 2
-    if(__MF2 != NULL)
-        switch(__MFM) {
+    if(p_MF2 != NULL)
+        switch(p_MFM) {
         case mfmSquare:
-            __MF2 = __SF2;
+            p_MF2 = p_SF2;
             break;
         case mfmRamp:
-            __MF2 = __RF2;
+            p_MF2 = p_RF2;
             break;
         }
 }
-void TComposedMotionFunction::setSSM(TSquareSynchronismMode _SSM)
+void TComposedMotionFunction::setSSM(TSquareSynchronismMode SSM)
 {
-    __SSM = _SSM; //asigna el nuevo valor
+    p_SSM = SSM; //asigna el nuevo valor
 
     //sincroniza las funciones según el modo de sincronismo seleccionado
-    switch(__SSM) {
+    switch(p_SSM) {
     case ssmFree: //no cambia los tiempos de desplazamiento
         break;
     case ssmTmin: //SF1->T = SF1->Tmin; SF2->T = SF2->Tmin;
-        __SF1->setT(__SF1->getTmin());
-        __SF2->setT(__SF2->getTmin());
+        p_SF1->setT(p_SF1->getTmin());
+        p_SF2->setT(p_SF2->getTmin());
         break;
     case ssmMaxTmin: { //SF2->T = SF1->T = Max(SF1->Tmin, SF2->Tmin);
-        double SFMaxTmin = Max(__SF1->getTmin(), __SF2->getTmin());
-        __SF1->setT(SFMaxTmin);
-        __SF2->setT(SFMaxTmin);
+        double SFMaxTmin = Max(p_SF1->getTmin(), p_SF2->getTmin());
+        p_SF1->setT(SFMaxTmin);
+        p_SF2->setT(SFMaxTmin);
     }
         break;
     case ssmDouTmin: { //2*SF1->T = SF1->Tmin*2; SF2->T = SF2->Tmin;
-        double SFMaxTmin = Max(__SF1->getTmin(), __SF2->getTmin());
-        __SF1->setT(SFMaxTmin*2);
-        __SF2->setT(SFMaxTmin);
+        double SFMaxTmin = Max(p_SF1->getTmin(), p_SF2->getTmin());
+        p_SF1->setT(SFMaxTmin*2);
+        p_SF2->setT(SFMaxTmin);
     }
         break;
     }
 }
 
-void TComposedMotionFunction::setRSM(TRampSynchronismMode _RSM)
+void TComposedMotionFunction::setRSM(TRampSynchronismMode RSM)
 {
-    __RSM = _RSM; //asigna el nuevo valor
+    p_RSM = RSM; //asigna el nuevo valor
 
     //sincroniza las funciones según el modo de sincronismo seleccionado
-    switch(__RSM) {
+    switch(p_RSM) {
     case rsmFree: //no cambia los tiempos de desplazamiento
         break;
 
     case rsmTmin: //RF1->T = RF1->Tmin; RF2->T = RF2->Tmin;
-        __RF1->setT(__RF1->getTmin());
-        __RF2->setT(__RF2->getTmin());
+        p_RF1->setT(p_RF1->getTmin());
+        p_RF2->setT(p_RF2->getTmin());
         break;
     case rsmMaxTmin: { //RF2->T = RF1->T = Max(RF1->Tmin, RF2->Tmin);
-        double RFMaxTmin = Max(__RF1->getTmin(), __RF2->getTmin());
-        __RF1->setT(RFMaxTmin);
-        __RF2->setT(RFMaxTmin);
+        double RFMaxTmin = Max(p_RF1->getTmin(), p_RF2->getTmin());
+        p_RF1->setT(RFMaxTmin);
+        p_RF2->setT(RFMaxTmin);
     }
         break;
     case rsmDouTmin: { //RF1->T = RF1->Tmin*2; RF2->T = RF2->Tmin;
-        double RFMaxTmin = Max(__RF1->getTmin(), __RF2->getTmin());
-        __RF1->setT(RFMaxTmin*2);
-        __RF2->setT(RFMaxTmin);
+        double RFMaxTmin = Max(p_RF1->getTmin(), p_RF2->getTmin());
+        p_RF1->setT(RFMaxTmin*2);
+        p_RF2->setT(RFMaxTmin);
     }
         break;
 
     case rsmTv: //RF1->T = RF1->Tv; RF2->T = RF2->Tv;
-        __RF1->setT(__RF1->getTv());
-        __RF2->setT(__RF2->getTv());
+        p_RF1->setT(p_RF1->getTv());
+        p_RF2->setT(p_RF2->getTv());
         break;
     case rsmMaxTv: {//RF2->T = RF1->T = Max(RF1->Tv, RF2->Tv);
-        double RFMaxTv = Max(__RF1->getTv(), __RF2->getTv());
-        __RF1->setT(RFMaxTv);
-        __RF2->setT(RFMaxTv);
+        double RFMaxTv = Max(p_RF1->getTv(), p_RF2->getTv());
+        p_RF1->setT(RFMaxTv);
+        p_RF2->setT(RFMaxTv);
     }
         break;
     case rsmDouTv: { //RF1->T = RF1->Tv*2; RF2->T = RF2->Tv;
-        double RFMaxTv = Max(__RF1->getTv(), __RF2->getTv());
-        __RF1->setT(RFMaxTv*2);
-        __RF2->setT(RFMaxTv);
+        double RFMaxTv = Max(p_RF1->getTv(), p_RF2->getTv());
+        p_RF1->setT(RFMaxTv*2);
+        p_RF2->setT(RFMaxTv);
     }
         break;
     }
@@ -673,16 +673,16 @@ double TComposedMotionFunction::GetT(void)
         //si todavía no hay funciones para ninguno de los ejes devuelve cero
         return 0;
 }
-void TComposedMotionFunction::setT(double _T)
+void TComposedMotionFunction::setT(double T)
 {
         //debe ser mayor que cero
-        if(_T <= 0)
+        if(T <= 0)
                 throw EImproperArgument("T should be upper 0");
 
-        if(T == 0)
+        if(p_T == 0)
                 throw EImproperCall("should be an programmed gesture");
 
-        double r = _T/T; //calcula el factor de escala
+        double r = T/p_T; //calcula el factor de escala
 
         double T1;
         if(MF1 != NULL) {
@@ -707,40 +707,40 @@ void TComposedMotionFunction::setT(double _T)
                 MF1->T = T1;
         if(MF2 != NULL)
                 MF2->T = T2;
-}        */
+}*/
 
-void TComposedMotionFunction::settsta1(double _tsta1)
+void TComposedMotionFunction::settsta1(double tsta1)
 {
     //debe ser un valor no negativo
-    if(_tsta1 < 0)
+    if(tsta1 < 0)
         throw EImproperArgument("tsta1 should be not negative");
 
-    __tsta1 = _tsta1; //asigna el nuevo valor
+    p_tsta1 = tsta1; //asigna el nuevo valor
 }
-void TComposedMotionFunction::settsta2(double _tsta2)
+void TComposedMotionFunction::settsta2(double tsta2)
 {
     //debe ser un valor no negativo
-    if(_tsta2 < 0)
+    if(tsta2 < 0)
         throw EImproperArgument("tsta2 should not be negative");
 
-    __tsta2 = _tsta2; //asigna el nuevo valor
+    p_tsta2 = tsta2; //asigna el nuevo valor
 }
 
-void TComposedMotionFunction::setId1(int _Id1)
+void TComposedMotionFunction::setId1(int Id1)
 {
     //el identificador de rot 1 debe ser no negativo
-    if(_Id1 < 0)
+    if(Id1 < 0)
         throw EImproperArgument("rot 1 identifier Id1, should be nonnegative");
 
-    __Id1 = _Id1; //asigna el nuevo valor
+    p_Id1 = Id1; //asigna el nuevo valor
 }
-void TComposedMotionFunction::setId2(int _Id2)
+void TComposedMotionFunction::setId2(int Id2)
 {
     //el identificador de rot 2 debe ser no negativo
-    if(_Id2 < 0)
+    if(Id2 < 0)
         throw EImproperArgument("rot 2 identifier Id2, should be nonnegative");
 
-    __Id2 = _Id2; //asigna el nuevo valor
+    p_Id2 = Id2; //asigna el nuevo valor
 }
 
 //---------------------------------------------------------------------------
@@ -748,37 +748,37 @@ void TComposedMotionFunction::setId2(int _Id2)
 
 double TComposedMotionFunction::gettend1(void) const
 {
-    if(__MF1 != NULL)
-        return __tsta1 + __MF1->getT();
+    if(p_MF1 != NULL)
+        return p_tsta1 + p_MF1->getT();
     else
-        return __tsta1;
+        return p_tsta1;
 }
 double TComposedMotionFunction::gettend2(void) const
 {
-    if(__MF2 != NULL)
-        return __tsta2 + __MF2->getT();
+    if(p_MF2 != NULL)
+        return p_tsta2 + p_MF2->getT();
     else
-        return __tsta2;
+        return p_tsta2;
 }
 
 double TComposedMotionFunction::gettstamin(void) const
 {
-    if(__MF1!=NULL && __MF2!=NULL)
-        return Min(__tsta1, __tsta2);
-    if(__MF1!=NULL && __MF2==NULL)
-        return __tsta1;
-    if(__MF1==NULL && __MF2!=NULL)
-        return __tsta2;
+    if(p_MF1!=NULL && p_MF2!=NULL)
+        return Min(p_tsta1, p_tsta2);
+    if(p_MF1!=NULL && p_MF2==NULL)
+        return p_tsta1;
+    if(p_MF1==NULL && p_MF2!=NULL)
+        return p_tsta2;
 
     return 0;
 }
 double TComposedMotionFunction::gettendmax(void) const
 {
-    if(__MF1!=NULL && __MF2!=NULL)
+    if(p_MF1!=NULL && p_MF2!=NULL)
         return Max(gettend1(), gettend2());
-    if(__MF1!=NULL && __MF2==NULL)
+    if(p_MF1!=NULL && p_MF2==NULL)
         return gettend1();
-    if(__MF1==NULL && __MF2!=NULL)
+    if(p_MF1==NULL && p_MF2!=NULL)
         return gettend2();
 
     return 0;
@@ -786,17 +786,17 @@ double TComposedMotionFunction::gettendmax(void) const
 
 double TComposedMotionFunction::getvmaxabs1(void) const
 {
-    switch(__MFM) {
-    case mfmSquare: return __SF1->getvmaxabs();
-    case mfmRamp: return __RF1->getvmaxabs();
+    switch(p_MFM) {
+    case mfmSquare: return p_SF1->getvmaxabs();
+    case mfmRamp: return p_RF1->getvmaxabs();
     }
     throw EImpossibleError("motion funcion mode MFM should be mfmSquare or mfmRamp");
 }
 double TComposedMotionFunction::getvmaxabs2(void) const
 {
-    switch(__MFM) {
-    case mfmSquare: return __SF2->getvmaxabs();
-    case mfmRamp: return __RF2->getvmaxabs();
+    switch(p_MFM) {
+    case mfmSquare: return p_SF2->getvmaxabs();
+    case mfmRamp: return p_RF2->getvmaxabs();
     }
     throw EImpossibleError("motion funcion mode MFM should be mfmSquare or mfmRamp");
 }
@@ -804,36 +804,36 @@ double TComposedMotionFunction::getvmaxabs2(void) const
 //-------------------------------------------------------------------
 //PROPIEDADES DE LECTURA/ESCRITURA EN FORMATO TEXTO:
 
-void TComposedMotionFunction::setLabel(AnsiString _Label)
+void TComposedMotionFunction::setLabel(AnsiString Label)
 {
     //la cadena Label debe ser una cadena imprimible
-    if(!StrIsPrintable(_Label))
+    if(!StrIsPrintable(Label))
         throw EImproperArgument("string Label should be a printable string");
 
     //asigna el nuevo valor
-    __Label = _Label;
+    p_Label = Label;
 }
 
 AnsiString TComposedMotionFunction::getSF1AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(__SF1), 8);
+    return IntToHex(reinterpret_cast<intptr_t>(p_SF1), 8);
 }
 AnsiString TComposedMotionFunction::getRF1AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(__RF1), 8);
+    return IntToHex(reinterpret_cast<intptr_t>(p_RF1), 8);
 }
 AnsiString TComposedMotionFunction::getSF2AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(__SF2), 8);
+    return IntToHex(reinterpret_cast<intptr_t>(p_SF2), 8);
 }
 AnsiString TComposedMotionFunction::getRF2AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(__RF2), 8);
+    return IntToHex(reinterpret_cast<intptr_t>(p_RF2), 8);
 }
 
 AnsiString TComposedMotionFunction::getMFMText(void) const
 {
-    switch(__MFM) {
+    switch(p_MFM) {
     case mfmSquare: return AnsiString("Square");
     case mfmRamp: return AnsiString("Ramp");
 
@@ -851,7 +851,7 @@ void TComposedMotionFunction::setMFMText(AnsiString &S)
 }
 AnsiString TComposedMotionFunction::getSSMText(void) const
 {
-    return SquareSynchronismModeToStr(__SSM);
+    return SquareSynchronismModeToStr(p_SSM);
 }
 void TComposedMotionFunction::setSSMText(AnsiString &S)
 {
@@ -863,7 +863,7 @@ void TComposedMotionFunction::setSSMText(AnsiString &S)
 }
 AnsiString TComposedMotionFunction::getRSMText(void) const
 {
-    return RampSynchronismModeToStr(__RSM);
+    return RampSynchronismModeToStr(p_RSM);
 }
 void TComposedMotionFunction::setRSMText(AnsiString &S)
 {
@@ -876,22 +876,22 @@ void TComposedMotionFunction::setRSMText(AnsiString &S)
 
 AnsiString TComposedMotionFunction::getMF1Text(void) const
 {
-    if(__MF1 == NULL)
+    if(p_MF1 == NULL)
         return AnsiString("NULL");
-    else if(__MF1 == __SF1)
+    else if(p_MF1 == p_SF1)
         return getSF1AddressText();
-    else if(__MF1 == __RF1)
+    else if(p_MF1 == p_RF1)
         return getRF1AddressText();
     else
         throw EImpossibleError("pointer MF1 should point to NULL, SF1 or RF1");
 }
 AnsiString TComposedMotionFunction::getMF2Text(void) const
 {
-    if(__MF2 == NULL)
+    if(p_MF2 == NULL)
         return AnsiString("NULL");
-    else if(__MF2 == __SF2)
+    else if(p_MF2 == p_SF2)
         return getSF2AddressText();
-    else if(__MF2 == __RF2)
+    else if(p_MF2 == p_RF2)
         return getRF2AddressText();
     else
         throw EImpossibleError("pointer MF2 should point to NULL, SF2 or RF2");
@@ -899,7 +899,7 @@ AnsiString TComposedMotionFunction::getMF2Text(void) const
 
 AnsiString TComposedMotionFunction::gettsta1Text(void) const
 {
-    return FloatToStr(__tsta1);
+    return FloatToStr(p_tsta1);
 }
 void TComposedMotionFunction::settsta1Text(AnsiString &S)
 {
@@ -911,7 +911,7 @@ void TComposedMotionFunction::settsta1Text(AnsiString &S)
 }
 AnsiString TComposedMotionFunction::gettsta2Text(void) const
 {
-    return FloatToStr(__tsta2);
+    return FloatToStr(p_tsta2);
 }
 void TComposedMotionFunction::settsta2Text(AnsiString &S)
 {
@@ -924,7 +924,7 @@ void TComposedMotionFunction::settsta2Text(AnsiString &S)
 
 AnsiString TComposedMotionFunction::getId1Text(void) const
 {
-    return IntToStr(__Id1);
+    return IntToStr(p_Id1);
 }
 void TComposedMotionFunction::setId1Text(AnsiString& S)
 {
@@ -936,7 +936,7 @@ void TComposedMotionFunction::setId1Text(AnsiString& S)
 }
 AnsiString TComposedMotionFunction::getId2Text(void) const
 {
-    return IntToStr(__Id2);
+    return IntToStr(p_Id2);
 }
 void TComposedMotionFunction::setId2Text(AnsiString& S)
 {
@@ -1031,12 +1031,12 @@ AnsiString TComposedMotionFunction::getInstanceText(void) const
     AnsiString S;
 
     //velocidad máxima absoluta
-    S += AnsiString("SF1->vmaxabs = ")+__SF1->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("SF2->vmaxabs = ")+__SF2->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF1->vmaxabs = ")+__RF1->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF2->vmaxabs = ")+__RF2->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF1->amaxabs = ")+__RF1->getamaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF2->amaxabs = ")+__RF2->getamaxabsText()+AnsiString("\r\n");
+    S += AnsiString("SF1->vmaxabs = ")+p_SF1->getvmaxabsText()+AnsiString("\r\n");
+    S += AnsiString("SF2->vmaxabs = ")+p_SF2->getvmaxabsText()+AnsiString("\r\n");
+    S += AnsiString("RF1->vmaxabs = ")+p_RF1->getvmaxabsText()+AnsiString("\r\n");
+    S += AnsiString("RF2->vmaxabs = ")+p_RF2->getvmaxabsText()+AnsiString("\r\n");
+    S += AnsiString("RF1->amaxabs = ")+p_RF1->getamaxabsText()+AnsiString("\r\n");
+    S += AnsiString("RF2->amaxabs = ")+p_RF2->getamaxabsText()+AnsiString("\r\n");
 
     //tipo de función, tipo de sincronismo y tipo de gesto
     S += AnsiString("MFM = ")+getMFMText()+AnsiString("\r\n");
@@ -1113,7 +1113,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
     int status = 0;
 
     //constuye la variable tampón
-    TComposedMotionFunction _CMF(CMF);
+    TComposedMotionFunction t_CMF(CMF);
 
     do {
         switch(status) {
@@ -1123,7 +1123,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _CMF.__SF1->setvmaxabs(aux);
+            t_CMF.p_SF1->setvmaxabs(aux);
         }catch(...) {
             throw;
         }
@@ -1136,7 +1136,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _CMF.__SF2->setvmaxabs(aux);
+            t_CMF.p_SF2->setvmaxabs(aux);
         }catch(...) {
             throw;
         }
@@ -1149,7 +1149,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _CMF.__RF1->setvmaxabs(aux);
+            t_CMF.p_RF1->setvmaxabs(aux);
         }catch(...) {
             throw;
         }
@@ -1162,7 +1162,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _CMF.__RF2->setvmaxabs(aux);
+            t_CMF.p_RF2->setvmaxabs(aux);
         }catch(...) {
             throw;
         }
@@ -1175,7 +1175,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _CMF.__RF1->setamaxabs(aux);
+            t_CMF.p_RF1->setamaxabs(aux);
         }catch(...) {
             throw;
         }
@@ -1188,7 +1188,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            _CMF.__RF2->setamaxabs(aux);
+            t_CMF.p_RF2->setamaxabs(aux);
         }catch(...) {
             throw;
         }
@@ -1201,7 +1201,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             TMotionFunctionMode aux;
             StrReadMotionFunctionMode(aux, S, i);
-            _CMF.setMFM(aux);
+            t_CMF.setMFM(aux);
         }catch(...) {
             throw;
         }
@@ -1214,7 +1214,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             TSquareSynchronismMode aux;
             StrReadSquareSynchronismMode(aux, S, i);
-            _CMF.setSSM(aux);
+            t_CMF.setSSM(aux);
         }catch(...) {
             throw;
         }
@@ -1227,7 +1227,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             TRampSynchronismMode aux;
             StrReadRampSynchronismMode(aux, S, i);
-            _CMF.setRSM(aux);
+            t_CMF.setRSM(aux);
         }catch(...) {
             throw;
         }
@@ -1240,7 +1240,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             int aux;
             StrReadInt(aux, S, i);
-            _CMF.setId1(aux);
+            t_CMF.setId1(aux);
         }catch(...) {
             throw;
         }
@@ -1253,7 +1253,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
             StrTravelLabel("=", S, i);
             int aux;
             StrReadInt(aux, S, i);
-            _CMF.setId2(aux);
+            t_CMF.setId2(aux);
         }catch(...) {
             throw;
         }
@@ -1264,7 +1264,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
     } while(status < 11);
 
     //clona la variable tampón
-    CMF->Copy(_CMF);
+    CMF->Copy(t_CMF);
 }
 //---------------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
@@ -1272,35 +1272,35 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
 //construye una función de movimiento compuesta
 TComposedMotionFunction::TComposedMotionFunction(void) :
     //inicializa los selectores a sus valores por defecto
-    __MFM(mfmRamp), __SSM(ssmFree), __RSM(rsmFree),
+    p_MFM(mfmRamp), p_SSM(ssmFree), p_RSM(rsmFree),
     //inicializa los instantes de inicio de desplazamiento
-    __tsta1(0), __tsta2(0),
+    p_tsta1(0), p_tsta2(0),
     //inicializa los identificadores de las microcontroladoras
-    __Id1(0), __Id2(0)
+    p_Id1(0), p_Id2(0)
 {
     //construye funciones cuadradas
-    __SF1 = new TSquareFunction(MEGARA_VMAXABS1);
-    __SF2 = new TSquareFunction(MEGARA_VMAXABS2);
+    p_SF1 = new TSquareFunction(MEGARA_VMAXABS1);
+    p_SF2 = new TSquareFunction(MEGARA_VMAXABS2);
 
     //construye funciones rampa
-    __RF1 = new TRampFunction(MEGARA_VMAXABS1, MEGARA_AMAXABS1);
-    __RF2 = new TRampFunction(MEGARA_VMAXABS2, MEGARA_AMAXABS2);
+    p_RF1 = new TRampFunction(MEGARA_VMAXABS1, MEGARA_AMAXABS1);
+    p_RF2 = new TRampFunction(MEGARA_VMAXABS2, MEGARA_AMAXABS2);
 
     //nombra las funciones
-    __SF1->setLabel("SF1");
-    __SF2->setLabel("SF2");
-    __RF1->setLabel("RF1");
-    __RF2->setLabel("RF2");
+    p_SF1->setLabel("SF1");
+    p_SF2->setLabel("SF2");
+    p_RF1->setLabel("RF1");
+    p_RF2->setLabel("RF2");
 
     //inicializa con ningún gesto
-    __MF1 = NULL;
-    __MF2 = NULL;
+    p_MF1 = NULL;
+    p_MF2 = NULL;
 /*
     //set the relative velocity and acceleration of rotor 2
     double r = 2*MEGARA_SB1/MEGARA_SB2;
-    __SF2->setvmaxabs(r*__SF1->getvmaxabs());
-    __RF2->setvmaxabs(r*__RF1->getvmaxabs());
-    __RF2->setamaxabs(r*__RF1->getamaxabs());
+    p_SF2->setvmaxabs(r*p_SF1->getvmaxabs());
+    p_RF2->setvmaxabs(r*p_RF1->getvmaxabs());
+    p_RF2->setamaxabs(r*p_RF1->getamaxabs());
 
     //This values will be overwritten wirh the loaded instance values.*/
 }
@@ -1315,82 +1315,82 @@ void TComposedMotionFunction::Copy(const TComposedMotionFunction *CMF)
     //COPIA TODAS LAS PROPIEDADES:
 
     //copia las funciones
-    __SF1->Copy(CMF->__SF1);
-    __SF2->Copy(CMF->__SF2);
-    __RF1->Copy(CMF->__RF1);
-    __RF2->Copy(CMF->__RF2);
+    p_SF1->Copy(CMF->p_SF1);
+    p_SF2->Copy(CMF->p_SF2);
+    p_RF1->Copy(CMF->p_RF1);
+    p_RF2->Copy(CMF->p_RF2);
 
     //copia los selectores
-    __MFM = CMF->__MFM;
-    __SSM = CMF->__SSM;
-    __RSM = CMF->__RSM;
+    p_MFM = CMF->p_MFM;
+    p_SSM = CMF->p_SSM;
+    p_RSM = CMF->p_RSM;
 
     //copia los instantes de inicio de desplazamiento
-    __tsta1 = CMF->__tsta1;
-    __tsta2 = CMF->__tsta2;
+    p_tsta1 = CMF->p_tsta1;
+    p_tsta2 = CMF->p_tsta2;
 
     //copia los identificadores de las microcontroladoras
-    __Id1 = CMF->__Id1;
-    __Id2 = CMF->__Id2;
+    p_Id1 = CMF->p_Id1;
+    p_Id2 = CMF->p_Id2;
 
     //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF->__MF1 == CMF->__SF1)
-        __MF1 = __SF1;
-    else if(CMF->__MF1 == CMF->__RF1)
-        __MF1 = __RF1;
+    if(CMF->p_MF1 == CMF->p_SF1)
+        p_MF1 = p_SF1;
+    else if(CMF->p_MF1 == CMF->p_RF1)
+        p_MF1 = p_RF1;
     else //solo podrá tener NULL, pero para no arastrar posibles errores
-        __MF1 = CMF->__MF1; //se copia el valor literalmente
+        p_MF1 = CMF->p_MF1; //se copia el valor literalmente
 
     //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF->__MF2 == CMF->__SF2)
-        __MF2 = __SF2;
-    else if(CMF->__MF2 == CMF->__RF2)
-        __MF2 = __RF2;
+    if(CMF->p_MF2 == CMF->p_SF2)
+        p_MF2 = p_SF2;
+    else if(CMF->p_MF2 == CMF->p_RF2)
+        p_MF2 = p_RF2;
     else //solo podrá tener NULL, pero para no arastrar posibles errores
-        __MF2 = CMF->__MF2; //se copia el valor literalmente
+        p_MF2 = CMF->p_MF2; //se copia el valor literalmente
 
     //copia la etiqueta de la función
-    __Label = CMF->__Label;
+    p_Label = CMF->p_Label;
 }
 void TComposedMotionFunction::Copy(const TComposedMotionFunction& CMF)
 {
     //copia las funciones
-    __SF1->Copy(CMF.__SF1);
-    __SF2->Copy(CMF.__SF2);
-    __RF1->Copy(CMF.__RF1);
-    __RF2->Copy(CMF.__RF2);
+    p_SF1->Copy(CMF.p_SF1);
+    p_SF2->Copy(CMF.p_SF2);
+    p_RF1->Copy(CMF.p_RF1);
+    p_RF2->Copy(CMF.p_RF2);
 
     //copia los selectores
-    __MFM = CMF.__MFM;
-    __SSM = CMF.__SSM;
-    __RSM = CMF.__RSM;
+    p_MFM = CMF.p_MFM;
+    p_SSM = CMF.p_SSM;
+    p_RSM = CMF.p_RSM;
 
     //copia los instantes de inicio de desplazamiento
-    __tsta1 = CMF.__tsta1;
-    __tsta2 = CMF.__tsta2;
+    p_tsta1 = CMF.p_tsta1;
+    p_tsta2 = CMF.p_tsta2;
 
     //copia los identificadores de las microcontroladoras
-    __Id1 = CMF.__Id1;
-    __Id2 = CMF.__Id2;
+    p_Id1 = CMF.p_Id1;
+    p_Id2 = CMF.p_Id2;
 
     //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF.__MF1 == CMF.__SF1)
-        __MF1 = __SF1;
-    else if(CMF.__MF1 == CMF.__RF1)
-        __MF1 = __RF1;
+    if(CMF.p_MF1 == CMF.p_SF1)
+        p_MF1 = p_SF1;
+    else if(CMF.p_MF1 == CMF.p_RF1)
+        p_MF1 = p_RF1;
     else //solo podrá tener NULL, pero para no arastrar posibles errores
-        __MF1 = CMF.__MF1; //se copia el valor literalmente
+        p_MF1 = CMF.p_MF1; //se copia el valor literalmente
 
     //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF.__MF2 == CMF.__SF2)
-        __MF2 = __SF2;
-    else if(CMF.__MF2 == CMF.__RF2)
-        __MF2 = __RF2;
+    if(CMF.p_MF2 == CMF.p_SF2)
+        p_MF2 = p_SF2;
+    else if(CMF.p_MF2 == CMF.p_RF2)
+        p_MF2 = p_RF2;
     else //solo podrá tener NULL, pero para no arastrar posibles errores
-        __MF2 = CMF.__MF2; //se copia el valor literalmente
+        p_MF2 = CMF.p_MF2; //se copia el valor literalmente
 
     //copia la etiqueta de la función
-    __Label = CMF.__Label;
+    p_Label = CMF.p_Label;
 }
 
 //construye un clon de una función de movimiento compuesta
@@ -1403,58 +1403,58 @@ TComposedMotionFunction::TComposedMotionFunction(const TComposedMotionFunction *
     //COPIA TODAS LAS PROPIEDADES:
 
     //clona las funciones
-    __SF1 = new TSquareFunction(CMF->__SF1);
-    __SF2 = new TSquareFunction(CMF->__SF2);
-    __RF1 = new TRampFunction(CMF->__RF1);
-    __RF2 = new TRampFunction(CMF->__RF2);
+    p_SF1 = new TSquareFunction(CMF->p_SF1);
+    p_SF2 = new TSquareFunction(CMF->p_SF2);
+    p_RF1 = new TRampFunction(CMF->p_RF1);
+    p_RF2 = new TRampFunction(CMF->p_RF2);
 
     //copia los selectores
-    __MFM = CMF->__MFM;
-    __SSM = CMF->__SSM;
-    __RSM = CMF->__RSM;
+    p_MFM = CMF->p_MFM;
+    p_SSM = CMF->p_SSM;
+    p_RSM = CMF->p_RSM;
 
     //copia los instantes de inicio de desplazamiento
-    __tsta1 = CMF->__tsta1;
-    __tsta2 = CMF->__tsta2;
+    p_tsta1 = CMF->p_tsta1;
+    p_tsta2 = CMF->p_tsta2;
 
     //copia los identificadores de las microcontroladoras
-    __Id1 = CMF->__Id1;
-    __Id2 = CMF->__Id2;
+    p_Id1 = CMF->p_Id1;
+    p_Id2 = CMF->p_Id2;
 
     //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF->__MF1 == CMF->__SF1)
-        __MF1 = __SF1;
-    else if(CMF->__MF1 == CMF->__RF1)
-        __MF1 = __RF1;
+    if(CMF->p_MF1 == CMF->p_SF1)
+        p_MF1 = p_SF1;
+    else if(CMF->p_MF1 == CMF->p_RF1)
+        p_MF1 = p_RF1;
     else //solo podrá tener NULL, pero para no arastrar posibles errores
-        __MF1 = CMF->__MF1; //se copia el valor literalmente
+        p_MF1 = CMF->p_MF1; //se copia el valor literalmente
 
     //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF->__MF2 == CMF->__SF2)
-        __MF2 = __SF2;
-    else if(CMF->__MF2 == CMF->__RF2)
-        __MF2 = __RF2;
+    if(CMF->p_MF2 == CMF->p_SF2)
+        p_MF2 = p_SF2;
+    else if(CMF->p_MF2 == CMF->p_RF2)
+        p_MF2 = p_RF2;
     else //solo podrá tener NULL, pero para no arastrar posibles errores
-        __MF2 = CMF->__MF2; //se copia el valor literalmente
+        p_MF2 = CMF->p_MF2; //se copia el valor literalmente
 
     //copia la etiqueta de la función
-    __Label = CMF->__Label;
+    p_Label = CMF->p_Label;
 }
 
 //destruye una función de movimiento compuesta
 TComposedMotionFunction::~TComposedMotionFunction()
 {
     //destruye las funciones rampa
-    if(__RF2 != NULL)
-        delete __RF2;
-    if(__RF1 != NULL)
-        delete __RF1;
+    if(p_RF2 != NULL)
+        delete p_RF2;
+    if(p_RF1 != NULL)
+        delete p_RF1;
 
     //destruye las funciones cuadradas
-    if(__SF2 != NULL)
-        delete __SF2;
-    if(__SF1 != NULL)
-        delete __SF1;
+    if(p_SF2 != NULL)
+        delete p_SF2;
+    if(p_SF1 != NULL)
+        delete p_SF1;
 }
 
 //-------------------------------------------------------------------
@@ -1466,8 +1466,8 @@ TComposedMotionFunction::~TComposedMotionFunction()
 void TComposedMotionFunction::ProgramMF1(double p_ini, double p_fin)
 {
     //asigna la posición final al eje 1
-    __SF1->SetInterval(p_ini, p_fin);
-    __RF1->SetInterval(p_ini, p_fin);
+    p_SF1->SetInterval(p_ini, p_fin);
+    p_RF1->SetInterval(p_ini, p_fin);
 
     //ADVERTENCIA: la asignación de las posiciones inicial y final
     //a las funciones de movimiento debe ser conjunta
@@ -1475,15 +1475,15 @@ void TComposedMotionFunction::ProgramMF1(double p_ini, double p_fin)
     //ya que este no puede reajustarse cuando SM == smFree
 
     //indica a la función correspondiente al tipo de función seleccionado
-    switch(__MFM) {
-    case mfmSquare: __MF1 = __SF1; break;
-    case mfmRamp: __MF1 = __RF1; break;
+    switch(p_MFM) {
+    case mfmSquare: p_MF1 = p_SF1; break;
+    case mfmRamp: p_MF1 = p_RF1; break;
     }
-    __MF2 = NULL;
+    p_MF2 = NULL;
 
     //sincroniza las funciones según el modo
-    setSSM(__SSM);
-    setRSM(__RSM);
+    setSSM(p_SSM);
+    setRSM(p_RSM);
 }
 //apunta (MF1=NULL, MF2=(SF2 o RF2))
 //programa la función de movimeinto 2
@@ -1491,8 +1491,8 @@ void TComposedMotionFunction::ProgramMF1(double p_ini, double p_fin)
 void TComposedMotionFunction::ProgramMF2(double p__ini, double p__fin)
 {
     //asigna la posición final al eje 2
-    __SF2->SetInterval(p__ini, p__fin);
-    __RF2->SetInterval(p__ini, p__fin);
+    p_SF2->SetInterval(p__ini, p__fin);
+    p_RF2->SetInterval(p__ini, p__fin);
 
     //ADVERTENCIA: la asignación de las posiciones inicial y final
     //a las funciones de movimiento debe ser conjunta
@@ -1500,15 +1500,15 @@ void TComposedMotionFunction::ProgramMF2(double p__ini, double p__fin)
     //ya que este no puede reajustarse cuando SM == smFree
 
     //indica a la función correspondiente al tipo de función seleccionado
-    __MF1 = NULL;
-    switch(__MFM) {
-    case mfmSquare: __MF2 = __SF2; break;
-    case mfmRamp: __MF2 = __RF2; break;
+    p_MF1 = NULL;
+    switch(p_MFM) {
+    case mfmSquare: p_MF2 = p_SF2; break;
+    case mfmRamp: p_MF2 = p_RF2; break;
     }
 
     //sincroniza las funciones según el modo
-    setSSM(__SSM);
-    setRSM(__RSM);
+    setSSM(p_SSM);
+    setRSM(p_RSM);
 }
 //apunta (MF1=SF1, MF2=SF2) o (MF1=RF1, MF2=RF2)
 //programa ambas funciones de movimeinto
@@ -1518,12 +1518,12 @@ void TComposedMotionFunction::ProgramBoth(double p_ini, double p__ini,
                                           double p_fin, double p__fin)
 {
     //asigna la posición final al eje 1
-    __SF1->SetInterval(p_ini, p_fin);
-    __RF1->SetInterval(p_ini, p_fin);
+    p_SF1->SetInterval(p_ini, p_fin);
+    p_RF1->SetInterval(p_ini, p_fin);
 
     //asigna la posición final al eje 2
-    __SF2->SetInterval(p__ini, p__fin);
-    __RF2->SetInterval(p__ini, p__fin);
+    p_SF2->SetInterval(p__ini, p__fin);
+    p_RF2->SetInterval(p__ini, p__fin);
 
     //ADVERTENCIA: la asignación de las posiciones inicial y final
     //a las funciones de movimiento debe ser conjunta
@@ -1531,34 +1531,34 @@ void TComposedMotionFunction::ProgramBoth(double p_ini, double p__ini,
     //ya que este no puede reajustarse cuando SM == smFree
 
     //indica a la función correspondiente al tipo de función seleccionado
-    switch(__MFM) {
+    switch(p_MFM) {
     case mfmSquare:
-        __MF1 = __SF1;
-        __MF2 = __SF2;
+        p_MF1 = p_SF1;
+        p_MF2 = p_SF2;
         break;
     case mfmRamp:
-        __MF1 = __RF1;
-        __MF2 = __RF2;
+        p_MF1 = p_RF1;
+        p_MF2 = p_RF2;
         break;
     }
 
     //sincroniza las funciones según el modo
-    setSSM(__SSM);
-    setRSM(__RSM);
+    setSSM(p_SSM);
+    setRSM(p_RSM);
 }
 
 //initialize the CMF
 void TComposedMotionFunction::ClearProgram(void)
 {
     //reset the motion funtions
-    __SF1->reset();
-    __SF2->reset();
-    __RF1->reset();
-    __RF2->reset();
+    p_SF1->reset();
+    p_SF2->reset();
+    p_RF1->reset();
+    p_RF2->reset();
 
     //indicates that there isn't an instruction set
-    __MF1 = NULL;
-    __MF2 = NULL;
+    p_MF1 = NULL;
+    p_MF2 = NULL;
 }
 
 /*//store the setting of the CMF
@@ -1575,10 +1575,10 @@ void TComposedMotionFunction::PullSetting(void)
 //sincroniza la llegada del gesto con el instante de tiempo indicado
 void TComposedMotionFunction::SinchronizeArrival(double t)
 {
-    if(__MF1 != NULL)
-        __tsta1 = t - __MF1->getT();
-    if(__MF2 != NULL)
-        __tsta2 = t - __MF2->getT();
+    if(p_MF1 != NULL)
+        p_tsta1 = t - p_MF1->getT();
+    if(p_MF2 != NULL)
+        p_tsta2 = t - p_MF2->getT();
 }
 //invierte la función en el dominio del tiempo
 //y desplaza su inicio al mismo instante de inicio
@@ -1588,13 +1588,13 @@ void TComposedMotionFunction::InvertTime(void)
 
     //se recuerda que T = Max(tend1, tend2)
 
-    if(__MF1 != NULL) {
-        __MF1->InvertTime();
-        __tsta1 = aux - gettend1();
+    if(p_MF1 != NULL) {
+        p_MF1->InvertTime();
+        p_tsta1 = aux - gettend1();
     }
-    if(__MF2 != NULL) {
-        __MF2->InvertTime();
-        __tsta2 = aux - gettend2();
+    if(p_MF2 != NULL) {
+        p_MF2->InvertTime();
+        p_tsta2 = aux - gettend2();
     }
 }
 
@@ -1603,22 +1603,22 @@ void TComposedMotionFunction::InvertTime(void)
 double TComposedMotionFunction::MF1p(double t)
 {
     //el puntero MF1 no debe apuntar a nulo
-    if(__MF1 == NULL)
+    if(p_MF1 == NULL)
         throw EImproperArgument("pointer MF1 should not be null");
 
     //evalúa la función desplazada en el tiempo
-    return __MF1->p(t - __tsta1);
+    return p_MF1->p(t - p_tsta1);
 }
 //evalúa la MF2 desplazada al instante de tiempo tsta2
 //      MF2p(t) = MF2->p(t - tsta2)
 double TComposedMotionFunction::MF2p(double t)
 {
     //el puntero MF2 no debe apuntar a nulo
-    if(__MF2 == NULL)
+    if(p_MF2 == NULL)
         throw EImproperArgument("pointer MF2 should not be null");
 
     //evalúa la función desplazada en el tiempo
-    return __MF2->p(t - __tsta2);
+    return p_MF2->p(t - p_tsta2);
 }
 
 //---------------------------------------------------------------------------

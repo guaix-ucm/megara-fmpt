@@ -55,16 +55,16 @@ double TRoboticPositionerList::getTdis(void) const
         return Tdis;
 }
 
-void TRoboticPositionerList::setTit(const double _Tit)
+void TRoboticPositionerList::setTit(const double Tit)
 {
         //el periodo de iteración Tit debería ser mayor que cero
-        if(_Tit <= 0)
+        if(Tit <= 0)
                 throw EImproperArgument("itration period Tit should be upper zero");
 
         //asigna el nuevo valor
 //        for(int i=0; i<getCount(); i++)
-  //              RoboticPositioners[i]->Tit = _Tit;
-        __Tit = _Tit;
+  //              RoboticPositioners[i]->Tit = Tit;
+        p_Tit = Tit;
 }
 
 //EXECUTION PROPERTIES IN TEXT FORMAT:
@@ -208,7 +208,7 @@ void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
         int status = 0;
 
         //variables tampón
-        TRoboticPositionerList _RPL(RPL);
+        TRoboticPositionerList t_RPL(RPL);
 
         //ADVERTENCIA: las variables tampón con propiedades interdependientes
         //deben ser clones de las variables que se pretenden modificar.
@@ -224,7 +224,7 @@ void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
 
         //asigna las variables tampón
         try {
-                RPL->Clone(&_RPL);
+                RPL->Clone(&t_RPL);
         } catch(...) {
                 throw;
         }
@@ -236,7 +236,7 @@ void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
 //construye una lista de posicionadores de fibra
 TRoboticPositionerList::TRoboticPositionerList(void) :
         TRoboticPositionerList2(),
-        __Tit(40),
+        p_Tit(40),
         t(0)
 {
         //contruye el temporizador
@@ -257,7 +257,7 @@ void TRoboticPositionerList::CopyExecution(const TRoboticPositionerList *RPL)
 
         //copia las propiedades de ejecución
 
-        __Tit = RPL->getTit();
+        p_Tit = RPL->getTit();
         t = RPL->t;
 /*#
         if(RPL->getTimer()->isActive())
@@ -323,36 +323,36 @@ TRoboticPositionerList::TRoboticPositionerList(const TRoboticPositionerList *RPL
 TRoboticPositionerList::~TRoboticPositionerList()
 {
         //destruye el temporizador
-        //#delete __Timer;
+        //#delete p_Timer;
 }
 
 /*//--------------------------------------------------------------------------
 //MARGEN PERIMETRAL DE SEGURIDAD:
 
 //asigna un periodo de iteración a todos los posicionadores
-void TInstrumentCarrier::SetTi(double _Tit)
+void TInstrumentCarrier::SetTi(double Tit)
 {
         //el periodo de iteración Tit debería ser mayor que cero
-        if(_Tit <= 0)
+        if(Tit <= 0)
                 throw EImproperArgument("iteration period Tit should be upper zero");
 
         //po cada posicionador de la lista
         for(int i=0; i<getCount(); i++)
-                RoboticPositioners[i]->Tit = _Tit; //asigna el nuevo valor
+                RoboticPositioners[i]->Tit = Tit; //asigna el nuevo valor
 }
 //asigna un estado de validación a todos los posicionadores
-void TInstrumentCarrier::SetValidating(bool _Validating)
+void TInstrumentCarrier::SetValidating(bool Validating)
 {
         //po cada posicionador de la lista
         for(int i=0; i<getCount(); i++)
-                RoboticPositioners[i]->Validating = _Validating; //asigna el nuevo valor
+                RoboticPositioners[i]->Validating = Validating; //asigna el nuevo valor
 }
 //asigna un estado de ejecución a todos los posicionadores
-void TInstrumentCarrier::SetExecuting(bool _Executing)
+void TInstrumentCarrier::SetExecuting(bool Executing)
 {
         //po cada posicionador de la lista
         for(int i=0; i<getCount(); i++)
-                RoboticPositioners[i]->Executing = _Executing; //asigna el nuevo valor
+                RoboticPositioners[i]->Executing = Executing; //asigna el nuevo valor
 }
                */
 //MÉTODOS DE CONFIGURACIÓN:

@@ -50,16 +50,16 @@ namespace Models {
 class TBarrier {
         //PROPIEDADES:
 
-        TContourFigureList __Contour_;
+        TContourFigureList p_Contour_;
 
-        double __r_max;
+        double p_r_max;
 
-        double __thetaO1;
-        TDoublePoint __P0;
+        double p_thetaO1;
+        TDoublePoint p_P0;
 
-        TContourFigureList __Contour;
+        TContourFigureList p_Contour;
 
-        double __SPM;
+        double p_SPM;
 
         //###################################################################
         //PROPIEDADES EN FORMATO TEXTO:
@@ -92,30 +92,30 @@ public:
         //contorno de la pared en S1
         //valor por defecto: {}
         const TContourFigureList &getContour_(void) const {
-                return (const TContourFigureList&)__Contour_;}
+                return (const TContourFigureList&)p_Contour_;}
         void setContour_(const TContourFigureList &_Contour_);
 
         //distancia entre el origen de coordenadas de S1
         //y el punto más alejado de Contour_
-        double getr_max(void) const {return __r_max;}
+        double getr_max(void) const {return p_r_max;}
 
         //punto origen de S1 en S0 y de referencia de la pared
         //valor por defecto: {0, 0} {mm, mm}
-        TDoublePoint getP0(void) const {return __P0;}
+        TDoublePoint getP0(void) const {return p_P0;}
         void setP0(TDoublePoint);
         //orientación de S1 en S0
         //valor por defecto: 3./4.*M_2PI rad
-        double getthetaO1(void) const {return __thetaO1;}
+        double getthetaO1(void) const {return p_thetaO1;}
         void setthetaO1(double);
 
         //contorno de la barrera en S0
         //valor por defecto: {}
         const TContourFigureList &getContour(void) const {
-                return (const TContourFigureList&)__Contour;}
+                return (const TContourFigureList&)p_Contour;}
         //margen perimetral de seguridad de la barrera
         //debe ser un valor mayor que cero
         //valor por defecto: MEGARA_SPMsta mm
-        double getSPM(void) const {return __SPM;}
+        double getSPM(void) const {return p_SPM;}
         void setSPM(double);
 
         //###################################################################
@@ -125,7 +125,7 @@ public:
         //PROPIEDADES EN FORMATO TEXTO:
 
         AnsiString getContour_AddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&__Contour_), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&p_Contour_), 8);}
         void setContour_Text(const AnsiString&);
         void setContour_ColumnText(const AnsiString&);
 
@@ -137,7 +137,7 @@ public:
         void setP0Text(const AnsiString&);
 
         AnsiString getContourAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&__Contour), 8);}
+                return IntToHex(reinterpret_cast<intptr_t>(&p_Contour), 8);}
         AnsiString getSPMText(void) const;
         void setSPMText(const AnsiString&);
 
@@ -166,7 +166,7 @@ public:
         //MÉTODOS DE CONTRUCCIÓN, COPIA, CLONACIÓN Y DESTRUCCIÓN:
 
         //contruye una barrera
-        TBarrier(TDoublePoint _P0, double _thetaO1=1.5*M_PI);
+        TBarrier(TDoublePoint P0, double thetaO1=1.5*M_PI);
         //copia una barrera
         void Copy(const TBarrier*);
         //contruye un clon de una barrera
@@ -178,7 +178,7 @@ public:
 
         //cambia la posición y orientación
         //del origen de coordenadas simultaneamente
-        void Set(TDoublePoint _P0, double _thetaO1);
+        void Set(TDoublePoint P0, double thetaO1);
 
 /*        //-------------------------------------------------------------------
         //MÉTODOS DE COLISIÓN:

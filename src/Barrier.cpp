@@ -39,48 +39,48 @@ namespace Models {
 //---------------------------------------------------------------------------
 //PROPIEDADES:
 
-void TBarrier::setContour_(const TContourFigureList& _Contour_)
+void TBarrier::setContour_(const TContourFigureList& Contour_)
 {
     //libera las figuras de la plantilla previa
     Destroy((TContourFigureList&)getContour_());
     Destroy((TContourFigureList&)getContour());
 
     //asigna la plantilla
-    __Contour_.Copy(_Contour_);
+    p_Contour_.Copy(Contour_);
 
     //determina la distancia máxima del contorno al origen de S1
     if(getContour_().getCount() < 1)
-        __r_max = 0;
+        p_r_max = 0;
     else {
-        __r_max = getContour_().DistanceMax(TDoublePoint(0, 0));
+        p_r_max = getContour_().DistanceMax(TDoublePoint(0, 0));
     }
     //copia la plantilla
-    __Contour.Copy(getContour_());
+    p_Contour.Copy(getContour_());
 
     //calcula la imagen de la plantilla
     CalculateImage();
 }
 
-void TBarrier::setthetaO1(double _thetaO1)
+void TBarrier::setthetaO1(double thetaO1)
 {
-    __thetaO1 = _thetaO1;
+    p_thetaO1 = thetaO1;
 
     CalculateImage();
 }
-void TBarrier::setP0(TDoublePoint _P0)
+void TBarrier::setP0(TDoublePoint P0)
 {
-    __P0 = _P0;
+    p_P0 = P0;
 
     CalculateImage();
 }
 
-void TBarrier::setSPM(double _SPM)
+void TBarrier::setSPM(double SPM)
 {
     //el margen perimetral de seguridad SPM debe ser mayor que cero
-    if(_SPM <= 0)
+    if(SPM <= 0)
         throw EImproperArgument("security perimetral margin SPM should be upper zero");
 
-    __SPM = _SPM; //asigna el nuevo valor
+    p_SPM = SPM; //asigna el nuevo valor
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
@@ -89,17 +89,17 @@ void TBarrier::setContour_Text(const AnsiString& S)
 {
     try {
         //construye un contorno tampón
-        TContourFigureList _Contour_;
+        TContourFigureList Contour_;
         //asigna el nuevo valor al contorno tampón
-        _Contour_.setText(S);
+        Contour_.setText(S);
         //intenta asignar el contorno tampón
-        setContour_(_Contour_);
+        setContour_(Contour_);
 
         //La asignación a Contour_ provocará la asimilación de Contour_ mediante:
         //      CalculateImage();
 
         //No olvidar que la cadena S no no debe asignarse directamente
-        //a Contour_.Text, por que el método SetContour_ comprueba si _Contour_
+        //a Contour_.Text, por que el método SetContour_ comprueba si Contour_
         //cumple las restricciones.
 
     } catch(...) {
@@ -110,17 +110,17 @@ void TBarrier::setContour_ColumnText(const AnsiString &S)
 {
     try {
         //construye un contorno tampón
-        TContourFigureList _Contour_;
+        TContourFigureList Contour_;
         //asigna el nuevo valor al clon
-        _Contour_.setColumnText(S);
+        Contour_.setColumnText(S);
         //intenta asignar la nueva plantilla
-        setContour_(_Contour_);
+        setContour_(Contour_);
 
         //La asignación a Contour_ provocará la asimilación de Contour_ mediante:
         //      CalculateImage();
 
         //No olvidar que la cadena S no no debe asignarse directamente
-        //a Contour_.Text, por que el método SetContour_ compruba si _Contour_
+        //a Contour_.Text, por que el método SetContour_ compruba si Contour_
         //cumple las restricciones.
 
     } catch(...) {
@@ -236,7 +236,7 @@ void TBarrier::setInstanceText(const AnsiString& S)
 void TBarrier::CalculateImage(void)
 {
     //determina el contorno del brazo (rotado y trasladado):
-    getContour_().GetRotatedAndTranslated(__Contour, getthetaO1(), getP0());
+    getContour_().GetRotatedAndTranslated(p_Contour, getthetaO1(), getP0());
 }
 
 //###########################################################################
@@ -270,7 +270,7 @@ void  TBarrier::ReadInstance(TBarrier* &B,
     int status = 0;
 
     //variables tampón
-    TBarrier _B(B);
+    TBarrier t_B(B);
 
     do {
         switch(status) {
@@ -279,9 +279,9 @@ void  TBarrier::ReadInstance(TBarrier* &B,
             StrTravelSeparators(S, i);
             StrTravelLabel("thetaO1", S, i);
             StrTravelLabel("=", S, i);
-            double _thetaO1;
-            StrReadFloat(_thetaO1, S, i);
-            _B.setthetaO1(_thetaO1);
+            double thetaO1;
+            StrReadFloat(thetaO1, S, i);
+            t_B.setthetaO1(thetaO1);
         }catch(...) {
             throw;
         }
@@ -292,9 +292,9 @@ void  TBarrier::ReadInstance(TBarrier* &B,
             StrTravelSeparators(S, i);
             StrTravelLabel("P0", S, i);
             StrTravelLabel("=", S, i);
-            TDoublePoint _P0;
-            StrReadDPoint(&_P0, S, i);
-            _B.setP0(_P0);
+            TDoublePoint P0;
+            StrReadDPoint(&P0, S, i);
+            t_B.setP0(P0);
         }catch(...) {
             throw;
         }
@@ -305,9 +305,9 @@ void  TBarrier::ReadInstance(TBarrier* &B,
             StrTravelSeparators(S, i);
             StrTravelLabel("SPM", S, i);
             StrTravelLabel("=", S, i);
-            double _SPM;
-            StrReadFloat(_SPM, S, i);
-            _B.setSPM(_SPM);
+            double SPM;
+            StrReadFloat(SPM, S, i);
+            t_B.setSPM(SPM);
         }catch(...) {
             throw;
         }
@@ -318,21 +318,21 @@ void  TBarrier::ReadInstance(TBarrier* &B,
     } while(status < 3);
 
     //asigna la viariable tampón
-    B->Copy(&_B);;
+    B->Copy(&t_B);;
 }
 
 //---------------------------------------------------------------------------
 //MÉTODOS DE CONTRUCCIÓN, COPIA, CLONACIÓN Y DESTRUCCIÓN:
 
 //contruye una barrera
-TBarrier::TBarrier(TDoublePoint _P0, double _thetaO1) :
-    __Contour_(),
-    __r_max(0),
-    __thetaO1(_thetaO1), __P0(_P0),
-    __Contour()
+TBarrier::TBarrier(TDoublePoint P0, double thetaO1) :
+    p_Contour_(),
+    p_r_max(0),
+    p_thetaO1(thetaO1), p_P0(P0),
+    p_Contour()
 {
     //initialize the SPM components
-    __SPM = MEGARA_Eo*getr_max() + MEGARA_Ep;
+    p_SPM = MEGARA_Eo*getr_max() + MEGARA_Ep;
 
     //set the default value to the contour
     setContour_Text(MEGARA_Contour_);
@@ -345,12 +345,12 @@ void TBarrier::Copy(const TBarrier *B)
     if(B == NULL)
         throw EImproperArgument("pointer B ahould point to built barrier");
 
-    __Contour_.Copy(B->getContour_());
-    __r_max = B->getr_max();
-    __thetaO1 = B->getthetaO1();
-    __P0 = B->getP0();
-    __Contour.Copy(B->getContour());
-    __SPM = B->getSPM();
+    p_Contour_.Copy(B->getContour_());
+    p_r_max = B->getr_max();
+    p_thetaO1 = B->getthetaO1();
+    p_P0 = B->getP0();
+    p_Contour.Copy(B->getContour());
+    p_SPM = B->getSPM();
 }
 
 //contruye un clon de una barrera
@@ -366,8 +366,8 @@ TBarrier::TBarrier(const TBarrier *B)
 //libera la memoria dinámica
 TBarrier::~TBarrier()
 {
-    Destroy(__Contour);
-    Destroy(__Contour_);
+    Destroy(p_Contour);
+    Destroy(p_Contour_);
 }
 
 //--------------------------------------------------------------------------
@@ -375,11 +375,11 @@ TBarrier::~TBarrier()
 
 //cambia la posición y orientación
 //del origen de coordenadas simultaneamente
-void TBarrier::Set(TDoublePoint _P0, double _thetaO1)
+void TBarrier::Set(TDoublePoint P0, double thetaO1)
 {
     //asigna los nuevos valores
-    __thetaO1 = _thetaO1;
-    __P0 = _P0;
+    p_thetaO1 = thetaO1;
+    p_P0 = P0;
 
     //asimila las propiedades de posición y orientación
     CalculateImage();
@@ -433,7 +433,7 @@ void TBarrier::Paint(TPloterShapes *PS, QColor Color)
                 throw EImproperArgument("pointer PS should not be null");
 
         //dibuja el contorno
-        __Contour.SetAllColor(Color);
+        p_Contour.SetAllColor(Color);
         getContour().Paint(PS);
 }
 */

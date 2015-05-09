@@ -44,12 +44,12 @@ namespace Positioning {
 //---------------------------------------------------------------------------
 //SETTING PARAMETERS OF THE ALGORITHMS:
 
-void TMotionProgramGenerator::setMSD(double _MSD)
+void TMotionProgramGenerator::setMSD(double MSD)
 {
-    if(_MSD < 0)
+    if(MSD < 0)
         throw EImproperArgument("maximun security distance MSD should be nonnegative");
 
-    p_MSD = _MSD;
+    p_MSD = MSD;
 }
 
 //---------------------------------------------------------------------------
@@ -1515,11 +1515,15 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     Obstructed.Clear();
     MP.Clear();
 
+    //build the list Outsiders_ to contains the pointers to
+    //the RPs wich remain in insecurity positions
+    TRoboticPositionerList Outsiders_;
+
     //configure the Fiber MOS Model for MP generation
     getFiberMOSModel()->RPL.SetPurpose(pGen);
 
     //segregates the RPs of the list Outsiders which are in collision status, in the list Collided
-    getFiberMOSModel()->RPL.segregateCollided(Collided);
+    Outsiders.segregateCollided(Collided, Outsiders_);
 
     //solve the trivial case when there aren't RPs of the list Outsiders in insecurity positions
     if(Outsiders.allRPsAreInSecurePosition()) {
@@ -1554,7 +1558,7 @@ bool TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
 
     //build the list Outsiders_ to contains the pointers to
     //the RPs wich remain in insecurity positions
-    TRoboticPositionerList Outsiders_(Outsiders);
+//    TRoboticPositionerList Outsiders_(Outsiders);
 
     //The list Outsiders_ will contains all RPs to be retracted each time.
     //Each time can be only retracted some RPs of the list Outsiders_.

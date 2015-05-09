@@ -41,9 +41,6 @@ namespace Models {
 
 //clase Fiber MOS Model
 class TFiberMOSModel1 {
-protected:
-        //CONJUNTOS DE PROPIEDADES EN MODO TEXTO:
-
 public:
         //------------------------------------------------------------------
         //LISTAS DE OBJETOS:

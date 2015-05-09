@@ -40,18 +40,18 @@ namespace MotionFunctions {
 //--------------------------------------------------------------------------
 //PROPIEDADES EN FORMATO TEXTO:
 
-void TMotionFunction::setLabel(const AnsiString& _Label)
+void TMotionFunction::setLabel(const AnsiString& Label)
 {
         //la cadena Label debe ser una cadena imprimible
-        if(!StrIsPrintable(_Label))
+        if(!StrIsPrintable(Label))
                 throw EImproperArgument("string Label should be a printable string");
 
-        __Label = _Label;
+        p_Label = Label;
 }
 
 AnsiString TMotionFunction::getvmaxabsText(void) const
 {
-        return FloatToStr(__vmaxabs);
+        return FloatToStr(p_vmaxabs);
 }
 void TMotionFunction::setvmaxabsText(const AnsiString& S)
 {
@@ -63,7 +63,7 @@ void TMotionFunction::setvmaxabsText(const AnsiString& S)
 }
 AnsiString TMotionFunction::getpstaText(void) const
 {
-        return FloatToStr(__psta);
+        return FloatToStr(p_psta);
 }
 void TMotionFunction::setpstaText(const AnsiString& S)
 {
@@ -75,7 +75,7 @@ void TMotionFunction::setpstaText(const AnsiString& S)
 }
 AnsiString TMotionFunction::getpfinText(void) const
 {
-        return FloatToStr(__pfin);
+        return FloatToStr(p_pfin);
 }
 void TMotionFunction::setpfinText(const AnsiString& S)
 {
@@ -88,16 +88,16 @@ void TMotionFunction::setpfinText(const AnsiString& S)
 
 AnsiString TMotionFunction::getvmaxText(void) const
 {
-        return FloatToStr(__vmax);
+        return FloatToStr(p_vmax);
 }
 AnsiString TMotionFunction::getTminText(void) const
 {
-        return FloatToStr(__Tmin);
+        return FloatToStr(p_Tmin);
 }
 
 AnsiString TMotionFunction::getDText(void) const
 {
-        return FloatToStr(__D);
+        return FloatToStr(p_D);
 }
 void TMotionFunction::setDText(const AnsiString& S)
 {
@@ -109,7 +109,7 @@ void TMotionFunction::setDText(const AnsiString& S)
 }
 AnsiString TMotionFunction::getTText(void) const
 {
-        return FloatToStr(__T);
+        return FloatToStr(p_T);
 }
 void TMotionFunction::setTText(const AnsiString& S)
 {
@@ -122,20 +122,20 @@ void TMotionFunction::setTText(const AnsiString& S)
 
 AnsiString TMotionFunction::getDmaxText(void) const
 {
-        return FloatToStr(__Dmax);
+        return FloatToStr(p_Dmax);
 }
 AnsiString TMotionFunction::getvcminText(void) const
 {
-        return FloatToStr(__vcmin);
+        return FloatToStr(p_vcmin);
 }
 AnsiString TMotionFunction::getvcmaxText(void) const
 {
-        return FloatToStr(__vcmax);
+        return FloatToStr(p_vcmax);
 }
 
 AnsiString TMotionFunction::getvcText(void) const
 {
-        return FloatToStr(__vc);
+        return FloatToStr(p_vc);
 }
 void TMotionFunction::setvcText(const AnsiString& S)
 {
@@ -174,11 +174,11 @@ AnsiString TMotionFunction::getText(void)
 
 //inicializa las propiedades a sus valores por defecto
 TMotionFunction::TMotionFunction(void) :
-        __vmaxabs(0), __psta(0), __pfin(0), __vmax(0),
-        __Tmin(0), __D(0),
-        __Dmax(0), __vcmin(0), __vcmax(0), __vc(0)
+        p_vmaxabs(0), p_psta(0), p_pfin(0), p_vmax(0),
+        p_Tmin(0), p_D(0),
+        p_Dmax(0), p_vcmin(0), p_vcmax(0), p_vc(0)
 {
-        __T = 0;
+        p_T = 0;
 }
 
 //contruye un clon de una función de movimiento
@@ -189,18 +189,18 @@ TMotionFunction::TMotionFunction(TMotionFunction *MF)
                 throw EImproperArgument("pointer MF should point to built motion function");
 
         //copia todas las propiedades
-        __vmaxabs = MF->__vmaxabs;
-        __psta = MF->__psta;
-        __pfin = MF->__pfin;
-        __vmax = MF->__vmax;
-        __Tmin = MF->__Tmin;
-        __D = MF->__D;
-        __T = MF->__T;
-        __Dmax = MF->__Dmax;
-        __vcmin = MF->__vcmin;
-        __vcmax = MF->__vcmax;
-        __vc = MF->__vc;
-        __Label = MF->__Label;
+        p_vmaxabs = MF->p_vmaxabs;
+        p_psta = MF->p_psta;
+        p_pfin = MF->p_pfin;
+        p_vmax = MF->p_vmax;
+        p_Tmin = MF->p_Tmin;
+        p_D = MF->p_D;
+        p_T = MF->p_T;
+        p_Dmax = MF->p_Dmax;
+        p_vcmin = MF->p_vcmin;
+        p_vcmax = MF->p_vcmax;
+        p_vc = MF->p_vc;
+        p_Label = MF->p_Label;
 }
 
 //destruye una función de movimiento

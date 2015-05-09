@@ -100,7 +100,7 @@ public:
     //copia una AnsiString
     AnsiString& operator=(const AnsiString&);
     //copia una string
-    AnsiString& operator=(const string& _str);
+    AnsiString& operator=(const string& str);
     //copia una char* (no la ñade, sino que la copia)
     AnsiString& operator=(const char*);
     //determina si una cadena es igual a esta
@@ -157,7 +157,7 @@ public:
     AnsiString Message;
 
     //construye una Exeption
-    Exception(AnsiString _Message) : exception(), Message(_Message) {;}
+    Exception(AnsiString t_Message) : exception(), Message(t_Message) {;}
     //libera la memoria
     ~Exception() throw() {;}
 
@@ -325,7 +325,7 @@ struct TPoint
     int  y;
 
     TPoint() {}
-    TPoint(int _x, int _y) : x(_x), y(_y) {}
+    TPoint(int t_x, int t_y) : x(t_x), y(t_y) {}
     TPoint(TPoint& pt)
     {
         x = pt.x;

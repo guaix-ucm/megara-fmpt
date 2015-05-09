@@ -96,9 +96,9 @@ AnsiString::AnsiString(const char *cs) : str(cs)
 {
 }
 //construye un AnsiString a partir de una string
-AnsiString::AnsiString(const string& _str)
+AnsiString::AnsiString(const string& t_str)
 {
-    str = _str;
+    str = t_str;
 }
 /*#//construye una AnsiString a partir de una QString
 AnsiString::AnsiString(const QString& QS) : str(QS.toLocal8Bit())
@@ -122,9 +122,9 @@ AnsiString AnsiString::operator+(const AnsiString& S) const
     return AnsiString(str + S.str);
 }
 //contatena dos cadenas
-AnsiString AnsiString::operator+(const string& _str) const
+AnsiString AnsiString::operator+(const string& t_str) const
 {
-    return AnsiString(str + _str);
+    return AnsiString(str + t_str);
 }
 //concatena una cadena a esta
 AnsiString& AnsiString::operator+=(const AnsiString& S)
@@ -145,9 +145,9 @@ AnsiString& AnsiString::operator=(const AnsiString& S)
     return *this;
 }
 //copia una string
-AnsiString& AnsiString::operator=(const string& _str)
+AnsiString& AnsiString::operator=(const string& t_str)
 {
-    str = _str;
+    str = t_str;
     return *this;
 }
 //copia una char* (no la ñade, sino que la copia)
@@ -543,11 +543,11 @@ QColor StringToColor(const AnsiString& S)
         //traduce de AnsiString a QColor
         //uint n = HexToUInt(S);
         //QRgb Rgb = QRgb(n);
-        //QColor _Color;
+        //QColor t_Color;
         //_Color.setRgba(Rgb);
 
         //asigna el nuevo color
-        //Color = _Color;
+        //Color = t_Color;
 
         return color;
 
@@ -664,72 +664,72 @@ void ForceDirectories(const AnsiString& S)
 //TStrings
 
 //capacidad del array de cadenas
-void TStrings::setCapacity(int _Capacity)
+void TStrings::setCapacity(int t_Capacity)
 {
     //Capacity debería ser no negativa
-    if(_Capacity < 0)
+    if(t_Capacity < 0)
         throw EImproperArgument("Capacity debería ser no nonnegative");
 
     //si la capacidad es menor que el número de elementos
-    if(_Capacity < Count) {
+    if(t_Capacity < Count) {
         //construye un array con la nueva capacidad
-        AnsiString **_Items = new AnsiString*[_Capacity];
+        AnsiString **t_Items = new AnsiString*[t_Capacity];
         //copia los elementos
         int i;
-        for(i=0; i<_Capacity; i++)
-            _Items[i] = Items[i];
+        for(i=0; i<t_Capacity; i++)
+            t_Items[i] = Items[i];
         //libera los elementos sobrantes
         for(; i<Count; i++)
             delete Items[i];
         //libera el array antiguo
         delete Items;
         //asigna el array nuevo
-        Items = _Items;
-        Count = Capacity = _Capacity;
+        Items = t_Items;
+        Count = Capacity = t_Capacity;
     }
     //si no, si la capacidad es mayor que el número de elementos
-    else if(_Capacity >= Count) {
+    else if(t_Capacity >= Count) {
         //construye un array con la nueva capacidad
-        AnsiString **_Items = new AnsiString*[_Capacity];
+        AnsiString **t_Items = new AnsiString*[t_Capacity];
         //copia los elementos
         int i;
         for(i=0; i<Count; i++)
-            _Items[i] = Items[i];
+            t_Items[i] = Items[i];
         //libera el array antiguo
         delete Items;
         //asigna el array nuevo
-        Items = _Items;
-        Capacity = _Capacity;
+        Items = t_Items;
+        Capacity = t_Capacity;
     }
 }
 
 //número de cadenas de texto
-void TStrings::setCount(int _Count)
+void TStrings::setCount(int t_Count)
 {
     //Count debería ser no negativo
-    if(_Count < 0)
+    if(t_Count < 0)
         throw EImproperArgument("Count should be nonnegative");
 
     //si el número de elementos excede la capacidad
-    if(_Count > Capacity)
+    if(t_Count > Capacity)
         //redimensiona el array
-        setCapacity(_Count);
+        setCapacity(t_Count);
 
     //si el número de elementos es menor que el original
-    if(_Count < Count) {
+    if(t_Count < Count) {
         //borra los elementos sobrantes
-        for(int i=_Count; i<Count; i++)
+        for(int i=t_Count; i<Count; i++)
             delete Items[i];
         //actualiza el número de elementos
-        Count = _Count;
+        Count = t_Count;
     }
     //si no, si el número de elementos es mayor que el original
-    else if(_Count > Count) {
+    else if(t_Count > Count) {
         //construye los elementos nuevos por defecto
-        for(int i=Count; i<_Count; i++)
+        for(int i=Count; i<t_Count; i++)
             Items[i] = new AnsiString();
         //actualiza el número de elementos
-        Count = _Count;
+        Count = t_Count;
     }
     //si el número de elementos es igual que el original no hace nada
 }

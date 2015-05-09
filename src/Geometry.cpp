@@ -1244,24 +1244,24 @@ void AxisAngleArc(TDoublePoint &P1, TDoublePoint &P2,
         //calcula la distancia de Pc a Q
         double d = Mod(Q - Pc);
 
-        //detrmina los vértices del arco por los que pasan
+        //determina los vértices del arco por los que pasan
         //los ejes con origen en Q
-        TDoublePoint _P1, _P2;
-        AxisAngleSegment(_P1, _P2, Pa, Pb, Q);
+        TDoublePoint t_P1, t_P2;
+        AxisAngleSegment(t_P1, t_P2, Pa, Pb, Q);
 
         //si el punto está dentro de la circunferencia del arco (o sobre ella)
         if(d <= R) {
                 //devuelve los vértices del arco
-                P1 = _P1;
-                P2 = _P2;
+                P1 = t_P1;
+                P2 = t_P2;
                 return;
         }
 
         //------------------------------------------------------------------
-        //determina el otro punto de intersección (P) del eje (Q, _P1):
+        //determina el otro punto de intersección (P) del eje (Q, t_P1):
 
-        //determina el versor en la dirección del eje (Q, _P1)
-        TDoublePoint m = _P1 - Q;
+        //determina el versor en la dirección del eje (Q, t_P1)
+        TDoublePoint m = t_P1 - Q;
         m = m/Mod(m);
 
         //determina el versor dextrógiro de m
@@ -1280,11 +1280,11 @@ void AxisAngleArc(TDoublePoint &P1, TDoublePoint &P2,
                 D = -1*D;
         }
 
-        //determina el punto medio entre _P1 y P
+        //determina el punto medio entre t_P1 y P
         TDoublePoint P = Pc + n*D;
 
         //determina el punto P
-        P = P + (P - _P1);
+        P = P + (P - t_P1);
 
         //------------------------------------------------------------------
 
@@ -1296,13 +1296,13 @@ void AxisAngleArc(TDoublePoint &P1, TDoublePoint &P2,
                 //la circunferencias (Pc, R) y (Q, Mod(V))
                 IntersectionCircumCircum(P1, trash, Pc, R, Q, Mod(V));
         else //si no
-                P1 = _P1; //asigna el vértice
+                P1 = t_P1; //asigna el vértice
 
         //------------------------------------------------------------------
-        //determina el otro punto de intersección (P) del eje (Q, _P2):
+        //determina el otro punto de intersección (P) del eje (Q, t_P2):
 
-        //determina el versor en la dirección del eje (Q, _P1)
-        m = _P2 - Q;
+        //determina el versor en la dirección del eje (Q, t_P1)
+        m = t_P2 - Q;
         m = m/Mod(m);
 
         //determina el versor dextrógiro de m
@@ -1322,11 +1322,11 @@ void AxisAngleArc(TDoublePoint &P1, TDoublePoint &P2,
                 D = -1*D;
         }
 
-        //determina el punto medio entre _P1 y P
+        //determina el punto medio entre t_P1 y P
         P = Pc + n*D;
 
         //determina el punto P
-        P = P + (P - _P2);
+        P = P + (P - t_P2);
 
         //------------------------------------------------------------------
 
@@ -1336,7 +1336,7 @@ void AxisAngleArc(TDoublePoint &P1, TDoublePoint &P2,
                 //la circunferencias (Pc, R) y (Q, Mod(V))
                 IntersectionCircumCircum(trash, P2, Pc, R, Q, Mod(V));
         else //si no
-                P2 = _P2; //asigna el vértice
+                P2 = t_P2; //asigna el vértice
 
 }
 

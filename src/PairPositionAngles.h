@@ -117,7 +117,7 @@ public:
     //PUBLIC METHODS:
 
     //build a PPA attached to a RP
-    TPairPositionAngles(TRoboticPositioner *_RoboticPositioner= NULL);
+    TPairPositionAngles(TRoboticPositioner *RP= NULL);
     //clone a PPA
     TPairPositionAngles(TPairPositionAngles*);
 

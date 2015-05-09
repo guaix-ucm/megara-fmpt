@@ -51,7 +51,7 @@ void  StrReadTable(TVector<double> &X, TVector<double> &Y,
         //variables tampón
         char c;
         double x, y;
-        TVector<double> _X, _Y;
+        TVector<double> t_X, t_Y;
         int k = 0; //índice a elementos de X e Y
 
         if(i > S.Length()) //si se ha acabado la cadena
@@ -81,7 +81,7 @@ void  StrReadTable(TVector<double> &X, TVector<double> &Y,
                         case 1: //esperando número en punto flotante para x
                                 try {
                                         StrReadFloat(x, S, i); //intenta leer la ordenada
-                                        _X.Add(x);
+                                        t_X.Add(x);
                                         if(i > S.Length()) //si se ha acabado la cadena
                                                 //indica que no encenta la ordenada Y[k]
                                                 throw EImproperArgument(AnsiString("ordinate Y[")+IntToStr(k)+AnsiString("] not found"));
@@ -106,7 +106,7 @@ void  StrReadTable(TVector<double> &X, TVector<double> &Y,
                                 //intenta leer la abcisa
                                 try {
                                         StrReadFloat(y, S, i);
-                                        _Y.Add(y);
+                                        t_Y.Add(y);
                                         if(i > S.Length()) //si se ha acabado la cadena
                                                 status = 5; //indica que ha terminado de leer la tabla con éxito
                                         else
@@ -139,8 +139,8 @@ void  StrReadTable(TVector<double> &X, TVector<double> &Y,
         } while(status < 5); //hasta que la tabla se haya leido con éxito
 
         //asigna las variables tampón
-        X = _X;
-        Y = _Y;
+        X = t_X;
+        Y = t_Y;
 }
 //---------------------------------------------------------------------------
 

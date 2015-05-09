@@ -44,33 +44,33 @@ AnsiString TConection::SpaxelIdLabel = "SpaxelId";
 AnsiString TConection::FiberIdLabel = "FiberId";
 AnsiString TConection::sLabel = "s";
 
-void TConection::setRPId(int _RPId)
+void TConection::setRPId(int RPId)
 {
         //RPId debe ser no negativo
-        if(_RPId < 0)
+        if(RPId < 0)
                 throw EImproperArgument("RPId should be nonnegative");
 
-        __RPId = _RPId;
+        p_RPId = RPId;
 }
-void TConection::setSpaxelId(int _SpaxelId)
+void TConection::setSpaxelId(int SpaxelId)
 {
         //SpaxelId debe estar en [0, 7]
-        if(_SpaxelId<0 || 7<_SpaxelId)
+        if(SpaxelId<0 || 7<SpaxelId)
                 throw EImproperArgument("SpaxelId should be in [0, 7]");
 
-        __SpaxelId = _SpaxelId;
+        p_SpaxelId = SpaxelId;
 }
-void TConection::setFiberId(int _FiberId)
+void TConection::setFiberId(int FiberId)
 {
         //FiberId debe ser no negativo
-        if(_FiberId < 0)
+        if(FiberId < 0)
                 throw EImproperArgument("FiberId should be nonnegative");
 
-        __FiberId = _FiberId;
+        p_FiberId = FiberId;
 }
-void TConection::sets(double _s)
+void TConection::sets(double s)
 {
-        __s = _s;
+        p_s = s;
 }
 
 AnsiString TConection::getRPIdText(void) const
@@ -147,16 +147,16 @@ void  TConection::ReadRow(TConection *Item,
         int status = 0;
 
         //variables tampón
-        int _RPId;
-        int _SpaxelId;
-        int _FiberId;
-        double _s;
+        int RPId;
+        int SpaxelId;
+        int FiberId;
+        double s;
 
         do {
                 switch(status) {
                         case 0: //esperando valor para RPId
                                 try {
-                                        StrReadInt(_RPId, S, i);
+                                        StrReadInt(RPId, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -164,7 +164,7 @@ void  TConection::ReadRow(TConection *Item,
                                 break;
                         case 1: //esperando valor para SpaxelId
                                 try {
-                                        StrReadInt(_SpaxelId, S, i);
+                                        StrReadInt(SpaxelId, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -172,7 +172,7 @@ void  TConection::ReadRow(TConection *Item,
                                 break;
                         case 2: //esperando valor para FiberId
                                 try {
-                                        StrReadInt(_FiberId, S, i);
+                                        StrReadInt(FiberId, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -181,7 +181,7 @@ void  TConection::ReadRow(TConection *Item,
                         case 3: //esperando separador y valor para s
                                 try {
                                         StrTravelSeparators(S, i);
-                                        StrReadFloat(_s, S, i);
+                                        StrReadFloat(s, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -193,7 +193,7 @@ void  TConection::ReadRow(TConection *Item,
 
         //asigna las variables tampón
         try {
-                Item->Set(_RPId, _SpaxelId, _FiberId, _s);
+                Item->Set(RPId, SpaxelId, FiberId, s);
         }catch(...) {
                 throw;
         }
@@ -276,34 +276,34 @@ void TConection::TravelLabelsRow(const AnsiString& S, int& i)
 //asigna las propiedades atómicamente
 //si no es posible asignar todas las propiedades:
 //      lanza una excepción EImproperArgument
-void TConection::Set(int _RPId, int _SpaxelId, int _FiberId, double _s)
+void TConection::Set(int RPId, int SpaxelId, int FiberId, double s)
 {
         //RPId debe ser no negativo
-        if(_RPId < 0)
+        if(RPId < 0)
                 throw EImproperArgument("RPId should be nonnegative");
         //SpaxelId debe estar en [0, 7]
-        if(_SpaxelId<0 || 7<_SpaxelId)
+        if(SpaxelId<0 || 7<SpaxelId)
                 throw EImproperArgument("SpaxelId should be in [0, 7]");
         //FiberId debe ser no negativo
-        if(_FiberId < 0)
+        if(FiberId < 0)
                 throw EImproperArgument("FiberId should be nonnegative");
 
-        __RPId = _RPId;
-        __SpaxelId = _SpaxelId;
-        __FiberId = _FiberId;
-        __s = _s;
+        p_RPId = RPId;
+        p_SpaxelId = SpaxelId;
+        p_FiberId = FiberId;
+        p_s = s;
 }
 
 //---------------------------------------------------------------------------
 //clase modelo del espectrografo
 
-void TFiberConnectionModel::setR(double _R)
+void TFiberConnectionModel::setR(double R)
 {
         //el radio R debe ser mayor que cero
-        if(_R <= 0)
+        if(R <= 0)
                 throw EImproperArgument("radious R shoukd be upper zero");
 
-        __R = _R;
+        p_R = R;
 
         //El valor de R afectará a los métodos GetSpaxelCentre#.
 }
@@ -321,9 +321,9 @@ void TFiberConnectionModel::setConnectionsText(const AnsiString& S)
                 TConection::TravelLabelsRow(S, i);
 
                 //lee las conexiones en una variable tampón
-                TPointersList<TConection> _Conections;
-                _Conections.Read = TConection::ReadRow;
-                TPointersList<TConection>::ReadSeparated(&_Conections, S, i);
+                TPointersList<TConection> t_Conections;
+                t_Conections.Read = TConection::ReadRow;
+                TPointersList<TConection>::ReadSeparated(&t_Conections, S, i);
 
                 //avanza el índice hasta el primer caracter no separador o hasta el final de la cadena
                 StrTravelSeparators(S, i);
@@ -334,11 +334,11 @@ void TFiberConnectionModel::setConnectionsText(const AnsiString& S)
 
                 //asigna la varibale tampón
                 Conections.Clear();
-                Conections.Add(_Conections);
-                _Conections.ClearWithoutDestroy();
+                Conections.Add(Conections);
+                t_Conections.ClearWithoutDestroy();
 /*                while(_Conections.Count > 0) {
                         Conections.Add(_Conections.FirstPointer);
-                        _Conections.DeleteWithoutDestroy(0);
+                        t_Conections.DeleteWithoutDestroy(0);
                 }*/
 
         } catch(...) {
@@ -347,7 +347,7 @@ void TFiberConnectionModel::setConnectionsText(const AnsiString& S)
 }
 
 //construye un espectrógrafo con los valores por defecto
-TFiberConnectionModel::TFiberConnectionModel(void) : __R(0.443),
+TFiberConnectionModel::TFiberConnectionModel(void) : p_R(0.443),
         Conections(644, NULL, NULL, NULL, TConection::PrintRow, TConection::ReadRow)
 {
 }

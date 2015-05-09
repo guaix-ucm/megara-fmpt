@@ -48,33 +48,33 @@ AnsiString TTile::RLabel = "R";
 
 //PROPIEDADES DEFINITORIAS:
 
-void TTile::setId(int _Id)
+void TTile::setId(int Id)
 {
     //el número de identificación debería ser no negativo
-    if(_Id < 0)
+    if(Id < 0)
         throw EImproperArgument("identifier number Id should be nonnegative");
 
     //asigna el nuevo valor
-    __Id = _Id;
+    p_Id = Id;
 }
 
-void TTile::setDEC(double _DEC)
+void TTile::setDEC(double DEC)
 {
     //la declinación theta debe estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("declination '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
 
     //asigna el nuevo valor
-    __DEC = _DEC;
+    p_DEC = DEC;
 }
-void TTile::setR_(double _R_)
+void TTile::setR_(double R_)
 {
     //el radio R_ debería ser mayor que cero
-    if(_R_ <= 0)
-        throw EImproperArgument(AnsiString("radio '")+FloatToStr(_R_)+AnsiString("' should be upper zero"));
+    if(R_ <= 0)
+        throw EImproperArgument(AnsiString("radio '")+FloatToStr(R_)+AnsiString("' should be upper zero"));
 
     //asigna el nuevo valor
-    __R_ = _R_;
+    p_R_ = R_;
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
@@ -338,7 +338,7 @@ void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
     int status = 0;
 
     //variables auxiliares
-    TTile _Tile(T); //variabletampón
+    TTile Tile(T); //variabletampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -354,7 +354,7 @@ void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
         case 0: //esperando valor en punto flotante para Id
             try {
             StrReadWord(Value, S, i);
-            _Tile.setIdText(Value);
+            Tile.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -367,7 +367,7 @@ void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
         case 1: //esperando valor en punto flotante para phi'
             try {
             StrReadWord(Value, S, i);
-            _Tile.setRAText(Value);
+            Tile.setRAText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
             } catch(...) {
@@ -380,7 +380,7 @@ void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
         case 2: //esperando valor en punto flotante para theta'
             try {
             StrReadWord(Value, S, i);
-            _Tile.setDECText(Value);
+            Tile.setDECText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
             } catch(...) {
@@ -393,7 +393,7 @@ void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
         case 3: //esperando valor entero para R'
             try {
             StrReadWord(Value, S, i);
-            _Tile.setR_Text(Value);
+            Tile.setR_Text(Value);
             StrTravelToEnd(S, i);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property R'"));
@@ -406,7 +406,7 @@ void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
     } while(status < 4);
 
     //asigna la variable tampón
-    *T = _Tile;
+    *T = Tile;
 }
 void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
 {
@@ -428,7 +428,7 @@ void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
     int status = 0;
 
     //variables auxiliares
-    TTile _Tile(T); //variabletampón
+    TTile Tile(T); //variabletampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -444,7 +444,7 @@ void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
         case 0: //esperando valor en punto flotante para Id
             try {
             StrReadString(Value, S, i);
-            _Tile.setIdText(Value);
+            Tile.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -457,7 +457,7 @@ void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
         case 1: //esperando valor en punto flotante para phi'
             try {
             StrReadWord(Value, S, i);
-            _Tile.setRAText(Value);
+            Tile.setRAText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
             } catch(...) {
@@ -470,7 +470,7 @@ void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
         case 2: //esperando valor en punto flotante para theta'
             try {
             StrReadWord(Value, S, i);
-            _Tile.setDECText(Value);
+            Tile.setDECText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
             } catch(...) {
@@ -483,7 +483,7 @@ void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
         case 3: //esperando valor entero para R'
             try {
             StrReadWord(Value, S, i);
-            _Tile.setR_Text(Value);
+            Tile.setR_Text(Value);
             StrTravelToEnd(S, i);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property R'"));
@@ -496,7 +496,7 @@ void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
     } while(status < 4);
 
     //asigna la variable tampón
-    *T = _Tile;
+    *T = Tile;
 }
 void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
 {
@@ -518,7 +518,7 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
     int status = 0;
 
     //variables auxiliares
-    TTile _Tile(T); //variabletampón
+    TTile Tile(T); //variabletampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -536,7 +536,7 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
             StrReadLabel(Ident, "Id", S, i);
             StrTravelLabel("=", S, i);
             StrReadString(Value, S, i);
-            _Tile.setIdText(Value);
+            Tile.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -551,7 +551,7 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
             StrReadLabel(Ident, "phi'", S, i);
             StrTravelLabel("=", S, i);
             StrReadWord(Value, S, i);
-            _Tile.setRAText(Value);
+            Tile.setRAText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
             } catch(...) {
@@ -566,7 +566,7 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
             StrReadLabel(Ident, "theta'", S, i);
             StrTravelLabel("=", S, i);
             StrReadWord(Value, S, i);
-            _Tile.setDECText(Value);
+            Tile.setDECText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
             } catch(...) {
@@ -581,7 +581,7 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
             StrReadLabel(Ident, "R'", S, i);
             StrTravelLabel("=", S, i);
             StrReadWord(Value, S, i);
-            _Tile.setR_Text(Value);
+            Tile.setR_Text(Value);
             StrTravelToEnd(S, i);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property R'"));
@@ -594,14 +594,14 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
     } while(status < 4);
 
     //asigna la variable tampón
-    *T = _Tile;
+    *T = Tile;
 }
 
 //MÉTODOS PÚBLICOS:
 
 //construye un alista de azulejos
 TTile::TTile(void) :
-    __Id(0), RA(0), __DEC(0), __R_(2.9088902912790199E-3),
+    p_Id(0), RA(0), p_DEC(0), p_R_(2.9088902912790199E-3),
     SkyPointList()
 {
 }
@@ -627,19 +627,19 @@ void TTile::Copy(TTile *T)
 
     //copia las propiedades
     SkyPointList = T->SkyPointList;
-    __Id = T->__Id;
+    p_Id = T->p_Id;
     RA = T->RA;
-    __DEC = T->__DEC;
-    __R_ = T->__R_;
+    p_DEC = T->p_DEC;
+    p_R_ = T->p_R_;
 }
 TTile &TTile::operator=(const TTile &T)
 {
     //copia las propiedades
     SkyPointList = T.SkyPointList;
-    __Id = T.__Id;
+    p_Id = T.p_Id;
     RA = T.RA;
-    __DEC = T.__DEC;
-    __R_ = T.__R_;
+    p_DEC = T.p_DEC;
+    p_R_ = T.p_R_;
 
     return *this;
 }
@@ -647,15 +647,15 @@ TTile &TTile::operator=(const TTile &T)
 //MÉTODOS:
 
 //mueve el azulejo al punto indicado
-void TTile::Move(double _RA, double _DEC)
+void TTile::Move(double t_RA, double DEC)
 {
     //el azimut theta debe estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("azimut '")+FloatToStr(_DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("azimut '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
 
     //asigna los nuevos valores
-    RA = _RA;
-    __DEC = _DEC;
+    RA = t_RA;
+    p_DEC = DEC;
 }
 
 //segrega los puntos de cielo del catálogo en el azulejo incluyendo
@@ -756,8 +756,8 @@ void TTileList::setTableText(const AnsiString &S)
 //MÉTODOS PÚBLICOS:
 
 //construye una lista de azulejos
-TTileList::TTileList(int _Capacity) :
-    TPointersList<TTile>(_Capacity,
+TTileList::TTileList(int Capacity) :
+    TPointersList<TTile>(Capacity,
                          TTile::CompareQ_s,
                          NULL, NULL,
                          TTile::PrintRow, NULL)//, TTile::ReadRow)

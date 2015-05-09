@@ -51,15 +51,13 @@ class TAllocation {
 
         //DYNAMIC PROPERTIES:
 
-        TRoboticPositioner *__RP;
-
-        //INTERFACE PROPERTIES:
+        TRoboticPositioner *p_RP;
 
 public:
         //DYNAMIC PROPERTIES:
 
         //pointer to the allocated RP
-        TRoboticPositioner *getRP(void) const {return __RP;}
+        TRoboticPositioner *getRP(void) const {return p_RP;}
 
         //PP allocated to the RP
         //where shall be positioned the point P3 of the attached RP
@@ -102,10 +100,8 @@ public:
         //build a target point attached a RP
         //if the RP already has an attached target point
         //  throw an exception EImproperArgument
-        TAllocation(TRoboticPositioner *_RoboticPositioner,
-                double x, double y);
-        TAllocation(TRoboticPositioner *_RoboticPositioner,
-                TDoublePoint _PP);
+        TAllocation(TRoboticPositioner  *RP, double x, double y);
+        TAllocation(TRoboticPositioner  *RP, TDoublePoint PP);
 
         //destroy a TAllocation
         //if thereisn't a built target point

@@ -38,32 +38,32 @@ namespace Models {
 //###########################################################################
 
 //clase instrucción de posicionador
-void TInstruction::setName(AnsiString _Name)
+void TInstruction::setName(AnsiString Name)
 {
     //el nombre de instrucción debería ser conocido
-    if(_Name == "") {
+    if(Name == "") {
         Args.Clear();
-    } else if(_Name == "MA") {
+    } else if(Name == "MA") {
         Args.Clear();
-    } else if(_Name == "MS") {
+    } else if(Name == "MS") {
         Args.Clear();
-    } else if(_Name == "M1") {
+    } else if(Name == "M1") {
         Args.setCount(1);
-    } else if(_Name == "M2") {
+    } else if(Name == "M2") {
         Args.setCount(1);
-    } else if(_Name == "MM") {
+    } else if(Name == "MM") {
         Args.setCount(2);
-    } else if(_Name == "ST") {
+    } else if(Name == "ST") {
         Args.Clear();
-    } else if(_Name == "SP") {
+    } else if(Name == "SP") {
         Args.Clear();
     } else { //si no (es que no conoce el nombre de instrucción)
         //indica que el nombre de instrucción no es conocido
-        throw EImproperArgument(AnsiString("instruction name '")+_Name+AnsiString("' should be known"));
+        throw EImproperArgument(AnsiString("instruction name '")+Name+AnsiString("' should be known"));
     }
 
     //asigna el nuevo valor
-    __Name = _Name;
+    p_Name = Name;
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
@@ -128,11 +128,11 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
 
     char c; //caracter indicado S[i]
     AnsiString Word; //palabra
-    TInstruction _I; //variable tampón
+    TInstruction t_I; //variable tampón
 
     //si la cadena a partir de i está vacía
     if(i > S.Length()) {
-        *I = _I; //asigna la instrucción por defecto
+        *I = t_I; //asigna la instrucción por defecto
         return; //no hace nada más
     }
 
@@ -157,8 +157,8 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
                 i++;
                 if(i > S.Length())
                     try {
-                    _I.setName(Word);
-                    if(_I.Args.getCount() > 0)
+                    t_I.setName(Word);
+                    if(t_I.Args.getCount() > 0)
                         throw EImproperArgument("first argument not found");
                     status = 4;
                 } catch(EImproperArgument &E) {
@@ -177,7 +177,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             switch(c) {
             case ' ':
                 try {
-                _I.setName(Word);
+                t_I.setName(Word);
             } catch(EImproperArgument &E) {
                     throw EImproperArgument(E.Message+AnsiString(" for property Name"));
                 } catch(...) {
@@ -185,7 +185,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             }
                 i++;
                 if(i > S.Length())
-                    if(_I.Args.getCount() > 0)
+                    if(t_I.Args.getCount() > 0)
                         throw EImproperArgument("first argument not found");
                     else
                         status = 4;
@@ -194,13 +194,13 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
                 break;
             case '\r':
                 try {
-                _I.setName(Word);
+                t_I.setName(Word);
             } catch(...) {
                 throw;
             }
                 StrTravelLabel("\r\n", S, i);
                 if(i > S.Length())
-                    if(_I.Args.getCount() > 0)
+                    if(t_I.Args.getCount() > 0)
                         throw EImproperArgument("first argument not found");
                     else
                         status = 4;
@@ -212,8 +212,8 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
                 i++;
                 if(i > S.Length())
                     try {
-                    _I.setName(Word);
-                    if(_I.Args.getCount() > 0)
+                    t_I.setName(Word);
+                    if(t_I.Args.getCount() > 0)
                         throw EImproperArgument("first argument not found");
                     status = 4;
                 } catch(EImproperArgument &E) {
@@ -238,7 +238,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             default:
                 try {
                 StrReadFloatStr(Word, S, i);
-                _I.Args.setItemsText(0, Word);
+                t_I.Args.setItemsText(0, Word);
             } catch(EImproperArgument &E) {
                     throw EImproperArgument(E.Message+AnsiString(" for property Args[0]"));
                 } catch(...) {
@@ -246,7 +246,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             }
 
                 //reaciona según el número de argumentos
-                if(_I.Args.getCount() > 1) {
+                if(t_I.Args.getCount() > 1) {
                     if(i > S.Length())
                         throw EImproperArgument("second argument not found");
                     status = 3;
@@ -270,7 +270,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             default:
                 try {
                 StrReadFloatStr(Word, S, i);
-                _I.Args.setItemsText(1, Word);
+                t_I.Args.setItemsText(1, Word);
             } catch(EImproperArgument &E) {
                     throw EImproperArgument(E.Message+AnsiString(" for property Args[1]"));
                 } catch(...) {
@@ -278,7 +278,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             }
 
                 //reaciona según el número de argumentos
-                if(_I.Args.getCount() > 2)
+                if(t_I.Args.getCount() > 2)
                     throw EImpossibleError("there isn't instruction with more two arguments");
                 else
                     status = 4;
@@ -289,20 +289,20 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
     } while(status < 4);
 
     //asigna la variable tampón
-    *I = _I;
+    *I = t_I;
 }
 
 //MÉTODOS PÚBLICOS:
 
 //contruye una instrucción de posicionador
-TInstruction::TInstruction(void) : __Name(""), Args(2)
+TInstruction::TInstruction(void) : p_Name(""), Args(2)
 {
 }
 
 //asigna una instrucción
 TInstruction& TInstruction::operator=(const TInstruction& Instruction)
 {
-    __Name = Instruction.getName();
+    p_Name = Instruction.getName();
     Args = Instruction.Args;
 
     return *this;

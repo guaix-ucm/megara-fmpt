@@ -311,44 +311,44 @@ void TDoubleRect::Randomize(double Lmin, double Lmax, double Bmin, double Bmax,
 //Clase TPhasor:
 //---------------------------------------------------------------------------
 
-void TPhasor::setr(double _r)
+void TPhasor::setr(double r)
 {
     //la amplitud debe ser no negativa
-    if(_r < 0)
+    if(r < 0)
         throw EImproperArgument("module r should not be negative");
 
-    r = _r; //asigna el nuevo valor
+    p_r = r; //asigna el nuevo valor
 }
 
 complex<double> TPhasor::getComplex(void)
 {
-    complex<double> c(r*cos(theta), r*sin(theta));
+    complex<double> c(p_r*cos(theta), p_r*sin(theta));
     return c;
 }
 
 AnsiString TPhasor::getText(void)
 {
-    return AnsiString("(")+FloatToStr(r)+AnsiString(", ")+FloatToStr(theta)+AnsiString(")");
+    return AnsiString("(")+FloatToStr(p_r)+AnsiString(", ")+FloatToStr(theta)+AnsiString(")");
 }
 
 //---------------------------------------------------------------------------
 //Métodos públicos:
 
 //construye un un fasor inicializándolo a (r, theta)
-TPhasor::TPhasor(double _r, double _theta)
+TPhasor::TPhasor(double r, double t_theta)
 {
     //la amplitud debe ser no negativa
-    if(_r < 0)
+    if(r < 0)
         throw EImproperArgument("module r should not be negative");
 
-    r = _r; //asigna el nuevo valor
-    theta = _theta; //asigna el nuevo valotheta
+    p_r = r; //asigna el nuevo valor
+    theta = t_theta; //asigna el nuevo valotheta
 }
 //construye un fasor a partir de un complejo
 TPhasor::TPhasor(const complex<double> &c)
 {
-    r = abs(c);
-    if(r == 0)
+    p_r = abs(c);
+    if(p_r == 0)
         theta = 0; //la fase del vector nulo es cero
     else
         theta = arg(c);
@@ -358,7 +358,7 @@ TPhasor::TPhasor(const complex<double> &c)
 TPhasor& TPhasor::operator=(const TPhasor& P)
 {
     //copia las propiedades
-    r = P.r;
+    p_r = P.p_r;
     theta = P.theta;
 
     return *this;
@@ -367,8 +367,8 @@ TPhasor& TPhasor::operator=(const TPhasor& P)
 //traduce y asigna un complejo a este fasor
 TPhasor& TPhasor::operator=(const complex<double>& c)
 {
-    r = abs(c);
-    if(r == 0)
+    p_r = abs(c);
+    if(p_r == 0)
         theta = 0; //la fase del vector nulo es cero
     else
         theta = arg(c);

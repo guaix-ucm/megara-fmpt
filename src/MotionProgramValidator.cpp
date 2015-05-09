@@ -177,14 +177,14 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
 
 //built a validator of motion programs
 //attached to an extern Fiber MOS Model
-TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *_FiberMOSModel)
+TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *FiberMOSModel)
 {
     //el puntero FiberMOSModel debería apuntar a una lista de posicioandores de fibra construida
-    if(_FiberMOSModel == NULL)
+    if(FiberMOSModel == NULL)
         throw EImproperArgument("pointer FiberMOSModel should point to built RPs list");
 
     //apunta los objetos externos
-    __FiberMOSModel = _FiberMOSModel;
+    p_FiberMOSModel = FiberMOSModel;
 }
 
 //---------------------------------------------------------------------------

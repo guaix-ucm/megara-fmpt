@@ -77,22 +77,22 @@ TTextFile::~TTextFile()
 
 //abre un archivo en el modo especificado
 //si no puede abrirlo lanza una excepción ECantComplete
-void TTextFile::Open(const char *_FileName, const char *mode)
+void TTextFile::Open(const char *t_FileName, const char *mode)
 {
     //el archivo debe estar cerrado
     if(IsOpen)
         throw EImproperCall("file should be close");
 
     //intenta abrir el archivo
-    f=fopen(_FileName, mode);
+    f=fopen(t_FileName, mode);
 
     //el archivo debe poder abrirse
     if(f == NULL)
-        throw ECantComplete(AnsiString("can't open file: ")+AnsiString(_FileName));
+        throw ECantComplete(AnsiString("can't open file: ")+AnsiString(t_FileName));
 
     //indica que el archivo FileName está abierto
     IsOpen = true;
-    FileName = AnsiString(_FileName);
+    FileName = AnsiString(t_FileName);
 }
 //cierra un archivo
 //si ya está cerrado lanza una excepción EImproperCall

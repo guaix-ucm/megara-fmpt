@@ -56,7 +56,7 @@ public:
         //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
         //construye una lista de figuras
-        TContourFigureList(int _Capacity=8);
+        TContourFigureList(int Capacity=8);
 
         //ADVERTENCIA:
         //al derivar TContourFigureList de TItemsList<TContourFigure*>

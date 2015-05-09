@@ -47,7 +47,7 @@ namespace Positioning {
 
 //lista de mensajes de instrucción
 class TMessageList : public TPointersList<TMessageInstruction> {
-    //        AnsiString __Label; void SetLabel(const AnsiString&);
+    //AnsiString p_Label; void SetLabel(const AnsiString&);
 
 public:
     //MÉTODOS ESTÁTICOS:
@@ -60,8 +60,8 @@ public:
                                  const AnsiString &S, int &i);
 
     //construye una lista de mensajes
-    TMessageList(int _Capacity=1003) :
-        TPointersList<TMessageInstruction>(_Capacity,
+    TMessageList(int Capacity=1003) :
+        TPointersList<TMessageInstruction>(Capacity,
                                            TMessageInstruction::CompareIds,
                                            NULL, NULL,
                                            TMessageInstruction::Print,
@@ -88,8 +88,8 @@ public:
     string getCommentsColumnText(void) const;
 
     //builds a motion program
-    TMotionProgram(int _Capacity=7) :
-        TPointersList<TMessageList>(_Capacity,
+    TMotionProgram(int Capacity=7) :
+        TPointersList<TMessageList>(Capacity,
                                     NULL, NULL, NULL,
                                     TMessageList::PrintMessageList,
                                     TMessageList::ReadMessageList) {;}
@@ -109,7 +109,7 @@ public:
     //  All PPAs of the IPL must be addresed to different RPs.
     //  All RPs included in the MP, must be in included in the IPL.
     void getInterfaceText(string& str, const string& label, unsigned int Bid,
-        const TPairPositionAnglesList& SPL) const;
+                          const TPairPositionAnglesList& SPL) const;
 
     //Values for label:
     //  "obs depos" for depositioning programs

@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: _StrPR.cpp
+//Archivo: StrPR.cpp
 //Contenido: funciones de impresión y lectura de cadenas de texto
 //Última actualización: 18/03/2014
 //Autor: Isaac Morales Durán
@@ -42,7 +42,7 @@ void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
         if(i > S.Length()+1)
                 throw EImproperArgument("index i should indicate a position in the string S");
 
-        AnsiString _Word; //variable tampón
+        AnsiString t_Word; //variable tampón
 
         //si el índice i indica a la posúltima posición
         if(i > S.Length())
@@ -75,7 +75,7 @@ void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
                                                         throw EImproperArgument("word not found");
                                                 break;
                                         default:
-                                                _Word += c;
+                                                t_Word += c;
                                                 i++;
                                                 if(i > S.Length())
                                                         status = 2;
@@ -92,7 +92,7 @@ void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
                                                 status++;
                                                 break;
                                         default:
-                                                _Word += c;
+                                                t_Word += c;
                                                 i++;
                                                 if(i > S.Length())
                                                         status++;
@@ -102,7 +102,7 @@ void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
         } while(status < 2);
 
         //asigna la variable tampón
-        Word = _Word;
+        Word = t_Word;
 }
 
 //intenta leer una cadena desde la posición i de una cadena de texto
@@ -121,7 +121,7 @@ void StrReadString(AnsiString &String, const AnsiString &S, int &i)
         int status = 0;
 
         //variables auxiliares
-        AnsiString _String; //variable tampón
+        AnsiString t_String; //variable tampón
 
         do {
                 char c = S[i];
@@ -140,7 +140,7 @@ void StrReadString(AnsiString &String, const AnsiString &S, int &i)
                                                         throw EImproperArgument("initial quote ''' not found");
                                                 break;
                                         case char(39):
-                                                _String += c;
+                                                t_String += c;
                                                 i++;
                                                 if(i > S.Length())
                                                         throw EImproperArgument("final quote ''' not found");
@@ -151,7 +151,7 @@ void StrReadString(AnsiString &String, const AnsiString &S, int &i)
                                 }
                                 break;
                         case 1: //leyendo cadena y esperando ''' final
-                                _String += c;
+                                t_String += c;
                                 i++;
                                 switch(c) {
                                         case char(39):
@@ -166,7 +166,7 @@ void StrReadString(AnsiString &String, const AnsiString &S, int &i)
         } while(status < 2);
 
         //asigna la variable tampón
-        String = _String;
+        String = t_String;
 }
 //intenta leer una cadena desde la posición i de una cadena de texto
 //que se encuentra delimitada por dos caracteres determinados
@@ -185,7 +185,7 @@ void StrReadStringBetweenChars(AnsiString &String, const AnsiString &S, int &i,
         int status = 0;
 
         //variables tampón
-        AnsiString _String;
+        AnsiString t_String;
 
         //avanza el índice hasta el próximo caracter no separador
         //o hasta la posúltimaposición de la cadena
@@ -232,14 +232,14 @@ void StrReadStringBetweenChars(AnsiString &String, const AnsiString &S, int &i,
                                         status++;
                                 else //si no (si es otro caractercualquiera)
                                         //añadeel caracter a la cadena tampón
-                                        _String += c;
+                                        t_String += c;
                                 break;
                 }
         //mientras no se haya leido la cadena con éxito
         } while(status < 2);
 
         //asigna la variable tampón
-        String = _String;
+        String = t_String;
 }
 //traduce uan cadena entredoscaracteres a la misma cadena sin los caracteres
 AnsiString StrBetweenCharsToStr(const AnsiString &S,
@@ -368,7 +368,7 @@ void StrReadLabel(AnsiString &Reading, const AnsiString &Label,
 
         //variables auxiliares
         char c; //S[i]
-        AnsiString _Reading; //variable tampón
+        AnsiString t_Reading; //variable tampón
 
         do {
                 c = S[i];
@@ -397,7 +397,7 @@ void StrReadLabel(AnsiString &Reading, const AnsiString &Label,
                                         if(c1 != c2)
                                                 throw EImproperArgument(AnsiString("'")+AnsiString(c2)+AnsiString("' should be '")+AnsiString(c1)+AnsiString("'"));
                                         else {
-                                                _Reading += c2;
+                                                t_Reading += c2;
                                                 i++;
                                         }
                                 }
@@ -407,7 +407,7 @@ void StrReadLabel(AnsiString &Reading, const AnsiString &Label,
         } while(status < 1);
 
         //asigna la variable tampón
-        Reading = _Reading;
+        Reading = t_Reading;
 }
 //recorre una etiqueta a partir de
 //la posición indicada de un acadena de texto
@@ -543,7 +543,7 @@ void StrReadAssign(AnsiString &Ident, const AnsiString &S, int &i)
 
         //variables ausiliares
         char c; //S[i]
-        AnsiString _Ident; //variable tampón
+        AnsiString t_Ident; //variable tampón
 
         do {
                 c = S[i];
@@ -563,7 +563,7 @@ void StrReadAssign(AnsiString &Ident, const AnsiString &S, int &i)
                                                 break;
                                         default:
                                                 if(c != '=') {
-                                                        _Ident = c;
+                                                        t_Ident = c;
                                                         i++;
                                                         if(i > S.Length())
                                                                 throw EImproperArgument("'=' not fount");
@@ -587,7 +587,7 @@ void StrReadAssign(AnsiString &Ident, const AnsiString &S, int &i)
                                                 status++;
                                                 break;
                                         default:
-                                                _Ident += c;
+                                                t_Ident += c;
                                                 i++;
                                                 if(i > S.Length())
                                                         throw EImproperArgument("'=' not found");
@@ -597,7 +597,7 @@ void StrReadAssign(AnsiString &Ident, const AnsiString &S, int &i)
         } while(status < 2);
 
         //asigna la variable tampón
-        Ident = _Ident;
+        Ident = t_Ident;
 }      */
               /*
 //segrega la subcadena desde la posición indicada hasta el final
@@ -1092,7 +1092,7 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
     int status = 0;
 
     //tampon variable
-    string _dst;
+    string t_dst;
 
     do {
         //if the index i indicates a char of the source string
@@ -1107,7 +1107,7 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
                 else if(c == '\r')
                     status++;
                 else if(c=='+' || c=='-' || ('0'<=c && c<='9')) {
-                    _dst += c;
+                    t_dst += c;
                     status = 2;
                 } else
                     throw EImproperArgument("integer value not found");
@@ -1124,7 +1124,7 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
                 if(c<'0' || '9'<c)
                     throw EImproperArgument("integer value not found");
                 else {
-                    _dst += c;
+                    t_dst += c;
                     status++;
                 }
                 break;
@@ -1134,7 +1134,7 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
                     i--;
                     status++;
                 } else
-                    _dst += c;
+                    t_dst += c;
                 break;
 
             default:
@@ -1169,7 +1169,7 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
     } while(status < 4);
 
     //set the tampon variables
-    dst = _dst;
+    dst = t_dst;
 }
 //read an integer in the indicated position of a text string
 void strReadInt(int& value, const string& src, unsigned int& i)
@@ -1215,7 +1215,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
 
         //variables auxiliares
         char c; //caracter S[i]
-        AnsiString _F; //variable tampón
+        AnsiString t_F; //variable tampón
 
         do {
                 //asigna el próximo caracter para facilitar su acceso
@@ -1236,7 +1236,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                                         throw EImproperArgument("floating point value not found");
                                                 break;
                                         case '+': case '-':
-                                                _F += c;
+                                                t_F += c;
                                                 i++;
                                                 if(i > S.Length())
                                                         throw EImproperArgument("first decimal figure not found");
@@ -1245,7 +1245,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                         default:
                                                 if(c<'0' || '9'<c)
                                                         throw EImproperArgument("floating point value not found");
-                                                _F += c;
+                                                t_F += c;
                                                 i++;
                                                 if(i > S.Length())
                                                         status = 7;
@@ -1256,7 +1256,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                         case 1: //esperando primer caracter decimal
                                 if(c<'0' || '9'<c)
                                         throw EImproperArgument("first decimal figure not found");
-                                _F += c;
+                                t_F += c;
                                 i++;
                                 if(i > S.Length())
                                         status = 7;
@@ -1265,19 +1265,19 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                 break;
                         case 2: //esperando caracter decimal o separador decimal o 'e'/'E'
                                 if('0'<=c && c<='9') {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
                                 } else if(c == get_decimal_separator()) {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
                                         else
                                                 status++;
                                 } else if(c=='e' || c=='E') {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 throw EImproperArgument("exponent not found");
@@ -1287,12 +1287,12 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                 break;
                         case 3: //esperando caracter decimal o 'e'/'E'
                                 if('0'<=c && c<='9') {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
                                 } else if(c=='e' || c=='E') {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 throw EImproperArgument("exponent not found");
@@ -1302,13 +1302,13 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                 break;
                         case 4: //esperando '+', '-', o primer caracter decimal
                                 if(c=='-' || c=='+') {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 throw EImproperArgument("exponent's first decimal figure not found");
                                         status++;
                                 } else if('0'<=c && c<='9') {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
@@ -1321,7 +1321,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                 if(c<'0' || '9'<c)
                                         throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be a decimal figure"));
                                 else {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
@@ -1333,7 +1333,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
                                 if(c<'0' || '9'<c)
                                         status = 7;
                                 else {
-                                        _F += c;
+                                        t_F += c;
                                         i++;
                                         if(i > S.Length())
                                                 status = 7;
@@ -1344,7 +1344,7 @@ void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
         } while(status < 7);
 
         //asigna la variable tampón
-        F = _F;
+        F = t_F;
 }
 //escudriña S a partir de i en busca de un número de punto flotante
 //e intenta convertirlo a double mediante StrToFloat
@@ -1417,7 +1417,7 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
     int status = 0;
 
     //tampon variable
-    string _dst;
+    string t_dst;
 
     do {
         //if the index i indicates a char of the source string
@@ -1432,10 +1432,10 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
                 else if(c == '\r')
                     status++;
                 else if(c=='+' || c=='-') {
-                    _dst += c;
+                    t_dst += c;
                     status = 2;
                 } else if('0'<=c && c<='9') {
-                    _dst += c;
+                    t_dst += c;
                     status = 3;
                 } else
                     throw EImproperArgument("floating point value not found");
@@ -1452,19 +1452,19 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
                 if(c<'0' || '9'<c)
                     throw EImproperArgument("floating point value not found");
                 else {
-                    _dst += c;
+                    t_dst += c;
                     status++;
                 }
                 break;
 
             case 3: //waiting decimal char or decimal separator or 'e'/'E' or other char
                 if('0'<=c && c <='9')
-                    _dst += c;
+                    t_dst += c;
                 else if(c == get_decimal_separator()) {
-                    _dst += c;
+                    t_dst += c;
                     status++;
                 } else if(c=='e' || c=='E') {
-                    _dst += c;
+                    t_dst += c;
                     status = 5;
                 } else {
                     i--;
@@ -1474,9 +1474,9 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
 
             case 4: //waiting decimal char or 'e'/'E' or other char
                 if('0'<=c && c<='9')
-                    _dst += c;
+                    t_dst += c;
                 else if(c=='e' || c=='E') {
-                    _dst += c;
+                    t_dst += c;
                     status++;
                 } else {
                     i--;
@@ -1486,10 +1486,10 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
 
             case 5: //waiting '+', '-' or first decimal char
                 if(c=='+' || c=='-') {
-                    _dst += c;
+                    t_dst += c;
                     status++;
                 } else if('0'<=c && c<='9') {
-                    _dst += c;
+                    t_dst += c;
                     status = 7;
                 } else {
                     i--;
@@ -1499,7 +1499,7 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
 
             case 6: //waiting first decimal char
                 if('0'<=c && c<='9') {
-                    _dst += c;
+                    t_dst += c;
                     status++;
                 } else {
                     while(src[i]<'0' || '9'<src[i])
@@ -1513,7 +1513,7 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
                     i--;
                     status = 8;
                 } else
-                    _dst += c;
+                    t_dst += c;
                 break;
 
             default:
@@ -1559,7 +1559,7 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
     } while(status < 8);
 
     //set the tampon variables
-    dst = _dst;
+    dst = t_dst;
 }
 //read an float in the indicated position of a text string
 void strReadFloat(double& value, const string& src, unsigned int& i)
@@ -1624,7 +1624,7 @@ void StrReadBoolStr(AnsiString &B, const AnsiString &S, int &i)
 
         //variables auxiliares
         char c; //S[i]
-        AnsiString _B; //variable tampón
+        AnsiString t_B; //variable tampón
         AnsiString aux;
 
         do {
@@ -1642,14 +1642,14 @@ void StrReadBoolStr(AnsiString &B, const AnsiString &S, int &i)
                                                 throw EImproperArgument("boolean value not found");
                                 } else if(c == TrueBoolStrs[0][1]) {
                                         try {
-                                                StrReadLabel(_B, TrueBoolStrs[0], S, i);
+                                                StrReadLabel(t_B, TrueBoolStrs[0], S, i);
                                         } catch(...) {
                                                 throw;
                                         }
                                         status++;
                                 } else if(c == FalseBoolStrs[0][1]) {
                                         try {
-                                                StrReadLabel(_B, FalseBoolStrs[0], S, i);
+                                                StrReadLabel(t_B, FalseBoolStrs[0], S, i);
                                         } catch(...) {
                                                 throw;
                                         }
@@ -1661,7 +1661,7 @@ void StrReadBoolStr(AnsiString &B, const AnsiString &S, int &i)
         } while(status < 1);
 
         //asigna la variable tampón
-        B = _B;
+        B = t_B;
 }
 //escudriña S a partir de i en busca de un valor lógico
 //e intenta convertirlo a lógico mediante StrToBool
@@ -1795,7 +1795,7 @@ void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
 
         //variables auxiliares
         char c; //S[i]
-        TDoublePoint _P; //variable tampón
+        TDoublePoint t_P; //variable tampón
         AnsiString aux;
 
         do {
@@ -1826,7 +1826,7 @@ void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
                                 break;
                         case 1: //esperando valor en punto flotante
                                 try {
-                                        StrReadFloat(_P.x, S, i);
+                                        StrReadFloat(t_P.x, S, i);
                                         status++;
                                 } catch(EImproperArgument &E) {
                                         throw EImproperArgument(E.Message+AnsiString(" for property x"));
@@ -1858,7 +1858,7 @@ void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
                                 break;
                         case 3: //esperando valor en punto flotante
                                 try {
-                                        StrReadFloat(_P.y, S, i);
+                                        StrReadFloat(t_P.y, S, i);
                                         status++;
                                 } catch(EImproperArgument &E) {
                                         throw EImproperArgument(E.Message+AnsiString(" for property y"));
@@ -1890,7 +1890,7 @@ void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
         } while(status < 5);
 
         //asigna la variable tampón
-        *P = _P;
+        *P = t_P;
 }
 //convierte un valor punto de formato texto a TDoublePoint
 //si S contiene algo más que un valor punto
@@ -1942,7 +1942,7 @@ void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
 
         //variables auxiliares
         char c; //S[i]
-        TDoubleRect _R; //variable tampón
+        TDoubleRect t_R; //variable tampón
         AnsiString aux;
 
         do {
@@ -1973,7 +1973,7 @@ void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
                                 break;
                         case 1: //esperando valor en punto flotante
                                 try {
-                                        StrReadFloat(_R.Left, S, i);
+                                        StrReadFloat(t_R.Left, S, i);
                                         status++;
                                 } catch(EImproperArgument &E) {
                                         throw EImproperArgument(E.Message+AnsiString(" for property Left"));
@@ -2005,7 +2005,7 @@ void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
                                 break;
                         case 3: //esperando valor en punto flotante
                                 try {
-                                        StrReadFloat(_R.Bottom, S, i);
+                                        StrReadFloat(t_R.Bottom, S, i);
                                         status++;
                                 } catch(EImproperArgument &E) {
                                         throw EImproperArgument(E.Message+AnsiString(" for property Bottom"));
@@ -2037,7 +2037,7 @@ void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
                                 break;
                         case 5: //esperando valor en punto flotante
                                 try {
-                                        StrReadFloat(_R.Right, S, i);
+                                        StrReadFloat(t_R.Right, S, i);
                                         status++;
                                 } catch(EImproperArgument &E) {
                                         throw EImproperArgument(E.Message+AnsiString(" for property Right"));
@@ -2069,7 +2069,7 @@ void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
                                 break;
                         case 7: //esperando valor en punto flotante
                                 try {
-                                        StrReadFloat(_R.Top, S, i);
+                                        StrReadFloat(t_R.Top, S, i);
                                         status++;
                                 } catch(EImproperArgument &E) {
                                         throw EImproperArgument(E.Message+AnsiString(" for property Top"));
@@ -2101,7 +2101,7 @@ void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
         } while(status < 9);
 
         //asigna la variable tampón
-        *R = _R;
+        *R = t_R;
 }
 //convierte un valor rectángulo de formato texto a TDoubleRect
 //si S contiene algo más que un valor rectángulo

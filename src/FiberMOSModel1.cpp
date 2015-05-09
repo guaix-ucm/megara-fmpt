@@ -290,18 +290,18 @@ void TFiberMOSModel1::ReadRPLFromDir(const AnsiString& Dir)
 {
         try {
                 //contruye una lista tampón
-                TRoboticPositionerList _RPL;
+                TRoboticPositionerList t_RPL;
 
                 AnsiString S;
 
                 //lee y asigna la lista de orígenes de coordenadas de la lista de posicionadores
                 StrReadFromFile(S, Dir+"\\RoboticPositionerOriginsTable.txt");
-                _RPL.OriginsTableText = S;
+                t_RPL.OriginsTableText = S;
 
                 //por cada posicionador de la lista
                 for(int i=0; i<_RPL.Count; i++) {
                         //apunta el posicionador indicado para facilitar su acceso
-                        TRoboticPositioner *RP = _RPL[i];
+                        TRoboticPositioner *RP = t_RPL[i];
 
                         //construye el nombre del subdirectorio que contiene la instancia del posicionador
                         AnsiString SubDir = Dir+"\\RoboticPositioner"+RP->Actuator->IdText;
@@ -321,10 +321,10 @@ void TFiberMOSModel1::ReadRPLFromDir(const AnsiString& Dir)
 
                 //lee y asigna la instancia de la lista de posicionadores
                 StrReadFromFile(S, Dir+"\\Instance.txt");
-                _RPL.InstanceText = S;
+                t_RPL.InstanceText = S;
 
                 //clona la lista tampón
-                RPL.Clone(&_RPL);
+                RPL.Clone(&t_RPL);
                 //asimila los parámetros de dimensionamiento
                 RPL.Assimilate();
 
@@ -370,18 +370,18 @@ void TFiberMOSModel1::ReadEALFromDir(const AnsiString& Dir)
 {
         try {
                 //contruye una lista tampón
-                TExclusionAreaList _EAL;
+                TExclusionAreaList t_EAL;
 
                 AnsiString S;
 
                 //lee y asigna la tabla de orígenes de coordenadas
                 StrReadFromFile(S, Dir+"\\ExclusionAreaOriginsTable.txt");
-                _EAL.OriginsTableText = S;
+                t_EAL.OriginsTableText = S;
 
                 //por cada área de exclusión de la lista
                 for(int i=0; i<_EAL.Count; i++) {
                         //apunta el área de exclusión indicada para facilitar su acceso
-                        TExclusionArea *EA = _EAL[i];
+                        TExclusionArea *EA = t_EAL[i];
 
                         //construye el nombre del subdirectorio que contiene la instancia del área de exclusión
                         AnsiString SubDir = Dir+"\\ExclusionArea"+EA->Id;
@@ -396,7 +396,7 @@ void TFiberMOSModel1::ReadEALFromDir(const AnsiString& Dir)
                 }
 
                 //clona la lista tampón
-                EAL.Clone(&_EAL);
+                EAL.Clone(&t_EAL);
                 //asimila los parámetros de dimensionamiento
                 EAL.Assimilate(RPL);
 

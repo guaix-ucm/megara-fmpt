@@ -46,12 +46,12 @@ template <class T> class TPLVector : public TPointersList<TVector<T> > {
 protected:
 public:
     //constructor general
-    TPLVector(int _Capacity=8,
-              int ( *_CompareVectors)(const TVector<T>*, const TVector<T>*)=NULL,
-              double ( *_EvaluateVector)(const TVector<T>*)=NULL,
-              void ( *_AssignValue)(TVector<T>*, double)=NULL) :
-        TPointersList<TVector<T> >(_Capacity, _CompareVectors,
-                                   _EvaluateVector, _AssignValue,
+    TPLVector(int Capacity=8,
+              int (*CompareVectors)(const TVector<T>*, const TVector<T>*)=NULL,
+              double (*EvaluateVector)(const TVector<T>*)=NULL,
+              void (*AssignValue)(TVector<T>*, double)=NULL) :
+        TPointersList<TVector<T> >(Capacity, CompareVectors,
+                                   EvaluateVector, AssignValue,
                                    TVector<T>::PrintVector, TVector<T>::ReadVector) {;}
 
     //suma del nº de elementos de cada vector
@@ -99,7 +99,7 @@ public:
     void GetVectorMax(TVector<double> &v);
     //obtiene el vector varianza
     void GetVectorVar(TVector<double> &v);
-/*
+    /*
     //lista de vectores en formato texto con delimitadores
     //  '{', ',' y '}' para listas
     //  '(', ',' y ')' para vectores

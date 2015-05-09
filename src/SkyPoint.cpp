@@ -167,55 +167,55 @@ AnsiString TSkyPoint::PriorityLabel = "Priority";
 //---------------------------------------------------------------------------
 //PROPIEDADES DEFINITORIAS:
 
-void TSkyPoint::setId(int _Id)
+void TSkyPoint::setId(int Id)
 {
     //el número de identificación debería ser mayor que cero
-    if(_Id < 1)
+    if(Id < 1)
         throw EImproperArgument("identifier number Id should be upper zero");
 
     //asigna el nuevo valor
-    __Id = _Id;
+    p_Id = Id;
 }
-void TSkyPoint::setDEC(double _DEC)
+void TSkyPoint::setDEC(double DEC)
 {
     //la declinación DEC debería estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("decline ")+FloatToStr(_DEC)+AnsiString(" should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("decline ")+FloatToStr(DEC)+AnsiString(" should be in [-pi/2, pi/2]"));
 
     //asigna el nuevo valor
-    __DEC = _DEC;
+    p_DEC = DEC;
 }
-void TSkyPoint::setRA(double _RA)
+void TSkyPoint::setRA(double RA)
 {
     //asigna el nuevo valor
-    __RA = _RA;
+    p_RA = RA;
 }
 
-void TSkyPoint::setTint(double _Tint)
+void TSkyPoint::setTint(double Tint)
 {
     //el tiempo de integración Tint debería ser no negativo
-    if(_Tint < 0)
+    if(Tint < 0)
         throw EImproperArgument("integration time Tint should be nonnegative");
 
     //asigna el nuevo valor
-    __Tint = _Tint;
+    p_Tint = Tint;
 }
-void TSkyPoint::setName(const AnsiString &_Name)
+void TSkyPoint::setName(const AnsiString &Name)
 {
     //la cadena de texto Name debería estar entre comillas simples
-    if(StrIsntString(_Name))
-        throw EImproperArgument(AnsiString("string '")+_Name+AnsiString("' should to be between single quotes"));
+    if(StrIsntString(Name))
+        throw EImproperArgument(AnsiString("string '")+Name+AnsiString("' should to be between single quotes"));
 
     //el nombre Name debería ser una cadena de texto imprimible
-    if(StrIsntPrintable(_Name))
-        throw EImproperArgument(AnsiString("name '")+_Name+AnsiString("' should be a printable string"));
+    if(StrIsntPrintable(Name))
+        throw EImproperArgument(AnsiString("name '")+Name+AnsiString("' should be a printable string"));
 
     //el nombre Name debería tener 23 caracteres como máximo
-    if(_Name.Length() > 23)
+    if(Name.Length() > 23)
         throw EImproperArgument("name "" should have 23 characters maximun");
 
     //asigna el nuevo valor
-    __Name = _Name;
+    p_Name = Name;
 }
 
 //PROPIEDADES DE INTERFAZ:
@@ -227,7 +227,7 @@ AnsiString TSkyPoint::getIdText(void) const
 void TSkyPoint::setIdText(const AnsiString &S)
 {
     try {
-        __Id = StrToInt_(S);
+        p_Id = StrToInt_(S);
     } catch(...) {
         throw;
     }
@@ -263,7 +263,7 @@ AnsiString TSkyPoint::getTintText(void) const
 void TSkyPoint::setTintText(const AnsiString &S)
 {
     try {
-        __Tint = StrToFloat_(S);
+        p_Tint = StrToFloat_(S);
     } catch(...) {
         throw;
     }
@@ -475,7 +475,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
     int status = 0;
 
     //variables auxiliares
-    TSkyPoint _SP(SP); //variable tampón
+    TSkyPoint t_SP(SP); //variable tampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -491,7 +491,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
         case 0: //esperando cadena de texto para Id
             try {
             StrReadWord(Value, S, i);
-            _SP.setIdText(Value);
+            t_SP.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -504,7 +504,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
         case 1: //esperando valor en punto flotante para phi'
             try {
             StrReadWord(Value, S, i);
-            _SP.setRAText(Value);
+            t_SP.setRAText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
             } catch(...) {
@@ -517,7 +517,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
         case 2: //esperando valor en punto flotante para theta'
             try {
             StrReadWord(Value, S, i);
-            _SP.setDECText(Value);
+            t_SP.setDECText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
             } catch(...) {
@@ -529,7 +529,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
     } while(status < 3);
 
     //asigna la variable tampón
-    *SP = _SP;
+    *SP = t_SP;
 }
 void  TSkyPoint::ReadCol(TSkyPoint* &SP,
                                    const AnsiString &S, int &i)
@@ -551,7 +551,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
     int status = 0;
 
     //variables auxiliares
-    TSkyPoint _SP(SP); //variabletampón
+    TSkyPoint t_SP(SP); //variabletampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -567,7 +567,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
         case 0: //esperando cadena de texto para Id
             try {
             StrReadWord(Value, S, i);
-            _SP.setIdText(Value);
+            t_SP.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -580,7 +580,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
         case 1: //esperando valor en punto flotante para phi'
             try {
             StrReadWord(Value, S, i);
-            _SP.setRAText(Value);
+            t_SP.setRAText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
             } catch(...) {
@@ -593,7 +593,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
         case 2: //esperando valor en punto flotante para theta'
             try {
             StrReadWord(Value, S, i);
-            _SP.setDECText(Value);
+            t_SP.setDECText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
             } catch(...) {
@@ -605,7 +605,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
     } while(status < 3);
 
     //asigna la variable tampón
-    *SP = _SP;
+    *SP = t_SP;
 }
 void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
                                        const AnsiString &S, int &i)
@@ -627,7 +627,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
     int status = 0;
 
     //variables auxiliares
-    TSkyPoint _SP(SP); //variable tampón
+    TSkyPoint t_SP(SP); //variable tampón
     AnsiString Ident; //identificador de propiedad
     AnsiString Value; //valor de propiedad
 
@@ -645,7 +645,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
             StrReadLabel(Ident, "Id", S, i);
             StrTravelLabel("=", S, i);
             StrReadWord(Value, S, i);
-            _SP.setIdText(Value);
+            t_SP.setIdText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property Id"));
             } catch(...) {
@@ -660,7 +660,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
             StrReadLabel(Ident, "phi'", S, i);
             StrTravelLabel("=", S, i);
             StrReadWord(Value, S, i);
-            _SP.setRAText(Value);
+            t_SP.setRAText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
             } catch(...) {
@@ -675,7 +675,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
             StrReadLabel(Ident, "theta'", S, i);
             StrTravelLabel("=", S, i);
             StrReadWord(Value, S, i);
-            _SP.setDECText(Value);
+            t_SP.setDECText(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
             } catch(...) {
@@ -687,14 +687,14 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
     } while(status < 3);
 
     //asigna la variable tampón
-    *SP = _SP;
+    *SP = t_SP;
 }
 
 //MÉTODOS PÚBLISPS:
 
 //contruye un punto de cielo
 TSkyPoint::TSkyPoint(void) :
-    __Id(0), __RA(0), __DEC(0), __Tint(0), Type(ptUNKNOWN), Priority(0)
+    p_Id(0), p_RA(0), p_DEC(0), p_Tint(0), Type(ptUNKNOWN), Priority(0)
 {
     setName("\'\'");
 }
@@ -720,19 +720,19 @@ void TSkyPoint::Copy(TSkyPoint *SP)
         throw EImproperArgument("pointer SP should point to built sky point");
 
     //asigna las propiedades
-    __Id = SP->__Id;
-    __RA = SP->__RA;
-    __DEC = SP->__DEC;
-    __Tint = SP->__Tint;
+    p_Id = SP->p_Id;
+    p_RA = SP->p_RA;
+    p_DEC = SP->p_DEC;
+    p_Tint = SP->p_Tint;
     Type = SP->Type;
 }
 TSkyPoint &TSkyPoint::operator=(const TSkyPoint &SP)
 {
     //asigna las propiedades
-    __Id = SP.__Id;
-    __RA = SP.__RA;
-    __DEC = SP.__DEC;
-    __Tint = SP.__Tint;
+    p_Id = SP.p_Id;
+    p_RA = SP.p_RA;
+    p_DEC = SP.p_DEC;
+    p_Tint = SP.p_Tint;
     Type = SP.Type;
 
     return *this;
@@ -741,15 +741,15 @@ TSkyPoint &TSkyPoint::operator=(const TSkyPoint &SP)
 //MÉTODOS DE DESPLAZAMIENTO:
 
 //asigna (DEC, RA)
-void TSkyPoint::SetPosition(double _RA, double _DEC)
+void TSkyPoint::SetPosition(double RA, double DEC)
 {
     //la colatitud DEC debería estar en [-pi/2, pi/2]
-    if(_DEC<-M_PI/2 || M_PI/2<_DEC)
-        throw EImproperArgument(AnsiString("colatitude ")+FloatToStr(_DEC)+AnsiString(" should be in [-pi/2, pi/2]"));
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("colatitude ")+FloatToStr(DEC)+AnsiString(" should be in [-pi/2, pi/2]"));
 
     //asigna los nuevos valores
-    __RA = _RA;
-    __DEC = _DEC;
+    p_RA = RA;
+    p_DEC = DEC;
 }
 
 //randomiza las coordenadas celestes con distribución uniforme
@@ -885,8 +885,8 @@ void  TSkyPointList::ReadTSkyPoints(
 //MÉTODOS PÚBLICOS:
 
 //construye una lista de puntos de cielo
-TSkyPointList::TSkyPointList(int _Capacity) :
-    TItemsList<TSkyPoint*>(_Capacity,
+TSkyPointList::TSkyPointList(int Capacity) :
+    TItemsList<TSkyPoint*>(Capacity,
                            TSkyPoint::CompareIds,
                            NULL, NULL,
                            TSkyPoint::PrintRow,

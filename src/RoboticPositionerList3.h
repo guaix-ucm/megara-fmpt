@@ -45,7 +45,7 @@ class TRoboticPositionerList : public TRoboticPositionerList2 {
 protected:
         //EXECUTION PROPERTIES:
 
-        double __Tit;
+        double p_Tit;
 
 public:
         //EXECUTION PROPERTIES:
@@ -56,7 +56,7 @@ public:
 
         //periodo de iteración escalado
         //valor por defecto: 40 ms
-        double getTit(void) const {return __Tit;}
+        double getTit(void) const {return p_Tit;}
         void setTit(const double);
 
         //instante de tiempo actual

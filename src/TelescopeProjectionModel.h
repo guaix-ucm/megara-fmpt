@@ -45,11 +45,11 @@ namespace Models {
 
 //círculo de proyección
 class TProjectionCircle : public TCircle {
-    TDoublePoint __O;
+    TDoublePoint p_O;
 
 public:
     //punto origen de coordenadas
-    TDoublePoint getO(void) const {return __O;}
+    TDoublePoint getO(void) const {return p_O;}
 
     //color con que son contruidos los círculos de proyección
     //valor por defecto: clWhite
@@ -61,7 +61,7 @@ public:
 
     //contruye un círculo de proyección
     TProjectionCircle(void);
-    TProjectionCircle(TDoublePoint _P, double _R);
+    TProjectionCircle(TDoublePoint P, double R);
     //clona un círculo de proyección
     TProjectionCircle(TProjectionCircle *);
 
@@ -86,22 +86,22 @@ public:
 //plano focal
 class TFocalPlane {
 protected:
-    TDoublePoint __O;
-    double __R;
-    TProjectionCircle *__ProjectionCircle;
+    TDoublePoint p_O;
+    double p_R;
+    TProjectionCircle *p_ProjectionCircle;
 
 public:
     //PROPIEDADES CONSTANTES:
 
     //punto origen de coordenadas
-    TDoublePoint getO(void) const {return __O;}
+    TDoublePoint getO(void) const {return p_O;}
 
     //PROPIEDADES:
 
     //radio del plano focal
     //debe ser un valor mayor que cero
     //valor por defecto: GTC_R mm:
-    double getR(void) const {return __R;} void setR(double);
+    double getR(void) const {return p_R;} void setR(double);
 
     //CONSEJO: para obtener parámetros estadísticos se aconseja mantener
     //el radio del plano focal igual al radio del dominio del instrumento.
@@ -111,7 +111,7 @@ public:
     //círculo de proyección del azulejo adscrito
     //valor por defecto: NULL
     TProjectionCircle *getProjectionCircle(void) const {
-        return __ProjectionCircle;}
+        return p_ProjectionCircle;}
 
     //es conceptualmente más correcto que ProjectionCircle sea un puntero
     //porque una circunferencia de radio nulo puede ser entendida como
@@ -157,23 +157,19 @@ public:
 class TTelescopeProjectionModel : public TFocalPlane {
     //OBJETOS EXTERNOS ADSCRITOS:
 
-    TTile *__Tile;
+    TTile *p_Tile;
 
     //PROPIDADES DEFINITORIAS:
 
-    double __RA;
-    double __DEC;
-    double __PA;
+    double p_RA;
+    double p_DEC;
+    double p_PA;
 
-    double __R;
-    double __angview;
-    double __angview_rad;
-    double __scale;
-    double __scaleinv;
-
-    //PROPIEDADES DEFINITORIAS EN FORMATO TEXTO:
-
-    //CONJUNTO DE PROPIEDADES DEFINITORIAS EN FORMATO TEXTO:
+    double p_R;
+    double p_angview;
+    double p_angview_rad;
+    double p_scale;
+    double p_scaleinv;
 
     //PROPIEDADES INTERNAS:
 
@@ -226,7 +222,7 @@ public:
 
     //puntero al azulejo externo adscrito
     //valor por defecto: NULL
-    TTile *getTile(void) const {return __Tile;}
+    TTile *getTile(void) const {return p_Tile;}
 
     //función de dibujo externa adscrita
     //para actualizar la caja de pintura del plano focal
@@ -237,22 +233,22 @@ public:
 
     //ascensión recta del punto de apuntado del telescopio
     //valor por defecto: 0
-    double getRA(void) const {return __RA;} void setRA(double);
+    double getRA(void) const {return p_RA;} void setRA(double);
     //declinación del punto de apuntado del telescopio
     //debe estar en [-pi/2, pi/2]
     //valor por defecto: 0
-    double getDEC(void) const {return __DEC;} void setDEC(double);
+    double getDEC(void) const {return p_DEC;} void setDEC(double);
     //ángulo de orientación del plano focal del telescopio
-    double getPA(void) const {return __PA;} void setPA(double);
+    double getPA(void) const {return p_PA;} void setPA(double);
 
     //radio del plano focal
     //debe ser mayor que cero
     //valor por defecto: 850 mm
-    double getR(void) const {return __R;} void setR(double);
+    double getR(void) const {return p_R;} void setR(double);
     //ángulo de visión del telescopio
     //debe ser mayor que cero
     //valor por defecto: 1031.305 arcsec
-    double getangview(void) const {return __angview;}
+    double getangview(void) const {return p_angview;}
     void setangview(double);
 
     //En este modelo la escala viene determinada por:
@@ -264,15 +260,15 @@ public:
     //ángulo de visión en radianes
     //      angview_rad = angview*M_PI/double(180*3600)
     //valor por defecto: 0.0049999077339667 rad
-    double getangview_rad(void) const {return __angview_rad;}
+    double getangview_rad(void) const {return p_angview_rad;}
     //factor de escala o aumento del telescopio
     //      scale = R/angview
     //valor por defecto: ? mm/arcsec
-    double getscale(void) const {return __scale;}
+    double getscale(void) const {return p_scale;}
     //factor de escala inversa o aumento del telescopio
     //      scale = angview/R
     //valor por defecto: 1.2133 arcsec/mm
-    double getscaleinv(void) const {return __scaleinv;}
+    double getscaleinv(void) const {return p_scaleinv;}
 
     //En MEGARA-GTC:
     //      R = 850 mm
@@ -339,18 +335,18 @@ public:
     //------------------------------------------------------------------
 
     //asigna conjuntamente las propiedades de configuración
-    void Set(double _RA, double _DEC, double _PA,
-             double _R, double _angview);
+    void Set(double RA, double DEC, double PA,
+             double R, double angview);
 
     //apunta el telescopio hacia un punto de la esfera celeste
-    void Point(double _RA, double _DEC);
+    void Point(double RA, double DEC);
 
     //ADVERTENCIA: al invocar a la función Point debe tenerse cuidado
     //de no invocar a la función global Point(double, double)
     //la cual no hará nada y enmascarará el fallo.
 
     //apunta el telescopio y orienta el plano focal
-    void PointAndOrientate(double _RA, double _DEC, double _PA);
+    void PointAndOrientate(double RA, double DEC, double PA);
 
     //proyecta un punto de la esfera celeste sobre el plano focal
     void Project(TDoublePoint &P, double RA, double DEC);

@@ -44,7 +44,7 @@ class TProjectionPoint : public TDoublePoint {
 protected:
     //ATACHED EXTERN OBJECTS:
 
-    TSkyPoint *__SkyPoint;
+    TSkyPoint *p_SkyPoint;
 
 public:
     //STATIC PROPERTIES:
@@ -57,7 +57,7 @@ public:
 
     //punto de cielo externo adscrito
     //valor por defecto: NULL
-    TSkyPoint *getSkyPoint(void) const {return __SkyPoint;}
+    TSkyPoint *getSkyPoint(void) const {return p_SkyPoint;}
 
     //PROPERTIES:
 

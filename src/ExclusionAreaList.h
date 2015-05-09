@@ -46,26 +46,14 @@ class TExclusionAreaList : public TItemsList<TExclusionArea*> {
 protected:
         //PROPIEDADES DE LOCALIZACIÓN:
 
-        TDoublePoint __O;
+        TDoublePoint p_O;
 
-        double __rmax;
+        double p_rmax;
 
-        double __xmin;
-        double __xmax;
-        double __ymin;
-        double __ymax;
-
-        //###################################################################
-        //PROPIEDADES EN FORMATO TEXTO
-        //###################################################################
-
-        //PROPIEDADES COMPUESTAS EN FORMATO TEXTO:
-
-        //PROPIEDADES DE LOCALIZACIÓN EN FORMATO TEXTO:
-
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+        double p_xmin;
+        double p_xmax;
+        double p_ymin;
+        double p_ymax;
 
 public:
         //PROPIEDADES COMPUESTAS:
@@ -76,25 +64,25 @@ public:
 
         //posición del origen del sistema S0
         //valor constante: (0, 0)
-        TDoublePoint getO(void) const {return __O;}
+        TDoublePoint getO(void) const {return p_O;}
 
         //radio del círculo mínimo que contiene
         //el dominio de todaslasáreas de exlusión
-        double getrmax(void) const {return __rmax;}
+        double getrmax(void) const {return p_rmax;}
 
 /*        //límite abcisa inferior del cuadrado que contiene
         //todas las áreas de exclusión
-        double getxmin(void) const {return __xmin;}
+        double getxmin(void) const {return p_xmin;}
         //límite abcisa superior del cuadrado que contiene
         //todas las áreas de exclusión
-        double getxmax(void) const {return __xmax;}
+        double getxmax(void) const {return p_xmax;}
 
         //límite ordenada inferior del cuadrado que contiene
         //todas las áreas de exclusión
-        double getymin(void) const {return __ymin;}
+        double getymin(void) const {return p_ymin;}
         //límite ordenada superior del cuadrado que contiene
         //todas las áreas de exclusión
-        double getymax(void) const {return __ymax;}
+        double getymax(void) const {return p_ymax;}
   */
         //PROPIEDADES GRÁFICAS:
 

@@ -39,21 +39,21 @@ namespace MotionFunctions {
 //---------------------------------------------------------------------------
 //PARÁMETROS IMPOSITIVOS:
 
-void TSquareFunction::setvmaxabs(double _vmaxabs)
+void TSquareFunction::setvmaxabs(double vmaxabs)
 {
         //debe ser mayor que cero
-        if(_vmaxabs <= 0)
+        if(vmaxabs <= 0)
                 throw EImproperArgument("vmaxabs should not be less than zero");
 
-        __vmaxabs = _vmaxabs; //asigna el nuevo valor
+        p_vmaxabs = vmaxabs; //asigna el nuevo valor
 
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
         CalculateMilestones();
 
         //arrastra 'T' con el límite del dominio
-        if(__T < __Tmin)
-                __T = __Tmin;
+        if(p_T < p_Tmin)
+                p_T = p_Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
         //(Dmax)
@@ -64,28 +64,28 @@ void TSquareFunction::setvmaxabs(double _vmaxabs)
         CalculateBoundaries();
 
         //arrastra 'vc' con los límties del dominio
-        if(__vcmax>0 && __vc>__vcmax)
-                __vc = __vcmax;
-        else if(__vcmax<0 && __vc<__vcmax)
-                __vc = __vcmax;
+        if(p_vcmax>0 && p_vc>p_vcmax)
+                p_vc = p_vcmax;
+        else if(p_vcmax<0 && p_vc<p_vcmax)
+                p_vc = p_vcmax;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
 }
 
-void TSquareFunction::setpsta(double _psta)
+void TSquareFunction::setpsta(double psta)
 {
-        __psta = _psta; //asigna el nuevo valor
+        p_psta = psta; //asigna el nuevo valor
 
-        __D = __pfin - __psta; //calcula la distancia a recorrer
+        p_D = p_pfin - p_psta; //calcula la distancia a recorrer
 
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
         CalculateMilestones();
 
         //arrastra 'T' con el límite del dominio
-        if(__T < __Tmin)
-                __T = __Tmin;
+        if(p_T < p_Tmin)
+                p_T = p_Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
         //(Dmax)
@@ -96,27 +96,27 @@ void TSquareFunction::setpsta(double _psta)
         CalculateBoundaries();
 
         //arrastra 'vc' con los límties del dominio
-        if(__vcmax>0 && __vc>__vcmax)
-                __vc = __vcmax;
-        else if(__vcmax<0 && __vc<__vcmax)
-                __vc = __vcmax;
+        if(p_vcmax>0 && p_vc>p_vcmax)
+                p_vc = p_vcmax;
+        else if(p_vcmax<0 && p_vc<p_vcmax)
+                p_vc = p_vcmax;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
 }
-void TSquareFunction::setpfin(double _pfin)
+void TSquareFunction::setpfin(double pfin)
 {
-        __pfin = _pfin; //asigna el nuevo valor
+        p_pfin = pfin; //asigna el nuevo valor
 
-        __D = __pfin - __psta; //calcula la distancia a recorrer
+        p_D = p_pfin - p_psta; //calcula la distancia a recorrer
 
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
         CalculateMilestones();
 
         //arrastra 'T' con el límite del dominio
-        if(__T < __Tmin)
-                __T = __Tmin;
+        if(p_T < p_Tmin)
+                p_T = p_Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
         //(Dmax)
@@ -127,10 +127,10 @@ void TSquareFunction::setpfin(double _pfin)
         CalculateBoundaries();
 
         //arrastra 'vc' con los límties del dominio
-        if(__vcmax>0 && __vc>__vcmax)
-                __vc = __vcmax;
-        else if(__vcmax<0 && __vc<__vcmax)
-                __vc = __vcmax;
+        if(p_vcmax>0 && p_vc>p_vcmax)
+                p_vc = p_vcmax;
+        else if(p_vcmax<0 && p_vc<p_vcmax)
+                p_vc = p_vcmax;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
@@ -139,19 +139,19 @@ void TSquareFunction::setpfin(double _pfin)
 //--------------------------------------------------------------------------
 //TIEMPO DE DESPLAZAMIENTO ELEGIDO:
 
-void TSquareFunction::setD(double _D)
+void TSquareFunction::setD(double D)
 {
-        __D = _D; //asigna el nuevo valor
+        p_D = D; //asigna el nuevo valor
 
-        __pfin = __psta + __D; //calcula la posición final
+        p_pfin = p_psta + p_D; //calcula la posición final
 
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
         CalculateMilestones();
 
         //arrastra 'T' con el límite del dominio
-        if(__T < __Tmin)
-                __T = __Tmin;
+        if(p_T < p_Tmin)
+                p_T = p_Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
         //(Dmax)
@@ -162,22 +162,22 @@ void TSquareFunction::setD(double _D)
         CalculateBoundaries();
 
         //arrastra 'vc' con los límties del dominio
-        if(__vcmax>0 && __vc>__vcmax)
-                __vc = __vcmax;
-        else if(__vcmax<0 && __vc<__vcmax)
-                __vc = __vcmax;
+        if(p_vcmax>0 && p_vc>p_vcmax)
+                p_vc = p_vcmax;
+        else if(p_vcmax<0 && p_vc<p_vcmax)
+                p_vc = p_vcmax;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
 }
 
-void TSquareFunction::setT(double _T)
+void TSquareFunction::setT(double T)
 {
         //debe dar tiempo a ir de psta a pfin con amax y vmax dadas
-        if(_T < __Tmin)
+        if(T < p_Tmin)
                 throw EImproperArgument("T should not be less than Tmin");
 
-        __T = _T; //asigna el nuevo valor
+        p_T = T; //asigna el nuevo valor
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
         //(Dmax)
@@ -188,10 +188,10 @@ void TSquareFunction::setT(double _T)
         CalculateBoundaries();
 
         //arrastra 'vc' con los límties del dominio
-        if(__vcmax>0 && __vc>__vcmax)
-                __vc = __vcmax;
-        else if(__vcmax<0 && __vc<__vcmax)
-                __vc = __vcmax;
+        if(p_vcmax>0 && p_vc>p_vcmax)
+                p_vc = p_vcmax;
+        else if(p_vcmax<0 && p_vc<p_vcmax)
+                p_vc = p_vcmax;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
@@ -200,40 +200,40 @@ void TSquareFunction::setT(double _T)
 //--------------------------------------------------------------------------
 //VARIABLE:
 
-void TSquareFunction::setvc(double _vc)
+void TSquareFunction::setvc(double vc)
 {
-        if(__vmax >= 0) {
+        if(p_vmax >= 0) {
                 //debe estar en el intervalo válido
-                if(__pfin != __psta) {
-                        if(_vc<=0 || __vmax<_vc)
+                if(p_pfin != p_psta) {
+                        if(vc<=0 || p_vmax<vc)
                                 throw EImproperArgument(
                                         "vc should be in (0, vmax]");
                 }
                 else //pfin == psta
-                        if(_vc<0 || __vmax<_vc)
+                        if(vc<0 || p_vmax<vc)
                                 throw EImproperArgument(
                                         "vc should be in [0, vmax]");
         }
         else { //vmax < 0
                 //debe estar en el intervalo válido
-                if(__pfin != __psta) {
-                        if(_vc<__vmax || 0<=_vc)
+                if(p_pfin != p_psta) {
+                        if(vc<p_vmax || 0<=vc)
                                 throw EImproperArgument(
                                         "vc should be in [vmax, 0)");
                 }
                 else //pfin == psta
-                        if(_vc<__vmax || 0<_vc)
+                        if(vc<p_vmax || 0<vc)
                                 throw EImproperArgument(
                                         "vc should be in [vmax, 0]");
         }
 
-        __vc = _vc; //asigna el nuevo valor
+        p_vc = vc; //asigna el nuevo valor
 
         //calcula T
-        if(__vc != 0)
-                __T = __D/__vc;
+        if(p_vc != 0)
+                p_T = p_D/p_vc;
         else //vc == 0
-                __T = 0;
+                p_T = 0;
 }
 
 //--------------------------------------------------------------------------
@@ -243,25 +243,25 @@ void TSquareFunction::setvc(double _vc)
 //(vmax, Tmin)
 void TSquareFunction::CalculateMilestones()
 {
-        __vmax = Sign(__D)*__vmaxabs; //calcula el valor algebraico de la velocidad
-        __Tmin = __D/__vmax; //calcula el timepo mínimo para recorrer la distancia
+        p_vmax = Sign(p_D)*p_vmaxabs; //calcula el valor algebraico de la velocidad
+        p_Tmin = p_D/p_vmax; //calcula el timepo mínimo para recorrer la distancia
 }
 
 //calcula la distancia máxima que se pueden recorrer en el tiempo 'T'
 //(Dmax)
 void TSquareFunction::CalculateDistances()
 {
-        __Dmax = __vmax*__T;
+        p_Dmax = p_vmax*p_T;
 }
 
 //calcula los límites del dominio de las variables:
 //[vcmin, vcmax] (en realidad solo vcmax, ya que vcmin es cte = 0)
 void TSquareFunction::CalculateBoundaries(void)
 {
-        if(__D != 0)
-                __vcmax = __vmax;
+        if(p_D != 0)
+                p_vcmax = p_vmax;
         else
-                __vcmax = 0;
+                p_vcmax = 0;
 }
 
 //calcula las variables derivadas de 'vc'
@@ -269,55 +269,55 @@ void TSquareFunction::CalculateVariables_vc(void)
 {
         //cuando T=0 => D=0 => vc=0
 
-        if(__T != 0)
-                __vc = __D/__T;
+        if(p_T != 0)
+                p_vc = p_D/p_T;
         else //T == 0
-                __vc = 0;
+                p_vc = 0;
 }
 
 //---------------------------------------------------------------------------
 //MÉTODOS:
 
 //inicializa {vmax=vmaxabs, tini=0, tfin=0} y asimila los parámetros
-TSquareFunction::TSquareFunction(double _vmaxabs) :
+TSquareFunction::TSquareFunction(double vmaxabs) :
         TMotionFunction()
 {
         //vmaxabs debe ser mayor que cero
-        if(_vmaxabs <= 0)
+        if(vmaxabs <= 0)
                 throw EImproperArgument("vmaxabs should be upper zero");
 
         //asigna valores a los parámetros impositivos no inicializados
 
-        __vmax = __vmaxabs = _vmaxabs;
+        p_vmax = p_vmaxabs = vmaxabs;
 
         //al inicializar todas las variables a cero
         //los siguientes pasos no son necesarios
-/*
-        __D = pfin - psta; //calcula la distancia a recorrer
-
+        //
+        //p_D = pfin - psta; //calcula la distancia a recorrer
+        //
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
-        CalculateMilestones();
-
+        //CalculateMilestones();
+        //
         //elige las variables de primer orden
-        __T = Tmin;
-
+        //p_T = Tmin;
+        //
         //calcula las distancias máximas que se pueden recorrer en el tiempo 'T'
         //(Dmax)
-        CalculateDistances();
-
+        //CalculateDistances();
+        //
         //calcula los límites del dominio de las variables:
         //[vcmin, vcmax]
-        CalculateBoundaries();
-
+        //CalculateBoundaries();
+        //
         //arrastra 'vc' con los límties del dominio
-        if(vcmax>0 && vc>vcmax)
-                __vc = vcmax;
-        else if(vcmax<0 && vc<vcmax)
-                __vc = vcmax;
+        //if(vcmax>0 && vc>vcmax)
+        //        p_vc = vcmax;
+        //else if(vcmax<0 && vc<vcmax)
+        //        p_vc = vcmax;
 
         //calcula la variable (vc)
-        CalculateVariables_vc();*/
+        //CalculateVariables_vc();
 }
 //clona una función cuadrada
 TSquareFunction::TSquareFunction(TSquareFunction *SquareFunction) :
@@ -331,27 +331,27 @@ TSquareFunction::TSquareFunction(TSquareFunction *SquareFunction) :
         //no hay propiedades no heredadas
 }
 //copia todas las propiedades de una función cuadrada
-void TSquareFunction::Copy(TMotionFunction *_SquareFunction)
+void TSquareFunction::Copy(TMotionFunction *SquareFunction)
 {
         //debe apuntar a un objeto construido
-        if(_SquareFunction == NULL)
+        if(SquareFunction == NULL)
                 throw EImproperArgument("pointer SquareFunction should not be null");
 
         //apunta el objeto con un puntero de la clase
-        TSquareFunction *SquareFunction = (TSquareFunction*)_SquareFunction;
+        TSquareFunction *aux = (TSquareFunction*)SquareFunction;
 
         //copia las propiedades heredadas
-        __vmaxabs = SquareFunction->__vmaxabs;
-        __psta = SquareFunction->__psta;
-        __pfin = SquareFunction->__pfin;
-        __vmax = SquareFunction->__vmax;
-        __Tmin = SquareFunction->__Tmin;
-        __D = SquareFunction->__D;
-        __T = SquareFunction->__T;
-        __Dmax = SquareFunction->__Dmax;
-        __vcmin = SquareFunction->__vcmin;
-        __vcmax = SquareFunction->__vcmax;
-        __vc = SquareFunction->__vc;
+        p_vmaxabs = aux->p_vmaxabs;
+        p_psta = aux->p_psta;
+        p_pfin = aux->p_pfin;
+        p_vmax = aux->p_vmax;
+        p_Tmin = aux->p_Tmin;
+        p_D = aux->p_D;
+        p_T = aux->p_T;
+        p_Dmax = aux->p_Dmax;
+        p_vcmin = aux->p_vcmin;
+        p_vcmax = aux->p_vcmax;
+        p_vc = aux->p_vc;
 }
 
 //initalize all properties except (vmaxabs)
@@ -359,41 +359,41 @@ void TSquareFunction::reset(void)
 {
     //INITIALIZE THE INHERITED PREOPERTIES:
 
-    __psta = 0;
-    __pfin = 0;
-    __vmax = 0;
+    p_psta = 0;
+    p_pfin = 0;
+    p_vmax = 0;
 
-    __Tmin = 0;
-    __D = 0;
+    p_Tmin = 0;
+    p_D = 0;
 
-    __Dmax = 0;
-    __vcmin = 0;
-    __vcmax = 0;
-    __vc = 0;
+    p_Dmax = 0;
+    p_vcmin = 0;
+    p_vcmax = 0;
+    p_vc = 0;
 
-    __T = 0;
+    p_T = 0;
 
     //INITIALIZE THE OWN PROPERTIES:
 
-    __vmax = getvmaxabs();
+    p_vmax = getvmaxabs();
 }
 
 //asigna (psta, pfin) conjuntamente
-void TSquareFunction::SetInterval(double _psta, double _pfin)
+void TSquareFunction::SetInterval(double psta, double pfin)
 {
         //asigna los nuevos valores
-        __psta = _psta;
-        __pfin = _pfin;
+        p_psta = psta;
+        p_pfin = pfin;
 
-        __D = __pfin - __psta; //calcula la distancia a recorrer
+        p_D = p_pfin - p_psta; //calcula la distancia a recorrer
 
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
         CalculateMilestones();
 
         //arrastra 'T' con el límite del dominio
-        if(__T < __Tmin)
-                __T = __Tmin;
+        if(p_T < p_Tmin)
+                p_T = p_Tmin;
 
         //calcula las distancias máximas que se pueden recorrer en el tiempo T
         //(Dmax)
@@ -404,10 +404,10 @@ void TSquareFunction::SetInterval(double _psta, double _pfin)
         CalculateBoundaries();
 
         //arrastra 'vc' con los límties del dominio
-        if(__vcmax>0 && __vc>__vcmax)
-                __vc = __vcmax;
-        else if(__vcmax<0 && __vc<__vcmax)
-                __vc = __vcmax;
+        if(p_vcmax>0 && p_vc>p_vcmax)
+                p_vc = p_vcmax;
+        else if(p_vcmax<0 && p_vc<p_vcmax)
+                p_vc = p_vcmax;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
@@ -418,11 +418,11 @@ void TSquareFunction::SetInterval(double _psta, double _pfin)
 void TSquareFunction::InvertTime(void)
 {
         //asigna los nuevos valores
-        double aux = __psta;
-        __psta = __pfin;
-        __pfin = aux;
+        double aux = p_psta;
+        p_psta = p_pfin;
+        p_pfin = aux;
 
-        __D = __pfin - __psta; //calcula la distancia a recorrer
+        p_D = p_pfin - p_psta; //calcula la distancia a recorrer
 
         //calcula los hitos previos a la elección de 'T'
         //(vmax, Tmin)
@@ -437,7 +437,7 @@ void TSquareFunction::InvertTime(void)
         CalculateBoundaries();
 
         //invierte 'vc'
-        __vc *= -1;
+        p_vc *= -1;
 
         //calcula las variables correspondientes a 'vc'
         CalculateVariables_vc();
@@ -448,8 +448,8 @@ double TSquareFunction::v(double t)
 {
         if(t <= 0)
                 return 0;
-        else if(t <= __T)
-                return __vc;
+        else if(t <= p_T)
+                return p_vc;
         else
                 return 0;
 }
@@ -458,11 +458,11 @@ double TSquareFunction::v(double t)
 double TSquareFunction::p(double t)
 {
         if(t <= 0)
-                return __psta;
-        else if(t <= __T)
-                return __psta + __vc*t;
+                return p_psta;
+        else if(t <= p_T)
+                return p_psta + p_vc*t;
         else
-                return __pfin;
+                return p_pfin;
 }
 
 //---------------------------------------------------------------------------

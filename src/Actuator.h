@@ -83,46 +83,46 @@ class TActuator : public TCilinder {
 protected:
     //COMPONENTES DE SPM:
 
-    double __SPMrec;
+    double p_SPMrec;
 
-    double __SPMsta;
-    double __SPMdyn;
-    double __SPMmin;
-    double __SPMoff;
+    double p_SPMsta;
+    double p_SPMdyn;
+    double p_SPMmin;
+    double p_SPMoff;
 
     //VALOR DE SPM PARA CADA OCASIÓN:
 
     //------------------------------------------------------------------
     //PROPIEDADES DE ESTADO:
 
-    TKnowledgeDegree __PAkd;
-    TPurpose __Purpose;
+    TKnowledgeDegree p_PAkd;
+    TPurpose p_Purpose;
 
-    int __Id;
+    int p_Id;
 
     //COTAS ÚTILES:
 
-    double __r_min;
-    double __r_saf;
-    double __r_2saf;
-    double __theta___2saf;
-    double __theta___3saf;
-    double __theta_2rad;
+    double p_r_min;
+    double p_r_saf;
+    double p_r_2saf;
+    double p_theta___2saf;
+    double p_theta___3saf;
+    double p_theta_2rad;
 
     //PROPIEDADES DE ÁREA:
 
-    double __r_3maxnom;
+    double p_r_3maxnom;
 
-    double __Sc;
-    double __Sw;
-    double __Sp;
-    double __Ss;
-    double __Se;
-    double __Re;
+    double p_Sc;
+    double p_Sw;
+    double p_Sp;
+    double p_Ss;
+    double p_Se;
+    double p_Re;
 
-    double __Spt;
-    double __Set;
-    double __Ret;
+    double p_Spt;
+    double p_Set;
+    double p_Ret;
 
     //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
@@ -145,14 +145,14 @@ public:
     //defeult value:
     //  (MEGARA_VMAXABS1*rbs*r_max + MEGARA_VMAXABS2*Arm->rbs*Arm->L1V)*
     //      MEGARA_Tstop
-    double getSPMrec(void) const {return __SPMrec;}
+    double getSPMrec(void) const {return p_SPMrec;}
     void setSPMrec(double);
 
     //SPM para absorber el error mecánico y numérico
     //debe ser no negativo
     //defeult value:
     //  MEGARA_Eo*r_max + MEGARA_Ep
-    double getSPMsta(void) const {return __SPMsta;}
+    double getSPMsta(void) const {return p_SPMsta;}
     void setSPMsta(double);
     //SPM para absorber el desfase temporal de los posicionadores
     //y  las variaciones de velocidad debidas a los motores paso a paso
@@ -160,21 +160,21 @@ public:
     //defeult value:
     //  (MEGARA_VMAXABS1*rbs*r_max + MEGARA_VMAXABS2*Arm->rbs*Arm->L1V)*
     //      MEGARA_Tshiff + SPMadd
-    double getSPMdyn(void) const {return __SPMdyn;}
+    double getSPMdyn(void) const {return p_SPMdyn;}
     void setSPMdyn(double);
     //SPM para absorber la incertidumbre del salto mínimo
     //durante la programación
     //debe ser no negativo
     //defeult value:
     //  SPMsta
-    double getSPMmin(void) const {return __SPMmin;}
+    double getSPMmin(void) const {return p_SPMmin;}
     void setSPMmin(double);
     //SPM para absorver las aproximaciones producidas
     //por corrección del offset
     //debe ser no negativo
     //defeult value:
     //  MEGARA_PAem*rmax + MEGARA_Pem
-    double getSPMoff(void) const {return __SPMoff;}
+    double getSPMoff(void) const {return p_SPMoff;}
     void setSPMoff(double);
 
     //Calculating the SPM components in a RP:
@@ -278,7 +278,7 @@ public:
     //      kdApp: se conocen de forma aproximada
     //      kdUnk: se desconoce la posición de algún eje
     //valor por defecto_ kdPrecise
-    TKnowledgeDegree getPAkd(void) const {return __PAkd;}
+    TKnowledgeDegree getPAkd(void) const {return p_PAkd;}
     void setPAkd(TKnowledgeDegree);
     //propósito con el que se va a usar el posicionador
     //debe ser uno de los siguientes valores:
@@ -287,7 +287,7 @@ public:
     //      pVal: validación
     //      pExe: ejecución
     //valor por defecto: pGen
-    TPurpose getPurpose(void) const {return __Purpose;}
+    TPurpose getPurpose(void) const {return p_Purpose;}
     void setPurpose(TPurpose);
 
     //si PAkd == kdPre,
@@ -314,7 +314,7 @@ public:
     //identificador del posicionador
     //debe ser no negativo
     //el número 0 indica indefinición
-    int getId(void) const {return __Id;}
+    int getId(void) const {return p_Id;}
     void setId(int);
 
     //El número de identificación debe ser una propiedad del actuador
@@ -357,7 +357,7 @@ public:
     //radio de la envolvente del contorno del brazo
     //cuando el eje2 está en el origen
     //valor por  defecto: el mismo que r_max
-    double getr_min(void) const {return __r_min;}
+    double getr_min(void) const {return p_r_min;}
     //Radio de la frontera segura.
     //Radio de la circunferencia descrita por el punto de Arm->Contour
     //más alejado del centro del posicionador cuando
@@ -370,28 +370,28 @@ public:
     //  SPM es el margen de seguridad de este posicionador.
     //valor por defecto: el mismo que r_max
     //donde Arm->SPM es el SPM de generación dado por defecto.
-    double getr_saf(void) const {return __r_saf;}
+    double getr_saf(void) const {return p_r_saf;}
 
     //Radio seguro de P2.
     //Radio de la circunferencia descrita por P2 cuando
     //el brazo está retraido en el linde de la zona segura.
     //Valor por defecto: L02max
-    double getr_2saf(void) const {return __r_2saf;}
+    double getr_2saf(void) const {return p_r_2saf;}
     //Posición angular de P2 respecto de S3 en radianes
     //a partir de la cual el brazo está dentro del área de seguridad.
     //Valor por defecto: M_PI rad
-    double gettheta___2saf(void) const {return __theta___2saf;}
+    double gettheta___2saf(void) const {return p_theta___2saf;}
     //Posición angular de P3 respecto de S3 en radianes
     //a partir de la cual el brazo está dentro del área de seguridad.
     //Valor por defecto: M_PI rad
-    double gettheta___3saf(void) const {return __theta___3saf;}
+    double gettheta___3saf(void) const {return p_theta___3saf;}
 
     //Posición angular de P2 respecto de S1 en radianes
     //a partir de la cual el brazo puede ser retraido
     //linealmente hasta la zona segura sin que theta_1
     //llegue a ser menor que Max(0, theta_1min).
     //Valor por defecto: Max(0, theta_1min) + M_PI/2 rad
-    double gettheta_2rad(void) const {return __theta_2rad;}
+    double gettheta_2rad(void) const {return p_theta_2rad;}
 
     //ADVERTENCIA: el controlador puede estar concebido para
     //trabajar solamente con valores no negativos de p_1,
@@ -404,7 +404,7 @@ public:
     //radio del dominio de P3
     //debe ser un valor mayor que cero
     //valor por defecto: r_3max mm
-    double getr_3maxnom(void) const {return __r_3maxnom;}
+    double getr_3maxnom(void) const {return p_r_3maxnom;}
     void setr_3maxnom(double);
 
     //Dado que las propiedades de área son calculadas
@@ -432,40 +432,40 @@ public:
 
     //área del círculo de radio r
     //       Sc = M_PI*r*r
-    double getSc(void) const {return __Sc;}
+    double getSc(void) const {return p_Sc;}
     //área de una porción de seis del círculo de radio r
     //       Sw = Sc/6
-    double getSw(void) const {return __Sw;}
+    double getSw(void) const {return p_Sw;}
 
     //área participativa de una porción triangular
     //del exágono cinrcunscrito en la circunferencia de radio r
     //       Sp = r*r*aux/2
-    double getSp(void) const {return __Sp;}
+    double getSp(void) const {return p_Sp;}
     //área de uno de los segmentos de circunferencia
     //en las inmediaciones del exágono circunscrito
     //en la circunferencia de radio r
     //      Ss = Sw - Sp
-    double getSs(void) const {return __Ss;}
+    double getSs(void) const {return p_Ss;}
     //área exclusiva de una porción exagonal
     //del círculode radio r
     //      Se = Sp - Ss
-    double getSe(void) const {return __Se;}
+    double getSe(void) const {return p_Se;}
     //ratio entre área exclusiva y el área participativa
     //      Re = Se/Sp
-    double getRe(void) const {return __Re;}
+    double getRe(void) const {return p_Re;}
 
     //calcula el área participativa total
-    //      __Spt = (6 - N)*Sw + N*Sp;
+    //      p_Spt = (6 - N)*Sw + N*Sp;
     //            = r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
-    double getSpt(void) const {return __Spt;}
+    double getSpt(void) const {return p_Spt;}
     //calcula el área exclusiva total
-    //      __Set = (6 - N)*Sw + N*Se;
+    //      p_Set = (6 - N)*Sw + N*Se;
     //            = r*r*(sqrt(0.75) - M_PI/6);
-    double getSet(void) const {return __Set;}
+    double getSet(void) const {return p_Set;}
     //calcula el ratio entre Set y Spt
-    //      __Ret = Set/Spt;
+    //      p_Ret = Set/Spt;
     //            = 2 - M_PI/(3*sqrt(0.75))
-    double getRet(void) const {return __Ret;}
+    double getRet(void) const {return p_Ret;}
 
     //ADVERTENCIA: cuando cambia el radio del dominio del posicionador
     //o de alguno de los adyacentes, o la distancia entre posicioandores
@@ -699,7 +699,7 @@ public:
 
     //construye un actuador
     //con los valores indicados
-    TActuator(int _Id, TDoublePoint _P0, double _thetao_=MEGARA_thetaO1);
+    TActuator(int Id, TDoublePoint P0, double thetao_=MEGARA_thetaO1);
 
     //ADVERTENCIA: para poder contruir clones de actuadores
     //la duplicidad de números de identificación está permitida.
@@ -742,13 +742,13 @@ public:
     //MÉTODOS DE ASIGNACIÓN CONJUNTA ATÓMICA:
 
     //asigna las propiedades angulares (theta_1min, theta_1max, theta_1)
-    void SetOrientationRadians(double _theta_1min, double _theta_1max,
-                               double _theta_1, double _theta_O3o);
+    void SetOrientationRadians(double theta_1min, double theta_1max,
+                               double theta_1, double theta_O3o);
     //asigna las propiedades de cuantificación
-    void SetQuantification(double _SB1);
+    void SetQuantification(double SB1);
 
     //asigna las propiedades de origen
-    void SetOrigins(int _Id, double _x0, double _y0, double _thetaO1);
+    void SetOrigins(int Id, double x0, double y0, double thetaO1);
     //asigna las propiedades de posición
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
@@ -766,14 +766,14 @@ public:
     //asigna las propiedades de identificación y posición
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
-    void SetPositionP3(int _Id, double x3, double y3);
+    void SetPositionP3(int Id, double x3, double y3);
 
     //asigna las componentes del SPM
-    void SetSPMComponents(double _SPMrec, double _SPMsta,
-                          double _SPMdyn, double _SPMmin);//, double _SPMoff);
+    void SetSPMComponents(double SPMrec, double SPMsta,
+                          double SPMdyn, double SPMmin);//, double SPMoff);
 
     //asigna las propiedades de estado (PAkd, Purpose)
-    void SetStatus(TKnowledgeDegree _PAkd, TPurpose _Purpose);
+    void SetStatus(TKnowledgeDegree PAkd, TPurpose Purpose);
 
     //-------------------------------------------------------------------
     //MÉTODOS PARA ALMACENAR Y RECUPERAR POSICIONES DE LOS ROTORES:

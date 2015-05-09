@@ -46,26 +46,26 @@ class TRoboticPositionerList1 : public TItemsList<TRoboticPositioner*> {
 protected:
         //TOLERANCES:
 
-        double __PAem;
-        double __Pem;
+        double p_PAem;
+        double p_Pem;
 
         //SIZING PROPERTIES:
 
-        TDoublePoint __O;
+        TDoublePoint p_O;
 
-        double __LO3max;
+        double p_LO3max;
 
-        double __x3min;
-        double __x3max;
-        double __y3min;
-        double __y3max;
+        double p_x3min;
+        double p_x3max;
+        double p_y3min;
+        double p_y3max;
 
         //AREA PROPERTIES:
 
-        double __Spt;
-        double __Set;
-        double __Ret;
-        double __FiberDensity;
+        double p_Spt;
+        double p_Set;
+        double p_Ret;
+        double p_FiberDensity;
 
 public:
         //TOLERANCE PROPERTIES:
@@ -73,12 +73,12 @@ public:
         //margen de error de orientación de S0.
         //debe ser no negativo
         //valor por defecto: MEGARA_PAem rad
-        double getPAem(void) const {return __PAem;}
+        double getPAem(void) const {return p_PAem;}
         void setPAem(double);
         //margen de error de apuntado de S0.
         //debe ser no negativo
         //valor por defecto: MEGARA_Pem mm
-        double getPem(void) const {return __Pem;}
+        double getPem(void) const {return p_Pem;}
         void setPem(double);
 
         //Los márgenes de tolerancia conjunta del Fiber MOS
@@ -103,25 +103,25 @@ public:
 
         //posición del origen del sistema S0
         //valor constante: (0, 0)
-        TDoublePoint getO(void) const {return __O;}
+        TDoublePoint getO(void) const {return p_O;}
 
         //radio del círculo mínimo que contiene
         //el dominio de todos los posicionadores
-        double getLO3max(void) const {return __LO3max;}
+        double getLO3max(void) const {return p_LO3max;}
 
         //límite abcisa inferior del cuadrado que contiene
         //el dominio conjunto de P3
-        double getx3min(void) const {return __x3min;}
+        double getx3min(void) const {return p_x3min;}
         //límite abcisa superior del cuadrado que contiene
         //el dominio conjunto de P3
-        double getx3max(void) const {return __x3max;}
+        double getx3max(void) const {return p_x3max;}
 
         //límite ordenada inferior del cuadrado que contiene
         //el dominio conjunto de P3
-        double gety3min(void) const {return __y3min;}
+        double gety3min(void) const {return p_y3min;}
         //límite ordenada superior del cuadrado que contiene
         //el dominio conjunto de P3
-        double gety3max(void) const {return __y3max;}
+        double gety3max(void) const {return p_y3max;}
 
         //AREA PROPERTIES:
 
@@ -132,20 +132,20 @@ public:
 
        //área de participación del conjunto de posicionadores
         //      Spt = Sum{Spt[i]}
-        double getSpt(void) const {return __Spt;}
+        double getSpt(void) const {return p_Spt;}
 
         //área exclusiva del conjunto de posicionadores
         //      Set = Sum{Set[i]}
-        double getSet(void) const {return __Set;}
+        double getSet(void) const {return p_Set;}
 
         //proporción de área exclusiva del conjunto de posicionadores
         //      Ret = Sum{Ret[i]*Spt[i]}/Spt
-        double getRet(void) const {return __Ret;}
+        double getRet(void) const {return p_Ret;}
 
         //densidad de posicionadores de la lista
         //número de posicionadores por unidad de superficie
-        //      FiberDensity = __property double(RoboticPositioners.Count)/Spt
-        double getFiberDensity(void) const {return __FiberDensity;}
+        //      FiberDensity = double(RoboticPositioners.Count)/Spt
+        double getFiberDensity(void) const {return p_FiberDensity;}
 
         //ADVERTENCIA: cuando cambia el radio del dominio del posicionador
         //o de alguno de los adyacentes, o la distancia entre posicionadores
@@ -421,7 +421,7 @@ public:
         void SetPositions(const TPairPositionAnglesList& PositionList);
         //asigna conjuntamente las tolerancias
         //      (PAem, Pem)
-        void SetTolerance(double _PAem,double _Pem);
+        void SetTolerance(double PAem,double Pem);
 
         //------------------------------------------------------------------
         //METHODS FOR JOINTLY DOMAIN:
@@ -481,7 +481,8 @@ public:
                 TRoboticPositionerList1& Inners) const;
 
         //segregates the collided RPs
-        void segregateCollided(TRoboticPositionerList1& Collided) const;
+        void segregateCollided(TRoboticPositionerList1& Collided,
+                               TRoboticPositionerList1& NotCollided) const;
 
         //segrega los posicionadores seleccionados en una lista
         void SegregateSelected(TRoboticPositionerList1&) const;

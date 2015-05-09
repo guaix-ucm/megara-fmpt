@@ -62,13 +62,13 @@ class TSkyPoint {
 protected:
     //PROPIEDADES DEFINITORIAS:
 
-    int __Id;
+    int p_Id;
 
-    double __RA;
-    double __DEC;
+    double p_RA;
+    double p_DEC;
 
-    double __Tint;
-    AnsiString __Name;
+    double p_Tint;
+    AnsiString p_Name;
 
 public:
     //PROPIEDADES ESTÁTICAS:
@@ -106,7 +106,7 @@ public:
     //número de identificación del objeto
     //debe ser mayor que cero
     //valor por defecto: el indicado en el contructor
-    int getId(void) const {return __Id;} void setId(int);
+    int getId(void) const {return p_Id;} void setId(int);
 
     //ADVERTENCIA: no se efectuará control de identificadores duplicados,
     //por lo que podrá haber objetos con el mismo identificador.
@@ -120,11 +120,11 @@ public:
 
     //ascensión recta del punto de cielo en coordenadas celestes
     //valor por defecto: 0 rad
-    double getRA(void) const {return __RA;} void setRA(double);
+    double getRA(void) const {return p_RA;} void setRA(double);
     //declinación del punto de cielo en coordenadas celestes
     //debe estar en [-pi/2, pi/2]
     //valor por defecto: 0 rad
-    double getDEC(void) const {return __DEC;} void setDEC(double);
+    double getDEC(void) const {return p_DEC;} void setDEC(double);
 
     //NOTA: dos puntos de cielo podrían estar en el mismo punto
     //y enmascararse mutuamente.
@@ -132,7 +132,7 @@ public:
     //tiempo de integración del SP
     //debe ser no negativo
     //valor por defecto: 0
-    double getTint(void) const {return __Tint;} void setTint(double);
+    double getTint(void) const {return p_Tint;} void setTint(double);
 
     //type of point
     //  ptUNKNOWN: unknown type
@@ -148,7 +148,7 @@ public:
     //debe tener 23 caracteres como máximo
     //no debe estar asignado a otro objeto (excepto la cadena vacía '')
     //valor por defecto: "''"
-    AnsiString getName(void) const {return __Name;}
+    AnsiString getName(void) const {return p_Name;}
     void setName(const AnsiString&);
 
     //NOTA: 23 es precisamente el número máximo de caracteres de un valor
@@ -236,7 +236,7 @@ public:
     //MÉTODOS DE DESPLAZAMIENTO:
 
     //asigna (DEC, RA)
-    void SetPosition(double _RA, double _DEC);
+    void SetPosition(double RA, double DEC);
 
     //randomiza las coordenadas celestes con distribución uniforme
     //en la esfera celeste
@@ -290,7 +290,7 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //construye una lista de puntos de cielo
-    TSkyPointList(int _Capacity=1840);
+    TSkyPointList(int Capacity=1840);
 
     //copia una lista de puntos de cielo
     TSkyPointList &operator=(const TSkyPointList&);

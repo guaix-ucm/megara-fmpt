@@ -42,7 +42,7 @@ namespace Models {
 
 //mensaje de instrucción
 class TMessageInstruction {
-        int __Id;
+        int p_Id;
         string p_Comment;
 
 public:
@@ -50,7 +50,7 @@ public:
 
         //número de identificación del puerto CAN destinatario del mensaje
         //valor por defecto: 0
-        int getId(void) const {return __Id;} void setId(int);
+        int getId(void) const {return p_Id;} void setId(int);
 
         //instrucción del mensaje
         //valor por defecto: el de la instrucción
@@ -108,7 +108,7 @@ public:
         //construye un mensaje con los valores por defecto
         TMessageInstruction(void);
         //construye un mensaje con los valores indicados
-        TMessageInstruction(int _Id, AnsiString InstructionText);
+        TMessageInstruction(int Id, AnsiString InstructionText);
         //clona un mensaje
         TMessageInstruction(TMessageInstruction *);
 

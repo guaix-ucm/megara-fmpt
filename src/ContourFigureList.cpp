@@ -46,8 +46,8 @@ namespace Models {
 //MÉTODOS DE CONSTRUCCIÓN,COPIA Y CLONACIÓN:
 
 //construye un contorno
-TContourFigureList::TContourFigureList(int _Capacity) :
-        TItemsList<TContourFigure*>(_Capacity, NULL, NULL, NULL,
+TContourFigureList::TContourFigureList(int Capacity) :
+        TItemsList<TContourFigure*>(Capacity, NULL, NULL, NULL,
                 TContourFigure::ContourFigurePrint, TContourFigure::ContourFigureRead)
 {
 }

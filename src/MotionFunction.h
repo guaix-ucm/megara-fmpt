@@ -47,38 +47,38 @@ class TMotionFunction {
 protected:
         //PARÁMETROS IMPOSITIVOS:
 
-        double __vmaxabs;
+        double p_vmaxabs;
 
-        double __psta;
-        double __pfin;
+        double p_psta;
+        double p_pfin;
 
-        double __vmax;
+        double p_vmax;
 
         //HITOS PREVIOS A LA ELECCIÓN DE VARIABLES DE 'T':
 
-        double __Tmin;
+        double p_Tmin;
 
         //VARIABLES DE PRIMER ORDEN:
 
-        double __D;
-        double __T;
+        double p_D;
+        double p_T;
 
         //HITOS DEPENDIENTES DE LAS VARIABLES DE PRIMER ORDEN:
 
-        double __Dmax;
+        double p_Dmax;
 
         //LÍMITES DEL DOMINIO DE LAS VARIABLES DE SEGUNDO ORDEN:
 
-        double __vcmin;
-        double __vcmax;
+        double p_vcmin;
+        double p_vcmax;
 
         //VARIABLES DE SEGUNDO ORDEN:
 
-        double __vc;
+        double p_vc;
 
         //PROPIEDADES EN FORMATO TEXTO:
 
-        AnsiString __Label;
+        AnsiString p_Label;
 
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
@@ -87,54 +87,54 @@ public:
 
         //velocidad máxima absoluta en ul/ut
         //debe ser mayor que cero
-        double getvmaxabs(void) const {return __vmaxabs;}
+        double getvmaxabs(void) const {return p_vmaxabs;}
         virtual void setvmaxabs(double) = 0;
 
         //posición de salida (starting) en ul
-        double getpsta(void) const {return __psta;}
+        double getpsta(void) const {return p_psta;}
         virtual void setpsta(double) = 0;
         //posición de llegada (finishing) en ul
-        double getpfin(void) const {return __pfin;}
+        double getpfin(void) const {return p_pfin;}
         virtual void setpfin(double) = 0;
 
         //velocidad máxima algebraica en ul/ut
         //vmax = vmaxabs*sign(pfin-psta)
-        double getvmax(void) const {return __vmax;}
+        double getvmax(void) const {return p_vmax;}
 
         //HITOS PREVIOS A LA ELECCIÓN DE 'T':
 
         //tiempo mínimo para ir de 'psta' a 'pfin' en ut
         //aplicando 'amax' y abs(vc)<=vmaxabs
-        double getTmin(void) const {return __Tmin;}
+        double getTmin(void) const {return p_Tmin;}
 
         //VARIABLES DE PRIMER ORDEN:
 
         //Distancia a recorrer
         //D = pfin - psta
         //cuando asigna D: pfin = psta + D
-        double getD(void) const {return __D;}
+        double getD(void) const {return p_D;}
         virtual void setD(double) = 0;
         //intervalo de tiempo de desplazamiento para ir de 'psta' a 'pfin' en ut
         //debe ser mayor que Tmin
-        double getT(void) const {return __T;}
+        double getT(void) const {return p_T;}
         virtual void setT(double) = 0;
 
         //HITOS DEPENDIENTES DE LAS VARIABLES DE PRIMER ORDEN:
 
         //distancia máxima en ul
         //que puede ser recorrida aplicando la máxima aceleración y velocidad
-        double getDmax(void) const {return __Dmax;}
+        double getDmax(void) const {return p_Dmax;}
 
         //LÍMITES DE LOS DOMINIOS DE LAS VARIABLES DE SEGUNDO ORDEN:
 
         //límites algebraicos de 'vc'
-        double getvcmin(void) const {return __vcmin;}
-        double getvcmax(void) const {return __vcmax;}
+        double getvcmin(void) const {return p_vcmin;}
+        double getvcmax(void) const {return p_vcmax;}
 
         //VARIABLES DE SEGUNDO ORDEN:
 
         //velocidad constante del eje en ul/ut
-        double getvc(void) const {return __vc;}
+        double getvc(void) const {return p_vc;}
         virtual void setvc(double) = 0;
 
         //PROPIEDADES EN FORMATO TEXTO:
@@ -142,7 +142,7 @@ public:
         //etiqueta de identificación del objeto
         //debe ser un nombre de variable válido
         //valor por defecto: ""
-        AnsiString getLabel(void) const {return __Label;}
+        AnsiString getLabel(void) const {return p_Label;}
         void setLabel(const AnsiString&);
 
         AnsiString getvmaxabsText(void) const;
@@ -197,7 +197,7 @@ public:
         //MÉTODOS DE CONFIGURACIÓN:
 
         //asigna (psta, pfin) conjuntamente
-        virtual void SetInterval(double _psta, double _pfin) = 0;
+        virtual void SetInterval(double psta, double pfin) = 0;
         //invierte (psta, pfin) manteniendo el tiempo de desplazameinto T
         //y la forma de la función
         virtual void InvertTime(void) = 0;

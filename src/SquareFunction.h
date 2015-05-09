@@ -81,17 +81,17 @@ public:
 
         //inicializa {vmax=vmaxabs, tini=0, tfin=0}
         //y asimila los parámetros
-        TSquareFunction(double _vmaxabs);
+        TSquareFunction(double vmaxabs);
         //clona una función cuadrada
         TSquareFunction(TSquareFunction*);
         //copia todas las propiedades una función cuadrada
-        void Copy(TMotionFunction *_SquareFunction);
+        void Copy(TMotionFunction *SquareFunction);
 
         //initalize all properties except (vmaxabs)
         void reset(void);
 
         //asigna (psta, pfin) conjuntamente
-        void SetInterval(double _psta, double _pfin);
+        void SetInterval(double psta, double pfin);
         //invierte (psta, pfin) manteniendo el tiempo de desplazameinto T
         //y la forma de la función
         void InvertTime(void);

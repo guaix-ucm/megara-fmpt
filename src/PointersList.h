@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: PointersList.h
-//Contenido: lista de punteros a elementos genéricos
-//Última actualización: 23/04/2014
-//Autor: Isaac Morales Durán
+//File: PointersList.h
+//Content: lista de punteros a elementos genéricos
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef POINTERSLIST_H
@@ -37,12 +36,11 @@
 using namespace Strings; //StrTravelToEnd
 using namespace std; //type_info
 
-//espacio de nombres de funciones y clases de objetos
-//relacionados con listas, vectores y matrices
+//namespace for lists
 namespace Lists {
 
 //---------------------------------------------------------------------------
-//clase TPointersList
+//class TPointersList
 //---------------------------------------------------------------------------
 
 //La clase TPoinList tiene el objeto de funcionar como TItemList, pero
@@ -84,22 +82,6 @@ protected:
 
     //array deslizante de punteros a elementos
     TPointersSlideArray<T> Items;
-
-    //PROPIEDADES DE DIMENSIONAMIENTO:
-
-    //PROPIEDADES DE ACCESO A ELEMENTOS:
-
-    //PROPIDADES DE ACCSO A PUNTEROS:
-
-    //------------------------------------------------------------------
-    //PROPIEDADES DEPENDIENTES DE LAS FUNCIONES EXTERNAS
-    //------------------------------------------------------------------
-
-    //COMPARANDO ELEMENTOS
-
-    //EVALUANDO ELEMENTOS
-
-    //PROPIEDADES EN FORMATO TEXTO:
 
 public:
     //------------------------------------------------------------------
@@ -252,12 +234,12 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //constructor general
-    TPointersList(int _Capacity=8,
-                  int ( *_Compare)(const T*, const T*)=NULL,
-                  double ( *_Evaluate)(const T*)=NULL,
-                  void ( *_Assign)(T*, double)=NULL,
-                  void ( *_Print)(AnsiString&, const T*)=NULL,
-                  void ( *_Read)(T*, const AnsiString&, int &)=NULL);
+    TPointersList(int Capacity=8,
+                  int ( *Compare)(const T*, const T*)=NULL,
+                  double ( *Evaluate)(const T*)=NULL,
+                  void ( *Assign)(T*, double)=NULL,
+                  void ( *Print)(AnsiString&, const T*)=NULL,
+                  void ( *Read)(T*, const AnsiString&, int &)=NULL);
 
     //ADVERTENCIA: declarar los argumentos por referencia constantes es
     //necesario para evitar las advertencias cuando son pasadas variables
@@ -510,7 +492,7 @@ template <class T> void  TPointersList<T>::ReadSeparated(TPointersList<T> *L,
     //      1: fin de cadena encontrada y lista de elementos leida con éxito
     int status = 0;
 
-    TPointersSlideArray<T> _Items;
+    TPointersSlideArray<T> Items;
     T *Item;
 
     //avanza el índice hasta el próximo caracter no separador
@@ -523,7 +505,7 @@ template <class T> void  TPointersList<T>::ReadSeparated(TPointersList<T> *L,
             //contruye el elemento
             Item = new T;
             //añade el elemento
-            _Items.AddLast(Item);
+            Items.AddLast(Item);
             //lee el elemento
             L->Read(Item, S, i);
             //avanza el índice hasta el próximo caracter no separador
@@ -547,9 +529,9 @@ template <class T> void  TPointersList<T>::ReadSeparated(TPointersList<T> *L,
 
     //copia las variables tampón
     L->Clear();
-    for(int j=0; j<_Items.getCount(); j++)
-        L->Add(_Items[j]);
-    _Items.LibLast(_Items.getCount());
+    for(int j=0; j<Items.getCount(); j++)
+        L->Add(Items[j]);
+    Items.LibLast(Items.getCount());
 }
 //lee una lista de una cadena de texto
 //en formato de fila o columna de texto
@@ -585,15 +567,15 @@ template <class T> void  TPointersList<T>::ReadSeparatedForBuiltItems(TPointersL
     int status = 0;
 
     //lista tampón
-    TPointersSlideArray<T> _Items(L->Items); //clona los elementos de la lista
+    TPointersSlideArray<T> Items(L->Items); //clona los elementos de la lista
     //puntero a elemento
     T *Item;
 
     try {
         //por cada elemento de la lista
-        for(int j=0; j<_Items.Count; j++) {
+        for(int j=0; j<Items.getCount(); j++) {
             //asigna el puntero indicado para facilitar su acceso
-            Item = _Items[j];
+            Item = Items[j];
             //si el puntero apunta a un elemento construido
             if(Item != NULL)
                 //aplica la función de lectura al elemento
@@ -605,8 +587,8 @@ template <class T> void  TPointersList<T>::ReadSeparatedForBuiltItems(TPointersL
     }
 
     //clona la lista tampón
-    L->Items->Clone(_Items);
-    _Items.LibLast(_Items.Count);
+    L->Items->Clone(Items);
+    Items.LibLast(Items.getCount());
 }
 
 //imprime una lista en una cadena de texto
@@ -665,7 +647,7 @@ template <class T> void  TPointersList<T>::ReadList(TPointersList<T> *L,
     //      4: lista convertida con éxito
     int status = 0;
     //lista tampón
-    TPointersSlideArray<T> _Items;
+    TPointersSlideArray<T> Items;
 
     if(i > S.Length())
         throw EImproperArgument("'{' not found");
@@ -714,13 +696,13 @@ template <class T> void  TPointersList<T>::ReadList(TPointersList<T> *L,
                 break;
             default:
                 try {
-                _Items.NewLast();
-                L->Read(_Items.getLast(), S, i);
+                Items.NewLast();
+                L->Read(Items.getLast(), S, i);
                 if(i > S.Length())
                     throw EImproperArgument("',' or '}' not found");
                 status++;
             } catch(EImproperArgument &E) {
-                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(_Items.getCount()));
+                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(Items.getCount()));
                 } catch(...) {
                 throw;
             }
@@ -766,13 +748,13 @@ template <class T> void  TPointersList<T>::ReadList(TPointersList<T> *L,
                 break;
             default:
                 try {
-                _Items.NewLast();
-                L->Read(_Items.getLast(), S, i);
+                Items.NewLast();
+                L->Read(Items.getLast(), S, i);
                 if(i > S.Length())
                     throw EImproperArgument("',' or '}' not found");
                 status--;
             } catch(EImproperArgument &E) {
-                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(_Items.getCount()));
+                    throw EImproperArgument(E.Message+AnsiString(" in item ")+IntToStr(Items.getCount()));
                 } catch(...) {
                 throw;
             }
@@ -784,12 +766,12 @@ template <class T> void  TPointersList<T>::ReadList(TPointersList<T> *L,
 
     //ASIGNA LOS ELEMENTOS:
 
-    L->setCount(_Items.getCount());
-    for(int i=0; i<_Items.getCount(); i++)
-        L->Set(i, *(_Items[i]));
+    L->setCount(Items.getCount());
+    for(int i=0; i<Items.getCount(); i++)
+        L->Set(i, *(Items[i]));
 
     //ERROR: esta última asignación debería hacerse más eficiente
-    //trasladando los punteros de _Items a la lista de punteros L.
+    //trasladando los punteros de Items a la lista de punteros L.
 }
 //lee una lista de una cadena de texto
 //en formato de lista de texto
@@ -824,7 +806,7 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
     //APLICA LA FUNCIÓN DE LECTURA A CADA ELEMENTO DE LA LISTA:
 
     //lista tampón
-    TPointersSlideArray<T> _Items(L->Items); //clona los elementos de la lista
+    TPointersSlideArray<T> Items(L->Items); //clona los elementos de la lista
     //puntero a elemento
     T *Item;
 
@@ -833,22 +815,22 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
     try {
         //busca el primer elemento construido
         int j=0;
-        while(j<_Items.Count && _Items[j]==NULL)
+        while(j<Items.getCount() && Items[j]==NULL)
             j++;
         //si no ha encontrado un elemento consturido
-        if(j >= _Items.Count)
+        if(j >= Items.getCount())
             return; //no lee nada
         //asigna el puntero indicado para facilitar su acceso
-        Item = _Items[j];
+        Item = Items[j];
         //atraviesa el caracter delimitador de inicio de lista
         StrTravelLabel("{", S, i);
         //aplica la función de lectura al elemento
         L->Read(Item, S, i);
 
         //por cada puntero adicional de la lista
-        for(j; j<_Items.Count; j++) {
+        for(j; j<Items.getCount(); j++) {
             //apunta el elemento indicado para facilitar su acceso
-            Item = _Items[j];
+            Item = Items[j];
             //siel puntero apunta a un elemento construido
             if(Item != NULL) {
                 //atraviesa el caracter delimitador de lista
@@ -866,8 +848,8 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
     }
 
     //clona la lista tampón
-    L->Items->Clone(_Items);
-    _Items.LibLast(_Items.Count);
+    L->Items->Clone(Items);
+    Items.LibLast(Items.getCount());
 }
 
 /*//---------------------------------------------------------------------------
@@ -880,7 +862,7 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
 template <class T> void Destroy(TPointersList<T*> &L)
 {
     //destruye los objetos de la lista
-    for(int i=0; i<L.Count; i++) {
+    for(int i=0; i<L.getCount(); i++) {
         //copia el puntero indicado para facilitar su acceso
         T *P = L.GetPointer(i);
         //si el puntero no es nulo
@@ -895,26 +877,26 @@ template <class T> void Destroy(TPointersList<T*> &L)
 //PROPIEDADES DE DIMENSIONAMIENTO:
 
 //redimensiona el buffer
-template <class T> void TPointersList<T>::setCapacity(int _Capacity)
+template <class T> void TPointersList<T>::setCapacity(int Capacity)
 {
     try {
         //redimensiona la capacidad del array deslizante
-        if(_Capacity != getCapacity())
-            Items.setCapacity(_Capacity);
+        if(Capacity != getCapacity())
+            Items.setCapacity(Capacity);
     } catch(...) {
         throw;
     }
 }
 
 //redimensiona la lista reservando o liberando elementos por la dcha
-template <class T> void TPointersList<T>::setCount(int _Count)
+template <class T> void TPointersList<T>::setCount(int Count)
 {
     try {
         //redimensiona el array deslizante
-        if(_Count < getCount())
-            Items.DelLast(getCount() - _Count);
-        else if(_Count > getCount())
-            Items.NewLast(_Count - getCount());
+        if(Count < getCount())
+            Items.DelLast(getCount() - Count);
+        else if(Count > getCount())
+            Items.NewLast(Count - getCount());
     } catch(...) {
         throw;
     }
@@ -1309,7 +1291,7 @@ template <class T> void TPointersList<T>::setText(const AnsiString &S)
 //traduce de lista a formato columna de texto
 template <class T> AnsiString TPointersList<T>::getRowText(void) const
 {
-    //el puntero Print debería apuntar a una función de impresión
+    //el puntero Print deberí aapuntar a una función de impresión
     if(Print == NULL)
         throw EImproperCall("pointer Print should point to print function");
 
@@ -1368,19 +1350,19 @@ template <class T> void TPointersList<T>::setColumnText(const AnsiString &S)
 //---------------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
 
-template <class T> TPointersList<T>::TPointersList(int _Capacity,
-                                                   int ( *_Compare)(const T*, const T*),
-                                                   double ( *_Evaluate)(const T*),
-                                                   void ( *_Assign)(T*, double),
-                                                   void ( *_Print)(AnsiString&, const T*),
-                                                   void ( *_Read)(T*, const AnsiString&, int&)) :
-    Items(_Capacity, 0)
+template <class T> TPointersList<T>::TPointersList(int Capacity,
+                                                   int ( *t_Compare)(const T*, const T*),
+                                                   double ( *t_Evaluate)(const T*),
+                                                   void ( *t_Assign)(T*, double),
+                                                   void ( *t_Print)(AnsiString&, const T*),
+                                                   void ( *t_Read)(T*, const AnsiString&, int&)) :
+    Items(Capacity, 0)
 {
-    Compare = _Compare;
-    Evaluate = _Evaluate;
-    Assign = _Assign;
-    Print = _Print;
-    Read = _Read;
+    Compare = t_Compare;
+    Evaluate = t_Evaluate;
+    Assign = t_Assign;
+    Print = t_Print;
+    Read = t_Read;
 }
 
 //construye un clon de una lista de elementos basada en punteros
@@ -1595,7 +1577,7 @@ template <class T> double TPointersList<T>::Dot(const TPointersList<T> &L) const
         throw EImproperArgument("list L should have a evaluation function pointed");
 
     //los vectores deben tener la mima dimensión
-    if(getCount() != L.Count)
+    if(getCount() != L.getCount())
         throw EImproperArgument("item list L should have the same number items");
 
     //suma los productos de las evaluaciones
@@ -1652,11 +1634,11 @@ template <class T> void TPointersList<T>::Add(TPointersList<T>& L,
                                               int i1, int i2)
 {
     //el índice i1 debe indicar un lemento de la lista L
-    if(i1<0  || L.Count<=i1)
+    if(i1<0  || L.getCount()<=i1)
         throw EImproperArgument("index i1 should indicate an iten in the list L");
 
     //el índice i2 debe indicar un lemento de la lista L
-    if(i2<0  || L.Count<=i2)
+    if(i2<0  || L.getCount()<=i2)
         throw EImproperArgument("index i2 should indicate an iten in the list L");
 
     //el intervalo [i1, i2] debe ser no negativo
@@ -1682,7 +1664,7 @@ template <class T> void TPointersList<T>::Insert(int i, const T *item)
 template <class T> void TPointersList<T>::Add(TItemsList<T*> &List)
 {
     //por cada puntero de la lista
-    for(int i=0; i<List.Count; i++)
+    for(int i=0; i<List.getCount(); i++)
         //añade el puntero al final de esta lista
         Items.AddLast(List[i]);
 }
@@ -1690,11 +1672,11 @@ template <class T> void TPointersList<T>::Add(TItemsList<T*> &List)
 template <class T> void TPointersList<T>::Add(TItemsList<T*> &L, int i1, int i2)
 {
     //el índice i1 debe indicar un lemento de la lista L
-    if(i1<0  || L.Count<=i1)
+    if(i1<0  || L.getCount()<=i1)
         throw EImproperArgument("index i1 should indicate an iten in the list L");
 
     //el índice i2 debe indicar un lemento de la lista L
-    if(i2<0  || L.Count<=i2)
+    if(i2<0  || L.getCount()<=i2)
         throw EImproperArgument("index i2 should indicate an iten in the list L");
 
     //el intervalo [i1, i2] debe ser no negativo
@@ -1852,7 +1834,7 @@ template <class T> void TPointersList<T>::Copy(const TPointersList<T>& L,
                                                int i1, int i2)
 {
     //los indices i1 e i2 deben apuntar a elementos de L
-    if(i1<0  || L.Count<=i1 || i2<0  || L.Count<=i2)
+    if(i1<0  || L.getCount()<=i1 || i2<0  || L.getCount()<=i2)
         throw EImproperArgument("index out bounds");
 
     //el intervalo [i1, i2] debe ser positivo
@@ -2326,7 +2308,7 @@ template <class T> class TPoinList : public TItemList<T*> {
 protected:
     //MÉTODOS DE REDIMENSIONAMIENTO:
 
-        int GetCount(void) const {return Items.Count;}
+        int GetCount(void) const {return Items.getCount();}
         void SetCount(int);
 
         //MÉTODOS DE ACCESO A ELEMENTOS (EN VEZ DE A PUNTEROS):
@@ -2522,7 +2504,7 @@ template <class T> void TPoinList<T>::Destroy(void)
 template <class T> void TPoinList<T>::Copy(const TPoinList<T>& L)
 {
         Destroy(); //destruye todos los elementos de la lista
-        Items.NewLast(L.Count - Items.Count); //redimensiona la lista
+        Items.NewLast(L.getCount() - Items.getCount()); //redimensiona la lista
 
         //construye y copia los elementos no nulos
         for(int i=0; i<getCount(); i++)
@@ -2536,7 +2518,7 @@ template <class T> void TPoinList<T>::Copy(const TPoinList<T>& L)
 template <class T> TPoinList<T>& TPoinList<T>::operator=(const TPoinList<T> &L)
 {
         Destroy(); //destruye todos los elementos de la lista
-        Items.Count = L.Count; //redimensiona la lista
+        Items.getCount() = L.getCount(); //redimensiona la lista
 
         //construye y copia los elementos no nulos
         for(int i=0; i<getCount(); i++)
@@ -2555,7 +2537,7 @@ template <class T> void TPoinList<T>::Copy(const TPoinList<T>& L,
         int i1, int i2)
 {
     //los indices i1 e i2 deben apuntar a elementos de L
-        if(i1<0  || L.Count<=i1 || i2<0  || L.Count<=i2)
+        if(i1<0  || L.getCount()<=i1 || i2<0  || L.getCount()<=i2)
                 throw EImproperArgument("index out bounds");
 
         //el intervalo [i1, i2] debe ser positivo
@@ -2563,7 +2545,7 @@ template <class T> void TPoinList<T>::Copy(const TPoinList<T>& L,
                 throw EImproperArgument("i2 should be upper or equal i1");
 
         Destroy(); //destruye todos los elementos de la lista
-        Items.Count = i2-i1+1; //redimensiona la lista
+        Items.getCount() = i2-i1+1; //redimensiona la lista
 
         //construye y copia los elementos no nulos
         for(int i=0; i<getCount(); i++) {
@@ -2649,7 +2631,7 @@ template <class T> const T& TPoinList<T>::operator[](int i) const
 //traduce de lista a formato texto
 template <class T> AnsiString TPoinList<T>::GetListText(void) const
 {
-        //el puntero Print debería apuntar a una función de impresión
+        //el puntero Print deberí aapuntar a una función de impresión
         if(Print == NULL)
                 throw EImproperCall("pointer Print should point to print function");
 
@@ -2779,8 +2761,8 @@ template <class T> void TPoinList<T>::SetListText(const AnsiString &S)
 
         //ASIGNA LOS ELEMENTOS:
 
-        Count = _Items.Count;
-        for(i=0; i<_Items.Count; i++)
+        Count = _Items.getCount();
+        for(i=0; i<_Items.getCount(); i++)
                 Items[i] = _Items[i];
 
 }
@@ -2788,7 +2770,7 @@ template <class T> void TPoinList<T>::SetListText(const AnsiString &S)
 //traduce de lista a formato columna de texto
 template <class T> AnsiString TPoinList<T>::GetColumnText(void) const
 {
-        //el puntero Print debería apuntar a una función de impresión
+        //el puntero Print deberí aapuntar a una función de impresión
         if(Print == NULL)
                 throw EImproperCall("pointer Print should point to print function");
 
@@ -2839,7 +2821,7 @@ template <class T> void TPoinList<T>::SetColumnText(const AnsiString &S)
         }
 
         //copia los elementos de la variable tampón
-        Count = _Items.Count;
+        Count = _Items.getCount();
         for(int i=0; i<getCount(); i++)
                 Items[i] = _Items[i];
 

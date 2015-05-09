@@ -167,16 +167,16 @@ void TAllocationList::seTAllocationsText(AnsiString &S)
 
 //construye una lista de puntos objetivo
 //adscrita a una lista de RPs
-TAllocationList::TAllocationList(TRoboticPositionerList *_RoboticPositionerList) :
+TAllocationList::TAllocationList(TRoboticPositionerList *RPL) :
 //        TAllocations(1000, TAllocation::CompareIds)
         TItemsList<TAllocation*>(1000, TAllocation::CompareIds)
 {
         //el puntero RoboticPositionerList debería apuntar a una lista de RPs contruida
-        if(_RoboticPositionerList == NULL)
+        if(RPL == NULL)
                 throw EImproperArgument("pointer RoboticPositionerList should point to built RP list");
 
         //apunta el objeto externo
-        __RoboticPositionerList = _RoboticPositionerList;
+        p_RoboticPositionerList = RPL;
 }
 
 //borra los puntos objetivo y destruye la lista

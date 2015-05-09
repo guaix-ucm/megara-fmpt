@@ -296,8 +296,8 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
 
     //tampon variables
     TMotionProgram MP;
-    string _label;
-    int _Bid;
+    string t_label;
+    int t_Bid;
 
     //auxiliary variables
     string aux;
@@ -328,14 +328,14 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
                     } else
                         throw EImproperArgument("missing '\\n' after '\\r'");
                 } else {
-                    _label += c;
+                    t_label += c;
                     status++;
                 }
                 break;
 
             case 1: //reading label and waiting '_'                            1 -> 2
                 if(c != '_')
-                    _label += c;
+                    t_label += c;
                 else
                     status++;
                 break;
@@ -356,7 +356,7 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
                     aux += c;
                 else
                     try {
-                        _Bid = strtoint(aux);
+                        t_Bid = strtoint(aux);
                         aux = "";
                         status++;
                     } catch(Exception &E) {
@@ -440,13 +440,13 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
         throw EImproperArgument("improper value for motion program");
 
     //check the precondition
-    if(_Bid < 0)
+    if(t_Bid < 0)
         throw EImproperArgument("DP Bid should be nonnegative");
 
     //set the tampon variables
     *this = MP;
-    label = _label;
-    Bid = (unsigned int)_Bid;
+    label = t_label;
+    Bid = (unsigned int)t_Bid;
 }
 
 //exclude the isntructions addressed to a determined RP

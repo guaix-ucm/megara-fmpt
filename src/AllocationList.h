@@ -40,12 +40,12 @@ namespace Positioning {
 //class allocation list
 class TAllocationList : public TItemsList<TAllocation*> {
 protected:
-        TRoboticPositionerList *__RoboticPositionerList;
+        TRoboticPositionerList *p_RoboticPositionerList;
 
 public:
         //extern-attached RP list
         TRoboticPositionerList *getRoboticPositionerList(void) const {
-            return __RoboticPositionerList;}
+            return p_RoboticPositionerList;}
 
         //PROPERTIES IN TEXT FORMAT:
 

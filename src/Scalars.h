@@ -127,8 +127,6 @@ bool FloatingPoint(const type_info& t);
 //---------------------------------------------------------------------------
 //Funciones de manipulación de tipos numéricos:
 
-//NOTA: __rtti permite determinar el tipo de objeto en tiempo de ejecución.
-
 //determina la mantisa y el exponente en base 10
 double frexp10(double x, int& exponent10);
 //determina el nº de cifras decimales significativas de x en base 10
@@ -311,7 +309,7 @@ template <class T> T LimitDomain(T x, T xmin, T xmax)
 //variable tipo double identificada
 class TIdDouble {
 protected:
-    int Id;
+    int p_Id;
 
 public:
     //PROPIEDADES DE LA VARIABLE IDENTIFICADA:
@@ -319,7 +317,7 @@ public:
     //número de identificación de la variable
     //debe ser un valor no negativo
     //valor por defecto: 0
-    int getId(void) const {return Id;} void setId(const int);
+    int getId(void) const {return p_Id;} void setId(const int);
     //valor de la variable
     //valor por defecto: 0
     double Value;
@@ -337,7 +335,7 @@ public:
     //evalúa un elemento
     static double  Evaluate(TIdDouble ID);
     //asigna un valor a un elemento
-    static void  Assign(TIdDouble &ID, double _Value);
+    static void  Assign(TIdDouble &ID, double Value);
     //imprime un elemento en una cadena
     static void  Print(AnsiString &S, TIdDouble ID);
     //escudriña una cadena en busca de un elemento
@@ -351,7 +349,7 @@ public:
     //evalúa un elemento
     static double  Evaluate(const TIdDouble *ID);
     //asigna un valor a un elemento
-    static void  Assign(TIdDouble *ID, double _Value);
+    static void  Assign(TIdDouble *ID, double Value);
     //imprime un elemento en una cadena
     static void  Print(AnsiString &S, const TIdDouble *ID);
     //escudriña una cadena en busca de un elemento
@@ -361,12 +359,12 @@ public:
 
     //construye una variable tipo double identificada
     //con las propiedades por defecto
-    TIdDouble(void) : Id(0), Value(0) {;}
+    TIdDouble(void) : p_Id(0), Value(0) {;}
     //construye una variable tipo double identificada
     //con el identificador indicado
-    TIdDouble(int _Id) : Value(0) {
+    TIdDouble(int Id) : Value(0) {
         try {
-            setId(_Id);
+            setId(Id);
         } catch(...) {
             throw;
         }
@@ -388,8 +386,8 @@ public:
 enum TIntervalType {itOpen, itLeft, itRight, itClose};
 
 class TInterval {
-    double lmin;
-    double lmax;
+    double p_lmin;
+    double p_lmax;
 
 public:
     //tipo de intervalo:
@@ -402,11 +400,11 @@ public:
 
     //límite inferior del intervalo
     //debe ser menor o igual que el límite superior
-    double getlmin(void) const {return lmin;}
+    double getlmin(void) const {return p_lmin;}
     void setlmin(double);
     //límite superior del intervalo
     //debe ser mayor o igual que el límite inferior
-    double getlmax(void) const {return lmax;}
+    double getlmax(void) const {return p_lmax;}
     void setlmax(double);
 
     //intervalo en formato texto
@@ -422,10 +420,11 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //construye un intervalo
-    TInterval(TIntervalType _IntervalType=itOpen, double _lmin=0, double _lmax=0);
+    TInterval(TIntervalType IntervalType=itOpen,
+              double lmin=0, double lmax=0);
 
     //asigna los límites del intervalo simultaneamente
-    void SetLimits(double _lmin, double _lmax);
+    void SetLimits(double lmin, double lmax);
 };
 /* comentado para evitar tener que traducirlo
 //---------------------------------------------------------------------------
@@ -515,10 +514,10 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //construye un par
-    TPair(double _x=0, double _y=0);
+    TPair(double x=0, double y=0);
 
     //asigna simultaneamente los valores al par
-    void SetValues(double _x, double _y);
+    void SetValues(double x, double y);
 };
 /* comentado para evitar tener que traducirlo
 //---------------------------------------------------------------------------
@@ -877,7 +876,7 @@ public:
     //MÉTODOS PÚBLICOS:
 
     //construye un par (T *P, double x)
-    TPairTD(T *_P=NULL, double _x=0) : P(_P), x(_x) {;}
+    TPairTD(T *t_P=NULL, double t_x=0) : P(t_P), x(t_x) {;}
 };
 
 //---------------------------------------------------------------------------
@@ -885,10 +884,6 @@ public:
 
 //clase terna de enteros
 class TTernIntegers {
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
 public:
     //ETIQUETAS DE LAS PROPIEDADES:
 
@@ -964,7 +959,7 @@ public:
     //construye un terna de enteros por defecto
     TTernIntegers(void);
     //contruye un terna de enteros con los valores indicados
-    TTernIntegers(int _x, int _y, int _z);
+    TTernIntegers(int x, int y, int z);
 
     //copia las propiedades de una terna
     TTernIntegers& operator=(const TTernIntegers &TI);
