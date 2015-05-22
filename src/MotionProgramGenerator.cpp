@@ -888,8 +888,6 @@ void TMotionProgramGenerator::segregateRecoverables(
     //FOR EACH ISOLATED RP, VALIDATE THEIR INDIVIUDAL MP FOR RECOVERY IT,
     //AND IF A COLLISION IS DETECTED, MODIFY THE INDIVIDUAL MP AND
     //REITERATES THE PROCESS:
-static int h = 0;
-h++;
 
     for(int i=0; i<DDS.getCount(); i++) {
         TPointersList<TRoboticPositionerList> *DisjointSet = DDS.GetPointer(i);

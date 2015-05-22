@@ -1725,7 +1725,7 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
         double theta___3fin = theta___3ini - dt2;
 
         //determines the final position of rot 2 in steps
-        p___3fin = getActuator()->getF().Image(theta___3fin);
+        p___3fin = getActuator()->getArm()->getF().Image(theta___3fin);
         p___3fin = round(p___3fin);
     }
 
@@ -1871,7 +1871,7 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
         double theta___3fin = theta___3ini - dt2;
 
         //determines the final position of rot 2 in steps
-        p___3fin = getActuator()->getF().Image(theta___3fin);
+        p___3fin = getActuator()->getArm()->getF().Image(theta___3fin);
         p___3fin = round(p___3fin);
     }
 
