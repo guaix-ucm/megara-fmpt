@@ -66,13 +66,15 @@ public:
         //PROPERTIES IN TEXT FORMAT:
 
         //PP in text format
-        AnsiString getPPText(void);
+        AnsiString getPPText(void) const;
         void setPPText(const AnsiString&);
+        AnsiString getPPRowText(void) const;
 
         //SETS OF PROPERTIES IN TEXT FORMAT:
 
         //target point in text format
-        AnsiString getText(void); void setText(const AnsiString&);
+        AnsiString getText(void) const;
+        AnsiString getRowText(void) const;
 
         //------------------------------------------------------------------
         //STATIC METHODS:
@@ -94,6 +96,10 @@ public:
         //read the values of the properties
         //in a text string from the position i
         static void  ReadSeparated(int& Id, double& x, double& y, const AnsiString& S, int& i);
+
+        //print the properties of an allocation in a string
+        //in row format
+        static void  PrintRow(AnsiString &S, TAllocation *A);
 
         //BUILDING AND DESTROYING METHODS:
 

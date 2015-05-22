@@ -155,7 +155,7 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee una instancia en una cadena
-        static void  ReadInstance(TExclusionAreaList* &RPL,
+        static void  readInstance(TExclusionAreaList* &RPL,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------
@@ -166,13 +166,16 @@ public:
 
         //copia las propiedades de localización
         //      (O, rmax)
-        void CopyLocation(const TExclusionAreaList*);
+        void copyLocation(const TExclusionAreaList*);
         //copia las propiedades gráficas
         //      (LimitDomainColor, PaintEclusionAreas_, PaintLimitDomain_)
-        void CopyGraphics(const TExclusionAreaList*);
+        void copyGraphics(const TExclusionAreaList*);
 
         //clona una lista de áreas de exclusión
         void Clone(const TExclusionAreaList*);
+
+        //WARNING: inherited methods must be redefined withidentical name
+        //for avoid errors.
 
         //construye un clon de una lista de áreas de exclusión
         TExclusionAreaList(const TExclusionAreaList*);
@@ -198,20 +201,23 @@ public:
         //destruye todas las áreas de exclusión de la lista
         void Destroy(void);
 
+        //WARNING: inherited methods must be redefined withidentical name
+        //for avoid errors.
+
         //MÉTODOS DE BÚSQUEDA DE ÁREAS DE EXCLUSIÓN:
 
         //busca un área de exclusión en la lista
-        int Search(TExclusionArea *EA) const;
+        int search(TExclusionArea *EA) const;
         //busca la primera área de exclusión con el identificador indicado
-        int SearchId(int Id) const;
+        int searchId(int Id) const;
         //devuelve el puntero a la primera área de exclusión
         //con el identificador indicado
-        const TExclusionArea *SearchIdPointer(int Id) const;
+        const TExclusionArea *searchIdPointer(int Id) const;
 
         //MÉTODOS DE ASIMILACIÓN:
 
         //calcula el SPM de todoas las áreas de exclusión
-        void CalculateSPM(void);
+        void calculateSPM(void);
 
         //El método CalculateSPMComponents() y los sucesivos
         //deberán ser invocados toda vez que los márgenes de seguridad
@@ -219,10 +225,10 @@ public:
 
         //determina los posicionadores que están lo bastante cerca
         //de cada área de seguridad como para invadir su SPM
-        void DetermineAdjacents(const TRoboticPositionerList&);
+        void determineAdjacents(const TRoboticPositionerList&);
         //ordena las listas de posicionadores adyacentes en
         //sentido levógiro empezando por el más próximo a 0
-        void SortAdjacents(void);
+        void sortAdjacents(void);
 
         //El método DetermineAdjacents() y los sucesivos
         //deberán ser invocados toda vez que se añadan o borren áreas de exclusión,
@@ -240,18 +246,18 @@ public:
 
         //calcula las propiedades de localización:
         //      (rmax)//, xmin, xmax, ymin, ymax)
-        void CalculateLocationParameters(void);
+        void calculateLocationParameters(void);
 
         //invoca a todos los métodos de asimilación de
         //los parámetros de dimensionamiento y localización:
-        //      DetermineAdjacents
-        //      SortAdjacents
-        void AssimilateSizingAndLocation(const TRoboticPositionerList&);
+        //      determineAdjacents
+        //      sortAdjacents
+        void assimilateSizingAndLocation(const TRoboticPositionerList&);
 
         //asimila la configurración de posicionadores dada ejecutando:
-        //      CalculateSPMComponents();
-        //      AssimilateSizingAnsLocation();
-        void Assimilate(const TRoboticPositionerList&);
+        //      calculateSPMComponents();
+        //      assimilateSizingAnsLocation();
+        void assimilate(const TRoboticPositionerList&);
 
         //MÉTODOS DE DOMINIO CONJUNTO:
 
@@ -259,29 +265,29 @@ public:
         //el conjunto de todas las áreas de exclusión
         //si el número de áreas de exclusión de la lista es menor que uno
         //lanza una excepcion EImproperCall
-        void GetDomain(double &xmin, double &xmax,
+        void getDomain(double &xmin, double &xmax,
                 double &ymin, double &ymax);
   */
         //determina si un punto se encuentra dentro del círculo
         //que contiene el dominio conjunto de lasáreas de exclusión
-        bool IsInCircle(const TDoublePoint&);
+        bool isInCircle(const TDoublePoint&);
 /*        //determina si un punto se encuentra dentro del cuadrado
         //que contiene el dominio conjunto de lasáreas de exclusión
-        bool IsInSquare(const TDoublePoint&);*/
+        bool isInSquare(const TDoublePoint&);*/
 
         //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
 
         //levanta las banderas indicadoras de determinación de colisión
         //pendiente de todos los posicionadores de la lista
-        void EnablePending(void);
+        void enablePending(void);
         //determina si algún área de exclusión
         //colisiona con el brazo de algún posicionador adyacente
-        bool ThereIsCollision(void);
+        bool thereIsCollision(void);
         //busca las áreas de exclusión de la lista cuya barrera colisiona con
         //el brazo de algún posicionador adyacente
-        void SearchCollinding(TVector<int> &indices);
+        void searchCollinding(TVector<int> &indices);
         //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-        void GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
+        void getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
 };
 /*
 //lista de áreas de exclusión en formato texto

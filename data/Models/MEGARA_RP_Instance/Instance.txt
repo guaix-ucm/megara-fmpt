@@ -15,6 +15,7 @@ ActuatorInstance:
         theta___3max = 3.185225884889648194
         theta___3 = 0
         SB2 = 10000
+    SPMmin = 0.001
     PAkd = Pre
 CMFInstance:
     SF1->vmaxabs = 1
@@ -31,7 +32,7 @@ CMFInstance:
 Tolerances:
     Eo = 0.001
     Ep = 0.01
-    Tstop = 1
+    Tstop = 0
     Tshiff = 1
     SPMadd = 0.1
 Status:

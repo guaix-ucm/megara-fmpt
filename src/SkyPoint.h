@@ -48,10 +48,10 @@ namespace Models {
 //  ptBLANK: sky backgound
 enum TPointType {ptUNKNOWN, ptSOURCE, ptREFERENCE, ptBLANK};
 
-void  strPrinTPointType(string& str, TPointType value);
-void  strReadSkyPointType(TPointType& value, const string &str, unsigned int &i);
-string skyPointTypeToStr(TPointType value);
-TPointType strToSkyPointType(const string& str);
+void  strPrinPointType(string& str, TPointType value);
+void  strReadPointType(TPointType& value, const string &str, unsigned int &i);
+string pointTypeToStr(TPointType value);
+TPointType strToPointType(const string& str);
 
 //---------------------------------------------------------------------------
 //TSkyPoint:

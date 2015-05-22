@@ -153,11 +153,11 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //compara los identificadores de dos EAs
-    static int  CompareIds(TExclusionArea *EA1,
+    static int  compareIds(TExclusionArea *EA1,
                            TExclusionArea *EA2);
 
     //imprime el identificador de un EA
-    static void  PrintId(AnsiString &S, TExclusionArea *EA);
+    static void  printId(AnsiString &S, TExclusionArea *EA);
 
     //Los métodos estáticos:
     //      CompareIds
@@ -168,26 +168,26 @@ public:
 
     //obtiene las etiquetas de las propiedades de origen
     //en formato fila de texto
-    static AnsiString GetOriginsLabelsRow(void);
+    static AnsiString getOriginsLabelsRow(void);
     //atraviesa las etiquetas de las propiedades de origen
     //en formato fila de texto
-    static void  TravelOriginsLabelsRow(const AnsiString&, int&);
+    static void  travelOriginsLabelsRow(const AnsiString&, int&);
 
     //imprime los valores de las propiedades de orien de un EA
     //al final de una cadena de texto
     //en formato fila de texto
-    static void  PrintOriginsRow(AnsiString& S,
+    static void  printOriginsRow(AnsiString& S,
                                  TExclusionArea *EA);
     //lee los valores de las propiedades de orien para un EA
     //desde la posición indicada de una cadena de texto
     //en formato fila de texto
-    static void  ReadOriginsRow(TExclusionArea *EA,
+    static void  readOriginsRow(TExclusionArea *EA,
                                 const AnsiString& S, int &i);
 
     //lee una instancia del EA
     //desde la posición indicada de una cadena de texto
     //en formato de asignaciones
-    static void  ReadInstance(TExclusionArea* &B,
+    static void  readInstance(TExclusionArea* &B,
                               const AnsiString& S, int &i);
 
     //-------------------------------------------------------------------
@@ -210,7 +210,7 @@ public:
     //identificador.
 
     //copia un área de exclusión
-    void Copy(const TExclusionArea *EA);
+    void copy(const TExclusionArea *EA);
 
     //contruye un clon de unárea de exclusión
     TExclusionArea(const TExclusionArea *EA);
@@ -240,11 +240,11 @@ public:
     //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
     //asigna las propiedades de origen
-    void SetOrigins(int Id, double x0, double y0, double thetaO1);
+    void setOrigins(int Id, double x0, double y0, double thetaO1);
 
     //asigna conjuntamente las tolerancias
     //      (Eo, Ep)
-    void SetTolerances(double Eo, double Ep);
+    void setTolerances(double Eo, double Ep);
 
     //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
@@ -254,35 +254,35 @@ public:
     //      r_max
     //Determina:
     //      (Barrier.SPM)
-    void CalculateSPM(void);
+    void calculateSPM(void);
 
     //-------------------------------------------------------------------
     //MÉTODOS DE COLISIÓN:
 
     //determina los RPs adyacentes que pueden colisionar con la barrera
-    void DetermineAdjacents(const TItemsList<TRoboticPositioner*>&);
+    void determineAdjacents(const TItemsList<TRoboticPositioner*>&);
     //determina los RPs adyacentes en estado de colisión con la barrera
-    void SearchCollinding(TItemsList<TRoboticPositioner*>&);
+    void searchCollinding(TItemsList<TRoboticPositioner*>&);
 
     //------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR LAS COLISIONES CON RPs ADYACENTES:
 
     //determina si hay colisión con un actuador adyacente
-    bool ThereIsCollision(const TActuator*);
+    bool thereIsCollision(const TActuator*);
     //determina si hay colisión con un actuador adyacente
-    bool ThereIsCollisionWithAdjacent(void);
+    bool thereIsCollisionWithAdjacent(void);
     //Busca los posicionadores adyacentes cuyo
     //brazo colisiona con la barrera de este área de exclusión.
-    void SearchCollindingAdjacent(
+    void searchCollindingAdjacent(
             TItemsList<TActuator*> &Collindings);
 
     //Determina si hay colisión con un actuador adyacente
     //con evalauación de colisión pendiente.
-    bool ThereIsCollisionWithPendingAdjacent(void);
+    bool thereIsCollisionWithPendingAdjacent(void);
     //Busca los posicionadores adyacentes
     //con evalauación de colisión pendiente
     //cuyo brazo colisiona con la barrera de este área de exlusión.
-    void SearchCollindingPendingAdjacent(
+    void searchCollindingPendingAdjacent(
             TItemsList<TActuator*> &Collindings);
 };
 

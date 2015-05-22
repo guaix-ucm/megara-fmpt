@@ -58,7 +58,7 @@ protected:
     //-----------------------------------------------------------------------
     //SETTING PARAMETERS OF THE ALGORITHMS:
 
-    double p_MSD;
+    double p_dt1Max;
 
     //-----------------------------------------------------------------------
     //METHODS OF LOWER LEVEL:
@@ -89,44 +89,6 @@ protected:
 
     //-----------------------------------------------------------------------
 
-    //Propose a recovery program composed by one or two gestures:
-    //  1. Radial retraction to where it is possible.
-    //  2. Abatement of the arm to security position (if necessary).
-    //Input:
-    //  RP: The RP containing the properties (MPturn, MPretraction).
-    //Outputs:
-    //  RP->MPturn: motion program for turn the rotor 1.
-    //  RP->MPretraction: motionprogram for retract the arm.
-    //Preconditions:
-    //- Pointer RP shall point to built robotic positioner.
-    //- The RP shall be enabled the quantifiers of their rotors.
-    //- The RP shall be in unsecurity position.
-    //Postconditions:
-    //- The RP->MPturn will be empty.
-    //- The RP->MPretraction will contains the MP for retract the arm
-    //  to the first stable security position.
-    void proposeRecoveryProgram(TRoboticPositioner *RP);
-    //Propose a recovery program composed by one or two gestures:
-    //  1. Radial retraction to where it is possible.
-    //  2. Abatement of the arm to security position (if necessary).
-    //Input:
-    //  RP: the RP containing the properties (MPturn, MPretraction).
-    //  p_1new: the position to turn the rotor 1 of the RP.
-    //Outputs:
-    //  RP->MPturn: motion program for turn the rotor 1.
-    //  RP->MPretraction: motionprogram for retract the arm.
-    //Preconditions:
-    //- Pointer RP shall point to built robotic positioner.
-    //- The RP shall be enabled the quantifiers of their rotors.
-    //- The RP shall be in unsecurity position.
-    //- The new rotoe 1 position p_1new shall be in the rotor 1 domain.
-    //Postconditions:
-    //- The RP->MPturn will contains the MP for turn the rotor 1
-    //  to the position p_1new.
-    //- The RP->MPretraction will contains the MP for retract the arm
-    //  to the first stable security position.
-    void proposeRecoveryProgram(TRoboticPositioner *RP, double p_1new);
-
     //Determines if a motion program produces a colission,
     //Preconditions:
     //- All RPs of the Fiber MOS Model:
@@ -147,7 +109,7 @@ protected:
     //Inputs:
     //  RP: robotic positioner to be recovered.
     //  dt1max: maximun displacement of the rotor 1 for search the solution
-    //      in rad.
+    //      in rad. Recomended value (M_PI/2).
     //Outputs:
     //  searchSolutionInNegativeSense: indicates if the solution is valid.
     //  p_1new: last position where solution has been searched.
@@ -174,7 +136,7 @@ protected:
     //Inputs:
     //  RP: robotic positioner to be recovered.
     //  dt1max: maximun displacement of the rotor 1 for search the solution
-    //      in rad.
+    //      in rad. Recomended value (M_PI/2).
     //Outputs:
     //  searchSolutionInPositiveSense: indicates if the solution is valid.
     //  p_1new: last position where solution has been searched.
@@ -250,7 +212,7 @@ protected:
     //-----------------------------------------------------------------------
 
     //Add to a MP, the corresponding list or lists of message instruction
-    //correspondint to the individual MPs of the RPs of a RPlist
+    //correspondint to the individual MPs of the RPs of a RP list.
     //Inputs:
     //  RPsToBeRetracted: list of the RPs which has been programmed.
     //  MP: motion program to add themessage list.
@@ -265,7 +227,7 @@ protected:
                          const TRoboticPositionerList& RPsToBeRecovered);
 
     //Add to the DP the message-instruction list to move the RPs
-    //of the list Inners to the origins
+    //of the list Inners to the origins.
     //Inputs:
     //  Inners: list of operative RPs in seciry position out the origin.
     //Output:
@@ -282,12 +244,11 @@ public:
 
     //PARAMETERS TO GENERATE PAIRS (PP, DP):
 
-    //maximun security distance between RPs during radial retraction
-    //this is additional to the SPM
+    //maximun displacement of the rotor 1 for search the solution
     //must be nonnegative
-    //default value: 1 mm
-    double getMSD(void) const {return p_MSD;}
-    void setMSD(double);
+    //default value: M_PI/2 rad
+    double getdt1Max(void) const {return p_dt1Max;}
+    void setdt1Max(double);
 
     //PARAMETERS TO REGENRATE PAIRS (PP, DP):
 
@@ -317,29 +278,72 @@ public:
     //METHODS TO GENERATE MPs:
 
     //Nomenclature:
-    //- Positioning Program: to go the observing positiong, need has a first
-    //  gesture to go to the starting positions in the secure area.
-    //- Depositioning Program: antagonicus of PP, include a final gesture
-    //  tomove therotors to their origins.
+    //
+    //- DP (Depositioning Program): to go from the observing positions to the
+    //  origins. It is generated using Purpose = pGenPairPPDP.
+    //
+    //- PP (Positioning Program): to go from the origins to the observing
+    //  positions. It is the DP inverted int he time. It is generated
+    //  using Purpose = pValDP.
+    //
     //- Recovery Program: is a DP without the final gesture to go to the
-    //  origins.
-    //- Parking Gesture: gesture to mo the rotors to their origins.
+    //  origins. It is generated to generate the DP.
+    //
+    //- Parking Program: to go from the actual positions to the
+    //  origins. It is generated using Purpose = pGenPairPPDP.
 
     //Generates a recovery program for a given set of operative RPs
     //in insecurity positions and determines the RPs of the given set,
     //which can not be recovered because are in collision status
     //or because are obstructed in insecurity positions.
     //Preconditions:
-    //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+    //  All RPs of the Fiber MOS Model:
+    //    - shall be in their initial positions.
+    //    - shall be configurated for MP generation
+    //      (Purpose==pGenPairPPDP || Purpose==pGenParPro).
     //  All RPs of the list Outsiders:
-    //      shall be in the Fiber MOS Model;
-    //      shall be operatives;
-    //      shall be in insecurity positions;
-    //      shall have enabled the quantifiers of their rotors;
-    //      shall be setted in order to the rotor 2 velocity
+    //    - shall be in the Fiber MOS Model;
+    //    - shall be operatives;
+    //    - shall be in insecurity positions;
+    //    - shall have enabled the quantifiers of their rotors;
+    //    - shall be setted in order to the rotor 2 velocity
     //          is approximately double than rotor 1 velocity.
     //Postconditions:
-    //  All RPs of the FMM will be configured for MP validation.
+    //  All RPs of the Fiber MOS Model:
+    //    - will be in the initial positions.
+    //    - will have enabled the quantifiers.
+    //Inputs:
+    //  FMM: Fiber MOS Model with RPs in their initial positions.
+    //  Outsiders: list of operative RPs in unsecurity positions which
+    //      we want recover the security positions.
+    //Outputs:
+    //  Collided: list of RPs collided in insecurity position.
+    //  Obstructed: list of RPs obstructed in insecurity position.
+    //  MP: recovery program.
+    //Note:
+    //  The generated recovery program could be invalid, reason why
+    //  it shall be tested with the validation method.
+    void generateRecoveryProgram(TRoboticPositionerList& Collided,
+        TRoboticPositionerList& Obstructed, TMotionProgram& MP,
+        const TRoboticPositionerList& Outsiders);
+
+    //Generates a depositioning program for a given set of operative RPs
+    //in insecurity positions and determines the RPs of the given set,
+    //which can not be recovered because are in collision status
+    //or because are obstructed in insecurity positions.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model:
+    //      - shall be in their initial positions.
+    //      - shall be configuratedfor generate a pair (PP, DP).
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be operatives.
+    //  All RPs of the list Outsiders, shall be in insecurity positions.
+    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
+    //  approximately double that rotor 1 velocity.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for
+    //      validate a DP.
     //  When the generated recovery program isn't valid:
     //      All RPs of the FMM:
     //          will have disabled the quantifiers of their rotors;
@@ -350,43 +354,11 @@ public:
     //          will have enabled the quantifiers of their rotors;
     //          will be in their final positions.
     //Inputs:
-    //  FMM: Fiber MOS Model with RPs in their initial positions.
-    //  Outsiders: list of operative RPs in unsecurity positions which
-    //      we want recover the security positions.
-    //Outputs:
-    //  generateRecoveryProgram: flag indicating if the recovery program
-    //      generated with this function is valid.
-    //  Collided: list of RPs collided in insecurity position.
-    //  Obstructed: list of RPs obstructed in insecurity position.
-    //  MP: recovery program.
-    bool generateRecoveryProgram(TRoboticPositionerList& Collided,
-        TRoboticPositionerList& Obstructed, TMotionProgram& MP,
-        const TRoboticPositionerList& Outsiders);
-
-    //Generates a depositioning program for a given set of operative RPs
-    //in insecurity positions and determines the RPs of the given set,
-    //which can not be recovered because are in collision status
-    //or because are obstructed in insecurity positions.
-    //Preconditions:
-    //  All RPs of the Fiber MOS Model, shall be in their initial positions.
-    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-    //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in insecurity positions.
-    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
-    //  approximately double that rotor 1 velocity.
-    //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for MP validation
-    //  All RPs of the fiber MOS Model will be in their final positions,
-    //  or the first position where the collision was detected.
-    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
-    //Inputs:
     //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
     //  Outsiders: list of operative RPs in unsecurity positions which
     //      we want recover the security positions.
     //Outputs:
-    //  generateParkingProgram: flag indicating if the parking program
-    //      can be generated or not with this function.
+    //  generateDepositioningProgram: indicates if the generated DP is valid.
     //  Collided: list of RPs collided in insecurity position.
     //  Obstructed: list of RPs obstructed in insecurity position.
     //  DP: depositioning program.
@@ -395,6 +367,14 @@ public:
         const TRoboticPositionerList& Outsiders);
 
     //Generates a positioning program from a given depositioning program.
+    //Preconditions:
+    //  All RPs included in the OPL shall be in the FMM.
+    //  All RPs included in the DP shall be in the FMM.
+    //Inputs:
+    //  DP: depositioning program.
+    //  IPL: initial position list.
+    //Outputs:
+    //  PP: positioning program.
     void generatePositioningProgram(TMotionProgram& PP,
         const TMotionProgram& DP, const TPairPositionAnglesList& IPL);
 
@@ -403,13 +383,16 @@ public:
     //which can not be recovered because are in collision status
     //or because are obstructed in insecurity positions.
     //Preconditions:
-    //  All RPs of the Fiber MOS Model, shall be in their observing positions.
+    //  All RPs of the Fiber MOS Model:
+    //      - shall be in their observing positions.
+    //      - shall be configurated for generate a pair (PP,DP).
     //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
     //  All RPs of the list Outsiders, shall be operatives.
     //  All RPs of the list Outsiders, shall be in insecurity positions.
     //  All RPs of the list Outsiders, shall have enabled the quantifiers.
     //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for MP validation
+    //  All RPs of the Fiber MOS Model will be configured for
+    //      validate a PP.
     //  All RPs of the fiber MOS Model will be in their final positions,
     //  or the first position where the collision was detected.
     //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
@@ -418,15 +401,55 @@ public:
     //  Outsiders: list of operative RPs in unsecurity positions which
     //      we want recover the security positions.
     //Outputs:
-    //  generateParkingProgram: flag indicating if the pair (PP, DP)
-    //      can be generated or not with this function.
+    //  PPvalid: flag indicating if the generated PP is valid.
+    //  DPvalid: flag indicating if the generated DP is valid.
     //  Collided: list of RPs collided in insecurity position.
     //  Obstructed: list of RPs obstructed in insecurity position.
     //  PP: positioning program.
     //  DP: depositioning program.
-    bool generatePairPPDP(TRoboticPositionerList& Collided,
-        TRoboticPositionerList& Obstructed, TMotionProgram& PP,
-        TMotionProgram& DP, const TRoboticPositionerList& Outsiders);
+    void generatePairPPDP(bool& PPvalid, bool& DPvalid,
+        TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
+        TMotionProgram& PP, TMotionProgram& DP,
+        const TRoboticPositionerList& Outsiders);
+
+    //Generates a depositioning program for a given set of operative RPs
+    //in insecurity positions and determines the RPs of the given set,
+    //which can not be recovered because are in collision status
+    //or because are obstructed in insecurity positions.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model:
+    //      - shall be in their initial positions.
+    //      - shall be configured for generate a parking program.
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be operatives.
+    //  All RPs of the list Outsiders, shall be in insecurity positions.
+    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
+    //  approximately double that rotor 1 velocity.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for
+    //      validate a parking program.
+    //  When the generated recovery program isn't valid:
+    //      All RPs of the FMM:
+    //          will have disabled the quantifiers of their rotors;
+    //          will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated recovery program is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //          will have enabled the quantifiers of their rotors;
+    //          will be in their final positions.
+    //Inputs:
+    //  FiberMOSModel: Fiber MOS Model with RPs in their initial positions.
+    //  Outsiders: list of operative RPs in unsecurity positions which
+    //      we want recover the security positions.
+    //Outputs:
+    //  generateDepositioningProgram: indicates if the generated DP is valid.
+    //  Collided: list of RPs collided in insecurity position.
+    //  Obstructed: list of RPs obstructed in insecurity position.
+    //  MP: parking program.
+    bool generateParkingProgram(TRoboticPositionerList& Collided,
+        TRoboticPositionerList& Obstructed, TMotionProgram& MP,
+        const TRoboticPositionerList& Outsiders);
 
     //-----------------------------------------------------------------------
 

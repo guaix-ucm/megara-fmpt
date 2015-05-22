@@ -52,26 +52,26 @@ void TBarrier::setContour_(const TContourFigureList& Contour_)
     if(getContour_().getCount() < 1)
         p_r_max = 0;
     else {
-        p_r_max = getContour_().DistanceMax(TDoublePoint(0, 0));
+        p_r_max = getContour_().distanceMax(TDoublePoint(0, 0));
     }
     //copia la plantilla
     p_Contour.Copy(getContour_());
 
     //calcula la imagen de la plantilla
-    CalculateImage();
+    calculateImage();
 }
 
 void TBarrier::setthetaO1(double thetaO1)
 {
     p_thetaO1 = thetaO1;
 
-    CalculateImage();
+    calculateImage();
 }
 void TBarrier::setP0(TDoublePoint P0)
 {
     p_P0 = P0;
 
-    CalculateImage();
+    calculateImage();
 }
 
 void TBarrier::setSPM(double SPM)
@@ -204,7 +204,7 @@ void TBarrier::setInstanceText(const AnsiString& S)
         TBarrier *B = &aux;
         //lee la instancia y la asigna a la variable tampón
         int i = 1;
-        ReadInstance((TBarrier*&)B, S, i);
+        readInstance((TBarrier*&)B, S, i);
 
         //avanza el índice i hasta la próxima posición que no contenga un separador
         StrTravelSeparatorsIfAny(S, i);
@@ -214,7 +214,7 @@ void TBarrier::setInstanceText(const AnsiString& S)
             throw EImproperArgument("string S should contain a instance value only");
 
         //asigna la variable tampón
-        Copy(B);
+        copy(B);
 
     } catch(...) {
         throw;
@@ -233,10 +233,10 @@ void TBarrier::setInstanceText(const AnsiString& S)
 //      {thetaO1, P0}
 //determina:
 //      {Contour}
-void TBarrier::CalculateImage(void)
+void TBarrier::calculateImage(void)
 {
     //determina el contorno del brazo (rotado y trasladado):
-    getContour_().GetRotatedAndTranslated(p_Contour, getthetaO1(), getP0());
+    getContour_().getRotatedAndTranslated(p_Contour, getthetaO1(), getP0());
 }
 
 //###########################################################################
@@ -247,7 +247,7 @@ void TBarrier::CalculateImage(void)
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia de barrera en una cadena
-void  TBarrier::ReadInstance(TBarrier* &B,
+void  TBarrier::readInstance(TBarrier* &B,
                              const AnsiString& S, int &i)
 {
     //el puntero B debe apuntar a una barrera construida
@@ -318,7 +318,7 @@ void  TBarrier::ReadInstance(TBarrier* &B,
     } while(status < 3);
 
     //asigna la viariable tampón
-    B->Copy(&t_B);;
+    B->copy(&t_B);;
 }
 
 //---------------------------------------------------------------------------
@@ -339,7 +339,7 @@ TBarrier::TBarrier(TDoublePoint P0, double thetaO1) :
 }
 
 //copia una barrera
-void TBarrier::Copy(const TBarrier *B)
+void TBarrier::copy(const TBarrier *B)
 {
     //el puntero B debería apuntar a una barrera contruida
     if(B == NULL)
@@ -361,7 +361,7 @@ TBarrier::TBarrier(const TBarrier *B)
         throw EImproperArgument("pointer B ahould point to built barrier");
 
     //copy all properties
-    Copy(B);
+    copy(B);
 }
 //libera la memoria dinámica
 TBarrier::~TBarrier()
@@ -375,21 +375,21 @@ TBarrier::~TBarrier()
 
 //cambia la posición y orientación
 //del origen de coordenadas simultaneamente
-void TBarrier::Set(TDoublePoint P0, double thetaO1)
+void TBarrier::set(TDoublePoint P0, double thetaO1)
 {
     //asigna los nuevos valores
     p_thetaO1 = thetaO1;
     p_P0 = P0;
 
     //asimila las propiedades de posición y orientación
-    CalculateImage();
+    calculateImage();
 }
 
 /*//-------------------------------------------------------------------
 //MÉTODOS DE COLISIÓN:
 
 //determina si la barrera está en colisión con otra barrera
-bool TBarrier::Collides(const TBarrier *Barrier)
+bool TBarrier::collides(const TBarrier *Barrier)
 {
         //el puntero Barrier debería apuntar a a barrera construido
         if(Barrier== NULL)
@@ -400,7 +400,7 @@ bool TBarrier::Collides(const TBarrier *Barrier)
         return Contour.Collides(Barrier->Contour, SPM + Barrier->SPM);
 }
 //determina si la barrera está encolisión con un brazo
-bool TBarrier::Collides(const TArm *Arm)
+bool TBarrier::collides(const TArm *Arm)
 {
         //el puntero Arm debería apuntar a un brazo construido
         if(Arm== NULL)
@@ -412,21 +412,21 @@ bool TBarrier::Collides(const TArm *Arm)
 }
   */
 //determina si el punto indicado está dentro de la barrera
-bool TBarrier::Covers(TDoublePoint P)
+bool TBarrier::covers(TDoublePoint P)
 {
     //si la distancia entre el punto y el eje del brazo es mayor que L1V
     if(Mod(P - getP0()) > getr_max())
         return false; //indica que no hay colisión
 
     //determina si el punto indicado está en el interior del contorno
-    return getContour().IsInner(P);
+    return getContour().isInner(P);
 }
 
 //MÉTODOS GRÁFICOS:
 /*#
 //dibuja la barrera con el color indicado
 //en un trazador
-void TBarrier::Paint(TPloterShapes *PS, QColor Color)
+void TBarrier::paint(TPloterShapes *PS, QColor Color)
 {
         //el puntero PS no debe ser nulo
         if(PS == NULL)

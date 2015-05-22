@@ -60,7 +60,7 @@ protected:
     //ASSIMILATION METHODS:
 
     //calculates the sizing of a cell (qx, qy)
-    void CalculateSize(void);
+    void calculateSize(void);
 
 public:
     //MAPPING INTERVAL:
@@ -156,43 +156,42 @@ public:
     //instance of the RP map
     //in format assign of text
     AnsiString getInstanceMapText(void) const;
-    void setInstanceMapText(const AnsiString&);
 
     //-------------------------------------------------------------------
     //STATIC METHODS FOR INDIVIDUAL PROPERTIES:
 
     //read xmin in assignment text format
-    static void  ReadxminText(double &xmin, const AnsiString &S, int &i);
+    static void  readxminText(double &xmin, const AnsiString &S, int &i);
     //read xmax in assignment text format
-    static void  ReadxmaxText(double &xmax, const AnsiString &S, int &i);
+    static void  readxmaxText(double &xmax, const AnsiString &S, int &i);
     //read ymin in assignment text format
-    static void  ReadyminText(double &ymin, const AnsiString &S, int &i);
+    static void  readyminText(double &ymin, const AnsiString &S, int &i);
     //read umax in assignment text format
-    static void  ReadymaxText(double &ymax, const AnsiString &S, int &i);
+    static void  readymaxText(double &ymax, const AnsiString &S, int &i);
 
     //read I in assignment text format
-    static void  ReadIText(int &I,  const AnsiString &S, int &i);
+    static void  readIText(int &I,  const AnsiString &S, int &i);
     //read J in assignment text format
-    static void  ReadJText(int &J, const AnsiString &S, int &i);
+    static void  readJText(int &J, const AnsiString &S, int &i);
 
     //STATIC METHODS FOR SETS OF PROPERTIES:
 
     //print the mapping interval of a RP map
     //in a text string in assign format
-    static void  PrintInterval(AnsiString &S,
+    static void  printInterval(AnsiString &S,
                                const TRoboticPositionerList2 *RPL);
     //read the mapping interval of a RP map
     //in a text string in assign format
-    static void  ReadInterval(TRoboticPositionerList2 *RPL,
+    static void  readInterval(TRoboticPositionerList2 *RPL,
                               const AnsiString &S, int &i);
 
     //print the cells of a RP map
     //in a text string in assign format
-    static void  PrintCells(AnsiString &S,
+    static void  printCells(AnsiString &S,
                             const TRoboticPositionerList2 *RPL);
     //read the cells of a RP map
     //in a text string in assign format
-    static void  ReadCells(TRoboticPositionerList2 *RPL,
+    static void  readCells(TRoboticPositionerList2 *RPL,
                            const AnsiString &S, int &i);
 
     //-------------------------------------------------------------------
@@ -202,13 +201,16 @@ public:
     TRoboticPositionerList2(void);
 
     //copy the cell matrix
-    void CopyCells(const TRoboticPositionerList2*);
+    void copyCells(const TRoboticPositionerList2*);
     //copy the RP map of a RPL
-    void CopyMap(const TRoboticPositionerList2*);
+    void copyMap(const TRoboticPositionerList2*);
 
     //clone a RPL including:
     //  (Tolerance, Sizing, Area, Graphics, Map)
     void Clone(const TRoboticPositionerList2*);
+
+    //WARNING: inherited methods must be redefined withidentical name
+    //for avoid errors.
 
     //build a clon of a RPL
     TRoboticPositionerList2(const TRoboticPositionerList2*);
@@ -216,28 +218,28 @@ public:
     //MAP METHODS:
 
     //set the limmits of the mapping interval
-    void SetMapInterval(double xmin, double xmax, double ymin, double ymax);
+    void setMapInterval(double xmin, double xmax, double ymin, double ymax);
     //set the dimensions of the cell matrix
-    void SetMapDimensions(int I, int J);
+    void setMapDimensions(int I, int J);
     //set the content of the cell matrix
-    void SetMapCells(TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > &_Cells);
+    void setMapCells(TPointersList<TPointersList<TItemsList<TRoboticPositioner*> > > &_Cells);
 
     //maps the RPs in the mapping interval
-    void Map(void);
+    void map(void);
     //automatically:
     //      1. stablish the appropriate limits of the mapping interval
     //      2. stablish the appropriate dimensions of the cell matrix
     //      3. maps the RPs in the mapping interval
-    void GenerateMap(void);
+    void generateMap(void);
 
     //assimilates the configuration of RPs executing:
-    //      CalculateSPMComponents();
-    //      AssimilateSizing();
-    //      GenerateMap();
-    void Assimilate(void);
+    //      calculateSPMComponents();
+    //      assimilateSizing();
+    //      generateMap();
+    void assimilate(void);
 
     //assimilates all RPs of the RPL to a given RP
-    void Apply(const TRoboticPositioner& RP);
+    void apply(const TRoboticPositioner*);
 
     //transform x in j by default
     //      x = floor((x - xmin)/qx)
@@ -253,10 +255,10 @@ public:
     int iceil(double y);
 
     //access to the RP list of the cell which contains a point
-    TItemsList<TRoboticPositioner*> *RoboticPositionersCell(TDoublePoint P);
+    TItemsList<TRoboticPositioner*> *roboticPositionersCell(TDoublePoint P);
 
     //search the RPs whose scope is a point
-    void SearchPositioners(TItemsList<TRoboticPositioner*> &RPs,
+    void searchPositioners(TItemsList<TRoboticPositioner*> &RPs,
                            TDoublePoint P);
 };
 

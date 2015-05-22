@@ -110,6 +110,12 @@ public:
         //construye una conexión con los valores por defecto
         TConection(void) : p_RPId(0), p_SpaxelId(0), p_FiberId(0), p_s(0) {;}
 
+        //copy all properties of a conection
+        TConection& operator=(const TConection&);
+
+        //build a clon of a conection
+        TConection(const TConection*);
+
         //asigna las propiedades atómicamente
         //si no es posible asignar todas las propiedades:
         //      lanza una excepción EImproperArgument
@@ -138,6 +144,9 @@ public:
 
         //construye un espectrógrafo con los valores por defecto
         TFiberConnectionModel(void);
+
+        //clone a Fiber Connection Model
+        void Clone(const TFiberConnectionModel&);
 
         //determina las coordenadas en S0 del centro del spaxel 1
         void GetSpaxelCenter1(double&x, double& y,

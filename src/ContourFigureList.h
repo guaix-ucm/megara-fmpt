@@ -67,6 +67,9 @@ public:
         void Copy(const TContourFigureList&);
         TContourFigureList& operator=(const TContourFigureList&);
 
+        //WARNING: Copy must be written wit upcase
+        //for mask the inherited method Copy.
+
         //construye un clon de una lista de figuras
         TContourFigureList(const TContourFigureList &Contour);
 
@@ -82,7 +85,7 @@ public:
         //MÉTODOS DE CARACTERIZACIÓN:
 
         //determina si todos los punteros de la lista son nulos
-        bool AreAllNULL(void) const;
+        bool areAllNULL(void) const;
 
         //determina si la lista de figuras constituye un contorno ordenado
         //comprobando que:
@@ -92,7 +95,7 @@ public:
         //  de otra figura previa, excepto el de la última figura,
         //  que coincide con el inicial de la primera figura.
         //- Ninguna figura se interseca con las demás.
-        bool IsAContourSorted(void) const;
+        bool isAContourSorted(void) const;
 
         //ADVERTENCIA: por ahora IsAContourSorted está comprobando solamente
         //que:
@@ -102,18 +105,18 @@ public:
         //MÉTODOS DE CÁLCULO DE DISTANCIAS CON EL CONTORNO:
 
         //determina la distancia mínima de un punto a este contorno
-        double DistanceMin(TDoublePoint P) const;
+        double distanceMin(TDoublePoint P) const;
         //determina la distancia máxima de un punto a este contorno
-        double DistanceMax(TDoublePoint P) const;
+        double distanceMax(TDoublePoint P) const;
         //determina la distancia mínima de un contorno a este contorno
-        double DistanceMin(const TContourFigureList&) const;
+        double distanceMin(const TContourFigureList&) const;
 
         //MÉTODOS DE DETERMINACIÓN DE INTERSECCIÓN:
 
         //determina si la distancia de una lista de figuras
         //a esta lista de figuras es inferior
         //al margen perimetral de seguridad SPM.
-        bool Collides(const TContourFigureList &C, double SPM) const;
+        bool collides(const TContourFigureList &C, double SPM) const;
 
         //Se advierte que la función que determina el estado de colisión
         //puede tener un tiempo de procesado medio ligeramente inferior
@@ -121,41 +124,41 @@ public:
         //detecta a mayor distancia que la distancia igual a cero.
 
         //determina si un punto está en el interior del contorno
-        bool IsInner(TDoublePoint P) const;
+        bool isInner(TDoublePoint P) const;
 
 /*        //MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO:
 
         //determina los ángulos que hay que rotar este contorno
-        //en torno al punto Q para que quede adyacente al segmento (Pa, Pb)
+        //entorno al punto Q para que quede adyacente al segmento (Pa, Pb)
         void TurnSegment(TVector<double> &dts,
                 TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Q);
 
         //determina los ángulos que hay que rotar este contorno
-        //en torno al punto Q para que quede adyacente al arco (Pa, Pb, Pc, R)
-        void TurnArc(TVector<double> &dts,
+        //entorno al punto Q para que quede adyacente al arco (Pa, Pb, Pc, R)
+        void turnArc(TVector<double> &dts,
                 TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R,
                 TDoublePoint Q);
 
         //determina los ángulos que hay que rotar este contorno
-        //en torno al punto Q para que quede adyacente al brazo Arm
-        void TurnArm(TVector<double> &dts, TArm *Arm_,
+        //entorno al punto Q para que quede adyacente al brazo Arm
+        void turnArm(TVector<double> &dts, TArm *Arm_,
                 TDoublePoint Q);
 */
         //MÉTODOS DE TRANSFORMACIONES GEOMÉTRICAS:
 
         //obtiene la lista de figuras rotada y trasladada.
-        //si elnúmero de figuras de la lista no coincide:
+        //si el número de figuras de la lista no coincide:
         //      lanza EImproperArgument
         //si alguna figuradelalista no es del mimo tipo
         //      lanza EImproperArgument
-        void GetRotatedAndTranslated(TContourFigureList &Contour,
+        void getRotatedAndTranslated(TContourFigureList &Contour,
                 double theta, TDoublePoint V) const;
 
         //MÉTODOS GRÁFICOS:
 
         //dibuja las figuras de una  lista
         //en un trazador de formas
-        //#void Paint(TPloterShapes *PS) const;
+        //#void paint(TPloterShapes *PS) const;
 };
 
 //--------------------------------------------------------------------------
@@ -163,10 +166,10 @@ public:
 
 //segrega las figuras de una lista en listas de figuras concatenadas
 //devuelve falso si encuentra más de dos vértices engarzados entre si
-//bool Segregate(TPointersList<TContourFigureList> &LC, TContourFigureList &C);
+//bool segregate(TPointersList<TContourFigureList> &LC, TContourFigureList &C);
 //reduce un conjunto de listas de figuras concatenadas
 //concatenando las listas que se puedan entre si
-//void Concatenate(TPointersList<TContourFigureList> &LC);
+//void concatenate(TPointersList<TContourFigureList> &LC);
 
 //---------------------------------------------------------------------------
 

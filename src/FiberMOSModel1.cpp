@@ -51,7 +51,7 @@ void TFiberMOSModel1::setInstanceText(const AnsiString& S)
                 TFiberMOSModel1 *FMM = &aux;
                 //lee la instancia mediante el clon
                 int i = 1;
-                ReadInstance(FMM, S, i);
+                readInstance(FMM, S, i);
 
                 //avanza el índice hasta el próximo caracterno separador
                 //o hasta el final de la cadena
@@ -78,7 +78,7 @@ void TFiberMOSModel1::setInstanceText(const AnsiString& S)
 
 //lee una instancia de Fiber MOS Model
 //en una cadena de texto en formato de asignaciones
-void  TFiberMOSModel1::ReadInstance(TFiberMOSModel1 *FMM,
+void  TFiberMOSModel1::readInstance(TFiberMOSModel1 *FMM,
         const AnsiString &S, int &i)
 {
         //el puntero FMM debe apuntar a un Fiber MOS Model construído
@@ -87,7 +87,7 @@ void  TFiberMOSModel1::ReadInstance(TFiberMOSModel1 *FMM,
 
         //lee la instancia en la lista de RPs
         TRoboticPositionerList1 *RPL = &FMM->RPL;
-        TRoboticPositionerList1::ReadInstance(RPL, S, i);
+        TRoboticPositionerList1::readInstance(RPL, S, i);
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA, CLONACIÓN Y DESTRUCCIÓN:
@@ -146,23 +146,23 @@ void TFiberMOSModel1::Destroy(void)
 //MÉTODOS PARA CONTRUIR Y DESTRUIR POSICIONADORES:
 
 //contruye una colmena cuadrada y asimilala situación
-void TFiberMOSModel1::BuildSquareHive(void)
+void TFiberMOSModel1::buildSquareHive(void)
 {
         //inicializa el contador de identificadores
         int CountId = 1;
         //contruye una colmena cuadrada por defecto
-        RPL.BuildSquareHive(CountId);
+        RPL.buildSquareHive(CountId);
         //asimila la nueva configuración
-        Assimilate();
+        assimilate();
 }
-//borra los posicionadores seleccionados y asimilala situación
+/*//borra los posicionadores seleccionados y asimilala situación
 void TFiberMOSModel1::DeleteSelected(void)
 {
         //destruye los posicionadores seleccionados
         RPL.DestroySelected();
         //asimila la nueva configuración
         Assimilate();
-}
+}*/
 
 /*//MÉTODOS DE TRANSFORMACIÓN DE COORDENADAS:
 
@@ -177,34 +177,23 @@ void TFiberMOSModelModel1::S0recToAmgularPositions(TTargetPointAngPosList& TPAPL
 //MÉTODOS DE ASIMILACIÓN:
 
 //asimila la configuración de las listas de objetos
-void TFiberMOSModel1::Assimilate()
+void TFiberMOSModel1::assimilate()
 {
-        RPL.Assimilate();
-        EAL.Assimilate(RPL);
+        RPL.assimilate();
+        EAL.assimilate(RPL);
 }
 
 //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
 
 //determina si algún brazo de algún posicionador
 //colisiona con el brazo de algún posicionador adyacente
-bool TFiberMOSModel1::ThereIsCollision(void)
+bool TFiberMOSModel1::thereIsCollision(void)
 {
         //si los posicionadores colisionan entre si o contra las áreas de exclusión
-        if(RPL.ThereIsCollision() || EAL.ThereIsCollision())
+        if(RPL.thereIsCollision() || EAL.thereIsCollision())
                 return true; //indica que si hay colisión
 
         return false; //indica que no hay colisión
-}
-//busca los posicionadores de la lista cuyo brazo colisiona con
-//el brazo de algún otro posicionador adyacente
-void TFiberMOSModel1::SearchCollinding(TVector<int> &indices)
-{
-    //TBD
-}
-//obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-void TFiberMOSModel1::GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL)
-{
-    //TBD
 }
 
 //RANDOMIZADO DE LOS EJES:
@@ -212,7 +201,7 @@ void TFiberMOSModel1::GetCollisionClusterList(TPointersList<TItemsList<TRoboticP
 //lleva los ejes de los posicionadores a posiciones aleatorias
 //con distribución uniforme en sus dominios
 //en las que no colisionan entre si
-void TFiberMOSModel1::RandomizeWithoutCollision(void)
+void TFiberMOSModel1::randomizeWithoutCollision(void)
 {
 /*        TRoboticPositioner *RP;
 
@@ -233,7 +222,7 @@ void TFiberMOSModel1::RandomizeWithoutCollision(void)
 //lleva el punto P3 de los posicionadores a posiciones aleatorias
 //con distribución uniforme en su dominio
 //en las que no colisionan entre si
-void TFiberMOSModel1::RandomizeP3WithoutCollision(void)
+void TFiberMOSModel1::randomizeP3WithoutCollision(void)
 {
 /*        TRoboticPositioner *RP;
 
@@ -253,7 +242,7 @@ void TFiberMOSModel1::RandomizeP3WithoutCollision(void)
 
 //escribe la instancia de la lista de robots posicionadores
 //en un directorio
-void TFiberMOSModel1::WriteRPLToDir(const AnsiString& Dir)
+void TFiberMOSModel1::writeRPLToDir(const AnsiString& Dir)
 {
         try {
                 //escribe la instancia en el archivo 'Instance.txt'
@@ -286,7 +275,7 @@ void TFiberMOSModel1::WriteRPLToDir(const AnsiString& Dir)
 }
 //lee una instancia de la lista de robots posicionadores
 //de un directorio
-void TFiberMOSModel1::ReadRPLFromDir(const AnsiString& Dir)
+void TFiberMOSModel1::readRPLFromDir(const AnsiString& Dir)
 {
         try {
                 //contruye una lista tampón
@@ -339,7 +328,7 @@ void TFiberMOSModel1::ReadRPLFromDir(const AnsiString& Dir)
 
 //escribe la instancia de la lista de áreas de exclusión
 //en un directorio
-void TFiberMOSModel1::WriteEALToDir(const AnsiString& Dir)
+void TFiberMOSModel1::writeEALToDir(const AnsiString& Dir)
 {
         try {
                 //por cada área de exclusión de la lista
@@ -366,7 +355,7 @@ void TFiberMOSModel1::WriteEALToDir(const AnsiString& Dir)
 }
 //lee una instancia de la lista de áreas de exclusión
 //de un directorio
-void TFiberMOSModel1::ReadEALFromDir(const AnsiString& Dir)
+void TFiberMOSModel1::readEALFromDir(const AnsiString& Dir)
 {
         try {
                 //contruye una lista tampón
@@ -410,7 +399,7 @@ void TFiberMOSModel1::ReadEALFromDir(const AnsiString& Dir)
 }
 
 //escribe la instancia del Fiber MOS Model en un directorio
-void TFiberMOSModel1::WriteInstanceToDir(const AnsiString& Dir)
+void TFiberMOSModel1::writeInstanceToDir(const AnsiString& Dir)
 {
         try {
                 //escribe las instancias de las listas de objetos en el directorio
@@ -426,7 +415,7 @@ void TFiberMOSModel1::WriteInstanceToDir(const AnsiString& Dir)
         }
 }
 //lee una instancia del Fiber MOS Model de un directorio
-void TFiberMOSModel1::ReadInstanceFromDir(const AnsiString& Dir)
+void TFiberMOSModel1::readInstanceFromDir(const AnsiString& Dir)
 {
         try {
                 //lee las instancias de las listas de objetos del directorio
@@ -451,7 +440,7 @@ void TFiberMOSModel1::ReadInstanceFromDir(const AnsiString& Dir)
 /*#
 //dibuja los posicionadores y las áreas de exclusión
 //en un trazador de formas
-void TFiberMOSModel1::Paint(TPloterShapes* PS)
+void TFiberMOSModel1::paint(TPloterShapes* PS)
 {
         //el puntero PS debería apuntar a un trazador de formas construído
         if(PS == NULL)

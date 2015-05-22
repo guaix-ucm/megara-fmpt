@@ -233,7 +233,7 @@ void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
 //---------------------------------------------------------------------------
 //MÉTODOS DE CONSTRUCCIÓN, COPIA, CLONACIÓN Y DESTRUCCIÓN:
 
-//construye una lista de posicionadores de fibra
+//construye una lista de RPs
 TRoboticPositionerList::TRoboticPositionerList(void) :
         TRoboticPositionerList2(),
         p_Tit(40),
@@ -248,8 +248,8 @@ TRoboticPositionerList::TRoboticPositionerList(void) :
         //#getTimer()->setInterval(40);
 }
 
-//copia las propiedades de ejecución de una lista de posicionadores de fibra
-void TRoboticPositionerList::CopyExecution(const TRoboticPositionerList *RPL)
+//copia las propiedades de ejecución de una lista de RPs
+void TRoboticPositionerList::copyExecution(const TRoboticPositionerList *RPL)
 {
         //el puntero RPL debería apuntar a una lista de posicionadores construida
         if(RPL == NULL)
@@ -298,14 +298,14 @@ void TRoboticPositionerList::Clone(const TRoboticPositionerList *RPL)
     Read = RPL->Read;
 
     //copy all other properties of the model
-    CopyTolerance(RPL);
-    CopySizing(RPL);
-    CopyArea(RPL);
-    CopyMap(RPL);
-    CopyExecution(RPL);
+    copyTolerance(RPL);
+    copySizing(RPL);
+    copyArea(RPL);
+    copyMap(RPL);
+    copyExecution(RPL);
 }
 
-//construye un clon de una lista de posicionadores de fibra
+//construye un clon de una lista de RPs
 TRoboticPositionerList::TRoboticPositionerList(const TRoboticPositionerList *RPL) :
         TRoboticPositionerList2(RPL)
 {
@@ -319,7 +319,7 @@ TRoboticPositionerList::TRoboticPositionerList(const TRoboticPositionerList *RPL
         Clone(RPL);
 }
 
-//destruye una lista de posicionadores de fibra
+//destruye una lista de RPs
 TRoboticPositionerList::~TRoboticPositionerList()
 {
         //destruye el temporizador
@@ -341,14 +341,14 @@ void TInstrumentCarrier::SetTi(double Tit)
                 RoboticPositioners[i]->Tit = Tit; //asigna el nuevo valor
 }
 //asigna un estado de validación a todos los posicionadores
-void TInstrumentCarrier::SetValidating(bool Validating)
+void TInstrumentCarrier::setValidating(bool Validating)
 {
         //po cada posicionador de la lista
         for(int i=0; i<getCount(); i++)
                 RoboticPositioners[i]->Validating = Validating; //asigna el nuevo valor
 }
 //asigna un estado de ejecución a todos los posicionadores
-void TInstrumentCarrier::SetExecuting(bool Executing)
+void TInstrumentCarrier::setExecuting(bool Executing)
 {
         //po cada posicionador de la lista
         for(int i=0; i<getCount(); i++)
@@ -358,7 +358,7 @@ void TInstrumentCarrier::SetExecuting(bool Executing)
 //MÉTODOS DE CONFIGURACIÓN:
 
 //obtiene la tabla de identificadores (Id, Id1, Id2)
-void TRoboticPositionerList::GetIdTable(TPointersList<TTernIntegers>& IdTable) const
+void TRoboticPositionerList::getIdTable(TPointersList<TTernIntegers>& IdTable) const
 {
         //inicializa la lista
         IdTable.Clear();
@@ -379,7 +379,7 @@ void TRoboticPositionerList::GetIdTable(TPointersList<TTernIntegers>& IdTable) c
 //      lanza una excepción EImproperArgument
 //si algún Id en IdTable no se refiere a un posicionador de la lista:
 //      lanza una excepción EImproperArgument
-void TRoboticPositionerList::SetIdTable(TPointersList<TTernIntegers>& IdTable)
+void TRoboticPositionerList::setIdTable(TPointersList<TTernIntegers>& IdTable)
 {
         //COMPRUEBA LAS PRECONDICIONES:
 
@@ -426,7 +426,7 @@ void TRoboticPositionerList::SetIdTable(TPointersList<TTernIntegers>& IdTable)
                 }
 
                 //todos los Ids en IdTable deben referirse a posicionadores de la lista
-                if(SearchId(TIi->x) >= getCount())
+                if(searchId(TIi->x) >= getCount())
                         throw EImproperArgument("all Ids in IdTable should do refer to positioners of the list");
         }
 
@@ -438,7 +438,7 @@ void TRoboticPositionerList::SetIdTable(TPointersList<TTernIntegers>& IdTable)
                 TTernIntegers *TI = IdTable.GetPointer(i);
 
                 //busca el posicionador en la lista
-                int j = SearchId(TI->x);
+                int j = searchId(TI->x);
                 //si no lo ha encontrado
                 if(j >= getCount())
                         //indica que se ha producido un efecto lateral
@@ -452,7 +452,7 @@ void TRoboticPositionerList::SetIdTable(TPointersList<TTernIntegers>& IdTable)
 }
 
 //prepara el posicionador multifibra según un propósito
-void TRoboticPositionerList::SetPurpose(TPurpose Purpose)
+void TRoboticPositionerList::setPurpose(TPurpose Purpose)
 {
         for(int i=0; i<getCount(); i++)
                 Items[i]->getActuator()->setPurpose(Purpose);
@@ -460,21 +460,21 @@ void TRoboticPositionerList::SetPurpose(TPurpose Purpose)
 
 //configura el estado de habilitación del cuantificador de rot 1
 //de todos los posicionadores de la lista
-void TRoboticPositionerList::SetQuantify_s(bool Quantify_)
+void TRoboticPositionerList::setQuantify_s(bool Quantify_)
 {
         for(int i=0; i<getCount(); i++)
                 Items[i]->getActuator()->setQuantify_(Quantify_);
 }
 //configura el estado de habilitación del cuantificador de rot 2
 //de todos los posicionadores de la lista
-void TRoboticPositionerList::SetArmQuantify___s(bool Quantify___)
+void TRoboticPositionerList::setArmQuantify___s(bool Quantify___)
 {
         for(int i=0; i<getCount(); i++)
                 Items[i]->getActuator()->getArm()->setQuantify___(Quantify___);
 }
 //configura el estado de habilitación de los cuantificadores
 //de todos los posicionadores de la lista
-void TRoboticPositionerList::SetQuantifys(bool Quantify_, bool Quantify___)
+void TRoboticPositionerList::setQuantifys(bool Quantify_, bool Quantify___)
 {
         TRoboticPositioner *RP;
 
@@ -487,7 +487,7 @@ void TRoboticPositionerList::SetQuantifys(bool Quantify_, bool Quantify___)
 
 //configura el estado de colisión
 //de todos los posicionadores de la lista
-void TRoboticPositionerList::SetCollisions(bool Collision)
+void TRoboticPositionerList::setCollisions(bool Collision)
 {
         for(int i=0; i<getCount(); i++)
                 Items[i]->getActuator()->Collision = Collision;
@@ -530,9 +530,31 @@ bool TRoboticPositionerList::thereIsSomeRepeatedPointer(void) const
     return false;
 }
 
+//determines if there is some not operative RP
+bool TRoboticPositionerList::thereIsSomeNotOperative(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(!RP->getOperative())
+            return true;
+    }
+    return false;
+}
+
+//determines if there is some RP out of origin
+bool TRoboticPositionerList::thereIsSomeOutOrigin(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->getActuator()->getp_1()!=0 || RP->getActuator()->getArm()->getp___3()!=0)
+            return true;
+    }
+    return false;
+}
+
 //determina si todos los posicionadores operativos en
 //posiciones de inseguridad están en la lista Abatibles
-bool TRoboticPositionerList::NotAllOperativeInUnsafetyPositionsAreInTheList(
+bool TRoboticPositionerList::notAllOperativeInUnsafetyPositionsAreInTheList(
         TRoboticPositionerList *Abatibles) const
 {
         //por cada posicionador de fibra de la lista
@@ -557,7 +579,7 @@ bool TRoboticPositionerList::NotAllOperativeInUnsafetyPositionsAreInTheList(
 
 //determina si todos los posicionadores de la lista
 //están operativos en posiciones de inseguridad
-bool TRoboticPositionerList::NotAllPositionersAreOperativesInUnsafetyPositions(void) const
+bool TRoboticPositionerList::notAllPositionersAreOperativesInUnsafetyPositions(void) const
 {
         //por cada posicionador de la lista
         for(int i=0; i<getCount(); i++) {
@@ -591,7 +613,7 @@ bool TRoboticPositionerList::thereIsSomeOperativeRPwithDynamicFaul(void) const
 //MÉTODOS DE PROGRAMACIÓN:
 
 //borra las instrucciones de movimeinto de los posicionadores
-void TRoboticPositionerList::ClearInstructions(void)
+void TRoboticPositionerList::clearInstructions(void)
 {
         //por cada posicionador de fibra de la lista
         for(int i=0; i<getCount(); i++)
@@ -605,7 +627,7 @@ void TRoboticPositionerList::ClearInstructions(void)
 //si el posicionador Id no está en la lista
 //      lanza una excepción EImproperArgument
 //si Id==0 asigna la instrucción a todos los controldaores
-void TRoboticPositionerList::SetInstruction(const int Id, const TInstruction &Instruction)
+void TRoboticPositionerList::setInstruction(const int Id, const TInstruction &Instruction)
 {
         //el identificador Id debería ser no negativo
         if(Id < 0)
@@ -615,7 +637,7 @@ void TRoboticPositionerList::SetInstruction(const int Id, const TInstruction &In
                 //si la instrucción va dirigida a un solo posicionador
                 if(Id != 0) {
                         //busca el posicionador en la lista
-                        int i = SearchId(Id);
+                        int i = searchId(Id);
                         //si ha encontrado el posicioandor
                         if(i < getCount())
                                 //asigna la instrucción al posicionador identificado
@@ -637,7 +659,7 @@ void TRoboticPositionerList::SetInstruction(const int Id, const TInstruction &In
         }
 }
 
-//añade gestos de abatimiento para los posicionadores de fibras de la lista
+//añade gestos de abatimiento para los RPs de la lista
 void TRoboticPositionerList::programTurnArmsToSafeAreas(void)
 {
         TRoboticPositioner *RP;
@@ -649,11 +671,11 @@ void TRoboticPositionerList::programTurnArmsToSafeAreas(void)
                 //si el brazo del posicionador adscrito está fuera del área de seguridad
                 if(RP->getActuator()->ArmIsOutSafeArea())
                         //programa el abatimiento desde su posición actual
-                        RP->programTurnArmToSafeArea();
+                        RP->programTurnArmToSecurityPosition();
         }
 }
 //sincroniza todos los gestos de la lista
-void TRoboticPositionerList::SinchronizeArrivals(void)
+void TRoboticPositionerList::sinchronizeArrivals(void)
 {
         //determina el periodo de desplazameinto máximo
         double Tdis = getTdis();
@@ -665,12 +687,12 @@ void TRoboticPositionerList::SinchronizeArrivals(void)
 }
 
 //invierte los gestos en el dominio del tiempo
-void TRoboticPositionerList::InvertTime(void)
+void TRoboticPositionerList::invertTime(void)
 {
         //para cada controlador de la lista
         for(int i=0; i<getCount(); i++)
                 //invierte el gesto en el dominio del tiempo
-                Items[i]->InvertTime();
+                Items[i]->invertTime();
 }
 
 //MÉTODOS DE MOVIMIENTO:
@@ -680,35 +702,35 @@ void TRoboticPositionerList::InvertTime(void)
 //si el puntero PainAll no apunta a una función
 //      lanza EImproperCall
 //no actualiza k
-void TRoboticPositionerList::Move(double t)
+void TRoboticPositionerList::move(double t)
 {
         //por cada RP de la lista
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición correspondiente al instante t
-                Items[i]->Move(t);
+                Items[i]->move(t);
 }
 
-//mueve los posicionadores de fibra a sus posiciones inciiales
+//mueve los RPs a sus posiciones inciales
 //si el puntero PainAll no apunta a una función
 //      lanza EImproperCall
 //no actualiza k
-void TRoboticPositionerList::MoveSta(void)
+void TRoboticPositionerList::moveSta(void)
 {
         //por cada RP de la lista
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición inicial
-                Items[i]->MoveSta();
+                Items[i]->moveSta();
 }
 //mueve los RPs a sus posiciones finales
 //si el puntero PainAll no apunta a una función
 //      lanza EImproperCall
 //no actualiza k
-void TRoboticPositionerList::MoveFin(void)
+void TRoboticPositionerList::moveFin(void)
 {
         //por cada RP de la lista
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición final
-                Items[i]->MoveFin();
+                Items[i]->moveFin();
 }
 
 //---------------------------------------------------------------------------

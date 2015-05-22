@@ -81,7 +81,7 @@ protected:
 
     TDoublePoint p_P0;
 
-    //COMPOSED PROPERTIES:
+    //STRUCTURED PROPERTIES:
 
     TArm *p_Arm;
     TBarrier *p_Barrier;
@@ -101,7 +101,7 @@ protected:
     //  {Q(p_1)}
     //Restrictions:
     //  the function F(theta_1) must be monotonous growing.
-    void ProcessateF(void);
+    void processateF(void);
 
     //Note that the following restriction are not impossed:
     //  The funtion F(theta_1) must be defined 0.
@@ -109,7 +109,7 @@ protected:
     //  The function F(theta_1) must bedefined in M_2PI.
 
     //calculate P1 according to (P0, theta_1)
-    TDoublePoint NewP1(void);
+    TDoublePoint newP1(void);
 
 public:
     //------------------------------------------------------------------
@@ -482,7 +482,7 @@ public:
     TDoublePoint getP3o(void) const;
 
     //------------------------------------------------------------------
-    //COMPOSED PROPERTIES:
+    //STRUCTURED PROPERTIES:
 
     //brazo del posicionador de fibra
     TArm *getArm(void) const {return p_Arm;}
@@ -664,11 +664,11 @@ public:
     TCilinder(TDoublePoint P0, double thetaO1=MEGARA_thetaO1);
 
     //copia un conjunto de propiedades de un actuador de fibra
-    void CopySizing(const TCilinder*);
-    void CopyOrientationRadians(const TCilinder*);
-    void CopyQuantification(const TCilinder*);
-    void CopyLocation(const TCilinder*);
-    void CopyCilinder(const TCilinder*);
+    void copySizing(const TCilinder*);
+    void copyOrientationRadians(const TCilinder*);
+    void copyQuantification(const TCilinder*);
+    void copyLocation(const TCilinder*);
+    void copyCilinder(const TCilinder*);
 
     //construye un clon de un actuador de fibra
     TCilinder(const TCilinder*);
@@ -710,17 +710,17 @@ public:
 
     //determina si un ángulo en radianes
     //está fuera del intervalo [theta_1min, theta_1max]
-    bool IsntInDomaintheta_1(double theta_1) const;
+    bool isntInDomaintheta_1(double theta_1) const;
     //determina si un ángulo pasos
     //está fuera del intervalo [p_1min, p_1max]
-    bool IsntInDomainp_1(double p_1) const;
+    bool isntInDomainp_1(double p_1) const;
 
     //determina si un ángulo en radianes
     //está dentro del intervalo [theta_1min, theta_1max]
-    bool IsInDomaintheta_1(double theta_1) const;
+    bool isInDomaintheta_1(double theta_1) const;
     //determina si un ángulo pasos
     //está dentro del intervalo [p_1min, p_1max]
-    bool IsInDomainp_1(double p_1) const;
+    bool isInDomainp_1(double p_1) const;
 
     //IsntInDomainp_1 traduce la coordenada a radianes antes de comprobar
     //si está en dominio, para evitar los errores numéricos de
@@ -739,31 +739,31 @@ public:
 
     //cambia conjuntamente las propiedades de plantilla
     //si no especifica argumentos se asignarán valores por defecto
-    void SetTemplate(double L01=MEGARA_L, double L12=MEGARA_L, double L13=MEGARA_L,
+    void setTemplate(double L01=MEGARA_L, double L12=MEGARA_L, double L13=MEGARA_L,
                      double theta___3=0, double R3=0.75);
 
     //desactiva la cuantificación de los ejes del posicionador
-    void DisableQuantification(void);
+    void disableQuantification(void);
     //activa la cuantificación de los ejes del posicionador
-    void EnableQuantification(void);
+    void enableQuantification(void);
 
     //METHODS FOR STACK AND RESTORE POSITIONS:
 
     //apila theta_1 en la pila LIFO theta_1s
     //      theta_1s.Add(theta_1)
-    void Pushtheta_1(void);
+    void pushtheta_1(void);
     //restaura el último theta_1 de la pila LIFO theta_1s
     //      theta_1 = theta_1s.Last
     //si no hay una posición apilada lanza EImproperCall
-    void Restoretheta_1(void);
+    void restoretheta_1(void);
     //desempila el último theta_1 de la pila LIFO theta_1s
     //      theta_1s.Delete(theta_1.Count - 1)
     //si no hay una posición apilada lanza EImproperCall
-    void Poptheta_1(void);
+    void poptheta_1(void);
     //restaura y desempila el último theta_1 de la pila LIFO theta_1s
     //      theta_1s.Delete(theta_1.Count - 1)
     //si no hay una posición apilada lanza EImproperCall
-    void RestoreAndPoptheta_1(void);
+    void restoreAndPoptheta_1(void);
 
     //ADVERTENCIA: la recuperación de posiciones no estables,
     //cuando está la cuantificación activada, dará lugar
@@ -773,45 +773,45 @@ public:
 
     //apila Quantify_ en la pila LIFO Quantify_s
     //      Quantify_s.Add(Quantify_)
-    void PushQuantify_(void);
+    void pushQuantify_(void);
     //restaura el último Quantify_ de la pila LIFO Quantify_s
     //      Quantify_ = Quantify_s.Last
     //si no hay una posición apilada lanza EImproperCall
-    void RestoreQuantify_(void);
+    void restoreQuantify_(void);
     //desempila el último Quantify_ de la pila LIFO Quantify_s
     //      Quantify_s.Delete(Quantify_.Count - 1)
     //si no hay una posición apilada lanza EImproperCall
-    void PopQuantify_(void);
+    void popQuantify_(void);
     //restaura y desempila el último Quantify_ de la pila LIFO Quantify_s
     //      Quantify_s.Delete(Quantify_.Count - 1)
     //si no hay una posición apilada lanza EImproperCall
-    void RestoreAndPopQuantify_(void);
+    void restoreAndPopQuantify_(void);
 
     //METHODS FOR SET POSITION ANGLES:
 
     //cambia la posición y orientación
     //del origen de coordenadas simultaneamente
-    void MoveOrigin(TDoublePoint P0, double thetaO1);
+    void moveOrigin(TDoublePoint P0, double thetaO1);
 
     //asigna conjuntamente theta_1 y theta___3
-    void SetAnglesRadians(double theta_1, double theta___3);
+    void setAnglesRadians(double theta_1, double theta___3);
     //asigna conjuntamente p_1 y p___3
-    void SetAnglesSteps(double p_1, double p___3);
+    void setAnglesSteps(double p_1, double p___3);
 
     //mueve los ejes hasta el origen de coordenadas
-    void SetAnglesZeroSteps(void);
+    void setAnglesZeroSteps(void);
 
     //añade conjuntamente 'at_1' y 'at___3' a 'theta_1' y 'theta___3'
-    void AddAnglesRadians(double at_1, double at___3);
+    void addAnglesRadians(double at_1, double at___3);
     //añade conjuntamente 'ap_1' y 'ap___3' a 'p_1' y 'p___3'
-    void AddAnglesSteps(double ap_1, double ap___3);
+    void addAnglesSteps(double ap_1, double ap___3);
 
     //genera un valor aleatorio con distribución uniforme en:
     //      [Max(0, p_1min), Min(floor(SB1), p_1max)]
-    double Randomp_1(void);
+    double randomp_1(void);
     //asigna a p_1 un valor aleatorio con distribución uniforme en:
     //      [Max(0, p_1min), Min(floor(SB1), p_1max)]
-    void Randomizep_1(void);
+    void randomizep_1(void);
 
     //------------------------------------------------------------------
     //METHODS FOR DETERMINE POSITION ANGLES:
@@ -821,14 +821,14 @@ public:
     //si el punto no está dentro del dominio devuelve falso.
     //Aunque el punto sea inalcanzable, este método devolverá
     //las posiciones límite a la que los ejes pueden ir.
-    bool AnglesToGoP_3(double &_theta_1, double &_theta___3,
+    bool anglesToGoP_3(double &_theta_1, double &_theta___3,
                        double r_3, double theta_3) const;
     //Dado el punto (x3, y3) (en S0)
     //calcula (theta_1, theta___3) para que P3 vaya a él;
     //si el punto no está dentro del dominio devuelve falso.
     //Aunque el punto sea inalcanzable, este método devolverá
     //las posiciones límite a la que los ejes pueden ir.
-    bool AnglesToGoP3(double &_theta_1, double &_theta___3,
+    bool anglesToGoP3(double &_theta_1, double &_theta___3,
                       double x3, double y3) const;
 
     //Dado el ángulo theta_3 (en S1) calcula theta___3 para que P3 vaya a él;
@@ -842,7 +842,7 @@ public:
     //la fibra de este posicionador se ubique lo más cerca posible
     //del punto correspondiente a unas posiciones angulares de los ejes
     //devuelve la distancia al punto hallado
-    double GetNearestStablePosition(double &p_1nsp, double &p___3nsp,
+    double getNearestStablePosition(double &p_1nsp, double &p___3nsp,
                                     double theta_1, double theta___3);
 
     //Este método tiene los parámetros de entrada en coordenadas angulares
@@ -896,45 +896,45 @@ public:
     //METHODS FOR DETERMINE BELONGING TO DOMAIN OF P3:
 
     //determina si el punto P_ está dentro del dominio de P_3
-    bool PointIsInDomainP_3(TDoublePoint P_);
+    bool pointIsInDomainP_3(TDoublePoint P_);
     //determina si el punto P_ está fuera del dominio de P_3
-    bool PointIsOutDomainP_3(TDoublePoint P_);
+    bool pointIsOutDomainP_3(TDoublePoint P_);
 
     //determina si el punto P está dentro del dominio de P3
-    bool PointIsInDomainP3(TDoublePoint P);
+    bool pointIsInDomainP3(TDoublePoint P);
     //determina si el punto P está fuera del dominio de P3
-    bool PointIsOutDomainP3(TDoublePoint P);
+    bool pointIsOutDomainP3(TDoublePoint P);
     //determina si el punto (x, y) está fuera del dominio de P3
-    bool PointIsOutDomainP3(double x, double y);
+    bool pointIsOutDomainP3(double x, double y);
 
     //determina el arco descrito por P3 al girar el eje 1
     //en el intervalo [Max(0., theta_1min), Min(2_MPI, theta_imax)]
     //con el brazo totalmente extendido
     //si el arco contiene un error numérico significativo hace Pfin = Pini
-    void GetArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pa,
+    void getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pa,
                 double &R);
     //determina el arco descrito por P3 al plegar el brazo
     //con el eje 1 en el ángulo theta_
-    void GetArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pa,
+    void getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pa,
                 double &R, double theta_);
 
     //Determina si un segmento interseca al arco descrito por P3
     //al girar el eje 1 con el brazo totalemnte extendido.
-    bool IntersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb);
+    bool intersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb);
     //Determina si un segmento interseca al arco descrito por P3
     //al plegar el brazo cuando theta_1 = Max(0, theta_1min).
-    bool IntersectionSegmentArc2(TDoublePoint Pa, TDoublePoint Pb);
+    bool intersectionSegmentArc2(TDoublePoint Pa, TDoublePoint Pb);
     //Determina si un segmento interseca al arco descrito por P3
     //al plegar el brazo cuando theta_1 = Min(M_2PI, theta_1max).
-    bool IntersectionSegmentArc3(TDoublePoint Pa, TDoublePoint Pb);
+    bool intersectionSegmentArc3(TDoublePoint Pa, TDoublePoint Pb);
 
     //Determina si un segmento invade el dominio de P3
     //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
-    bool SegmentInvadeDomainP3(TDoublePoint Pa, TDoublePoint Pb);
+    bool segmentInvadeDomainP3(TDoublePoint Pa, TDoublePoint Pb);
     //Determina si un segmento no puede ser recorrido
     //totalmente mediante un movimeinto continuo del punto P3,
     //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
-    bool SegmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb);
+    bool segmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb);
 
     //Un polisegmento puede estar en una de las cuatro situaciones
     //sigueintes respecto del dominio de P3:
@@ -945,11 +945,11 @@ public:
 
     //Determina si un polisegmento invade el dominio de P3,
     //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
-    bool PolysegmentInvadeDomainP3(TItemsList<TDoublePoint> &Polysegment);
+    bool polysegmentInvadeDomainP3(TItemsList<TDoublePoint> &Polysegment);
     //Determina si un polisegmento no puede ser recorrido
     //totalmente mediante un movimeinto continuo del punto P3,
     //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
-    bool PolysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegment);
+    bool polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegment);
 
     //ERROR: Los métodos:
     //      PolysegmentIsNotOutDomainP3
@@ -996,22 +996,22 @@ public:
 
     //asigna coordenadas polares a P_3
     //si el punto no está en el dominio de P_3 lanza una excepción
-    void SetPolarP_3(double r_3, double theta_3);
+    void setPolarP_3(double r_3, double theta_3);
 
     //asigna coordenadas cartesianas a P_3
     //si el punto no está en el dominio de P_3 lanza una excepción
-    void SetCartesianP_3(double x_3, double y_3);
-    void SetCartesianP_3(TDoublePoint P_3);
+    void setCartesianP_3(double x_3, double y_3);
+    void setCartesianP_3(TDoublePoint P_3);
 
     //genera un punto con distribución uniforme en
     //el dominio cartesiano de P3 hasta que dicho punto
     //esté dentro del dominio de P3
-    TDoublePoint RandomP3(void);
+    TDoublePoint randomP3(void);
 
     //genera un punto con distribución uniforme en
     //el dominio cartesiano de P3 hasta que dicho punto
     //esté dentro del dominio de P3 y lo asigna a P3
-    void RandomizeP3(void);
+    void randomizeP3(void);
 
 };
 

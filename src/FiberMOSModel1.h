@@ -67,7 +67,7 @@ public:
 
         //lee una instancia de Fiber MOS Model
         //en una cadena de texto en formato de asignaciones
-        static void  ReadInstance(TFiberMOSModel1 *MP,
+        static void  readInstance(TFiberMOSModel1 *MP,
                 const AnsiString &S, int &i);
 
         //------------------------------------------------------------------
@@ -78,6 +78,9 @@ public:
 
         //clona un Fiber MOS Model
         void Clone(const TFiberMOSModel1*);
+
+        //WARNING: inherited methods must be redefined withidentical name
+        //for avoid errors.
 
         //construye un clon de un Fiber MOS Model
         TFiberMOSModel1(const TFiberMOSModel1*);
@@ -90,12 +93,15 @@ public:
         //destruye todos los objetos de la lista
         void Destroy(void);
 
+        //WARNING: inherited methods must be redefined withidentical name
+        //for avoid errors.
+
         //MÉTODOS PARA CONTRUIR Y DESTRUIR POSICIONADORES:
 
         //contruye una colmena cuadrada y asimilala situación
-        void BuildSquareHive(void);
-        //borra los posicionadores seleccionados y asimilala situación
-        void DeleteSelected(void);
+        void buildSquareHive(void);
+/*        //borra los posicionadores seleccionados y asimilala situación
+        void DeleteSelected(void);*/
 
 /*        //MÉTODOS DE TRANSFORMACIÓN DE COORDENADAS:
 
@@ -108,54 +114,49 @@ public:
         //MÉTODOS DE ASIMILACIÓN:
 
         //asimila la configuración de las listas de objetos
-        void Assimilate(void);
+        void assimilate(void);
 
         //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
 
         //determina si algún brazo de algún posicionador
         //colisiona con el brazo de algún posicionador adyacente
-        bool ThereIsCollision(void);
-        //busca los posicionadores de la lista cuyo brazo colisiona con
-        //el brazo de algún otro posicionador adyacente
-        void SearchCollinding(TVector<int> &indices);
-        //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-        void GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
+        bool thereIsCollision(void);
 
         //MÉTODOS RANDOMIZADO DE LOS EJES:
 
         //lleva los ejes de los posicionadores a posiciones aleatorias
         //con distribución uniforme en sus dominios
         //en las que no colisionan entre si
-        void RandomizeWithoutCollision(void);
+        void randomizeWithoutCollision(void);
 
         //MÉTODOS DE RANDOMIZADO DE P3:
 
         //lleva el punto P3 de los posicionadores a posiciones aleatorias
         //con distribución uniforme en su dominio
         //en las que no colisionan entre si
-        void RandomizeP3WithoutCollision(void);
+        void randomizeP3WithoutCollision(void);
 
 /*        //------------------------------------------------------------------
         //MÉTODOS DE ARCHIVO:
 
         //escribe la instancia de la lista de robots posicionadores
         //en un directorio
-        void WriteRPLToDir(const AnsiString& Dir);
+        void writeRPLToDir(const AnsiString& Dir);
         //lee una instancia de la lista de robots posicionadores
         //de un directorio
-        void ReadRPLFromDir(const AnsiString& Dir);
+        void readRPLFromDir(const AnsiString& Dir);
 
         //escribe la instancia de la lista de áreas de exclusión
         //en un directorio
-        void WriteEALToDir(const AnsiString& Dir);
+        void writeEALToDir(const AnsiString& Dir);
         //lee una instancia de la lista de áreas de exclusión
         //de un directorio
-        void ReadEALFromDir(const AnsiString& Dir);
+        void readEALFromDir(const AnsiString& Dir);
 
         //escribe la instancia del Fiber MOS Model en un directorio
-        void WriteInstanceToDir(const AnsiString& Dir);
+        void writeInstanceToDir(const AnsiString& Dir);
         //lee una instancia del Fiber MOS Model de un directorio
-        void ReadInstanceFromDir(const AnsiString& Dir);
+        void readInstanceFromDir(const AnsiString& Dir);
 
         //Estos métodos de archivo no deben ser incluidos en la FMPT
         //porque la FMPT no debe tener acceso al sistema de archivos.
@@ -163,27 +164,27 @@ public:
         //de la FMPT Stand Alone Application:
         //      //escribe la instancia de una lista de robots posicionadores
         //      //en un directorio
-        //      void WriteInstanceToDir(const AnsiString& Dir, const TRoboticPositionerList&);
+        //      void writeInstanceToDir(const AnsiString& Dir, const TRoboticPositionerList&);
         //      //lee una instancia de la lista de robots posicionadores
         //      //de un directorio
-        //      void ReadInstanceFromDir(TRoboticPositionerList&, const AnsiString& Dir);
+        //      void readInstanceFromDir(TRoboticPositionerList&, const AnsiString& Dir);
         //      //escribe la instancia de una lista de áreas de exclusión
         //      //en un directorio
-        //      void WriteInstanceToDir(const AnsiString& Dir, const TExclusionAreaList&);
+        //      void writeInstanceToDir(const AnsiString& Dir, const TExclusionAreaList&);
         //      //lee una instancia de la lista de áreas de exclusión
         //      //de un directorio
-        //      void ReadInstanceFromDir(TExclusionAreaList&, const AnsiString& Dir,
+        //      void readInstanceFromDir(TExclusionAreaList&, const AnsiString& Dir,
         //              const TRoboticPositionerList&);
         //      //escribe la instancia de un Fiber MOS Model en un directorio
-        //      void WriteInstanceToDir(const AnsiString& Dir, const TMultifiberPositioner1*);
+        //      void writeInstanceToDir(const AnsiString& Dir, const TMultifiberPositioner1*);
         //      //lee una instancia del Fiber MOS Model de un directorio
-        //      void ReadInstanceFromDir(TMultifiberPositioner1*, const AnsiString& Dir);
+        //      void readInstanceFromDir(TMultifiberPositioner1*, const AnsiString& Dir);
 */
         //MÉTODOS GRÁFICOS:
 
         //dibuja los posicionadores y las áreas de exclusión
         //en un trazador de formas
-        //#void Paint(TPloterShapes* PS);
+        //#void paint(TPloterShapes* PS);
 };
 
 //---------------------------------------------------------------------------

@@ -80,11 +80,11 @@ TFaultType StrToFaultType(const AnsiString& S);
 //Class TRoboticPositioner; description:
 //
 //Un objeto de la clase TRoboticPositioner contiene un actuador y
-//una funciónde movimiento.
+//una función de movimiento compuesta.
 //Entonces un gesto puede ser programado para el actuador, obteniendo
-//la función de movimeinto compuesto para ambos ejes, mediante:
-//      - los métodos que programan gestos;
-//      - asignando el comando en formato de cadena de bytes;
+//la función de movimeinto compuesto para ambos rotores, mediante:
+//  - los métodos que programan gestos;
+//  - asignando el comando en formato de cadena de bytes;
 //Una vez programado el gesto puede ser ejecutado mediante los métodos
 //de movimeinto tantas veces como se desee.
 //
@@ -95,7 +95,7 @@ TFaultType StrToFaultType(const AnsiString& S);
 //a cadenas de bytes que deberán ser entramadas para su envío, de modo que
 //conviene poder programar los gestos a partir de dichas cadenas.
 //
-//Durante la programación habrá que programar gestos suyos comandos no
+//Durante la programación habrá que programar gestos cuyos comandos no
 //serán entramados, de modo que conviene poder programarlos directamente.
 //
 //Por último la configuración del gesto puede ser editada mediante
@@ -103,40 +103,38 @@ TFaultType StrToFaultType(const AnsiString& S);
 //cada parámetro por separado para simplificar el tratamiento.
 
 //Lista de gestos fundamentales:
-//        None, //no gira ningún eje
-//        M1, //gira el cilindro hasta p_1
-//        M2, //gira el brazo hasta p___3
-//        M, //gira el brazo y el cilindro hasta (p_1, p___3),
+//    None, //no gira ningún rotor
+//    M1, //gira el cilindro hasta p_1
+//    M2, //gira el brazo hasta p___3
+//    MM, //gira el brazo y el cilindro hasta (p_1, p___3),
 
 //Lista de gestos que requieren un cálculo previo:
-//        TurnCilinderTotheta_1, //gira el cilindro hasta theta_1
-//        TurnCilinderTotheta_2, //gira el cilindro hasta theta_2
-//        TurnCilinderTotheta_3, //gira el cilindro hasta theta_3
+//    turnCilinderTotheta_1, //gira el cilindro hasta theta_1
+//    turnCilinderTotheta_2, //gira el cilindro hasta theta_2
+//    turnCilinderTotheta_3, //gira el cilindro hasta theta_3
 //
-//        TurnArmTotheta_2, //gira el brazo hasta theta_2
-//        TurnArmTotheta_3, //gira el brazo hasta theta_3
-//        TurnArmTor_2, //gira el brazo hasta r_2
-//        TurnArmTor_3, //gira el brazo hasta r_3
-//        TurnArmToSafeArea, //gira el brazo hasta el área de seguridad
-//        TurnArmToOrigin; //gira el brazo hasta el origen de coordenadas
+//    turnArmTotheta_2, //gira el brazo hasta theta_2
+//    turnArmTotheta_3, //gira el brazo hasta theta_3
+//    turnArmTor_2, //gira el brazo hasta r_2
+//    turnArmTor_3, //gira el brazo hasta r_3
+//    turnArmToSafeArea, //gira el brazo hasta el área de seguridad
+//    turnArmToOrigin; //gira el brazo hasta el origen de coordenadas
 
-//        GoRadialTor_2, //desplaza P2 radialmente hasta r_2
-//        GoRadialToSafeArea, //desplaza P2 radialmente hasta que el brazo
-//                //quede dentro del área de seguridad
-//                //o hasta donde se pueda
-//        GoRadialToOrigin, //desplaza P2 radialmente hasta P0
-//                //o hasta donde se pueda
+//    goRadialTor_2, //desplaza P2 radialmente hasta r_2
+//    goRadialToSafeArea, //desplaza P2 radialmente hasta que el brazo
+//            //quede dentro del área de seguridad
+//            //o hasta donde se pueda
+//    goRadialToOrigin, //desplaza P2 radialmente hasta P0
+//            //o hasta donde se pueda
 
-//        GoDirectlyToPolarP_3, //va directamente a (r_3, theta_3)
-//        GoDirectlyToCartesianP_3, //va directamente a (x_3, y_3)
-//        GoDirectlyToCartesianP3, //va directamente a (x3, y3)
+//    goDirectlyToPolarP_3, //va directamente a (r_3, theta_3)
+//    goDirectlyToCartesianP_3, //va directamente a (x_3, y_3)
+//    goDirectlyToCartesianP3, //va directamente a (x3, y3)
 
-//ADVERTENCIA: para mantener el formalismo estricto se define TRoboticPositioner
-//con una propiedad de la clase TActuator, evitándose intergar las propiedades
-//de TActuator en la clase TRoboticPositioner. De este odo se obtienen algunas
-//ventajas:
-//- Las propiedades de inicialización de TActuator pueden ser filtradas antes de
-//  cotnstruir el actuador.
+//ADVERTENCIA: noconviene intergar las propiedades de TActuator en la clase
+//TRoboticPositioner. De este odo se obtienen algunas ventajas:
+//- Las propiedades de inicialización de TActuator pueden ser filtradas
+//  antes de cotnstruir el actuador.
 //- El método Copy de TActuator no tiene que ser redefinido, manteniendose
 //  la encapsulación de las propiedades del actuador.
 
@@ -161,6 +159,7 @@ protected:
 
         double p_FaultProbability;
 
+        double p_DsecMax;
         double p_Dsec;
 
 public:
@@ -195,27 +194,31 @@ public:
         //TOLERANCES:
 
         //orientation error margin in S0
+        //must be nonnegative
         //default value: MEGARA_Eo rad
         double getEo(void) const {return p_Eo;}
         void setEo(double);
         //position error margin in S0
+        //must be nonnegative
         //default value: MEGARA_Ep mm
         double getEp(void) const {return p_Ep;}
         void setEp(double);
 
         //maximun time betweem last storage of the position angles,
         //and rotors detention.
+        //must be nonnegative
         //default value: MEGARA_Tstop ms
         double getTstop(void) const {return p_Tstop;}
         void setTstop(double);
         //maximun time shift between RPs in motion.
-        //  default value: MEGARA_Tshiff ms
+        //must be nonnegative
+        //default value: MEGARA_Tshiff ms
         double getTshiff(void) const {return p_Tshiff;}
         void setTshiff(double);
 
         //SPM additional to add to SPMdyn
         //must be nonnegative
-        //default value: 0.1 mm
+        //default value: MEGARA_SPMadd mm
         double getSPMadd(void) const {return p_SPMadd;}
         void setSPMadd(double);
 
@@ -262,9 +265,14 @@ public:
         //individual MP attached to the RP
         //for retract the arm
         Positioning::TMotionProgram MPretraction;
-        //additional security distance during retraction
+        //maximun additional security distance during retraction
         //must be nonnegative
         //default value: 1 mm
+        double getDsecMax(void) const {return p_DsecMax;}
+        void setDsecMax(double);
+        //additional security distance during retraction
+        //must be nonnegative
+        //default value: DsecMax mm
         double getDsec(void) const {return p_Dsec;}
         void setDsec(double);
 
@@ -333,11 +341,11 @@ public:
         //STATIC METHODS:
 
         //compare the identifiers of two RPs
-        static int  CompareIds(TRoboticPositioner *FP1,
+        static int  compareIds(TRoboticPositioner *FP1,
                 TRoboticPositioner *FP2);
 
         //print the identifier of a RP
-        static void  PrintId(AnsiString &S, TRoboticPositioner *FP);
+        static void  printId(AnsiString &S, TRoboticPositioner *FP);
 
         //Statics methods:
         //      CompareIds
@@ -350,37 +358,37 @@ public:
         //  (Id, x0, y0, thetaO1)
         //to the end of a text string
         //in row text format
-        static void  PrintOriginsRow(AnsiString& S,
+        static void  printOriginsRow(AnsiString& S,
                 TRoboticPositioner *FP);
         //read the value of the origin properties of a RP
         //  (Id, x0, y0, thetaO1)
         //from the indicated position of a text string
         //in row text format
-        static void  ReadOriginsRow(TRoboticPositioner *FP,
+        static void  readOriginsRow(TRoboticPositioner *FP,
                 const AnsiString& S, int &i);
 
         //print the value of the position properties of a RP
         //  (Id, x3, y3)
         //to the end of a text string
         //in row text format
-        static void  PrintPositionP3Row(AnsiString& S,
+        static void  printPositionP3Row(AnsiString& S,
                                         TRoboticPositioner *FP);
         //read the value of the position properties of a RP
         //  (Id, x3, y3)
         //from the indicated position of a text string
         //in row text format
-        static void  ReadPositionP3Row(TRoboticPositioner* &FP,
+        static void  readPositionP3Row(TRoboticPositioner* &FP,
                                        const AnsiString& S, int &i);
 
         //print the value of the position properties of a RP
         //  (Id, p_1, p___3)
         //to the end of a text string
         //in row text format
-        static void  PrintPositionPPARow(AnsiString& S,
+        static void  printPositionPPARow(AnsiString& S,
                                         TRoboticPositioner *FP);
 
         //lee una instancia en una cadena
-        static void  ReadInstance(TRoboticPositioner* &FP,
+        static void  readInstance(TRoboticPositioner* &FP,
                 const AnsiString& S, int &i);
 
         //------------------------------------------------------------------
@@ -389,41 +397,34 @@ public:
         //build a RP by default
         TRoboticPositioner(void);
         //build a RP with the indicated values
-        //if Id is less 1 throw an exception EimproperArgument
+        //if Id is less 1 throw an exception EImproperArgument
         TRoboticPositioner(int Id, TDoublePoint P0,
                 double thetaO1=MEGARA_thetaO1);
 
         //WARNING: duplicity of identifiers is allowed.
 
-        //copy all control properties of a RP
-        void CopyControl(const TRoboticPositioner*);
-        void CopyControl(const TRoboticPositioner&);
         //copy all tolerance properties of a RP
-        void CopyTolerance(const TRoboticPositioner*);
-        void CopyTolerance(const TRoboticPositioner&);
+        void copyTolerance(const TRoboticPositioner*);
         //copy all status properties of a RP
-        void CopyStatus(const TRoboticPositioner*);
-        void CopyStatus(const TRoboticPositioner&);
+        void copyStatus(const TRoboticPositioner*);
 
         //copy all properties of a RP
-        void Clone(const TRoboticPositioner*);
-        void Clone(const TRoboticPositioner&);
+        void clone(const TRoboticPositioner*);
         TRoboticPositioner& operator=(const TRoboticPositioner&);
 
         //build a clon of a RP
         TRoboticPositioner(const TRoboticPositioner*);
-        TRoboticPositioner(const TRoboticPositioner&);
 
         //copy all properties of a RP
         //except (P0, Id, Id1, Id2)
-        void Apply(const TRoboticPositioner&);
+        void apply(const TRoboticPositioner*);
 
         //free the dynamic memory and delete the RP in Builts
         //if the RP isn't in Built throw EImproperCall
         ~TRoboticPositioner();
 
         //-------------------------------------------------------------------
-        //METHODS TO CALCULATE THE RECOMMENDED VALUES OF THE SPMCOMPONENTS:
+        //METHODS TO CALCULATE THE RECOMMENDED VALUES OF THE SPM COMPONENTS:
 
         //SPM recovery in mm:
         //  SPMrec = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
@@ -438,7 +439,8 @@ public:
         //- the mechanical error due to mechanization of the actuator;
         //- the position error of the RPs;
         //- the orientation error of the RPs;
-        //- the positioning error due the to imprecisión of F(theta_1) and Arm->F(theta___3).
+        //- the positioning error due the to imprecisión of F(theta_1)
+        //  and Arm->F(theta___3).
 
         //ADVERENCIA: no confundir (Eo, Ep) con (PAem, Pem); (Eo, Ep)
         //se refiere al error de posición y orientación al colocar
@@ -449,11 +451,12 @@ public:
         //la trayectoria de P3, ya que las posiciones p_1 y p___3 son
         //calculadas teniendo en cuenta dicha alinealidad.
         //De este modo solo habrá que tener en cuenta el salto más grande
-        //de cada eje para determinar la contribución de F en Ep.
+        //de cada rotor para determinar la contribución de F en Ep.
 
         //dynamic SPM:
         //  SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
-        //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tshiff + SPMadd;
+        //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tshiff +
+        //      SPMadd;
         double SPMdyn(void) const;
 
         //SPMdyn must be enough large to include:
@@ -468,7 +471,7 @@ public:
 
         //asigna conjuntamente las tolerancias
         //      (Eo, Ep, Tstop, Tshiff, SPMadd)
-        void SetTolerances(double Eo, double Ep,
+        void setTolerances(double Eo, double Ep,
                            double Tstop, double Tshiff,
                            double SPMadd);
 
@@ -479,13 +482,15 @@ public:
         //      (Eo, Ep, Tstop, Tshiff, SPMadd)
         //      rmax
         //Determina:
-        //      (SPMrec, SPMsta, SPMdyn, SPMmin)
-        void CalculateSPMComponents(void);
+        //      (SPMrec, SPMsta, SPMdyn)
+        void calculateSPMcomponents(void);
+
+        //access to SPMmin thorug "getActuator()->".
 
         //asigna la componente de SPM para absorber el desplazamiento
         //por corrección del offset
         //      Actuator->SPMoff = PAem*Actuator->rmax + Pem mm
-        void SetSPMoff(double PAem, double Pem);
+        void setSPMoff(double PAem, double Pem);
 
         //--------------------------------------------------------------------------
         //METHODS TO CHECK THE CONFIGURATION:
@@ -551,106 +556,126 @@ public:
         void getInstruction(TInstruction&) const;
 
         //get the instruction to move:
-        //  rotor 1 from actualposition to Max(0, p_1min)
-        //  rotor 2 from actualposition to Max(0, p___3min)
+        //  rotor 1 from actualposition to p_1first
+        //  rotor 2 from actualposition to p___3first
         void getInstructionToGoToTheOrigin(TInstruction&) const;
 
-        //METHODS TOPROGRAM GESTURES:
+        //METHODS TO PROGRAM GESTURES:
 
         //program the abatement of the arm to
         //the more closer-stable security position
-        void programTurnArmToSafeArea(void);
+        void programTurnArmToSecurityPosition(void);
         //program the retraction of the arm to
         //the more closer-stable security position
         //if rotor 1 quantifier or rotor 2 quantifier is disabled:
         //  throw and exception EImproperCall
-        void programRetractArmToSafeArea(void);
+        void programRetractionToSecurityPosition(void);
+        //program the extension of the fiber from the actual position
+        //to the more spread position
+        //if rotor 1 quantifier or rotor 2 quantifier is disabled:
+        //  throw and exception EImproperCall
+        void programExtensionToMoreSpreadPosition(void);
 
         //When the vmax of rotor 2 is the double that vmax of rotor 1,
         //the extension and retraction of the arm will be radial. And
-        //when the rotor 1is near of origin, part of the trajectory can
+        //when the rotor 1 is near of origin, part of the trajectory can
         //be circular around the rotor 2.
 
         //program turn of rotor 1 to theta_1
         //if theta_1 is out rotor 1 domain:
         //  throw an exception EImproperArgument
         void programTurnCilinderTotheta_1(double theta_1);
-        //gira el cilindro hasta theta_2
-//        void TurnCilinderTotheta_2(double theta_2);
-        //gira el cilindro hasta theta_3
-//        void TurnCilinderTotheta_3(double theta_3);
 
-        //gira el brazo hasta theta_2
-//        void TurnArmTotheta_2(double theta_2);
-        //gira el brazo hasta theta_3
-//        void TurnArmTotheta_3(double theta_3);
-        //gira el brazo hasta r_2
-//        void TurnArmTor_2(double r_2);
-        //gira el brazo hasta r_3
-//        void TurnArmTor_3(double r_3);
-        //gira el brazo hasta el área de seguridad
-        //si el brazo ya está en el área de seguridad devuelve falso
-//        void TurnArmToSafeArea(void);
-        //gira el brazo hasta el origen de coordenadas
-//        void TurnArmToOrigin(void);
+        //Other methods which could be useful:
+        //
+        //  void turnCilinderTotheta_2(double theta_2);
+        //  void turnCilinderTotheta_3(double theta_3);
+        //
+        //  void turnArmTotheta_2(double theta_2);
+        //  void turnArmTotheta_3(double theta_3);
+        //  void turnArmTor_2(double r_2);
+        //  void turnArmTor_3(double r_3);
+        //  void turnArmToSafeArea(void);
+        //  void turnArmToOrigin(void);
+        //
+        //  void goRadialTor_2(double r_2);
+        //  void goRadialToSafeArea(void);
+        //  void goRadialToOrigin(void);
+        //
+        //  void GoDirectlyToPolarP_3(double r_3, double theta_3);
 
-        //desplaza P2 radialmente hasta r_2
-//        void GoRadialTor_2(double r_2);
-        //desplaza P2 radialmente hasta que el brazo quede dentro
-        //del área de seguridad o hasta donde se pueda
-//        void GoRadialToSafeArea(void);
-        //desplaza P2 radialmente hasta P0 o hasta donde se pueda
-//        void GoRadialToOrigin(void);
-
-        //va directamente a (r_3, theta_3)
-//        void GoDirectlyToPolarP_3(double r_3, double theta_3);
-        //progrsam go directly from actual position to (x_3, y_3)
+        //program go directly from actual position to (x_3, y_3)
         //if (x_3, y_3) is out the scope of the RP:
         //  throw an exception EImproperArgument
-        void programGoDirectlyToCartesianP_3(double x_3, double y_3);
-        //progrsam go directly from actual position to (x3, y3)
+        double programGoDirectlyToCartesianP_3(double x_3, double y_3);
+        //program go directly from actual position to (x3, y3)
         //if (x3, y3) is out the scope of the RP:
         //  throw an exception EImproperArgument
-        void programGoDirectlyToCartesianP3(double x3, double y3);
+        double programGoDirectlyToCartesianP3(double x3, double y3);
 
         //METHODS TO MODIFY THE PROGRAMMED GESTURE:
 
-        //invertgesture in the time domain
-        void InvertTime(void);
+        //invert the programmed gesture in the time domain
+        void invertTime(void);
 
         //METHODS TO ADD MESSAGE INSTRUCTIONS TO THE MP:
 
-        //add a amessage instruction to retract to security position
-        //or to where rotor 1 is in the origin
-        bool addMIforRetraction(void);
+        //Propose in (MPturn, MPretraction) a recovery program composed by
+        //one or two gestures:
+        //  1. Radial retraction to where it is possible.
+        //  2. Abatement of the arm to security position (if necessary).
+        //Preconditions:
+        //- The quantifiers of the rotors shall be enabled.
+        //- The rotor 2 shall be in unsecurity position.
+        //Postconditions:
+        //- The MPturn will be empty.
+        //- The MPretraction will contains the MP for retract the arm
+        //  to the first stable security position.
+        void proposeRecoveryProgram(void);
 
-        //add amessage instruction to abate the arm to security position
-        void addMIforAbatement(void);
+        //Propose (in MPturn, MPretraction) a recovery program composed by
+        //two or three gestures:
+        //  1. turn of the rotor 1 to p_1new.
+        //  2. Radial retraction to where it is possible.
+        //  3. Abatement of the arm to security position (if necessary).
+        //Inputs:
+        //  p_1new: new position where the rotor 1 shall be turned
+        //      before the retraction.
+        //Preconditions:
+        //- The quantifiers of the rotors shall be enabled.
+        //- The rotor 2 shall be in unsecurity position.
+        //- The new rotor 1 position p_1new shall be in the rotor 1 domain.
+        //Postconditions:
+        //- The MPturn will contains the MP for turn the rotor 1
+        //  to the position p_1new.
+        //- The MPretraction will contains the MP for retract the arm
+        //  to the first stable security position.
+        void proposeRecoveryProgram(double p_1new);
 
         //METHODS TO DETERMINE MOTION PARAMETERS:
 
         //determina el valor absoluto de
-        //el ángulo máximo recorrido al moverse el eje 1 durante un tiempo T
+        //el ángulo máximo recorrido al moverse el rotor 1 durante un tiempo T
         //      theta_MaxAbs(T) = Actuator->G(CMF.vmaxabs1)*T;
         double theta_MaxAbs(double T);
         //determina el valor absoluto de
         //la distancia máxima recorrida por un punto del brazo
-        //al moverse el eje 1 durante un tiempo T
+        //al moverse el rotor 1 durante un tiempo T
         //      d_MaxAbs(T) = theta_MaxAbs(T)*Actuator->r_max;
         double d_MaxAbs(double T);
 
         //determina el valor absoluto de
-        //el ángulo máximo recorrido al moverse el eje 2 durante un tiempo T
+        //el ángulo máximo recorrido al moverse el rotor 2 durante un tiempo T
         //      theta___MaxAbs(T) = Actuator->Arm->G.Image(CMF.vmaxabs2)*T;
         double theta___MaxAbs(double T);
         //determina el valor absoluto de
         //la distancia máxima recorrida por un punto del brazo
-        //al moverse el eje 2 durante un tiempo T
+        //al moverse el rotor 2 durante un tiempo T
         //      d___MaxAbs(T) = theta___MaxAbs(T)*Actuator->Arm->Ra;
         double d___MaxAbs(double T);
 
         //determina una cota superior para la distancia máxima recorrida
-        //por un punto del brazo del posicionador, al moverse ambos ejes
+        //por un punto del brazo del posicionador, al moverse ambos rotores
         //durante un intervalo de tiempo T
         //      dMaxAbs = Max(d_MaxAbs(T), d___MaxAbs(T))
         double dMaxAbs(double T);
@@ -676,43 +701,43 @@ public:
 
         //MOTION METHODS:
 
-        //ADVERTENCIA: Para simular el movimeinto de los ejes correctamente
-        //debe desactivarse la cuantificación de los ejes que se van a mover.
+        //ADVERTENCIA: Para simular el movimeinto de los rotores correctamente
+        //debe desactivarse la cuantificación de los rotores que se van a mover.
         //Esto queda bajo responsabilidad del programador.
-        //Lo normal es que se desactiven ambos ejes, ya que el eje
+        //Lo normal es que se desactiven ambos rotores, ya que el rotor
         //que no se va a desplazar debe quedar libre para su desplazameinto.
 
-        //lleva los ejes del posicionador adscrito a
+        //lleva los rotores del posicionador adscrito a
         //las posiciones correspondientes al instante t
-        //sila cuantificación de los ejes que se van amover está activada
+        //sila cuantificación de los rotores que se van amover está activada
         //lanza una excepción EImproperCall
-        void Move(double t);
-        //lleva los ejes del posicionador adscrito a
+        void move(double t);
+        //lleva los rotores del posicionador adscrito a
         //las posiciones correspondientes al instante 0
         //(MF1->psta, MF2->psta)
-        void MoveSta(void);
-        //lleva los ejes del posicionador adscrito a
+        void moveSta(void);
+        //lleva los rotores del posicionador adscrito a
         //las posiciones correspondientes al instante CMF->tendmax
         //(MF1->pfin, MF2->pfin)
-        void MoveFin(void);
+        void moveFin(void);
 
-        //desplaza los ejes hasta sus posiciones correspondientes
+        //desplaza los rotores hasta sus posiciones correspondientes
         //al instante t+qt, donde:
         //      t: instante de tiempo previo al actual
         //      qt: escalón de cuantificación
         //void Displace(double t, double qt);
 
         //si se invoca el método Displace(t, qt) reiteradamente
-        //se acumulará el error de suscesivos desplazamientos en los ejes
+        //se acumulará el error de suscesivos desplazamientos en los rotores
         //para minimizar este error este método debería invocarse
-        //con la cuantificación de los ejes del posicionador desactivada
+        //con la cuantificación de los rotores del posicionador desactivada
 
-        //Como el gesto mueve ambos ejes de manera independiente,
+        //Como el gesto mueve ambos rotores de manera independiente,
         //se puede prescindir del método Displace(t, qt)
         //P.e: cuando el brazo es abatido, es posible cambiar
         //la orientación del cilindro, y al invocar al método Move(t),
         //este conservará su dirección; cosa que no ocurriría si
-        //el gesto hubiera definido una función constante para el eje
+        //el gesto hubiera definido una función constante para el rotor
         //que no se mueve, en cuyo caso volvería a su posición inicial.
 };
 

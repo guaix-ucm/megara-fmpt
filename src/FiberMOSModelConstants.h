@@ -58,6 +58,10 @@
 //default value for
 //additional component of SPMdyn
 #define MEGARA_SPMadd 0.1 //mm
+//SPM of minimun jump, consumed when validation process is applied
+#define MEGARA_SPMmin 0.001 //mm
+//SPM of simulation, consumed when simulation process is applied
+#define MEGARA_SPMsim 0.009 //mm
 
 //default value for
 //position angle error margin of the FiberMOS in S0
@@ -94,7 +98,7 @@
 
 //SPM value for generation with precise knolege degree
 //this is the value to initialize the SPM of each arm
-#define MEGARA_SPMgen_p 0.195723055049871 //mm
+#define MEGARA_SPMgenPairPPDP_p 0.195723055049871 //mm
 
 //contour of the barrier of a RP corresponding to the maneuvering space of the arm (in mm)
 //#define MEGARA_Contour_ "{({13.940281559018, 0}, {-13.940281559018, 0}, {0, 0}, 13.940281559018), ({-13.940281559018, 0}, {13.940281559018, 0}, {0, 0}, 13.940281559018)}"
@@ -134,7 +138,7 @@
 //  SPMsta = MEGARA_Eo*r_max + MEGARA_Ep;
 //  SPMdyn = (MEGARA_VMAXABS1*rbs*r_max + MEGARA_VMAXABS2*Arm->rbs*Arm->L1V)*
 //      MEGARA_Tshiff + SPMadd;
-//  SPMmin = SPMsta;
+//  SPMmin = MEGARA_Ep;
 //  SPMoff = MEGARA_PAem*rmax + MEGARA_Pem;
 
 //Calculating the SPM components in a RP:
@@ -143,7 +147,7 @@
 //  SPMsta = Eo*Actuator->r_max + Ep;
 //  SPMdyn = (CMF.vmaxabs1*Actuator->rbs*Actuator->r_max +
 //      CMF.vmaxabs2*Actuator->Arm->rbs*Actuator->Arm->L1V)*Tshiff + SPMadd;
-//  SPMmin = SPMsta;
+//  SPMmin = MEGARA_Ep;
 //  SPMoff = PAem*Actuator->rmax + Pem;
 
 //SPMsta must be enough large to include:

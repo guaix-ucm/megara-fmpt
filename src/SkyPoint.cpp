@@ -37,7 +37,7 @@ namespace Models {
 //TPointType:
 //---------------------------------------------------------------------------
 
-void  strPrinTPointType(string& str, TPointType value)
+void  strPrinPointType(string& str, TPointType value)
 {
     switch(value) {
     case ptUNKNOWN: str += "UNKNOWN"; break;
@@ -47,9 +47,9 @@ void  strPrinTPointType(string& str, TPointType value)
     }
     throw EImpossibleError("unknowledge value in type TPointType");
 }
-void  strReadSkyPointType(TPointType& value, const string& str, unsigned int& i)
+void  strReadPointType(TPointType& value, const string& str, unsigned int& i)
 {
-    //Here it is now required that text string str is printable.
+    //Here it is not required that text string str is printable.
 
     //check the precondition
     if(str.length() < i)
@@ -99,9 +99,9 @@ void  strReadSkyPointType(TPointType& value, const string& str, unsigned int& i)
         return;
     }
 
-    throw EImproperArgument("there is a value of type TPointType from position i in string text S");
+    throw EImproperArgument("there is a value of type TPointType from position i in string text str");
 }
-string skyPointTypeToStr(TPointType value)
+string pointTypeToStr(TPointType value)
 {
     switch(value) {
     case ptUNKNOWN: return "UNKNOWN";
@@ -111,9 +111,9 @@ string skyPointTypeToStr(TPointType value)
     }
     throw EImpossibleError("unknowledge value in variable of type TPointType");
 }
-TPointType strToSkyPointType(const string& str)
+TPointType strToPointType(const string& str)
 {
-    //Here it is now required that text string str is printable.
+    //Here it is not required that text string str is printable.
 
     //Length of the known possible values of the string:
     //      strlen("UNKNOWN"): 7
@@ -147,7 +147,7 @@ TPointType strToSkyPointType(const string& str)
     if(label_found)
         return ptBLANK;
 
-    throw EImproperArgument("there is a value of type TPointType from position i in string text S");
+    throw EImproperArgument("there is a value of type TPointType from position i in string text str");
 }
 
 //---------------------------------------------------------------------------

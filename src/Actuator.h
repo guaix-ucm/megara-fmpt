@@ -56,17 +56,21 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S);
 //TPurpose
 //###########################################################################
 
-//propósito de SPM
-//      pAll: asignación de posicionadores a puntos a posicionadores;
-//      pGen: generación de un programa de movimiento;
-//      pVal: validación de un programa de movimineto;
-//      pExe: ejecución de un programa de movimineto.
-enum TPurpose {pAll, pGen, pVal, pExe};
+//Purpose of the SPM:
+//  pAll: allocate RPs to projection points;
+//  pGenPairPPDP: generate a pair (PP, DP);
+//  pValDP: validate the generated DP;
+//  pValPP: validate the generated PP;
+//  pGenParPro: generate a parking program;
+//  pValParPro: validate a parking program;
+//  pExe: execute a generated MP.
+enum TPurpose {pAll, pGenPairPPDP, pValDP, pValPP,
+               pGenParPro, pValParPro, pExe};
 
-void  StrPrintPurpose(AnsiString& S, TPurpose p);
-void  StrReadPurpose(TPurpose& p, const AnsiString &S, int &i);
-AnsiString PurposeToStr(TPurpose p);
-TPurpose StrToPurpose(const AnsiString& S);
+void  strPrintPurpose(string& str, TPurpose p);
+void  strReadPurpose(TPurpose& value, const string &str, int &i);
+string purposeToStr(TPurpose value);
+TPurpose strToPurpose(const string& str);
 
 //###########################################################################
 //TActuator
@@ -88,9 +92,8 @@ protected:
     double p_SPMsta;
     double p_SPMdyn;
     double p_SPMmin;
+    double p_SPMsim;
     double p_SPMoff;
-
-    //VALOR DE SPM PARA CADA OCASIÓN:
 
     //------------------------------------------------------------------
     //PROPIEDADES DE ESTADO:
@@ -159,16 +162,23 @@ public:
     //debe ser no negativo
     //defeult value:
     //  (MEGARA_VMAXABS1*rbs*r_max + MEGARA_VMAXABS2*Arm->rbs*Arm->L1V)*
-    //      MEGARA_Tshiff + SPMadd
+    //      MEGARA_Tshiff + MEGARA_SPMadd
     double getSPMdyn(void) const {return p_SPMdyn;}
     void setSPMdyn(double);
     //SPM para absorber la incertidumbre del salto mínimo
     //durante la programación
     //debe ser no negativo
     //defeult value:
-    //  SPMsta
+    //  MEGARA_SPMmin
     double getSPMmin(void) const {return p_SPMmin;}
     void setSPMmin(double);
+    //SPM para absorber la incertidumbre de la simulación
+    //durante la simulación del movimiento
+    //debe ser no negativo
+    //defeult value:
+    //  MEGARA_SPMsim
+    double getSPMsim(void) const {return p_SPMsim;}
+    void setSPMsim(double);
     //SPM para absorver las aproximaciones producidas
     //por corrección del offset
     //debe ser no negativo
@@ -232,34 +242,52 @@ public:
     //cuando la posición de ambos ejes se conoce con precisión
     //(PAkd == kdPre):
 
-    //SPM para ejecución:
-    //      SPMexe_p = SPMsta + SPMdyn
+    //SPM for execution:
+    //  SPMsta + SPMdyn
     double getSPMexe_p(void) const;
-    //SPM para validación:
-    //      SPMval_p = SPMexe_p + SPMmin
-    double getSPMval_p(void) const;
-    //SPM para programación:
-    //      SPMgen_p = SPMval_p + SPMmin
-    double getSPMgen_p(void) const;
-    //SPM para asignación:
-    //      SPMall_p = SPMgen_p + SPMoff
+    //SPM for validate a parking program:
+    //  SPMexe_p + SPMmin + SPMsim
+    double getSPMvalParPro_p(void) const;
+    //SPM for generate a parking program:
+    //  SPMvalParPro_p + SPMmin + SPMsim
+    double getSPMgenParPro_p(void) const;
+    //SPM for validate a PP:
+    //  SPMgenParPro_p + SPMmin + SPMsim
+    double getSPMvalPP_p(void) const;
+    //SPM for validate a DP:
+    //  SPMvalPP_p + SPMmin + SPMsim
+    double getSPMvalDP_p(void) const;
+    //SPM for generate a pair (PP, DP):
+    //  SPMvalDP_p + SPMmin + SPMsim
+    double getSPMgenPairPPDP_p(void) const;
+    //SPM for allocation:
+    //  SPMgenPairPPDP_p + SPMoff
     double getSPMall_p(void) const;
 
     //Valores de SPM de aproximación para el brazo del posicionador,
     //cuando la posición de ambos ejes se conoce de forma aproximada
     //(PAkd == kdApp):
 
-    //SPM para ejecución:
-    //      SPMexe_a = SPMrec + SPMexe_p
+    //SPM for execution:
+    //  SPMrec + SPMexe_p
     double getSPMexe_a(void) const;
-    //SPM para validación:
-    //      SPMval_a = SPMexe_a + SPMmin
-    double getSPMval_a(void) const;
-    //SPM para programación:
-    //      SPMgen_a = SPMval_a + SPMmin
-    double getSPMgen_a(void) const;
-    //SPM para asignación:
-    //      SPMall_a = SPMgen_a + SPMoff
+    //SPM for validate a parking program:
+    //  SPMexe_a + SPMmin + SPMsim
+    double getSPMvalParPro_a(void) const;
+    //SPM for generate a parking program:
+    //  SPMvalParPro_a + SPMmin + SPMsim
+    double getSPMgenParPro_a(void) const;
+    //SPM for validate a PP:
+    //  SPMgenParPro_a + SPMmin + SPMsim
+    double getSPMvalPP_a(void) const;
+    //SPM for validate a DP:
+    //  SPMvalPP_a + SPMmin + SPMsim
+    double getSPMvalDP_a(void) const;
+    //SPM for generate a pair (PP, DP):
+    //  SPMvalDP_a + SPMmin + SPMsim
+    double getSPMgenPairPPDP_a(void) const;
+    //SPM for allocation:
+    //  SPMgenPairPPDP_a + SPMoff
     double getSPMall_a(void) const;
 
     //Valores de SPM de aproximación para el muro del posicionador,
@@ -282,11 +310,14 @@ public:
     void setPAkd(TKnowledgeDegree);
     //propósito con el que se va a usar el posicionador
     //debe ser uno de los siguientes valores:
-    //      pAll: asignación
-    //      pPro: programación
-    //      pVal: validación
-    //      pExe: ejecución
-    //valor por defecto: pGen
+    //  pAll: allocate RPs to projection points;
+    //  pGenPairPPDP: generate a pair (PP, DP);
+    //  pValDP: validate the generated DP;
+    //  pValPP: validate the generated PP;
+    //  pGenParPro: generate a parking program;
+    //  pValParPro: validate a parking program;
+    //  pExe: execute a generated MP.
+    //valor por defecto: pGenPairPPDP
     TPurpose getPurpose(void) const {return p_Purpose;}
     void setPurpose(TPurpose);
 
@@ -337,12 +368,12 @@ public:
     bool Pending;
 
     //La propiedad Pending será usada en los métodos:
-    //      ThereIsCollisionWithPendingAdjacent
-    //      SearchCollindingPendingAdjacent
+    //      thereIsCollisionWithPendingAdjacent
+    //      searchCollindingPendingAdjacent
     //con objeto de evitar aplicar el método de determinación de colisión
     //más de una vez entre cada par de actuadores.
     //Deberá determinarse el estado de colisión mediante el método:
-    //      TActuator::ThereIsCollision
+    //      TActuator::thereIsCollision
     //cuando:
     //    - la bandera de determinación de colisión pendiente (Pending)
     //      sea true.
@@ -501,7 +532,7 @@ public:
     //color delas barreras en colisión
     //valor por defecto: clRed
     QColor ColorCollision;
-*/
+
     //indica si debe dibujarse el cuerpo del posicionador
     //valor por defecto: true
     bool PaintBody;
@@ -515,7 +546,7 @@ public:
     //indica si el posicionador está seleccionado
     //valor por defecto: false
     bool Selected;
-
+*/
     //##################################################################
     //PROPIEDADES EN FORMATO TEXTO:
     //##################################################################
@@ -533,19 +564,27 @@ public:
     void setSPMdynText(const AnsiString&);
     AnsiString getSPMminText(void) const;
     void setSPMminText(const AnsiString&);
+    AnsiString getSPMsimText(void) const;
+    void setSPMsimText(const AnsiString&);
     AnsiString getSPMoffText(void) const;
     void setSPMoffText(const AnsiString&);
 
     //VALORES DE SPM PARA CADA OCASIÓN EN FORMATO TEXTO:
 
     AnsiString getSPMexe_pText(void) const;
-    AnsiString getSPMval_pText(void) const;
-    AnsiString getSPMgen_pText(void) const;
+    AnsiString getSPMvalParPro_pText(void) const;
+    AnsiString getSPMgenParPro_pText(void) const;
+    AnsiString getSPMvalPP_pText(void) const;
+    AnsiString getSPMvalDP_pText(void) const;
+    AnsiString getSPMgenPairPPDP_pText(void) const;
     AnsiString getSPMall_pText(void) const;
 
     AnsiString getSPMexe_aText(void) const;
-    AnsiString getSPMval_aText(void) const;
-    AnsiString getSPMgen_aText(void) const;
+    AnsiString getSPMvalParPro_aText(void) const;
+    AnsiString getSPMgenParPro_aText(void) const;
+    AnsiString getSPMvalPP_aText(void) const;
+    AnsiString getSPMvalDP_aText(void) const;
+    AnsiString getSPMgenPairPPDP_aText(void) const;
     AnsiString getSPMall_aText(void) const;
 
     //------------------------------------------------------------------
@@ -645,54 +684,54 @@ public:
     //y la impresión de los mismos.
 
     //lee una instancia actuador en una cadena
-    static void  ReadInstance(TActuator* &A,
+    static void  readInstance(TActuator* &A,
                                         const AnsiString& S, int &i);
 
     //obtiene las etiquetas de las propiedades de origen
     //("Id", "x0", "y0", "thetaO1") al final de una cadena de texto
     //en formato fila de texto
-    static AnsiString GetOriginsLabelsRow(void);
+    static AnsiString getOriginsLabelsRow(void);
     //atraviesa las etiquetas de las propiedades de origen
     //("Id", "x0", "y0", "thetaO1")
     //en formato fila de texto
-    static void  TravelOriginsLabelsRow(const AnsiString&, int&);
+    static void  travelOriginsLabelsRow(const AnsiString&, int&);
 
     //imprime los valores de las propiedades de orien de un posicionador
     //(Id, x0, y0, thetaO1) al final de una cadena de texto
     //en formato fila de texto
-    static void  PrintOriginsRow(AnsiString&, TActuator*);
+    static void  printOriginsRow(AnsiString&, TActuator*);
     //lee los valores de las propiedades de orien de un posicionador
     //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
-    static void  ReadOriginsRow(TActuator* &FP,
+    static void  readOriginsRow(TActuator* &FP,
                                           const AnsiString& S, int &i);
 
     //obtiene las etiquetas de las propiedades de posición
     //("Id", "x3", "y3") al final de una cadena de texto
     //en formato fila de texto
-    static AnsiString GetPositionP3LabelsRow(void);
+    static AnsiString getPositionP3LabelsRow(void);
     //obtiene las etiquetas de las propiedades de posición
     //("Id", "p_1", "p___3") al final de una cadena de texto
     //en formato fila de texto
-    static AnsiString GetPositionPPALabelsRow(void);
+    static AnsiString getPositionPPALabelsRow(void);
     //atraviesa las etiquetas de las propiedades de posición
     //("Id", "x3", "y3")
     //en formato fila de texto
-    static void  TravelPositionP3LabelsRow(const AnsiString&, int&);
+    static void  travelPositionP3LabelsRow(const AnsiString&, int&);
 
     //imprime los valores de las propiedades de posición de un posicionador
     //(Id, x3, y3) al final de una cadena de texto
     //en formato fila de texto
-    static void  PrintPositionP3Row(AnsiString&, TActuator*);
+    static void  printPositionP3Row(AnsiString&, TActuator*);
     //lee los valores de las propiedades de posición de un posicionador
     //(Id, x3, y3) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
-    static void  ReadPositionP3Row(TActuator* &FP,
+    static void  readPositionP3Row(TActuator* &FP,
                                              const AnsiString& S, int &i);
     //imprime los valores de las propiedades de posición de un posicionador
     //(Id, p_1, p___3) al final de una cadena de texto
     //en formato fila de texto
-    static void  PrintPositionPPARow(AnsiString&, TActuator*);
+    static void  printPositionPPARow(AnsiString&, TActuator*);
 
     //------------------------------------------------------------------
     //MÉTODOS DE CONSTRUCCIÓN, COPIA Y DESTRUCCIÓN:
@@ -709,16 +748,16 @@ public:
     //dirección.
 
     //copia las propiedades de seguridad de un actuador
-    void CopySecurity(const TActuator*);
+    void copySecurity(const TActuator*);
     //copia las propiedades de estado de un actuador
-    void CopyStatus(const TActuator*);
+    void copyStatus(const TActuator*);
     //copia las propiedades límite de un actuador
-    void CopyLimits(const TActuator*);
+    void copyLimits(const TActuator*);
     //copia las propiedades de área de un actuador
-    void CopyArea(const TActuator*);
+    void copyArea(const TActuator*);
 
     //copia todas las propiedades de un actuador
-    void Clone(const TActuator*);
+    void clone(const TActuator*);
 
     //clona un actuador
     TActuator(const TActuator*);
@@ -731,7 +770,7 @@ public:
 
     //calcula las propiedades de seguridad:
     //      {r_min, r_saf, r_2saf, theta___2saf, theta___3saf, theta_2rad}
-    void CalculateSafeParameters(void);
+    void calculateSafeParameters(void);
 
     //Los métodos para:
     //      determinar la posición relativa;
@@ -742,17 +781,17 @@ public:
     //MÉTODOS DE ASIGNACIÓN CONJUNTA ATÓMICA:
 
     //asigna las propiedades angulares (theta_1min, theta_1max, theta_1)
-    void SetOrientationRadians(double theta_1min, double theta_1max,
+    void setOrientationRadians(double theta_1min, double theta_1max,
                                double theta_1, double theta_O3o);
     //asigna las propiedades de cuantificación
-    void SetQuantification(double SB1);
+    void setQuantification(double SB1);
 
     //asigna las propiedades de origen
-    void SetOrigins(int Id, double x0, double y0, double thetaO1);
+    void setOrigins(int Id, double x0, double y0, double thetaO1);
     //asigna las propiedades de posición
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
-    void SetPositionP3(double x3, double y3);
+    void setPositionP3(double x3, double y3);
     //assign a pair of position angles in radians
     //if the position angle theta_1 isn't in domain of theta_1,
     //or the position angle theta___3 isn't in domain of theta___3
@@ -766,35 +805,34 @@ public:
     //asigna las propiedades de identificación y posición
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
-    void SetPositionP3(int Id, double x3, double y3);
+    void setPositionP3(int Id, double x3, double y3);
 
     //asigna las componentes del SPM
-    void SetSPMComponents(double SPMrec, double SPMsta,
-                          double SPMdyn, double SPMmin);//, double SPMoff);
+    void setSPMcomponents(double SPMrec, double SPMsta, double SPMdyn);
 
     //asigna las propiedades de estado (PAkd, Purpose)
-    void SetStatus(TKnowledgeDegree PAkd, TPurpose Purpose);
+    void setStatus(TKnowledgeDegree PAkd, TPurpose Purpose);
 
     //-------------------------------------------------------------------
     //MÉTODOS PARA ALMACENAR Y RECUPERAR POSICIONES DE LOS ROTORES:
 
     //apila las posiciones de los rotores
-    void Pushthetas(void);
+    void pushthetas(void);
     //restaura las últimas posiciones apuiladas de los rotores
     //si no hay una posisición almacenada para algún rotor:
     //      lanza EImproperCall
-    void Restorethetas(void);
+    void restorethetas(void);
     //determines if:
     //the rotors of the RP not coincide with the last stacked positions
     bool thetasNotCoincideWithStacked(void);
     //desempila las últimas posiciones apiladas de los rotores
     //si no hay una posisición almacenada para algún rotor:
     //      lanza EImproperCall
-    void Popthetas(void);
+    void popthetas(void);
     //restaura y desempila las últimas posiciones apiladas de los rotores
     //si no hay una posisición almacenada para algún rotor:
     //      lanza EImproperCall
-    void RestoreAndPopthetas(void);
+    void restoreAndPopthetas(void);
 
     //ADVERTENCIA: la recuperación de posiciones no estables,
     //cuando está la cuantificación activada, dará lugar
@@ -804,19 +842,19 @@ public:
     //MÉTODOS PARA ALMACENAR Y RECUPERAR ESTADOS DE CUNATIFICACIÓN:
 
     //apila el estado de los cuantificadores
-    void PushQuantifys(void);
+    void pushQuantifys(void);
     //restaura el último estado apilado de los cuantificadores
     //si no hay un estado almacenado para algún quantificador:
     //      lanza EImproperCall
-    void RestoreQuantifys(void);
+    void restoreQuantifys(void);
     //desempila el último estado apilado de los cuantificadores
     //si no hay un estado almacenado para algún quantificador:
     //      lanza EImproperCall
-    void PopQuantifys(void);
+    void popQuantifys(void);
     //restaura y desempila el último estado apilado de los cuantificadores
     //si no hay un estado almacenado para algún quantificador:
     //      lanza EImproperCall
-    void RestoreAndPopQuantifys(void);
+    void restoreAndPopQuantifys(void);
 
     //------------------------------------------------------------------
     //METHODS TO DETERMINE THE RELATIVE POSITION OF THE ACTUATOR:
@@ -860,37 +898,37 @@ public:
     //Pi es el punto de la trayectoria radial de P2 en que:
     //      theta_1 == Max{theta_1min, 0}.
     //si L01 != Arm->L12 lanza una excepción EImproperCall
-    double Getr_i(double &theta_1, double theta_2);
+    double getr_i(double &theta_1, double theta_2);
     //ángulo del eje 2 respecto de S3 en radianes
     //para el punto de inflexión de la pose dada
     //si L01 != Arm->L12 lanza una excepción EImproperCall
-    double Gettheta___2i(double theta_2, double r_i);
+    double gettheta___2i(double theta_2, double r_i);
 
     //MÉTODOS DE MOVIMIENTO:
 
     //mueve el brazo hasta a la posición de seguridad estable más próxima
-    void MoveArmToSafePosition(void);
+    void moveArmToSafePosition(void);
 
     //------------------------------------------------------------------
     //MÉTODOS PARA CALCULAR DISTANCIAS
     //CON BRAZOS DE POSICIONADORES ADYACENTES:
 
     //determina la distancia con otro actuador
-    double Distance(TActuator*);
+    double distance(TActuator*);
     //determina la distancia libre con otro actuador
     //      Df = D - SPM1 - SPM2
     //donde:
     //      Df: distancia libre
     //      SPM1: SPM de este actuador (según PAkd)
     //      SPM2: SPM del otro actuador (según PAkd)
-    double DistanceFree(TActuator*);
+    double distanceFree(TActuator*);
 
     //determina la distancia mínima entre el brazo del posicionador
     //y los brazos de los posicionadores adyacentes
-    double DistanceWithAdjacent(void);
+    double distanceWithAdjacent(void);
     //determina la distancia mínima entre el punto P3 del posicionador
     //y los puntos P3 de los posicionadores adyacentes
-    double DistanceP3WithAdjacent(void);
+    double distanceP3WithAdjacent(void);
 
     //MÉTODOS PARA DETERMINAR EN QUE ÁREA SE ENCUENTRA UN PUNTO:
 
@@ -911,44 +949,45 @@ public:
     //CON POSICIONADORES ADYACENTES:
 
     //determina si hay colisión con un actuador adyacente
-    bool ThereIsCollision(const TActuator*);
+    bool thereIsCollision(const TActuator*);
     //determina si hay colisión con un actuador adyacente
-    bool ThereIsCollisionWithAdjacent(void);
+    bool thereIsCollisionWithAdjacent(void);
     //determina si no hay colisión con un actuador adyacente
-    bool ThereIsntCollisionWithAdjacent(void);
+    bool thereIsntCollisionWithAdjacent(void);
     //Busca los posicionadores adyacentes cuyo
     //brazo colisiona con el de este posicionador.
     //        void SearchCollindingAdjacent(TVector<int> &Ids);
     //Busca los posicionadores adyacentes cuyo
     //brazo colisiona con el de este posicionador.
-    void SearchCollindingAdjacent(
+    void searchCollindingAdjacent(
             TItemsList<TRoboticPositioner*> &Collindings);
 
     //Determina si hay colisión con un actuador adyacente
     //con evaluación de colisión pendiente.
-    bool ThereIsCollisionWithPendingAdjacent(void);
+    bool thereIsCollisionWithPendingAdjacent(void);
     //Busca los posicionadores adyacentes
     //con evaluación de colisión pendiente
     //cuyo actuador colisiona con el de este posicionador.
-    void SearchCollindingPendingAdjacent(
+    void searchCollindingPendingAdjacent(
             TItemsList<TRoboticPositioner*> &Collindings);
 
     /*        //MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO PARA RESOLVER COLISIONES:
 
         //determina los ángulos hay que rotar este posicionador,
         //para que su brazo quede adyacente al segmento indicado
-        void TurnSegment(TVector<double> &dts,
+        void turnSegment(TVector<double> &dts,
                 TDoublePoint Pa, TDoublePoint Pb);
 
         //determina los ángulos hay que rotar este posicionador,
         //para que su brazo quede adyacente al arco indicado
-        void TurnArc(TVector<double> &dts,
+        void turnArc(TVector<double> &dts,
                 TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R);
 
         //determina los ángulos hay que rotar este posicionador,
         //para que su brazo quede adyacente al brazo indicado
-        void TurnArm(TVector<double> &dts, TArmAbstract *Arm_);
+        void turnArm(TVector<double> &dts, TArmAbstract *Arm_);
 */
+/*#
     //-------------------------------------------------------------------
     //MÉTODOS GRÁFICOS:
 
@@ -958,21 +997,21 @@ public:
     //      2: brazo (PA...)
     //      1: cilindro (P0, L01)
     //      0: niguna;
-    int Grab(TDoublePoint P);
+    int grab(TDoublePoint P);
 
     //resalta un color si el posicionador está seleccionado
-//#    QColor HighlightIfSelected(QColor);
+    QColor highlightIfSelected(QColor);
 
     //asigna un color al posicionador
-//#    void SetAllColors(QColor Color);
+    void setAllColors(QColor Color);
 
     //traza el posicionador con los colores indicados
     //en un trazador de formas
-    //#void Paint(TPloterShapes*);
+    //#void paint(TPloterShapes*);
     //traza el posicionador con los colores indicados
     //en un trazador de formas
     //en el modelo simplificado (dos segmentos de P0 a P1 y de P1 a P2)
-    //#void PaintSimplified(TPloterShapes*);
+    //#void paintSimplified(TPloterShapes*);*/
 };
 
 //---------------------------------------------------------------------------

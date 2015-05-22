@@ -65,405 +65,404 @@ class TArc;
 
 //clase abstracta figura geométrica
 class TFigure {
-protected:
 public:
-        //PROPIEDADES ESTÁTICAS:
+    //PROPIEDADES ESTÁTICAS:
 
-        //etiqueta de la propiedad Color
-        //valor por defecto: "Color"
-        static AnsiString ColorLabel;
+    //etiqueta de la propiedad Color
+    //valor por defecto: "Color"
+    static AnsiString ColorLabel;
 
-        //PROPIEDADES GRÁFICAS:
+    //PROPIEDADES GRÁFICAS:
 
-        //color de la figura
-        //valor por defecto: clWhite
-        //#QColor Color;
+    //color de la figura
+    //valor por defecto: clWhite
+    //#QColor Color;
 
-        //PROPIEDADES GRÁFICAS EN MODO TEXTO:
+    //PROPIEDADES GRÁFICAS EN MODO TEXTO:
 
-        //color del círculo
-        AnsiString getColorText(void) const;
-        void setColorText(const AnsiString&);
+    //color del círculo
+    AnsiString getColorText(void) const;
+    void setColorText(const AnsiString&);
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //conjunto de propiedades de definición
-        //en formato texto entre paréntesis
-        virtual AnsiString getText(void) const = 0;
-        virtual void setText(const AnsiString&) = 0;
-        //conjunto de propiedades de definición
-        //en formato línea de texto
-        virtual AnsiString getRowText(void) const = 0;
-        virtual void setRowText(const AnsiString&) = 0;
+    //conjunto de propiedades de definición
+    //en formato texto entre paréntesis
+    virtual AnsiString getText(void) const = 0;
+    virtual void setText(const AnsiString&) = 0;
+    //conjunto de propiedades de definición
+    //en formato línea de texto
+    virtual AnsiString getRowText(void) const = 0;
+    virtual void setRowText(const AnsiString&) = 0;
 
-        //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
+    //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-        //compara el color de dos figuras
-        //      si F1->Color < F2->Color entonces CompareColor = -1
-        //      si F1->Color > F2->Color entonces CompareColor = 1
-        //      si F1->Color == F2->Color entonces CompareColor = 0
-        int  CompareColor(const TFigure *F1, const TFigure *F2);
+    //compara el color de dos figuras
+    //      si F1->Color < F2->Color entonces compareColor = -1
+    //      si F1->Color > F2->Color entonces compareColor = 1
+    //      si F1->Color == F2->Color entonces compareColor = 0
+    int  compareColor(const TFigure *F1, const TFigure *F2);
 
-        //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
+    //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
-        //imprime un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  FigurePrint(AnsiString& S, TFigure *F);
-        //imprime un objeto en una cadena de texto
-        //en formato fila de texto
-        static void  FigurePrintRow(AnsiString& S, TFigure *F);
+    //imprime un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  figurePrint(AnsiString& S, TFigure *F);
+    //imprime un objeto en una cadena de texto
+    //en formato fila de texto
+    static void  figurePrintRow(AnsiString& S, TFigure *F);
 
-        //MÉTODOS ESTÁTICOS DE LECTURA:
+    //MÉTODOS ESTÁTICOS DE LECTURA:
 
-        //lee un objeto en una cadena
-        //en formato texto entre paréntesis
-        static void  FigureRead(TFigure* &F,
-                const AnsiString& S, int &i);
-        //lee un objeto en una cadena
-        //en formato fila de texto
-        static void  FigureReadRow(TFigure* &F,
-                const AnsiString& S, int &i);
+    //lee un objeto en una cadena
+    //en formato texto entre paréntesis
+    static void  figureRead(TFigure* &F,
+                            const AnsiString& S, int &i);
+    //lee un objeto en una cadena
+    //en formato fila de texto
+    static void  figureReadRow(TFigure* &F,
+                               const AnsiString& S, int &i);
 
-        //ADVERTENCIA: si hay una figura descrita en la posición i
-        //de lacadena S, el método FigureRead o FigureReadRow
-        //construirá la figura del tipo correspondiente.
-        //En caso contrario F e i permanecerán inalterados.
+    //ADVERTENCIA: si hay una figura descrita en la posición i
+    //de lacadena S, el método FigureRead o FigureReadRow
+    //construirá la figura del tipo correspondiente.
+    //En caso contrario F e i permanecerán inalterados.
 
-        //AVERTENCIA: TFigureRead solo distinguirá entre tres tipos de figuras:
-        //      Circunferencias
-        //      Segmentos
-        //      Arcos
-        //Ya que los círculos se describen igual que las circunferencias y no
-        //es posible distinguirlos.
+    //AVERTENCIA: TFigureRead solo distinguirá entre tres tipos de figuras:
+    //      Circunferencias
+    //      Segmentos
+    //      Arcos
+    //Ya que los círculos se describen igual que las circunferencias y no
+    //es posible distinguirlos.
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //RECUERDE: en el constructor de una clase abstracta
-        //no se puden invocar a los métodos virtuales de la clase,
-        //de modo que los métodos de asimilación de una clase abstracta
-        //no pueden ser virtuales.
+    //RECUERDE: en el constructor de una clase abstracta
+    //no se puden invocar a los métodos virtuales de la clase,
+    //de modo que los métodos de asimilación de una clase abstracta
+    //no pueden ser virtuales.
 
-        //inicializa la propiedad Color
-        //a su valor por defecto
-        TFigure(void) /*#: Color(Qt::white) */{;}
-        //destruye una figura
-        virtual ~TFigure() = 0;
+    //inicializa la propiedad Color
+    //a su valor por defecto
+    TFigure(void) /*#: Color(Qt::white) */{;}
+    //destruye una figura
+    virtual ~TFigure() = 0;
 
-        //El destructor virtual es necesario para evitar la ambiguedad
-        //al destruir objetos de clases derivadas.
+    //El destructor virtual es necesario para evitar la ambiguedad
+    //al destruir objetos de clases derivadas.
 
-        //MÉTODOS DE CÁLCULO DE DISTANCIAS:
+    //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
-        //calcula la distancia mínima entre la figura y un punto
-        virtual double DistancePoint(TDoublePoint P) = 0;
-        //calcula la distancia máxima entre la figura y un punto
-        virtual double DistancePointMax(TDoublePoint P) = 0;
+    //calcula la distancia mínima entre la figura y un punto
+    virtual double distancePoint(TDoublePoint P) = 0;
+    //calcula la distancia máxima entre la figura y un punto
+    virtual double distancePointMax(TDoublePoint P) = 0;
 
-        //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
+    //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
 
-        //calcula la distancia mínima entre la figura y un circulo
-        virtual double DistanceCircle(TCircle *C) = 0;
-        //calcula la distancia mínima entre la figura y una circunferencia
-        virtual double DistanceCircunference(TCircunference *C) = 0;
+    //calcula la distancia mínima entre la figura y un circulo
+    virtual double distanceCircle(TCircle *C) = 0;
+    //calcula la distancia mínima entre la figura y una circunferencia
+    virtual double distanceCircunference(TCircunference *C) = 0;
 
-        //calcula la distancia mínima entre la figura y un segmento
-        virtual double DistanceSegment(TSegment *S) = 0;
-        //calcula la distancia mínima entre la figura y un arco
-        virtual double DistanceArc(TArc *A) = 0;
+    //calcula la distancia mínima entre la figura y un segmento
+    virtual double distanceSegment(TSegment *S) = 0;
+    //calcula la distancia mínima entre la figura y un arco
+    virtual double distanceArc(TArc *A) = 0;
 
-        //calcula la distancia mínima entre la figura y otra figura
-        virtual double Distance(TFigure *F) = 0;
+    //calcula la distancia mínima entre la figura y otra figura
+    virtual double distance(TFigure *F) = 0;
 
-        //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
+    //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
 
-        //obtiene la figutra geométrica rotada theta radianes
-        //Figure debe contener una figura geométrica del mismo tipo
-        virtual void GetRotated(TFigure *F, double theta) = 0;
-        //traslada la figura geométrica según el vector V
-        virtual void Translate(TDoublePoint V) = 0;
+    //obtiene la figutra geométrica rotada theta radianes
+    //Figure debe contener una figura geométrica del mismo tipo
+    virtual void getRotated(TFigure *F, double theta) = 0;
+    //traslada la figura geométrica según el vector V
+    virtual void translate(TDoublePoint V) = 0;
 
-        //MÉTODOS GRÁFICOS:
+    //MÉTODOS GRÁFICOS:
 
-        //dibuja una figura
-        //en un trazador de formas
-        //#virtual void Paint(TPloterShapes *) = 0;
+    //dibuja una figura
+    //en un trazador de formas
+    //#virtual void Paint(TPloterShapes *) = 0;
 };
 
 //clase círculo
 class TCircle : public TFigure {
 protected:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        double p_R;
+    double p_R;
 
 public:
-        //PROPIEDADES ESTÁTICAS:
+    //PROPIEDADES ESTÁTICAS:
 
-        //etiqueta de la propiedad R
-        //valor por defecto: "R"
-        static AnsiString RLabel;
+    //etiqueta de la propiedad R
+    //valor por defecto: "R"
+    static AnsiString RLabel;
 
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        //centro del círculo
-        //valor por defecto: (0, 0)
-        TDoublePoint P;
-        //radio del círculo
-        //debe ser mayor que cero
-        //valor por defecto: 1
-        double getR(void) const {return p_R;} void setR(double);
+    //centro del círculo
+    //valor por defecto: (0, 0)
+    TDoublePoint P;
+    //radio del círculo
+    //debe ser mayor que cero
+    //valor por defecto: 1
+    double getR(void) const {return p_R;} void setR(double);
 
-        //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
+    //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
 
-        //radio del círculo
-        AnsiString getRText(void) const; void setRText(const AnsiString&);
+    //radio del círculo
+    AnsiString getRText(void) const; void setRText(const AnsiString&);
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //conjunto de propiedades de definición
-        //en formato texto entre paréntesis
-        AnsiString getText(void) const; void setText(const AnsiString&);
-        //conjunto de propiedades de definición
-        //en formato fila de texto
-        AnsiString getRowText(void) const; void setRowText(const AnsiString&);
-        //conjunto de propiedades de definición
-        //en formato asignaciones
-        AnsiString getAssignsText(void) const;
+    //conjunto de propiedades de definición
+    //en formato texto entre paréntesis
+    AnsiString getText(void) const; void setText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato fila de texto
+    AnsiString getRowText(void) const; void setRowText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato asignaciones
+    AnsiString getAssignsText(void) const;
 
-        //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
-        //DE LAS PROPIEDADES EN FORMATO TEXTO:
+    //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
+    //DE LAS PROPIEDADES EN FORMATO TEXTO:
 
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato texto entre paréntesis
-        static AnsiString GetLabels(void);
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato línea de texto
-        static AnsiString GetRowLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato texto entre paréntesis
+    static AnsiString GetLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato línea de texto
+    static AnsiString GetRowLabels(void);
 
-        //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
+    //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-        //compara la propiedad P.x de dos figuras
-        static int  Comparex(const TCircle*, const TCircle*);
-        //compara la propiedad P.Y de dos figuras
-        static int  Comparey(const TCircle*, const TCircle*);
-        //compara la propiedad R de dos figuras
-        static int  CompareR(const TCircle*, const TCircle*);
+    //compara la propiedad P.x de dos figuras
+    static int  comparex(const TCircle*, const TCircle*);
+    //compara la propiedad P.Y de dos figuras
+    static int  comparey(const TCircle*, const TCircle*);
+    //compara la propiedad R de dos figuras
+    static int  compareR(const TCircle*, const TCircle*);
 
-        //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
+    //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Print(AnsiString&, const TCircle*);
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  PrintRow(AnsiString&, const TCircle*);
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato de asignaciones
-        static void  PrintAssigns(AnsiString&, const TCircle*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Print(AnsiString&, const TCircle*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  PrintRow(AnsiString&, const TCircle*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato de asignaciones
+    static void  PrintAssigns(AnsiString&, const TCircle*);
 
-        //MÉTODOS ESTÁTICOS DE LECTURA:
+    //MÉTODOS ESTÁTICOS DE LECTURA:
 
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Read(TCircle*, const AnsiString&, int&);
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  ReadRow(TCircle*, const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Read(TCircle*, const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  ReadRow(TCircle*, const AnsiString&, int&);
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //contruye un objeto
-        TCircle(void);
-        TCircle(double x, double y, double R);
-        TCircle(TDoublePoint P, double R);
+    //contruye un objeto
+    TCircle(void);
+    TCircle(double x, double y, double R);
+    TCircle(TDoublePoint P, double R);
 
-        //copia las propiedades de un objeto
-        void Copy(TCircle*);
-        TCircle& operator=(const TCircle&);
+    //copia las propiedades de un objeto
+    void Copy(TCircle*);
+    TCircle& operator=(const TCircle&);
 
-        //contruye un clon de un objeto
-        TCircle(TCircle*);
+    //contruye un clon de un objeto
+    TCircle(TCircle*);
 
-        //MÉTODOS DE CONFIGURACIÓN:
+    //MÉTODOS DE CONFIGURACIÓN:
 
-        //asigna conjuntamente los valores de las propiedades de definición
-        void SetValues(TDoublePoint P, double R);
+    //asigna conjuntamente los valores de las propiedades de definición
+    void SetValues(TDoublePoint P, double R);
 
-        //MÉTODOS DE CÁLCULO DE DISTANCIAS:
+    //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
-        //calcula la distancia mínima entre la figura y un punto
-        double DistancePoint(TDoublePoint);
-        //calcula la distancia máxima entre la figura y un punto
-        double DistancePointMax(TDoublePoint);
+    //calcula la distancia mínima entre la figura y un punto
+    double distancePoint(TDoublePoint);
+    //calcula la distancia máxima entre la figura y un punto
+    double distancePointMax(TDoublePoint);
 
-        //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
+    //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
 
-        //calcula la distancia mínima entre la figura y una circulo
-        double DistanceCircle(TCircle*);
-        //calcula la distancia mínima entre la figura y una circunferencia
-        double DistanceCircunference(TCircunference*);
+    //calcula la distancia mínima entre la figura y una circulo
+    double distanceCircle(TCircle*);
+    //calcula la distancia mínima entre la figura y una circunferencia
+    double distanceCircunference(TCircunference*);
 
-        //calcula la distancia mínima entre la figura y un segmento
-        double DistanceSegment(TSegment*);
-        //calcula la distancia mínima entre la figura y un arco
-        double DistanceArc(TArc*);
+    //calcula la distancia mínima entre la figura y un segmento
+    double distanceSegment(TSegment*);
+    //calcula la distancia mínima entre la figura y un arco
+    double distanceArc(TArc*);
 
-        //calcula la distancia mínima entre la figura y otra figura
-        double Distance(TFigure*);
+    //calcula la distancia mínima entre la figura y otra figura
+    double distance(TFigure*);
 
-        //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
+    //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
 
-        //obtiene la figutra geométrica rotada theta radianes
-        //Figure debe contener una figura geométrica del mismo tipo
-        void GetRotated(TFigure *F, double theta);
-        //traslada la figura geométrica según el vector V
-        void Translate(TDoublePoint V);
+    //obtiene la figutra geométrica rotada theta radianes
+    //Figure debe contener una figura geométrica del mismo tipo
+    void getRotated(TFigure *F, double theta);
+    //traslada la figura geométrica según el vector V
+    void translate(TDoublePoint V);
 
-        //MÉTODOS GRÁFICOS:
+    //MÉTODOS GRÁFICOS:
 
-        //dibuja el círculo
-        //en un trazador de formas
-        //#void Paint(TPloterShapes*);
+    //dibuja el círculo
+    //en un trazador de formas
+    //#void Paint(TPloterShapes*);
 };
 
 //clase círcunferencia
 class TCircunference : public TFigure {
 protected:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        double p_R;
+    double p_R;
 
 public:
-        //PROPIEDADES ESTÁTICAS:
+    //PROPIEDADES ESTÁTICAS:
 
-        //etiqueta de la propiedad R
-        //valor por defecto: "R"
-        static AnsiString RLabel;
+    //etiqueta de la propiedad R
+    //valor por defecto: "R"
+    static AnsiString RLabel;
 
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        //centro de la circunferencia
-        //valor por defecto: (0, 0)
-        TDoublePoint P;
-        //radio de la circunferencia
-        //debe ser mayor que cero
-        //valor por defecto: 1
-        double getR(void) const {return p_R;} void setR(double);
+    //centro de la circunferencia
+    //valor por defecto: (0, 0)
+    TDoublePoint P;
+    //radio de la circunferencia
+    //debe ser mayor que cero
+    //valor por defecto: 1
+    double getR(void) const {return p_R;} void setR(double);
 
-        //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
+    //PROPIEDADES DEDEFINICIÓN EN FORMATO TEXTO:
 
-        //radio de la circunferencia
-        AnsiString getRText(void) const; void setRText(const AnsiString&);
+    //radio de la circunferencia
+    AnsiString getRText(void) const; void setRText(const AnsiString&);
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //conjunto de propiedades de definición
-        //en formato texto entre paréntesis
-        AnsiString getText(void) const; void setText(const AnsiString&);
-        //conjunto de propiedades de definición
-        //en formato fila de texto
-        AnsiString getRowText(void) const; void setRowText(const AnsiString&);
-        //conjunto de propiedades de definición
-        //en formato asignaciones
-        AnsiString getAssignsText(void) const;
+    //conjunto de propiedades de definición
+    //en formato texto entre paréntesis
+    AnsiString getText(void) const; void setText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato fila de texto
+    AnsiString getRowText(void) const; void setRowText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato asignaciones
+    AnsiString getAssignsText(void) const;
 
-        //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
-        //DE LAS PROPIEDADES EN FORMATO TEXTO:
+    //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
+    //DE LAS PROPIEDADES EN FORMATO TEXTO:
 
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato texto entre paréntesis
-        static AnsiString GetLabels(void);
-        //obtiene las etiquetas de las propiedades de definición
-        //en formato línea de texto
-        static AnsiString GetRowLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato texto entre paréntesis
+    static AnsiString GetLabels(void);
+    //obtiene las etiquetas de las propiedades de definición
+    //en formato línea de texto
+    static AnsiString GetRowLabels(void);
 
-        //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
+    //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-        //compara la propiedad P.x de dos figuras
-        static int  Comparex(const TCircunference*,
-                const TCircunference*);
-        //compara la propiedad P.Y de dos figuras
-        static int  Comparey(const TCircunference*,
-                const TCircunference*);
-        //compara la propiedad R de dos figuras
-        static int  CompareR(const TCircunference*,
-                const TCircunference*);
+    //compara la propiedad P.x de dos figuras
+    static int  comparex(const TCircunference*,
+                         const TCircunference*);
+    //compara la propiedad P.Y de dos figuras
+    static int  comparey(const TCircunference*,
+                         const TCircunference*);
+    //compara la propiedad R de dos figuras
+    static int  compareR(const TCircunference*,
+                         const TCircunference*);
 
-        //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
+    //MÉTODOS ESTÁTICOS DE IMPRESIÓN:
 
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Print(AnsiString&, const TCircunference*);
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  PrintRow(AnsiString&, const TCircunference*);
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato de asignaciones
-        static void  PrintAssigns(AnsiString&, const TCircunference*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Print(AnsiString&, const TCircunference*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  PrintRow(AnsiString&, const TCircunference*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato de asignaciones
+    static void  PrintAssigns(AnsiString&, const TCircunference*);
 
-        //MÉTODOS ESTÁTICOS DE LECTURA:
+    //MÉTODOS ESTÁTICOS DE LECTURA:
 
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Read(TCircunference*, const AnsiString&, int&);
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  ReadRow(TCircunference*, const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Read(TCircunference*, const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  ReadRow(TCircunference*, const AnsiString&, int&);
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //contruye un objeto
-        TCircunference(void);
-        TCircunference(double x, double y, double R);
-        TCircunference(TDoublePoint P, double R);
+    //contruye un objeto
+    TCircunference(void);
+    TCircunference(double x, double y, double R);
+    TCircunference(TDoublePoint P, double R);
 
-        //copia las propiedades de un objeto
-        void Copy(TCircunference*);
-        TCircunference& operator=(const TCircunference&);
+    //copia las propiedades de un objeto
+    void Copy(TCircunference*);
+    TCircunference& operator=(const TCircunference&);
 
-        //contruye un clon de un objeto
-        TCircunference(TCircunference*);
+    //contruye un clon de un objeto
+    TCircunference(TCircunference*);
 
-        //MÉTODOS DE CONFIGURACIÓN:
+    //MÉTODOS DE CONFIGURACIÓN:
 
-        //asigna conjuntamente los valores de las propiedades de definición
-        void SetValues(TDoublePoint P, double R);
+    //asigna conjuntamente los valores de las propiedades de definición
+    void SetValues(TDoublePoint P, double R);
 
-        //MÉTODOS DE CÁLCULO DE DISTANCIAS:
+    //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
-        //calcula la distancia mínima entre la figura y un punto
-        double DistancePoint(TDoublePoint);
-        //calcula la distancia máxima entre la figura y un punto
-        double DistancePointMax(TDoublePoint);
+    //calcula la distancia mínima entre la figura y un punto
+    double distancePoint(TDoublePoint);
+    //calcula la distancia máxima entre la figura y un punto
+    double distancePointMax(TDoublePoint);
 
-        //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
+    //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
 
-        //calcula la distancia mínima entre la figura y una circulo
-        double DistanceCircle(TCircle*);
-        //calcula la distancia mínima entre la figura y una circunferencia
-        double DistanceCircunference(TCircunference*);
+    //calcula la distancia mínima entre la figura y una circulo
+    double distanceCircle(TCircle*);
+    //calcula la distancia mínima entre la figura y una circunferencia
+    double distanceCircunference(TCircunference*);
 
-        //calcula la distancia mínima entre la figura y un segmento
-        double DistanceSegment(TSegment*);
-        //calcula la distancia mínima entre la figura y un arco
-        double DistanceArc(TArc*);
+    //calcula la distancia mínima entre la figura y un segmento
+    double distanceSegment(TSegment*);
+    //calcula la distancia mínima entre la figura y un arco
+    double distanceArc(TArc*);
 
-        //calcula la distancia mínima entre la figura y otra figura
-        double Distance(TFigure*);
+    //calcula la distancia mínima entre la figura y otra figura
+    double distance(TFigure*);
 
-        //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
+    //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
 
-        //obtiene la figutra geométrica rotada theta radianes
-        //Figure debe contener una figura geométrica del mismo tipo
-        void GetRotated(TFigure *F, double theta);
-        //traslada la figura geométrica según el vector V
-        void Translate(TDoublePoint V);
+    //obtiene la figutra geométrica rotada theta radianes
+    //Figure debe contener una figura geométrica del mismo tipo
+    void getRotated(TFigure *F, double theta);
+    //traslada la figura geométrica según el vector V
+    void translate(TDoublePoint V);
 
-        //MÉTODOS GRÁFICOS:
+    //MÉTODOS GRÁFICOS:
 
-        //dibuja la circunferencia
-        //en un trazador de formas
-        //#void Paint(TPloterShapes*);
+    //dibuja la circunferencia
+    //en un trazador de formas
+    //#void Paint(TPloterShapes*);
 };
 
 //--------------------------------------------------------------------------
@@ -473,45 +472,45 @@ public:
 //clase abstracta figura geométrica de contorno
 class TContourFigure : public TFigure {
 protected:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        TDoublePoint p_Pa;
-        TDoublePoint p_Pb;
+    TDoublePoint p_Pa;
+    TDoublePoint p_Pb;
 
 public:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        //vértice Pa de la figura
-        //valor por defecto: {0, 0}
-        TDoublePoint getPa(void) const {return p_Pa;}
-        virtual void setPa(TDoublePoint) = 0;
-        //vértice Pb de la figura
-        //valor por defecto: {0, 0}
-        TDoublePoint getPb(void) const {return p_Pb;}
-        virtual void setPb(TDoublePoint) = 0;
+    //vértice Pa de la figura
+    //valor por defecto: {0, 0}
+    TDoublePoint getPa(void) const {return p_Pa;}
+    virtual void setPa(TDoublePoint) = 0;
+    //vértice Pb de la figura
+    //valor por defecto: {0, 0}
+    TDoublePoint getPb(void) const {return p_Pb;}
+    virtual void setPb(TDoublePoint) = 0;
 
-        //MÉTODOS ESTÁTICOS DE LISTA:
+    //MÉTODOS ESTÁTICOS DE LISTA:
 
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  ContourFigurePrint(AnsiString& S,
-                TContourFigure *F);
-        //lee las propiedades de un objeto en una cadenade texto
-        //en formato fila de texto
-        static void  ContourFigureRead(TContourFigure* &F,
-                const AnsiString& S, int &i);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  ContourFigurePrint(AnsiString& S,
+                                    TContourFigure *F);
+    //lee las propiedades de un objeto en una cadenade texto
+    //en formato fila de texto
+    static void  ContourFigureRead(TContourFigure* &F,
+                                   const AnsiString& S, int &i);
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //inicializa la propiedad Color a su valor por defecto
-        //Pa y Pb quedarán sin inicializar
-        TContourFigure(void);
+    //inicializa la propiedad Color a su valor por defecto
+    //Pa y Pb quedarán sin inicializar
+    TContourFigure(void);
 
-        //destructor virtual
-        virtual ~TContourFigure() = 0;
+    //destructor virtual
+    virtual ~TContourFigure() = 0;
 
-        //RECUEERDE: una clase madre debe tener un destructor virtual
-        //para que la destrucción de objetos polimórficos nosea ambigua.
+    //RECUEERDE: una clase madre debe tener un destructor virtual
+    //para que la destrucción de objetos polimórficos nosea ambigua.
 };
 
 //--------------------------------------------------------------------------
@@ -520,288 +519,275 @@ public:
 
 //clase segmento
 class TSegment : public TContourFigure {
-protected:
-        //PROPIEDADES DE DEFINICIÓN:
-
-
-        //CONUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-
 public:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        //coordenadas cartesianas del punto inicial
-        //valor por defecto: (0, 0)
-        void setPa(TDoublePoint Pa);
-        //coordenadas cartesianas del punto final
-        //valor por defecto: (0, 0)
-        void setPb(TDoublePoint Pb);
+    //coordenadas cartesianas del punto inicial
+    //valor por defecto: (0, 0)
+    void setPa(TDoublePoint Pa);
+    //coordenadas cartesianas del punto final
+    //valor por defecto: (0, 0)
+    void setPb(TDoublePoint Pb);
 
-        //ADVERTENCIA: Pa y Pb pueden coincidir.
+    //ADVERTENCIA: Pa y Pb pueden coincidir.
 
-        //CONUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //CONUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //conjunto de propiedades de definición
-        //en formato texto entre paréntesis
-        AnsiString getText(void) const; void setText(const AnsiString&);
-        //conjunto de propiedades de definición
-        //en formato línea de texto
-        AnsiString getRowText(void) const; void setRowText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato texto entre paréntesis
+    AnsiString getText(void) const; void setText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato línea de texto
+    AnsiString getRowText(void) const; void setRowText(const AnsiString&);
 
-        //MÉTODOS ESTÁTICOS DE LISTA:
+    //MÉTODOS ESTÁTICOS DE LISTA:
 
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Print(AnsiString&, TContourFigure*);
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  PrintRow(AnsiString&, TContourFigure*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Print(AnsiString&, TContourFigure*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  PrintRow(AnsiString&, TContourFigure*);
 
-        //lee las propiedades de un objeto en una cadenade texto
-        //en formato texto entre paréntesis
-        static void  Read(TContourFigure*,
-                const AnsiString&, int&);
-        //lee las propiedades de un objeto en una cadenade texto
-        //en formato línea de texto
-        static void  ReadRow(TContourFigure*,
-                const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadenade texto
+    //en formato texto entre paréntesis
+    static void  Read(TContourFigure*,
+                      const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadenade texto
+    //en formato línea de texto
+    static void  ReadRow(TContourFigure*,
+                         const AnsiString&, int&);
 
-        //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //contruye un objeto
-        TSegment(void);
-        TSegment(double ax, double ay, double bx, double by);
-        TSegment(TDoublePoint Pa, TDoublePoint Pb);
+    //contruye un objeto
+    TSegment(void);
+    TSegment(double ax, double ay, double bx, double by);
+    TSegment(TDoublePoint Pa, TDoublePoint Pb);
 
-        //copia las propiedades de un objeto
-        void Copy(TSegment*);
-        TSegment& operator=(const TSegment&);
+    //copia las propiedades de un objeto
+    void Copy(TSegment*);
+    TSegment& operator=(const TSegment&);
 
-        //contruye un clon de un objeto
-        TSegment(TSegment*);
+    //contruye un clon de un objeto
+    TSegment(TSegment*);
 
-        //MÉTODOS DE CONFIGURACIÓN:
+    //MÉTODOS DE CONFIGURACIÓN:
 
-        //asigna conjuntamente los valores de las propiedades de definición
-        void SetValues(TDoublePoint Pa, TDoublePoint Pb);
+    //asigna conjuntamente los valores de las propiedades de definición
+    void SetValues(TDoublePoint Pa, TDoublePoint Pb);
 
-        //MÉTODOS DE CÁLCULO DE DISTANCIAS:
+    //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
-        //calcula la distancia mínima entre la figura y un punto
-        double DistancePoint(TDoublePoint Q);
-        //calcula la distancia máxima entre la figura y un punto
-        double DistancePointMax(TDoublePoint Q);
+    //calcula la distancia mínima entre la figura y un punto
+    double distancePoint(TDoublePoint Q);
+    //calcula la distancia máxima entre la figura y un punto
+    double distancePointMax(TDoublePoint Q);
 
-        //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
+    //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
 
-        //calcula la distancia mínima entre la figura y una circulo
-        double DistanceCircle(TCircle *C);
-        //calcula la distancia mínima entre la figura y una circunferencia
-        double DistanceCircunference(TCircunference *C);
+    //calcula la distancia mínima entre la figura y una circulo
+    double distanceCircle(TCircle *C);
+    //calcula la distancia mínima entre la figura y una circunferencia
+    double distanceCircunference(TCircunference *C);
 
-        //calcula la distancia mínima entre la figura y un segmento
-        double DistanceSegment(TSegment *S);
-        //calcula la distancia mínima entre la figura y un arco
-        double DistanceArc(TArc *A);
+    //calcula la distancia mínima entre la figura y un segmento
+    double distanceSegment(TSegment *S);
+    //calcula la distancia mínima entre la figura y un arco
+    double distanceArc(TArc *A);
 
-        //calcula la distancia mínima entre la figura y otra figura
-        double Distance(TFigure *F);
+    //calcula la distancia mínima entre la figura y otra figura
+    double distance(TFigure *F);
 
-        //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
+    //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
 
-        //obtiene la figutra geométrica rotada theta radianes
-        //Figure debe contener una figura geométrica del mismo tipo
-        void GetRotated(TFigure *F, double theta);
-        //traslada la figura geométrica según el vector V
-        void Translate(TDoublePoint V);
+    //obtiene la figutra geométrica rotada theta radianes
+    //Figure debe contener una figura geométrica del mismo tipo
+    void getRotated(TFigure *F, double theta);
+    //traslada la figura geométrica según el vector V
+    void translate(TDoublePoint V);
 
-        //MÉTODOS GRÁFICOS:
+    //MÉTODOS GRÁFICOS:
 
-        //dibuja el segmento
-        //en un trazador de formas
-        //#void Paint(TPloterShapes*);
+    //dibuja el segmento
+    //en un trazador de formas
+    //#void Paint(TPloterShapes*);
 };
 
 //clase arco
 class TArc : public TContourFigure {
 protected:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        TDoublePoint p_Pc;
-        double p_R;
-
-        //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
-
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
+    TDoublePoint p_Pc;
+    double p_R;
 
 public:
-        //PROPIEDADES DE DEFINICIÓN:
+    //PROPIEDADES DE DEFINICIÓN:
 
-        //vértice final del arco (en sentido levógiro)
-        //debe ser distinto del centro Pc
-        //debe estar en el entorno del arco
-        //valor por defecto: {1, 0}
-        void setPa(TDoublePoint);
-        //vértice inicial del arco (en sentido levógiro)
-        //debe ser distinto del centro Pc
-        //debe estar en el entorno del arco
-        //valor por defecto: {1, 0}
-        void setPb(TDoublePoint);
-        //centro del arco
-        //debe ser distinto de los vértices
-        //debe estar en el entorno del centro del arco
-        //valor por defecto: {0, 0}
-        TDoublePoint getPc(void) const {return p_Pc;} void setPc(TDoublePoint);
-        //radio del arco
-        //debe ser mayor que cero
-        //el radio R debe ser tal que Pa y Pb estén en el entorno del arco
-        //valor por defecto: 1
-        double getR(void) const {return p_R;} void setR(double);
+    //vértice final del arco (en sentido levógiro)
+    //debe ser distinto del centro Pc
+    //debe estar en el entorno del arco
+    //valor por defecto: {1, 0}
+    void setPa(TDoublePoint);
+    //vértice inicial del arco (en sentido levógiro)
+    //debe ser distinto del centro Pc
+    //debe estar en el entorno del arco
+    //valor por defecto: {1, 0}
+    void setPb(TDoublePoint);
+    //centro del arco
+    //debe ser distinto de los vértices
+    //debe estar en el entorno del centro del arco
+    //valor por defecto: {0, 0}
+    TDoublePoint getPc(void) const {return p_Pc;} void setPc(TDoublePoint);
+    //radio del arco
+    //debe ser mayor que cero
+    //el radio R debe ser tal que Pa y Pb estén en el entorno del arco
+    //valor por defecto: 1
+    double getR(void) const {return p_R;} void setR(double);
 
-        //ADVERTENCIA: el radio R debe ser mayor que cero, ya que
-        //Pa y Pb no pueden coincidir con Pc.
+    //ADVERTENCIA: el radio R debe ser mayor que cero, ya que
+    //Pa y Pb no pueden coincidir con Pc.
 
-        //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
+    //PROPIEDADES DE DEFINICIÓN EN FORMATO TEXTO:
 
-        AnsiString getPaText(void) const; void setPaText(const AnsiString& S);
-        AnsiString getPbText(void) const; void setPbText(const AnsiString& S);
-        AnsiString getPcText(void) const; void setPcText(const AnsiString& S);
+    AnsiString getPaText(void) const; void setPaText(const AnsiString& S);
+    AnsiString getPbText(void) const; void setPbText(const AnsiString& S);
+    AnsiString getPcText(void) const; void setPcText(const AnsiString& S);
 
-        AnsiString getRText(void) const; void setRText(const AnsiString&);
+    AnsiString getRText(void) const; void setRText(const AnsiString&);
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //conjunto de propiedades de definición
-        //en formato texto entre paréntesis
-        AnsiString getText(void) const; void setText(const AnsiString&);
-        //conjunto de propiedades de definición
-        //en formato línea de texto
-        AnsiString getRowText(void) const; void setRowText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato texto entre paréntesis
+    AnsiString getText(void) const; void setText(const AnsiString&);
+    //conjunto de propiedades de definición
+    //en formato línea de texto
+    AnsiString getRowText(void) const; void setRowText(const AnsiString&);
 
-        //MÉTODOS ESTÁTICOS DE LISTA:
+    //MÉTODOS ESTÁTICOS DE LISTA:
 
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Print(AnsiString&, TContourFigure*);
-        //imprime las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  PrintRow(AnsiString&, TContourFigure*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Print(AnsiString&, TContourFigure*);
+    //imprime las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  PrintRow(AnsiString&, TContourFigure*);
 
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato texto entre paréntesis
-        static void  Read(TContourFigure*,
-                const AnsiString&, int&);
-        //lee las propiedades de un objeto en una cadena de texto
-        //en formato línea de texto
-        static void  ReadRow(TContourFigure*,
-                const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadena de texto
+    //en formato texto entre paréntesis
+    static void  Read(TContourFigure*,
+                      const AnsiString&, int&);
+    //lee las propiedades de un objeto en una cadena de texto
+    //en formato línea de texto
+    static void  ReadRow(TContourFigure*,
+                         const AnsiString&, int&);
 
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //contruye un objeto
-        TArc(void);
-        TArc(double ax, double ay, double bx, double by, double cx, double cy,
-                double R);
-        TArc(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
-                double R);
+    //contruye un objeto
+    TArc(void);
+    TArc(double ax, double ay, double bx, double by, double cx, double cy,
+         double R);
+    TArc(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
+         double R);
 
-        //copia las propiedades de un objeto
-        void Copy(TArc*);
-        TArc& operator=(const TArc&);
+    //copia las propiedades de un objeto
+    void Copy(TArc*);
+    TArc& operator=(const TArc&);
 
-        //contruye un clon de un objeto
-        TArc(TArc*);
+    //contruye un clon de un objeto
+    TArc(TArc*);
 
-        //MÉTODOS DE CONFIGURACIÓN:
+    //MÉTODOS DE CONFIGURACIÓN:
 
-        //Si se dispone de nuevas coordenadas para el arco,
-        //y se quiere evitar que salten las alarmas introducidas por errores
-        //numéricos, pueden realizarse las operaciones siguientes:
-        //      v = Pa - Pc;
-        //      Pa = (v)/Mod(v)*R + Pc;
-        //      v = Pb - Pc;
-        //      Pb = (v)/Mod(v)*R + Pc;
-        //pero hay que advertir que estas operaciones pueden introducir cambios
-        //en Pa y Pb, de modo que debería evitarse su aplicación si no
-        //resulta necesario. Para ello se dispone del método:
-        //      bool TArc::IsInRangeArc(P);
-        //y de la función:
-        //      bool Mathematics::IsArc(Pa, Pb, Pc, R);
+    //Si se dispone de nuevas coordenadas para el arco,
+    //y se quiere evitar que salten las alarmas introducidas por errores
+    //numéricos, pueden realizarse las operaciones siguientes:
+    //      v = Pa - Pc;
+    //      Pa = (v)/Mod(v)*R + Pc;
+    //      v = Pb - Pc;
+    //      Pb = (v)/Mod(v)*R + Pc;
+    //pero hay que advertir que estas operaciones pueden introducir cambios
+    //en Pa y Pb, de modo que debería evitarse su aplicación si no
+    //resulta necesario. Para ello se dispone del método:
+    //      bool TArc::IsInRangeArc(P);
+    //y de la función:
+    //      bool Mathematics::IsArc(Pa, Pb, Pc, R);
 
-        //determina si un punto está en el entorno del arco
-        //      Abs(Mod(P - Pc) - R) <= ERR_NUM
-        bool IsInRangeArc(TDoublePoint P);
+    //determina si un punto está en el entorno del arco
+    //      Abs(Mod(P - Pc) - R) <= ERR_NUM
+    bool IsInRangeArc(TDoublePoint P);
 
-        //IsInRangeArc realiza las siguientes operaciones:
-        //      Para verificar que Pa está en el entorno del arco,
-        //              Abs(Mod(Pa - Pc) - R) < ERR_NUM;
-        //      Para verificar que Pb está en el entorno del arco,
-        //              Abs(Mod(Pb - Pc) - R) < ERR_NUM;
-        //      Y para verificar que Pc está en el entorno del centro del arco,
-        //              se realizan las dos operaciones anteriores.
+    //IsInRangeArc realiza las siguientes operaciones:
+    //      Para verificar que Pa está en el entorno del arco,
+    //              Abs(Mod(Pa - Pc) - R) < ERR_NUM;
+    //      Para verificar que Pb está en el entorno del arco,
+    //              Abs(Mod(Pb - Pc) - R) < ERR_NUM;
+    //      Y para verificar que Pc está en el entorno del centro del arco,
+    //              se realizan las dos operaciones anteriores.
 
-        //ADVERTENCIA: IsInRangeArc no tiene el radio del entorno
-        //como argumento, para evitar un uso incorrecto del mismo,
-        //ya que hay otros método que invocan a este, que lo invocarán
-        //con su valor por defecto, de modo que el uso de dicho método
-        //con un radio del entorno distinto se considera innecesario
-        //y peligroso.
-        //La función Mathematics::IsArc(Pa, Pb, Pc, R, epsilon==ERRNUM)
-        //en cambio si tiene el radio del entorno como argumento por
-        //que no es utilizada en ninguno de los método de esta clase.
+    //ADVERTENCIA: IsInRangeArc no tiene el radio del entorno
+    //como argumento, para evitar un uso incorrecto del mismo,
+    //ya que hay otros método que invocan a este, que lo invocarán
+    //con su valor por defecto, de modo que el uso de dicho método
+    //con un radio del entorno distinto se considera innecesario
+    //y peligroso.
+    //La función Mathematics::IsArc(Pa, Pb, Pc, R, epsilon==ERRNUM)
+    //en cambio si tiene el radio del entorno como argumento por
+    //que no es utilizada en ninguno de los método de esta clase.
 
-        //asigna conjuntamente los valores de las propiedades de definición
-        //Lanza una excepción EImproperArgument si:
-        //      Pa o Pb es igual a Pc,
-        //      R no es mayor que cero,
-        //      Pa o Pb no está en el entorno del arco,
-        void SetValues(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
-                double R);
+    //asigna conjuntamente los valores de las propiedades de definición
+    //Lanza una excepción EImproperArgument si:
+    //      Pa o Pb es igual a Pc,
+    //      R no es mayor que cero,
+    //      Pa o Pb no está en el entorno del arco,
+    void SetValues(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
+                   double R);
 
-        //MÉTODOS DE CÁLCULO DE DISTANCIAS:
+    //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
-        //calcula la distancia mínima entre la figura y un punto
-        double DistancePoint(TDoublePoint);
-        //calcula la distancia máxima entre la figura y un punto
-        double DistancePointMax(TDoublePoint);
+    //calcula la distancia mínima entre la figura y un punto
+    double distancePoint(TDoublePoint);
+    //calcula la distancia máxima entre la figura y un punto
+    double distancePointMax(TDoublePoint);
 
-        //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
+    //ADVERTENCIA: TDoublePoint no es una clase derivada de TFigure.
 
-        //calcula la distancia mínima entre la figura y una circulo
-        double DistanceCircle(TCircle*);
-        //calcula la distancia mínima entre la figura y una circunferencia
-        double DistanceCircunference(TCircunference*);
+    //calcula la distancia mínima entre la figura y una circulo
+    double distanceCircle(TCircle*);
+    //calcula la distancia mínima entre la figura y una circunferencia
+    double distanceCircunference(TCircunference*);
 
-        //calcula la distancia mínima entre la figura y un segmento
-        double DistanceSegment(TSegment*);
-        //calcula la distancia mínima entre la figura y un arco
-        double DistanceArc(TArc*);
+    //calcula la distancia mínima entre la figura y un segmento
+    double distanceSegment(TSegment*);
+    //calcula la distancia mínima entre la figura y un arco
+    double distanceArc(TArc*);
 
-        //calcula la distancia mínima entre la figura y otra figura
-        double Distance(TFigure*);
+    //calcula la distancia mínima entre la figura y otra figura
+    double distance(TFigure*);
 
-        //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
+    //MÉTODOS DE ROTACIÓN Y TRASLACIÓN:
 
-        //obtiene la figutra geométrica rotada theta radianes
-        //Figure debe contener una figura geométrica del mismo tipo
-        void GetRotated(TFigure *F, double theta);
-        //traslada la figura geométrica según el vector V
-        void Translate(TDoublePoint V);
+    //obtiene la figutra geométrica rotada theta radianes
+    //Figure debe contener una figura geométrica del mismo tipo
+    void getRotated(TFigure *F, double theta);
+    //traslada la figura geométrica según el vector V
+    void translate(TDoublePoint V);
 
-        //MÉTODOS GRÁFICOS:
+    //MÉTODOS GRÁFICOS:
 
-        //dibuja el arco
-        //en un trazador de formas
-        //#void Paint(TPloterShapes*);
+    //dibuja el arco
+    //en un trazador de formas
+    //#void Paint(TPloterShapes*);
 };
 
 //FUNCIONES RELACIONADAS:
 
 //determina el ángulo entre el vértice inicial de una figura de contorno
 //y su vértice final en torno de un punto P
-double Rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P);
+double rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P);
 
 //---------------------------------------------------------------------------
 

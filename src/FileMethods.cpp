@@ -68,7 +68,7 @@ void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
         //read and assign the content of the files
         readAndAssign(t_RP, dir);
         //clone the tampon variable
-        RP.Clone(&t_RP);
+        RP.clone(&t_RP);
 
     } catch(...) {
         throw;
@@ -116,7 +116,7 @@ void writeInstanceToDir(const string& dir, const TRoboticPositionerList& RPL)
         }
 
         //archiva la lista de orígenes de coordenadas de la lista de posicionadores
-        strWriteToFile(dir+"/RoboticPositionerOriginsTable.txt", TActuator::GetOriginsLabelsRow().str+"\r\n"+RPL.getOriginsTableText().str);
+        strWriteToFile(dir+"/RoboticPositionerOriginsTable.txt", TActuator::getOriginsLabelsRow().str+"\r\n"+RPL.getOriginsTableText().str);
 
     } catch(...) {
         throw;
@@ -178,7 +178,7 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir)
         //      void TRoboticPositioneer::GenerateMap(void);
 
         //asimila los parámetros de dimensionamiento
-        t_RPL.Assimilate();
+        t_RPL.assimilate();
 
         //clona la lista tampón
         RPL.Clone(&t_RPL);
@@ -223,7 +223,7 @@ void writeInstanceToDir(const string& dir, const TExclusionAreaList& EAL)
         }
 
         //archiva la lista de orígenes de coordenadas de la lista de área de exclusiónes
-        strWriteToFile(dir+"/ExclusionAreaOriginsTable.txt", TExclusionArea::GetOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str);
+        strWriteToFile(dir+"/ExclusionAreaOriginsTable.txt", TExclusionArea::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str);
 
     } catch(...) {
         throw;
@@ -268,7 +268,7 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir,
         //clona la lista tampón
         EAL.Clone(&t_EAL);
         //asimila los parámetros de dimensionamiento
-        EAL.Assimilate(RPL);
+        EAL.assimilate(RPL);
 
         //desturye las EAs de la lista tampón
         //                t_EAL.Destroy();
@@ -387,7 +387,7 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
         //clona la variable tampón
         FMM.Clone(&t_FMM);
         //asimila las propiedades
-        FMM.Assimilate();
+        FMM.assimilate();
 
         //ADVERTENCIA: la configuración del FMM debe ser asimilada,
         //ya que algunas de sus propiedades dependen de su posición
@@ -473,7 +473,7 @@ void readInstanceFromDir(TFiberConnectionModel& FCM, const string& dir)
         t_FCM.setConnectionsText(str);
 
         //clona la variable tampón
-        //FCM.Clone(t_FCM);
+        FCM.Clone(t_FCM);
 
     } catch(...) {
         throw;

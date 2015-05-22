@@ -84,24 +84,27 @@ public:
         //------------------------------------------------------------------
         //BUILDING, CLONATION AND DESTROYING METHODS:
 
-        //construye una lista de posicionadores de fibra
+        //construye una lista de RPs
         TRoboticPositionerList(void);
 
         //ADVERTENCIA: para cosntruir un posicionador multifibra debe haber
         //un posicinador de fibra por defecto que no incluya un puntero
         //al método Paint.
 
-        //copia las propiedades de ejecución de una lista de posicionadores de fibra
-        void CopyExecution(const TRoboticPositionerList*);
+        //copia las propiedades de ejecución de una lista de RPs
+        void copyExecution(const TRoboticPositionerList*);
 
         //clone a RP list
         //      (Tolerance, Sizing, Area, Graphics, Map, Execution)
         void Clone(const TRoboticPositionerList*);
 
+        //WARNING: inherited methods must be redefined withidentical name
+        //for avoid errors.
+
         //construye un clon de un posicionador multifibra
         TRoboticPositionerList(const TRoboticPositionerList*);
 
-        //destruye una lista de posicionadores de fibra
+        //destruye una lista de RPs
         ~TRoboticPositionerList();
 
         //WARNING: beforedestroy the las RP list you mustdestroy these
@@ -110,7 +113,7 @@ public:
         //SETTING METHODS:
 
         //obtiene la tabla de identificadores (Id, Id1, Id2)
-        void GetIdTable(TPointersList<TTernIntegers>& IdTable) const;
+        void getIdTable(TPointersList<TTernIntegers>& IdTable) const;
         //asigna la tabla de identificadores (Id, Id1, Id2)
         //si IdTable no contiene una terna por cada posicionador:
         //      lanza una excepción EImproperArgument
@@ -118,7 +121,7 @@ public:
         //      lanza una excepción EImproperArgument
         //si algún Id en IdTable no se refiere a un posicionador de la lista:
         //      lanza una excepción EImproperArgument
-        void SetIdTable(TPointersList<TTernIntegers>& IdTable);
+        void setIdTable(TPointersList<TTernIntegers>& IdTable);
 
         //configure el SPM de los posicionadores de una lista
         //según el propósito:
@@ -126,21 +129,21 @@ public:
         //	pGen: generación
         //	pVal: validación
         //	pExe: ejecución
-        void SetPurpose(TPurpose Purpose);
+        void setPurpose(TPurpose Purpose);
 
         //configura el estado de habilitación del cuantificador de rot 1
         //de todos los posicionadores de la lista
-        void SetQuantify_s(bool);
+        void setQuantify_s(bool);
         //configura el estado de habilitación del cuantificador de rot 2
         //de todos los posicionadores de la lista
-        void SetArmQuantify___s(bool);
+        void setArmQuantify___s(bool);
         //configura el estado de habilitación de los cuantificadores
         //de todos los posicionadores de la lista
-        void SetQuantifys(bool Quantify_, bool Quantify___);
+        void setQuantifys(bool Quantify_, bool Quantify___);
 
         //configura el estado de colisión
         //de todos los posicionadores de la lista
-        void SetCollisions(bool);
+        void setCollisions(bool);
 
         //------------------------------------------------------------------
         //METHODS FOR CHECK PRECONDITIONS:
@@ -151,14 +154,20 @@ public:
         //determines if there is some repeated pointer
         bool thereIsSomeRepeatedPointer(void) const;
 
+        //determines if there is some not operative RP
+        bool thereIsSomeNotOperative(void) const;
+
+        //determines if there is some RP out of origin
+        bool thereIsSomeOutOrigin(void) const;
+
         //determina si todos los posicionadores operativos en
         //posiciones de inseguridad están en la lista Abatibles
-        bool NotAllOperativeInUnsafetyPositionsAreInTheList(
+        bool notAllOperativeInUnsafetyPositionsAreInTheList(
                 TRoboticPositionerList *Abatibles) const;
 
         //determina si todos los posicionadores de la lista
         //están operativos en posiciones de inseguridad
-        bool NotAllPositionersAreOperativesInUnsafetyPositions(void) const;
+        bool notAllPositionersAreOperativesInUnsafetyPositions(void) const;
 
         //determines if some RP of the Fiber MOS Model
         //could start sudenly motion
@@ -168,7 +177,7 @@ public:
         //METHODS FOR PROGRAMMING:
 
         //borra las instrucciones de movimeinto de los posicionadores
-        void ClearInstructions(void);
+        void clearInstructions(void);
 
         //asigna una instrucción
         //si el identificador Id es negativo
@@ -176,14 +185,14 @@ public:
         //si el posicionador Id no está en la lista
         //      lanza una excepción EImproperArgument
         //si Id==0 asigna la instrucción a todos los controldaores
-        void SetInstruction(const int Id, const TInstruction &Instruction);
+        void setInstruction(const int Id, const TInstruction &Instruction);
 
         //programa gestos de abatimiento en todos los controladores de la lista
         void programTurnArmsToSafeAreas(void);
         //sincroniza las llegadas de todos los gestos de la lista
-        void SinchronizeArrivals(void);
+        void sinchronizeArrivals(void);
         //invierte todos los gestos de la lista en el dominio del tiempo
-        void InvertTime(void);
+        void invertTime(void);
 
         //METHODS FOR MOVING:
 
@@ -192,17 +201,17 @@ public:
         //      lanza EImproperCall
         //por las funciones de movimiento en el instante t
         //no actualiza k
-        void Move(double t);
-        //mueve los RPs a sus posiciones inciiales
+        void move(double t);
+        //mueve los RPs a sus posiciones inciales
         //si el puntero PainAll no apunta a una función
         //      lanza EImproperCall
         //no actualiza k
-        void MoveSta(void);
+        void moveSta(void);
         //mueve los RPs a sus posiciones finales
         //si el puntero PainAll no apunta a una función
         //      lanza EImproperCall
         //no actualiza k
-        void MoveFin(void);
+        void moveFin(void);
 };
 
 //---------------------------------------------------------------------------

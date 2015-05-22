@@ -56,7 +56,7 @@ void TExclusionArea::setEo(double Eo)
         p_Eo = Eo; //asignaelnuevo valor
 
         //asimila Eo
-        CalculateSPM();
+        calculateSPM();
 }
 void TExclusionArea::setEp(double Ep)
 {
@@ -67,7 +67,7 @@ void TExclusionArea::setEp(double Ep)
         p_Ep = Ep; //asignaelnuevo valor
 
         //asimila Ep
-        CalculateSPM();
+        calculateSPM();
 }
 
 void TExclusionArea::setId(int Id)
@@ -165,7 +165,7 @@ void TExclusionArea::setInstanceText(const AnsiString &S)
                 TExclusionArea *EA = &aux;
                 //lee la instancia y la asigna a la variable tampón
                 int i = 1;
-                ReadInstance((TExclusionArea*&)EA, S, i);
+                readInstance((TExclusionArea*&)EA, S, i);
 
                 //avanza el índice i hasta la próxima posición que no contenga un separador
                 StrTravelSeparatorsIfAny(S, i);
@@ -175,7 +175,7 @@ void TExclusionArea::setInstanceText(const AnsiString &S)
                         throw EImproperArgument("string S should contain the instance value only");
 
                 //asigna la variable tampón
-                Copy(EA);
+                copy(EA);
 
         } catch(...) {
                 throw;
@@ -192,7 +192,7 @@ AnsiString TExclusionArea::getOriginsText(void) const
 
 
 //compara los identificadores de dos EAs
-int  TExclusionArea::CompareIds(TExclusionArea *EA1, TExclusionArea *EA2)
+int  TExclusionArea::compareIds(TExclusionArea *EA1, TExclusionArea *EA2)
 {
         //el puntero EA1 debería apuntar a un área de exclusión construida
         if(EA1 == NULL)
@@ -211,7 +211,7 @@ int  TExclusionArea::CompareIds(TExclusionArea *EA1, TExclusionArea *EA2)
 
 
 //imprime el identificador de un EA
-void  TExclusionArea::PrintId(AnsiString &S, TExclusionArea *EA)
+void  TExclusionArea::printId(AnsiString &S, TExclusionArea *EA)
 {
         //el puntero EA debería apuntar a un área de exclusión construida
         if(EA == NULL)
@@ -222,13 +222,13 @@ void  TExclusionArea::PrintId(AnsiString &S, TExclusionArea *EA)
 
 //obtiene las etiquetas de las propiedades de origen
 //en formato fila de texto
-AnsiString TExclusionArea::GetOriginsLabelsRow(void)
+AnsiString TExclusionArea::getOriginsLabelsRow(void)
 {
         return "Id\tx0\ty0\tthetaO1";
 }
 //atraviesa las etiquetas de las propiedades de origen
 //en formato fila de texto
-void  TExclusionArea::TravelOriginsLabelsRow(const AnsiString& S, int& i)
+void  TExclusionArea::travelOriginsLabelsRow(const AnsiString& S, int& i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
         //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -291,7 +291,7 @@ void  TExclusionArea::TravelOriginsLabelsRow(const AnsiString& S, int& i)
 //imprime los valores de las propiedades de orien de un EA
 //al final de una cadena de texto
 //en formato fila de texto
-void  TExclusionArea::PrintOriginsRow(AnsiString& S,
+void  TExclusionArea::printOriginsRow(AnsiString& S,
         TExclusionArea *EA)
 {
         //el puntero EA debe apuntar a un área de exclusión construida
@@ -303,7 +303,7 @@ void  TExclusionArea::PrintOriginsRow(AnsiString& S,
 //lee los valores de las propiedades de orien para un EA
 //desde la posición indicada de una cadena de texto
 //en formato fila de texto
-void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
+void  TExclusionArea::readOriginsRow(TExclusionArea *EA,
         const AnsiString& S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -374,7 +374,7 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
 
         //asigna las variables tampón
         try {
-                EA->SetOrigins(Id, x0, y0, thetaO1);
+                EA->setOrigins(Id, x0, y0, thetaO1);
         }catch(...) {
                 throw;
         }
@@ -382,7 +382,7 @@ void  TExclusionArea::ReadOriginsRow(TExclusionArea *EA,
 //lee una instancia del EA
 //desde la posición indicada de una cadena de texto
 //en formato de asignaciones
-void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
+void  TExclusionArea::readInstance(TExclusionArea* &EA,
         const AnsiString& S, int &i)
 {
         //el puntero EA debe apuntar a una barrera construido
@@ -421,7 +421,7 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
                         case 1: //esperando instancia de Barrier
                                 try {
                                         TBarrier *aux = &t_EA.Barrier;
-                                        TBarrier::ReadInstance((TBarrier*&)aux, S, i);
+                                        TBarrier::readInstance((TBarrier*&)aux, S, i);
                                 }catch(...) {
                                         throw;
                                 }
@@ -458,7 +458,7 @@ void  TExclusionArea::ReadInstance(TExclusionArea* &EA,
         } while(status < 4);
 
         //asigna la variable tampón
-        EA->Copy(&t_EA);
+        EA->copy(&t_EA);
 }
 
 //---------------------------------------------------------------------------
@@ -470,11 +470,11 @@ TExclusionArea::TExclusionArea(void) :
         Barrier(TDoublePoint(0, 0), 0),
         p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
         p_Id(0),
-        Adjacents(64, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
+        Adjacents(64, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
         Pending(true)
 {
         //asimilalas propiedades de inicialización
-        CalculateSPM();
+        calculateSPM();
 
         //añade el objeto a la lista de contruidos
         Builts.Add(this);
@@ -486,7 +486,7 @@ TExclusionArea::TExclusionArea(void) :
 TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
         Barrier(P0, thetaO1),
         p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
-        Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
+        Adjacents(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
         Pending(true)
 {
         //el número de identificación Id debe ser mayor que cero
@@ -499,20 +499,20 @@ TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
         p_Id = Id;
 
         //asimilalas propiedades de inicialización
-        CalculateSPM();
+        calculateSPM();
 
         //añade el objeto a la lista de contruidos
         Builts.Add(this);
 }
 
 //copia un área de exclusión
-void TExclusionArea::Copy(const TExclusionArea *EA)
+void TExclusionArea::copy(const TExclusionArea *EA)
 {
         //el puntero EA debería apuntar a un área de exclusión contruida
         if(EA == NULL)
                 throw EImproperArgument("pointer EA ahould point to built exclusion area");
 
-        Barrier.Copy(&EA->Barrier);
+        Barrier.copy(&EA->Barrier);
         p_Eo = EA->p_Eo;
         p_Ep = EA->p_Ep;
         p_Id = EA->p_Id;
@@ -530,7 +530,7 @@ TExclusionArea::TExclusionArea(const TExclusionArea *EA) :
                 throw EImproperArgument("pointer EA ahould point to built barrier");
 
         //copia todas las propiedades
-        Copy(EA);
+        copy(EA);
 
         //añade el objeto a la lista de contruidos
         Builts.Add(this);
@@ -582,7 +582,7 @@ double TExclusionArea::SPMsta(void) const
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
 //asigna las propiedades de origen
-void TExclusionArea::SetOrigins(int Id, double x0, double y0, double thetaO1)
+void TExclusionArea::setOrigins(int Id, double x0, double y0, double thetaO1)
 {
         //el número de identificación Id debe ser mayor que cero
         if(Id <= 0)
@@ -592,12 +592,12 @@ void TExclusionArea::SetOrigins(int Id, double x0, double y0, double thetaO1)
         p_Id = Id;
 
         //asimila (P0, thetaO1)
-        Barrier.Set(TDoublePoint(x0, y0), thetaO1);
+        Barrier.set(TDoublePoint(x0, y0), thetaO1);
 }
 
 //asigna conjuntamente las tolerancias
 //      (Eo, Ep)
-void TExclusionArea::SetTolerances(double Eo, double Ep)
+void TExclusionArea::setTolerances(double Eo, double Ep)
 {
         //el valor de Eo debe ser no negativo
         if(Eo < 0)
@@ -611,7 +611,7 @@ void TExclusionArea::SetTolerances(double Eo, double Ep)
         p_Ep = Ep; //asignaelnuevo valor
 
         //asimila (Eo, Ep)
-        CalculateSPM();
+        calculateSPM();
 }
 
 //---------------------------------------------------------------------------
@@ -622,7 +622,7 @@ void TExclusionArea::SetTolerances(double Eo, double Ep)
 //      r_max
 //Determina:
 //      (Barrier.SPM)
-void TExclusionArea::CalculateSPM(void)
+void TExclusionArea::calculateSPM(void)
 {
         //CALULA LAS COMPONENTES DE SPM:
 
@@ -633,7 +633,7 @@ void TExclusionArea::CalculateSPM(void)
 //MÉTODOS DE COLISIÓN:
 
 //determina los RPs adyacentes que pueden colisionar con la barrera
-void TExclusionArea::DetermineAdjacents(const TItemsList<TRoboticPositioner*>& RPL)
+void TExclusionArea::determineAdjacents(const TItemsList<TRoboticPositioner*>& RPL)
 {
         TRoboticPositioner *RP;
         TActuator *A;
@@ -645,13 +645,13 @@ void TExclusionArea::DetermineAdjacents(const TItemsList<TRoboticPositioner*>& R
                 //apunta el actuador del posicionador para facilitar su acceso
                 A = RP->getActuator();
                 //si el posicionador está lo bastante cerca como para colisionar con la barrera
-                if(Barrier.getContour().DistanceMin(A->getP0()) < Barrier.getSPM() + A->getr_max() + A->getArm()->getSPM())
+                if(Barrier.getContour().distanceMin(A->getP0()) < Barrier.getSPM() + A->getr_max() + A->getArm()->getSPM())
                         //apunta el posicionador en la lista de adyacentes
                         Adjacents.Add(RP);
         }
 }
 //determina los RPs adyacentes en estado de colisión con la barrera
-void TExclusionArea::SearchCollinding(TItemsList<TRoboticPositioner*>& RPL)
+void TExclusionArea::searchCollinding(TItemsList<TRoboticPositioner*>& RPL)
 {
         //inicializa la lista de punteros a actuadores
         RPL.Clear();
@@ -666,7 +666,7 @@ void TExclusionArea::SearchCollinding(TItemsList<TRoboticPositioner*>& RPL)
                 //apunta el actuador del posicionador para facilitar su acceso
                 A = RP->getActuator();
                 //si el posicionador está lo bastante cerca como para colisionar con la barrera
-                if(Barrier.getContour().Collides(A->getArm()->getContour(), Barrier.getSPM() + A->getArm()->getSPM()))
+                if(Barrier.getContour().collides(A->getArm()->getContour(), Barrier.getSPM() + A->getArm()->getSPM()))
                         RPL.Add(RP); //apunta el posicionador en la lista de actuadores
         }
 }
@@ -676,7 +676,7 @@ void TExclusionArea::SearchCollinding(TItemsList<TRoboticPositioner*>& RPL)
 //CON POSICIONADORES ADYACENTES:
 
 //determina si hay colisión con un axctuador
-bool TExclusionArea::ThereIsCollision(const TActuator* AA)
+bool TExclusionArea::thereIsCollision(const TActuator* AA)
 {
 /*        //si la posición angular de ambos ejes de este posicionador es conocida
         if(PAkd != kdUnk) {
@@ -745,7 +745,7 @@ bool TExclusionArea::ThereIsCollision(const TActuator* AA)
         return false;*/
 }
 //determina si hay colisión con un actuador adyacente
-bool TExclusionArea::ThereIsCollisionWithAdjacent(void)
+bool TExclusionArea::thereIsCollisionWithAdjacent(void)
 {
 /*        TExclusionArea *AA;
 
@@ -762,7 +762,7 @@ bool TExclusionArea::ThereIsCollisionWithAdjacent(void)
 
 //Busca los posicionadores adyacentes cuyo
 //brazo colisiona con la barrera de este área de exclusión.
-void TExclusionArea::SearchCollindingAdjacent(TItemsList<TActuator*> &Collindings)
+void TExclusionArea::searchCollindingAdjacent(TItemsList<TActuator*> &Collindings)
 {
 /*        //vacia la lista de los que colisionan en congruencia con el estado inicial
         Collindings.Clear();
@@ -783,7 +783,7 @@ void TExclusionArea::SearchCollindingAdjacent(TItemsList<TActuator*> &Collinding
 
 //Determina si hay colisión con un actuador adyacente
 //con evalauación de colisión pendiente.
-bool TExclusionArea::ThereIsCollisionWithPendingAdjacent(void)
+bool TExclusionArea::thereIsCollisionWithPendingAdjacent(void)
 {
 /*        TExclusionArea *AA;
 
@@ -809,7 +809,7 @@ bool TExclusionArea::ThereIsCollisionWithPendingAdjacent(void)
 //Busca los posicionadores adyacentes
 //con evalauación de colisión pendiente
 //cuyo brazo colisiona con la barrera de este área de exlusión.
-void TExclusionArea::SearchCollindingPendingAdjacent(TItemsList<TActuator*> &Collindings)
+void TExclusionArea::searchCollindingPendingAdjacent(TItemsList<TActuator*> &Collindings)
 {
 /*        //vacia la lista de los que colisionan en congruencia con el estado inicial
         Collindings.Clear();

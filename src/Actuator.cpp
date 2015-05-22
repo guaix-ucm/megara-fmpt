@@ -163,141 +163,168 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S)
 //TPurpose
 //###########################################################################
 
-void  StrPrintPurpose(AnsiString& S, TPurpose p)
+void  strPrintPurpose(string& str, TPurpose p)
 {
     switch(p) {
-    case pAll: S += AnsiString("All"); break;
-    case pGen: S += AnsiString("Gen"); break;
-    case pVal: S += AnsiString("Val"); break;
-    case pExe: S += AnsiString("Exe"); break;
+    case pAll: str += "All"; break;
+    case pGenPairPPDP: str += "GenPairPPDP"; break;
+    case pValDP: str += "ValPP"; break;
+    case pValPP: str += "ValPP"; break;
+    case pGenParPro: str += "GenParPro"; break;
+    case pValParPro: str += "ValParPro"; break;
+    case pExe: str += "Exe"; break;
     }
     throw EImpossibleError("unknowledge value in type TPurpose");
 }
-void  StrReadPurpose(TPurpose& p, const AnsiString &S, int &i)
+void  strReadPurpose(TPurpose& value, const string& str, int &i)
 {
-    //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
-    //de modo que cuando se quiera imprimir uno de sus caracteres,
-    //si no es imprimible saldrá el caracter por defecto.
+    //Here it is not required that text string str is printable.
 
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
+    //check the precondition
+    if(str.length() < i)
+        throw EImproperArgument("index i should indicate a position in the string str");
 
-    //La longitud de los valores legibles de la cadena son:
-    //      strlen("All"): 3
-    //      strlen("Pro"): 3
-    //      strlen("Val"): 3
-    //      strlen("Exe"): 3
+    //Length of the known possible values of the string:
+    //  strlen("All"): 3
+    //  strlen("GenPairPPDP"): 11
+    //  strlen("ValDP"): 5
+    //  strlen("ValPP"): 5
+    //  strlen("GenParPro"): 9
+    //  strlen("ValParPro"): 9
+    //  strlen("Exe"): 3
 
-    //variable tampón
-    AnsiString SubS;
+    //copy the index in an auxiliary variable
+    unsigned int i_ = i;
 
-    //copia el índice en una variable auxiliar
-    int j = i;
-    //avanza el índice auxiliar hasta el próximo caracter no separador
-    StrTravelSeparatorsIfAny(S, j);
+    //advance the auxiliary index to the nextnon separator character
+    strTravelSeparatorsIfAny(str, i_);
 
-    //si desde el primera caracter hay al menos 3 caracteres (con él incluido)
-    if(j+2 <= S.Length()) {
-        //extrae la subcadena compuesta por los próximos 3 caracteres
-        SubS = S.SubString(j, 3);
-
-        //si la subcadena coincide con kdAll
-        if(SubS == "All") {
-            //traduce de texto a estructura
-            p = pAll;
-            //avanza el índice hasta la posúltima posición de la subcadena
-            i = j + 3;
-            return; //no hace nada más
-        }
-
-        //si la subcadena coincide con kdGen
-        if(SubS == "Gen") {
-            //traduce de texto a estructura
-            p = pGen;
-            //avanza el índice hasta la posúltima posición de la subcadena
-            i = j + 3;
-            return; //no hace nada más
-        }
-
-        //si la subcadena coincide con kdVal
-        if(SubS == "Val") {
-            //traduce de texto a estructura
-            p = pVal;
-            //avanza el índice hasta la posúltima posición de la subcadena
-            i = j + 3;
-            return; //no hace nada más
-        }
-
-        //si la subcadena coincide con kdExe
-        if(SubS == "Exe") {
-            //traduce de texto a estructura
-            p = pExe;
-            //avanza el índice hasta la posúltima posición de la subcadena
-            i = j + 3;
-            return; //no hace nada más
-        }
+    //determine if the label is "All" and return the corresponding value if any
+    bool label_found = strTravelLabel_("All", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pAll;
+        return;
     }
 
-    throw EImproperArgument("there is a value of type TPurpose as from position i in string text S");
+    //determine if the label is "GenPairPPDP" and return the corresponding value if any
+    label_found = strTravelLabel_("GenPairPPDP", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pGenPairPPDP;
+        return;
+    }
+
+    //determine if the label is "ValDP" and return the corresponding value if any
+    label_found = strTravelLabel_("ValDP", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pValDP;
+        return;
+    }
+
+    //determine if the label is "ValPP" and return the corresponding value if any
+    label_found = strTravelLabel_("ValPP", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pValPP;
+        return;
+    }
+
+    //determine if the label is "GenParPro" and return the corresponding value if any
+    label_found = strTravelLabel_("GenParPro", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pGenParPro;
+        return;
+    }
+
+    //determine if the label is "ValParPro" and return the corresponding value if any
+    label_found = strTravelLabel_("ValParPro", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pValParPro;
+        return;
+    }
+
+    //determine if the label is "Exe" and return the corresponding value if any
+    label_found = strTravelLabel_("Exe", str, i_);
+    if(label_found) {
+        i = i_;
+        value = pExe;
+        return;
+    }
+
+    throw EImproperArgument("there isn't' a value of type TPurpose from position i in string text str");
 }
-AnsiString PurposeToStr(TPurpose p)
+string purposeToStr(TPurpose value)
 {
-    switch(p) {
-    case pAll: return AnsiString("All");
-    case pGen: return AnsiString("Gen");
-    case pVal: return AnsiString("Val");
-    case pExe: return AnsiString("Exe");
+    switch(value) {
+    case pAll: return "All";
+    case pGenPairPPDP: return "GenPairPPDP";
+    case pValDP: return "ValDP";
+    case pValPP: return "ValPP";
+    case pGenParPro: return "GenParPro";
+    case pValParPro: return "ValParPro";
+    case pExe: return "Exe";
     }
     throw EImpossibleError("unknowledge value in type TPurpose");
 }
-TPurpose StrToPurpose(const AnsiString& S)
+TPurpose strToPurpose(const string& str)
 {
-    //ADVERTENCIA: no se exige que la cadena de texto S sea imprimible,
-    //de modo que cuando se quiera imprimir uno de sus caracteres,
-    //si no es imprimible saldrá el caracter por defecto.
+    //Here it is not required that text string str is printable.
 
-    //La longitud de los valores legibles de la cadena son:
-    //      strlen("All"): 3
-    //      strlen("Pro"): 3
-    //      strlen("Val"): 3
-    //      strlen("Exe"): 3
+    //Length of the known possible values of the string:
+    //  strlen("All"): 3
+    //  strlen("GenPairPPDP"): 11
+    //  strlen("ValDP"): 5
+    //  strlen("ValPP"): 5
+    //  strlen("GenParPro"): 9
+    //  strlen("ValParPro"): 9
+    //  strlen("Exe"): 3
 
-    //variable tampón
-    AnsiString SubS;
+    //copy the index in an auxiliary variable
+    unsigned int i_ = 0;
 
-    //inicializa elíndice
-    int j = 1;
-    //avanza el índice auxiliar hasta el próximo caracter no separador
-    StrTravelSeparatorsIfAny(S, j);
+    //advance the auxiliary index to the nextnon separator character
+    strTravelSeparatorsIfAny(str, i_);
 
-    //si desde el primera caracter hay al menos 3 caracteres (con él incluido)
-    if(j+2 <= S.Length()) {
-        //extrae la subcadena compuesta por los próximos 3 caracteres
-        SubS = S.SubString(j, 3);
+    //determine if the label is "All" and return the corresponding value if any
+    bool label_found = strTravelLabel_("All", str, i_);
+    if(label_found)
+        return pAll;
 
-        //si la subcadena coincide con kdAll
-        if(SubS == "All")
-            //devuelve el valor correspondiente
-            return pAll;
+    //determine if the label is "GenPairPPDP" and return the corresponding value if any
+    label_found = strTravelLabel_("GenPairPPDP", str, i_);
+    if(label_found)
+        return pGenPairPPDP;
 
-        //si la subcadena coincide con kdGen
-        if(SubS == "Gen")
-            //devuelve el valor correspondiente
-            return pGen;
+    //determine if the label is "ValDP" and return the corresponding value if any
+    label_found = strTravelLabel_("ValDP", str, i_);
+    if(label_found)
+        return pValDP;
 
-        //si la subcadena coincide con kdVal
-        if(SubS == "Val")
-            //devuelve el valor correspondiente
-            return pVal;
+    //determine if the label is "ValPP" and return the corresponding value if any
+    label_found = strTravelLabel_("ValPP", str, i_);
+    if(label_found)
+        return pValPP;
 
-        //si la subcadena coincide con kdExe
-        if(SubS == "Exe")
-            //devuelve el valor correspondiente
-            return pExe;
-    }
+    //determine if the label is "GenParPro" and return the corresponding value if any
+    label_found = strTravelLabel_("GenParPro", str, i_);
+    if(label_found)
+        return pGenParPro;
 
-    throw EImproperArgument("there is a value of type TPurpose as from position i in string text S");
+    //determine if the label is "ValParPro" and return the corresponding value if any
+    label_found = strTravelLabel_("ValParPro", str, i_);
+    if(label_found)
+        return pValParPro;
+
+    //determine if the label is "Exe" and return the corresponding value if any
+    label_found = strTravelLabel_("Exe", str, i_);
+    if(label_found)
+        return pExe;
+
+    throw EImproperArgument("there isn't' a value of type TPurpose from position i in string text str");
 }
 
 //###########################################################################
@@ -317,47 +344,48 @@ TPurpose StrToPurpose(const AnsiString& S)
 
 void TActuator::setSPMrec(double SPMrec)
 {
-    //el SPM de recuperación (SPMrec) debe ser no negativo
+    //check the precondition
     if(SPMrec < 0)
         throw EImproperArgument("the recovery SPM (SPMrec) should be nonnegative");
 
-    p_SPMrec = SPMrec; //asigna el nuevo valor
-
-    //asimila SPMrec
-    AssignSPM();
+    p_SPMrec = SPMrec; //assigns the new valor
+    AssignSPM(); //assimilates the new valor
 }
 void TActuator::setSPMsta(double SPMsta)
 {
-    //el SPM staánico (SPMsta) debe ser no negativo
+    //check the precondition
     if(SPMsta < 0)
         throw EImproperArgument("the staerical SPM (SPMsta) should be nonnegative");
 
-    p_SPMsta = SPMsta; //asigna el nuevo valor
-
-    //asimila SPMsta
-    AssignSPM();
+    p_SPMsta = SPMsta; //assigns the new valor
+    AssignSPM(); //assimilates the new valor
 }
 void TActuator::setSPMdyn(double SPMdyn)
 {
-    //el SPM dinánico (SPMdyn) debe ser no negativo
+    //check the precondition
     if(SPMdyn < 0)
         throw EImproperArgument("the dynamic SPM (SPMdyn) should be nonnegative");
 
-    p_SPMdyn = SPMdyn; //asigna el nuevo valor
-
-    //asimila SPMdyn
-    AssignSPM();
+    p_SPMdyn = SPMdyn; //assigns the new valor
+    AssignSPM(); //assimilates the new valor
 }
 void TActuator::setSPMmin(double SPMmin)
 {
-    //el SPM de salto mínimo (SPMmin) debe ser no negativo
+    //check the precondition
     if(SPMmin < 0)
         throw EImproperArgument("the minimum jump SPM (SPMmin) should be nonnegative");
 
-    p_SPMmin = SPMmin; //asigna el nuevo valor
+    p_SPMmin = SPMmin; //assigns the new valor
+    AssignSPM(); //assimilates the new valor
+}
+void TActuator::setSPMsim(double SPMsim)
+{
+    //check the precondition
+    if(SPMsim < 0)
+        throw EImproperArgument("the simulation SPM (SPMsim) should be nonnegative");
 
-    //asimila SPMmin
-    AssignSPM();
+    p_SPMsim = SPMsim; //assigns the new valor
+    AssignSPM(); //assimilates the new valor
 }
 void TActuator::setSPMoff(double SPMoff)
 {
@@ -365,46 +393,96 @@ void TActuator::setSPMoff(double SPMoff)
     if(SPMoff < 0)
         throw EImproperArgument("the offset SPM (SPMoff) should be nonnegative");
 
-    p_SPMoff = SPMoff; //asigna el nuevo valor
-
-    //asimila SPMoff
-    AssignSPM();
+    p_SPMoff = SPMoff; //assigns the new valor
+    AssignSPM(); //assimilates the new valor
 }
 
 //VALOR DE SPM PARA CADA OCASIÓN:
 
+//SPM for execution:
+//  SPMsta + SPMdyn
 double TActuator::getSPMexe_p(void) const
 {
     return getSPMsta() + getSPMdyn();
 }
-double TActuator::getSPMval_p(void) const
+//SPM for validate a parking program:
+//  SPMexe_p + SPMmin + SPMsim
+double TActuator::getSPMvalParPro_p(void) const
 {
-    return getSPMexe_p() + getSPMmin();
+    return getSPMexe_p() + getSPMmin() + getSPMsim();
 }
-double TActuator::getSPMgen_p(void) const
+//SPM for generate a parking program:
+//  SPMvalParPro_p + SPMmin + SPMsim
+double TActuator::getSPMgenParPro_p(void) const
 {
-    return getSPMval_p() + getSPMmin();
+    return getSPMvalParPro_p() + getSPMmin() + getSPMsim();
 }
+//SPM for validate a PP:
+//  SPMgenParPro_p + SPMmin + SPMsim
+double TActuator::getSPMvalPP_p(void) const
+{
+    return getSPMgenParPro_p() + getSPMmin() + getSPMsim();
+}
+//SPM for validate a DP:
+//  SPMvalPP_p + SPMmin + SPMsim
+double TActuator::getSPMvalDP_p(void) const
+{
+    return getSPMvalPP_p() + getSPMmin() + getSPMsim();
+}
+//SPM for generate a pair (PP, DP):
+//  SPMvalDP_p + SPMmin + SPMsim
+double TActuator::getSPMgenPairPPDP_p(void) const
+{
+    return getSPMvalDP_p() + getSPMmin() + getSPMsim();
+}
+//SPM for allocation:
+//  SPMgenPairPPDP_p + SPMoff
 double TActuator::getSPMall_p(void) const
 {
-    return getSPMgen_p() + getSPMoff();
+    return getSPMgenPairPPDP_p() + getSPMoff();
 }
 
+//SPM for execution:
+//  SPMrec + SPMexe_p
 double TActuator::getSPMexe_a(void) const
 {
     return getSPMrec() + getSPMexe_p();
 }
-double TActuator::getSPMval_a(void) const
+//SPM for validate a parking program:
+//  SPMexe_a + SPMmin + SPMsim
+double TActuator::getSPMvalParPro_a(void) const
 {
-    return getSPMexe_a() + getSPMmin();
+    return getSPMexe_a() + getSPMmin() + getSPMsim();
 }
-double TActuator::getSPMgen_a(void) const
+//SPM for generate a parking program:
+//  SPMvalParPro_a + SPMmin + SPMsim
+double TActuator::getSPMgenParPro_a(void) const
 {
-    return getSPMval_a() + getSPMmin();
+    return getSPMvalParPro_a() + getSPMmin() + getSPMsim();
 }
+//SPM for validate a PP:
+//  SPMgenParPro_a + SPMmin + SPMsim
+double TActuator::getSPMvalPP_a(void) const
+{
+    return getSPMgenParPro_a() + getSPMmin() + getSPMsim();
+}
+//SPM for validate a DP:
+//  SPMvalPP_a + SPMmin + SPMsim
+double TActuator::getSPMvalDP_a(void) const
+{
+    return getSPMvalPP_a() + getSPMmin() + getSPMsim();
+}
+//SPM for generate a pair (PP, DP):
+//  SPMvalDP_a + SPMmin + SPMsim
+double TActuator::getSPMgenPairPPDP_a(void) const
+{
+    return getSPMvalDP_a() + getSPMmin() + getSPMsim();
+}
+//SPM for allocation:
+//  SPMgenPairPPDP_a + SPMoff
 double TActuator::getSPMall_a(void) const
 {
-    return getSPMgen_a() + getSPMoff();
+    return getSPMgenPairPPDP_a() + getSPMoff();
 }
 
 //---------------------------------------------------------------------------
@@ -561,6 +639,18 @@ void TActuator::setSPMminText(const AnsiString &S)
         throw;
     }
 }
+AnsiString TActuator::getSPMsimText(void) const
+{
+    return FloatToStr(getSPMsim());
+}
+void TActuator::setSPMsimText(const AnsiString &S)
+{
+    try {
+        setSPMsim(StrToFloat_(S));
+    } catch(...) {
+        throw;
+    }
+}
 AnsiString TActuator::getSPMoffText(void) const
 {
     return FloatToStr(getSPMoff());
@@ -580,13 +670,25 @@ AnsiString TActuator::getSPMexe_pText(void) const
 {
     return FloatToStr(getSPMexe_p());
 }
-AnsiString TActuator::getSPMval_pText(void) const
+AnsiString TActuator::getSPMvalParPro_pText(void) const
 {
-    return FloatToStr(getSPMval_p());
+    return FloatToStr(getSPMvalParPro_p());
 }
-AnsiString TActuator::getSPMgen_pText(void) const
+AnsiString TActuator::getSPMgenParPro_pText(void) const
 {
-    return FloatToStr(getSPMgen_p());
+    return FloatToStr(getSPMgenParPro_p());
+}
+AnsiString TActuator::getSPMvalPP_pText(void) const
+{
+    return FloatToStr(getSPMvalPP_p());
+}
+AnsiString TActuator::getSPMvalDP_pText(void) const
+{
+    return FloatToStr(getSPMvalDP_p());
+}
+AnsiString TActuator::getSPMgenPairPPDP_pText(void) const
+{
+    return FloatToStr(getSPMgenPairPPDP_p());
 }
 AnsiString TActuator::getSPMall_pText(void) const
 {
@@ -597,13 +699,25 @@ AnsiString TActuator::getSPMexe_aText(void) const
 {
     return FloatToStr(getSPMexe_a());
 }
-AnsiString TActuator::getSPMval_aText(void) const
+AnsiString TActuator::getSPMvalParPro_aText(void) const
 {
-    return FloatToStr(getSPMval_a());
+    return FloatToStr(getSPMvalParPro_a());
 }
-AnsiString TActuator::getSPMgen_aText(void) const
+AnsiString TActuator::getSPMgenParPro_aText(void) const
 {
-    return FloatToStr(getSPMgen_a());
+    return FloatToStr(getSPMgenParPro_a());
+}
+AnsiString TActuator::getSPMvalPP_aText(void) const
+{
+    return FloatToStr(getSPMvalPP_a());
+}
+AnsiString TActuator::getSPMvalDP_aText(void) const
+{
+    return FloatToStr(getSPMvalDP_a());
+}
+AnsiString TActuator::getSPMgenPairPPDP_aText(void) const
+{
+    return FloatToStr(getSPMgenPairPPDP_a());
 }
 AnsiString TActuator::getSPMall_aText(void) const
 {
@@ -627,12 +741,12 @@ void TActuator::setPAkdText(const AnsiString &S)
 }
 AnsiString TActuator::getPurposeText(void) const
 {
-    return PurposeToStr(getPurpose());
+    return AnsiString(purposeToStr(getPurpose()));
 }
 void TActuator::setPurposeText(const AnsiString &S)
 {
     try {
-        setPurpose(StrToPurpose(S));
+        setPurpose(strToPurpose(S.str));
     } catch(...) {
         throw;
     }
@@ -764,18 +878,25 @@ AnsiString TActuator::getSecurityText(void) const
     S += AnsiString("    SPMsta = ")+getSPMstaText()+AnsiString("\r\n");
     S += AnsiString("    SPMdyn = ")+getSPMdynText()+AnsiString("\r\n");
     S += AnsiString("    SPMmin = ")+getSPMminText()+AnsiString("\r\n");
+    S += AnsiString("    SPMsim = ")+getSPMsimText()+AnsiString("\r\n");
     S += AnsiString("    SPMoff = ")+getSPMoffText()+AnsiString("\r\n");
 
     S += "SPMSpecific R:\r\n";
 
     S += AnsiString("    SPMexe_p: ")+getSPMexe_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMval_p: ")+getSPMval_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMgen_p: ")+getSPMgen_pText()+AnsiString("\r\n");
+    S += AnsiString("    SPMvalParPro_p: ")+getSPMvalParPro_pText()+AnsiString("\r\n");
+    S += AnsiString("    SPMgenParPro_p: ")+getSPMgenParPro_pText()+AnsiString("\r\n");
+    S += AnsiString("    SPMvalPP_p: ")+getSPMvalPP_pText()+AnsiString("\r\n");
+    S += AnsiString("    SPMvalDP_p: ")+getSPMvalDP_pText()+AnsiString("\r\n");
+    S += AnsiString("    SPMgenPairPPDP_p: ")+getSPMgenPairPPDP_pText()+AnsiString("\r\n");
     S += AnsiString("    SPMall_p: ")+getSPMall_pText()+AnsiString("\r\n");
 
     S += AnsiString("    SPMexe_a: ")+getSPMexe_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMval_a: ")+getSPMval_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMgen_a: ")+getSPMgen_aText()+AnsiString("\r\n");
+    S += AnsiString("    SPMvalParPro_a: ")+getSPMvalParPro_aText()+AnsiString("\r\n");
+    S += AnsiString("    SPMgenParPro_a: ")+getSPMgenParPro_aText()+AnsiString("\r\n");
+    S += AnsiString("    SPMvalPP_a: ")+getSPMvalPP_aText()+AnsiString("\r\n");
+    S += AnsiString("    SPMvalDP_a: ")+getSPMvalDP_aText()+AnsiString("\r\n");
+    S += AnsiString("    SPMgenPairPPDP_a: ")+getSPMgenPairPPDP_aText()+AnsiString("\r\n");
     S += AnsiString("    SPMall_a: ")+getSPMall_aText();
 
     return S;
@@ -876,6 +997,7 @@ AnsiString TActuator::getInstanceText(void) const
     //Arm:
     S += AnsiString("ArmInstance:\r\n")+StrIndent(getArm()->getInstanceText())+AnsiString("\r\n");
 
+    S += AnsiString("SPMmin = ")+getSPMminText()+AnsiString("\r\n");
     S += AnsiString("PAkd = ")+getPAkdText();
 
     //Nótese que una instancia de TWall se limita a Barrier->Countour_.Text.
@@ -891,7 +1013,7 @@ void TActuator::setInstanceText(const AnsiString& S)
         TActuator *A = &aux;
         //lee la instancia y la asigna a la variable tampón
         int i = 1;
-        ReadInstance((TActuator*&)A, S, i);
+        readInstance((TActuator*&)A, S, i);
 
         //avanza el índice i hasta la próxima posición que no contenga un separador
         StrTravelSeparatorsIfAny(S, i);
@@ -901,7 +1023,7 @@ void TActuator::setInstanceText(const AnsiString& S)
             throw EImproperArgument("string S should contain the instance value only");
 
         //asigna la variable tampón
-        Clone(A);
+        clone(A);
 
     } catch(...) {
         throw;
@@ -936,16 +1058,22 @@ void TActuator::AssignSPM(void)
     case kdPre: //precise
         switch(getPurpose()) {
         case pAll: getArm()->setSPM(getSPMall_p()); break;
-        case pGen: getArm()->setSPM(getSPMgen_p()); break;
-        case pVal: getArm()->setSPM(getSPMval_p()); break;
+        case pGenPairPPDP: getArm()->setSPM(getSPMgenPairPPDP_p()); break;
+        case pValDP: getArm()->setSPM(getSPMvalDP_p()); break;
+        case pValPP: getArm()->setSPM(getSPMvalPP_p()); break;
+        case pGenParPro: getArm()->setSPM(getSPMgenParPro_p()); break;
+        case pValParPro: getArm()->setSPM(getSPMvalParPro_p()); break;
         case pExe: getArm()->setSPM(getSPMexe_p()); break;
         }
         break;;
     case kdApp: //approximated
         switch(getPurpose()) {
         case pAll: getArm()->setSPM(getSPMall_a()); break;
-        case pGen: getArm()->setSPM(getSPMgen_a()); break;
-        case pVal: getArm()->setSPM(getSPMval_a()); break;
+        case pGenPairPPDP: getArm()->setSPM(getSPMgenPairPPDP_a()); break;
+        case pValDP: getArm()->setSPM(getSPMvalDP_a()); break;
+        case pValPP: getArm()->setSPM(getSPMvalPP_a()); break;
+        case pGenParPro: getArm()->setSPM(getSPMgenParPro_a()); break;
+        case pValParPro: getArm()->setSPM(getSPMvalParPro_a()); break;
         case pExe: getArm()->setSPM(getSPMexe_a()); break;
         }
         break;
@@ -987,7 +1115,7 @@ void  TActuator::PrintId(AnsiString &S, TActuator *A)
 }
 
 //lee una instancia de actuador en una cadena
-void  TActuator::ReadInstance(TActuator* &A,
+void  TActuator::readInstance(TActuator* &A,
                               const AnsiString& S, int &i)
 {
     //el puntero A debe apuntar a un actuador construido
@@ -1011,8 +1139,9 @@ void  TActuator::ReadInstance(TActuator* &A,
     //      5: esperando asignación a SB1
     //      6: esperando etiqueta "ArmInstance:"
     //      7: esperando instancia de Arm
-    //      8: esperando asignación a PAkd
-    //      9: instancia de actuador leida con éxito
+    //      8: esperando asignación a SPMmin
+    //      9: esperando asignación a PAkd
+    //      10: instancia de actuador leida con éxito
     int status = 0;
 
     //variables tampón
@@ -1084,7 +1213,7 @@ void  TActuator::ReadInstance(TActuator* &A,
             StrTravelLabel("=", S, i);
             double aux;
             StrReadFloat(aux, S, i);
-            t_A.SetQuantification(aux);
+            t_A.setQuantification(aux);
         }catch(...) {
             throw;
         }
@@ -1101,13 +1230,26 @@ void  TActuator::ReadInstance(TActuator* &A,
         case 7: //esperando instancia de Arm
             try {
             TArm *aux = t_A.getArm();
-            TArm::ReadInstance(aux, S, i);
+            TArm::readInstance(aux, S, i);
         }catch(...) {
             throw;
         }
             status++;
             break;
-        case 8: //esperando asignación a PAkd
+        case 8: //esperando asignación a SPMmin
+            try {
+            StrTravelSeparators(S, i);
+            StrTravelLabel("SPMmin", S, i);
+            StrTravelLabel("=", S, i);
+            double aux;
+            StrReadFloat(aux, S, i);
+            t_A.setSPMmin(aux);
+        }catch(...) {
+            throw;
+        }
+            status++;
+            break;
+        case 9: //esperando asignación a PAkd
             try {
             StrTravelSeparators(S, i);
             StrTravelLabel("PAkd", S, i);
@@ -1122,31 +1264,31 @@ void  TActuator::ReadInstance(TActuator* &A,
             break;
         }
         //mientras no se haya leido la instancia con éxito
-    } while(status < 9);
+    } while(status < 10);
 
     //asigna las variables tampón
     try {
-        //aisgna los conjuntos atóicos de valores a la variable tampón
-        t_A.SetOrientationRadians(theta_1min, theta_1max, theta_1, theta_O3o);
+        //aisgna los conjuntos atómicos de valores a la variable tampón
+        t_A.setOrientationRadians(theta_1min, theta_1max, theta_1, theta_O3o);
 
     }catch(...) {
         throw;
     }
     //asigna la variable tampón
-    A->Clone(&t_A);
+    A->clone(&t_A);
 }
 
 //obtiene las etiquetas de las propiedades de origen de un posicionador
 //("Id", "x0", "y0", "thetaO1") al final de una cadena de texto
 //en formato fila de texto
-AnsiString TActuator::GetOriginsLabelsRow(void)
+AnsiString TActuator::getOriginsLabelsRow(void)
 {
     return "Id      x0      y0      thetaO1";
 }
 //atraviesa las etiquetas de las propiedades de origen
 //("Id", "x0", "y0", "thetaO1")
 //en formato fila de texto
-void  TActuator::TravelOriginsLabelsRow(const AnsiString& S, int& i)
+void  TActuator::travelOriginsLabelsRow(const AnsiString& S, int& i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1209,7 +1351,7 @@ void  TActuator::TravelOriginsLabelsRow(const AnsiString& S, int& i)
 //imprime los valores de las propiedades de orien de un posicionador
 //(Id, x0, y0, thetaO1) al final de una cadena de texto
 //en formato fila de texto
-void  TActuator::PrintOriginsRow(AnsiString& S, TActuator *A)
+void  TActuator::printOriginsRow(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1220,7 +1362,7 @@ void  TActuator::PrintOriginsRow(AnsiString& S, TActuator *A)
 //lee los valores de las propiedades de orien de un posicionador
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void  TActuator::ReadOriginsRow(TActuator* &A,
+void  TActuator::readOriginsRow(TActuator* &A,
                                 const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -1251,7 +1393,7 @@ void  TActuator::ReadOriginsRow(TActuator* &A,
         StrReadFloat(thetaO1, S, i);
 
         //set the tampon variable
-        A->SetOrigins(Id, x0, y0, thetaO1);
+        A->setOrigins(Id, x0, y0, thetaO1);
 
     }catch(...) {
         throw;
@@ -1261,21 +1403,21 @@ void  TActuator::ReadOriginsRow(TActuator* &A,
 //obtiene las etiquetas de las propiedades de posición de un posicionador
 //("Id", "x3", "y3") al final de una cadena de texto
 //en formato fila de texto
-AnsiString TActuator::GetPositionP3LabelsRow(void)
+AnsiString TActuator::getPositionP3LabelsRow(void)
 {
     return "Id\tx3\ty3";
 }
 //obtiene las etiquetas de las propiedades de posición de un posicionador
 //("Id", "p_1", "p___3") al final de una cadena de texto
 //en formato fila de texto
-AnsiString TActuator::GetPositionPPALabelsRow(void)
+AnsiString TActuator::getPositionPPALabelsRow(void)
 {
     return "Id\tp_1\tp___3";
 }
 //atraviesa las etiquetas de las propiedades de posición
 //("Id", "x3", "y3")
 //en formato fila de texto
-void  TActuator::TravelPositionP3LabelsRow(const AnsiString& S, int& i)
+void  TActuator::travelPositionP3LabelsRow(const AnsiString& S, int& i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1328,7 +1470,7 @@ void  TActuator::TravelPositionP3LabelsRow(const AnsiString& S, int& i)
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) al final de una cadena de texto
 //en formato fila de texto
-void  TActuator::PrintPositionP3Row(AnsiString& S, TActuator *A)
+void  TActuator::printPositionP3Row(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1339,7 +1481,7 @@ void  TActuator::PrintPositionP3Row(AnsiString& S, TActuator *A)
 //lee los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void  TActuator::ReadPositionP3Row(TActuator* &A,
+void  TActuator::readPositionP3Row(TActuator* &A,
                                    const AnsiString& S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -1367,7 +1509,7 @@ void  TActuator::ReadPositionP3Row(TActuator* &A,
         StrReadFloat(y3, S, i);
 
         //set thetampon variables
-        A->SetPositionP3(Id, x3, y3);
+        A->setPositionP3(Id, x3, y3);
 
     }catch(...) {
         throw;
@@ -1380,7 +1522,7 @@ void  TActuator::ReadPositionP3Row(TActuator* &A,
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
-void  TActuator::PrintPositionPPARow(AnsiString& S, TActuator *A)
+void  TActuator::printPositionPPARow(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
@@ -1398,8 +1540,8 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     //construye e inciializa el cilindro
     TCilinder(P0, thetao_),
     //inicializa las propiedades de estado
-    p_PAkd(kdPre), p_Purpose(pGen),
-    Adjacents(6, TRoboticPositioner::CompareIds, NULL, NULL, TRoboticPositioner::PrintId, NULL),
+    p_PAkd(kdPre), p_Purpose(pGenPairPPDP),
+    Adjacents(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
     Pending(true), Collision(false)
 {
     //el número de identificación Id debe ser no negativo
@@ -1416,7 +1558,8 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     p_SPMsta = MEGARA_Eo*getr_max() + MEGARA_Ep;
     p_SPMdyn = (MEGARA_VMAXABS1*getrbs()*getr_max() + MEGARA_VMAXABS2*getArm()->getrbs()*getArm()->getL1V())*MEGARA_Tshiff +
             MEGARA_SPMadd;
-    p_SPMmin = getSPMsta();
+    p_SPMmin = MEGARA_SPMmin;
+    p_SPMsim = MEGARA_SPMsim;
     p_SPMoff = MEGARA_PAem*getrmax() + MEGARA_Pem;
 
     //----------------------------------------
@@ -1442,7 +1585,7 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
 }
 
 //copia las propiedades de seguridad de un actuador
-void TActuator::CopySecurity(const TActuator *A)
+void TActuator::copySecurity(const TActuator *A)
 {
     //el puntero A debe apuntar a un posicinador contruido
     if(A == NULL)
@@ -1453,10 +1596,11 @@ void TActuator::CopySecurity(const TActuator *A)
     p_SPMsta = A->p_SPMsta;
     p_SPMdyn = A->p_SPMdyn;
     p_SPMmin = A->p_SPMmin;
+    p_SPMsim = A->p_SPMsim;
     p_SPMoff = A->p_SPMoff;
 }
 //copia las propiedades de estado de un actuador
-void TActuator::CopyStatus(const TActuator *A)
+void TActuator::copyStatus(const TActuator *A)
 {
     //el puntero A debe apuntar a un actuador contruido
     if(A == NULL)
@@ -1471,7 +1615,7 @@ void TActuator::CopyStatus(const TActuator *A)
     Collision = A->Collision;
 }
 //copia las propiedades límite de un actuador
-void TActuator::CopyLimits(const TActuator *A)
+void TActuator::copyLimits(const TActuator *A)
 {
     //el puntero A debe apuntar a un actuador contruido
     if(A == NULL)
@@ -1486,7 +1630,7 @@ void TActuator::CopyLimits(const TActuator *A)
     p_theta_2rad = A->p_theta_2rad;
 }
 //copia las propiedades de área de un actuador
-void TActuator::CopyArea(const TActuator *A)
+void TActuator::copyArea(const TActuator *A)
 {
     //el puntero A debe apuntar a un actuador contruido
     if(A == NULL)
@@ -1506,21 +1650,21 @@ void TActuator::CopyArea(const TActuator *A)
 }
 
 //copia todas las propiedades de un actuador
-void TActuator::Clone(const TActuator *A)
+void TActuator::clone(const TActuator *A)
 {
     //el puntero A debería apuntar a un actuador construido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built actuator");
 
     //copia las propiedades del cilindro
-    CopyCilinder(A);
+    copyCilinder(A);
 
     //copia las propiedades de seguridad
-    CopySecurity(A);
+    copySecurity(A);
     //copia las propiedades de estado
-    CopyStatus(A);
+    copyStatus(A);
     //copia las propiedades límite
-    CopyLimits(A);
+    copyLimits(A);
 }
 
 //vuilda clone of an actuator
@@ -1532,10 +1676,10 @@ TActuator::TActuator(const TActuator *A) :
         throw EImproperArgument("pointer A should point to built actuator");
 
     //copyall other properties
-    CopySecurity(A);
-    CopyStatus(A);
-    CopyLimits(A);
-    CopyArea(A);
+    copySecurity(A);
+    copyStatus(A);
+    copyLimits(A);
+    copyArea(A);
 }
 
 //destruye un actuador
@@ -1548,7 +1692,7 @@ TActuator::~TActuator()
 
 //calcula las propiedades de seguridad:
 //      {r_min, r_saf, r_2saf, theta___2saf, theta___3saf, theta_2rad}
-void TActuator::CalculateSafeParameters(void)
+void TActuator::calculateSafeParameters(void)
 {
     //si hay posicionadores adyacentes
     if(Adjacents.getCount() > 0) {
@@ -1556,7 +1700,7 @@ void TActuator::CalculateSafeParameters(void)
         TActuator A(this);
 
         //asigna el SPM de generación con grado de conocimiento aproximado
-        A.getArm()->setSPM(getSPMgen_a());
+        A.getArm()->setSPM(getSPMgenPairPPDP_a());
 
         //Nótese que los parámetros de seguridad serán válidos
         //para la programación del movimiento, incluso cuando
@@ -1565,12 +1709,12 @@ void TActuator::CalculateSafeParameters(void)
         //cuando el SPMall que corresponda supere al SPMgen_a.
 
         //activa la cuantificación de los ejes
-        A.EnableQuantification();
+        A.enableQuantification();
         //mueve los ejes a sus posiciones de origen
         A.setp_1(0);
         A.getArm()->setp___3(0);
         //deteremina r_min
-        p_r_min = A.getArm()->getContour().DistanceMax(A.getP0());
+        p_r_min = A.getArm()->getContour().distanceMax(A.getP0());
 
         TActuator *AA;
         double r_saf;
@@ -1581,7 +1725,7 @@ void TActuator::CalculateSafeParameters(void)
 
             //calcula la distancia de seguridad
             double aux = Mod(AA->getP0() - A.getP0());
-            r_saf = aux - AA->getr_max() - AA->getSPMgen_a() - A.getArm()->getSPM();
+            r_saf = aux - AA->getr_max() - AA->getSPMgenPairPPDP_a() - A.getArm()->getSPM();
 
             //ADVERTENCIA: el SPM del brazo de los actuadores
             //adyacentes no ha sido modificado, de ahí que se
@@ -1601,7 +1745,7 @@ void TActuator::CalculateSafeParameters(void)
         //conviene hacer una búsqueda binaria en (0, M_PI)
 
         //desactiva la cuantificación
-        A.DisableQuantification();
+        A.disableQuantification();
 
         //determina los límites del intervalo de búsqueda
         double theta___2min = M_PI - A.gettheta_O3o() + Max(0., A.getArm()->gettheta___2min());
@@ -1616,7 +1760,7 @@ void TActuator::CalculateSafeParameters(void)
         //mueve el eje 2 al punto medio del intervalo de búsqueda
         A.getArm()->settheta___2(theta___2);
         //calcula el radio de la envolvente descrita por el contorno del brazo
-        double r_max = A.getArm()->getContour().DistanceMax(A.getP0());
+        double r_max = A.getArm()->getContour().distanceMax(A.getP0());
         //realiza iteraciones mientras sean necesarias
         //o hasta que elcontador marque el numero de bits
         //de la mantisa de un tipo double (54 bits) más 4.
@@ -1635,7 +1779,7 @@ void TActuator::CalculateSafeParameters(void)
                 //mueve el eje 2 al punto medio del intervalo de búsqueda
                 A.getArm()->settheta___2(theta___2);
                 //calcula la distancia máxima
-                r_max = A.getArm()->getContour().DistanceMax(A.getP0());
+                r_max = A.getArm()->getContour().distanceMax(A.getP0());
             }
 
             j++; //contabiliza la iteración
@@ -1666,7 +1810,7 @@ void TActuator::CalculateSafeParameters(void)
 //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
 //asigna las propiedades angulares (theta_1min, theta_1max,theta_1)
-void TActuator::SetOrientationRadians(double theta_1min, double theta_1max,
+void TActuator::setOrientationRadians(double theta_1min, double theta_1max,
                                       double theta_1, double theta_O3o)
 {
     //el ángulo theta_1min debe estar en el dominio de F(theta_1)
@@ -1682,7 +1826,7 @@ void TActuator::SetOrientationRadians(double theta_1min, double theta_1max,
         throw EImproperArgument("angle theta_1min should not be upper than angle theta_1max");
 
     //el ángulo theta_1 debe estar en su dominio [theta_1min, theta_1max]
-    if(IsntInDomaintheta_1(theta_1))
+    if(isntInDomaintheta_1(theta_1))
         throw EImproperArgument("angle theta_1 should be in his domain [theta_1min, theta_1max]");
 
     //PROCESA [theta_1min, theta_1max]:
@@ -1719,11 +1863,11 @@ void TActuator::SetOrientationRadians(double theta_1min, double theta_1max,
     //del origen de coordenadas del brazo
 
     //asimila (theta_1, theta_O3o)
-    getArm()->Set(NewP1(), getthetaO3());
-    getBarrier()->Set(getP0(), getthetaO1());
+    getArm()->set(newP1(), getthetaO3());
+    getBarrier()->set(getP0(), getthetaO1());
 }
 //asigna las propiedades de cuantificación
-void TActuator::SetQuantification(double SB1)
+void TActuator::setQuantification(double SB1)
 {
     //DEFINE LA FUNCIÓN F A PARTIR DE SB1:
 
@@ -1739,12 +1883,12 @@ void TActuator::SetQuantification(double SB1)
     p_F.setPointsText(getF().getPointsText());
 
     //asimila F
-    ProcessateF();
+    processateF();
     settheta_1(gettheta_1());
 }
 
 //asigna las propiedades de origen
-void TActuator::SetOrigins(int Id, double x0, double y0, double thetaO1)
+void TActuator::setOrigins(int Id, double x0, double y0, double thetaO1)
 {
     //el número de identificación Id debe ser mayor que cero
     if(Id <= 0)
@@ -1770,13 +1914,13 @@ void TActuator::SetOrigins(int Id, double x0, double y0, double thetaO1)
                 p_theta0 = 0;
   */
     //asimila (P0, thetaO1)
-    getArm()->Set(NewP1(), getthetaO3());
-    getBarrier()->Set(getP0(), getthetaO1());
+    getArm()->set(newP1(), getthetaO3());
+    getBarrier()->set(getP0(), getthetaO1());
 }
 //asigna las propiedades de posición
 //si el punto (x3, y3) no está en el dominio del actuador
 //      lanza EImproperArgument
-void TActuator::SetPositionP3(double x3, double y3)
+void TActuator::setPositionP3(double x3, double y3)
 {
     TDoublePoint P_3;
     double r_3, theta_3;
@@ -1792,11 +1936,11 @@ void TActuator::SetPositionP3(double x3, double y3)
         theta_3 = this->gettheta_3();
 
     //el punto a asignar debería estar en el dominio del posicionador
-    if(!AnglesToGoP_3(theta_1, theta___3, r_3, theta_3))
+    if(!anglesToGoP_3(theta_1, theta___3, r_3, theta_3))
         throw EImproperFileLoadedValue("point to assign should be in the domine of the fiber positioner");
 
     //asigna el punto
-    SetAnglesRadians(theta_1, theta___3);
+    setAnglesRadians(theta_1, theta___3);
 }
 //assign a pair of position angles in radians
 //if the position angle theta_1 isn't in domain of theta_1,
@@ -1806,11 +1950,11 @@ void TActuator::setPositionPPARadians(double theta_1, double theta___3)
 {
     //the position angle theta_1 should be in the domain of theta_1
     //and position angle theta___3 should be in the domain of theta___3
-    if(IsntInDomaintheta_1(theta_1) || getArm()->IsntInDomaintheta___3(theta___3))
+    if(isntInDomaintheta_1(theta_1) || getArm()->isntInDomaintheta___3(theta___3))
         throw EImproperArgument("the position angle theta_1 should be in the domain of theta_1, and position angle theta___3 should be in the domain of theta___3");
 
     //assign the position angles
-    SetAnglesRadians(theta_1, theta___3);
+    setAnglesRadians(theta_1, theta___3);
 }
 //assign a pair of position angles in steps
 //if the position angle p_1 isn't in domain of p_1,
@@ -1820,16 +1964,16 @@ void TActuator::setPositionPPASteps(double p_1, double p___3)
 {
     //the position angle p_1 should be in the rotor 1 domain
     //and the position angle p___3 should be in the rotor 2 domain
-    if(IsntInDomainp_1(p_1) || getArm()->IsntInDomainp___3(p___3))
+    if(isntInDomainp_1(p_1) || getArm()->isntInDomainp___3(p___3))
         throw EImproperArgument("the position angle p_1 should be in the domain of p_1, and position angle p___3 should be in the domain of p___3");
 
     //assign the position angles
-    SetAnglesSteps(p_1, p___3);
+    setAnglesSteps(p_1, p___3);
 }
 //asigna las propiedades de identificación y posición
 //si el punto (x3, y3) no está en el dominio del actuador
 //      lanza EImproperArgument
-void TActuator::SetPositionP3(int Id, double x3, double y3)
+void TActuator::setPositionP3(int Id, double x3, double y3)
 {
     //el número de identificación Id debe ser no negativo
     if(Id < 0)
@@ -1851,18 +1995,17 @@ void TActuator::SetPositionP3(int Id, double x3, double y3)
         theta_3 = this->gettheta_3();
 
     //el punto a asignar debería estar en el dominio del posicionador
-    if(!AnglesToGoP_3(theta_1, theta___3, r_3, theta_3))
+    if(!anglesToGoP_3(theta_1, theta___3, r_3, theta_3))
         throw EImproperFileLoadedValue(AnsiString("point to assign should be in the domine of the RP ")+IntToStr(Id));
 
     //asigna el identificador
     p_Id = Id;
     //asigna el punto
-    SetAnglesRadians(theta_1, theta___3);
+    setAnglesRadians(theta_1, theta___3);
 }
 
 //asigna las componentes del SPM
-void TActuator::SetSPMComponents(double SPMrec, double SPMsta,
-                                 double SPMdyn, double SPMmin)//, double SPMoff)
+void TActuator::setSPMcomponents(double SPMrec, double SPMsta, double SPMdyn)
 {
     //el SPM de recuperación (SPMrec) debe ser no negativo
     if(SPMrec < 0)
@@ -1876,70 +2019,40 @@ void TActuator::SetSPMComponents(double SPMrec, double SPMsta,
     if(SPMdyn < 0)
         throw EImproperArgument("the dynamic SPM (SPMdyn) should be nonnegative");
 
-    //el SPM de salto mínimo (SPMmin) debe ser no negativo
-    if(SPMmin < 0)
-        throw EImproperArgument("the minimum jump SPM (SPMmin) should be nonnegative");
-
-    /*        //el SPM de corrección del desplazamiento (SPMoff) debe ser no negativo
-        if(SPMoff < 0)
-                throw EImproperArgument("the offset SPM (SPMoff) should be nonnegative");
-  */
     p_SPMrec = SPMrec; //asigna el nuevo valor
     p_SPMsta = SPMsta; //asigna el nuevo valor
     p_SPMdyn = SPMdyn; //asigna el nuevo valor
-    p_SPMmin = SPMmin; //asigna el nuevo valor
-    //        p_SPMoff = SPMoff; //asigna el nuevo valor
+
+    //SPMmin, SPMsim and SPMall not shall be assigned here because are independents values.
 
     //asimila las componentes de SPM
     AssignSPM();
 }
 
-//asigna las propiedades de estado (PAkd, Purpose, Faul, disabled)
-void TActuator::SetStatus(TKnowledgeDegree PAkd, TPurpose Purpose)
+//asigna las propiedades de estado (PAkd, Purpose)
+void TActuator::setStatus(TKnowledgeDegree PAkd, TPurpose Purpose)
 {
-    //asigna los valores
+    //assign the values
     p_PAkd = PAkd;
     p_Purpose = Purpose;
 
-    //ASIMILA LOS VALORES:
-
-    //asigna a Arm->SPM o a Barrier->SPM el SPM correspondiente según (PAkd, Purpose)
-    switch(getPAkd()) {
-    case kdPre:
-        switch(getPurpose()) {
-        case pAll: getArm()->setSPM(getSPMall_p()); break;
-        case pGen: getArm()->setSPM(getSPMgen_p()); break;
-        case pVal: getArm()->setSPM(getSPMval_p()); break;
-        case pExe: getArm()->setSPM(getSPMexe_p()); break;
-        }
-        break;
-    case kdApp:
-        switch(getPurpose()) {
-        case pAll: getArm()->setSPM(getSPMall_a()); break;
-        case pGen: getArm()->setSPM(getSPMgen_a()); break;
-        case pVal: getArm()->setSPM(getSPMval_a()); break;
-        case pExe: getArm()->setSPM(getSPMexe_a()); break;
-        }
-        break;
-    case kdUnk:
-        getBarrier()->setSPM(getSPMsta());
-        break;
-    }
+    //assimilates the values
+    AssignSPM();
 }
 
 //-------------------------------------------------------------------
 //MÉTODOS PARA ALMACENAR Y RECUPERAR POSICIONES DE LOS ROTORES:
 
 //apila las posiciones de los rotores
-void TActuator::Pushthetas(void)
+void TActuator::pushthetas(void)
 {
     theta_1s.Add(gettheta_1());
-    getArm()->Pushtheta___3();
+    getArm()->pushtheta___3();
 }
 //restaura las últimas posiciones apuiladas de los rotores
 //si no hay una posisición almacenada para algún rotor:
 //      lanza EImproperCall
-void TActuator::Restorethetas(void)
+void TActuator::restorethetas(void)
 {
     //la pila theta_1s debería contener algún valor apilado
     if(theta_1s.getCount() < 1)
@@ -1950,7 +2063,7 @@ void TActuator::Restorethetas(void)
 
     //asigna el último valor apilado
     settheta_1(theta_1s.getLast());
-    getArm()->Restoretheta___3();
+    getArm()->restoretheta___3();
 }
 //determines if:
 //the rotors of the RP not coincide with the last stacked positions
@@ -1974,7 +2087,7 @@ bool TActuator::thetasNotCoincideWithStacked(void)
 //desempila las últimas posiciones apiladas de los rotores
 //si no hay una posisición almacenada para algún rotor:
 //      lanza EImproperCall
-void TActuator::Popthetas(void)
+void TActuator::popthetas(void)
 {
     //la pila theta_1s debería contener algún valor apilado
     if(theta_1s.getCount() < 1)
@@ -1985,12 +2098,12 @@ void TActuator::Popthetas(void)
 
     //borra el último valor apilado
     theta_1s.Delete(theta_1s.getCount() - 1);
-    getArm()->Poptheta___3();
+    getArm()->poptheta___3();
 }
 //restaura y desempila las últimas posiciones apiladas de los rotores
 //si no hay una posisición almacenada para algún rotor:
 //      lanza EImproperCall
-void TActuator::RestoreAndPopthetas(void)
+void TActuator::restoreAndPopthetas(void)
 {
     //la pila theta_1s debería contener algún valor apilado
     if(theta_1s.getCount() < 1)
@@ -2001,11 +2114,11 @@ void TActuator::RestoreAndPopthetas(void)
 
     //asigna el último valor apilado
     settheta_1(theta_1s.getLast());
-    getArm()->Restoretheta___3();
+    getArm()->restoretheta___3();
 
     //borra el último valor apilado
     theta_1s.Delete(theta_1s.getCount() - 1);
-    getArm()->Poptheta___3();
+    getArm()->poptheta___3();
 }
 
 //ADVERTENCIA: la recuperación de posiciones no estables,
@@ -2016,15 +2129,15 @@ void TActuator::RestoreAndPopthetas(void)
 //MÉTODOS PARA ALMACENAR Y RECUPERAR ESTADOS DE CUNATIFICACIÓN:
 
 //apila el estado de los cuantificadores
-void TActuator::PushQuantifys(void)
+void TActuator::pushQuantifys(void)
 {
     Quantify_s.Add(getQuantify_());
-    getArm()->PushQuantify___();
+    getArm()->pushQuantify___();
 }
 //restaura el último estado apilado de los cuantificadores
 //si no hay un estado almacenado para algún quantificador:
 //      lanza EImproperCall
-void TActuator::RestoreQuantifys(void)
+void TActuator::restoreQuantifys(void)
 {
     //la pila Quantify_s debería contener algún valor apilado
     if(Quantify_s.getCount() < 1)
@@ -2035,12 +2148,12 @@ void TActuator::RestoreQuantifys(void)
 
     //asigna el último valor apilado
     setQuantify_(Quantify_s.getLast());
-    getArm()->RestoreQuantify___();
+    getArm()->restoreQuantify___();
 }
 //desempila el último estado apilado de los cuantificadores
 //si no hay un estado almacenado para algún quantificador:
 //      lanza EImproperCall
-void TActuator::PopQuantifys(void)
+void TActuator::popQuantifys(void)
 {
     //la pila Quantify_s debería contener algún valor apilado
     if(Quantify_s.getCount() < 1)
@@ -2051,12 +2164,12 @@ void TActuator::PopQuantifys(void)
 
     //borra el último valor apilado
     Quantify_s.Delete(Quantify_s.getCount() - 1);
-    getArm()->PopQuantify___();
+    getArm()->popQuantify___();
 }
 //restaura y desempila el último estado apilado de los cuantificadores
 //si no hay un estado almacenado para algún quantificador:
 //      lanza EImproperCall
-void TActuator::RestoreAndPopQuantifys(void)
+void TActuator::restoreAndPopQuantifys(void)
 {
     //la pila Quantify_s debería contener algún valor apilado
     if(Quantify_s.getCount() < 1)
@@ -2067,11 +2180,11 @@ void TActuator::RestoreAndPopQuantifys(void)
 
     //asigna el último valor apilado
     setQuantify_(Quantify_s.getLast());
-    getArm()->RestoreQuantify___();
+    getArm()->restoreQuantify___();
 
     //borra el último valor apilado
     Quantify_s.Delete(Quantify_s.getCount() - 1);
-    getArm()->PopQuantify___();
+    getArm()->popQuantify___();
 }
 
 //--------------------------------------------------------------------------
@@ -2120,7 +2233,7 @@ bool TActuator::P3IsOutSafeArea(TDoublePoint P) const
 {
     //calcula las posiciones angulares para ir al punto
     double theta_1, theta___3;
-    if(!AnglesToGoP3(theta_1, theta___3, P.x, P.y))
+    if(!anglesToGoP3(theta_1, theta___3, P.x, P.y))
         return true;
 
     //determina si theta___3 está fuera del área de seguridad
@@ -2131,7 +2244,7 @@ bool TActuator::P3IsInSafeArea(TDoublePoint P) const
 {
     //calcula las posiciones angulares para ir al punto
     double theta_1, theta___3;
-    if(!AnglesToGoP3(theta_1, theta___3, P.x, P.y))
+    if(!anglesToGoP3(theta_1, theta___3, P.x, P.y))
         return false;
 
     //determina si theta___3 está fuera del área de seguridad
@@ -2178,7 +2291,7 @@ bool TActuator::isOutTheOrigin(void) const
 //Coordenada radial del punto de inflexión para la pose dada en S1.
 //Pi es el punto de la trayectoria radial de P2 en que:
 //      theta_1 == Max{theta_1min, 0}.
-double TActuator::Getr_i(double &theta_1, double theta_2)
+double TActuator::getr_i(double &theta_1, double theta_2)
 {
     //la distancia L01 debe ser igual a la distancia L12
     if(getL01() != getArm()->getL12())
@@ -2220,7 +2333,7 @@ double TActuator::Getr_i(double &theta_1, double theta_2)
 }
 //ángulo del eje 2 respecto de S2 en radianes
 //para el punto de inflexión de la pose dada
-double TActuator::Gettheta___2i(double theta_2, double r_i)
+double TActuator::gettheta___2i(double theta_2, double r_i)
 {
     //la distancia r_i debe ser no negativa
     if(r_i < 0)
@@ -2246,10 +2359,10 @@ double TActuator::Gettheta___2i(double theta_2, double r_i)
 //MÉTODOS DE MOVIMIENTO:
 
 //mueve el brazo hasta a la posición de seguridad estable más próxima
-void TActuator::MoveArmToSafePosition(void)
+void TActuator::moveArmToSafePosition(void)
 {
     if(getArm()->getQuantify___())
-        getArm()->Settheta___2FirstStableLessOrEqual(gettheta___2saf());
+        getArm()->settheta___2FirstStableLessOrEqual(gettheta___2saf());
     else
         getArm()->settheta___2(gettheta___2saf());
 }
@@ -2258,7 +2371,7 @@ void TActuator::MoveArmToSafePosition(void)
 //MÉTODOS PARA EL CÁLCULO DE DISTANCIAS:
 
 //determina la distancia con otro actuador
-double TActuator::Distance(TActuator *AA)
+double TActuator::distance(TActuator *AA)
 {
     //el puntero AA debería apuntar a un actuador construido
     if(AA == NULL)
@@ -2276,15 +2389,15 @@ double TActuator::Distance(TActuator *AA)
         if(AA->getPAkd() != kdUnk) {
             //calcula la distancia entre contornos
             //this->Arm -> AA->Arm
-            D1 = getArm()->getContour().DistanceMin(AA->getArm()->getContour());
-            D2 = AA->getArm()->getContour().DistanceMin(getArm()->getContour());
+            D1 = getArm()->getContour().distanceMin(AA->getArm()->getContour());
+            D2 = AA->getArm()->getContour().distanceMin(getArm()->getContour());
         }
         //si la posición angular de algún eje del posicionador adyacente es desconocida
         else {
             //calcula la distancia entre contornos
             //this->Arm -> AA->Barrier
-            D1 = getArm()->getContour().DistanceMin(AA->getBarrier()->getContour());
-            D2 = AA->getBarrier()->getContour().DistanceMin(getArm()->getContour());
+            D1 = getArm()->getContour().distanceMin(AA->getBarrier()->getContour());
+            D2 = AA->getBarrier()->getContour().distanceMin(getArm()->getContour());
         }
     }
     //si la posición angular de algún eje de este posicionador es desconocida
@@ -2293,15 +2406,15 @@ double TActuator::Distance(TActuator *AA)
         if(AA->getPAkd() != kdUnk) {
             //calcula la distancia entre contornos
             //this->Barrier -> AA->Arm
-            D1 = getBarrier()->getContour().DistanceMin(AA->getArm()->getContour());
-            D2 = AA->getArm()->getContour().DistanceMin(getBarrier()->getContour());
+            D1 = getBarrier()->getContour().distanceMin(AA->getArm()->getContour());
+            D2 = AA->getArm()->getContour().distanceMin(getBarrier()->getContour());
         }
         //si la posición angular de algún eje del posicionador adyacente es desconocida
         else {
             //calcula ladistancia entre contornos
             //this->Barrier -> AA->Barrier
-            D1 = getBarrier()->getContour().DistanceMin(AA->getBarrier()->getContour());
-            D2 = AA->getBarrier()->getContour().DistanceMin(getBarrier()->getContour());
+            D1 = getBarrier()->getContour().distanceMin(AA->getBarrier()->getContour());
+            D2 = AA->getBarrier()->getContour().distanceMin(getBarrier()->getContour());
         }
     }
 
@@ -2315,21 +2428,21 @@ double TActuator::Distance(TActuator *AA)
 //      Df: distancia libre
 //      SPM1: SPM de este actuador (según PAkd)
 //      SPM2: SPM del otro actuador (según PAkd)
-double TActuator::DistanceFree(TActuator *A)
+double TActuator::distanceFree(TActuator *A)
 {
     //el puntero A debería apuntar a un actuador construido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built actuator");
 
     //caulcula la distancia libre
-    double Df = Distance(A) - getArm()->getSPM() - A->getArm()->getSPM();
+    double Df = distance(A) - getArm()->getSPM() - A->getArm()->getSPM();
 
     return Df; //devuelve la distancia libre
 }
 
 //determina la distancia mínima entre el brazo del posicionador
 //y los brazos de los posicionadores adyacentes
-double TActuator::DistanceWithAdjacent(void)
+double TActuator::distanceWithAdjacent(void)
 {
     TActuator *AA;
     double dmin = std::numeric_limits<double>::max();
@@ -2342,7 +2455,7 @@ double TActuator::DistanceWithAdjacent(void)
             //apunta el posicioandor indicado para facilitar su acceso
             AA = Adjacents[i]->getActuator();
             //determina la distancia entre brazos
-            d = getArm()->getContour().DistanceMin(AA->getArm()->getContour());
+            d = getArm()->getContour().distanceMin(AA->getArm()->getContour());
             //si la distancia es menor que la mínima
             if(d < dmin)
                 dmin = d; //actualiza la distancia mínima
@@ -2352,7 +2465,7 @@ double TActuator::DistanceWithAdjacent(void)
 }
 //determina la distancia mínima entre el punto P3 del posicionador
 //y los puntos P3 de los posicionadores adyacentes
-double TActuator::DistanceP3WithAdjacent(void)
+double TActuator::distanceP3WithAdjacent(void)
 {
     TActuator *AA;
     double dmin = std::numeric_limits<double>::max();
@@ -2382,14 +2495,14 @@ bool TActuator::pointIsInSecurityArea(TDoublePoint P)
     //determines the position angles for position the point P3
     //in the point
     double theta_1, theta___3;
-    bool is_in_domain = AnglesToGoP3(theta_1, theta___3, P.x, P.y);
+    bool is_in_domain = anglesToGoP3(theta_1, theta___3, P.x, P.y);
 
     //if the point is in the domain
     if(is_in_domain) {
         //determines the nearest stable position for position the point P3
         //ascloserasposssible the point P
         double p_1nsp, p___3nsp;
-        GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+        getNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
 
         //determine is the position angle of rotor 2 is in the security area
         //andindicates if the point is in se security area
@@ -2407,7 +2520,7 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
     TDoublePoint P_ = S0recToS1rec(P.x, P.y);
 
     //si el punto está fuera del dominio
-    if(PointIsOutDomainP_3(P_))
+    if(pointIsOutDomainP_3(P_))
         //indica que el punto está fuera del área no invasiva
         return true;
 
@@ -2422,7 +2535,7 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
     getArm()->setQuantify___(false);
 
     //mueve el brazo al punto
-    SetCartesianP_3(P_.x, P_.y);
+    setCartesianP_3(P_.x, P_.y);
 
     TActuator *AA;
     double d;
@@ -2434,7 +2547,7 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
 
         //determina la distancia mínimaentre el brazo y
         //el centro del posicionador adyacente
-        d = getArm()->getContour().DistanceMin(AA->getP0());
+        d = getArm()->getContour().distanceMin(AA->getP0());
 
         //si la distancia es menor que el SPM+AA->SPM+AA->r_max
         if(d < getArm()->getSPM()+AA->getArm()->getSPM()+AA->getr_max()) {
@@ -2463,7 +2576,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
     TDoublePoint P_ = S0recToS1rec(P.x, P.y);
 
     //si el punto está fuera del dominio
-    if(PointIsOutDomainP_3(P_))
+    if(pointIsOutDomainP_3(P_))
         //indica que el punto no está dentro del área no invasiba
         return false;
 
@@ -2478,7 +2591,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
     getArm()->setQuantify___(false);
 
     //mueve el brazo al punto
-    SetCartesianP_3(P_.x, P_.y);
+    setCartesianP_3(P_.x, P_.y);
 
     TActuator *AA;
     double d;
@@ -2490,7 +2603,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
 
         //determina la distancia mínimaentre el brazo y
         //el centro del posicionador adyacente
-        d = getArm()->getContour().DistanceMin(AA->getP0());
+        d = getArm()->getContour().distanceMin(AA->getP0());
 
         //si la distancia es menor que SPM+AA->SPM+AA->r_max
         if(d < getArm()->getSPM()+AA->getArm()->getSPM()+AA->getr_max()) {
@@ -2527,10 +2640,10 @@ bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
     case kdPre:
         //caulculate the distance between the contour of the arm
         //and the limit of maneuvering domain of the other actuator
-        D = getArm()->getContour().DistanceMin(A->getP0()) - A->getr_max(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        D = getArm()->getContour().distanceMin(A->getP0()) - A->getr_max();
 
         //calculate the free distance
-        Dfree = D - getSPMgen_p() - A->getSPMsta();
+        Dfree = D - getSPMgenPairPPDP_p() - A->getSPMsta();
 
         if(Dfree >= 0)
             return true;
@@ -2542,10 +2655,10 @@ bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
     case kdApp:
         //caulculate the distance between the contour of the arm
         //and the limit of maneuvering domain of the other actuator
-        D = getArm()->getContour().DistanceMin(A->getP0()) - A->getr_max(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        D = getArm()->getContour().distanceMin(A->getP0()) - A->getr_max();
 
         //calculate the free distance
-        Dfree = D - getSPMgen_a() - A->getSPMsta();
+        Dfree = D - getSPMgenPairPPDP_a() - A->getSPMsta();
 
         if(Dfree >= 0)
             return true;
@@ -2557,7 +2670,7 @@ bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
     case kdUnk:
         //caulculate the distance between the contour of the barrier
         //and the limit of maneuvering domain of the other actuator
-        D = getBarrier()->getContour().DistanceMin(A->getP0()) - A->getr_max(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        D = getBarrier()->getContour().distanceMin(A->getP0()) - A->getr_max();
 
         //calculate the free distance
         Dfree = D - getSPMsta() - A->getSPMsta();
@@ -2579,7 +2692,7 @@ bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
 //CON POSICIONADORES ADYACENTES:
 
 //determina si hay colisión con un actuador
-bool TActuator::ThereIsCollision(const TActuator* AA)
+bool TActuator::thereIsCollision(const TActuator* AA)
 {
     //si la posición angular de ambos ejes de este posicionador es conocida
     if(getPAkd() != kdUnk) {
@@ -2596,7 +2709,7 @@ bool TActuator::ThereIsCollision(const TActuator* AA)
             //calcula el SPM conjunto
             double SPM = getArm()->getSPM() + AA->getArm()->getSPM();
             //si los contornos están a una distancia menor que la suma de SPMs
-            if(getArm()->getContour().DistanceMin(AA->getArm()->getContour())<SPM || AA->getArm()->getContour().DistanceMin(getArm()->getContour())<SPM)
+            if(getArm()->getContour().distanceMin(AA->getArm()->getContour())<SPM || AA->getArm()->getContour().distanceMin(getArm()->getContour())<SPM)
                 //indica que se ha encontrado colisión
                 return true;
         }
@@ -2613,7 +2726,7 @@ bool TActuator::ThereIsCollision(const TActuator* AA)
             //calcula el SPM conjunto
             double SPM = getArm()->getSPM() + AA->getBarrier()->getSPM();
             //si los contornos están a una distancia menor que la suma de SPMs
-            if(getArm()->getContour().DistanceMin(AA->getBarrier()->getContour())<SPM || AA->getBarrier()->getContour().DistanceMin(getArm()->getContour())<SPM)
+            if(getArm()->getContour().distanceMin(AA->getBarrier()->getContour())<SPM || AA->getBarrier()->getContour().distanceMin(getArm()->getContour())<SPM)
                 //indica que se ha encontrado colisión
                 return true;
         }
@@ -2633,7 +2746,7 @@ bool TActuator::ThereIsCollision(const TActuator* AA)
             //calcula el SPM conjunto
             double SPM = getBarrier()->getSPM() + AA->getArm()->getSPM();
             //si los contornos están a una distancia menor que la suma de SPMs
-            if(getBarrier()->getContour().DistanceMin(AA->getArm()->getContour())<SPM || AA->getArm()->getContour().DistanceMin(getBarrier()->getContour())<SPM)
+            if(getBarrier()->getContour().distanceMin(AA->getArm()->getContour())<SPM || AA->getArm()->getContour().distanceMin(getBarrier()->getContour())<SPM)
                 //indica que se ha encontrado colisión
                 return true;
         }
@@ -2650,8 +2763,8 @@ bool TActuator::ThereIsCollision(const TActuator* AA)
             //calcula el SPM conjunto
             double SPM = getBarrier()->getSPM() + AA->getBarrier()->getSPM();
             //si los contornos están a una distancia menor que la suma de SPMs
-            if(getBarrier()->getContour().DistanceMin(AA->getBarrier()->getContour())<SPM ||
-                    AA->getBarrier()->getContour().DistanceMin(getBarrier()->getContour())<SPM)
+            if(getBarrier()->getContour().distanceMin(AA->getBarrier()->getContour())<SPM ||
+                    AA->getBarrier()->getContour().distanceMin(getBarrier()->getContour())<SPM)
                 //indica que se ha encontrado colisión
                 return true;
         }
@@ -2661,14 +2774,14 @@ bool TActuator::ThereIsCollision(const TActuator* AA)
     return false;
 }
 //determina si hay colisión con un actuador adyacente
-bool TActuator::ThereIsCollisionWithAdjacent(void)
+bool TActuator::thereIsCollisionWithAdjacent(void)
 {
     //por cada posicionador adyacente
     for(int i=0; i<Adjacents.getCount(); i++) {
         //apunta el actuador de fibra indicado para facilitar su acceso
         TActuator *AA = Adjacents[i]->getActuator();
         //si hay colisión
-        if(ThereIsCollision(AA))
+        if(thereIsCollision(AA))
             //indica que si hay colisión
             return true;
     }
@@ -2677,14 +2790,14 @@ bool TActuator::ThereIsCollisionWithAdjacent(void)
     return false;
 }
 //determina si no hay colisión con un actuador adyacente
-bool TActuator::ThereIsntCollisionWithAdjacent(void)
+bool TActuator::thereIsntCollisionWithAdjacent(void)
 {
     //por cada posicionador adyacente
     for(int i=0; i<Adjacents.getCount(); i++) {
         //apunta el actuador de fibra indicado para facilitar su acceso
         TActuator *AA = Adjacents[i]->getActuator();
         //si hay colisión
-        if(ThereIsCollision(AA))
+        if(thereIsCollision(AA))
             //indica que si hay colisión
             return false;
     }
@@ -2715,7 +2828,7 @@ bool TActuator::ThereIsntCollisionWithAdjacent(void)
 }*/
 //Busca los posicionadores adyacentes cuyo
 //brazo colisiona con el de este posicionador.
-void TActuator::SearchCollindingAdjacent(TItemsList<TRoboticPositioner*> &Collindings)
+void TActuator::searchCollindingAdjacent(TItemsList<TRoboticPositioner*> &Collindings)
 {
     //vacia la lista de los que colisionan en congruencia con el estado inicial
     Collindings.Clear();
@@ -2728,7 +2841,7 @@ void TActuator::SearchCollindingAdjacent(TItemsList<TRoboticPositioner*> &Collin
         FPA = Adjacents[i];
         //si el posicionador adyacente
         //      colisiona con el posicionador indicado
-        if(ThereIsCollision(FPA->getActuator()))
+        if(thereIsCollision(FPA->getActuator()))
             //añade el índice al posicionador adyacente
             Collindings.Add(FPA);
     }
@@ -2736,7 +2849,7 @@ void TActuator::SearchCollindingAdjacent(TItemsList<TRoboticPositioner*> &Collin
 
 //Determina si hay colisión con un actuador adyacente
 //con evaluación de colisión pendiente.
-bool TActuator::ThereIsCollisionWithPendingAdjacent(void)
+bool TActuator::thereIsCollisionWithPendingAdjacent(void)
 {
     TActuator *AA;
 
@@ -2746,7 +2859,7 @@ bool TActuator::ThereIsCollisionWithPendingAdjacent(void)
         AA = Adjacents[i]->getActuator();
         //si alguno de los posicionadores tiene pendiente la determinación de colisión,
         //y el posicionador adyacente colisiona con el posicionador indicado
-        if((Pending || AA->Pending) && ThereIsCollision(AA))
+        if((Pending || AA->Pending) && thereIsCollision(AA))
             //indica que se ha encontrado colisión
             return true;
     }
@@ -2761,7 +2874,7 @@ bool TActuator::ThereIsCollisionWithPendingAdjacent(void)
 //Busca los posicionadores adyacentes
 //con evaluación de colisión pendiente
 //cuyo actuador colisiona con el de este posicionador.
-void TActuator::SearchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*> &Collindings)
+void TActuator::searchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*> &Collindings)
 {
     //vacia la lista de los que colisionan en congruencia con el estado inicial
     Collindings.Clear();
@@ -2774,7 +2887,7 @@ void TActuator::SearchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*> 
         FPA = Adjacents[i];
         //si alguno de los posicionadores tiene pendiente la determinación de colisión,
         //y el posicionador adyacente colisiona con el posicionador indicado
-        if((Pending || FPA->getActuator()->Pending) && ThereIsCollision(FPA->getActuator()))
+        if((Pending || FPA->getActuator()->Pending) && thereIsCollision(FPA->getActuator()))
             //añade el índice al posicionador adyacente
             Collindings.Add(FPA);
     }
@@ -2785,7 +2898,7 @@ void TActuator::SearchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*> 
 
 //determina los ángulos hay que rotar este posicinador, para que su brazo
 //quede adyacente al segmento indicado
-void TActuator::TurnSegment(TVector<double> &dts,
+void TActuator::turnSegment(TVector<double> &dts,
         TDoublePoint Pa, TDoublePoint Pb)
 {
         Arm->TurnSegment(dts, Pa, Pb, P0);
@@ -2793,7 +2906,7 @@ void TActuator::TurnSegment(TVector<double> &dts,
 
 //determina los ángulos hay que rotar este posicinador, para que su brazo
 //quede adyacente al arco indicado
-void TActuator::TurnArc(TVector<double> &dts,
+void TActuator::turnArc(TVector<double> &dts,
 TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R)
 {
         Arm->TurnArc(dts, Pa, Pb, Pc, R, P0);
@@ -2806,6 +2919,7 @@ void TActuator::TurnArm(TVector<double> &dts, TArmAbstract *Arm_)
         Arm->TurnArm(dts, Arm_, P0);
 }
   */
+/*#
 //---------------------------------------------------------------------------
 //MÉTODOS GRÁFICOS:
 
@@ -2814,7 +2928,7 @@ void TActuator::TurnArm(TVector<double> &dts, TArmAbstract *Arm_)
 //      2: brazo (PA...)
 //      1: cilindro (P0, L01)
 //      0: niguna;
-int TActuator::Grab(TDoublePoint P)
+int TActuator::grab(TDoublePoint P)
 {
     //si está en el botón pero no en su centro
     if(IntersectionPointCircle(P, getArm()->getP3(), getArm()->getR3()))
@@ -2830,7 +2944,6 @@ int TActuator::Grab(TDoublePoint P)
 
     return 0;
 }
-/*#
 //asigna un color al posicionador
 void TActuator::SetAllColors(QColor Color)
 {
@@ -2851,7 +2964,7 @@ QColor TActuator::HighlightIfSelected(QColor Color)
 
 //traza el posicinador con los colores indicados
 //en un trazador de formas
-void TActuator::Paint(TPloterShapes *PS)
+void TActuator::paint(TPloterShapes *PS)
 {
     //el puntero PS debería apuntar a un trazdor de formas contruido
     if(PS == NULL)
@@ -2927,7 +3040,7 @@ void TActuator::Paint(TPloterShapes *PS)
 //traza el posicinador con los colores indicados
 //en un trazador de formas
 //en el modelo simplificado (dos segmentos de P0 a P1 y de P1 a P2)
-void TActuator::PaintSimplified(TPloterShapes *PS)
+void TActuator::paintSimplified(TPloterShapes *PS)
 {
     //el puntero PS debería apuntar a un trazdor de formas contruido
     if(PS == NULL)

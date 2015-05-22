@@ -29,6 +29,7 @@
 #include "PositionerCenter.h"
 #include "Strings.h"
 #include "TextFile.h"
+#include "Geometry.h" //distanceSegmentPoint
 
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
@@ -81,6 +82,9 @@ string help(void)
     str = "$ fmpt_saa help";
     str += "\r\n\tPrint this help.";
     str += "\r\n";
+    str += "\r\n$ fmpt_saa valuesSPM";
+    str += "\r\n\tView the SPM values pending varibales PAkd and Purpose.";
+    str += "\r\n";
     str += "\r\n$ fmpt_saa applyPC <path_PC>";
     str += "\r\n\t<path_PC>: absolute or relative path to file containing a positioner center table.";
     str += "\r\n\tApply a positioner center table to the Fiber MOS Model instance.";
@@ -90,28 +94,31 @@ string help(void)
     str += "\r\n\tApply a RP instance to the Fiber MOS Model instance.";
     str += "\r\n";
 
-    str += "\r\n$ fmpt_saa generateDP <path_FMOSA>";
-    str += "\r\n\t<path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
-    str += "\r\n\tGenerate a depositioning program.";
-    str += "\r\n";
-    str += "\r\n$ fmpt_saa generatePPDP <path_FMOSA>";
+    str += "\r\n$ fmpt_saa generatePairPPDP <path_FMOSA>";
     str += "\r\n\t<path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
     str += "\r\n\tGenerate a pair (PP, DP).";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa checkPPDP <path_PP> <path_DP> [Pid list]";
+    str += "\r\n$ fmpt_saa checkPairPPDP <path_PP> <path_DP> [Pid list]";
     str += "\r\n\t<path_PP>: absolute or relative path to file containing the PP.";
     str += "\r\n\t<path_DP>: absolute or relative path to file containing the DP.";
     str += "\r\n\t[Pid list]: optional identifier list of RPs to be disabled.";
     str += "\r\n\tCheck the enabling status of the RPs included in a pair (PP, DP).";
     str += "\r\n\tThe instance of the Fiber MOS Model will not be written.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa regeneratePPDP <path_PP> <path_DP> <path_FMOSA> [Pid list]";
+    str += "\r\n$ fmpt_saa regeneratePairPPDP <path_PP> <path_DP> <path_FMOSA> [Pid list]";
     str += "\r\n\t<path_PP>: absolute or relative path to file containing the PP.";
     str += "\r\n\t<path_DP>: absolute or relative path to file containing the DP.";
     str += "\r\n\t<path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
     str += "\r\n\t[Pid list]: optional identifier list of RPs to be disabled.";
     str += "\r\n\tAttempt regenerate a pair (PP, DP).";
     str += "\r\n\tThe instance of the Fiber MOS Model will not be written.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa generateParkingProgram <path_FMOSA>";
+    str += "\r\n\t<path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
+    str += "\r\n\tGenerate a parking program.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa testGeneratePairPPDP";
+    str += "\r\n\ttest the function generatePairPPDP.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa aboutof";
     str += "\r\n\tPrint the about of legend.";
@@ -172,7 +179,7 @@ void applyPC(TFiberMOSModel& FMM, string& path, string& log_filename)
         //assimilates the positioner center table in the Fiber MOS Model
         for(int i=0; i<PCL.getCount(); i++) {
             TPositionerCenter PC = PCL[i];
-            int j = FMM.RPL.SearchId(PC.Id);
+            int j = FMM.RPL.searchId(PC.Id);
             if(j < FMM.RPL.getCount()) {
                 TRoboticPositioner *RP = FMM.RPL[j];
                 RP->getActuator()->setP0(TDoublePoint(PC.x0, PC.y0));
@@ -185,7 +192,7 @@ void applyPC(TFiberMOSModel& FMM, string& path, string& log_filename)
                 FMM.RPL.Add(RP);
             }
         }
-        FMM.Assimilate();
+        FMM.assimilate();
         append("Positioner center table applied to the Fiber MOS Model.", log_filename.c_str());
 
     } catch(Exception& E) {
@@ -209,7 +216,7 @@ void applyRP(TFiberMOSModel& FMM, string& path, string& log_filename)
         //MAKE THE OPERATIONS:
 
         //assimilates the instance of the RP in the Fiber MOS Model
-        FMM.RPL.Apply(RP);
+        FMM.RPL.apply(&RP);
         append("RP instance applied to the Fiber MOS Model.", log_filename.c_str());
 
     } catch(Exception& E) {
@@ -218,149 +225,8 @@ void applyRP(TFiberMOSModel& FMM, string& path, string& log_filename)
     }
 }
 
-//attempt generate a DP from a path file
-void generateDP(TFiberMOSModel& FMM, string& path, string& log_filename)
-{
-    try {
-
-        //LOAD SETTINGS FROM FILES:
-
-        //load the FMOSA table from a file
-        TFMOSATable FMOSA;
-        unsigned int Bid;
-        string str;
-        strReadFromFile(str, path);
-        FMOSA.setTableText(Bid, str);
-        append("FMOSA table loaded from '"+path+"'.", log_filename.c_str());
-
-        //get the allocation from the FMOSA table
-        TMotionProgramGenerator MPG(&FMM);
-        FMOSA.getAllocations(MPG);
-        append("Allocations got from the FMOSA table.", log_filename.c_str());
-
-        //MAKE THE OPERATIONS:
-
-        //split the path of the file containing the FMOSA table
-        string parent_path, filename;
-        splitpath(parent_path, filename, path);
-
-        //The filename will be used to attach the outputs filenames witht the input filename.
-
-        //move the RPs to the more closer stable point to the TPs
-        MPG.MoveToTargetP3();
-        append("RPs moved to initial positions.", log_filename.c_str());
-
-        //Other way to obtain the more closer stable points to the projection points,
-        //consist in get from the FMOSA table the following lists:
-        //  the allocation list;
-        //  the projection point list.
-        //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
-
-        //A PPA table shall be stored how a table (Id, p_1, p___3).
-
-        //captures the initial positions of the RPs in a PPA list
-        TPairPositionAnglesList IPL;
-        FMM.RPL.GetPositions(IPL);
-        str = TActuator::GetPositionPPALabelsRow().str;
-        str += "\r\n"+IPL.getColumnText().str;
-        string output_filename = "IPL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
-
-        //Other whay to obtain the initial position table directly in text format:
-        //  FMM.RPL.getPositionsPAPTableText()
-
-        //segregates the operative outsiders RPs
-        TRoboticPositionerList Outsiders;
-        FMM.RPL.segregateOperativeOutsiders(Outsiders);
-
-        //check the limiting case when all operative RPs are in the origin
-        if(FMM.RPL.allOperativeRPsAreInTheOrigin())
-            append("WARNING: all operative RPs are in the origin. The generated DP will be empty.", log_filename.c_str());
-        //else, check the limiting case when all operative RPs are in security positions
-        else if(Outsiders.getCount() <= 0)
-            append("WARNING: all operative RPs are in security positions. The generated DP will contains only a message-instruction list to go to the origin.", log_filename.c_str());
-
-        //Now are fulfilled the preconditions:
-        //  All RPs of the Fiber MOS Model, shall be in their initial positions.
-        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-        //  All RPs of the list Outsiders, shall be operatives.
-        //  All RPs of the list Outsiders, shall be in unsecure positions.
-        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-
-        //generates a de positioning program for the operative RPs in insecure positions
-        //and determines the RPs in collision status or obstructed in insecure positions
-        append("Generating depositioning program...", log_filename.c_str());
-        TRoboticPositionerList Collided;
-        TRoboticPositionerList Obstructed;
-        TMotionProgram DP;
-        bool success = MPG.generateDepositioningProgram(Collided, Obstructed, DP, Outsiders);
-
-        //Now are fulfilled the postconditions:
-        //  All RPs of the Fiber MOS Model will be configured for MP validation
-        //  All RPs of the fiber MOS Model will be in their final positions,
-        //  or the first position where the collision was detected.
-        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
-
-        //########################################################################
-        //#WARNING: before re-use a function to generation, shall be restablished#
-        //#the preconditions.                                                    #
-        //########################################################################
-
-        //if generation function was successfully generated
-        if(success) {
-            //indicates that the depositioning program has been generated successfully
-            append("Depositioning program generated successfully.", log_filename.c_str());
-
-            //save the DP in the format of the FMPT
-            str = DP.getText().str;
-            output_filename = "DP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-
-            //Here all operative outsiders RPs which aren't obstructed are in the origin positions,
-            //in their final position after execute the DP.
-
-            //translates the depositioning program to the format of the interface MCS-FMPT
-            //and save it in a file
-            DP.getInterfaceText(str, "obs depos", Bid, IPL);
-            append("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
-            output_filename = "DP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
-        }
-
-        //Here all operative outsiders RPs which aren't obstructed,can be:
-        //- in the origin positions, in their final position after execute the DP.
-        //  if success == true.
-        //- in the first position where the collision was detected.
-        //  if success == false.
-
-        //get and save the positions where the collision was detected
-        TPairPositionAnglesList FPL;
-        FMM.RPL.GetPositions(FPL);
-        str = TActuator::GetPositionPPALabelsRow().str;
-        str += "\r\n"+FPL.getColumnText().str;
-        output_filename = "FPL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
-
-        //print the other outputs in the corresponding file
-        str = "\r\ngenerateDepositioningProgram: "+BoolToStr(success).str;
-        str += "\r\nCollided: "+Collided.getText().str;
-        str += "\r\nObstructed: "+Obstructed.getText().str;
-        str += "\r\nDP comments:\r\n"+DP.getCommentsColumnText();
-        output_filename = "outputs-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
-
-    } catch(Exception& E) {
-        E.Message.str.insert(0, "generating depositioning program: ");
-        throw E;
-    }
-}
-
 //attempt generate a pair (PP, DP) from a path file
-void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
+void generatePairPPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
 {
     try {
 
@@ -401,8 +267,8 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
 
         //captures the observing positions of the RPs in a PPA list
         TPairPositionAnglesList OPL;
-        FMM.RPL.GetPositions(OPL);
-        str = TActuator::GetPositionPPALabelsRow().str;
+        FMM.RPL.getPositions(OPL);
+        str = TActuator::getPositionPPALabelsRow().str;
         str += "\r\n"+OPL.getColumnText().str;
         string output_filename = "OPL-from-"+filename;
         strWriteToFile(output_filename, str);
@@ -432,9 +298,10 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
         //generates a de positioning program for the operative RPs in insecure positions
         //and determines the RPs in collision status or obstructed in insecure positions
         append("Generating pair (PP, DP)...", log_filename.c_str());
+        bool PPvalid, DPvalid;
         TRoboticPositionerList Collided, Obstructed;
         TMotionProgram PP, DP;
-        bool success = MPG.generatePairPPDP(Collided, Obstructed, PP, DP, Outsiders);
+        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
 
         //Now are fulfilled the postconditions:
         //  All RPs of the Fiber MOS Model will be configured for MP validation
@@ -447,10 +314,20 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
         //#the preconditions.                                                    #
         //########################################################################
 
+        //save the PP in the format of the FMPT
+        str = PP.getText().str;
+        output_filename = "PP-FMPT-from-"+filename;
+        strWriteToFile(output_filename, str);
+
+        //save the DP in the format of the FMPT
+        str = DP.getText().str;
+        output_filename = "DP-FMPT-from-"+filename;
+        strWriteToFile(output_filename, str);
+
         //if generation function was successfully generated
-        if(success) {
-            //indicates that the depositioning program has been generated successfully
-            append("Pair (PP, DP) generated successfully.", log_filename.c_str());
+        if(PPvalid && DPvalid) {
+            //indicates the result of the generation
+            append("Generated pair (PP, DP) is valid.", log_filename.c_str());
 
             //save the PP in the format of the FMPT
             str = PP.getText().str;
@@ -470,8 +347,8 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
 
             //captures the initial positions of the RPs in a PPA list
             TPairPositionAnglesList IPL;
-            FMM.RPL.GetPositions(IPL);
-            string str = TActuator::GetPositionPPALabelsRow().str;
+            FMM.RPL.getPositions(IPL);
+            string str = TActuator::getPositionPPALabelsRow().str;
             str += "\r\n"+IPL.getColumnText().str;
             string output_filename = "IPL-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -496,9 +373,23 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
             strWriteToFile(output_filename, str);
             append("Depositioning program saved in '"+output_filename+"'.", log_filename.c_str());
         }
+        else {
+            //print the result of generation of the DP
+            if(DPvalid)
+                append("Generated DP is valid.", log_filename.c_str());
+            else
+                append("Generated DP is not valid.", log_filename.c_str());
+
+            //print the result of generation of the PP
+            if(PPvalid)
+                append("Generated PP is valid.", log_filename.c_str());
+            else
+                append("Generated PP is not valid.", log_filename.c_str());
+        }
 
         //print the other outputs in the corresponding file
-        str = "generatePairPPDP: "+BoolToStr(success).str;
+        str = "DPvalid: "+BoolToStr(DPvalid,true).str;
+        str += "\r\nPPvalid: "+BoolToStr(PPvalid,true).str;
         str += "\r\nCollided: "+Collided.getText().str;
         str += "\r\nObstructed: "+Obstructed.getText().str;
         str += "\r\nPP comments:\r\n"+PP.getCommentsColumnText();
@@ -514,7 +405,7 @@ void generatePPDP(TFiberMOSModel& FMM, string& path, string& log_filename)
 }
 
 //check a pair (PP, DP) from a path file
-void checkPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& log_filename)
+void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& log_filename)
 {
     try {
 
@@ -579,7 +470,7 @@ void checkPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& lo
         //del filename de path_FMOSA, pero en esta función, solo se pasan path_PP y path_DP.
 
         //print the other outputs in the corresponding file
-        str = "checkPairPPDP: "+BoolToStr(valid).str;
+        str = "checkPairPPDP: "+BoolToStr(valid, true).str;
         string output_filename = "outputs-from-"+filename_PP+"-"+filename_DP;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
@@ -591,7 +482,7 @@ void checkPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& lo
 }
 
 //attempt regenerate a pair (PP, DP) from a path file
-void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& path_FMOSA, string& log_filename)
+void regeneratePairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& path_FMOSA, string& log_filename)
 {
     try {
 
@@ -650,7 +541,7 @@ void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, strin
 
         //get the initial position list
         TPairPositionAnglesList IPL;
-        FMM.RPL.GetPositions(IPL);
+        FMM.RPL.getPositions(IPL);
         append("Initial position list got from the Fiber MOS Model.", log_filename.c_str());
 
         //The IPL is useful to get the PP in the interface format.
@@ -669,7 +560,7 @@ void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, strin
 
         //get the observing position list
         TPairPositionAnglesList OPL;
-        FMM.RPL.GetPositions(OPL);
+        FMM.RPL.getPositions(OPL);
         append("Observing position list got from the Fiber MOS Model.", log_filename.c_str());
 
         //The OPL is useful to get the DP in the interface format.
@@ -689,20 +580,20 @@ void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, strin
             append("Positiong program translated to the format of MCS interface.", log_filename.c_str());
             output_filename = "regeneratedPP-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Regenerated PP saved in: "+output_filename, log_filename.c_str());
+            append("Regenerated PP saved in '"+output_filename+"'", log_filename.c_str());
 
             //save the regenerated DP
             DP.getInterfaceText(str, "obs depos", DP_Bid, OPL);
             append("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
             output_filename = "regeneratedDP-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Regenerated DP saved in: "+output_filename, log_filename.c_str());
+            append("Regenerated DP saved in '"+output_filename+"'", log_filename.c_str());
 
         } else
             append("The pair (PP, DP) can not be regenerated.", log_filename.c_str());
 
         //print the other outputs in the corresponding file
-        str = "regeneratePairPPDP: "+BoolToStr(regenerated).str;
+        str = "regeneratePairPPDP: "+BoolToStr(regenerated, true).str;
         str += "\r\nExcluded: "+Excluded.getText().str;
         output_filename = "outputs-from-"+filename;
         strWriteToFile(output_filename, str);
@@ -711,6 +602,496 @@ void regeneratePPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, strin
     } catch(Exception& E) {
         E.Message.str.insert(0, "regenerating pair (PP, DP): ");
         throw E;
+    }
+}
+
+//attempt generate a parkingprogram from a path file
+void generateParkingProgram(TFiberMOSModel& FMM, string& path, string& log_filename)
+{
+    try {
+
+        //LOAD SETTINGS FROM FILES:
+
+        //load the FMOSA table from a file
+        TFMOSATable FMOSA;
+        unsigned int Bid;
+        string str;
+        strReadFromFile(str, path);
+        FMOSA.setTableText(Bid, str);
+        append("FMOSA table loaded from '"+path+"'.", log_filename.c_str());
+
+        //get the allocation from the FMOSA table
+        TMotionProgramGenerator MPG(&FMM);
+        FMOSA.getAllocations(MPG);
+        append("Allocations got from the FMOSA table.", log_filename.c_str());
+
+        //MAKE THE OPERATIONS:
+
+        //split the path of the file containing the FMOSA table
+        string parent_path, filename;
+        splitpath(parent_path, filename, path);
+
+        //The filename will be used to attach the outputs filenames witht the input filename.
+
+        //move the RPs to the more closer stable point to the TPs
+        MPG.MoveToTargetP3();
+        append("RPs moved to initial positions.", log_filename.c_str());
+
+        //Other way to obtain the more closer stable points to the projection points,
+        //consist in get from the FMOSA table the following lists:
+        //  the allocation list;
+        //  the projection point list.
+        //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
+
+        //A PPA table shall be stored how a table (Id, p_1, p___3).
+
+        //captures the initial positions of the RPs in a PPA list
+        TPairPositionAnglesList IPL;
+        FMM.RPL.getPositions(IPL);
+        str = TActuator::getPositionPPALabelsRow().str;
+        str += "\r\n"+IPL.getColumnText().str;
+        string output_filename = "IPL-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //Other whay to obtain the initial position table directly in text format:
+        //  FMM.RPL.getPositionsPAPTableText()
+
+        //segregates the operative outsiders RPs
+        TRoboticPositionerList Outsiders;
+        FMM.RPL.segregateOperativeOutsiders(Outsiders);
+
+        //check the limiting case when all operative RPs are in the origin
+        if(FMM.RPL.allOperativeRPsAreInTheOrigin())
+            append("WARNING: all operative RPs are in the origin. The generated parking program will be empty.", log_filename.c_str());
+        //else, check the limiting case when all operative RPs are in security positions
+        else if(Outsiders.getCount() <= 0)
+            append("WARNING: all operative RPs are in security positions. The generated parking program will contains only a message-instruction list to go to the origin.", log_filename.c_str());
+
+        //Now are fulfilled the preconditions:
+        //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+        //  All RPs of the list Outsiders, shall be operatives.
+        //  All RPs of the list Outsiders, shall be in unsecure positions.
+        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+
+        //generates a parking program for the operative RPs in insecure positions
+        //and determines the RPs in collision status or obstructed in insecure positions
+        append("Generating a parking program...", log_filename.c_str());
+        TRoboticPositionerList Collided;
+        TRoboticPositionerList Obstructed;
+        TMotionProgram MP;
+        bool success = MPG.generateParkingProgram(Collided, Obstructed, MP, Outsiders);
+
+        //Now are fulfilled the postconditions:
+        //  All RPs of the Fiber MOS Model will be configured for MP validation
+        //  All RPs of the fiber MOS Model will be in their final positions,
+        //  or the first position where the collision was detected.
+        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+
+        //########################################################################
+        //#WARNING: before re-use a function to generation, shall be restablished#
+        //#the preconditions.                                                    #
+        //########################################################################
+
+        //if generation function was successfully generated
+        if(success) {
+            //indicates that the parking program has been generated successfully
+            append("Generated parking program is valid.", log_filename.c_str());
+
+            //save the MP in the format of the FMPT
+            str = MP.getText().str;
+            output_filename = "MP-FMPT-from-"+filename;
+            strWriteToFile(output_filename, str);
+
+            //Here all operative outsiders RPs which aren't obstructed are in the origin positions,
+            //in their final position after execute the MP.
+
+            //translates the parking program to the format of the interface MCS-FMPT
+            //and save it in a file
+            MP.getInterfaceText(str, "obs depos", Bid, IPL);
+            append("Depositiong program translated to the format of MCS interface.", log_filename.c_str());
+            output_filename = "MP-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Parking program saved in '"+output_filename+"'.", log_filename.c_str());
+        }
+
+        //Here all operative outsiders RPs which aren't obstructed,can be:
+        //- in the origin positions, in their final position after execute the MP.
+        //  if success == true.
+        //- in the first position where the collision was detected.
+        //  if success == false.
+
+        //get and save the positions where the collision was detected
+        TPairPositionAnglesList FPL;
+        FMM.RPL.getPositions(FPL);
+        str = TActuator::getPositionPPALabelsRow().str;
+        str += "\r\n"+FPL.getColumnText().str;
+        output_filename = "FPL-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //print the other outputs in the corresponding file
+        str = "\r\nMPvalid: "+BoolToStr(success, true).str;
+        str += "\r\nCollided: "+Collided.getText().str;
+        str += "\r\nObstructed: "+Obstructed.getText().str;
+        str += "\r\nMP comments:\r\n"+MP.getCommentsColumnText();
+        output_filename = "outputs-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
+
+    } catch(Exception& E) {
+        E.Message.str.insert(0, "generating parking program: ");
+        throw E;
+    }
+}
+
+//make a test for the function generatePairPPDP
+void testGeneratePairPPDP(TFiberMOSModel& FMM, string& log_filename)
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(FMM.RPL.thereIsSomeNullPointer())
+        throw EImproperCall("RP null pointer in the FMM");
+
+    if(FMM.RPL.thereIsSomeRepeatedPointer())
+        throw EImproperCall("RP repeated pointer in FMM");
+
+    if(FMM.RPL.thereIsSomeNotOperative())
+        throw EImproperCall("not operative RP in the FMM");
+
+    //MAKE ACTIONS:
+
+    //builds the MPG attached to the FMM and
+    //add to the MPG an allocation for each RP of the FMM
+    TMotionProgramGenerator MPG(&FMM);
+    for(int i=0; i<FMM.RPL.getCount(); i++)
+        MPG.AddAllocation(i);
+
+    TPairPositionAnglesList OPL;
+    string filename;
+    string str;
+    string output_filename;
+    TRoboticPositionerList Outsiders;
+    bool PPvalid, DPvalid;
+    int count = 0;
+
+    ForceDirectories(AnsiString("Tests"));
+
+    do {
+        //PREPAIR THE THE MPG AND THE FMM FOR GENERATE A PAIR (PP, DP):
+        //----------------------------------------------------------------------------------------------------------------
+
+        //contabilize the test
+        ++count;
+
+        //indicates the test number
+        append("\r\nTEST "+inttostr(count)+":", log_filename.c_str());
+
+        //build the filename of reference
+        filename = "test-"+inttostr(count)+".txt";
+
+        //randomize the projection points in the domain of their attached RPs
+        MPG.RandomizeWithoutCollision();
+        append("\tProjection points randomized without collisions.", log_filename.c_str());
+
+        //save the allocation table
+        str = TAllocation::GetIdPPLabelsRow().str;
+        str += "\r\n"+MPG.getColumnText().str;
+        output_filename = "Tests/AL-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("\tAllocation list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //---------------------------------------------------
+        //GENERATES AND SAVES THE FMOSA TABLE:
+
+        //build a FMOSA table and set the allocations
+        TFMOSATable FMOSAT;
+        for(int i=0; i<MPG.getCount(); i++) {
+            TAllocation *A = MPG[i];
+
+            TSPPP *SPPP = new TSPPP();
+
+            //transcribe the allocation properties to the SPPP
+            SPPP->Type = ptSOURCE;
+            SPPP->Pid = A->getRP()->getActuator()->getId();
+            SPPP->X = A->PP.x;
+            SPPP->Y = A->PP.y;
+            SPPP->Enabled = true;
+
+            //set the optional values
+            SPPP->Name = "s:"+inttostr(i+1);
+            SPPP->Mag = 0;
+            SPPP->Pr = 0;
+            SPPP->Bid = 0;
+            SPPP->notAllocated = true;
+            SPPP->allocateInAll = false;
+            SPPP->Comment = "too coment";
+
+            //enable the optional values
+            SPPP->there_is_Mag = true;
+            SPPP->there_is_Pr = true;
+            SPPP->there_is_Bid = true;
+            SPPP->there_is_notAllocated = true;
+            SPPP->there_is_allocateInAll = true;
+
+            //add the SPPP to the FMOSA table
+            FMOSAT.Add(SPPP);
+        }
+
+        //save the FMOSA table in a file
+        FMOSAT.getTableText(str);
+        output_filename = "Tests/FMOSA-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("\tFMOSA table wrote to file: "+output_filename, log_filename.c_str());
+
+        //This FMOSA table will be useful to generate a pair (PP, DP) and debug the program.
+        //---------------------------------------------------
+
+        //Here the RPs stay in their original positions, but all attached projection points has been randomized.
+
+        //move the RPs to the more closer stable positions to the projection points
+        MPG.MoveToTargetP3();
+        append("\tRPs moved to observing positions.", log_filename.c_str());
+
+        //Othe way to obtain the more closer stable position of each RP is used the following method of the class TCilinder:
+        //  double GetNearestStablePosition(double &p_1nsp, double &p___3nsp,
+        //                                  double theta_1, double theta___3);
+
+        //captures the observing positions of the RPs in a PPA list
+        FMM.RPL.getPositions(OPL);
+        str = TActuator::getPositionPPALabelsRow().str;
+        str += "\r\n"+OPL.getColumnText().str;
+        output_filename = "Tests/OPL-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("\tObserving position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //Other whay to obtain the observing position list directly in text format:
+        //  FMM.RPL.getPositionsPAPTableText()
+
+        //segregates the operative outsiders RPs
+        Outsiders.Clear();
+        FMM.RPL.segregateOperativeOutsiders(Outsiders);
+        append("\tOutsiders RPs segregated for generate a pair (PP, DP).", log_filename.c_str());
+
+        //check the limiting case when all operative RPs are in the origin
+        if(FMM.RPL.allOperativeRPsAreInTheOrigin())
+            append("\tWARNING: all operative RPs are in the origin. The generated pair (PP, DP) will be empty.", log_filename.c_str());
+        //else, check the limiting case when all operative RPs are in security positions
+        else if(Outsiders.getCount() <= 0)
+            append("\tWARNING: all operative RPs are in security positions. The generated (PP, DP) will contains only a message-instruction list to go to the observing positions and back to the origin.", log_filename.c_str());
+
+        //----------------------------------------------------------------------------------------------------------------
+        //GENERATES A PAIR (PP, DP):
+
+        //Now are fulfilled the preconditions:
+        //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+        //  All RPs of the list Outsiders, shall be operatives.
+        //  All RPs of the list Outsiders, shall be in unsecure positions.
+        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+
+        //generates a de positioning program for the operative RPs in insecure positions
+        //and determines the RPs in collision status or obstructed in insecure positions
+        append("\tGenerating pair (PP, DP)...", log_filename.c_str());
+        TRoboticPositionerList Collided, Obstructed;
+        TMotionProgram PP, DP;
+        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
+
+        //Now are fulfilled the postconditions:
+        //  All RPs of the Fiber MOS Model will be configured for MP validation
+        //  All RPs of the fiber MOS Model will be in their final positions,
+        //  or the first position where the collision was detected.
+        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+
+        //print the result of generation of the DP
+        if(DPvalid)
+            append("\tGenerated DP is valid.", log_filename.c_str());
+        else
+            append("\tGenerated DP is not valid.", log_filename.c_str());
+
+        //print the result of generation of the PP
+        if(PPvalid)
+            append("\tGenerated PP is valid.", log_filename.c_str());
+        else
+            append("\tGenerated PP is not valid.", log_filename.c_str());
+
+        //save the PP in the format of the FMPT
+        str = PP.getText().str;
+        output_filename = "Tests/PP-FMPT-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("\tGenerated PP saved in '"+output_filename+"'", log_filename.c_str());
+
+        //save the DP in the format of the FMPT
+        str = DP.getText().str;
+        output_filename = "Tests/DP-FMPT-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("\tGenerated DP saved in '"+output_filename+"'", log_filename.c_str());
+
+    } while(PPvalid && DPvalid);
+/*
+    //build a FMOSA table and set the allocations
+    TFMOSATable FMOSAT;
+    for(int i=0; i<MPG.getCount(); i++) {
+        TAllocation *A = MPG[i];
+
+        TSPPP *SPPP = new TSPPP();
+
+        //transcribe the allocation properties to the SPPP
+        SPPP->Type = ptSOURCE;
+        SPPP->Pid = A->getRP()->getActuator()->getId();
+        SPPP->X = A->PP.x;
+        SPPP->Y = A->PP.y;
+        SPPP->Enabled = true;
+
+        //set the optional values
+        SPPP->Name = "s:"+inttostr(i+1);
+        SPPP->Mag = 0;
+        SPPP->Pr = 0;
+        SPPP->Bid = 0;
+        SPPP->notAllocated = true;
+        SPPP->allocateInAll = false;
+        SPPP->Comment = "too coment";
+
+        //enable the optional values
+        SPPP->there_is_Mag = true;
+        SPPP->there_is_Pr = true;
+        SPPP->there_is_Bid = true;
+        SPPP->there_is_notAllocated = true;
+        SPPP->there_is_allocateInAll = true;
+
+        //add the SPPP to the FMOSA table
+        FMOSAT.Add(SPPP);
+    }
+
+    //save the FMOSA table in a file
+    FMOSAT.getTableText(str);
+    output_filename = "Tests/FMOSA-from-"+filename;
+    strWriteToFile(output_filename, str);
+    append("\tFMOSA table wrote to file: "+output_filename, log_filename.c_str());
+
+    //This FMOSA table will be useful to generate a pair (PP, DP) and debug the program.*/
+}
+
+//take the measure of deviation arount the radial trayectory of each RP
+void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(FMM.RPL.thereIsSomeNullPointer())
+        throw EImproperCall("RP null pointer in the FMM");
+
+    if(FMM.RPL.thereIsSomeRepeatedPointer())
+        throw EImproperCall("RP repeated pointer in FMM");
+
+    if(FMM.RPL.thereIsSomeNotOperative())
+        throw EImproperCall("not operative RP in the FMM");
+
+    if(FMM.RPL.thereIsSomeOutOrigin())
+            throw EImproperCall("RP out of origin in the FMM");
+
+    //MAKE ACTIONS:
+
+    //indicates that the simulation is extension
+    append("\r\nSIMULATION THE RADIAL EXTENSION AND RADIAL RETRACTION OF THE FIBERS:", log_filename.c_str());
+    //print the labels of the table
+    append("\r\nId\tdistanceMin\t\tdistanceMax", log_filename.c_str());
+
+    for(int i=0; i<FMM.RPL.getCount(); i++) {
+        TRoboticPositioner *RP = FMM.RPL[i];
+
+        RP->CMF.ClearProgram();
+
+        //-------------------------------------------------------------
+        //RADIAL EXTENSION:
+
+        //get the initial position of the fiber
+        TDoublePoint P3ini = RP->getActuator()->getArm()->getP3();
+
+        //programs the RP to make a radial motion
+        //from the origin to the maximun extension of the arm
+        RP->programExtensionToMoreSpreadPosition();
+
+        //get thefinal position of the fiber
+        RP->moveFin();
+        TDoublePoint P3fin = RP->getActuator()->getArm()->getP3();
+
+        //The radial trayectory correspond to segment (P3ini, P3fin).
+
+        //SIMULATES THE MOTION:
+
+        //disables the quantifiers of the rotors
+        RP->getActuator()->disableQuantification();
+
+        double T = RP->CMF.gettendmax();
+        int N = 10000;
+        double deltat = T/N;
+        double distanceMin = 0;
+        double distanceMax = 0;
+
+        //simulates the motion and actualice the limits
+        for(int i=0; i<N; i++) {
+            //calculate t andmove the RP to t
+            double t = i*deltat;
+            RP->move(t);
+
+            //calculates the distance between P3 and the segment(P3ini, P3fin)
+            TDoublePoint P3 = RP->getActuator()->getArm()->getP3();
+            double distance = distanceLineToPoint(P3ini, P3fin, P3);
+
+            //actualize the minimun distance
+            if(distance < distanceMin)
+                distanceMin = distance;
+
+            //actualize the maximun distance
+            if(distance > distanceMax)
+                distanceMax = distance;
+        }
+
+        //enables the quantifiers of the rotors
+        RP->getActuator()->enableQuantification();
+
+        //-------------------------------------------------------------
+        //RADIAL RETRACTION:
+
+        //programs the RP to make a radial motion
+        //from the final position to the origin
+        RP->MM(0, 0);
+
+        //disables the quantifiers of the rotors
+        RP->getActuator()->disableQuantification();
+
+        //simulates the motion and actualice the limits
+        for(int i=0; i<N; i++) {
+            //calculate t andmove the RP to t
+            double t = i*deltat;
+            RP->move(t);
+
+            //calculates the distance between P3 and the segment(P3ini, P3fin)
+            TDoublePoint P3 = RP->getActuator()->getArm()->getP3();
+            double distance = distanceLineToPoint(P3ini, P3fin, P3);
+
+            //actualize the minimun distance
+            if(distance < distanceMin)
+                distanceMin = distance;
+
+            //actualize the maximun distance
+            if(distance > distanceMax)
+                distanceMax = distance;
+        }
+
+        //enables the quantifiers of the rotors
+        RP->getActuator()->enableQuantification();
+
+        //-------------------------------------------------------------
+        //PRINT THE RESULT:
+
+        //add a note aboput the result
+        string str = RP->getActuator()->getIdText().str;
+        str += "\t"+floattostr(distanceMin)+"\t"+floattostr(distanceMax);
+
+        //print the result
+        append(str, log_filename.c_str());
     }
 }
 
@@ -870,6 +1251,11 @@ int main(int argc, char *argv[])
         }
         append("Fiber MOS Model instance loaded from '"+dir_FMM+"'.", log_filename.c_str());
 
+/*for(int i=0; i<FMM.RPL.getCount(); i++) {
+    TRoboticPositioner *RP = FMM.RPL[i];
+    double SPMmin = MEGARA_Eo*RP->getActuator()->getr_max() + MEGARA_Ep - 0.009;
+    RP->getActuator()->setSPMmin(SPMmin);
+}*/
         //-------------------------------------------------------------------
         //REACTS ACCORDING THE COMMAND AND THE ARGUMENTS:
 
@@ -880,10 +1266,23 @@ int main(int argc, char *argv[])
             //print the help
             append("\r\n"+help(), log_filename.c_str());
         }
+        else if(command == "valuesSPM") {
+            //check the precondition
+            if(argc != 2)
+                throw EImproperArgument("command valuesSPM sould have 0 arguments");
+
+            TRoboticPositioner *RP = FMM.RPL[0];
+            AnsiString S;
+            S = AnsiString("SPM values:\r\n");
+            S += RP->getActuator()->getSecurityText();
+
+            //save the instance of the Fiber MOS Model from where was loaded
+            append(S.str, log_filename.c_str());
+        }
         else if(command == "applyPC") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyCP should has 1 arguments");
+                throw EImproperArgument("command applyCP sould have 1 arguments");
 
             //built a path from arg 1
             string path_PC(argv[2]);
@@ -906,7 +1305,7 @@ int main(int argc, char *argv[])
         else if(command == "applyRP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyRP should has 1 arguments");
+                throw EImproperArgument("command applyRP sould have 1 arguments");
 
             //built a path from arg 1
             string dir_RP(argv[2]);
@@ -926,29 +1325,10 @@ int main(int argc, char *argv[])
             writeInstanceToDir(dir_FMM, FMM);
             append("Fiber MOS Model instance saved in '"+dir_FMM+"'.", log_filename.c_str());
         }
-        else if(command == "generateDP") {
+        else if(command == "generatePairPPDP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command generateDP should has 1 arguments");
-
-            //built a path from arg 1
-            string path_FMOSA(argv[2]);
-
-            //make a rutinary check
-            if(path_FMOSA.length() <= 0)
-                throw EImpossibleError("lateral effect");
-
-            //complete the relative path, if any
-            if(path_FMOSA[0] != '/')
-                path_FMOSA.insert(0, getCurrentDir()+"/");
-
-            //generate a DP from a path and write the events in the log file
-            generateDP(FMM, path_FMOSA, log_filename);
-        }
-        else if(command == "generatePPDP") {
-            //check the precondition
-            if(argc != 3)
-                throw EImproperArgument("command generatePPDP should has 1 arguments");
+                throw EImproperArgument("command generatePairPPDP sould have 1 arguments");
 
             //built a path from arg 1
             string path_FMOSA(argv[2]);
@@ -962,12 +1342,12 @@ int main(int argc, char *argv[])
                 path_FMOSA.insert(0, getCurrentDir()+"/");
 
             //generate a pair (PP, DP) from a path and write the events in the log file
-            generatePPDP(FMM, path_FMOSA, log_filename);
+            generatePairPPDP(FMM, path_FMOSA, log_filename);
         }
-        else if(command == "checkPPDP") {
+        else if(command == "checkPairPPDP") {
             //check the precondition
             if(argc!=4 && argc!=5)
-                throw EImproperArgument("command checkPPDP should has 2 or 3 arguments");
+                throw EImproperArgument("command checkPairPPDP sould have 2 or 3 arguments");
 
             //built a path from arg 1
             string path_PP(argv[2]);
@@ -994,7 +1374,7 @@ int main(int argc, char *argv[])
                 //check the precondition
                 for(int i=0; i<Ids.getCount(); i++) {
                     int Id = Ids[i];
-                    int j = FMM.RPL.SearchId(Id);
+                    int j = FMM.RPL.searchId(Id);
                     if(j >= FMM.RPL.getCount())
                         throw EImproperArgument("RP not fount in the Fiber MOS Model: "+inttostr(Id));
                 }
@@ -1002,7 +1382,7 @@ int main(int argc, char *argv[])
                 //disble the RPs
                 for(int i=0; i<Ids.getCount(); i++) {
                     int Id = Ids[i];
-                    int j = FMM.RPL.SearchId(Id);
+                    int j = FMM.RPL.searchId(Id);
                     if(j >= FMM.RPL.getCount())
                         throw EImpossibleError("lateral effect");
                     TRoboticPositioner *RP = FMM.RPL[j];
@@ -1012,12 +1392,12 @@ int main(int argc, char *argv[])
             }
 
             //validates a pair (PP, DP) from a path and write the events in the log file
-            checkPPDP(FMM, path_PP, path_DP, log_filename);
+            checkPairPPDP(FMM, path_PP, path_DP, log_filename);
         }
-        else if(command == "regeneratePPDP") {
+        else if(command == "regeneratePairPPDP") {
             //check the precondition
             if(argc!=5 && argc!=6)
-                throw EImproperArgument("command regeneratePPDP should has 3 or 4 arguments");
+                throw EImproperArgument("command regeneratePairPPDP sould have 3 or 4 arguments");
 
             //built a path from arg 1
             string path_PP(argv[2]);
@@ -1048,7 +1428,7 @@ int main(int argc, char *argv[])
                 //check the precondition
                 for(int i=0; i<Ids.getCount(); i++) {
                     int Id = Ids[i];
-                    int j = FMM.RPL.SearchId(Id);
+                    int j = FMM.RPL.searchId(Id);
                     if(j >= FMM.RPL.getCount())
                         throw EImproperArgument("RP not fount in the Fiber MOS Model: "+inttostr(Id));
                 }
@@ -1056,7 +1436,7 @@ int main(int argc, char *argv[])
                 //disble the RPs
                 for(int i=0; i<Ids.getCount(); i++) {
                     int Id = Ids[i];
-                    int j = FMM.RPL.SearchId(Id);
+                    int j = FMM.RPL.searchId(Id);
                     if(j >= FMM.RPL.getCount())
                         throw EImpossibleError("lateral effect");
                     TRoboticPositioner *RP = FMM.RPL[j];
@@ -1066,7 +1446,42 @@ int main(int argc, char *argv[])
             }
 
             //validates a pair (PP, DP) from a path and write the events in the log file
-            regeneratePPDP(FMM, path_PP, path_DP, path_FMOSA, log_filename);
+            regeneratePairPPDP(FMM, path_PP, path_DP, path_FMOSA, log_filename);
+        }
+        else if(command == "generateParkingProgram") {
+            //check the precondition
+            if(argc != 3)
+                throw EImproperArgument("command generateDP sould have 1 arguments");
+
+            //built a path from arg 1
+            string path_FMOSA(argv[2]);
+
+            //make a rutinary check
+            if(path_FMOSA.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative path, if any
+            if(path_FMOSA[0] != '/')
+                path_FMOSA.insert(0, getCurrentDir()+"/");
+
+            //generate a DP from a path and write the events in the log file
+            generateParkingProgram(FMM, path_FMOSA, log_filename);
+        }
+        else if(command == "testGeneratePairPPDP") {
+            //check the precondition
+            if(argc != 2)
+                throw EImproperArgument("command testGeneratePairPPDP should have 0 arguments");
+
+            //execute the test
+            testGeneratePairPPDP(FMM, log_filename);
+        }
+        else if(command == "testRadialMotion") {
+            //check the precondition
+            if(argc != 2)
+                throw EImproperArgument("command testRadialMotion should have 0 arguments");
+
+            //execute the test
+            testRadialMotion(FMM, log_filename);
         }
         else if(command == "aboutof") {
             //print the about of legend
@@ -1097,4 +1512,3 @@ int main(int argc, char *argv[])
     //indicates that the program has been executed without error
     return 0;
 }
-

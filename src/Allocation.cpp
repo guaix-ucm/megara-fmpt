@@ -47,32 +47,45 @@ TItemsList<TAllocation*> TAllocation::Builts;
 //---------------------------------------------------------------------------
 //PROPERTIES IN TEXT FORMAT:
 
-AnsiString TAllocation::getPPText(void)
+AnsiString TAllocation::getPPText(void) const
 {
-        return DPointToStr(PP);
+    return DPointToStr(PP);
 }
 void TAllocation::setPPText(const AnsiString &S)
 {
-        try {
-                PP = StrToDPoint(S);
+    try {
+        PP = StrToDPoint(S);
 
-        } catch(...) {
-                throw;
-        }
+    } catch(...) {
+        throw;
+    }
+}
+AnsiString TAllocation::getPPRowText(void) const
+{
+    AnsiString S;
+
+    S = FloatToStr(PP.x)+AnsiString("\t")+FloatToStr(PP.y);;
+
+    return S;
 }
 
 //SETS OF PROPERTIES IN TEXT FORMAT:
 
-AnsiString TAllocation::getText(void)
+AnsiString TAllocation::getText(void) const
 {
-        AnsiString S;
+    AnsiString S;
 
-        S = IntToStr(getRP()->getActuator()->getId())+AnsiString(": ")+getPPText();
+    S = IntToStr(getRP()->getActuator()->getId())+AnsiString(": ")+getPPText();
 
-        return S;
+    return S;
 }
-void TAllocation::setText(const AnsiString&)
+AnsiString TAllocation::getRowText(void) const
 {
+    AnsiString S;
+
+    S = getRP()->getActuator()->getIdText()+AnsiString("\t")+getPPRowText();
+
+    return S;
 }
 
 //---------------------------------------------------------------------------
@@ -81,28 +94,28 @@ void TAllocation::setText(const AnsiString&)
 //compare the identifiers of the RPs attached to two target points
 int  TAllocation::CompareIds(TAllocation *TPA1, TAllocation *TPA2)
 {
-        //el puntero TPA1 no debe ser nulo
-        if(TPA1 == NULL)
-                throw EImproperArgument("pointer TPA1 should not be null");
+    //el puntero TPA1 no debe ser nulo
+    if(TPA1 == NULL)
+        throw EImproperArgument("pointer TPA1 should not be null");
 
-        //el puntero TPA2 no debe ser nulo
-        if(TPA2 == NULL)
-                throw EImproperArgument("pointer TPA2 should not be null");
+    //el puntero TPA2 no debe ser nulo
+    if(TPA2 == NULL)
+        throw EImproperArgument("pointer TPA2 should not be null");
 
-        if(TPA1->getRP()->getActuator()->getId() < TPA2->getRP()->getActuator()->getId())
-                return -1;
+    if(TPA1->getRP()->getActuator()->getId() < TPA2->getRP()->getActuator()->getId())
+        return -1;
 
-        if(TPA1->getRP()->getActuator()->getId() > TPA2->getRP()->getActuator()->getId())
-                return 1;
+    if(TPA1->getRP()->getActuator()->getId() > TPA2->getRP()->getActuator()->getId())
+        return 1;
 
-        return 0;
+    return 0;
 }
 
 //get the labels of the properties
 //in row text format
 AnsiString TAllocation::GetIdPPLabelsRow(void)
 {
-        return AnsiString("Id\t")+TDoublePoint::xLabel+AnsiString("\t")+TDoublePoint::yLabel;
+    return AnsiString("Id\t")+TDoublePoint::xLabel+AnsiString("\t")+TDoublePoint::yLabel;
 }
 
 //travel the labels of the properties
@@ -131,7 +144,7 @@ void  TAllocation::TravelLabels(const AnsiString& S, int& i)
 //read the values of the properties
 //in a text string from the position i
 void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
-                                      const AnsiString& S, int& i)
+                                 const AnsiString& S, int& i)
 {
     //estado de lectura:
     //      0: esperando valor para Id
@@ -149,48 +162,60 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
         switch(status) {
         case 0: //esperando valor para Id
             try {
-                //avanza el índice hasta el próximo caracter no separador
-                StrTravelSeparatorsIfAny(S, i);
-                //lee el valor para Id
-                StrReadInt(t_Id, S, i);
-                //pasa a leer el valor para x
-                status++;
-            } catch(...) {
-                throw;
-            }
+            //avanza el índice hasta el próximo caracter no separador
+            StrTravelSeparatorsIfAny(S, i);
+            //lee el valor para Id
+            StrReadInt(t_Id, S, i);
+            //pasa a leer el valor para x
+            status++;
+        } catch(...) {
+            throw;
+        }
             break;
         case 1: //esperando separador y valor para x
             try {
-                //atraviesa el separador obligatorio
-                StrTravelSeparators(S, i);
-                //lee el valor para x
-                StrReadFloat(t_x, S, i);
-                //pasa a leer el valor para y
-                status++;
-            } catch(...) {
-                throw;
-            }
+            //atraviesa el separador obligatorio
+            StrTravelSeparators(S, i);
+            //lee el valor para x
+            StrReadFloat(t_x, S, i);
+            //pasa a leer el valor para y
+            status++;
+        } catch(...) {
+            throw;
+        }
             break;
         case 2: //esperando separador y valor para y
             try {
-                //atraviesa el separador obligatorio
-                StrTravelSeparators(S, i);
-                //lee el valor para y
-                StrReadFloat(t_y, S, i);
-                //pasa a asignar la variable tampón
-                status++;
-            } catch(...) {
-                throw;
-            }
+            //atraviesa el separador obligatorio
+            StrTravelSeparators(S, i);
+            //lee el valor para y
+            StrReadFloat(t_y, S, i);
+            //pasa a asignar la variable tampón
+            status++;
+        } catch(...) {
+            throw;
+        }
             break;
         }
-    //mientras nos e haya leido el punto objetivo con éxito
+        //mientras nos e haya leido el punto objetivo con éxito
     } while(status < 3);
 
     //asigna las propiedades
     Id = t_Id;
     x = t_x;
     y = t_y;
+}
+
+//print the properties of an allocation in a string
+//in row format
+void  TAllocation::PrintRow(AnsiString &S, TAllocation *A)
+{
+    //check the precondition
+    if(A == NULL)
+        throw EImproperArgument("pointer A should point to built allocation");
+
+    //add the text to the string in propeerly format
+    S += A->getRowText();
 }
 
 //---------------------------------------------------------------------------
@@ -201,64 +226,64 @@ void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
 //  throw an exception EImproperArgument
 TAllocation::TAllocation(TRoboticPositioner *RP, double x, double y)
 {
-        //check the precondition
-        if(RP == NULL)
-                throw EImproperArgument("pointer RP should point to built robotic positioner");
+    //check the precondition
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-        //el RP RP no debería estar adscrito a
-        //un punto objetivo previamente construido
-        for(int i=0; i<Builts.getCount(); i++)
-                if(RP == Builts[i]->getRP())
-                        throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
+    //el RP RP no debería estar adscrito a
+    //un punto objetivo previamente construido
+    for(int i=0; i<Builts.getCount(); i++)
+        if(RP == Builts[i]->getRP())
+            throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
 
-        //asigna los valores
-        p_RP = RP;
-        PP.x = x;
-        PP.y = y;
+    //asigna los valores
+    p_RP = RP;
+    PP.x = x;
+    PP.y = y;
 
-        //apunta el nuevo punto objetivo a la lista de construidos
-        Builts.Add(this);
+    //apunta el nuevo punto objetivo a la lista de construidos
+    Builts.Add(this);
 }
 TAllocation::TAllocation(TRoboticPositioner *RP, TDoublePoint t_PP)
 {
-        //el puntero RP debería apuntar a un RP construido
-        if(RP == NULL)
-                throw EImproperArgument("pointer RP should point to built robotic positioner");
+    //el puntero RP debería apuntar a un RP construido
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-        //el RP RP no debería estar adscrito a
-        //un punto objetivo previamente construido
-        for(int i=0; i<Builts.getCount(); i++)
-                if(RP == Builts[i]->getRP())
-                        throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
+    //el RP RP no debería estar adscrito a
+    //un punto objetivo previamente construido
+    for(int i=0; i<Builts.getCount(); i++)
+        if(RP == Builts[i]->getRP())
+            throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
 
-        //asigna los valores
-        p_RP = RP;
-        PP = t_PP;
+    //asigna los valores
+    p_RP = RP;
+    PP = t_PP;
 
-        //apunta el nuevo punto objetivo a la lista de construidos
-        Builts.Add(this);
+    //apunta el nuevo punto objetivo a la lista de construidos
+    Builts.Add(this);
 }
 //destroy a TAllocation
 //if thereisn't a built target point
 //  throw an exception EImproperCall
 TAllocation::~TAllocation()
 {
-        //debe haber algún punto objetivo construido
-        if(Builts.getCount() < 1)
-                throw EImproperCall("should be some constructed target point");
+    //debe haber algún punto objetivo construido
+    if(Builts.getCount() < 1)
+        throw EImproperCall("should be some constructed target point");
 
-        //busca el posicionador que se va a destruir en la lista de construidos
-        int i = 0;
-        while(i<Builts.getCount() && this!=Builts[i])
-                i++;
+    //busca el posicionador que se va a destruir en la lista de construidos
+    int i = 0;
+    while(i<Builts.getCount() && this!=Builts[i])
+        i++;
 
-        //si no lo encuentra
-        if(i >= Builts.getCount())
-                //indica que no se encuentra un punto objetivo previamente contruido
-                throw EImpossibleError("dont find a previously built target point");
+    //si no lo encuentra
+    if(i >= Builts.getCount())
+        //indica que no se encuentra un punto objetivo previamente contruido
+        throw EImpossibleError("dont find a previously built target point");
 
-        //borra el puntero de la lista
-        Builts.Delete(i);
+    //borra el puntero de la lista
+    Builts.Delete(i);
 }
 
 //---------------------------------------------------------------------------
@@ -268,26 +293,26 @@ TAllocation::~TAllocation()
 //of thepoint P3 of the attached RP
 bool TAllocation::IsOutDomainP3(void)
 {
-        if(getRP()->getActuator()->PointIsOutDomainP3(PP))
-                return true;
+    if(getRP()->getActuator()->pointIsOutDomainP3(PP))
+        return true;
 
-        return false;
+    return false;
 }
 //determines if the target point is in the secure area
 //of thepoint P3 of the attached RP
 bool TAllocation::IsInSafeAreaP3(void)
 {
-        //determina si el punto objetivo está en el dominio del posicionador
-        //adscrito y calcula las posiciones angulares de los ejes
-        double theta_1, theta___3;
-        bool isindomain = getRP()->getActuator()->AnglesToGoP3(theta_1, theta___3, PP.x, PP.y);
+    //determina si el punto objetivo está en el dominio del posicionador
+    //adscrito y calcula las posiciones angulares de los ejes
+    double theta_1, theta___3;
+    bool isindomain = getRP()->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
-        //si no está en el dominio o no está dentro del área de seguridad
-        if(!isindomain || getRP()->getActuator()->theta___3IsOutSafeArea(theta___3))
-                return false; //indica que no está en el área de seguridad
+    //si no está en el dominio o no está dentro del área de seguridad
+    if(!isindomain || getRP()->getActuator()->theta___3IsOutSafeArea(theta___3))
+        return false; //indica que no está en el área de seguridad
 
-        //indica que está en el área de seguridad
-        return true;
+    //indica que está en el área de seguridad
+    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -297,7 +322,7 @@ bool TAllocation::IsInSafeAreaP3(void)
 //in the domain of the point P3 of its attached RP
 void TAllocation::RandomizePP(void)
 {
-        PP = getRP()->getActuator()->RandomP3();
+    PP = getRP()->getActuator()->randomP3();
 }
 
 //assign the point PP to the point P3 of its attached RP
@@ -306,25 +331,25 @@ void TAllocation::RandomizePP(void)
 //  throw an exception EImpropercall
 double TAllocation::MoveToPP(void)
 {
-        //determines if the target point is in the domain of the attached RP
-        //and calculates the position angles of the rotors
-        double theta_1, theta___3;
-        bool isindomain = getRP()->getActuator()->AnglesToGoP3(theta_1, theta___3, PP.x, PP.y);
+    //determines if the target point is in the domain of the attached RP
+    //and calculates the position angles of the rotors
+    double theta_1, theta___3;
+    bool isindomain = getRP()->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
-        //target point PP should be in the point P3 domain of his allocated RP
-        if(!isindomain)
-                throw EImproperCall("target point PP should be in the point P3 domain of his allocated RP");
+    //target point PP should be in the point P3 domain of his allocated RP
+    if(!isindomain)
+        throw EImproperCall("target point PP should be in the point P3 domain of his allocated RP");
 
-        //determines the stable position more closer to the target point
-        //and determines the distance fromthe stable position to the target point
-        double p_1nsp, p___3nsp;
-        double d = getRP()->getActuator()->GetNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+    //determines the stable position more closer to the target point
+    //and determines the distance fromthe stable position to the target point
+    double p_1nsp, p___3nsp;
+    double d = getRP()->getActuator()->getNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
 
-        //assign the positions to the rotors
-        getRP()->getActuator()->SetAnglesSteps(p_1nsp, p___3nsp);
+    //assign the positions to the rotors
+    getRP()->getActuator()->setAnglesSteps(p_1nsp, p___3nsp);
 
-        //returns the distance fromthe stable position to the target point
-        return d;
+    //returns the distance fromthe stable position to the target point
+    return d;
 }
 
 //---------------------------------------------------------------------------

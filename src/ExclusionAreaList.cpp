@@ -119,7 +119,7 @@ AnsiString TExclusionAreaList::getOriginsTableText(void) const
         //apunta la lista de áreas de exclusión con un puntero no constante para facilitar su escritura
         TExclusionAreaList *EAL = (TExclusionAreaList*)this;
 
-        EAL->Print = TExclusionArea::PrintOriginsRow;
+        EAL->Print = TExclusionArea::printOriginsRow;
         AnsiString S = EAL->getColumnText();
 
         //restaura el valor de Print
@@ -133,12 +133,12 @@ void TExclusionAreaList::setOriginsTableText(const AnsiString &S)
                 //indica al principio de la cadena
                 int i = 1;
                 //atraviesa las cabeceras
-                TActuator::TravelOriginsLabelsRow(S, i);
+                TActuator::travelOriginsLabelsRow(S, i);
 
                 //contruye una variable tampón
                 TPointersList<TExclusionArea> EAL;
                 //apunta la función de lectura de las propiedades de origen en formato linea de texto
-                EAL.Read = TExclusionArea::ReadOriginsRow;
+                EAL.Read = TExclusionArea::readOriginsRow;
                 //lee la cadena en la variable tampón
                 TPointersList<TExclusionArea>::ReadSeparated(&EAL, S, i);
 
@@ -239,7 +239,7 @@ void TExclusionAreaList::setInstanceText(const AnsiString& S)
                 TExclusionAreaList EAL(this);
                 //lee la cadena en la variable tampón
                 TExclusionAreaList *aux = &EAL;
-                ReadInstance((TExclusionAreaList*&)aux, S, i);
+                readInstance((TExclusionAreaList*&)aux, S, i);
 
                 //avanza el índice i hasta la próxima posición que no contenga un separador
                 StrTravelSeparatorsIfAny(S, i);
@@ -260,7 +260,7 @@ void TExclusionAreaList::setInstanceText(const AnsiString& S)
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia en una cadena
-void  TExclusionAreaList::ReadInstance(TExclusionAreaList* &EAL,
+void  TExclusionAreaList::readInstance(TExclusionAreaList* &EAL,
         const AnsiString& S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,
@@ -314,7 +314,7 @@ TExclusionAreaList::TExclusionAreaList(void) :
 
 //copia las propiedades de localización
 //      (O, rmax)
-void TExclusionAreaList::CopyLocation(const TExclusionAreaList *EAL)
+void TExclusionAreaList::copyLocation(const TExclusionAreaList *EAL)
 {
         //el puntero EAL debería apuntar a una lista de áreas de exclusión construida
         if(EAL == NULL)
@@ -331,7 +331,7 @@ void TExclusionAreaList::CopyLocation(const TExclusionAreaList *EAL)
 }
 //copia las propiedades gráficas
 //      (LimitDomainColor, PaintEclusionAreas_, PaintLimitDomain_)
-void TExclusionAreaList::CopyGraphics(const TExclusionAreaList *EAL)
+void TExclusionAreaList::copyGraphics(const TExclusionAreaList *EAL)
 {
         //el puntero EAL debería apuntar a una lista de áreas de exclusión construida
         if(EAL == NULL)
@@ -364,9 +364,9 @@ void TExclusionAreaList::Clone(const TExclusionAreaList *EAL)
         Read = EAL->Read;
 
         //copia las propiedades de localización
-        CopyLocation(EAL);
+        copyLocation(EAL);
         //copia las propiedades gráficas
-        CopyGraphics(EAL);
+        copyGraphics(EAL);
 }
 
 //construye un clon de una lista de áreas de exclusión
@@ -410,7 +410,7 @@ void TExclusionAreaList::Destroy(void)
 //MÉTODOS DE BÚSQUEDA DE ÁREAS DE EXCLUSIÓN:
 
 //busca un área de exclusión en la lista de posicionadores
-int TExclusionAreaList::Search(TExclusionArea *EA) const
+int TExclusionAreaList::search(TExclusionArea *EA) const
 {
         //debe auntar a un objeto construido
         if(EA == NULL)
@@ -425,7 +425,7 @@ int TExclusionAreaList::Search(TExclusionArea *EA) const
         return i; //devuelve el índice
 }
 //busca el primer posicionador con el identificador indicado
-int TExclusionAreaList::SearchId(int Id) const
+int TExclusionAreaList::searchId(int Id) const
 {
         //el número de identidad debe ser mayor que cero
         if(Id < 1)
@@ -439,14 +439,14 @@ int TExclusionAreaList::SearchId(int Id) const
 }
 //devuelve el puntero al primer posicionador
 //con el identificador indicado
-const TExclusionArea *TExclusionAreaList::SearchIdPointer(int Id) const
+const TExclusionArea *TExclusionAreaList::searchIdPointer(int Id) const
 {
         //el número de identidad debe ser mayor que cero
         if(Id < 1)
                 throw EImproperArgument("identifier Id should be upper zero");
 
         //busca la posición del área de exclusión Id
-        int i = SearchId(Id);
+        int i = searchId(Id);
 
         //el áreade exclusión debe estar en la lista
         if(i >= getCount())
@@ -460,17 +460,17 @@ const TExclusionArea *TExclusionAreaList::SearchIdPointer(int Id) const
 //MÉTODOS DE ASIMILACIÓN:
 
 //calcula el SPM de todas las áreas de exclusión
-void TExclusionAreaList::CalculateSPM(void)
+void TExclusionAreaList::calculateSPM(void)
 {
         //por cada área de exclusión de la lista
         for(int i=0; i<getCount(); i++)
                 //calcula el SPM de SPM del área indicada
-                Items[i]->CalculateSPM();
+                Items[i]->calculateSPM();
 }
 
 //determina los posicionadores que están lo bastante cerca
 //de cada posicionador como para invadir su dominio de maniobra
-void TExclusionAreaList::DetermineAdjacents(const TRoboticPositionerList& RPL)
+void TExclusionAreaList::determineAdjacents(const TRoboticPositionerList& RPL)
 {
         TExclusionArea *EA;
         const TRoboticPositioner *RP;
@@ -487,7 +487,7 @@ void TExclusionAreaList::DetermineAdjacents(const TRoboticPositionerList& RPL)
                         //apunta el posicionador indicado para facilitar su acceso
                         RP = RPL[j];
                         //si están lo bastante cerca como para poder colisionar
-                        double aux1 = EA->Barrier.getContour().DistanceMin(RP->getActuator()->getP0());
+                        double aux1 = EA->Barrier.getContour().distanceMin(RP->getActuator()->getP0());
                         double aux2 = RP->getActuator()->getr_max();
                         if(aux1 - aux2 < EA->Barrier.getSPM() + RP->getActuator()->getArm()->getSPM())
                                 //añade el j-esimo posicionador a la lista de adyacentesdel área de exclusión
@@ -497,7 +497,7 @@ void TExclusionAreaList::DetermineAdjacents(const TRoboticPositionerList& RPL)
 }
 //ordena las listas de posicionadores adyacentes en
 //sentido levógiro empezando por el más próximo a 0
-void TExclusionAreaList::SortAdjacents(void)
+void TExclusionAreaList::sortAdjacents(void)
 {
 /*        TExclusionArea *EA;
         TRoboticPositioner *RPA;
@@ -597,7 +597,7 @@ void TExclusionAreaList::SortAdjacents(void)
 
 //calcula las propiedades de localización:
 //      (rmax, xmin, xmax, ymin, ymax)
-void TExclusionAreaList::CalculateLocationParameters(void)
+void TExclusionAreaList::calculateLocationParameters(void)
 {
         //DETERMINA rmax:
 
@@ -638,19 +638,19 @@ void TExclusionAreaList::CalculateLocationParameters(void)
 //los parámetros de dimensionamiento y localización:
 //      DetermineAdjacents
 //      SortAdjacents
-void TExclusionAreaList::AssimilateSizingAndLocation(const TRoboticPositionerList& RPL)
+void TExclusionAreaList::assimilateSizingAndLocation(const TRoboticPositionerList& RPL)
 {
-        DetermineAdjacents(RPL);
-        SortAdjacents();
+        determineAdjacents(RPL);
+        sortAdjacents();
 }
 
 //asimila la configurración de posicionadores dada ejecutando:
 //      CalculateSPMComponents();
 //      AssimilateSizingAndLocation();
-void TExclusionAreaList::Assimilate(const TRoboticPositionerList& RPL)
+void TExclusionAreaList::assimilate(const TRoboticPositionerList& RPL)
 {
-        CalculateSPM();
-        AssimilateSizingAndLocation(RPL);
+        calculateSPM();
+        assimilateSizingAndLocation(RPL);
 }
 
 //--------------------------------------------------------------------------
@@ -660,7 +660,7 @@ void TExclusionAreaList::Assimilate(const TRoboticPositionerList& RPL)
 //el dominio de todos los posicionadores
 //si el número de posicionadores de la lista es menor que uno
 //lanza una excepcion EImproperCall
-void TExclusionAreaList::GetDomain(double &xmin, double &xmax,
+void TExclusionAreaList::getDomain(double &xmin, double &xmax,
         double &ymin, double &ymax)
 {
         //el número de posicionadores de la lista debería ser mayor que cero
@@ -696,7 +696,7 @@ void TExclusionAreaList::GetDomain(double &xmin, double &xmax,
 }                                       */
 //determina si un punto se encuentra dentro del círculo
 //que contiene el dominio conjunto de los posicionadores
-bool TExclusionAreaList::IsInCircle(const TDoublePoint &P)
+bool TExclusionAreaList::isInCircle(const TDoublePoint &P)
 {
         if(Mod(P - getO()) > getrmax())
                 return true;
@@ -704,7 +704,7 @@ bool TExclusionAreaList::IsInCircle(const TDoublePoint &P)
 }
 /*//determina si un punto se encuentra dentro del cuadrado
 //que contiene el dominio conjunto de los posicionadores
-bool TExclusionAreaList::IsInSquare(const TDoublePoint &P)
+bool TExclusionAreaList::isInSquare(const TDoublePoint &P)
 {
         double x = P.x - O.x;
         double y = P.y - O.y;
@@ -718,19 +718,19 @@ bool TExclusionAreaList::IsInSquare(const TDoublePoint &P)
 
 //levanta las banderas indicadoras de determinación de colisión
 //pendiente de todos los posicionadores d ela lista
-void TExclusionAreaList::EnablePending(void)
+void TExclusionAreaList::enablePending(void)
 {
         for(int i=0; i<getCount(); i++)
                 Items[i]->Pending = true;
 }
 //determina si algún brazo de algún posicionador
 //colisiona con el brazo de algún posicionador adyacente
-bool TExclusionAreaList::ThereIsCollision(void)
+bool TExclusionAreaList::thereIsCollision(void)
 {
         TExclusionArea *EA;
 
         //levanta las banderas de determinación de colisión pendiente
-        EnablePending();
+        enablePending();
 
         //busca colisión del brazo de cada posicionador con el brazo de
         //sus adyacentes exceptuando aquellos con los que se ha comprobado ya
@@ -740,7 +740,7 @@ bool TExclusionAreaList::ThereIsCollision(void)
                 //si la barrera del área de exclusión colisiona con
                 //el brazo de algún posicionador adyacente con
                 //determinación de colisión pendiente
-                if(EA->ThereIsCollisionWithPendingAdjacent())
+                if(EA->thereIsCollisionWithPendingAdjacent())
                         //indica que hay colisión
                         return true;
                 else
@@ -753,7 +753,7 @@ bool TExclusionAreaList::ThereIsCollision(void)
 }
 //busca las áreas de exclusión de la lista cuya barrera colisiona con
 //el brazo de algún posicionador adyacente
-void TExclusionAreaList::SearchCollinding(TVector<int> &indices)
+void TExclusionAreaList::searchCollinding(TVector<int> &indices)
 {
 /*        //ADVERTENCIA: los posicionadores de la lista no tienen
         //por que estar ordenados según su identificador.
@@ -815,7 +815,7 @@ void TExclusionAreaList::SearchCollinding(TVector<int> &indices)
                 indices.SortInc(0, indices.Count-1);*/
 }
 //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-void TExclusionAreaList::GetCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL)
+void TExclusionAreaList::getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL)
 {
 /*        TRoboticPositioner *RP;
         TItemsList<TActuator*> Collindings;

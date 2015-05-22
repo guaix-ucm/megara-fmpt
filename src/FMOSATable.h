@@ -86,8 +86,19 @@ public:
     bool there_is_notAllocated;
     bool there_is_allocateInAll;
 
+    //SETS OF PROPERTIES IN TEXT FORMAT:
+
+    //get the structure in text format
+    AnsiString getRowText(void) const;
+
     //set the structure in text format
     void setText(const string& str);
+
+    //print the properties of an SPPP in a string
+    //in row format
+    static void  PrintRow(AnsiString &S, const TSPPP *SPPP);
+
+    //PUBLIC METHODS:
 
     //build a structure by default
     TSPPP(void);
@@ -103,6 +114,9 @@ class TFMOSATable : public TPointersList<TSPPP> {
 public:
     //set a FMOSA table in text format
     void setTableText(unsigned int& Bid, const string& str);
+
+    //get the FMOSA table in text format
+    void getTableText(string& str) const;
 
     //get the allocations which accomplish: there_is_Bid && Enabled
     void getAllocations(TAllocationList& AL);

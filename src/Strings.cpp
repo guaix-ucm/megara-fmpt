@@ -576,7 +576,7 @@ void StrDivideInLines(TStrings& Lines, const AnsiString &S)
             }
         }
 
-        //if has found the endline,
+        //if has found the end line,
         //get the substring in the interval [ifirst, i-1]
         else {
             int count = i - ifirst;

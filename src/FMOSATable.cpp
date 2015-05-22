@@ -37,6 +37,20 @@ namespace Models {
 //---------------------------------------------------------------------------
 //class TSPPP:
 
+//SETS OF PROPERTIES IN TEXT FORMAT:
+
+//get the structure in text format
+AnsiString TSPPP::getRowText(void) const
+{
+    string str = Name+"\t|"+floattostr(RA)+"|"+floattostr(Dec)+"|"+floattostr(Mag)+"|"+pointTypeToStr(Type)+
+            "\t|"+inttostr(Pr)+"|"+inttostr(Bid)+"|"+inttostr(Pid)+
+            "|"+floattostr(X)+"|"+floattostr(Y)+"|"+inttostr(int(Enabled))+
+            "|"+Comment;
+
+    AnsiString S(str);
+    return S;
+}
+
 //set the structure in text format
 void TSPPP::setText(const string& str)
 {
@@ -66,7 +80,7 @@ void TSPPP::setText(const string& str)
             SPPP.there_is_Mag = false;
 
         //translate Type property
-        SPPP.Type = strToSkyPointType(Strings[4].str);
+        SPPP.Type = strToPointType(Strings[4].str);
 
         //translate Pr property (if it is not empty)
         aux = StrTrim(Strings[5]).str;
@@ -123,6 +137,20 @@ void TSPPP::setText(const string& str)
         throw;
     }
 }
+
+//print the properties of an SPPP in a string
+//in row format
+void  TSPPP::PrintRow(AnsiString &S, const TSPPP *SPPP)
+{
+    //check the precondition
+    if(SPPP == NULL)
+        throw EImproperArgument("pointer SPPP should point to built allocation");
+
+    //add the text to the string in propeerly format
+    S += SPPP->getRowText();
+}
+
+//PUBLIC METHODS:
 
 //build a structure by default
 TSPPP::TSPPP() : RA(0), Dec(0), Type(ptUNKNOWN), Pr(0), Bid(0), Pid(0),
@@ -274,6 +302,19 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
     Bid = Items[0]->Bid;
 }
 
+//get the FMOSA table in text format
+void TFMOSATable::getTableText(string& str) const
+{
+    str = "# Id| Ra| Dec| Pos";
+    str += "\r\n@@SOB@@";
+    str += "\r\n0, 0, 0, 0";
+    str += "\r\n@@EOB@@";
+    str += "\r\n#      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment";
+    str += "\r\n@@SOS@@";
+    str += "\r\n"+getColumnText().str;
+    str += "\r\n@@EOS@@";
+}
+
 //get the allocations which accomplish: there_is_Bid && Enabled
 void TFMOSATable::getAllocations(TAllocationList& AL)
 {
@@ -284,7 +325,7 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
                 //extract the Id from the SPPP
                 int Id = SPPP->Pid;
                 //search the RP in the RPL attached to the AL
-                int j = AL.getRoboticPositionerList()->SearchId(Id);
+                int j = AL.getRoboticPositionerList()->searchId(Id);
                 //if has found the RP, build and attach a TP
                 if(j < AL.getRoboticPositionerList()->getCount()) {
                     //copy the properties in a TP nd add the TP to the MPG
@@ -303,6 +344,7 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
 //build a FMOSA table by default
 TFMOSATable::TFMOSATable(void) : TPointersList<TSPPP>()
 {
+    Print = TSPPP::PrintRow;
 }
 
 //---------------------------------------------------------------------------

@@ -136,7 +136,7 @@ TContourFigureList::TContourFigureList(const TContourFigureList &FigureList) :
 //MÉTODOS DE GRÁFICOS:
 /*#
 //asigna un color a todas las figuras del contorno
-void TContourFigureList::SetAllColor(QColor Color)
+void TContourFigureList::setAllColor(QColor Color)
 {
         //por cada figura geométrica del contorno
         for(int i=0; i<getCount(); i++)
@@ -148,7 +148,7 @@ void TContourFigureList::SetAllColor(QColor Color)
 //MÉTODOS DE CARACTERIZACIÓN:
 
 //determina si todos los punteros del contorno son nulos
-bool TContourFigureList::AreAllNULL(void) const
+bool TContourFigureList::areAllNULL(void) const
 {
         for(int i=0; i<getCount(); i++)
                 if(Items[i] != NULL)
@@ -165,7 +165,7 @@ bool TContourFigureList::AreAllNULL(void) const
 //  de otra figura previa, excepto el de la última figura,
 //  que coincide con el inicial de la primera figura.
 //- Ninguna figura se interseca con las demás.
-bool TContourFigureList::IsAContourSorted(void) const
+bool TContourFigureList::isAContourSorted(void) const
 {
         //si la lista contiene menos de dos figuras
         if(getCount() < 2)
@@ -281,10 +281,10 @@ bool TContourFigureList::IsAContourSorted(void) const
 //MÉTODOS DE CÁLCULO DE DISTANCIAS CON EL BRAZO:
 
 //determina la distancia mínima de un punto a este contorno
-double TContourFigureList::DistanceMin(TDoublePoint P) const
+double TContourFigureList::distanceMin(TDoublePoint P) const
 {
         //este contorno debería contener al menos una figura
-        if(AreAllNULL())
+        if(areAllNULL())
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el punto y cada figura
@@ -303,7 +303,7 @@ double TContourFigureList::DistanceMin(TDoublePoint P) const
                 //si el puntero no es nulo
                 if(F != NULL) {
                         //calcula la distancia mínima entre el punto y la figura
-                        d = F->DistancePoint(P);
+                        d = F->distancePoint(P);
                         //actualiza la distancia mínima
                         if(d < dmin)
                                 dmin = d;
@@ -313,10 +313,10 @@ double TContourFigureList::DistanceMin(TDoublePoint P) const
         return dmin; //devuelve la distancia mínima
 }
 //determina la distancia máxima de un punto a este contorno
-double TContourFigureList::DistanceMax(TDoublePoint P) const
+double TContourFigureList::distanceMax(TDoublePoint P) const
 {
         //este contorno debería contener al menos una figura
-        if(AreAllNULL())
+        if(areAllNULL())
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el punto y cada figura
@@ -335,7 +335,7 @@ double TContourFigureList::DistanceMax(TDoublePoint P) const
                 //si el puntero no es nulo
                 if(F != NULL) {
                         //calcula la distancia entre el punto y la figura
-                        d = F->DistancePointMax(P);
+                        d = F->distancePointMax(P);
                         //actualiza la distancia máxima
                         if(d > dmax)
                                 dmax = d;
@@ -345,14 +345,14 @@ double TContourFigureList::DistanceMax(TDoublePoint P) const
         return dmax; //devuelve la distancia máxima
 }
 //determina la distancia mínima de un contorno a este contorno
-double TContourFigureList::DistanceMin(const TContourFigureList &C) const
+double TContourFigureList::distanceMin(const TContourFigureList &C) const
 {
         //el contorno C debería contener al menos una figura
-        if(C.AreAllNULL())
+        if(C.areAllNULL())
                 throw EImproperArgument("contour C should contain one figure almost");
 
         //este contorno debería contener al menos una figura
-        if(AreAllNULL())
+        if(areAllNULL())
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el par de figuras
@@ -377,7 +377,7 @@ double TContourFigureList::DistanceMin(const TContourFigureList &C) const
                         //si ambos punteros son no nulos
                         if(F!=NULL && Fo!=NULL) {
                                 //calcula la distancia entre figuras
-                                d = F->Distance(Fo);
+                                d = F->distance(Fo);
                                 //si la distancia no puedo reducirse más
                                 if(d <= 0)
                                         return 0; //devuelve cero
@@ -397,10 +397,10 @@ double TContourFigureList::DistanceMin(const TContourFigureList &C) const
 
 //determina si la distancia de un contorno a este controno
 //es inferior al margen perimetral de seguridad SPM.
-bool TContourFigureList::Collides(const TContourFigureList &C, double SPM) const
+bool TContourFigureList::collides(const TContourFigureList &C, double SPM) const
 {
         //el contorno C debería contener al menos una figura
-        if(C.AreAllNULL())
+        if(C.areAllNULL())
                 throw EImproperArgument("contour C should contain one figure almost");
 
         double d; //distancia entre el par de figuras
@@ -424,7 +424,7 @@ bool TContourFigureList::Collides(const TContourFigureList &C, double SPM) const
                         //si ambos punteros son no nulos
                         if(F!=NULL && Fo!=NULL) {
                                 //calcula la distancia entre figuras
-                                d = F->Distance(Fo);
+                                d = F->distance(Fo);
                                 //si la distancia no puedo reducirse más
                                 if(d < SPM)
                                         return true; //indica que si colisiona
@@ -436,14 +436,14 @@ bool TContourFigureList::Collides(const TContourFigureList &C, double SPM) const
 }
 
 //determina si un punto está en el interior del contorno
-bool TContourFigureList::IsInner(TDoublePoint P) const
+bool TContourFigureList::isInner(TDoublePoint P) const
 {
         //ADVERTENCIA: si el contorno no delimita un conjunto convexo,
         //no basta con determinar si el punto está al mismo lado de
         //todas las figuras geométricas que lo componen.
 
         //si la lista de figuras no es un contorno ordenado
-        if(!IsAContourSorted())
+        if(!isAContourSorted())
                 //indica que no puede estar dentro por que
                 //la lista de figuras no tiene lado interior
                 return false;
@@ -503,8 +503,8 @@ bool TContourFigureList::IsInner(TDoublePoint P) const
 
                 //contabiliza el ángulo recorrido para desplazarse
                 //del vértice actual al próximo vértice de la figura F
-                //en torno de P
-                acum_theta += Rotation(F, PbIsNext, P);
+                //entorno de P
+                acum_theta += rotation(F, PbIsNext, P);
         }
 
         //si ha dado una vuelta compelta para volver al punto inicial
@@ -521,8 +521,8 @@ bool TContourFigureList::IsInner(TDoublePoint P) const
 //MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO:
 
 //determina los ángulos que hay que rotar este contorno
-//en torno al punto Q para que quede adyacente al segmento (Pa, Pb)
-void TContourFigureList::TurnSegment(TVector<double> &dts,
+//entorno al punto Q para que quede adyacente al segmento (Pa, Pb)
+void TContourFigureList::turnSegment(TVector<double> &dts,
         TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Q)
 {
         //determina la distancia mínima entre el segmento y el brazo
@@ -580,8 +580,8 @@ void TContourFigureList::TurnSegment(TVector<double> &dts,
 }
 
 //determina los ángulos que hay que rotar este contorno
-//en torno al punto Q para que quede adyacente al arco (Pa, Pb, Pc, R)
-void TContourFigureList::TurnArc(TVector<double> &dts,
+//entorno al punto Q para que quede adyacente al arco (Pa, Pb, Pc, R)
+void TContourFigureList::turnArc(TVector<double> &dts,
         TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R,
         TDoublePoint Q)
 {
@@ -638,8 +638,8 @@ void TContourFigureList::TurnArc(TVector<double> &dts,
 }
 
 //determina los ángulos que hay que rotar este contorno
-//en torno al punto Q para que quede adyacente al brazo Arm
-void TContourFigureList::TurnArm(TVector<double> &dts, TContourFigureList *Arm_, TDoublePoint Q)
+//entorno al punto Q para que quede adyacente al brazo Arm
+void TContourFigureList::turnArm(TVector<double> &dts, TContourFigureList *Arm_, TDoublePoint Q)
 {
         //determina la distancia mínima entre el segmento y el brazo
         double d = Mod(Arm->P1 - Q) - Arm->Ra;
@@ -738,11 +738,11 @@ void TContourFigureList::TurnArm(TVector<double> &dts, TContourFigureList *Arm_,
 //MÉTODOS DE TRANSFORMACIONES GEOMÉTRICAS:
 
 //obtiene la lista de figuras rotada y trasladada.
-//si elnúmero de figuras de la lista no coincide:
+//si el número de figuras de la lista no coincide:
 //      lanza EImproperArgument
 //si alguna figuradelalista no es del mimo tipo
 //      lanza EImproperArgument
-void TContourFigureList::GetRotatedAndTranslated(TContourFigureList &Contour,
+void TContourFigureList::getRotatedAndTranslated(TContourFigureList &Contour,
         double theta, TDoublePoint V) const
 {
         //el número de figuras de la lista debe ser igual
@@ -753,7 +753,7 @@ void TContourFigureList::GetRotatedAndTranslated(TContourFigureList &Contour,
         for(int i=0; i<Contour.getCount(); i++)
                 if(typeid(Contour[i]) != typeid(Items[i]))
                         throw EImpossibleError("types figures in thelist should match");
-//if(IsAContourSorted())
+//if(isAContourSorted())
   //      int aux = 0;
         //rota y traslada cada figura del contorno
         TFigure *F;
@@ -761,11 +761,11 @@ void TContourFigureList::GetRotatedAndTranslated(TContourFigureList &Contour,
                 //apunta la figura geométrica indicada para facilitar su acceso
                 F = Contour[i];
                 //obtiene la figura geométrica rotada
-                Items[i]->GetRotated(F, theta);
+                Items[i]->getRotated(F, theta);
                 //traslada la figura geométrica según el vector V
-                F->Translate(V);
+                F->translate(V);
         }
-//if(Contour.IsAContourSorted())
+//if(Contour.isAContourSorted())
   //      int xxx = 0;
 }
 
@@ -773,7 +773,7 @@ void TContourFigureList::GetRotatedAndTranslated(TContourFigureList &Contour,
 /*#
 //dibuja las figuras de una  lista
 //en un trazador de formas
-void TContourFigureList::Paint(TPloterShapes *PS) const
+void TContourFigureList::paint(TPloterShapes *PS) const
 {
         //el puntero PS debería apuntar a un trazador de formas construido
         if(PS == NULL)
@@ -809,7 +809,7 @@ void TContourFigureList::Paint(TPloterShapes *PS) const
 
 /*//segrega las figuras de esta lista en listas de figuras engarzadas
 //devuelve falso si encuentra más de dos vértices engarzados entre si
-bool Segregate(TPointersList<TContourFigureList> &LC, TContourFigureList &C)
+bool segregate(TPointersList<TContourFigureList> &LC, TContourFigureList &C)
 {
         //puntero a la lista de figuras indicada de LC
         TContourFigureList *C;
@@ -878,7 +878,7 @@ bool Segregate(TPointersList<TContourFigureList> &LC, TContourFigureList &C)
 }
 //reduce un conjunto de listas de figuras concatenadas
 //concatenando las listas que se puedan entre si
-void Concatenate(TPointersList<TContourFigureList> &LC)
+void concatenate(TPointersList<TContourFigureList> &LC)
 {
         //NOTA: no es posible saber cual es el sentido dextrógiro de ordenación
         //de cada lista de figuras, hasta que no se tenga el conjunto de listas

@@ -75,7 +75,7 @@ public:
         //borra el punto objetivo indicada de la lista
         void DeleteAllocation(int i);
 
-        //OBJETOS SELECCIONADOS DE LA LISTA:
+/*        //OBJETOS SELECCIONADOS DE LA LISTA:
 
         //añade puntos objetivo con la posición del punto P3
         //de los posicionadores seleccionados de la lista
@@ -117,7 +117,7 @@ public:
         //NOTA: cunado un punto es asignado al punto P3 de un posicionador
         //cuya cuantificación está activada, el posicionador se moverá
         //a la posición estable máspróxima.
-
+*/
         //TODOS LOS OBJETOS DE LA LISTA:
 
         //añade puntos objetivo con la posición del punto P3

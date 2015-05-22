@@ -708,9 +708,9 @@ void TTelescopeProjectionModel::Project(TDoublePoint &P, double RA, double DEC)
     double Pz = P_z*aux;
 
     //calcula la distancia al plano de abcisas
-    P.x = DistancePointPlane(Px, Py, Pz, A2, B2, C2, D2);
+    P.x = distancePointPlane(Px, Py, Pz, A2, B2, C2, D2);
     //calcula la distancia al plano de ordenadas
-    P.y = DistancePointPlane(Px, Py, Pz, A3, B3, C3, D3);
+    P.y = distancePointPlane(Px, Py, Pz, A3, B3, C3, D3);
 }
 
 //proyecta un punto del plano focal sobre la esfera celeste

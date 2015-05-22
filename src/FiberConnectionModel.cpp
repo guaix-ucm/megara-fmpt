@@ -273,6 +273,31 @@ void TConection::TravelLabelsRow(const AnsiString& S, int& i)
         } while(status < 4);
 }
 
+
+//copy all properties of a conection
+TConection& TConection::operator=(const TConection& C)
+{
+    p_RPId = C.p_RPId;
+    p_SpaxelId = C.p_SpaxelId;
+    p_FiberId = C.p_FiberId;
+    p_s = C.p_s;
+
+    return *this;
+}
+
+//build a clon of a conection
+TConection::TConection(const TConection *C)
+{
+    //check the precondition
+    if(C == NULL)
+        throw EImproperArgument("pointer C should point to built conection");
+
+    p_RPId = C->p_RPId;
+    p_SpaxelId = C->p_SpaxelId;
+    p_FiberId = C->p_FiberId;
+    p_s = C->p_s;
+}
+
 //asigna las propiedades atómicamente
 //si no es posible asignar todas las propiedades:
 //      lanza una excepción EImproperArgument
@@ -350,6 +375,13 @@ void TFiberConnectionModel::setConnectionsText(const AnsiString& S)
 TFiberConnectionModel::TFiberConnectionModel(void) : p_R(0.443),
         Conections(644, NULL, NULL, NULL, TConection::PrintRow, TConection::ReadRow)
 {
+}
+
+//clone a Fiber Connection Model
+void TFiberConnectionModel::Clone(const TFiberConnectionModel& FCM)
+{
+    p_R = FCM.p_R;
+    Conections.Clone(FCM.Conections);
 }
 
 //determina las coordenadas en S0 del centro del spaxel 1

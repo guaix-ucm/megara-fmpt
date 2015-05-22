@@ -66,7 +66,7 @@ void TFigure::setColorText(const AnsiString& S)
 //      si F1->Color < F2->Color entonces CompareColor = -1
 //      si F1->Color > F2->Color entonces CompareColor = 1
 //      si F1->Color == F2->Color entonces CompareColor = 0
-int  TFigure::CompareColor(const TFigure *F1, const TFigure *F2)
+int  TFigure::compareColor(const TFigure *F1, const TFigure *F2)
 {
     //el puntero F1 debería apuntar a una figura contruida
     if(F1 == NULL)
@@ -87,7 +87,7 @@ int  TFigure::CompareColor(const TFigure *F1, const TFigure *F2)
 
 //imprime las propiedades de un objeto en una cadena
 //en formato texto entre paréntesis
-void  TFigure::FigurePrint(AnsiString& S,
+void  TFigure::figurePrint(AnsiString& S,
                                      TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
@@ -99,7 +99,7 @@ void  TFigure::FigurePrint(AnsiString& S,
 }
 //imprime las propiedades de un objeto en una cadena
 //en formato fila de texto
-void  TFigure::FigurePrintRow(AnsiString& S,
+void  TFigure::figurePrintRow(AnsiString& S,
                                         TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
@@ -112,7 +112,7 @@ void  TFigure::FigurePrintRow(AnsiString& S,
 
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
-void  TFigure::FigureRead(TFigure* &F, const AnsiString& S, int& i)
+void  TFigure::figureRead(TFigure* &F, const AnsiString& S, int& i)
 {
     //el índice i debe indicar una posición de la cadena S
     if(i<1 || S.Length()<i)
@@ -165,7 +165,7 @@ void  TFigure::FigureRead(TFigure* &F, const AnsiString& S, int& i)
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato fila de texto
-void  TFigure::FigureReadRow(TFigure* &F, const AnsiString& S, int& i)
+void  TFigure::figureReadRow(TFigure* &F, const AnsiString& S, int& i)
 {
     //el índice i debe indicar una posición de la cadena S
     if(i<1 || S.Length()<i)
@@ -326,7 +326,7 @@ AnsiString TCircle::GetRowLabels(void)
 
 //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-int  TCircle::Comparex(const TCircle *C1,
+int  TCircle::comparex(const TCircle *C1,
                                  const TCircle *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -343,7 +343,7 @@ int  TCircle::Comparex(const TCircle *C1,
         return 1;
     return 0;
 }
-int  TCircle::Comparey(const TCircle *C1,
+int  TCircle::comparey(const TCircle *C1,
                                  const TCircle *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -360,7 +360,7 @@ int  TCircle::Comparey(const TCircle *C1,
         return 1;
     return 0;
 }
-int  TCircle::CompareR(const TCircle *C1,
+int  TCircle::compareR(const TCircle *C1,
                                  const TCircle *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -664,7 +664,7 @@ void TCircle::SetValues(TDoublePoint P, double R)
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
 //calcula la distancia mínima entre la figura y un punto
-double TCircle::DistancePoint(TDoublePoint Q)
+double TCircle::distancePoint(TDoublePoint Q)
 {
     double d = Mod(Q - P);
 
@@ -674,51 +674,51 @@ double TCircle::DistancePoint(TDoublePoint Q)
         return d - p_R;
 }
 //calcula la distancia máxima entre la figura y un punto
-double TCircle::DistancePointMax(TDoublePoint Q)
+double TCircle::distancePointMax(TDoublePoint Q)
 {
     return Mod(Q - P) + p_R;
 }
 
 //calcula la distancia mínima entre la figura y una circulo
-double TCircle::DistanceCircle(TCircle *C)
+double TCircle::distanceCircle(TCircle *C)
 {
     //el puntero C debería apuntar a un círculio contruido
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceCircleCircle(P, p_R, C->P, C->getR());
+    return distanceCircleCircle(P, p_R, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circunferencia
-double TCircle::DistanceCircunference(TCircunference *C)
+double TCircle::distanceCircunference(TCircunference *C)
 {
     //el puntero C debería apuntar a una circunferencia contruida
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceCircleCircunference(P, p_R, C->P, C->getR());
+    return distanceCircleCircunference(P, p_R, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
-double TCircle::DistanceSegment(TSegment *S)
+double TCircle::distanceSegment(TSegment *S)
 {
     //el puntero S debería apuntar a un segmento contruido
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceCircleSegment(P, p_R, S->getPa(), S->getPb());
+    return distanceCircleSegment(P, p_R, S->getPa(), S->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
-double TCircle::DistanceArc(TArc *A)
+double TCircle::distanceArc(TArc *A)
 {
     //el puntero A debería apuntar a un punto contruido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceCircleArc(P, p_R, A->getPa(), A->getPb(), A->getPc(), A->getR());
+    return distanceCircleArc(P, p_R, A->getPa(), A->getPb(), A->getPc(), A->getR());
 }
 
 //calcula la distancia mínima entre la figura y otra figura
-double TCircle::Distance(TFigure *F)
+double TCircle::distance(TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -727,20 +727,20 @@ double TCircle::Distance(TFigure *F)
     //si no, si la figura es un círculo
     if(typeid(*F) == typeid(TCircle))
         //calcula la distancia mínima al objeto
-        return DistanceCircle((TCircle*)F);
+        return distanceCircle((TCircle*)F);
     //si no, si la figura es una circunferencia
     else if(typeid(*F) == typeid(TCircunference))
         //calcula la distancia mínima al objeto
-        return DistanceCircunference((TCircunference*)F);
+        return distanceCircunference((TCircunference*)F);
 
     //si la figura es un segmento
     else if(typeid(*F) == typeid(TSegment))
         //calcula la distancia mínima al objeto
-        return DistanceSegment((TSegment*)F);
+        return distanceSegment((TSegment*)F);
     //si no, si la figura es un arco
     else if(typeid(*F) == typeid(TArc))
         //calcula la distancia mínima al objeto
-        return DistanceArc((TArc*)F);
+        return distanceArc((TArc*)F);
     else
         throw EImpossibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
 }
@@ -749,7 +749,7 @@ double TCircle::Distance(TFigure *F)
 
 //obtiene la figutra geométrica rotada theta radianes
 //Figure debe contener una figura geométrica del mismo tipo
-void TCircle::GetRotated(TFigure *F, double theta)
+void TCircle::getRotated(TFigure *F, double theta)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -771,7 +771,7 @@ void TCircle::GetRotated(TFigure *F, double theta)
     C->P.y = P.x*SIN + P.y*COS;
 }
 //traslada la figura geométrica según el vector V
-void TCircle::Translate(TDoublePoint V)
+void TCircle::translate(TDoublePoint V)
 {
     //traslada los puntos de la figura
     P.x += V.x;
@@ -898,7 +898,7 @@ AnsiString TCircunference::GetRowLabels(void)
 
 //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
-int  TCircunference::Comparex(const TCircunference *C1,
+int  TCircunference::comparex(const TCircunference *C1,
                                         const TCircunference *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -915,7 +915,7 @@ int  TCircunference::Comparex(const TCircunference *C1,
         return 1;
     return 0;
 }
-int  TCircunference::Comparey(const TCircunference *C1,
+int  TCircunference::comparey(const TCircunference *C1,
                                         const TCircunference *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -932,7 +932,7 @@ int  TCircunference::Comparey(const TCircunference *C1,
         return 1;
     return 0;
 }
-int  TCircunference::CompareR(const TCircunference *C1,
+int  TCircunference::compareR(const TCircunference *C1,
                                         const TCircunference *C2)
 {
     //el puntero C1 debería apuntar a un círculo contruido
@@ -1236,7 +1236,7 @@ void TCircunference::SetValues(TDoublePoint P, double R)
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
 //calcula la distancia mínima entre la figura y un punto
-double TCircunference::DistancePoint(TDoublePoint Q)
+double TCircunference::distancePoint(TDoublePoint Q)
 {
     double d = Mod(Q - P);
     if(d < p_R)
@@ -1247,52 +1247,52 @@ double TCircunference::DistancePoint(TDoublePoint Q)
         return 0;
 }
 //calcula la distancia máxima entre la figura y un punto
-double TCircunference::DistancePointMax(TDoublePoint Q)
+double TCircunference::distancePointMax(TDoublePoint Q)
 {
     return Mod(Q - P) + p_R;
 }
 
 //calcula la distancia mínima entre la figura y una circulo
-double TCircunference::DistanceCircle(TCircle *C)
+double TCircunference::distanceCircle(TCircle *C)
 {
     //el puntero C debería apuntar a un círculo contruido
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceCircunferenceCircle(P, p_R, C->P, C->getR());
+    return distanceCircunferenceCircle(P, p_R, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circunferencia
-double TCircunference::DistanceCircunference(TCircunference *C)
+double TCircunference::distanceCircunference(TCircunference *C)
 {
     //el puntero C debería apuntar a una circunferencia contruida
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceCircunferenceCircunference(P, p_R, C->P, C->getR());
+    return distanceCircunferenceCircunference(P, p_R, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
-double TCircunference::DistanceSegment(TSegment *S)
+double TCircunference::distanceSegment(TSegment *S)
 {
     //el puntero S debería apuntar a un segmento contruido
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceCircunferenceSegment(P, p_R, S->getPa(), S->getPb());
+    return distanceCircunferenceSegment(P, p_R, S->getPa(), S->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
-double TCircunference::DistanceArc(TArc *A)
+double TCircunference::distanceArc(TArc *A)
 {
     //el puntero A debería apuntar a un punto contruido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceCircunferenceArc(P, p_R, A->getPa(), A->getPb(),
+    return distanceCircunferenceArc(P, p_R, A->getPa(), A->getPb(),
                                     A->getPc(), A->getR());
 }
 
 //calcula la distancia mínima entre la figura y otra figura
-double TCircunference::Distance(TFigure *F)
+double TCircunference::distance(TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -1301,20 +1301,20 @@ double TCircunference::Distance(TFigure *F)
     //si no, si la figura es un círculo
     if(typeid(*F) == typeid(TCircle))
         //calcula la distancia mínima al objeto
-        return DistanceCircle((TCircle*)F);
+        return distanceCircle((TCircle*)F);
     //si no, si la figura es una circunferencia
     else if(typeid(*F) == typeid(TCircunference))
         //calcula la distancia mínima al objeto
-        return DistanceCircunference((TCircunference*)F);
+        return distanceCircunference((TCircunference*)F);
 
     //si la figura es un segmento
     else if(typeid(*F) == typeid(TSegment))
         //calcula la distancia mínima al objeto
-        return DistanceSegment((TSegment*)F);
+        return distanceSegment((TSegment*)F);
     //si no, si la figura es un arco
     else if(typeid(*F) == typeid(TArc))
         //calcula la distancia mínima al objeto
-        return DistanceArc((TArc*)F);
+        return distanceArc((TArc*)F);
     else
         throw EImpossibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
 }
@@ -1323,7 +1323,7 @@ double TCircunference::Distance(TFigure *F)
 
 //obtiene la figutra geométrica rotada theta radianes
 //Figure debe contener una figura geométrica del mismo tipo
-void TCircunference::GetRotated(TFigure *F, double theta)
+void TCircunference::getRotated(TFigure *F, double theta)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -1345,7 +1345,7 @@ void TCircunference::GetRotated(TFigure *F, double theta)
     C->P.y = P.x*SIN + P.y*COS;
 }
 //traslada la figura geométrica según el vector V
-void TCircunference::Translate(TDoublePoint V)
+void TCircunference::translate(TDoublePoint V)
 {
     //traslada los puntos de la figura
     P.x += V.x;
@@ -1379,7 +1379,7 @@ void TCircunference::Paint(TPloterShapes *PS)
 void  TContourFigure::ContourFigurePrint(AnsiString& S,
                                                    TContourFigure *F)
 {
-    TFigure::FigurePrint(S, (TFigure*)F);
+    TFigure::figurePrint(S, (TFigure*)F);
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
@@ -1387,7 +1387,7 @@ void  TContourFigure::ContourFigureRead(TContourFigure* &F,
                                                   const AnsiString& S, int& i)
 {
     try {
-        TFigure::FigureRead((TFigure*&)F, S, i);
+        TFigure::figureRead((TFigure*&)F, S, i);
     } catch(...) {
         throw;
     }
@@ -1702,57 +1702,57 @@ void TSegment::SetValues(TDoublePoint Pa, TDoublePoint Pb)
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
 //calcula la distancia mínima entre la figura y un punto
-double TSegment::DistancePoint(TDoublePoint Q)
+double TSegment::distancePoint(TDoublePoint Q)
 {
-    return DistanceSegmentPoint(p_Pa, p_Pb, Q);
+    return distanceSegmentPoint(p_Pa, p_Pb, Q);
 }
 //calcula la distancia máxima entre la figura y un punto
-double TSegment::DistancePointMax(TDoublePoint Q)
+double TSegment::distancePointMax(TDoublePoint Q)
 {
-    return DistanceSegmentPointMax(p_Pa, p_Pb, Q);
+    return distanceSegmentPointMax(p_Pa, p_Pb, Q);
 }
 
 //calcula la distancia mínima entre la figura y una circulo
-double TSegment::DistanceCircle(TCircle *C)
+double TSegment::distanceCircle(TCircle *C)
 {
     //el puntero C debería apuntar a un círculio contruido
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceSegmentCircle(p_Pa, p_Pb, C->P, C->getR());
+    return distanceSegmentCircle(p_Pa, p_Pb, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circunferencia
-double TSegment::DistanceCircunference(TCircunference *C)
+double TSegment::distanceCircunference(TCircunference *C)
 {
     //el puntero C debería apuntar a una circunferencia contruida
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceSegmentCircunference(p_Pa, p_Pb, C->P, C->getR());
+    return distanceSegmentCircunference(p_Pa, p_Pb, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
-double TSegment::DistanceSegment(TSegment *S)
+double TSegment::distanceSegment(TSegment *S)
 {
     //el puntero S debería apuntar a un segmento contruido
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceSegmentSegment(p_Pa, p_Pb, S->p_Pa, S->p_Pb);
+    return distanceSegmentSegment(p_Pa, p_Pb, S->p_Pa, S->p_Pb);
 }
 //calcula la distancia mínima entre la figura y un arco
-double TSegment::DistanceArc(TArc *A)
+double TSegment::distanceArc(TArc *A)
 {
     //el puntero A debería apuntar a un punto contruido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceSegmentArc(p_Pa, p_Pb, A->getPa(), A->getPb(),
+    return distanceSegmentArc(p_Pa, p_Pb, A->getPa(), A->getPb(),
                               A->getPc(), A->getR());
 }
 
 //calcula la distancia mínima entre la figura y otra figura
-double TSegment::Distance(TFigure *F)
+double TSegment::distance(TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -1761,20 +1761,20 @@ double TSegment::Distance(TFigure *F)
     //si no, si la figura es un círculo
     if(typeid(*F) == typeid(TCircle))
         //calcula la distancia mínima al objeto
-        return DistanceCircle((TCircle*)F);
+        return distanceCircle((TCircle*)F);
     //si no, si la figura es una circunferencia
     else if(typeid(*F) == typeid(TCircunference))
         //calcula la distancia mínima al objeto
-        return DistanceCircunference((TCircunference*)F);
+        return distanceCircunference((TCircunference*)F);
 
     //si no, si la figura es un segmento
     else if(typeid(*F) == typeid(TSegment))
         //calcula la distancia mínima al objeto
-        return DistanceSegment((TSegment*)F);
+        return distanceSegment((TSegment*)F);
     //si no, si la figura es un arco
     else if(typeid(*F) == typeid(TArc))
         //calcula la distancia mínima al objeto
-        return DistanceArc((TArc*)F);
+        return distanceArc((TArc*)F);
     else
         throw EImpossibleError(AnsiString("unknown type: ")+
                               AnsiString(typeid(*F).name()));
@@ -1784,7 +1784,7 @@ double TSegment::Distance(TFigure *F)
 
 //obtiene la figutra geométrica rotada theta radianes
 //Figure debe contener una figura geométrica del mismo tipo
-void TSegment::GetRotated(TFigure *F, double theta)
+void TSegment::getRotated(TFigure *F, double theta)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -1808,7 +1808,7 @@ void TSegment::GetRotated(TFigure *F, double theta)
     S->p_Pb.y = p_Pb.x*SIN + p_Pb.y*COS;
 }
 //traslada la figura geométrica según el vector V
-void TSegment::Translate(TDoublePoint V)
+void TSegment::translate(TDoublePoint V)
 {
     //traslada los puntos de la figura
     p_Pa.x += V.x;
@@ -2419,57 +2419,57 @@ void TArc::SetValues(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R
 //MÉTODOS DE CÁLCULO DE DISTANCIAS:
 
 //calcula la distancia mínima entre la figura y un punto
-double TArc::DistancePoint(TDoublePoint Q)
+double TArc::distancePoint(TDoublePoint Q)
 {
-    return DistanceArcPoint(p_Pa, p_Pb, p_Pc, p_R, Q);
+    return distanceArcPoint(p_Pa, p_Pb, p_Pc, p_R, Q);
 }
 //calcula la distancia máxima entre la figura y un punto
-double TArc::DistancePointMax(TDoublePoint Q)
+double TArc::distancePointMax(TDoublePoint Q)
 {
-    return DistanceArcPointMax(p_Pa, p_Pb, p_Pc, p_R, Q);
+    return distanceArcPointMax(p_Pa, p_Pb, p_Pc, p_R, Q);
 }
 
 //calcula la distancia mínima entre la figura y una circunferencia
-double TArc::DistanceCircunference(TCircunference *C)
+double TArc::distanceCircunference(TCircunference *C)
 {
     //el puntero C debería apuntar a una circunferencia contruida
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
-    return DistanceArcCircunference(p_Pa, p_Pb, p_Pc, p_R, C->P, C->getR());
+    return distanceArcCircunference(p_Pa, p_Pb, p_Pc, p_R, C->P, C->getR());
 }
 //calcula la distancia mínima entre la figura y una circulo
-double TArc::DistanceCircle(TCircle *C)
+double TArc::distanceCircle(TCircle *C)
 {
     //el puntero C debería apuntar a un círculio contruido
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
-    return DistanceArcCircle(p_Pa, p_Pb, p_Pc, p_R, C->P, C->getR());
+    return distanceArcCircle(p_Pa, p_Pb, p_Pc, p_R, C->P, C->getR());
 }
 
 //calcula la distancia mínima entre la figura y un segmento
-double TArc::DistanceSegment(TSegment *S)
+double TArc::distanceSegment(TSegment *S)
 {
     //el puntero S debería apuntar a un segmento contruido
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
-    return DistanceArcSegment(p_Pa, p_Pb, p_Pc, p_R, S->getPa(), S->getPb());
+    return distanceArcSegment(p_Pa, p_Pb, p_Pc, p_R, S->getPa(), S->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
-double TArc::DistanceArc(TArc *A)
+double TArc::distanceArc(TArc *A)
 {
     //el puntero A debería apuntar a un punto contruido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
-    return DistanceArcArc(p_Pa, p_Pb, p_Pc, p_R,
+    return distanceArcArc(p_Pa, p_Pb, p_Pc, p_R,
                           A->p_Pa, A->p_Pb, A->p_Pc, A->p_R);
 }
 
 //calcula la distancia mínima entre la figura y otra figura
-double TArc::Distance(TFigure *F)
+double TArc::distance(TFigure *F)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -2478,20 +2478,20 @@ double TArc::Distance(TFigure *F)
     //si la figura es un círculo
     if(typeid(*F) == typeid(TCircle))
         //calcula la distancia mínima al objeto
-        return DistanceCircle((TCircle*)F);
+        return distanceCircle((TCircle*)F);
     //si no, si la figura es una circunferencia
     else if(typeid(*F) == typeid(TCircunference))
         //calcula la distancia mínima al objeto
-        return DistanceCircunference((TCircunference*)F);
+        return distanceCircunference((TCircunference*)F);
 
     //si no, si la figura es un segmento
     else if(typeid(*F) == typeid(TSegment))
         //calcula la distancia mínima al objeto
-        return DistanceSegment((TSegment*)F);
+        return distanceSegment((TSegment*)F);
     //si no, si la figura es un arco
     else if(typeid(*F) == typeid(TArc))
         //calcula la distancia mínima al objeto
-        return DistanceArc((TArc*)F);
+        return distanceArc((TArc*)F);
     else
         throw EImpossibleError(AnsiString("unknown type: ")+AnsiString(typeid(*F).name()));
 }
@@ -2500,7 +2500,7 @@ double TArc::Distance(TFigure *F)
 
 //obtiene la figutra geométrica rotada theta radianes
 //Figure debe contener una figura geométrica del mismo tipo
-void TArc::GetRotated(TFigure *F, double theta)
+void TArc::getRotated(TFigure *F, double theta)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -2526,7 +2526,7 @@ void TArc::GetRotated(TFigure *F, double theta)
     A->p_Pc.y = p_Pc.x*SIN + p_Pc.y*COS;
 }
 //traslada la figura geométrica según el vector V
-void TArc::Translate(TDoublePoint V)
+void TArc::translate(TDoublePoint V)
 {
     //traslada los puntos de la figura
     p_Pa.x += V.x;
@@ -2558,7 +2558,7 @@ void TArc::Paint(TPloterShapes *PS)
 
 //determina el ángulo entre el vértice inicial de una figura de contorno
 //y su vértice final en torno de un punto P
-double Rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
+double rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
 {
     //el puntero F debería apuntar a una figura contruida
     if(F == NULL)
@@ -2583,7 +2583,7 @@ double Rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
             //calcula el ángulo de desplazamiento de Pa a Pb
             theta = Angle(A->getPa() - P, A->getPb() - P);
             //si el punto P está en el interior del arco
-            if(DistanceLineToPoint(A->getPa(), A->getPb(), P)>=0 && Mod(P - A->getPc())<=A->getR())
+            if(distanceLineToPoint(A->getPa(), A->getPb(), P)>=0 && Mod(P - A->getPc())<=A->getR())
                 //devuelve el ángulo invertido
                 return -theta;
             //devuelve el ángulo
@@ -2592,7 +2592,7 @@ double Rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
             //calcula el ángulo de desplazamiento de Pb a Pa
             theta = Angle(A->getPb() - P, A->getPa() - P);
             //si el punto P está en el interior del arco
-            if(DistanceLineToPoint(A->getPa(), A->getPb(), P)>=0 && Mod(P - A->getPc())<=A->getR())
+            if(distanceLineToPoint(A->getPa(), A->getPb(), P)>=0 && Mod(P - A->getPc())<=A->getR())
                 //devuelve el ángulo invertido
                 return -theta;
             //devuelve el ángulo

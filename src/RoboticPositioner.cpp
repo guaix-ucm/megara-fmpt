@@ -298,63 +298,63 @@ void TRoboticPositioner::setEo(double Eo)
 {
     //check the precondition
     if(Eo < 0)
-        throw EImproperArgument("Eo value should be nonnegative");
+        throw EImproperArgument("orientation error margin in S0 (Eo) should be nonnegative");
 
     //set the new value
     p_Eo = Eo;
 
     //assimilates the new value
-    CalculateSPMComponents();
+    calculateSPMcomponents();
 }
 void TRoboticPositioner::setEp(double Ep)
 {
     //check the precondition
     if(Ep < 0)
-        throw EImproperArgument("Ep value should be nonnegative");
+        throw EImproperArgument("position error margin in S0 (Ep) should be nonnegative");
 
     //set the new value
     p_Ep = Ep;
 
     //assimilates the new value
-    CalculateSPMComponents();
+    calculateSPMcomponents();
 }
 
 void TRoboticPositioner::setTstop(double Tstop)
 {
     //check the precondition
     if(Tstop < 0)
-        throw EImproperArgument("Tstop value should be nonnegative");
+        throw EImproperArgument("maximun time betweem last storage of the position angles (Tstop) should be nonnegative");
 
     //set the new value
     p_Tstop = Tstop;
 
     //assimilates the new value
-    CalculateSPMComponents();
+    calculateSPMcomponents();
 }
 void TRoboticPositioner::setTshiff(double Tshiff)
 {
     //check the precondition
     if(Tshiff < 0)
-        throw EImproperArgument("Tshiff value should be nonnegative");
+        throw EImproperArgument("maximun time shift between RPs in motion (Tshiff) should be nonnegative");
 
     //set the new value
     p_Tshiff = Tshiff;
 
     //assimilates the new value
-    CalculateSPMComponents();
+    calculateSPMcomponents();
 }
 
 void TRoboticPositioner::setSPMadd(double SPMadd)
 {
     //check the precondition
     if(SPMadd < 0)
-        throw EImproperArgument("SPM add should be nonnegative");
+        throw EImproperArgument("SPM additional to add to SPMdyn (SPMadd) should be nonnegative");
 
     //set the new value
     p_SPMadd = SPMadd;
 
     //assimilates the new value
-    CalculateSPMComponents();
+    calculateSPMcomponents();
 }
 
 //STATUS PROPERTIES:
@@ -369,16 +369,23 @@ void TRoboticPositioner::setFaultProbability(double FaultProbability)
     p_FaultProbability = FaultProbability;
 }
 
+void TRoboticPositioner::setDsecMax(double DsecMax)
+{
+    if(DsecMax < 0)
+        throw EImproperArgument("maximun additional security distance during retraction (DsecMax) should be nonnegative");
+
+    p_DsecMax = DsecMax;
+}
 void TRoboticPositioner::setDsec(double Dsec)
 {
-    if(Dsec < 0)
-        throw EImproperArgument("additional security distance during retraction Dsec should be nonnegative");
+    if(Dsec<0 || getDsecMax()<Dsec)
+        throw EImproperArgument("additional security distance during retraction (Dsec) should be in [0, DsecMax]");
 
     p_Dsec = Dsec;
 }
 
 //------------------------------------------------------------------
-//TOLERANCE PROPERTIES IN TEXTFORMAT:
+//TOLERANCE PROPERTIES IN TEXT FORMAT:
 
 AnsiString TRoboticPositioner::getEoText(void) const
 {
@@ -575,10 +582,10 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
     try {
         //contruye una variable tampón
         TRoboticPositioner aux(this);
-        TRoboticPositioner *FP = &aux;
+        TRoboticPositioner *RP = &aux;
         //lee la instancia y la asigna a la variable tampón
         int i = 1;
-        ReadInstance((TRoboticPositioner*&)FP, S, i);
+        readInstance((TRoboticPositioner*&)RP, S, i);
 
         //avanza el índice i hasta la próxima posición que no contenga un separador
         StrTravelSeparatorsIfAny(S, i);
@@ -588,7 +595,7 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
             throw EImproperArgument("string S should contain the instance value only");
 
         //asigna la variable tampón
-        Clone(FP);
+        clone(RP);
 
     } catch(...) {
         throw;
@@ -599,7 +606,7 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
 //MÉTODOS ESTÁTICOS:
 
 //compara los identificadores de dos posicionadores
-int  TRoboticPositioner::CompareIds(TRoboticPositioner *FP1,
+int  TRoboticPositioner::compareIds(TRoboticPositioner *FP1,
                                     TRoboticPositioner *FP2)
 {
     return TActuator::CompareIds(
@@ -607,7 +614,7 @@ int  TRoboticPositioner::CompareIds(TRoboticPositioner *FP1,
 }
 
 //imprime el identificador de un posicionador
-void  TRoboticPositioner::PrintId(AnsiString &S, TRoboticPositioner *FP)
+void  TRoboticPositioner::printId(AnsiString &S, TRoboticPositioner *FP)
 {
     return TActuator::PrintId(S, FP->getActuator());
 }
@@ -622,49 +629,49 @@ void  TRoboticPositioner::PrintId(AnsiString &S, TRoboticPositioner *FP)
 //imprime los valores de las propiedades de origen de un posicionador
 //(Id, x0, y0, thetaO1) al final de una cadena de texto
 //en formato fila de texto
-void  TRoboticPositioner::PrintOriginsRow(AnsiString& S,
+void  TRoboticPositioner::printOriginsRow(AnsiString& S,
                                           TRoboticPositioner *FP)
 {
-    TActuator::PrintOriginsRow(S, FP->getActuator());
+    TActuator::printOriginsRow(S, FP->getActuator());
 }
 //lee los valores de las propiedades de origen de un posicionador
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void  TRoboticPositioner::ReadOriginsRow(TRoboticPositioner *FP,
+void  TRoboticPositioner::readOriginsRow(TRoboticPositioner *FP,
                                          const AnsiString& S, int &i)
 {
     TActuator *A = FP->getActuator();
-    TActuator::ReadOriginsRow(A, S,  i);
+    TActuator::readOriginsRow(A, S,  i);
 }
 
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) al final de una cadena de texto
 //en formato fila de texto
-void  TRoboticPositioner::PrintPositionP3Row(AnsiString& S,
+void  TRoboticPositioner::printPositionP3Row(AnsiString& S,
                                              TRoboticPositioner *FP)
 {
-    TActuator::PrintPositionP3Row(S, FP->getActuator());
+    TActuator::printPositionP3Row(S, FP->getActuator());
 }
 //lee los valores de las propiedades de posición de un posicionador
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
-void  TRoboticPositioner::ReadPositionP3Row(TRoboticPositioner* &FP,
+void  TRoboticPositioner::readPositionP3Row(TRoboticPositioner* &FP,
                                             const AnsiString& S, int &i)
 {
     TActuator *A = FP->getActuator();
-    TActuator::ReadPositionP3Row(A, S,  i);
+    TActuator::readPositionP3Row(A, S,  i);
 }
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
-void  TRoboticPositioner::PrintPositionPPARow(AnsiString& S,
+void  TRoboticPositioner::printPositionPPARow(AnsiString& S,
                                               TRoboticPositioner *FP)
 {
-    TActuator::PrintPositionPPARow(S, FP->getActuator());
+    TActuator::printPositionPPARow(S, FP->getActuator());
 }
 
 //lee una instancia en una cadena
-void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &RP,
+void  TRoboticPositioner::readInstance(TRoboticPositioner* &RP,
                                        const AnsiString& S, int &i)
 {
     //CHECK THE PRECONDITIONS:
@@ -716,7 +723,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &RP,
             try {
             StrTravelSeparators(S, i);
             TActuator *aux = t_RP.getActuator();
-            TActuator::ReadInstance(aux, S, i);
+            TActuator::readInstance(aux, S, i);
         }catch(...) {
             throw;
         }
@@ -867,7 +874,7 @@ void  TRoboticPositioner::ReadInstance(TRoboticPositioner* &RP,
     } while(status < 14);
 
     //asigna la variable tampón
-    RP->Clone(&t_RP);
+    RP->clone(&t_RP);
 }
 
 //---------------------------------------------------------------------------
@@ -880,7 +887,7 @@ TRoboticPositioner::TRoboticPositioner(void) :
     p_Tstop(MEGARA_Tstop), p_Tshiff(MEGARA_Tshiff),
     p_SPMadd(MEGARA_SPMadd),
     //inicializa las propiedades de estado
-    p_FaultProbability(0), p_Dsec(1),
+    p_FaultProbability(0), p_DsecMax(1), p_Dsec(p_DsecMax),
     //contruye e inicializa las propiedades de control
     CMF(),
     //inicializa las propiedades de estado
@@ -899,7 +906,7 @@ TRoboticPositioner::TRoboticPositioner(void) :
     Builts.Add(this);
 }
 //build a RP with the indicated values
-//if Id is less 1 throw an exception EimproperArgument
+//if Id is less 1 throw an exception EImproperArgument
 TRoboticPositioner::TRoboticPositioner(int Id, TDoublePoint P0,
                                        double thetaO1) :
     //inicializa las propiedades de tolerancia
@@ -930,11 +937,8 @@ TRoboticPositioner::TRoboticPositioner(int Id, TDoublePoint P0,
     Builts.Add(this);
 }
 
-/*//copy all control properties of a RP
-void CopyControl(const TRoboticPositioner*);
-void CopyControl(const TRoboticPositioner&);*/
 //copy all tolerance properties of a RP
-void TRoboticPositioner::CopyTolerance(const TRoboticPositioner *RP)
+void TRoboticPositioner::copyTolerance(const TRoboticPositioner *RP)
 {
     //check the precondition
     if(RP == NULL)
@@ -947,17 +951,8 @@ void TRoboticPositioner::CopyTolerance(const TRoboticPositioner *RP)
     p_Tshiff = RP->getTshiff();
     p_SPMadd = RP->getSPMadd();
 }
-void TRoboticPositioner::CopyTolerance(const TRoboticPositioner& RP)
-{
-    //copia las tolerancias
-    p_Eo = RP.getEo();
-    p_Ep = RP.getEp();
-    p_Tstop = RP.getTstop();
-    p_Tshiff = RP.getTshiff();
-    p_SPMadd = RP.getSPMadd();
-}
 //copy all status properties of a RP
-void TRoboticPositioner::CopyStatus(const TRoboticPositioner *RP)
+void TRoboticPositioner::copyStatus(const TRoboticPositioner *RP)
 {
     //check the precondition
     if(RP == NULL)
@@ -969,47 +964,30 @@ void TRoboticPositioner::CopyStatus(const TRoboticPositioner *RP)
     ControlMode = RP->ControlMode;
     MPturn.Clone(RP->MPturn);
     MPretraction.Clone(RP->MPretraction);
+    p_DsecMax = RP->p_DsecMax;
     p_Dsec = RP->p_Dsec;
-}
-void TRoboticPositioner::CopyStatus(const TRoboticPositioner& RP)
-{
-    Disabled = RP.Disabled;
-    setFaultProbability(RP.getFaultProbability());
-    FaultType = RP.FaultType;
-    ControlMode = RP.ControlMode;
-    MPturn.Clone(RP.MPturn);
-    MPretraction.Clone(RP.MPretraction);
-    p_Dsec = RP.p_Dsec;
 }
 
 //copy all properties of a RP
-void TRoboticPositioner::Clone(const TRoboticPositioner *RP)
+void TRoboticPositioner::clone(const TRoboticPositioner *RP)
 {
     //check the precondition
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //copia las propiedades
-    getActuator()->Clone(RP->getActuator());
+    getActuator()->clone(RP->getActuator());
     CMF.Copy(RP->CMF);
-    CopyTolerance(RP);
-    CopyStatus(RP);
-}
-void TRoboticPositioner::Clone(const TRoboticPositioner& RP)
-{
-    //copia las propiedades
-    getActuator()->Clone(RP.getActuator());
-    CMF.Copy(RP.CMF);
-    CopyTolerance(RP);
-    CopyStatus(RP);
+    copyTolerance(RP);
+    copyStatus(RP);
 }
 TRoboticPositioner& TRoboticPositioner::operator=(const TRoboticPositioner& RP)
 {
     //copia las propiedades
-    getActuator()->Clone(RP.getActuator());
+    getActuator()->clone(RP.getActuator());
     CMF.Copy(RP.CMF);
-    CopyTolerance(RP);
-    CopyStatus(RP);
+    copyTolerance(&RP);
+    copyStatus(&RP);
 
     //devuelve la referenciaa este posicionador
     return *this;
@@ -1025,17 +1003,7 @@ TRoboticPositioner::TRoboticPositioner(const TRoboticPositioner *RP)
     //build a clone of the actuator of the RP
     p_Actuator = new TActuator(RP->getActuator());
     //copy all other properties of the RP
-    Clone(RP);
-
-    //añade el posicionador a la lista de contruidos
-    Builts.Add(this);
-}
-TRoboticPositioner::TRoboticPositioner(const TRoboticPositioner& RP)
-{
-    //contruye un clon del actuador del posicionador
-    p_Actuator = new TActuator(RP.getActuator());
-    //copia todas las propiedades del posicionador
-    Clone(RP);
+    clone(RP);
 
     //añade el posicionador a la lista de contruidos
     Builts.Add(this);
@@ -1043,14 +1011,18 @@ TRoboticPositioner::TRoboticPositioner(const TRoboticPositioner& RP)
 
 //copy all properties of a RP
 //except (P0, Id, Id1, Id2)
-void TRoboticPositioner::Apply(const TRoboticPositioner& RP)
+void TRoboticPositioner::apply(const TRoboticPositioner *RP)
 {
+    //check the precondition
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
+
     TDoublePoint P0 = getActuator()->getP0();
     int Id = getActuator()->getId();
     int Id1 = CMF.getId1();
     int Id2 = CMF.getId2();
 
-    Clone(RP);
+    clone(RP);
 
     getActuator()->setP0(P0);
     getActuator()->setId(Id);
@@ -1119,7 +1091,7 @@ double TRoboticPositioner::SPMdyn(void) const
 
 //asigna conjuntamente los márgenes de segudidad
 //      (Eo, Ep, Tstop, Tshiff, SPMadd)
-void TRoboticPositioner::SetTolerances(double Eo, double Ep,
+void TRoboticPositioner::setTolerances(double Eo, double Ep,
                                        double Tstop, double Tshiff,
                                        double SPMadd)
 {
@@ -1147,7 +1119,7 @@ void TRoboticPositioner::SetTolerances(double Eo, double Ep,
     p_SPMadd = SPMadd;
 
     //asimila (Eo, Ep, Tstop, Tshiff)
-    CalculateSPMComponents();
+    calculateSPMcomponents();
 }
 
 //--------------------------------------------------------------------------
@@ -1157,20 +1129,20 @@ void TRoboticPositioner::SetTolerances(double Eo, double Ep,
 //      (Eo, Ep, Tstop, Tshiff, SPMadd)
 //      FP->rmax
 //determina:
-//      (SPMrec, SPMsta, SPMdyn, SPMmin)
-void TRoboticPositioner::CalculateSPMComponents(void)
+//      (SPMrec, SPMsta, SPMdyn)
+void TRoboticPositioner::calculateSPMcomponents(void)
 {
     //CALULA LAS COMPONENTES DE SPM:
 
     double aux = SPMsta();
-    getActuator()->SetSPMComponents(SPMrec(), aux, SPMdyn(), aux);
+    getActuator()->setSPMcomponents(SPMrec(), aux, SPMdyn());
     getActuator()->getBarrier()->setSPM(aux);
 }
 
 //asigna la componente de SPM para absorber el desplazamiento
 //por corrección del offset
 //      Actuator->SPMoff = PAem*Actuator->rmax + Pem mm
-void TRoboticPositioner::SetSPMoff(double PAem, double Pem)
+void TRoboticPositioner::setSPMoff(double PAem, double Pem)
 {
     //el valor de PAem debe ser no negativo
     if(PAem < 0)
@@ -1230,7 +1202,7 @@ void TRoboticPositioner::M1(double p_1fin)
     //check the preconditions
     if(getActuator()->getQuantify_() != true)
         throw EImproperCall("rotor 1 quantifier should be enabled");
-    if(getActuator()->IsntInDomainp_1(p_1fin))
+    if(getActuator()->isntInDomainp_1(p_1fin))
         throw EImproperArgument("position p_1fin should be in rot 1 domain");
 
     //Rotor 1 quantifier shall be enabled to avoid
@@ -1252,7 +1224,7 @@ void TRoboticPositioner::M2(double p___3fin)
     //check the preconditions
     if(getActuator()->getArm()->getQuantify___() != true)
         throw EImproperCall("rotor 2 quantifier should be enabled");
-    if(getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+    if(getActuator()->getArm()->isntInDomainp___3(p___3fin))
         throw EImproperArgument("position p___3fin should be in rot 2 domain");
 
     //Rotor 2 quantifier shall be enabled to avoid
@@ -1274,7 +1246,7 @@ void TRoboticPositioner::MM(double p_1fin, double p___3fin)
     //check the preconditions
     if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
         throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
-    if(getActuator()->IsntInDomainp_1(p_1fin) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+    if(getActuator()->isntInDomainp_1(p_1fin) || getActuator()->getArm()->isntInDomainp___3(p___3fin))
         throw EImproperArgument("PPA (p_1fin, p___3fin) should be in rotor domain");
 
     //Quantifier of the rotors shall be enabled to avoid
@@ -1295,7 +1267,7 @@ void TRoboticPositioner::MM(double p_1fin, double p___3fin)
 void TRoboticPositioner::M1(double p_1sta, double p_1fin)
 {
     //check theprecondition
-    if(getActuator()->IsntInDomainp_1(p_1sta) || getActuator()->IsntInDomainp_1(p_1fin))
+    if(getActuator()->isntInDomainp_1(p_1sta) || getActuator()->isntInDomainp_1(p_1fin))
         throw EImproperArgument("position angles p_1sta and p_1fin should be in rot 1 domain");
 
     //program the turn of rotor 1
@@ -1307,7 +1279,7 @@ void TRoboticPositioner::M1(double p_1sta, double p_1fin)
 void TRoboticPositioner::M2(double p___3sta, double p___3fin)
 {
     //check theprecondition
-    if(getActuator()->getArm()->IsntInDomainp___3(p___3sta) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
+    if(getActuator()->getArm()->isntInDomainp___3(p___3sta) || getActuator()->getArm()->isntInDomainp___3(p___3fin))
         throw EImproperArgument("position angles p___3sta and p___3fin should be in rot 2 domain");
 
     //program the turn of rotor 1
@@ -1321,12 +1293,21 @@ void TRoboticPositioner::M2(double p___3sta, double p___3fin)
 void TRoboticPositioner::MM(double p_1sta, double p___3sta,
                             double p_1fin, double p___3fin)
 {
-    //check theprecondition
-    if(getActuator()->IsntInDomainp_1(p_1sta) || getActuator()->IsntInDomainp_1(p_1fin))
-        throw EImproperArgument("position angles p_1sta and p_1fin should be in rot 1 domain");
-    //check theprecondition
-    if(getActuator()->getArm()->IsntInDomainp___3(p___3sta) || getActuator()->getArm()->IsntInDomainp___3(p___3fin))
-        throw EImproperArgument("position angles p___3sta and p___3fin should be in rot 2 domain");
+    //CHECK THE PRECONDITIONS:
+
+    if(getActuator()->isntInDomainp_1(p_1sta))
+        throw EImproperArgument("position angle p_1sta should be in the rot 1 domain");
+
+    if(getActuator()->isntInDomainp_1(p_1fin))
+        throw EImproperArgument("position angle p_1fin should be in the rot 1 domain");
+
+    if(getActuator()->getArm()->isntInDomainp___3(p___3sta))
+        throw EImproperArgument("position angle p___3sta should be in the rot 2 domain");
+
+    if(getActuator()->getArm()->isntInDomainp___3(p___3fin))
+        throw EImproperArgument("position angle p___3fin should be in the rot 2 domain");
+
+    //MAKE ACTIONS:
 
     //program the turn of the rotors
     CMF.ProgramBoth(p_1sta, p___3sta, p_1fin, p___3fin);
@@ -1374,31 +1355,31 @@ void TRoboticPositioner::setInstruction(const TInstruction &Instruction)
 
         } else if(Instruction.getName() == "M1") {
             //enable temporarity the rotor quantifier to accomplish precondition
-            getActuator()->PushQuantify_();
+            getActuator()->pushQuantify_();
             getActuator()->setQuantify_(true);
             //program the gesture
             M1(Instruction.Args.getFirst());
             //restore the status of rotor quantifier
-            getActuator()->RestoreAndPopQuantify_();
+            getActuator()->restoreAndPopQuantify_();
 
         } else if(Instruction.getName() == "M2") {
             //enable temporarity the rotor quantifier to accomplish precondition
-            getActuator()->getArm()->PushQuantify___();
+            getActuator()->getArm()->pushQuantify___();
             getActuator()->getArm()->setQuantify___(true);
             //program the gesture
             M2(Instruction.Args.getFirst());
             //restore the status of rotor quantifier
-            getActuator()->getArm()->RestoreAndPopQuantify___();
+            getActuator()->getArm()->restoreAndPopQuantify___();
 
         } else if(Instruction.getName() == "MM") {
             //enable temporarity the rotor quantifier to accomplish precondition
-            getActuator()->PushQuantifys();
+            getActuator()->pushQuantifys();
             getActuator()->setQuantify_(true);
             getActuator()->getArm()->setQuantify___(true);
             //program the gesture
             MM(Instruction.Args.getFirst(), Instruction.Args[1]);
             //restore the status of rotor quantifier
-            getActuator()->RestoreAndPopQuantifys();
+            getActuator()->restoreAndPopQuantifys();
 
         } else if(Instruction.getName() == "SP") {
             SP();
@@ -1436,8 +1417,8 @@ void TRoboticPositioner::getInstruction(TInstruction &Instruction) const
 }
 
 //get the instruction to move:
-//  rotor 1 from actualposition to Max(0, p_1min)
-//  rotor 2 from actualposition to Max(0, p___3min)
+//  rotor 1 from actualposition to p_1first
+//  rotor 2 from actualposition to p___3first
 void TRoboticPositioner::getInstructionToGoToTheOrigin(TInstruction& Instruction) const
 {
     //determine the position of the origin of each rotor
@@ -1480,63 +1461,49 @@ void TRoboticPositioner::getInstructionToGoToTheOrigin(TInstruction& Instruction
 
 //program the abatement of the arm to
 //the more closer-stable security position
-void TRoboticPositioner::programTurnArmToSafeArea(void)
+void TRoboticPositioner::programTurnArmToSecurityPosition(void)
 {
     //translate to steps the security position limit of the rotor 2
     double p___3saf = getActuator()->getArm()->getF().Image(getActuator()->gettheta___3saf());
+
+    //get the first stable position less to the limit
+    p___3saf = floor(p___3saf);
+
+    //check if there is a security position
+    if(p___3saf < 0)
+        throw EImproperCall("there isn't a security position");
+
     //set the firs stable position less than the security position limit
-    M2(Max(0., floor(p___3saf)));
+    M2(p___3saf);
 }
 
 //program the retraction of the arm to
 //the more closer-stable security position
 //if rotor 1 quantifier or rotor 2 quantifier is disabled:
 //  throw and exception EImproperCall
-void TRoboticPositioner::programRetractArmToSafeArea(void)
+void TRoboticPositioner::programRetractionToSecurityPosition(void)
 {
     //check the preconditions
     if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
         throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
 
-    /*    //CONFIGURA LA VELOCIDAD DE ROT 1 IGUAL A 1/2 DE LA VELOCIDAD DE ROT 2:
-
-    switch(CMF.getMFM()) {
-    case mfmSquare: {
-        //traduce la velocidad de rot 2 a rad/ms
-        double vmaxabs2 = CMF.getSF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
-        //calcula la velocidad a la que debe moverse rot 1 en rad/ms
-        double vmaxabs1 = vmaxabs2/2;
-        //traduce a pasos/ms y la asigna
-        CMF.getSF1()->setvmaxabs(vmaxabs1/M_2PI*getActuator()->getSB1());
-    } break;
-    case mfmRamp: {
-        //traduce la velocidad de rot 2 a rad/ms
-        double vmaxabs2 = CMF.getRF2()->getvmaxabs()/getActuator()->getArm()->getSB2()*M_2PI;
-        //calcula la velocidad a la que debe moverse rot 1 en rad/ms
-        double vmaxabs1 = vmaxabs2/2;
-        //traduce a pasos/ms, la cuantifica y la asigna
-        CMF.getRF1()->setvmaxabs(round(vmaxabs1/M_2PI*getActuator()->getSB1()));
-    } break;
-    }
-
-    //Nótese que para traducir la velocidad angular de rad/ms a pasos/ms
-    //no debe emplearse la función G de los cuantificadores, cuyo dominio
-    //está restringido, por lo que el resultado podría ser menor que 1 ms.
-*/
     //DETERMINA LA POSICIÓN A LA QUE DEBE  MOVERSE ROT 2:
 
     //traduce la posisión de seguridad de rot 2 a pasos
     double p___3saf = getActuator()->getArm()->getF().Image(getActuator()->gettheta___3saf());
     //determina la primra posición de seguridad estable de rot 2
-    double p___3saf_ = Max(0., floor(p___3saf));
+    p___3saf = floor(p___3saf);
+
+    //check if there is a security position
+    if(p___3saf < 0)
+        throw EImproperCall("there isn't a security position");
 
     //DETERMINA LA POSICIÓN A LA QUE DEBE MOVERSE ROT 1:
 
     double theta_1; //posición en radianes a la que debe moverse rot 1
-    double p_1_;    //posición en pasos estable en a la que debe moverse rot 1
 
     //determina la distancia en pasos a recorrer por rot 2 en pasos
-    double dp2 = getActuator()->getArm()->getp___3() -  p___3saf_;
+    double dp2 = getActuator()->getArm()->getp___3() -  p___3saf;
     //traduce la distancia a radianes
     double dt2 = getActuator()->getArm()->getG().Image(dp2);
     //divide la distancia entre dos
@@ -1553,12 +1520,40 @@ void TRoboticPositioner::programRetractArmToSafeArea(void)
     //traduce la nueva posición a pasos
     double p_1 = getActuator()->getF().Image(theta_1);
     //determines the more closer estable position
-    p_1_ = Max(0., round(p_1));
+    p_1 = round(p_1);
+
+    //check if there is a security position
+    if(p_1 < 0)
+        throw EImproperCall("there isn't a security position");
 
     //PROGRAM THE MOVEMENT OF THE ROTORS:
 
     //program the movement to go to the stable position
-    MM(p_1_, p___3saf_);
+    MM(p_1, p___3saf);
+}
+//program the extension of the fiber from the actual position
+//to the more spread position
+//if rotor 1 quantifier or rotor 2 quantifier is disabled:
+//  throw and exception EImproperCall
+void TRoboticPositioner::programExtensionToMoreSpreadPosition(void)
+{
+    //check the preconditions
+    if(getActuator()->getQuantify_() != true || getActuator()->getArm()->getQuantify___() != true)
+        throw EImproperCall("rotor 1 quantifier and rotor 2 quantifier should be enabled");
+
+    double theta___3ini = getActuator()->getArm()->gettheta___3();
+    double theta___3fin = M_PI;
+    double dt2 = theta___3fin - theta___3ini;
+    double dt1 = dt2/2;
+    double theta_1ini = getActuator()->gettheta_1();
+    double theta_1fin = theta_1ini + dt1;
+
+    //get the final more closer stable position
+    double p_1nsp, p___3nsp;
+    getActuator()->getNearestStablePosition(p_1nsp, p___3nsp, theta_1fin, theta___3fin);
+
+    //program the movement to go to the stable position
+    MM(p_1nsp, p___3nsp);
 }
 
 //program turn of rotor 1 to theta_1
@@ -1566,173 +1561,175 @@ void TRoboticPositioner::programRetractArmToSafeArea(void)
 //  throw an exception EImproperArgument
 void TRoboticPositioner::programTurnCilinderTotheta_1(double theta_1)
 {
-    //traduce a pasos
-    int p_1 = getActuator()->getQ()[getActuator()->getF().Image(theta_1)];
-
     try{
-        //programa el gesto
+        //translate from radians to steps
+        int p_1 = getActuator()->getQ()[getActuator()->getF().Image(theta_1)];
+        //program the gesture
         M1(p_1);
+
     } catch(...) {
         throw;
     }
 }
-/*//gira el brazo hasta el área de seguridad
-//si el brazo ya está en el área de seguridad devuelve falso
-void TRoboticPositioner::TurnArmToSafeArea(void)
-{
-        //el brazo no debería estar en el area de seguridad
-        if(ArmIsInSafeArea())
-                throw EImproperCall("arm should not to be in safe area");
 
-        //calcula la posición de seguridad estable más próxima
-        int aux = floor(p__3saf);
-
-        try {
-                //programa el gesto
-                M2(aux);
-        } catch(...) {
-                throw;
-        }
-} */
-//progrsam go directly from actual position to (x_3, y_3)
+//program go directly from actual position to (x_3, y_3)
 //if (x_3, y_3) is out the scope of the RP:
 //  throw an exception EImproperArgument
-void TRoboticPositioner::programGoDirectlyToCartesianP_3(double x_3, double y_3)
+double TRoboticPositioner::programGoDirectlyToCartesianP_3(double x_3, double y_3)
 {
-    //traduce a polares en S1
-    double r_3 = Mod(x_3, y_3);
-    double theta_3 = Arg(x_3, y_3);
-
-    //determina las posiciones de los ejes para llevar P3 a (r_3, theta_3)
-    //y determina si la posición está dentro del dominio
-    double theta_1, theta___3;
-    bool isindomine = getActuator()->AnglesToGoP_3(theta_1, theta___3,
-                                                   r_3, theta_3);
-
-    //la posición (x_3, y_3) debería estar dentro del dominio de P_3
-    if(!isindomine)
-        throw EImproperArgument("position (x_3, y_3) should be in P_3 domain");
-
-    //traduce a pasos
-    double p_1 = getActuator()->getF().Image(theta_1);
-    double p___3 = getActuator()->getArm()->getF().Image(theta___3);
-
-    //cuantifica los pasos
-    p_1 = getActuator()->getQ()[p_1];
-    p___3 = getActuator()->getArm()->getQ()[p___3];
-
-    //ADVERTENCIA: la cuantificación de los pasos no dará lugar al centroide
-    //más próximo, sino solo a una buena aproximación. Para obtener las
-    //coordenadas (p_1, p_3) del centroide más próximo debría usarse
-    //el algoritmo de Marco Azzaro.
-
     try {
+        //traduce a polares en S1
+        double r_3, theta_3;
+        if(x_3!=0 && y_3!=0) {
+            r_3 = Mod(x_3, y_3);
+            theta_3 = Arg(x_3, y_3);
+        } else {
+            r_3 = 0;
+            theta_3 = M_PI/2;
+        }
+
+        //determina las posiciones de los rotores para llevar P3 a (r_3, theta_3)
+        //y determina si la posición está dentro del dominio
+        double theta_1, theta___3;
+        bool isindomine = getActuator()->anglesToGoP_3(theta_1, theta___3,
+                                                       r_3, theta_3);
+
+        //la posición (x_3, y_3) debería estar dentro del dominio de P_3
+        if(!isindomine)
+            throw EImproperArgument("position (x_3, y_3) should be in P_3 domain");
+
+        //get themore closer stableposition
+        //and calculate the distance fromthe observing position to the indictaed point
+        double p_1nsp, p___3nsp;
+        double distance = getActuator()->getNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+
         //programa el gesto
-        MM(int(p_1), int(p___3));
+        MM(int(p_1nsp), int(p___3nsp));
+
+        //return the distance
+        return distance;
+
     } catch(...) {
         throw;
     }
 }
 
-//progrsam go directly from actual position to (x3, y3)
+//program go directly from actual position to (x3, y3)
 //if (x3, y3) is out the scope of the RP:
 //  throw an exception EImproperArgument
-void TRoboticPositioner::programGoDirectlyToCartesianP3(double x3, double y3)
+double TRoboticPositioner::programGoDirectlyToCartesianP3(double x3, double y3)
 {
     //traduce las coordenadas cartesianas de S0 a S1
     TDoublePoint P_3 = getActuator()->S0recToS1rec(x3, y3);
 
-    //traduce a polares en S1
-    double r_3, theta_3;
-    if(P_3.x!=0 && P_3.y!=0) {
-        r_3 = Mod(P_3);
-        theta_3 = Arg(P_3);
-    } else {
-        r_3 = 0;
-        theta_3 = M_PI/2;
-    }
+    //program go directly using coordinates in S1
+    //and calculate the distance fromthe observing position to the indictaed point
+    double distance = programGoDirectlyToCartesianP_3(P_3.x, P_3.y);
 
-    //determina las posiciones de los ejes para llevar P3 a (r_3, theta_3)
-    //y determina si la posición está dentro del dominio
-    double theta_1, theta___3;
-    bool isindomine = getActuator()->AnglesToGoP_3(theta_1, theta___3, r_3, theta_3);
-
-    //la posición (x3, y3) debería estar dentro del dominio de P3
-    if(!isindomine)
-        throw EImproperArgument("position (x3, y3) should be in P3 domain");
-
-    //traduce a pasos
-    double p_1 = getActuator()->getF().Image(theta_1);
-    double p___3 = getActuator()->getArm()->getF().Image(theta___3);
-
-    //cuantifica los pasos
-    p_1 = getActuator()->getQ()[p_1];
-    p___3 = getActuator()->getArm()->getQ()[p___3];
-
-    //ADVERTENCIA: la cuantificación de los pasos no dará lugar al centroide
-    //más próximo, sino solo a una buena aproximación. Para obtener las
-    //coordenadas (p_1, p_3) del centroide más próximo debría usarse
-    //el algoritmo de Marco Azzaro.
-
-    try {
-        //programa el gesto
-        MM(int(p_1), int(p___3));
-    } catch(...) {
-        throw;
-    }
+    //return the distance
+    return distance;
 }
 
 //MÉTODOS PARA MODIFICAR EL GESTO PROGRAMADO:
 
-//invierte el gesto en el dominio del tiempo
-void TRoboticPositioner::InvertTime(void)
+//invert thep rogrammed gesture in the time domain
+void TRoboticPositioner::invertTime(void)
 {
-    //invierte la funcion de movimiento compuesto en el dominio del tiempo
+    //invert the composed motion function in the time domain
     CMF.InvertTime();
 }
 
 //METHODS TO ADD MESSAGE INSTRUCTIONS TO THE MP:
 
-//add a gesture to retract fromactual position to security position
-//or to the rotor 1 is in the origin
-bool TRoboticPositioner::addMIforRetraction(void)
+//Propose in (MPturn, MPretraction) a recovery program composed by
+//one or two gestures:
+//  1. Radial retraction to where it is possible.
+//  2. Abatement of the arm to security position (if necessary).
+//Preconditions:
+//- The quantifiers of the rotors shall be enabled.
+//- The rotor 2 shall be in unsecurity position.
+//Postconditions:
+//- The MPturn will be empty.
+//- The MPretraction will contains the MP for retract the arm
+//  to the first stable security position.
+void TRoboticPositioner::proposeRecoveryProgram(void)
 {
-    //determines the necessary displaceement of rot 2 in steps
+    //CHECK THE PRECONDITIONS:
+
+    if(getActuator()->getQuantify_()!=true || getActuator()->getArm()->getQuantify___()!=true)
+        throw EImproperCall("the quantifiers of the rotors shall be enabled");
+
+    if(getActuator()->ArmIsInSafeArea())
+        throw EImproperArgument("the rotor 2 shall be in unsecurity position");
+
+    //MAKE ACTIONS:
+
+    //initialize the output variables
+    MPturn.Clear();
+    MPretraction.Clear();
+
+    //CALCULATES DE FINAL POSITIONS OF THE ROTORS (p_1fin, p___3fin, p___3saf):
+
+    //determines the first stable security position of rot 2 in steps
     double theta___3saf = getActuator()->gettheta___3saf();
     double p___3saf = getActuator()->getArm()->getF().Image(theta___3saf);
-    double p___3fin = floor(p___3saf);
-    double dp2 = getActuator()->getArm()->getp___3() -  p___3fin;
+    p___3saf = floor(p___3saf);
 
-    //make a rutinary check
-    if(p___3fin < 0)
-        throw EImpossibleError("final position of rotor 2 can not be less zero");
+    //perform a rutinary check
+    if(p___3saf < 0)
+        throw EImpossibleError("rotor 2 position p___3saf should be nonnegative");
+
+    //Note that if(p___3saf < RP->getActuator()->getArm()->getp___3first())
+    //the MP will be proposed but it will not pass the validation process.
 
     //determines the necessary displacement of rot 2 in radians
-    double dt2 = getActuator()->getArm()->getG().Image(dp2);
+    theta___3saf = getActuator()->getArm()->getG().Image(p___3saf);
+    double theta___3ini = getActuator()->getArm()->gettheta___3();
+    double dt2 = theta___3ini - theta___3saf;
 
     //calculates the necessary displacement of rotor 1 in radians
     double dt1 = dt2/2;
 
-    //determines the final position of the rotors in radians
-    double theta_1fin, theta___3fin;
-    if(getActuator()->gettheta_1() > dt1) {
-        theta_1fin = getActuator()->gettheta_1() - dt1;
-        theta___3fin = getActuator()->getArm()->gettheta___3() - dt2;
+    //get the initial position of the rotors 1 in radians
+    double theta_1ini = getActuator()->gettheta_1();
 
-    } else {
-        theta_1fin = 0;
-        dt1 = getActuator()->gettheta_1();
-        dt2 = dt1*2;
-        theta___3fin = getActuator()->getArm()->gettheta___3() - dt2;
-    }
+    //determines the final position of the rotors 1 in radians
+    double theta_1fin;
+    theta_1fin = theta_1ini - dt1;
 
     //determines the final position of rot 1 in steps
     double p_1fin = getActuator()->getF().Image(theta_1fin);
-    p_1fin = Max(0., round(p_1fin));
+    p_1fin = round(p_1fin);
 
-    //determines the final position of rot 2 in steps
-    p___3fin = getActuator()->getArm()->getF().Image(theta___3fin);
-    p___3fin = Max(0., round(p___3fin));
+    //determines if the rotor 1 have enough space for retraction
+    double p_1first = getActuator()->getp_1first();
+    p_1first = ceil(p_1first); //purge lateral effect
+    bool rot1_has_enough = (p_1fin >= p_1first);
+
+    //calculates the final positions according the space available for the rotor 1
+    double p___3fin;
+    //if the rotor 1 has enpough space for execue the retraction
+    if(rot1_has_enough)
+        //determines the final position of rot 2 in steps
+        p___3fin = p___3saf;
+
+    //if the rotor 1 not has enpough space for execue the retraction
+    else {
+        //determines the final position of rot 1 in steps
+        p_1fin = getActuator()->getp_1first();
+
+        //calulates the final position of the rotors in radians
+        theta_1fin = getActuator()->getG().Image(p_1fin);
+        dt1 = theta_1ini - theta_1fin;
+        dt2 = dt1*2;
+        double theta___3fin = theta___3ini - dt2;
+
+        //determines the final position of rot 2 in steps
+        p___3fin = getActuator()->getF().Image(theta___3fin);
+        p___3fin = round(p___3fin);
+    }
+
+    //BUILD AND ADD THE INSTRUCTION FOR RADIAL RETRACTION:
 
     //build a message instruction and set it
     TMessageInstruction *MI = new TMessageInstruction();
@@ -1741,51 +1738,185 @@ bool TRoboticPositioner::addMIforRetraction(void)
     MI->Instruction.Args.setCount(2);
     MI->Instruction.Args[0] = p_1fin;
     MI->Instruction.Args[1] = p___3fin;
+    if(getDsec() < getDsecMax())
+        MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
 
     //add the message instruction to the MP
     Positioning::TMessageList *ML = new Positioning::TMessageList();
     ML->Add(MI);
     MPretraction.Add(ML);
 
-    //determines if it is necessary abate the arm for recovery the security position
-    bool necessary_abate = !getActuator()->p___3IsInSafeArea(p___3fin);
+    //ADD INSTRUCTION FOR ABATEMENT OF THE ARM IF NECESARY:
 
-    //indicates if sill be necessary abate the arm for recovery the security position
-    return necessary_abate;
+    //if it is necessary abate the arm for recovery the security position
+    if (p___3fin > p___3saf) {
+        //build a message instruction and set up
+        TMessageInstruction *MI = new TMessageInstruction();
+        MI->setId(getActuator()->getId());
+        MI->Instruction.setName("M2");
+        MI->Instruction.Args.setCount(1);
+        MI->Instruction.Args[0] = p___3saf;
+        if(getDsec() < getDsecMax())
+            MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+
+        //add the message instruction to the MP
+        Positioning::TMessageList *ML = new Positioning::TMessageList();
+        ML->Add(MI);
+        MPretraction.Add(ML);
+    }
 }
 
-//add amessage instruction to abate the arm to security position
-void TRoboticPositioner::addMIforAbatement(void)
+//Propose (in MPturn, MPretraction) a recovery program composed by
+//two or three gestures:
+//  1. turn of the rotor 1 to p_1new.
+//  2. Radial retraction to where it is possible.
+//  3. Abatement of the arm to security position (if necessary).
+//Inputs:
+//  p_1new: new position where the rotor 1 shall be turned
+//      before the retraction.
+//Preconditions:
+//- The quantifiers of the rotors shall be enabled.
+//- The rotor 2 shall be in unsecurity position.
+//- The new rotor 1 position p_1new shall be in the rotor 1 domain.
+//Postconditions:
+//- The MPturn will contains the MP for turn the rotor 1
+//  to the position p_1new.
+//- The MPretraction will contains the MP for retract the arm
+//  to the first stable security position.
+void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
 {
-    //get the limit security position of rotor 2
-    double theta___3saf = getActuator()->gettheta___3saf();
-    //translate to steps
-    double p___3saf = getActuator()->getArm()->getF().Image(theta___3saf);
-    //determine the firs stable position less than the limit security position
-    double p___3fin = floor(p___3saf);
+    //CHECK THE PRECONDITIONS:
 
-    //make a rutinary check
-    if(p___3fin < 0)
-        throw EImpossibleError("final position of rotor 2 can not be less zero");
+    if(getActuator()->getQuantify_()!=true || getActuator()->getArm()->getQuantify___()!=true)
+        throw EImproperCall("the quantifiers of the rotors shall be enabled");
 
-    //build a message instruction and set up
+    if(getActuator()->ArmIsInSafeArea())
+        throw EImproperArgument("the rotor 2 shall be in unsecurity position");
+
+    if(getActuator()->isntInDomainp_1(p_1new))
+        throw EImproperArgument("the new rotor 1 position p_1new should be in the rotor 1 domain");
+
+    //MAKE ACTIONS:
+
+    //initialize the output variables
+    MPturn.Clear();
+    MPretraction.Clear();
+
+    //BUILD AND ADD THE INSTRUCTION FOR ROTOR 1 TURN:
+
+    //add a instruction for turn of the rotor 1
     TMessageInstruction *MI = new TMessageInstruction();
     MI->setId(getActuator()->getId());
-    MI->Instruction.setName("M2");
+    MI->Instruction.setName("M1");
     MI->Instruction.Args.setCount(1);
-    MI->Instruction.Args[0] = p___3fin;
-
-    //add the message instruction to the MP
+    MI->Instruction.Args[0] = p_1new;
     Positioning::TMessageList *ML = new Positioning::TMessageList();
     ML->Add(MI);
+    MPturn.Add(ML);
+
+    //CALCULATES DE FINAL POSITIONS OF THE ROTORS (p_1fin, p___3fin, p___3saf):
+
+    //determines the first stable security position of rot 2 in steps
+    double theta___3saf = getActuator()->gettheta___3saf();
+    double p___3saf = getActuator()->getArm()->getF().Image(theta___3saf);
+    p___3saf = floor(p___3saf);
+
+    //perform a rutinary check
+    if(p___3saf < 0)
+        throw EImpossibleError("rotor 2 position p___3saf should be nonnegative");
+
+    //Note that if(p___3saf < RP->getActuator()->getArm()->getp___3first())
+    //the MP will be proposed but it will not pass the validation process.
+
+    //determines the necessary displacement of rot 2 in radians
+    theta___3saf = getActuator()->getArm()->getG().Image(p___3saf);
+    double theta___3ini = getActuator()->getArm()->gettheta___3();
+    double dt2 = theta___3ini - theta___3saf;
+
+    //calculates the necessary displacement of rotor 1 in radians
+    double dt1 = dt2/2;
+
+    //get the initial position of the rotors 1 in radians
+    double theta_1ini = getActuator()->getG().Image(p_1new); //<-------------------DIFERENT!
+
+    //determines the final position of the rotors 1 in radians
+    double theta_1fin;
+    theta_1fin = theta_1ini - dt1;
+
+    //determines the final position of rot 1 in steps
+    double p_1fin = getActuator()->getF().Image(theta_1fin);
+    p_1fin = round(p_1fin);
+
+    //determines if the rotor 1 have enough space for retraction
+    double p_1first = getActuator()->getp_1first();
+    p_1first = ceil(p_1first); //purge lateral effect
+    bool rot1_has_enough = (p_1fin >= p_1first);
+
+    //calculates the final positions according the space available for the rotor 1
+    double p___3fin;
+    //if the rotor 1 has enpough space for execue the retraction
+    if(rot1_has_enough)
+        //determines the final position of rot 2 in steps
+        p___3fin = p___3saf;
+
+    //if the rotor 1 not has enpough space for execue the retraction
+    else {
+        //determines the final position of rot 1 in steps
+        p_1fin = getActuator()->getp_1first();
+
+        //calulates the final position of the rotors in radians
+        theta_1fin = getActuator()->getG().Image(p_1fin);
+        dt1 = theta_1ini - theta_1fin;
+        dt2 = dt1*2;
+        double theta___3fin = theta___3ini - dt2;
+
+        //determines the final position of rot 2 in steps
+        p___3fin = getActuator()->getF().Image(theta___3fin);
+        p___3fin = round(p___3fin);
+    }
+
+    //BUILD AND ADD THE INSTRUCTION FOR RADIAL RETRACTION:
+
+    //build a message instruction and set it
+    MI = new TMessageInstruction();
+    MI->setId(getActuator()->getId());
+    MI->Instruction.setName("MM");
+    MI->Instruction.Args.setCount(2);
+    MI->Instruction.Args[0] = p_1fin;
+    MI->Instruction.Args[1] = p___3fin;
+    if(getDsec() < getDsecMax())
+        MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+
+    //add the message instruction to the MP
+    ML = new Positioning::TMessageList();
+    ML->Add(MI);
     MPretraction.Add(ML);
+
+    //ADD INSTRUCTION FOR ABATEMENT OF THE ARM IF NECESARY:
+
+    //if it is necessary abate the arm for recovery the security position
+    if (p___3fin > p___3saf) {
+        //build a message instruction and set up
+        TMessageInstruction *MI = new TMessageInstruction();
+        MI->setId(getActuator()->getId());
+        MI->Instruction.setName("M2");
+        MI->Instruction.Args.setCount(1);
+        MI->Instruction.Args[0] = p___3saf;
+        if(getDsec() < getDsecMax())
+            MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+
+        //add the message instruction to the MP
+        Positioning::TMessageList *ML = new Positioning::TMessageList();
+        ML->Add(MI);
+        MPretraction.Add(ML);
+    }
 }
 
 //MÉTODOS PARA DETERMINAR LA DISTANCIA MÁXIMA RECORRIDA
 //POR UN PUNTO DEL BRAZO:
 
 //determina el valor absoluto de
-//el ángulo máximo recorrido al moverse el eje 1 durante un tiempo T
+//el ángulo máximo recorrido al moverse el rotor 1 durante un tiempo T
 //      theta_MaxAbs(T) = Actuator->G.Image(CMF.vmaxabs1)*T;
 double TRoboticPositioner::theta_MaxAbs(double T)
 {
@@ -1797,7 +1928,7 @@ double TRoboticPositioner::theta_MaxAbs(double T)
 }
 //determina el valor absoluto de
 //la distancia máxima recorrida por un punto del brazo
-//al moverse el eje 1 durante un tiempo T
+//al moverse el rotor 1 durante un tiempo T
 //      d_MaxAbs(T) = theta_MaxAbs(T)*Actuator->r_max;
 double TRoboticPositioner::d_MaxAbs(double T)
 {
@@ -1809,7 +1940,7 @@ double TRoboticPositioner::d_MaxAbs(double T)
 }
 
 //determina el valor absoluto de
-//el ángulo máximo recorrido al moverse el eje 2 durante un tiempo T
+//el ángulo máximo recorrido al moverse el rotor 2 durante un tiempo T
 //      theta___MaxAbs(T) = Actuator->Arm->G.Image(CMF.vmaxabs2)*T;
 double TRoboticPositioner::theta___MaxAbs(double T)
 {
@@ -1821,7 +1952,7 @@ double TRoboticPositioner::theta___MaxAbs(double T)
 }
 //determina el valor absoluto de
 //la distancia máxima recorrida por un punto del brazo
-//al moverse el eje 2 durante un tiempo T
+//al moverse el rotor 2 durante un tiempo T
 //      d___MaxAbs(T) = theta___MaxAbs(T)*Actuator->Arm->L1V;
 double TRoboticPositioner::d___MaxAbs(double T)
 {
@@ -1833,7 +1964,7 @@ double TRoboticPositioner::d___MaxAbs(double T)
 }
 
 //determina una cota superior para la distancia máxima recorrida
-//por un punto del brazo del posicionador, al moverse ambos ejes
+//por un punto del brazo del posicionador, al moverse ambos rotores
 //durante un intervalo de tiempo T
 //      dMaxAbs = Max(d_MaxAbs(T), d___MaxAbs(T))
 double TRoboticPositioner::dMaxAbs(double T)
@@ -1916,37 +2047,37 @@ double TRoboticPositioner::dp1(void) const
 
 //MOTION METHODS:
 
-//lleva los ejes del cilindro adscrito a
+//lleva los rotores del cilindro adscrito a
 //las posiciones correspondientes al instante t
 //suponiendo que no hay pérdida de pasos
-void TRoboticPositioner::Move(double t)
+void TRoboticPositioner::move(double t)
 {
     if(CMF.getMF1()!=NULL && CMF.getMF2()!=NULL)
-        getActuator()->SetAnglesSteps(CMF.MF1p(t), CMF.MF2p(t));
+        getActuator()->setAnglesSteps(CMF.MF1p(t), CMF.MF2p(t));
     else if(CMF.getMF1()!=NULL && CMF.getMF2()==NULL)
         getActuator()->setp_1(CMF.MF1p(t));
     else if(CMF.getMF1()==NULL && CMF.getMF2()!=NULL)
         getActuator()->getArm()->setp___3(CMF.MF2p(t));
 }
-//lleva los ejes del cilindro adscrito a
+//lleva los rotores del cilindro adscrito a
 //las posiciones correspondientes al instante 0
 //suponiendo que no hay pérdida de pasos
-void TRoboticPositioner::MoveSta(void)
+void TRoboticPositioner::moveSta(void)
 {
     if(CMF.getMF1()!=NULL && CMF.getMF2()!=NULL)
-        getActuator()->SetAnglesSteps(CMF.getMF1()->getpsta(), CMF.getMF2()->getpsta());
+        getActuator()->setAnglesSteps(CMF.getMF1()->getpsta(), CMF.getMF2()->getpsta());
     else if(CMF.getMF1()!=NULL && CMF.getMF2()==NULL)
         getActuator()->setp_1(CMF.getMF1()->getpsta());
     else if(CMF.getMF1()==NULL && CMF.getMF2()!=NULL)
         getActuator()->getArm()->setp___3(CMF.getMF2()->getpsta());
 }
-//lleva los ejes del cilindro adscrito a
+//lleva los rotores del cilindro adscrito a
 //las posiciones correspondientes al instante Tmax
 //suponiendo que no hay pérdida de pasos
-void TRoboticPositioner::MoveFin(void)
+void TRoboticPositioner::moveFin(void)
 {
     if(CMF.getMF1()!=NULL && CMF.getMF2()!=NULL)
-        getActuator()->SetAnglesSteps(CMF.getMF1()->getpfin(), CMF.getMF2()->getpfin());
+        getActuator()->setAnglesSteps(CMF.getMF1()->getpfin(), CMF.getMF2()->getpfin());
     else if(CMF.getMF1()!=NULL && CMF.getMF2()==NULL)
         getActuator()->setp_1(CMF.getMF1()->getpfin());
     else if(CMF.getMF1()==NULL && CMF.getMF2()!=NULL)

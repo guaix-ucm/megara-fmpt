@@ -80,7 +80,7 @@ class TBarrier {
         //      {thetaO1, P0}
         //determina:
         //      {Contour}
-        void CalculateImage(void);
+        void calculateImage(void);
 
 public:
         //###################################################################
@@ -159,7 +159,7 @@ public:
         //MÉTODOS ESTÁTICOS:
 
         //lee una instancia de barrera en una cadena
-        static void  ReadInstance(TBarrier* &B,
+        static void  readInstance(TBarrier* &B,
                 const AnsiString& S, int &i);
 
         //-------------------------------------------------------------------
@@ -168,7 +168,7 @@ public:
         //contruye una barrera
         TBarrier(TDoublePoint P0, double thetaO1=1.5*M_PI);
         //copia una barrera
-        void Copy(const TBarrier*);
+        void copy(const TBarrier*);
         //contruye un clon de una barrera
         TBarrier(const TBarrier*);
         //libera la memoria dinámica
@@ -178,25 +178,25 @@ public:
 
         //cambia la posición y orientación
         //del origen de coordenadas simultaneamente
-        void Set(TDoublePoint P0, double thetaO1);
+        void set(TDoublePoint P0, double thetaO1);
 
 /*        //-------------------------------------------------------------------
         //MÉTODOS DE COLISIÓN:
 
         //determina si la barrera está en colisión con otra barrera
-        bool Collides(const TBarrier *Barrier);
+        bool collides(const TBarrier *Barrier);
         //determina si la barrera está encolisión con un brazo
-        bool Collides(const TArm *Arm);
+        bool collides(const TArm *Arm);
   */
         //determina si el punto indicado está dentro de la barrera
-        bool Covers(TDoublePoint);
+        bool covers(TDoublePoint);
 
         //-------------------------------------------------------------------
         //MÉTODOS GRÁFICOS:
 
         //dibuja la barrera con el color indicado
         //en un trazador
-        //#void Paint(TPloterShapes*, QColor Color);
+        //#void paint(TPloterShapes*, QColor Color);
 };
 
 //---------------------------------------------------------------------------
