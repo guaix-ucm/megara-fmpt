@@ -120,7 +120,10 @@ string help(void)
     str += "\r\n$ fmpt_saa testGeneratePairPPDP";
     str += "\r\n\ttest the function generatePairPPDP.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa aboutof";
+    str += "\r\n$ fmpt_saa testRadialMotion";
+    str += "\r\n\tTake the measure of deviation arount the radial trayectory of each RP.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa aboutOf";
     str += "\r\n\tPrint the about of legend.";
     str += "\r\n";
 
@@ -135,7 +138,7 @@ string help(void)
 }
 
 //get a stringcontaining the about of legend
-string about_of(void)
+string aboutOf(void)
 {
     string str;
 
@@ -929,48 +932,6 @@ void testGeneratePairPPDP(TFiberMOSModel& FMM, string& log_filename)
         append("\tGenerated DP saved in '"+output_filename+"'", log_filename.c_str());
 
     } while(PPvalid && DPvalid);
-/*
-    //build a FMOSA table and set the allocations
-    TFMOSATable FMOSAT;
-    for(int i=0; i<MPG.getCount(); i++) {
-        TAllocation *A = MPG[i];
-
-        TSPPP *SPPP = new TSPPP();
-
-        //transcribe the allocation properties to the SPPP
-        SPPP->Type = ptSOURCE;
-        SPPP->Pid = A->getRP()->getActuator()->getId();
-        SPPP->X = A->PP.x;
-        SPPP->Y = A->PP.y;
-        SPPP->Enabled = true;
-
-        //set the optional values
-        SPPP->Name = "s:"+inttostr(i+1);
-        SPPP->Mag = 0;
-        SPPP->Pr = 0;
-        SPPP->Bid = 0;
-        SPPP->notAllocated = true;
-        SPPP->allocateInAll = false;
-        SPPP->Comment = "too coment";
-
-        //enable the optional values
-        SPPP->there_is_Mag = true;
-        SPPP->there_is_Pr = true;
-        SPPP->there_is_Bid = true;
-        SPPP->there_is_notAllocated = true;
-        SPPP->there_is_allocateInAll = true;
-
-        //add the SPPP to the FMOSA table
-        FMOSAT.Add(SPPP);
-    }
-
-    //save the FMOSA table in a file
-    FMOSAT.getTableText(str);
-    output_filename = "Tests/FMOSA-from-"+filename;
-    strWriteToFile(output_filename, str);
-    append("\tFMOSA table wrote to file: "+output_filename, log_filename.c_str());
-
-    //This FMOSA table will be useful to generate a pair (PP, DP) and debug the program.*/
 }
 
 //take the measure of deviation arount the radial trayectory of each RP
@@ -1174,6 +1135,8 @@ int main(int argc, char *argv[])
     //
     //###################################################################
 
+    //-----------------------------------------------------------------------
+
     //initalize the log file
     string log_filename = "fmpt_saa.log";
     char mode[] = "w";
@@ -1251,11 +1214,6 @@ int main(int argc, char *argv[])
         }
         append("Fiber MOS Model instance loaded from '"+dir_FMM+"'.", log_filename.c_str());
 
-/*for(int i=0; i<FMM.RPL.getCount(); i++) {
-    TRoboticPositioner *RP = FMM.RPL[i];
-    double SPMmin = MEGARA_Eo*RP->getActuator()->getr_max() + MEGARA_Ep - 0.009;
-    RP->getActuator()->setSPMmin(SPMmin);
-}*/
         //-------------------------------------------------------------------
         //REACTS ACCORDING THE COMMAND AND THE ARGUMENTS:
 
@@ -1483,9 +1441,9 @@ int main(int argc, char *argv[])
             //execute the test
             testRadialMotion(FMM, log_filename);
         }
-        else if(command == "aboutof") {
+        else if(command == "aboutOf") {
             //print the about of legend
-            append("\r\n"+about_of(), log_filename.c_str());
+            append("\r\n"+aboutOf(), log_filename.c_str());
         }
         else {
             //indicates that happened
@@ -1512,3 +1470,4 @@ int main(int argc, char *argv[])
     //indicates that the program has been executed without error
     return 0;
 }
+

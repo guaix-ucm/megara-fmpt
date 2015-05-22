@@ -1278,10 +1278,6 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //  1. In the list Outsiders_ remains RPs to be recovered.
     //  2. Has been recovered some RP in the last iteration.
 
-    //build the list Outsiders_ to contains the pointers to
-    //the RPs wich remain in insecurity positions
-//    TRoboticPositionerList Outsiders_(Outsiders);
-
     //The list Outsiders_ will contains all RPs to be retracted each time.
     //Each time can be only retracted some RPs of the list Outsiders_.
     //The process shall be reiterated until deplete the list.
@@ -1651,13 +1647,6 @@ void TMotionProgramGenerator::generatePairPPDP(bool& PPvalid, bool& DPvalid,
 
         //configure the FiberMOs Model for PP validation
         getFiberMOSModel()->RPL.setPurpose(pValPP);
-
-string str = PP.getText().str;
-for(int i=0; i<IPL.getCount(); i++) {
-    TPairPositionAngles *PPA = IPL.GetPointer(i);
-    if(PPA->p_1!=0 || PPA->p___3!=0)
-        throw exception();
-}
 
         //validate the PP
         getFiberMOSModel()->RPL.setPositions(IPL);

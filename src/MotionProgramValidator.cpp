@@ -445,18 +445,12 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
 
     //CHECK THE FOLLOWING STEPPING POSITIONS TO END:
 
-string str = MP.getText().str;
-
     //search a collision in each gesture
     for(int i=0; i<MP.getCount(); i++) {
         const TMessageList *ML = MP.GetPointer(i);
-if(MP.getCount()==5 && i==3) {
-    TRoboticPositioner *RP = getFiberMOSModel()->RPL[58];
-    if(RP->getActuator()->getp_1()!=922 || abs(RP->getActuator()->getArm()->getp___3()-3230) > 0.0001)
-        throw exception();
-}
+
         //program the gesture
-        getFiberMOSModel()->RPL.clearInstructions(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        getFiberMOSModel()->RPL.clearInstructions();
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
             getFiberMOSModel()->RPL.setInstruction(MI->getId(), MI->Instruction);
@@ -472,43 +466,6 @@ if(MP.getCount()==5 && i==3) {
         double t = 0;
         //while has not reached the end
         while(t < Tdis) {
-            //============================================================================
-            if(MP.getCount()==5 && MP.getFirst().getCount()==2 && i==3 && t>1559.702152) {
-                TRoboticPositioner *RP = getFiberMOSModel()->RPL[68];
-
-                double theta_1bak = RP->getActuator()->gettheta_1();
-                double theta___3bak = RP->getActuator()->getArm()->gettheta___3();
-
-                RP->getActuator()->setAnglesSteps(4162, 90);
-                TDoublePoint P3ini = RP->getActuator()->getArm()->getP3();
-                RP->getActuator()->setAnglesSteps(6844, 4191);
-                TDoublePoint P3fin = RP->getActuator()->getArm()->getP3();
-
-//                RP->getActuator()->settheta_1(theta_1bak);
-  //              RP->getActuator()->getArm()->settheta___3(theta___3bak);
-                getFiberMOSModel()->RPL.move(t);
-                TDoublePoint P3= RP->getActuator()->getArm()->getP3();
-                double distance = distanceLineToPoint(P3ini, P3fin, P3);
-
-                double p_1 = RP->getActuator()->getp_1();
-                double p___3 = RP->getActuator()->getArm()->getp___3();
-
-                //---------
-
-                double rot1_psta = RP->CMF.getMF1()->getpsta();
-                double rot1_pfin = RP->CMF.getMF1()->getpfin();
-
-                double rot2_psta = RP->CMF.getMF2()->getpsta();
-                double rot2_pfin = RP->CMF.getMF2()->getpfin();
-
-                double p_1_t = RP->CMF.getMF1()->p(t);
-                double p___3_t = RP->CMF.getMF2()->p(t);
-
-                if(distance > 0)
-                    distance = distance;
-            }
-            //============================================================================
-
             //move the rotors of the RPs to time t
             getFiberMOSModel()->RPL.move(t);
 
@@ -517,7 +474,7 @@ if(MP.getCount()==5 && i==3) {
             //if there is collision
             if(Tfmin <= 0)
                 //indicates that the motion program not avoid dynamic collision
-                return false; //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                return false;
             //calculates and applies the minimun jump time of the RPL
             double Tmin = calculateTminmin(RPL);
             if(Tfmin < Tmin)
