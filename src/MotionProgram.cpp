@@ -120,6 +120,20 @@ bool TMotionProgram::operator!=(const TMotionProgram& MP) const
 //TMotionProgram
 //--------------------------------------------------------------------------
 
+//determines if there is some coment in any instruction
+//of the the motion program
+bool TMotionProgram::thereIsSomeComment(void) const
+{
+    for(int i=0; i<getCount(); i++) {
+        const TMessageList *ML = Items[i];
+        for(int j=0;  j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            if(MI->getComment().length() > 0)
+                return true;
+        }
+    }
+    return false;
+}
 //get the non empty coments of the motion program
 //in column text format
 string TMotionProgram::getCommentsColumnText(void) const

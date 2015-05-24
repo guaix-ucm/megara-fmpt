@@ -15,7 +15,8 @@ ActuatorInstance:
         theta___3max = 3.18522588488965
         theta___3 = 0
         SB2 = 10000
-    SPMmin = 0.001
+    SPMmin = 0.005
+    SPMsim = 0.005
     PAkd = Pre
 CMFInstance:
     SF1->vmaxabs = 1

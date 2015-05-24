@@ -1,6 +1,6 @@
 # Id| Ra| Dec| Pos
 @@SOB@@
-0, 15.027879, 45.000422, 0.060858
+0| 15.027879| 45.000422| 0.060858
 @@EOB@@
 #      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment
 @@SOS@@

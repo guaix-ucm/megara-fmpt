@@ -17,8 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Arm.h
-//Content: class arm of a RP
+//File: Arm.cpp
+//Content: class arm of am actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

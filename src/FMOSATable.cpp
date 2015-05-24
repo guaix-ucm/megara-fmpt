@@ -328,13 +328,13 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
                 int j = AL.getRoboticPositionerList()->searchId(Id);
                 //if has found the RP, build and attach a TP
                 if(j < AL.getRoboticPositionerList()->getCount()) {
-                    //copy the properties in a TP nd add the TP to the MPG
+                    //copy the properties in an allocation and add the allocation to the MPG
                     TRoboticPositioner *RP = AL.getRoboticPositionerList()->Get(j);
-                    TAllocation *TP = new TAllocation(RP, SPPP->X, SPPP->Y);
-                    TP->PP.Type = SPPP->Type;
-                    TP->PP.Priority = SPPP->Pr;
-                    //add the TP to the AL
-                    AL.Add(TP);
+                    TAllocation *A = new TAllocation(RP, SPPP->X, SPPP->Y);
+                    A->PP.Type = SPPP->Type;
+                    A->PP.Priority = SPPP->Pr;
+                    //add the allocation to the AL
+                    AL.Add(A);
                 }
             }
         }

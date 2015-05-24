@@ -83,6 +83,9 @@ public:
 //class motion program
 class TMotionProgram : public TPointersList<TMessageList> {
 public:
+    //determines if there is some coment in any instruction
+    //of the the motion program
+    bool thereIsSomeComment(void) const;
     //get the non empty coments of the motion program
     //in column text format
     string getCommentsColumnText(void) const;

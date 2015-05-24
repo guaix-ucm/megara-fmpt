@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: MotionProgramValidator.h
-//Content: validator of motionprograms
-//Last update: 26/12/2014
+//Content: validator of motion programs
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

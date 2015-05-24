@@ -761,7 +761,7 @@ void TSkyPoint::Randomize(void)
     RandomVersor(x, y, z);
 
     //calcula la ascensión recta del versor
-    setRA(Azimut(x, y, z));
+    setRA(Azimut(x, y));
     //calcula la declinación del versor
     setDEC(Colatitud(x, y, z));
 }

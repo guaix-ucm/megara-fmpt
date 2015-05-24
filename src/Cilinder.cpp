@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Cilinder.cpp
-//Content: cilinder of an actuator of a RP
-//Last update: 06/05/2014
+//Content: class cilinder of an actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -1161,7 +1160,7 @@ TCilinder::TCilinder(TDoublePoint P0, double thetaO1) :
     //de la función de compansión
     p_F.setPointsText(getF().getPointsText());
 
-    //F debe estar definida en el intervalo [-M_2PI, M_2PI]
+    //F debe estar definida en el intervalo [-M_2PI, 2*M_2PI]
     //para permitir el ajuste olgado de [theta___3min, theta___3max].
 
     //inicializa las propiedades de cuantificación

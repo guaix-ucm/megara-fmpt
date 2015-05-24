@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Actuator.cpp
-//Contenido: actuador de un posicionador
-//Última actualización: 07/05/2014
-//Autor: Isaac Morales Durán
+//File: Actuator.cpp
+//Content: class actuator of a RP
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Actuator.h"
@@ -176,7 +175,7 @@ void  strPrintPurpose(string& str, TPurpose p)
     }
     throw EImpossibleError("unknowledge value in type TPurpose");
 }
-void  strReadPurpose(TPurpose& value, const string& str, int &i)
+void  strReadPurpose(TPurpose& value, const string& str, unsigned int &i)
 {
     //Here it is not required that text string str is printable.
 
@@ -998,6 +997,7 @@ AnsiString TActuator::getInstanceText(void) const
     S += AnsiString("ArmInstance:\r\n")+StrIndent(getArm()->getInstanceText())+AnsiString("\r\n");
 
     S += AnsiString("SPMmin = ")+getSPMminText()+AnsiString("\r\n");
+    S += AnsiString("SPMsim = ")+getSPMsimText()+AnsiString("\r\n");
     S += AnsiString("PAkd = ")+getPAkdText();
 
     //Nótese que una instancia de TWall se limita a Barrier->Countour_.Text.
@@ -1140,8 +1140,9 @@ void  TActuator::readInstance(TActuator* &A,
     //      6: esperando etiqueta "ArmInstance:"
     //      7: esperando instancia de Arm
     //      8: esperando asignación a SPMmin
-    //      9: esperando asignación a PAkd
-    //      10: instancia de actuador leida con éxito
+    //      9: esperando asignación a SPMsim
+    //      10: esperando asignación a PAkd
+    //      11: instancia de actuador leida con éxito
     int status = 0;
 
     //variables tampón
@@ -1249,7 +1250,20 @@ void  TActuator::readInstance(TActuator* &A,
         }
             status++;
             break;
-        case 9: //esperando asignación a PAkd
+        case 9: //esperando asignación a SPMsim
+            try {
+            StrTravelSeparators(S, i);
+            StrTravelLabel("SPMsim", S, i);
+            StrTravelLabel("=", S, i);
+            double aux;
+            StrReadFloat(aux, S, i);
+            t_A.setSPMsim(aux);
+        }catch(...) {
+            throw;
+        }
+            status++;
+            break;
+        case 10: //esperando asignación a PAkd
             try {
             StrTravelSeparators(S, i);
             StrTravelLabel("PAkd", S, i);
@@ -1264,7 +1278,7 @@ void  TActuator::readInstance(TActuator* &A,
             break;
         }
         //mientras no se haya leido la instancia con éxito
-    } while(status < 10);
+    } while(status < 11);
 
     //asigna las variables tampón
     try {

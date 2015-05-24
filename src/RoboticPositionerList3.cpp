@@ -695,13 +695,10 @@ void TRoboticPositionerList::invertTime(void)
                 Items[i]->invertTime();
 }
 
-//MÉTODOS DE MOVIMIENTO:
+//METHods FOR MOTION:
 
 //mueve los RPs a la posición indicada
 //por las funciones de movimiento en el instante t
-//si el puntero PainAll no apunta a una función
-//      lanza EImproperCall
-//no actualiza k
 void TRoboticPositionerList::move(double t)
 {
         //por cada RP de la lista
@@ -711,9 +708,6 @@ void TRoboticPositionerList::move(double t)
 }
 
 //mueve los RPs a sus posiciones inciales
-//si el puntero PainAll no apunta a una función
-//      lanza EImproperCall
-//no actualiza k
 void TRoboticPositionerList::moveSta(void)
 {
         //por cada RP de la lista
@@ -723,14 +717,21 @@ void TRoboticPositionerList::moveSta(void)
 }
 //mueve los RPs a sus posiciones finales
 //si el puntero PainAll no apunta a una función
-//      lanza EImproperCall
-//no actualiza k
 void TRoboticPositionerList::moveFin(void)
 {
         //por cada RP de la lista
         for(int i=0; i<getCount(); i++)
                 //mueve el RP a su posición final
                 Items[i]->moveFin();
+}
+//mueve los RPs a sus posiciones finales
+//programadas en (MPturn, MPretraction)
+void TRoboticPositionerList::moveFinMP(void)
+{
+        //por cada RP de la lista
+        for(int i=0; i<getCount(); i++)
+                //mueve el RP a su posición final
+                Items[i]->moveFinMP();
 }
 
 //---------------------------------------------------------------------------

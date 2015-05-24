@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: ComposedMotionFunction.h
-//Content: composed motion funtion
-//Last update: 07/05/2014
+//Content: class composed motion funtion of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

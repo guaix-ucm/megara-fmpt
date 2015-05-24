@@ -194,24 +194,18 @@ public:
         //invierte todos los gestos de la lista en el dominio del tiempo
         void invertTime(void);
 
-        //METHODS FOR MOVING:
+        //METHODS FOR MOTION:
 
         //mueve los RPs a la posición indicada
-        //si el puntero PainAll no apunta a una función
-        //      lanza EImproperCall
         //por las funciones de movimiento en el instante t
-        //no actualiza k
         void move(double t);
         //mueve los RPs a sus posiciones inciales
-        //si el puntero PainAll no apunta a una función
-        //      lanza EImproperCall
-        //no actualiza k
         void moveSta(void);
         //mueve los RPs a sus posiciones finales
-        //si el puntero PainAll no apunta a una función
-        //      lanza EImproperCall
-        //no actualiza k
         void moveFin(void);
+        //mueve los RPs a sus posiciones finales
+        //programadas en (MPturn, MPretraction)
+        void moveFinMP(void);
 };
 
 //---------------------------------------------------------------------------

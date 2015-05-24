@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Cilinder.h
-//Content: cilinder of an actuator of a RP
-//Last update: 06/05/2014
+//Content: class cilinder of an actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

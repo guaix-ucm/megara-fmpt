@@ -31,6 +31,7 @@
 //---------------------------------------------------------------------------
 
 using namespace Strings;
+using namespace Positioning;
 
 //espacio de nombres de modelos
 namespace Models {
@@ -1456,6 +1457,29 @@ void TRoboticPositioner::getInstructionToGoToTheOrigin(TInstruction& Instruction
     } else //!rot1out && !rot2out
         throw EImproperCall("some rotor should be out their origin");
 }
+//set the position indicated in an instruction
+void TRoboticPositioner::setPosition(const TInstruction& Instruction)
+{
+    if(Instruction.getName()!="M1" && Instruction.getName()!="M2" && Instruction.getName()!="MM")
+        throw EImproperArgument("instruction should be M1, M2 or MM");
+
+    if(Instruction.getName() == "M1") {
+        double p_1 = Instruction.Args.getFirst();
+        getActuator()->setp_1(p_1);
+
+    } else if(Instruction.getName() == "M2") {
+        double p___3 = Instruction.Args.getFirst();
+        getActuator()->getArm()->setp___3(p___3);
+
+    } else if(Instruction.getName() == "MM") {
+        double p_1 = Instruction.Args.getFirst();
+        double p___3 = Instruction.Args[1];
+        getActuator()->setPositionPPASteps(p_1, p___3);
+
+    } else
+        //indicates that the instruction should be known
+        throw EImpossibleError("lateral effect");
+}
 
 //METHODS TO PROGRAM GESTURES:
 
@@ -2082,6 +2106,26 @@ void TRoboticPositioner::moveFin(void)
         getActuator()->setp_1(CMF.getMF1()->getpfin());
     else if(CMF.getMF1()==NULL && CMF.getMF2()!=NULL)
         getActuator()->getArm()->setp___3(CMF.getMF2()->getpfin());
+}
+
+//lleva los rotores del posicionador adscrito a las posiciones
+//correspondientes a después de ejecutar (MPturn, MPretraction)
+void TRoboticPositioner::moveFinMP(void)
+{
+    for(int i=0; i<MPturn.getCount(); i++) {
+        TMessageList *ML = MPturn.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            TMessageInstruction *MI = ML->GetPointer(j);
+            setPosition(MI->Instruction);
+        }
+    }
+    for(int i=0; i<MPretraction.getCount(); i++) {
+        TMessageList *ML = MPretraction.GetPointer(i);
+        for(int j=0; j<ML->getCount(); j++) {
+            TMessageInstruction *MI = ML->GetPointer(j);
+            setPosition(MI->Instruction);
+        }
+    }
 }
 
 //---------------------------------------------------------------------------

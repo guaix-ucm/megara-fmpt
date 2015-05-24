@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Barrier.cpp
-//Contenido: barrera
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Barrier.cpp
+//Content: class barrier of an EA
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Barrier.h"

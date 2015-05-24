@@ -373,10 +373,10 @@ void RandomVersor(double &x, double &y, double &z);
 
 //calcula la colatitud (theta) en el intervalo [-pi/2, pi/2]
 //de un vector tridimensional en coordenadas cartesianas
-double Colatitud(double x, double y, double z);// {return Arg(sqrt(x*x + y*y), z);}
+double Colatitud(double x, double y, double z);
 //calcula el azimut (phi) en el intervalo [-pi, pi]
 //de un vector tridimensional en coordenadas cartesianas
-double Azimut(double x, double y, double z);// {return Arg(x, y);}
+double Azimut(double x, double y);
 
 //traduce de coordenadas esféricas con theta en [-pi/2, pi/2] y phi en R
 //a coordenadas cartesianas

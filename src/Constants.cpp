@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Constants.cpp
-//Contenido: constantes matemáticas
-//Última actualización: 08/03/2011
-//Autor: Isaac Morales Durán
+//File: Constants.cpp
+//Content: general constants of the program
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Constants.h"

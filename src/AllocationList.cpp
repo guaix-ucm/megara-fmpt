@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: TAllocationList.cpp
-//Contenido: class allocation list
-//Autor: Isaac Morales Durán
+//File: TAllocationList.cpp
+//Content: class allocation list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "AllocationList.h"

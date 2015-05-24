@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: TAllocation.h
-//Content: class allocation
+//Content: class allocation of a RP to a projection point
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -103,8 +103,8 @@ public:
 
         //BUILDING AND DESTROYING METHODS:
 
-        //build a target point attached a RP
-        //if the RP already has an attached target point
+        //build an allocation attached a RP
+        //if the RP already has an attached allocation
         //  throw an exception EImproperArgument
         TAllocation(TRoboticPositioner  *RP, double x, double y);
         TAllocation(TRoboticPositioner  *RP, TDoublePoint PP);

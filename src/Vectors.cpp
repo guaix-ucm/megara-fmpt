@@ -801,7 +801,7 @@ double Colatitud(double x, double y, double z)
 }
 //calcula el azimut (phi) en el intervalo [-pi, pi]
 //de un vector tridimensional en coordenadas cartesianas
-double Azimut(double x, double y, double z)
+double Azimut(double x, double y)
 {
     return Arg(x, y);
 }

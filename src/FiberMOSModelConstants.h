@@ -59,9 +59,9 @@
 //additional component of SPMdyn
 #define MEGARA_SPMadd 0.1 //mm
 //SPM of minimun jump, consumed when validation process is applied
-#define MEGARA_SPMmin 0.001 //mm
+#define MEGARA_SPMmin 0.005 //mm
 //SPM of simulation, consumed when simulation process is applied
-#define MEGARA_SPMsim 0.009 //mm
+#define MEGARA_SPMsim 0.005 //mm
 
 //default value for
 //position angle error margin of the FiberMOS in S0

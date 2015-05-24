@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: TAllocation.cpp
-//Content: class allocation
+//Content: class allocation of a RP to a projection point
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -221,46 +221,48 @@ void  TAllocation::PrintRow(AnsiString &S, TAllocation *A)
 //---------------------------------------------------------------------------
 //BUILDING AND DESTROYING METHODS:
 
-//build a target point attached a RP
-//if the RP already has an attached target point
+//build an allocation attached a RP
+//if the RP already has an attached allocation
 //  throw an exception EImproperArgument
 TAllocation::TAllocation(TRoboticPositioner *RP, double x, double y)
 {
-    //check the precondition
+    //CHECK THE PRECONDITIONS:
+
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-    //el RP RP no debería estar adscrito a
-    //un punto objetivo previamente construido
     for(int i=0; i<Builts.getCount(); i++)
         if(RP == Builts[i]->getRP())
-            throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
+            throw EImproperArgument("robotic positioner RP should not be allocated to an previously built allocation");
 
-    //asigna los valores
+    //MAKE ACTIONS:
+
+    //assigns the inicialization values
     p_RP = RP;
     PP.x = x;
     PP.y = y;
 
-    //apunta el nuevo punto objetivo a la lista de construidos
+    //appoints the new allocation in the built allocation list
     Builts.Add(this);
 }
 TAllocation::TAllocation(TRoboticPositioner *RP, TDoublePoint t_PP)
 {
-    //el puntero RP debería apuntar a un RP construido
+    //CHECK THE PRECONDITIONS:
+
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-    //el RP RP no debería estar adscrito a
-    //un punto objetivo previamente construido
     for(int i=0; i<Builts.getCount(); i++)
         if(RP == Builts[i]->getRP())
-            throw EImproperArgument("robotic positioner RP should not be allocated to an previously built target point");
+            throw EImproperArgument("robotic positioner RP should not be allocated to an previously built allocation");
 
-    //asigna los valores
+    //MAKE ACTIONS:
+
+    //assigns the inicialization values
     p_RP = RP;
     PP = t_PP;
 
-    //apunta el nuevo punto objetivo a la lista de construidos
+    //appoints the new allocation in the built allocation list
     Builts.Add(this);
 }
 //destroy a TAllocation

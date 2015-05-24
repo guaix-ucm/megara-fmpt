@@ -556,9 +556,11 @@ public:
         void getInstruction(TInstruction&) const;
 
         //get the instruction to move:
-        //  rotor 1 from actualposition to p_1first
-        //  rotor 2 from actualposition to p___3first
+        //  rotor 1 from actual position to p_1first
+        //  rotor 2 from actual position to p___3first
         void getInstructionToGoToTheOrigin(TInstruction&) const;
+        //set the position indicated in an instruction
+        void setPosition(const TInstruction&);
 
         //METHODS TO PROGRAM GESTURES:
 
@@ -720,6 +722,10 @@ public:
         //las posiciones correspondientes al instante CMF->tendmax
         //(MF1->pfin, MF2->pfin)
         void moveFin(void);
+
+        //lleva los rotores del posicionador adscrito a las posiciones
+        //correspondientes a después de ejecutar (MPturn, MPretraction)
+        void moveFinMP(void);
 
         //desplaza los rotores hasta sus posiciones correspondientes
         //al instante t+qt, donde:

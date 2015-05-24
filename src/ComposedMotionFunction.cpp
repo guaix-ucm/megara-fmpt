@@ -17,12 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ComposedMotionFunction.cpp
-//Contenido: funcion de movimiento compuesta
-//Última actualización: 07/05/2014
-//Autor: Isaac Morales Durán
+//File: ComposedMotionFunction.h
+//Content: class composed motion funtion of a RP
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
-//
 
 #include <stdint.h>
 

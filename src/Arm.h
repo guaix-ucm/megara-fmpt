@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Arm.h
-//Content: class arm of a RP
+//Content: class arm of am actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

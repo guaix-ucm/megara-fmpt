@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Barrier.h
-//Contenido: barrera
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Barrier.h
+//Content: class barrier of an EA
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef BARRIER_H

@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Actuator.h
-//Contenido: actuador de un posicionador
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Actuator.h
+//Content: class actuator of a RP
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ACTUATOR_H
@@ -68,7 +67,7 @@ enum TPurpose {pAll, pGenPairPPDP, pValDP, pValPP,
                pGenParPro, pValParPro, pExe};
 
 void  strPrintPurpose(string& str, TPurpose p);
-void  strReadPurpose(TPurpose& value, const string &str, int &i);
+void  strReadPurpose(TPurpose& value, const string &str, unsigned int &i);
 string purposeToStr(TPurpose value);
 TPurpose strToPurpose(const string& str);
 
@@ -172,7 +171,7 @@ public:
     //  MEGARA_SPMmin
     double getSPMmin(void) const {return p_SPMmin;}
     void setSPMmin(double);
-    //SPM para absorber la incertidumbre de la simulación
+    //SPM para absorber la incertidumbre de la posición de P3
     //durante la simulación del movimiento
     //debe ser no negativo
     //defeult value:

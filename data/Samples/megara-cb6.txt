@@ -1,6 +1,6 @@
 # Id| Ra| Dec| Pos
 @@SOB@@
-6, 14.965538, 45.001442, 338.016797
+6| 14.965538| 45.001442| 338.016797
 @@EOB@@
 #      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment
 @@SOS@@

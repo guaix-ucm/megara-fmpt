@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: MotionProgramValidator.cpp
-//Contenido: validador de programas de movimiento
-//Última actualización: 14/08/2013
-//Autor: Isaac Morales Durán
+//File: MotionProgramValidator.cpp
+//Content: validator of motion programs
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MotionProgramValidator.h"
@@ -419,7 +418,6 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
     TRoboticPositionerList RPL;
     getRPsIncludedInMP(RPL, MP, getFiberMOSModel());
 
-    //all RPs included in the MP, must be enabled the quantifiers of their rotors
     for(int i=0; i<RPL.getCount();  i++) {
         TRoboticPositioner *RP = RPL[i];
         if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
