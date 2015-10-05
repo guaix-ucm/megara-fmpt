@@ -40,8 +40,8 @@ Installation
 
 The process to install this S/W can be found in the file INSTALL. The summarized process is explained below:
 
-1. Decompress tar file 'megara-fmpt-2.1.0.tar.gz' (or .xz).
-2. Change to directory './megara-fmpt-2.1.0'.
+1. Decompress tar file 'megara-fmpt-3.0.0.tar.gz' (or .xz).
+2. Change to directory './megara-fmpt-3.0.0'.
 3. Execute './configure; make;' to configure and build this package.
 4. Turn on superuser to have access to '/usr/local/...'.
 5. Execute 'make install' (as superuser) to install the library and the application.
@@ -70,7 +70,8 @@ These locations can vary depending on the operating system and distribution wher
 Known issues
 ============
 If installation is completed successfully but execution produce the following error:
-	fmpt_saa. error while loading shared libraries: libfmp.so:cannotopen shhared object file: No such file or directory.
+	fmpt_saa. error while loading shared libraries: libfmp.so: can not open shhared object file: No such file or directory.
+
 Then you must add the path of the library in the file '.bashrc' or the corresponding to the shell of your system:
 	LD_LiBRARY_PATH=/usr/local/lib
 	export LD_LIBRARY_PATH

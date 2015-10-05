@@ -27,14 +27,14 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
 //--------------------------------------------------------------------------
 //TMessageInstruction
 //--------------------------------------------------------------------------
 
-//PROPIDADES DEL MENSAJE:
+//PUBLIC PROPERTIES:
 
 void TMessageInstruction::setId(int Id)
 {
@@ -46,12 +46,17 @@ void TMessageInstruction::setId(int Id)
         p_Id = Id;
 }
 
-void TMessageInstruction::setComment(const string& Comment)
+void TMessageInstruction::setComment1(const string& Comment1)
 {
-    p_Comment = Comment;
+    p_Comment1 = Comment1;
 }
 
-//PROPIEDADES EN FORMATO TEXTO:
+void TMessageInstruction::setComment2(const string& Comment2)
+{
+    p_Comment2 = Comment2;
+}
+
+//PUBLIC PROPERTIES IN TEXT FORMAT:
 
 AnsiString TMessageInstruction::getIdText(void) const
 {
@@ -82,9 +87,9 @@ void TMessageInstruction::setText(const AnsiString &S)
         }
 }
 
-//MÉTODOS ESTÁTICOS:
+//STATIC METHODS:
 
-//compara los identificadores de dos mensajes de instrucción
+//compare the identifiers of two MIs
 int  TMessageInstruction::CompareIds(const TMessageInstruction *MI1,
         const TMessageInstruction *MI2)
 {
@@ -103,7 +108,7 @@ int  TMessageInstruction::CompareIds(const TMessageInstruction *MI1,
 
         return 0;
 }
-//imprime un mensaje de instrucción en una cadena
+//print the MI in a text string
 void  TMessageInstruction::Print(AnsiString &S,
         const TMessageInstruction *MI)
 {
@@ -113,7 +118,7 @@ void  TMessageInstruction::Print(AnsiString &S,
 
         S += MI->getText();
 }
-//lee un mensaje de itnrucción en una cadena de texto
+//read the MI from a text string
 void  TMessageInstruction::Read(TMessageInstruction *MI,
         const AnsiString &S, int &i)
 {
@@ -226,8 +231,8 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
         *MI = t_MI;
 }
 
-//read an instruction in a text string
-//in the FMPT-MCS interfaz format
+//read an instruction from a text string
+//in the MCS format
 void  TMessageInstruction::readInterface(TMessageInstruction *MI,
                                          const string& str, unsigned int &i)
 {
@@ -279,15 +284,15 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
     }
 }
 
-//MÉTODOS PÚBLICOS:
+//PUBLIC METHODS:
 
-//construye un mensaje con los valores por defecto
-TMessageInstruction::TMessageInstruction(void) : p_Id(0), Instruction(), p_Comment("")
+//build a MI by default
+TMessageInstruction::TMessageInstruction(void) : p_Id(0), Instruction(), p_Comment1(""), p_Comment2("")
 {
 }
-//construye un mensaje con los valores por defecto
+//build a MI with the indicated values
 TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
-        Instruction(), p_Comment()
+        Instruction(), p_Comment1(""), p_Comment2("")
 {
         try {
                 setId(Id);
@@ -296,9 +301,9 @@ TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
                 throw;
         }
 }
-//clona un ensaje
+//clone a MI
 TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
-        p_Id(), Instruction(), p_Comment()
+        p_Id(), Instruction(), p_Comment1(), p_Comment2()
 {
         try {
                 Copy(MI);
@@ -307,7 +312,7 @@ TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
         }
 }
 
-//copia las propiedades de un mensaje
+//copy the properties of a MI
 void TMessageInstruction::Copy(const TMessageInstruction *MI)
 {
         //el puntero MI debería apuntar a una mensaje de instrucción contruido
@@ -317,15 +322,17 @@ void TMessageInstruction::Copy(const TMessageInstruction *MI)
         //copia las propiedades
         p_Id = MI->p_Id;
         Instruction = MI->Instruction;
-        p_Comment = MI->p_Comment;
+        p_Comment1 = MI->p_Comment1;
+        p_Comment2 = MI->p_Comment2;
 }
-//asigna las propiedades de un mensaje
+//assign the properties of a MI
 TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &MI)
 {
         //copia las propiedades
         p_Id = MI.p_Id;
         Instruction = MI.Instruction;
-        p_Comment = MI.p_Comment;
+        p_Comment1 = MI.p_Comment1;
+        p_Comment2 = MI.p_Comment2;
 
         //devuelve una referencia a este mensaje para poder concatenar asignaciones
         return *this;
@@ -340,7 +347,10 @@ bool TMessageInstruction::operator!=(const TMessageInstruction& MI) const
     if(Instruction != MI.Instruction)
         return true;
 
-    if(getComment() != MI.getComment())
+    if(getComment1() != MI.getComment1())
+        return true;
+
+    if(getComment2() != MI.getComment2())
         return true;
 
     return false;

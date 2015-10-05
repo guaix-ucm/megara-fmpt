@@ -156,8 +156,10 @@ AnsiString StrTrim(const AnsiString &S);
 void StrFirstChars(AnsiString &D, const AnsiString &S, int LengthMax=15);
 AnsiString StrFirstChars(const AnsiString &S, int LengthMax=15);
 
-//search and return the first non separator char in a text string
+//search and return the index to first non separator char in a text string
 int StrSearchFirstNonseparatorChar(const AnsiString&);
+//search and return the first non separator char in a text string
+char strFirstNonseparatorChar(const string&);
 
 //rellena una cadena con caracteres hasta que alcance la longitud indicada
 void StrFill(AnsiString &S, int length, char c);

@@ -283,11 +283,11 @@ public:
         //determina si algún área de exclusión
         //colisiona con el brazo de algún posicionador adyacente
         bool thereIsCollision(void);
-        //busca las áreas de exclusión de la lista cuya barrera colisiona con
+/*        //busca las áreas de exclusión de la lista cuya barrera colisiona con
         //el brazo de algún posicionador adyacente
         void searchCollinding(TVector<int> &indices);
         //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-        void getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
+        void getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);*/
 };
 /*
 //lista de áreas de exclusión en formato texto

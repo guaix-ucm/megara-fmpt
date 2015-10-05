@@ -30,8 +30,10 @@
 
 //---------------------------------------------------------------------------
 
-//espacio de nombres de posicionamiento
+//namespace for positioning
 namespace Positioning {
+
+//---------------------------------------------------------------------------
 
 //Get the list of RPs includes in a MP.
 //Precondition:
@@ -91,13 +93,13 @@ void getRPsIncludedInMP(TRoboticPositionerList& RPL,
 //  All message of instruction in the MPs shall be addressed
 //  to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
-                     const TMotionProgram& MP1, const TMotionProgram& MP2,
-                     const TFiberMOSModel* FMM)
+                         const TMotionProgram& MP1, const TMotionProgram& MP2,
+                         const TFiberMOSModel* FMM)
 {
     //CHECK THE PRECONDITION:
 
-            if(FMM == NULL)
-                throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
+    if(FMM == NULL)
+        throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
 
     for(int i=0; i<MP1.getCount(); i++) {
         const TMessageList *ML = MP1.GetPointer(i);
@@ -172,34 +174,16 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
 //TMotionProgramValidator:
 //###########################################################################
 
-//---------------------------------------------------------------------------
-//BUILDING AND DESTROYING METHODS:
-
-//built a validator of motion programs
-//attached to an extern Fiber MOS Model
-TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *FiberMOSModel)
-{
-    //el puntero FiberMOSModel debería apuntar a una lista de posicioandores de fibra construida
-    if(FiberMOSModel == NULL)
-        throw EImproperArgument("pointer FiberMOSModel should point to built RPs list");
-
-    //apunta los objetos externos
-    p_FiberMOSModel = FiberMOSModel;
-}
-
-//---------------------------------------------------------------------------
-//METHODS TO VALIDATE MOTION PROGRAMS:
-
 //calculates the time free of collission of two RPs
-double TMotionProgramValidator::calculateTf(const TRoboticPositioner *RP,
+double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
                                             const TRoboticPositioner *RPA) const
 {
     //CHECK THE PRECONDITIONS:
 
     if(RP == NULL)
-        throw EImproperArgument("pointer RP should point to built RP");
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
     if(RPA == NULL)
-        throw EImproperArgument("pointer RPA should point to built RP");
+        throw EImproperArgument("pointer RPA should point to built robotic positioner");
 
     //MAKE ACTIONS:
 
@@ -207,6 +191,10 @@ double TMotionProgramValidator::calculateTf(const TRoboticPositioner *RP,
     double D = RP->getActuator()->getArm()->getContour().distanceMin(RPA->getActuator()->getArm()->getContour());
     //calcula la distancia libre de los brazos
     double Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
+
+    //actualize the minimun free distance of the RP
+    if(Df < RP->Dfmin)
+        RP->Dfmin = Df;
 
     //si los brazos colisionan entre si
     if(Df < 0)
@@ -229,12 +217,11 @@ double TMotionProgramValidator::calculateTf(const TRoboticPositioner *RP,
 double TMotionProgramValidator::calculateTmin(const TRoboticPositioner *RP,
                                               const TRoboticPositioner *RPA) const
 {
-    //pointer RP should point to built RP
+    //check the preconditions
     if(RP == NULL)
-        throw EImproperArgument("pointer RP should point to built RP");
-    //pointer RPA should point to built RP
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
     if(RPA == NULL)
-        throw EImproperArgument("pointer RPA should point to built RP");
+        throw EImproperArgument("pointer RPA should point to built robotic positioner");
 
 
     //calculates the joint SPMmin
@@ -256,11 +243,11 @@ double TMotionProgramValidator::calculateTmin(const TRoboticPositioner *RP,
 
 //calculates the minimun time free of collission of
 //a RP with their adjacents
-double TMotionProgramValidator::calculateTfmin(const TRoboticPositioner *RP) const
+double TMotionProgramValidator::calculateTfmin(TRoboticPositioner *RP) const
 {
-    //pointer RP should point to built robotic positioner
+    //check the precondition
     if(RP == NULL)
-        throw EImproperArgument("pointer RP should point to built RP");
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //determines the Tf between each adjacent RP and select the minimun
     double Tfmin = std::numeric_limits<double>::max();
@@ -277,7 +264,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositioner *RP) con
 //a RP with their adjacents
 double TMotionProgramValidator::calculateTminmin(const TRoboticPositioner *RP) const
 {
-    //pointer RP should point to built robotic positioner
+    //check the precondition
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
@@ -324,7 +311,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
             } else { //else, if there isn't collision
                 //actualize the minimun free time
                 if(Tf < Tfmin)
-                   Tfmin = Tf;
+                    Tfmin = Tf;
 
                 k++; //indicates to the next adjacent
             }
@@ -368,7 +355,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
             } else { //else, if there isn't collision
                 //actualize the minimun step time
                 if(Tmin < Tminmin)
-                   Tminmin = Tmin;
+                    Tminmin = Tmin;
 
                 k++; //indicates to the next adjacent
             }
@@ -380,6 +367,24 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
     //return the minimun free time
     return Tminmin;
 }
+
+//---------------------------------------------------------------------------
+//BUILDING AND DESTROYING METHODS:
+
+//built a validator of motion programs
+//attached to an extern Fiber MOS Model
+TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *FiberMOSModel)
+{
+    //el puntero FiberMOSModel debería apuntar a una lista de posicioandores de fibra construida
+    if(FiberMOSModel == NULL)
+        throw EImproperArgument("pointer FiberMOSModel should point to built Fiber MOS Model");
+
+    //apunta los objetos externos
+    p_FiberMOSModel = FiberMOSModel;
+}
+
+//---------------------------------------------------------------------------
+//METHODS TO VALIDATE MOTION PROGRAMS:
 
 //Determines if the execution of a motion program, starting from
 //given initial positions, avoid collisions.
@@ -410,7 +415,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
 //- The validation method of a MP will be used during the generation process
 //  with the individual MP of each RP, and at the end of the process for
 //  validate the generated recovery program.
-bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) const
+bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
 {
     //CHECK THE PRECONDITIONS:
 
@@ -421,7 +426,7 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
     for(int i=0; i<RPL.getCount();  i++) {
         TRoboticPositioner *RP = RPL[i];
         if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-            throw EImproperCall("all RPs included in the MP, must be enabled the quantifiers of their rotors");
+            throw EImproperCall("all RPs included in the MP, should be enabled the quantifiers of their rotors");
     }
 
     //CONFIGURES ALL RPs OF THE Fiber MOS Model:
@@ -445,13 +450,19 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
 
     //search a collision in each gesture
     for(int i=0; i<MP.getCount(); i++) {
-        const TMessageList *ML = MP.GetPointer(i);
+        TMessageList *ML = MP.GetPointer(i);
 
         //program the gesture
         getFiberMOSModel()->RPL.clearInstructions();
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
             getFiberMOSModel()->RPL.setInstruction(MI->getId(), MI->Instruction);
+        }
+
+        //reset the minimun free distance of the RPs included in the MP
+        for(int i=0; i<RPL.getCount(); i++) {
+            TRoboticPositioner *RP = RPL[i];
+            RP->Dfmin = std::numeric_limits<double>::max();
         }
 
         //EXECUTE THE GESTURE:
@@ -469,10 +480,25 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
 
             //calculates the minimun free time of the RPL
             Tfmin = calculateTfmin(RPL);
+
+            //Calculus of Tfmin pruduces update of Dfmin of the RPs of the RPL.
+
             //if there is collision
-            if(Tfmin <= 0)
+            if(Tfmin <= 0) {
+                //transcribe los Dfmin de los RPs a los MIs
+                //and reset them
+                for(int i=0; i<ML->getCount(); i++) {
+                    TMessageInstruction *MI = ML->GetPointer(i);
+                    int j = RPL.searchId(MI->getId());
+                    if(j >= RPL.getCount())
+                        throw EImpossibleError("lateral effect");
+                    TRoboticPositioner *RP = RPL[j];
+                    MI->setComment2("Dfmin = "+floattostr(RP->Dfmin));
+                    RP->Dfmin = std::numeric_limits<double>::max();
+                }
                 //indicates that the motion program not avoid dynamic collision
                 return false;
+            }
             //calculates and applies the minimun jump time of the RPL
             double Tmin = calculateTminmin(RPL);
             if(Tfmin < Tmin)
@@ -492,6 +518,21 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
 
         //calculates the minimun free time
         Tfmin = calculateTfmin(RPL);
+
+        //Calculus of Tfmin pruduces update of Dfmin of the RPs of the RPL.
+
+        //transcribe los Dfmin de los RPs a los MIs
+        //and reset them
+        for(int i=0; i<ML->getCount(); i++) {
+            TMessageInstruction *MI = ML->GetPointer(i);
+            int j = RPL.searchId(MI->getId());
+            if(j >= RPL.getCount())
+                throw EImpossibleError("lateral effect");
+            TRoboticPositioner *RP = RPL[j];
+            MI->setComment2("Dfmin = "+floattostr(RP->Dfmin));
+            RP->Dfmin = std::numeric_limits<double>::max();
+        }
+
         //if there is collision
         if(Tfmin <= 0)
             //indicates that the motion program not avoid dynamic collision
@@ -515,7 +556,7 @@ bool TMotionProgramValidator::validateMotionProgram(const TMotionProgram &MP) co
 //- The status of the Fiber MOS Model must correspond to the status of
 //  the real Fiber MOS.
 bool TMotionProgramValidator::checkPairPPDP(const TMotionProgram &PP,
-                     const TMotionProgram &DP) const
+                                            const TMotionProgram &DP) const
 {
     try {
         //gets the list of RPs in the pair (PP, DP)

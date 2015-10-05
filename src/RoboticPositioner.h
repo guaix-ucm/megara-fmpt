@@ -276,6 +276,10 @@ public:
         double getDsec(void) const {return p_Dsec;}
         void setDsec(double);
 
+        //minimun free distance of the RP with their adjacents
+        //default value: std::numeric_limits<double>::max()
+        double Dfmin;
+
         //------------------------------------------------------------------
         //PROPERTIES IN TEXT FORMAT:
 

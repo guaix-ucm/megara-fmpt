@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: MotionProgramGenerator.cpp
-//Content: generador de programas de movimiento
+//Content: generator of motion programs
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -43,7 +43,15 @@ namespace Positioning {
 //---------------------------------------------------------------------------
 //METHODS FOR SEGREGATE SUBSETS OF RPs:
 
-//segregate the RPs of the list Outsiders, in disjoint subsets
+//Segregate the RPs of the list Outsiders, in disjoint subsets.
+//Inputs:
+//  Outsiders: list of operative outsiders RPs tobe segregated.
+//Outputs:
+//  DisjointSets: list of disjoint sets.
+//Preconditions:
+//  All RPs in the list Outsiders:
+//      shall be operatives;
+//      shall be in insecurity positions.
 void TMotionProgramGenerator::segregateRPsInDisjointSets(
         TPointersList<TRoboticPositionerList>& DisjointSets,
         const TRoboticPositionerList& Outsiders)
@@ -131,7 +139,15 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
     }
 }
 
-//verify that all RPs of a list follow the MEGARA distribution
+//Determines if not all RPs of a list follow the MEGARA distribution.
+//Inputs:
+//  Set: disjoint set to check.
+//Outputs:
+//  notAllRPsFollowMEGARADistribution: indicates if the RPs of
+//      the disjoint set follow a MEGARA distribution.
+//Preconditions:
+//  All RPs of the disjoint set:
+//      shall be separated a distance D - 2*L or upper.
 bool TMotionProgramGenerator::notAllRPsFollowMEGARADistribution(
         const TRoboticPositionerList& Set)
 {
@@ -201,7 +217,16 @@ bool TMotionProgramGenerator::notAllRPsFollowMEGARADistribution(
     return false;
 }
 
-//segregate the RPs of a set, in disperse subsets
+//Segregates the RPs of a set, in disperse subsets.
+//Inputs:
+//  Set: disjoint set to be splited.
+//Outputs:
+//  Subsets: list of disperse subsets.
+//Preconditions:
+//  Pointer Subsets should point to built list of disperse subsets.
+//  All RPs of the list Set:
+//      shall follow the MEGARA distribution;
+//      shall be in the Fiber MOS Model.
 void TMotionProgramGenerator::segregateRPsInDisperseSubsets(
         TPointersList<TRoboticPositionerList> *DisperseSubsets,
         TRoboticPositionerList& Set)
@@ -334,44 +359,165 @@ void TMotionProgramGenerator::segregateRPsInDisperseSubsets(
 //---------------------------------------------------------------------------
 //METHODS FOR PROGRAM THE RPs AND SEGREGATE THE RECOVERABLES:
 
-//Determines if a motion program produces a colission,
+//Determines if a pair of motion programs (MPturn, MPretraction)
+//is incongruent. For this make the following action:
+//
+//For the MPturn:
+//  check if contains none or one message list
+//  if the MPturn contains a message list:
+//      check if the message list contains one message instruction
+//      check if the message instruction is directed to a RP of the FMM
+//      check if the instruction is for turn the rotor 1
+//
+//For the MPretraction:
+//  check if contains one or two message list
+//  check if in each message list:
+//      the message list contains one message instruction
+//      the message instruction is directed to a RP of the FMM
+//  check if the first instruction is for retraction
+//  check if the second instruction (if any) is for abatement
+//
+//For the pair (MPturn, MPretraction):
+//  check if all message instructions are directed to the same RP
+//
+//Inputs:
+//  (MPturn, MPretraction): the pair of MPs to check
+//Outputs:
+//  RP: the RP included in the pair (MPturn, MPretraction)
+//      when the pair is congruent
+//  motionProgramsAreIncongruent: flag indicating if
+//      the pair is incongruent
+bool TMotionProgramGenerator::motionProgramsAreIncongruent(TRoboticPositioner *RP,
+                            const TMotionProgram& MPturn,
+                            const TMotionProgram& MPretraction) const
+{
+    //vector for add the Ids of the RPs which go directed the isntructions
+    vector<int> Ids;
+    //index to the RP attached to the pair (MPturn, MPretraction)
+    int j;
+
+    //--------------------------------------------------------
+    //For the MPturn:
+
+    //check if contains none or one message list
+    if(MPturn.getCount() > 1)
+        return true;
+
+    //if the MPturn contains a message list:
+    if(MPturn.getCount() == 1) {
+        //point the message list for easier their access
+        TMessageList *ML = MPturn.getFirstPointer();
+
+        //check if the message list contains one message instruction
+        if(ML->getCount() != 1)
+            return true;
+
+        //point the message instruction for easier their access
+        TMessageInstruction *MI = ML->getFirstPointer();
+
+        //search the RP of the message list in the FMM
+        j = getFiberMOSModel()->RPL.searchId(MI->getId());
+
+        //check if the message instruction is directed to a RP of the FMM
+        if(j >= getFiberMOSModel()->RPL.getCount())
+            return true;
+
+        //add the Id of the message list to the vector
+        Ids.push_back(MI->getId());
+
+        //check if the instruction is for turn the rotor 1
+        if(MI->Instruction.getName() != "M1")
+            return true;
+    }
+
+    //--------------------------------------------------------
+    //For the MPretraction:
+
+    //check if contains one or two message list
+    if(MPretraction.getCount()<1 || 2<MPretraction.getCount())
+        return true;
+
+    //check if in each message list...
+    for(int i=0; i<MPretraction.getCount(); i++) {
+        //point the message list for easier their access
+        const TMessageList *ML = MPretraction.GetPointer(i);
+
+        //...the message list contains one message instruction
+        if(ML->getCount() != 1)
+            return true;
+
+        //point the message instruction for easier their access
+        TMessageInstruction *MI = ML->getFirstPointer();
+
+        //search the RP of the message list in the FMM
+        j = getFiberMOSModel()->RPL.searchId(MI->getId());
+
+        //...the message instruction is directed to a RP of the FMM
+        if(j >= getFiberMOSModel()->RPL.getCount())
+            return true;
+
+        //add the Id of the message list to the vector
+        Ids.push_back(MI->getId());
+    }
+
+    //check if the first instruction is for retraction
+    if(MPretraction[0][0].Instruction.getName() != "MM")
+        return true;
+    //check if the second instruction (if any) is for abatement
+    if(MPretraction.getCount() > 1)
+        if(MPretraction[1][0].Instruction.getName() != "M2")
+            return true;
+
+    //--------------------------------------------------------
+    //For the pair (MPturn, MPretraction):
+
+    //check if all message instructions are directed to the same RP
+    for(unsigned int i=1; i<Ids.size(); i++)
+        if(Ids[i] != Ids[0])
+            return true;
+
+    //point the RP attached to the pair (MPturn, MPretraction)
+    RP = getFiberMOSModel()->RPL[j];
+
+    return false; //indicates that the pair is congruent
+}
+
+//Determines if a pair of motion programs (MPturn, MPretraction)
+//produces a colission,
 //Preconditions:
-//- All RPs of the Fiber MOS Model:
+//  All RPs of the Fiber MOS Model:
 //      shall be configured for MP generation;
-//      shall be enabled the quantifiers of their rotors;
-//- The motion programs (MPturn, MPretraction) shall be valids.
-//  If the MP contains a single message list:
-//      the single message instruction shall be for retract the arm.
-//  If the MP contains two messages of instruction,
-//      the first message instruction shall be for turn the rotor 1,
-//      and the second message instruction shall be for retract the arm.
+//  The pair (MPturn, MPretraction):
+//      shall be congruent.
+//  The RP included in the pair (MPturn, MPretraction):
+//      shall has enabled the quantifiers of their rotors;
+//Postconditions:
+//  If the MPretraction contains a single message list:
+//      the single message list shall contains a single message
+//      instruction for retract the arm.
+//  If the MPretraction contains two messages of instruction:
+//      the first message list shall contains a single message
+//      instruction for retract the arm,
+//      and the second message list shall contains a single message
+//      instruction for abate the arm.
 bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPturn,
-                                                   const TMotionProgram& MPretraction) const
+                                                     const TMotionProgram& MPretraction) const
 {
     //CHECK THE PRECONDITIONS:
 
+    TRoboticPositioner *RP;
+
     for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
-        TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
+        RP = getFiberMOSModel()->RPL[i];
         if(RP->getActuator()->getPurpose()!=pGenPairPPDP && RP->getActuator()->getPurpose()!=pGenParPro)
             throw EImproperCall("all RPs of the Fiber MOS Model should be configured for MP generation");
     }
 
-    //determine the list of RPs includes in the MPs
-    TRoboticPositionerList RPL;
-    getRPsIncludedInMPs(RPL, MPturn, MPretraction, getFiberMOSModel());
-
-    if(RPL.getCount() != 1)
-        throw EImproperArgument("the motion programs MPturn and MP retraction should be included only a RP");
-
-    //search the RP included in the Fiber MOS Model
-    TRoboticPositioner *RP = RPL.getFirst();
-    int i = getFiberMOSModel()->RPL.Search(RP);
-
-    if(i >= getFiberMOSModel()->RPL.getCount())
-        throw EImproperArgument("the RP included in the motion programs MPturn and MPretraction, should be in the Fiber MOS Model");
+    if(motionProgramsAreIncongruent(RP, MPturn, MPretraction))
+        throw EImproperArgument("the pair (MPturn, MPretraction) should be congruent");
 
     if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-        throw EImproperCall("the RP shuould be enabled the quantifiers of their rotors");
+        throw EImproperCall("the RP included in the pair (MPturn, MPretraction) should has enabled the quantifiers of their rotors");
 
     //MAKE ACTIONS:
 
@@ -381,7 +527,7 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
     //validate MPturn
     bool valid = validateMotionProgram(RP->MPturn);
 
-    //Here the RP included in the MPturn, has in the position from which start the retraction.
+    //Here the RP included in the MPturn, are in the position from which start the retraction.
 
     if(valid) {
         //change the SPM
@@ -391,7 +537,7 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
         //validate MPretraction
         valid = validateMotionProgram(RP->MPretraction);
 
-        //Here el RP has in the final-security position.
+        //Here the RP is in the final-security position.
 
         //restore the initial value of the SPM
         RP->getActuator()->getArm()->setSPM(SPMbak);
@@ -407,25 +553,31 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
 }
 
 
-//Search in negative sense, the individual MP for recover the security
-//position of a RP avoiding dynamic collisions.
+//Search in negative sense, the individual MP (composed by MPturn and
+//MPretraction), for recover the security position of a RP
+//avoiding dynamic collisions.
 //Inputs:
-//  RP: robotic positioner to be recovered.
+//  RP: the robotic positioner to be recovered.
 //  dt1max: maximun displacement of the rotor 1 for search the solution
 //      in rad. Recomended value (M_PI/2).
 //Outputs:
 //  searchSolutionInNegativeSense: indicates if the solution is valid.
 //  p_1new: last position where solution has been searched.
-//  (RP->MPturn, RP->MPretraction): the solution.
+//  RP->MPturn: the generated MP for turn the rotor 1 of the RP,
+//      to be executed in first place.
+//  RP->MPretraction: the generated MP for radial retraction,
+//      to be executed in second place.
 //Preconditions:
-//  All RPs of the Fiber MOS Model shall be configurated for MP generation.
-//  The pointer RP shall shall point to built robotic positioner.
+//  All RPs of the Fiber MOS Model:
+//      shall be configurated for MP generation.
+//  The pointer RP:
+//      shall shall point to built robotic positioner.
 //  The RP:
 //      shall be in the Fiber MOS  Model;
 //      shall be in unsecurity position;
-//      shall be enabled the quantifiers of their rotors;
-//      shall not have dynamic collisions;
-//      shall have stacked the actual positionsof their rotors.
+//      shall has enabled the quantifiers of their rotors;
+//      shall not has dynamic collisions;
+//      shall has stacked the actual positionsof their rotors.
 //  The length of the searching interval dt1max shall be upper zero.
 //Postconditions:
 //  The RP will be in their initial status.
@@ -441,10 +593,10 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
         throw EImproperArgument("the length of the searching interval dt1max should be upper zero");
 
     if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-        throw EImproperCall("the RP shall be enabled the quantifier of their rotors");
+        throw EImproperCall("the RP shall has enabled the quantifier of their rotors");
 
     if(RP->getActuator()->thetasNotCoincideWithStacked())
-        throw EImproperCall("the RP shall be stacked their actual position");
+        throw EImproperCall("the RP should has stacked the actual positionsof their rotors");
 
     //DETERMINE THE SEARCHING INTERVAL [p_1lower, p_1upper]:
 
@@ -548,44 +700,50 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
     return there_is_solution;
 }
 
-//Search in positive sense, the individual MP for recover the security
-//position of a RP avoiding dynamic collisions.
+//Search in positive sense, the individual MP (composed by MPturn and
+//MPretraction), for recover the security position of a RP
+//avoiding dynamic collisions.
 //Inputs:
-//  RP: robotic positioner to be recovered.
+//  RP: the robotic positioner to be recovered.
 //  dt1max: maximun displacement of the rotor 1 for search the solution
 //      in rad. Recomended value (M_PI/2).
 //Outputs:
 //  searchSolutionInPositiveSense: indicates if the solution is valid.
 //  p_1new: last position where solution has been searched.
-//  (RP->MPturn, RP->MPretraction): the solution.
+//  RP->MPturn: the generated MP for turn the rotor 1 of the RP,
+//      to be executed in first place.
+//  RP->MPretraction: the generated MP for radial retraction,
+//      to be executed in second place.
 //Preconditions:
-//  All RPs of the Fiber MOS Model shall be configurated for MP generation.
-//  The pointer RP shall shall point to built robotic positioner.
+//  All RPs of the Fiber MOS Model:
+//      shall be configurated for MP generation.
+//  The pointer RP:
+//      shall shall point to built robotic positioner.
 //  The RP:
 //      shall be in the Fiber MOS  Model;
 //      shall be in unsecurity position;
-//      shall be enabled the quantifiers of their rotors;
-//      shall not have dynamic collisions;
-//      shall have stacked the actual positionsof their rotors.
+//      shall has enabled the quantifiers of their rotors;
+//      shall not has dynamic collisions;
+//      shall has stacked the actual positionsof their rotors.
 //  The length of the searching interval dt1max shall be upper zero.
 //Postconditions:
 //  The RP will be in their initial status.
 //  If searchSolutionInPositiveSense == false
 //      solution p_1new will be nearest to
-//      Max(RP->Actuator->theta_1last, theta_1 + dt1max).
+//      Min(RP->Actuator->theta_1last, theta_1 + dt1max).
 bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRoboticPositioner *RP,
                                                             double dt1max)
 {
     //CHECK THE PRECONDITIONS:
 
     if(dt1max <= 0)
-        throw EImproperArgument("the length of the searching interval dt1max should be upper zero");
+        throw EImproperArgument("the length of the searching interval dt1max shall be upper zero");
 
     if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-        throw EImproperCall("the RP shall be enabled the quantifier of their rotors");
+        throw EImproperCall("the RP shall has enabled the quantifiers of their rotors");
 
     if(RP->getActuator()->thetasNotCoincideWithStacked())
-        throw EImproperCall("the RP shall be stacked their actual position");
+        throw EImproperCall("the RP shall has stacked the actual positions of their rotors");
 
     //DETERMINE THE SEARCHING INTERVAL [p_1lower, p_1upper]:
 
@@ -688,17 +846,20 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
     //indicates if there is a solution or not
     return there_is_solution;
 }
-//Search the best recoveery program for a RP.
+//Search the best recoveery program for a individual RP.
 //Inputs:
 //  RP: the RP to be recovered.
 //Outputs:
 //  searchSolution: indicates if the solution is valid.
-//  RP->MPturn: the MP for turn the rotor 1.
-//  RP->MPretraction: the MP for  retract the arm.
-//  RP->Dsec: additional security distance during retraction.
+//  RP->MPturn: the generated MP for turn the rotor 1 of the RP,
+//      to be executed in first place.
+//  RP->MPretraction: the generated MP for radial retraction,
+//      to be executed in second place.
+//  RP->Dsec: security distance additional to SPM during retraction
 //Preconditions:
 //  The pointer RP shall shall point to built robotic positioner.
-//  All RPs of the Fiber MOS Model shall be configurated for MP generation.
+//  All RPs of the Fiber MOS Model:
+//      shall be configurated for MP generation.
 //  The RP:
 //      shall be in the Fiber MOS  Model;
 //      shall be in unsecurity position;
@@ -706,7 +867,7 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
 //      shall not have dynamic collisions;
 //      shall have stacked the actual positionsof their rotors.
 //Postconditions:
-//  The RP will be in their initial status, except the properties
+//  The RP will be in their initial status, except their properties
 //  (MPturn, MPretraction, Dmin) which will contains the last proposal.
 bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
 {
@@ -718,7 +879,7 @@ bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
     for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
         TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
         if(RP->getActuator()->getPurpose()!=pGenPairPPDP && RP->getActuator()->getPurpose()!=pGenParPro)
-            throw EImproperCall("All RPs of the Fiber MOS Model should be configurated to MP generation.");
+            throw EImproperCall("All RPs of the Fiber MOS Model should be configurated for MP generation.");
     }
 
     int i = getFiberMOSModel()->RPL.Search(RP);
@@ -779,7 +940,8 @@ bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
 //  RecoverablesDDS: structure to contain the RPs which can be recovered.
 //  UnrecoverablesDDS: structure to contain the RPs which can not be recovered.
 //Preconditions:
-//  All RPs of the Fiber MOS Model shall be configurated for MP generation.
+//  All RPs of the Fiber MOS Model:
+//      shall be configurated for MP generation.
 //  All RPs of DDS:
 //      shall be in the Fiber MOS  Model;
 //      shall be in unsecurity position;
@@ -807,7 +969,7 @@ void TMotionProgramGenerator::segregateRecoverables(
     for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
         TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
         if(RP->getActuator()->getPurpose()!=pGenPairPPDP && RP->getActuator()->getPurpose()!=pGenParPro)
-            throw EImproperCall("All RPs of the Fiber MOS Model should be configurated to MP generation.");
+            throw EImproperCall("All RPs of the Fiber MOS Model should be configurated for MP generation.");
     }
 
     //  All RPs of DDS:
@@ -898,8 +1060,8 @@ void TMotionProgramGenerator::segregateRecoverables(
                         double DsecMax = RP->getDsecMax();
 
                         //variables for jumping point
-                        double Dsec;
-                        double PrevDsec = DsecMax;
+                        double Dsec = DsecMax;
+                        double PrevDsec;
 
                         do {
                             //save the last value of the jumping point
@@ -1172,9 +1334,7 @@ TMotionProgramGenerator::~TMotionProgramGenerator(void)
 //    - shall be in the Fiber MOS Model;
 //    - shall be operatives;
 //    - shall be in insecurity positions;
-//    - shall have enabled the quantifiers of their rotors;
-//    - shall be setted in order to the rotor 2 velocity
-//          is approximately double than rotor 1 velocity.
+//    - shall have enabled the quantifiers of their rotors.
 //Postconditions:
 //  All RPs of the Fiber MOS Model:
 //    - will be in the starting positions.
@@ -1199,7 +1359,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
         TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
         if(RP->getActuator()->getPurpose()!=pGenPairPPDP && RP->getActuator()->getPurpose()!=pGenParPro)
-            throw EImproperCall("all RPsof the Fiber MOS Model shall be configurated for MP generation");
+            throw EImproperCall("all RPs of the Fiber MOS Model shall be configurated for MP generation");
     }
 
     for(int i=0; i<Outsiders.getCount(); i++) {
@@ -1213,8 +1373,6 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
             throw EImproperArgument("All RPs in the list Outsiders, shall be in insecurity positions.");
         if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
             throw EImproperArgument("All RPs in the list Outsiders, shall have enabled the quantifiers of their rotors.");
-        if(Abs(RP->wmaxabs2()/RP->wmaxabs1() - 2) > 0.1)
-            throw EImproperCall("all RPs in the list Outsiders, shall be setted in order to the rotor 2 velocity is approximately double than rotor 1 velocity");
     }
 
     //MAKE ACTIONS:
@@ -1228,7 +1386,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //the RPs wich remain in insecurity positions
     TRoboticPositionerList Outsiders_;
 
-    //Here the Fiber MOS Model is confgured for generate a pair (PP, DP) or generate a parking program.
+    //Here the Fiber MOS Model is configured for generate a pair (PP, DP) or generate a parking program.
 
     //segregates the RPs of the list Outsiders which are in collision status, in the list Collided
     Outsiders.segregateCollided(Collided, Outsiders_);
@@ -1252,7 +1410,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //     of each RP from their starting position to their final position.
     //  2. During validation of the generated recovery program, for simmulate
     //     the jointly movement of the RPs which must be move together.
-    //If the recovery progrannotpass the validation process, the quantifiers
+    //If the recovery program not pass the validation process, the quantifiers
     //remains disabled, and their original status stacked.
 
     //=======================================================================
@@ -1270,10 +1428,10 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //Only the obstructed RPs will remain in the list Outsiders_.
 
     //The proces of recovery consist in the iteration of recovery steps.
-    //Each recovery step can be composed by one,two or three steps:
+    //Each recovery step can be composed by one, two or three steps:
     //1. Turn of rotor 1 of the RPs which can't be directly retracted.
     //2. Retraction of the RPs.
-    //3. Abatementof the arms (or turn of the rotor 2) of the RPs whose
+    //3. Abatement of the arms (or turn of the rotor 2) of the RPs whose
     //   rotor 1 is in the origin.
 
     //define the conditions to finish the iterative process
@@ -1299,7 +1457,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
         //segregates the RPs which can be recovered in each subset of each set
         TPointersList<TPointersList<TRoboticPositionerList> > RecoverablesDDS;
         TPointersList<TPointersList<TRoboticPositionerList> > UnrecoverablesDDS;
-        segregateRecoverables(RecoverablesDDS, UnrecoverablesDDS, DDS);
+        segregateRecoverables(RecoverablesDDS, UnrecoverablesDDS, DDS); //<--------------AQUÍ se calcula Dsec?
 
         //Here all RPs of RecoverablesDDS will be in their starting positions,
         //and we want retract the RPs in the larger disperse subsets.
@@ -1310,7 +1468,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
         //WARNING: if recicle the RPsToBeRecovered, would need to make here:
         //  RPsToBeRecovered.Clear();
 
-        //build the list of RPs to be retracted in each step
+        //build the list of RPs to be recovered in each step
         TRoboticPositionerList RPsToBeRecovered;
 
         //for each disjoint set of retractiles RPs
@@ -1328,8 +1486,8 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
                 //actualize the maximun disperse subset
                 if(DisperseSubset->getCount()>0 &&
                         (DisperseSubsetMax==NULL ||
-                         (DisperseSubset->getDsecMin() > DisperseSubsetMax->getDsecMin()) ||
-                         ((DisperseSubset->getDsecMin() == DisperseSubsetMax->getDsecMin()) && (DisperseSubset->getCount() > DisperseSubsetMax->getCount())) ))
+                        (DisperseSubset->getDsecMin() > DisperseSubsetMax->getDsecMin()) ||
+                        ((DisperseSubset->getDsecMin() == DisperseSubsetMax->getDsecMin()) && (DisperseSubset->getCount() > DisperseSubsetMax->getCount())) ))
                     DisperseSubsetMax = DisperseSubset;
             }
 
@@ -1402,7 +1560,6 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
 //Preconditions:
 //  All RPs of the Fiber MOS Model:
 //      - shall be in their starting positions.
-//      - shall be configuratedfor generate a pair (PP, DP).
 //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
 //  All RPs of the list Outsiders, shall be in insecurity positions.
@@ -1434,13 +1591,20 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
     TRoboticPositionerList& Obstructed, TMotionProgram& DP,
     const TRoboticPositionerList& Outsiders)
 {
+    //check the precondition
+    for(int i=0; i<Outsiders.getCount(); i++) {
+        TRoboticPositioner *RP = Outsiders[i];
+        if(Abs(RP->wmaxabs2()/RP->wmaxabs1() - 2) > 0.1)
+            throw EImproperCall("all RPs in the list Outsiders, shall be setted in order to the rotor 2 velocity is approximately double than rotor 1 velocity");
+    }
+
     //configure the Fiber MOS Model for generate a DP
     getFiberMOSModel()->RPL.setPurpose(pGenPairPPDP);
 
     //generates the recovery program
     generateRecoveryProgram(Collided, Obstructed, DP, Outsiders);
 
-    //configure the Fiber MOS Model for validate the DPs
+    //configure the Fiber MOS Model for validate the DP
     getFiberMOSModel()->RPL.setPurpose(pValDP);
 
     //determines if the generated DP is valid
@@ -1564,7 +1728,7 @@ void TMotionProgramGenerator::generatePositioningProgram(TMotionProgram& PP,
                 IMI->Instruction.Args.setCount(1);
                 IMI->Instruction.Args[0] = PPAini->p___3;
             }
-            IMI->setComment(MI->getComment());
+            IMI->setComment1(MI->getComment1());
 
             //add the inverse message instruction to the inverse message list
             IML->Add(IMI);
@@ -1582,11 +1746,12 @@ void TMotionProgramGenerator::generatePositioningProgram(TMotionProgram& PP,
 //Preconditions:
 //  All RPs of the Fiber MOS Model:
 //      - shall be in their observing positions.
-//      - shall be configurated for generate a pair (PP,DP).
 //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
 //  All RPs of the list Outsiders, shall be in insecurity positions.
 //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+//  All RPs of the list Outsiders, shall have a rotor 2 velocity
+//  approximately double that rotor 1 velocity.
 //Postconditions:
 //  All RPs of the Fiber MOS Model will be configured for
 //      validate a PP.
@@ -1651,13 +1816,10 @@ void TMotionProgramGenerator::generatePairPPDP(bool& PPvalid, bool& DPvalid,
 //Preconditions:
 //  All RPs of the Fiber MOS Model:
 //      - shall be in their starting positions.
-//      - shall be configured for generate a parking program.
 //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
 //  All RPs of the list Outsiders, shall be operatives.
 //  All RPs of the list Outsiders, shall be in insecurity positions.
 //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-//  All RPs of the list Outsiders, shall have a rotor 2 velocity
-//  approximately double that rotor 1 velocity.
 //Postconditions:
 //  All RPs of the Fiber MOS Model will be configured for
 //      validate a parking program.
@@ -1733,18 +1895,18 @@ bool TMotionProgramGenerator::generateParkingProgram(TRoboticPositionerList& Col
 //Outputs:(
 //  RPRs: list of replacement RPs.
 //Preconditions of the FMM:
-//- All pointer of the Fiber MOS Model must point to built RPs.
-//- All pointer of the fiber MOS Model must point to different RPs.
-//- None operative RP of the Fiber MOS Model must has a dynamic fault.
+//  All pointer of the Fiber MOS Model must point to built RPs.
+//  All pointer of the fiber MOS Model must point to different RPs.
+//  None operative RP of the Fiber MOS Model must has a dynamic fault.
 //Preconditions of the RP:
-//- Pointer RP must point to built robotic positioner.
-//- The RP must be in the Fiber MOS Model.
+//  Pointer RP must point to built robotic positioner.
+//  The RP must be in the Fiber MOS Model.
 //Preconditions of the TPL:
-//- All RPs included in the TPL must be in the Fiber MOS Model.
-//- All PPs included in the TPL must be in the scope of their allocated RP.
-//- The RP must be included in the TPL.
+//  All RPs included in the TPL must be in the Fiber MOS Model.
+//  All PPs included in the TPL must be in the scope of their allocated RP.
+//  The RP must be included in the TPL.
 //Postconditions:
-//- If the list RPRs is not empty, the RP is a simple case,
+//  If the list RPRs is not empty, the RP is a simple case,
 //  and can be replaced by any of the replacement RPs.
 //  In other case the RP is not a simple case.
 void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
@@ -1861,8 +2023,8 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RPRs,
     }
 }
 
-//The data (MRmin, NBmin, PrMax) are the same for all points in the CB.
-//The data All must be defined for each point.
+//The data (NRmin, NBmin, PrMax) are the same for all points in the CB.
+//The data (noAllocated, allocateInAll) must be defined for each point.
 
 //Determines if an allocation if of must type.
 //Inputs:
@@ -1918,20 +2080,20 @@ bool TMotionProgramGenerator::allocationIsMustType(int i) const
 
 //Attempt regenerate a pair (PP, DP).
 //Inputs:
-//- (PP, DP): the pair to regenerate.
+//  (PP, DP): the pair to regenerate.
 //Outputs:
-//- attemptRegenerate: flag indicating if the pair (PP, DP)
-//  has been regenerated.
-//- (PP, DP): the regenerated pair, if any.
-//- Excluded: list of identifiers of the excluded RPs, if Any.
+//  attemptRegenerate: flag indicating if the pair (PP, DP)
+//      has been regenerated.
+//  (PP, DP): the regenerated pair, if any.
+//  Excluded: list of identifiers of the excluded RPs, if Any.
 //Preconditions:
-//- All RPs included in the pair (PP, DP):
-//  must be in the FMM;
-//  must have an allocation in the MPG.
-//- The status of the Fiber MOS Model must correspond to
-//  the status of the real Fiber MOS.
-//- The allocations shall contains the properties enough to
-//  make the regeneration (Type, Pr, Pid, X, Y).
+//  All RPs included in the pair (PP, DP):
+//      must be in the FMM;
+//      must have one allocation in the MPG.
+//  The status of the Fiber MOS Model:
+//      must correspond to the status of the real Fiber MOS.
+//  The allocations shall contains the properties enough to
+//      make the regeneration (Type, Pr, Pid, X, Y).
 bool TMotionProgramGenerator::attemptRegenerate(TVector<int>& Excluded,
                        TMotionProgram& PP, TMotionProgram& DP) const
 {
@@ -2014,6 +2176,248 @@ bool TMotionProgramGenerator::attemptRegenerate(TVector<int>& Excluded,
     }
 
     return false;*/
+}
+
+//FUNCTIONS TO BE USED ONLINE BY MCS:
+
+//Generates a parking program.
+//Inputs:
+//  FMM:the Fiber MOS Model.
+//  p_1s: the rotor 1 positions of all RPs of the FMM.
+//  p___3s: the rotor 2 positions of all RPs of the FMM.
+//  Ids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  generateParkingProgram_online: indicates if the generated parking program is valid.
+//  ParkingProgram: the parking program to generate.
+//Preconditions:
+//  All operative outsider RPs of the FMM:
+//      shall be in the Fiber MOS Model;
+//      shall be operatives;
+//      shall be in insecurity positions;
+//      shall have enabled the quantifiers;
+//  All position angles in the vector p_1s:
+//      must be in the rotor 1 domain of their corresponding RP.
+//  All position angles in the vector p___3s:
+//      must be in the rotor 2 domain of their corresponding RP.
+//  All identifiers in the vector Ids:
+//      must be referred to RPs in the FMM.
+//Postconditions:
+//  The RPs indicated in the list Ids will be disabled.
+//  All RPs of the Fiber MOS Model will be configured for
+//      validate a parking program.
+//  When the generated recovery program isn't valid:
+//      All RPs of the FMM:
+//          will have disabled the quantifiers of their rotors;
+//          will be in the first position where the collision was detected
+//              during the validation process.
+//  When the generated recovery program is valid (even the trivial case):
+//      All RPs of the FMM:
+//          will have enabled the quantifiers of their rotors;
+//          will be in their final positions.
+bool generateParkingProgram_online(TMotionProgram& ParkingProgram,
+    TFiberMOSModel& FMM,
+    const vector<double>& p_1s, const vector<double>& p___3s,
+    const vector<int>& Ids)
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(p_1s.size() != (unsigned int)FMM.RPL.getCount())
+        throw EImproperArgument("vector p_1s should has one position for each RP of the FMM");
+    if(p___3s.size() != (unsigned int)FMM.RPL.getCount())
+        throw EImproperArgument("vector p___3s should has one position for each RP of the FMM");
+
+    for(unsigned int i=0; i<p_1s.size(); i++) {
+        double p_1 = p_1s[i];
+        double p___3 = p___3s[i];
+        TRoboticPositioner *RP = FMM.RPL[i];
+        if(RP->getActuator()->isntInDomainp_1(p_1))
+                throw EImproperArgument("position angle "+inttostr(p_1)+" isnt in the rotor 1 domain of the RP"+inttostr(RP->getActuator()->getId()));
+        if(RP->getActuator()->getArm()->isntInDomainp___3(p___3))
+            throw EImproperArgument("position angle "+inttostr(p___3)+" isnt in the rotor 2 domain of the RP"+inttostr(RP->getActuator()->getId()));
+    }
+
+    for(unsigned int i=0; i<Ids.size(); i++) {
+        int Id = Ids[i];
+        int j = FMM.RPL.searchId(Id);
+        if(j >= FMM.RPL.getCount())
+            throw EImproperArgument("vector Ids should contains identifiers of RPs of the FMM");
+    }
+
+    //MAKE ACTIONS:
+
+    //move the RPs to their starting positions
+    for(unsigned int i=0; i<p_1s.size(); i++) {
+        double p_1 = p_1s[i];
+        double p___3 = p___3s[i];
+        FMM.RPL[i]->getActuator()->setPositionPPASteps(p_1, p___3);
+    }
+
+    //disable the identified RPs of the FMM
+    for(unsigned int i=0; i<Ids.size(); i++) {
+        int Id = Ids[i];
+        int j = FMM.RPL.searchId(Id);
+        if(j >= FMM.RPL.getCount())
+            throw EImpossibleError("lateral effect");
+        TRoboticPositioner *RP = FMM.RPL[j];
+        RP->Disabled = true;
+    }
+
+    //builds a MPG attached to the FMM
+    TMotionProgramGenerator MPG(&FMM);
+
+    //segregates the operative outsiders RPs
+    TRoboticPositionerList Outsiders;
+    FMM.RPL.segregateOperativeOutsiders(Outsiders);
+
+    //Now must be fulfilled the preconditions:
+    //  All RPs of the Fiber MOS Model, shall be in their starting positions.
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be operatives.
+    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+
+    //generates a parking program for the operative RPs in insecure positions
+    //and determines the RPs in collision status or obstructed in insecure positions
+    TRoboticPositionerList Collided;
+    TRoboticPositionerList Obstructed;
+    ParkingProgram.Clear();
+    bool ParkingProgramValid = MPG.generateParkingProgram(Collided, Obstructed, ParkingProgram, Outsiders);
+
+    //Now are fulfilled the postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for validate a parking program
+    //  All RPs of the fiber MOS Model will be in their final positions,
+    //  or the first position where the collision was detected.
+    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+
+    //########################################################################
+    //#WARNING: before re-use a function to generation, shall be restablished#
+    //#the preconditions.                                                    #
+    //########################################################################
+
+    //return the result of the generation process
+    return ParkingProgramValid;
+}
+
+//Generates a pair (PP, DP).
+//Inputs:
+//  FMM:the Fiber MOS Model.
+//  p_1s: the rotor 1 positions of all RPs of the FMM.
+//  p___3s: the rotor 2 positions of all RPs of the FMM.
+//  Ids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  generatePairPPDP_online: indicates if the generated pair (PP, DP) is valid.
+//  PP: the positioning program to generate.
+//  DP: the depositioning program to generate.
+//Preconditions:
+//  All operative outsider RPs of the FMM:
+//      shall be in the Fiber MOS Model;
+//      shall be operatives;
+//      shall be in insecurity positions;
+//      shall have enabled the quantifiers;
+//  All position angles in the vector p_1s:
+//      must be in the rotor 1 domain of their corresponding RP.
+//  All position angles in the vector p___3s:
+//      must be in the rotor 2 domain of their corresponding RP.
+//  All identifiers in the vector Ids:
+//      must be referred to RPs in the FMM.
+//Postconditions:
+//  The RPs indicated in the list Ids will be disabled.
+//  All RPs of the Fiber MOS Model will be configured for
+//      validate a PP.
+//  When the generated DP program isn't valid:
+//      All RPs of the FMM:
+//          will have disabled the quantifiers of their rotors;
+//          will be in the first position where the collision was detected
+//              during the validation process.
+//  When the generated DP is valid (even the trivial case):
+//      All RPs of the FMM:
+//          will have enabled the quantifiers of their rotors;
+//          will be in their initial positions.
+bool generatePairPPDP_online(TMotionProgram& PP, TMotionProgram& DP,
+    TFiberMOSModel& FMM,
+    const vector<double>& p_1s, const vector<double>& p___3s,
+    const vector<int>& Ids)
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(p_1s.size() != (unsigned int)FMM.RPL.getCount())
+        throw EImproperArgument("vector p_1s should has one position for each RP of the FMM");
+    if(p___3s.size() != (unsigned int)FMM.RPL.getCount())
+        throw EImproperArgument("vector p___3s should has one position for each RP of the FMM");
+
+    for(unsigned int i=0; i<p_1s.size(); i++) {
+        double p_1 = p_1s[i];
+        double p___3 = p___3s[i];
+        TRoboticPositioner *RP = FMM.RPL[i];
+        if(RP->getActuator()->isntInDomainp_1(p_1))
+                throw EImproperArgument("position angle "+inttostr(p_1)+" isnt in the rotor 1 domain of the RP"+inttostr(RP->getActuator()->getId()));
+        if(RP->getActuator()->getArm()->isntInDomainp___3(p___3))
+            throw EImproperArgument("position angle "+inttostr(p___3)+" isnt in the rotor 2 domain of the RP"+inttostr(RP->getActuator()->getId()));
+    }
+
+    for(unsigned int i=0; i<Ids.size(); i++) {
+        int Id = Ids[i];
+        int j = FMM.RPL.searchId(Id);
+        if(j >= FMM.RPL.getCount())
+            throw EImproperArgument("vector Ids should contains identifiers of RPs of the FMM");
+    }
+
+    //MAKE ACTIONS:
+
+    //move the RPs to their starting positions
+    for(unsigned int i=0; i<p_1s.size(); i++) {
+        double p_1 = p_1s[i];
+        double p___3 = p___3s[i];
+        FMM.RPL[i]->getActuator()->setPositionPPASteps(p_1, p___3);
+    }
+
+    //disable the identified RPs of the FMM
+    for(unsigned int i=0; i<Ids.size(); i++) {
+        int Id = Ids[i];
+        int j = FMM.RPL.searchId(Id);
+        if(j >= FMM.RPL.getCount())
+            throw EImpossibleError("lateral effect");
+        TRoboticPositioner *RP = FMM.RPL[j];
+        RP->Disabled = true;
+    }
+
+    //builds a MPG attached to the FMM
+    TMotionProgramGenerator MPG(&FMM);
+
+    //segregates the operative outsiders RPs
+    TRoboticPositionerList Outsiders;
+    FMM.RPL.segregateOperativeOutsiders(Outsiders);
+
+    //Now are fulfilled the preconditions:
+    //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
+    //  All RPs of the list Outsiders, shall be operatives.
+    //  All RPs of the list Outsiders, shall be in unsecure positions.
+    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+
+    //generates a de positioning program for the operative RPs in insecure positions
+    //and determines the RPs in collision status or obstructed in insecure positions
+    bool PPvalid = false;
+    bool DPvalid = false;
+    TRoboticPositionerList Collided;
+    TRoboticPositionerList Obstructed;
+    PP.Clear();
+    DP.Clear();
+    MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
+
+    //Now are fulfilled the postconditions:
+    //  All RPs of the Fiber MOS Model will be configured for validate a PP
+    //  All RPs of the fiber MOS Model will be in their final positions,
+    //  or the first position where the collision was detected.
+    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+
+    //########################################################################
+    //#WARNING: before re-use a function to generation, shall be restablished#
+    //#the preconditions.                                                    #
+    //########################################################################
+
+    //return the result of the generation process
+    return PPvalid && DPvalid;
 }
 
 //---------------------------------------------------------------------------

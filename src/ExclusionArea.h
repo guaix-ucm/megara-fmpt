@@ -267,23 +267,23 @@ public:
     //------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR LAS COLISIONES CON RPs ADYACENTES:
 
-    //determina si hay colisión con un actuador adyacente
+    //determines if there is collision with an actuator
     bool thereIsCollision(const TActuator*);
-    //determina si hay colisión con un actuador adyacente
+/*    //determina si hay colisión con un actuador adyacente
     bool thereIsCollisionWithAdjacent(void);
     //Busca los posicionadores adyacentes cuyo
     //brazo colisiona con la barrera de este área de exclusión.
     void searchCollindingAdjacent(
             TItemsList<TActuator*> &Collindings);
-
-    //Determina si hay colisión con un actuador adyacente
-    //con evalauación de colisión pendiente.
+*/
+    //determines if there is collision with an adjacent RP
+    //with pending collision determination
     bool thereIsCollisionWithPendingAdjacent(void);
-    //Busca los posicionadores adyacentes
+    /*    //Busca los posicionadores adyacentes
     //con evalauación de colisión pendiente
     //cuyo brazo colisiona con la barrera de este área de exlusión.
     void searchCollindingPendingAdjacent(
-            TItemsList<TActuator*> &Collindings);
+            TItemsList<TActuator*> &Collindings);*/
 };
 
 //---------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include "RoboticPositioner.h"
 #include "Strings.h" //StrIndent
 
-//#include <values.h>
+#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
@@ -893,7 +893,8 @@ TRoboticPositioner::TRoboticPositioner(void) :
     CMF(),
     //inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
-    ControlMode(cmSinc), MPturn(), MPretraction()
+    ControlMode(cmSinc), MPturn(), MPretraction(),
+    Dfmin(std::numeric_limits<double>::max())
 {
     //contruye el actuador del posicionador
     //con el identificador 0
@@ -920,7 +921,8 @@ TRoboticPositioner::TRoboticPositioner(int Id, TDoublePoint P0,
     CMF(),
     //construye e inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
-    ControlMode(cmSinc), MPturn(), MPretraction()
+    ControlMode(cmSinc), MPturn(), MPretraction(),
+    Dfmin(std::numeric_limits<double>::max())
 {
     //el número de identificación Id debe ser mayor que cero
     if(Id < 1)
@@ -967,6 +969,7 @@ void TRoboticPositioner::copyStatus(const TRoboticPositioner *RP)
     MPretraction.Clone(RP->MPretraction);
     p_DsecMax = RP->p_DsecMax;
     p_Dsec = RP->p_Dsec;
+    Dfmin = RP->Dfmin;
 }
 
 //copy all properties of a RP
@@ -1763,7 +1766,7 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
     MI->Instruction.Args[0] = p_1fin;
     MI->Instruction.Args[1] = p___3fin;
     if(getDsec() < getDsecMax())
-        MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+        MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
 
     //add the message instruction to the MP
     Positioning::TMessageList *ML = new Positioning::TMessageList();
@@ -1781,7 +1784,7 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
         MI->Instruction.Args.setCount(1);
         MI->Instruction.Args[0] = p___3saf;
         if(getDsec() < getDsecMax())
-            MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
 
         //add the message instruction to the MP
         Positioning::TMessageList *ML = new Positioning::TMessageList();
@@ -1909,7 +1912,7 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
     MI->Instruction.Args[0] = p_1fin;
     MI->Instruction.Args[1] = p___3fin;
     if(getDsec() < getDsecMax())
-        MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+        MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
 
     //add the message instruction to the MP
     ML = new Positioning::TMessageList();
@@ -1927,7 +1930,7 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
         MI->Instruction.Args.setCount(1);
         MI->Instruction.Args[0] = p___3saf;
         if(getDsec() < getDsecMax())
-            MI->setComment("Dsec = "+floattostr(getDsec())+" mm");
+            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
 
         //add the message instruction to the MP
         Positioning::TMessageList *ML = new Positioning::TMessageList();

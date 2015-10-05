@@ -37,6 +37,8 @@ using namespace Models;
 //namespace for positioning
 namespace Positioning {
 
+//---------------------------------------------------------------------------
+
 //Get the list of RPs includes in a MP.
 //Precondition:
 //  All message of instruction in the MP shall be addressed
@@ -64,6 +66,38 @@ protected:
 
     TFiberMOSModel *p_FiberMOSModel;
 
+protected:
+    //DEFINITION: minimun free distance between two barriers (Dfmin)
+    //is the distance between the barriers less the SPM of each:
+    //  Dfmin = Barrier1->Contour.DistanceMin(Barrier2->Contour) -
+    //      Barrier1->SPM - Barrier2->SPM.
+    //Each barrier can be an arm or to be part of an exclusion area.
+
+    //DEFINITION: minimun free time between two barriers (Tfmin)
+    //is displacement time during which there is garantee
+    //that cannot collide.
+
+    //calculates the time free of collission of two RPs
+    double calculateTf(TRoboticPositioner *RP,
+                       const TRoboticPositioner *RPA) const;
+    //calculates the minimun step time of two RPs
+    double calculateTmin(const TRoboticPositioner *RP,
+                         const TRoboticPositioner *RPA) const;
+
+    //calculates the minimun time free of collission of
+    //a RP with their adjacents
+    double calculateTfmin(TRoboticPositioner *RP) const;
+    //calculates the minimun step time of
+    //a RP with their adjacents
+    double calculateTminmin(const TRoboticPositioner *RP) const;
+
+    //calculates the minimun time free of collission of
+    //the RPs of a list
+    double calculateTfmin(const TRoboticPositionerList& RPL) const;
+    //calculates the minimun step time of
+    //the RPs of a list
+    double calculateTminmin(const TRoboticPositionerList& RPL) const;
+
 public:
     //EXTERN-ATTACHED OBJECTS:
 
@@ -78,37 +112,6 @@ public:
     TMotionProgramValidator(TFiberMOSModel *FiberMOSModel);
 
     //METHODS TO VALIDATE MOTION PROGRAMS:
-
-    //DEFINITION: minimun free distance between two barriers (Dfmin)
-    //is the distance between the barriers less the SPM of each:
-    //  Dfmin = Barrier1->Contour.DistanceMin(Barrier2->Contour) -
-    //      Barrier1->SPM - Barrier2->SPM.
-    //Each barrier can be an arm or to be part of an exclusion area.
-
-    //DEFINITION: minimun free time between two barriers (Tfmin)
-    //is displacement time during which there is garantee
-    //that cannot collide.
-
-    //calculates the time free of collission of two RPs
-    double calculateTf(const TRoboticPositioner *RP,
-                       const TRoboticPositioner *RPA) const;
-    //calculates the minimun step time of two RPs
-    double calculateTmin(const TRoboticPositioner *RP,
-                         const TRoboticPositioner *RPA) const;
-
-    //calculates the minimun time free of collission of
-    //a RP with their adjacents
-    double calculateTfmin(const TRoboticPositioner *RP) const;
-    //calculates the minimun step time of
-    //a RP with their adjacents
-    double calculateTminmin(const TRoboticPositioner *RP) const;
-
-    //calculates the minimun time free of collission of
-    //the RPs of a list
-    double calculateTfmin(const TRoboticPositionerList& RPL) const;
-    //calculates the minimun step time of
-    //the RPs of a list
-    double calculateTminmin(const TRoboticPositionerList& RPL) const;
 
     //Determines if the execution of a motion program, starting from
     //given initial positions, avoid collisions.
@@ -138,7 +141,7 @@ public:
     //- The validation method of a MP will be used during the generation process
     //  with the individual MP of each RP, and at the end of the process for
     //  validate the generated recovery program.
-    bool validateMotionProgram(const TMotionProgram &MP) const;
+    bool validateMotionProgram(TMotionProgram &MP) const;
 
     //Validation of a MP can end of two ways:
     //- If the MP not produce a dynamic collision, being all RPs

@@ -751,11 +751,11 @@ bool TExclusionAreaList::thereIsCollision(void)
 
         return false; //indica que no se ha encontrado invasión
 }
-//busca las áreas de exclusión de la lista cuya barrera colisiona con
+/*//busca las áreas de exclusión de la lista cuya barrera colisiona con
 //el brazo de algún posicionador adyacente
 void TExclusionAreaList::searchCollinding(TVector<int> &indices)
 {
-/*        //ADVERTENCIA: los posicionadores de la lista no tienen
+        //ADVERTENCIA: los posicionadores de la lista no tienen
         //por que estar ordenados según su identificador.
 
         TRoboticPositioner *RP;
@@ -812,12 +812,12 @@ void TExclusionAreaList::searchCollinding(TVector<int> &indices)
 
         //orde la lista de índices
         if(indices.Count > 1)
-                indices.SortInc(0, indices.Count-1);*/
+                indices.SortInc(0, indices.Count-1);
 }
 //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
 void TExclusionAreaList::getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL)
 {
-/*        TRoboticPositioner *RP;
+        TRoboticPositioner *RP;
         TItemsList<TActuator*> Collindings;
         TItemsList<TRoboticPositioner*> *CC;
 
@@ -856,8 +856,8 @@ void TExclusionAreaList::getCollisionClusterList(TPointersList<TItemsList<TRobot
                         //añade la nueva lista al resultado
                         CCL.Add(CC);
                 }
-        }*/
-}
+        }
+}*/
 
 //---------------------------------------------------------------------------
 

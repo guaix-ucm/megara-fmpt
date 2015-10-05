@@ -54,7 +54,7 @@ public:
     unsigned int Bid;   //Id of the CB (0)          (can be empty)
     unsigned int Pid;   //Id of the RP (0)
 
-    //PP properties:
+    //Projection point properties:
     double X;           //abcise (0)
     double Y;           //ordinate (0)
     bool Enabled;       //indicates if the point is allocated to the RP (false)
@@ -66,16 +66,16 @@ public:
                         //(false)   (could be empty)
     string Comment;     //coment ("")               (can be empty)
 
-    //Used to generate a pair (PP,DP):
+    //Used to generate a pair (PP, DP):
     //  Type, [Bid], Pid, X, Y, Enabled
 
     //If field Bid is not empty, all fields (except Name and Comment)
     //shall be filled.
-    //If field Bid is not empty, the SPPP correspond to a PP.
-    //If field Enabled is true, the PP is allocated to the RP.
+    //If field Bid is not empty, the SPPP correspond to a projection point.
+    //If field Enabled is true, the projection point is allocated to the RP.
 
     //Used to determine if an allocation is of must type
-    //when attempt regenerate a pair (PP,DP):
+    //when attempt regenerate a pair (PP, DP):
     //  Type, [Pr], [Bid], Pid, X, Y, Enabled, [notAllocated], [allocateInAll]
 
     //flags indicating fields which can be empty (except Name and Comment):
@@ -83,8 +83,8 @@ public:
     bool there_is_Mag;
     bool there_is_Pr;
     bool there_is_Bid;
-    bool there_is_notAllocated;
-    bool there_is_allocateInAll;
+/*    bool there_is_notAllocated;
+    bool there_is_allocateInAll;*/
 
     //SETS OF PROPERTIES IN TEXT FORMAT:
 

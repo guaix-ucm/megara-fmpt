@@ -810,7 +810,7 @@ AnsiString StrFirstChars(const AnsiString &S, int LengthMax)
     return D; //devuelve la cadena destino
 }
 
-//search and return the first non separator char in a text string
+//search and return the index to first non separator char in a text string
 int StrSearchFirstNonseparatorChar(const AnsiString& S)
 {
     int i = 1;
@@ -862,6 +862,14 @@ int StrSearchFirstNonseparatorChar(const AnsiString& S)
     } while(status < 2);
 
     return i;
+}
+//search and return the first non separator char in a text string
+char strFirstNonseparatorChar(const string& str)
+{
+    int i = StrSearchFirstNonseparatorChar(str) - 1;
+    if(i <= (int)str.length())
+        return str[i];
+    return 0;
 }
 
 //rellena una cadena con caracteres hasta que alcance la longitud indicada

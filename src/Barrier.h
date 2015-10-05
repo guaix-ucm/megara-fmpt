@@ -29,8 +29,6 @@
 
 #include "Figure.h"
 #include "ContourFigureList.h"
-//##include "taboutofdialog.h"
-//##include "..\5_Graphics\PloterShapes.h"
 #include "Function.h"
 #include "Quantificator.h"
 #include "Vector.h"
@@ -59,14 +57,6 @@ class TBarrier {
         TContourFigureList p_Contour;
 
         double p_SPM;
-
-        //###################################################################
-        //PROPIEDADES EN FORMATO TEXTO:
-        //###################################################################
-
-        //PROPIEDADES EN FORMATO TEXTO:
-
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
         //###################################################################
         //MÉTODOS PRIVADOS:

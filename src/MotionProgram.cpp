@@ -17,26 +17,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: MotionProgram.cpp
-//Contenido: programa de posicionamiento
-//Última actualización: 28/04/2014
-//Autor: Isaac Morales Durán
+//File: PositioningProgram.cpp
+//Content: class of positioning program
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MotionProgram.h"
 #include "Strings.h"
 
-//--------------------------------------------------------------------------
-
-//espacio de nombres de posicionamiento
-namespace Positioning {
+//---------------------------------------------------------------------------
 
 using namespace Strings; //StrIndent
 using namespace Models;
 
-//--------------------------------------------------------------------------
+//namespace for positioning
+namespace Positioning {
+
+//---------------------------------------------------------------------------
 //TMessageList
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 //MÉTODOS ESTÁTICOS:
 
@@ -116,19 +115,19 @@ bool TMotionProgram::operator!=(const TMotionProgram& MP) const
     return false;
 }
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //TMotionProgram
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
-//determines if there is some coment in any instruction
+//determines if there is some coment 1 in any instruction
 //of the the motion program
-bool TMotionProgram::thereIsSomeComment(void) const
+bool TMotionProgram::thereIsSomeComment1(void) const
 {
     for(int i=0; i<getCount(); i++) {
         const TMessageList *ML = Items[i];
         for(int j=0;  j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
-            if(MI->getComment().length() > 0)
+            if(MI->getComment1().length() > 0)
                 return true;
         }
     }
@@ -136,7 +135,7 @@ bool TMotionProgram::thereIsSomeComment(void) const
 }
 //get the non empty coments of the motion program
 //in column text format
-string TMotionProgram::getCommentsColumnText(void) const
+string TMotionProgram::getComment1sColumnText(void) const
 {
     string str;
 
@@ -145,12 +144,12 @@ string TMotionProgram::getCommentsColumnText(void) const
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
 
-            if(MI->getComment().length() > 0) {
+            if(MI->getComment1().length() > 0) {
                 if(str.length() > 0)
                     str += "\r\n";
                 str += "group"+inttostr(i+1);
                 str += ": "+MI->getText().str;
-                str += ": "+MI->getComment();
+                str += ": "+MI->getComment1();
             }
         }
     }
@@ -179,14 +178,31 @@ void TMotionProgram::getAllIncludedIds(TVector<int>& Ids) const
     }
 }
 
+//exclude the isntructions addressed to a determined RP
+void TMotionProgram::excludeRP(int Id)
+{
+    for(int i=0; i<getCount(); i++) {
+        TMessageList *ML = Items[i];
+
+        int j = 0;
+        while(j < ML->getCount()) {
+            TMessageInstruction *MI = ML->GetPointer(j);
+            if(MI->getId() == Id)
+                ML->Delete(j);
+            else
+                j++;
+        }
+    }
+}
+
 //Get a motion progam in the interface format of the MCS.
 //Inputs:
 //  label: string labeling all the MP.
 //  CBId: univoque identifier of the CB.
 //  SPL: starting position list for all RPs of the Fiber MOS.
 //Preconditions:
-//  All PPAs of the IPL must be addresed to different RPs.
-//  All RPs included in the MP, must be in included in the IPL.
+//  All PPAs of the SPL must be addresed to different RPs.
+//  All RPs included in the MP, must be in included in the SPL.
 void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned int Bid,
     const TPairPositionAnglesList& SPL) const
 {
@@ -463,24 +479,78 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
     Bid = (unsigned int)t_Bid;
 }
 
-//exclude the isntructions addressed to a determined RP
-void TMotionProgram::excludeRP(int Id)
+//Get MP-Dfmins in the interface format of the MCS.
+//Inputs:
+//  label: string labeling all the MP-Dfmin.
+//  Bid: univoque identifier of the CB.
+void TMotionProgram::getDfminInterfaceText(string& str, const string& label,
+                                           unsigned int Bid) const
 {
-    for(int i=0; i<getCount(); i++) {
-        TMessageList *ML = Items[i];
+    //CHECK THE PRECONDITIONS:
 
-        int j = 0;
-        while(j < ML->getCount()) {
-            TMessageInstruction *MI = ML->GetPointer(j);
-            if(MI->getId() == Id)
-                ML->Delete(j);
-            else
-                j++;
+    for(int i=0; i<getCount(); i++) {
+        const TMessageList *ML = Items[i];
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            if(MI->Instruction.getName()!="M1" &&
+                    MI->Instruction.getName()!="M2" &&
+                    MI->Instruction.getName()!="MM")
+                throw EImproperCall("all instruction should be motion instructions");
         }
     }
+
+    if(label!="obs pos" && label!="obs depos")
+        throw EImproperArgument("MP label should be \"obs pos\" or \"obs depos\"");
+
+    if(int(Bid) < 0)
+        throw EImproperArgument("block identifier Bid should be less maximun integer value");
+
+    //PRINT THE MP-Dfmin:
+
+    //print the label of the motion program and their start delimiter
+    str = label+"_"+inttostr(int(Bid))+" {";
+
+    //for each list of message of instructions of the motion program
+    //  print a group
+    for(int i=0; i<getCount(); i++) {
+        //points the indicated message list to facilitate its access
+        const TMessageList *ML = Items[i];
+
+        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
+
+        //print the label of the indicated group and their start delimiter
+        str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
+
+        //for each MI of the list, prints the corresponding instruction in the str, and actualice the APL
+        for(int j=0; j<ML->getCount(); j++) {
+            //point the indicated MI to facilitate its access
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //print the corresponding instruction in the interface format
+            if(MI->Instruction.getName() == "M1") {
+                //print the comment with the Dfmin
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+
+            } else if(MI->Instruction.getName() == "M2") {
+                //print the comment with the Dfmin
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+
+            } else if(MI->Instruction.getName() == "MM") {
+                //print the comment with the Dfmin
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+
+            } else
+                throw EImpossibleError("lateral effect");
+        }
+
+        //print the end delimiter of the indicated group
+        str += "\r\n\t}";
+    }
+    //print the end delimiter of motion program
+    str += "\r\n}";
 }
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 } //namespace Positiong
 

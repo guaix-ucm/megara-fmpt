@@ -58,7 +58,7 @@ void TSPPP::setText(const string& str)
     StrSplit(Strings, str, '|');
 
     if(Strings.getCount() != 12)
-        throw EImproperArgument("string S should contains 12 fields separated by '|'");
+        throw EImproperArgument("should have 12 fields separated by '|'");
 
     try {
         //translate the values and assign to a tampon variable
@@ -98,7 +98,7 @@ void TSPPP::setText(const string& str)
         } else
             SPPP.there_is_Bid = false;
 
-        //translate PP properties
+        //translate projection point properties
         SPPP.Pid = strtoint(Strings[7].str);
         SPPP.X = strtofloat(Strings[8].str);
         SPPP.Y = strtofloat(Strings[9].str);
@@ -119,15 +119,15 @@ void TSPPP::setText(const string& str)
             SPPP.there_is_allocateInAll = true;
         } else
             SPPP.there_is_allocateInAll = false;
-*/
+
         SPPP.there_is_notAllocated = true;
         SPPP.there_is_allocateInAll = true;
-
+*/
         //trims Comment property
         SPPP.Comment = StrTrim(Strings[11]).str;
 
         //check the precondition
-        if(there_is_Bid && (!there_is_Mag || !there_is_Pr || !there_is_notAllocated || !there_is_allocateInAll))
+        if(there_is_Bid && (!there_is_Mag || !there_is_Pr/* || !there_is_notAllocated || !there_is_allocateInAll*/))
             throw EImproperArgument("if field Bid is not empty, all fields (except Name) shall be filled");
 
         //assign the tampon variable
@@ -155,8 +155,8 @@ void  TSPPP::PrintRow(AnsiString &S, const TSPPP *SPPP)
 //build a structure by default
 TSPPP::TSPPP() : RA(0), Dec(0), Type(ptUNKNOWN), Pr(0), Bid(0), Pid(0),
       X(0), Y(0), Enabled(false), notAllocated(true), allocateInAll(false),
-      there_is_Mag(false), there_is_Pr(false), there_is_Bid(false),
-      there_is_notAllocated(false), there_is_allocateInAll(false)
+      there_is_Mag(false), there_is_Pr(false), there_is_Bid(false)/*,
+      there_is_notAllocated(false), there_is_allocateInAll(false)*/
 {
     Name = "";
     Comment = "";
@@ -183,22 +183,14 @@ TSPPP& TSPPP::operator=(const TSPPP& SPPP)
     there_is_Mag = SPPP.there_is_Mag;
     there_is_Pr = SPPP.there_is_Pr;
     there_is_Bid = SPPP.there_is_Bid;
-    there_is_notAllocated = SPPP.there_is_notAllocated;
-    there_is_allocateInAll = SPPP.there_is_allocateInAll;
+/*    there_is_notAllocated = SPPP.there_is_notAllocated;
+    there_is_allocateInAll = SPPP.there_is_allocateInAll;*/
 
     return *this;
 }
 
 //---------------------------------------------------------------------------
 //class TFMOSATable:
-
-char strFirstNonseparatorChar(const string& str)
-{
-    int i = StrSearchFirstNonseparatorChar(str) - 1;
-    if(i <= (int)str.length())
-        return str[i];
-    return 0;
-}
 
 //set a FMOSA table in text format
 void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
@@ -309,6 +301,7 @@ void TFMOSATable::getTableText(string& str) const
     str += "\r\n@@SOB@@";
     str += "\r\n0, 0, 0, 0";
     str += "\r\n@@EOB@@";
+
     str += "\r\n#      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment";
     str += "\r\n@@SOS@@";
     str += "\r\n"+getColumnText().str;

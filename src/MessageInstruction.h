@@ -33,88 +33,93 @@
 
 using namespace Lists;
 
-//espacio de nombres de modelos
+//namespace for models
 namespace Models {
 
 //--------------------------------------------------------------------------
 //TMessageInstruction:
 //--------------------------------------------------------------------------
 
-//mensaje de instrucción
+//class MI (message instruction)
 class TMessageInstruction {
         int p_Id;
-        string p_Comment;
+        string p_Comment1;
+        string p_Comment2;
 
 public:
-        //PROPIEDADES DEL MENSAJE:
+        //PUBLIC PROPERTIES:
 
-        //número de identificación del puerto CAN destinatario del mensaje
-        //valor por defecto: 0
+        //identification number of the CAN port destinatary of the message
+        //default value: 0
         int getId(void) const {return p_Id;} void setId(int);
 
-        //instrucción del mensaje
-        //valor por defecto: el de la instrucción
+        //instruction of the message
+        //default value: the instruction by default
         TInstruction Instruction;
 
-        //Las instrucciones deben escribirse directamente en la propiedad
-        //Instruction, primero debe asignarse el nombre de instrucción
-        //y a continuación los argumentos. P.e:
+        //Instructions must be written directly in the property Instruction.
+        //First must be assigned the instruction name,
+        //and then can be assigned the arguments. E.g:
         //      Instruction.Name = "G1";
         //      Instruction.Args.First = p1;
 
-        //comment
+        //comment 1
+        //for anotate Dsec value when Dsec < DsecMax
         //default value: ""
-        string getComment(void) const{return p_Comment;}
-        void setComment(const string&);
+        string getComment1(void) const{return p_Comment1;}
+        void setComment1(const string&);
 
-        //PROPIEDADES EN FORMATO TEXTO:
+        //comment 2
+        //for anotate Dfmin value when the instruction is executed
+        //default value: ""
+        string getComment2(void) const{return p_Comment2;}
+        void setComment2(const string&);
 
-        //número de identificación del puerto CAN destinatario del mensaje
-        //en formato texto
-        //debe ser no negativo
-        //valor por defecto: "0"
+        //PUBLIC PROPERTIES IN TEXT FORMAT:
+
+        //identification number of the CAN port destinatary of the message
+        //in text format
+        //default value: "0"
         AnsiString getIdText(void) const; void setIdText(const AnsiString&);
 
-        //instrucción del mensaje
-        //en formato texto:
-        //      Instruction.Text
+        //instruction of the message
+        //in text format:
+        //  Instruction.Text
 
-        //Línea de texto con las propiedades del mensaje en formato texto.
-        //Si instenta asignar un mensaje inválido
-        //lanza una excepcion EImproperArgument.
-        //Formato:
-        //      IdText+": "+Instruction.Text
+        //the MI in text format:
+        //  IdText+": "+Instruction.Text
+        //default value: "0: "
         AnsiString getText(void) const; void setText(const AnsiString&);
 
-        //MÉTODOS ESTÁTICOS:
+        //STATIC METHODS:
 
-        //compara los identificadores de dos mensajes de instrucción
+        //compare the identifiers of two MIs
         static int  CompareIds(const TMessageInstruction *MI1,
                 const TMessageInstruction *MI2);
-        //imprime un mensaje de instrucción en una cadena
+        //print the MI in a text string
         static void  Print(AnsiString &S,
                 const TMessageInstruction *MI);
-        //lee un mensaje de itnrucción en una cadena de texto
+        //read the MI from a text string
         static void  Read(TMessageInstruction *MI,
                 const AnsiString &S, int &i);
 
-        //read an instruction in a text string
-        //in the FMPT-MCS interfaz format
+        //read an instruction from a text string
+        //in the MCS format
         static void  readInterface(TMessageInstruction *MI,
                                    const string& str, unsigned int &i);
 
-        //MÉTODOS PÚBLICOS:
+        //PUBLIC METHODS:
 
-        //construye un mensaje con los valores por defecto
+        //build a MI by default
         TMessageInstruction(void);
-        //construye un mensaje con los valores indicados
+        //build a MI with the indicated values
         TMessageInstruction(int Id, AnsiString InstructionText);
-        //clona un mensaje
+        //clone a MI
         TMessageInstruction(TMessageInstruction *);
 
-        //copia las propiedades de un mensaje
+        //copy the properties of a MI
         void Copy(const TMessageInstruction *MI);
-        //asigna las propiedades de un mensaje
+        //assign the properties of a MI
         TMessageInstruction& operator=(const TMessageInstruction &MI);
 
         //determine if a MI is different to this MI

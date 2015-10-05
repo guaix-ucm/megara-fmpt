@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: PositioningProgram.h
-//Contenido: programa de posicionamiento
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: PositioningProgram.h
+//Content: class of positioning program
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONPROGRAM_H
@@ -30,20 +29,17 @@
 #include "PointersList.h"
 #include "PairPositionAngles.h"
 
-//##include <QListWidget>
-//##include <QTextEdit>
-
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 using namespace Lists;
 using namespace Models;
 
-//espacio de nombres de posicionamiento
+//namespace for positioning
 namespace Positioning {
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //TMessageList:
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 //lista de mensajes de instrucción
 class TMessageList : public TPointersList<TMessageInstruction> {
@@ -76,19 +72,19 @@ public:
     bool operator!=(const TMessageList&) const;
 };
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //TMotionProgram:
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 //class motion program
 class TMotionProgram : public TPointersList<TMessageList> {
 public:
-    //determines if there is some coment in any instruction
+    //determines if there is some coment 1 in any instruction
     //of the the motion program
-    bool thereIsSomeComment(void) const;
+    bool thereIsSomeComment1(void) const;
     //get the non empty coments of the motion program
     //in column text format
-    string getCommentsColumnText(void) const;
+    string getComment1sColumnText(void) const;
 
     //builds a motion program
     TMotionProgram(int Capacity=7) :
@@ -103,14 +99,17 @@ public:
     //get the list of RP identifiers includes in a MP
     void getAllIncludedIds(TVector<int>& Ids) const;
 
+    //exclude the MIs addressed to a determined RP
+    void excludeRP(int Id);
+
     //Get a motion progam in the interface format of the MCS.
     //Inputs:
     //  label: string labeling all the MP.
     //  Bid: univoque identifier of the CB.
     //  SPL: starting position list for all RPs of the Fiber MOS.
     //Preconditions:
-    //  All PPAs of the IPL must be addresed to different RPs.
-    //  All RPs included in the MP, must be in included in the IPL.
+    //  All PPAs of the SPL must be addresed to different RPs.
+    //  All RPs included in the MP, must be in included in the SPL.
     void getInterfaceText(string& str, const string& label, unsigned int Bid,
                           const TPairPositionAnglesList& SPL) const;
 
@@ -131,8 +130,12 @@ public:
     void setInterfaceText(string& label, unsigned int& Bid,
                           const string& str);
 
-    //exclude the isntructions addressed to a determined RP
-    void excludeRP(int Id);
+    //Get MP-Dfmins in the interface format of the MCS.
+    //Inputs:
+    //  label: string labeling all the MP-Dfmin.
+    //  Bid: univoque identifier of the CB.
+    void getDfminInterfaceText(string& str, const string& label,
+                               unsigned int Bid) const;
 };
 
 //---------------------------------------------------------------------------
