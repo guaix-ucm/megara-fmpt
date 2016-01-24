@@ -671,10 +671,10 @@ public:
 //   2. The messages indicating status of the process can't be printed
 //      (either in the standard output nor the log file). Then can't be
 //      warned the following circunstances:
-//          If all operative outsiders RPs are in the origins:
+//          If all operative outsider RPs are in the origins:
 //              the generated motion program/s will be empty;
 //          else, if there isn't operative outsider RPs:
-//              the generated motion program/s will contains only a
+//              the generated motion program/s will contains a single
 //              message-instruction list,
 //
 //   3. The lists Collided and Obstructed are determined but they are discarted.
@@ -688,13 +688,13 @@ public:
 
 //Generates a parking program.
 //Inputs:
-//  FMM:the Fiber MOS Model.
-//  p_1s: the rotor 1 positions of all RPs of the FMM.
-//  p___3s: the rotor 2 positions of all RPs of the FMM.
+//  FMM: the Fiber MOS Model.
+//  p_1s: the rotor 1 starting positions of all RPs of the FMM.
+//  p___3s: the rotor 2 starting positions of all RPs of the FMM.
 //  Ids: the identifiers of the RPs of the FMM to be disabled.
 //Outputs:
 //  generateParkingProgram_online: indicates if the generated parking program is valid.
-//  ParkingProgram: the parking program to generate.
+//  ParkingProgram: the parking program to be generated.
 //Preconditions:
 //  All operative outsider RPs of the FMM:
 //      shall be in the Fiber MOS Model;
@@ -716,7 +716,7 @@ public:
 //          will have disabled the quantifiers of their rotors;
 //          will be in the first position where the collision was detected
 //              during the validation process.
-//  When the generated recovery program is valid (even the trivial case):
+//  When the generated recovery program is valid (even in the trivial case):
 //      All RPs of the FMM:
 //          will have enabled the quantifiers of their rotors;
 //          will be in their final positions.
@@ -727,14 +727,14 @@ bool generateParkingProgram_online(TMotionProgram& ParkingProgram,
 
 //Generates a pair (PP, DP).
 //Inputs:
-//  FMM:the Fiber MOS Model.
-//  p_1s: the rotor 1 positions of all RPs of the FMM.
-//  p___3s: the rotor 2 positions of all RPs of the FMM.
+//  FMM: the Fiber MOS Model.
+//  p_1s: the rotor 1 observing positions of all RPs of the FMM.
+//  p___3s: the rotor 2 observing positions of all RPs of the FMM.
 //  Ids: the identifiers of the RPs of the FMM to be disabled.
 //Outputs:
 //  generatePairPPDP_online: indicates if the generated pair (PP, DP) is valid.
-//  PP: the positioning program to generate.
-//  DP: the depositioning program to generate.
+//  PP: the positioning program to be generated.
+//  DP: the depositioning program to be generated.
 //Preconditions:
 //  All operative outsider RPs of the FMM:
 //      shall be in the Fiber MOS Model;
@@ -756,7 +756,7 @@ bool generateParkingProgram_online(TMotionProgram& ParkingProgram,
 //          will have disabled the quantifiers of their rotors;
 //          will be in the first position where the collision was detected
 //              during the validation process.
-//  When the generated DP is valid (even the trivial case):
+//  When the generated DP is valid (even in the trivial case):
 //      All RPs of the FMM:
 //          will have enabled the quantifiers of their rotors;
 //          will be in their initial positions.

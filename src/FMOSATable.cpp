@@ -299,7 +299,7 @@ void TFMOSATable::getTableText(string& str) const
 {
     str = "# Id| Ra| Dec| Pos";
     str += "\r\n@@SOB@@";
-    str += "\r\n0, 0, 0, 0";
+    str += "\r\n0| 0| 0| 0";
     str += "\r\n@@EOB@@";
 
     str += "\r\n#      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment";
@@ -338,6 +338,15 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
 TFMOSATable::TFMOSATable(void) : TPointersList<TSPPP>()
 {
     Print = TSPPP::PrintRow;
+}
+
+//clone a FMOSA table
+void TFMOSATable::Clone(TFMOSATable& FMOSAT)
+{
+    setCount(FMOSAT.getCount());
+    setCapacity(FMOSAT.getCapacity());
+    for(int i=0; i<getCount(); i++)
+        *(Items[i]) = FMOSAT[i];
 }
 
 //---------------------------------------------------------------------------

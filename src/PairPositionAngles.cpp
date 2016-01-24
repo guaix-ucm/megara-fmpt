@@ -43,13 +43,13 @@ namespace Models {
 
 //label of property Id
 //default value: "Id"
-AnsiString TPairPositionAngles::IdLabel;
+AnsiString TPairPositionAngles::IdLabel = "Id";
 //label of property p_1
 //default value: "p_1"
-AnsiString TPairPositionAngles::p_1Label;
+AnsiString TPairPositionAngles::p_1Label = "p_1";
 //label of property p___3
 //default value: "p___3"
-AnsiString TPairPositionAngles::p___3Label;
+AnsiString TPairPositionAngles::p___3Label = "p___3";
 
 //PROPIEDADES:
 
@@ -63,7 +63,7 @@ int TPairPositionAngles::getId(void) const
 /*void TPairPositionAngles::setId(int Id)
 {
     try {
-        getRoboticPositioner()->setId(Id);
+        getRoboticPositioner()->getActuator()->setId(Id);
     } catch(...) {
         throw;
     }
@@ -339,7 +339,7 @@ void TPairPositionAnglesList::setText(const AnsiString &S)
     try {
         //index the first position of string to read
         int i = 1;
-        //travel the labels of the PAP properties
+        //travel the labels of the PPA properties
         TPairPositionAngles::travelLabelsRow(S, i);
         //travel the end line
         StrTravelSeparators(S, i);

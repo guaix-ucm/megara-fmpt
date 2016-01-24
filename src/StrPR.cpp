@@ -39,10 +39,8 @@ namespace Strings {
 void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
 {
         //el índice i debería indicar a una posición de la cadena de texto S
-        if(i > S.Length()+1)
+        if(i<1 || S.Length()+1<i)
                 throw EImproperArgument("index i should indicate a position in the string S");
-
-        AnsiString t_Word; //variable tampón
 
         //si el índice i indica a la posúltima posición
         if(i > S.Length())
@@ -52,11 +50,12 @@ void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
         //estado de lectura
         //      0: esperando ' ', '\r' o primer caracter de la palabra
         //      1: leyendo palabra y esperando ' ' o '\r\n'
-        //      2: palabra leida con éxito
+        //      2: palabra leída con éxito
         int status = 0;
 
         //variables auxiliares
         char c; //S[i]
+        AnsiString t_Word; //variable tampón
 
         do {
                 c = S[i];

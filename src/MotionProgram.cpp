@@ -208,8 +208,8 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
 {
     //VERIFIES THE PRECONDITIONS:
 
-    if(label!="obs pos" && label!="obs depos")
-        throw EImproperArgument("MP label should be \"obs pos\" or \"obs depos\"");
+    if(label!="pos" && label!="depos")
+        throw EImproperArgument("MP label should be \"pos\" or \"depos\"");
 
     if(int(Bid) < 0)
         throw EImproperArgument("block identifier Bid should be less maximun integer value");
@@ -239,7 +239,11 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
         //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
 
         //print the label of the indicated group and their start delimiter
-        str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
+        str += "\r\n\tgroup_"+IntToStr(i+1).str+" {";
+
+        //print the label of the indicated group and their start delimiter
+        //inserting zeros on the left:	
+        //str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
 
         //for each MI of the list, prints the corresponding instruction in the str, and actualice the APL
         for(int j=0; j<ML->getCount(); j++) {
@@ -260,10 +264,17 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 double r2_final_position = PPA->p___3;
 
                 //print the instruction in the interface format
-                str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
-                str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                str += "\r\n\trp"+MI->getIdText().str+" r2";
                 str += " "+floattostr(r2_final_position);
+
+                //print the instruction in the interface format
+                //inserting zeros on the left:
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                //str += " "+floattostr(r1_final_position);
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                //str += " "+floattostr(r2_final_position);
 
                 //actualice the actual position
                 PPA->p_1 = r1_final_position;
@@ -274,10 +285,17 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 double r2_final_position = MI->Instruction.Args[0];
 
                 //print the instruction in the interface format
-                str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
-                str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                str += "\r\n\trp"+MI->getIdText().str+" r2";
                 str += " "+floattostr(r2_final_position);
+
+                //print the instruction in the interface format
+                //inserting zeros on the left:
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                //str += " "+floattostr(r1_final_position);
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                //str += " "+floattostr(r2_final_position);
 
                 //actualice the actual position
                 PPA->p___3 = r2_final_position;
@@ -288,10 +306,17 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 double r2_final_position = MI->Instruction.Args[1];
 
                 //print the instruction in the interface format
-                str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
-                str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                str += "\r\n\trp"+MI->getIdText().str+" r2";
                 str += " "+floattostr(r2_final_position);
+
+                //print the instruction in the interface format
+                //inserting zeros on the left:
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                //str += " "+floattostr(r1_final_position);
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                //str += " "+floattostr(r2_final_position);
 
                 //actualice the actual position
                 PPA->p_1 = r1_final_position;
@@ -499,8 +524,8 @@ void TMotionProgram::getDfminInterfaceText(string& str, const string& label,
         }
     }
 
-    if(label!="obs pos" && label!="obs depos")
-        throw EImproperArgument("MP label should be \"obs pos\" or \"obs depos\"");
+    if(label!="pos" && label!="depos")
+        throw EImproperArgument("MP label should be \"pos\" or \"depos\"");
 
     if(int(Bid) < 0)
         throw EImproperArgument("block identifier Bid should be less maximun integer value");
@@ -519,7 +544,11 @@ void TMotionProgram::getDfminInterfaceText(string& str, const string& label,
         //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
 
         //print the label of the indicated group and their start delimiter
-        str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
+        str += "\r\n\tgroup_"+IntToStr(i+1).str+" {";
+
+        //print the label of the indicated group and their start delimiter
+        //inserting zeros on the left:
+        //str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
 
         //for each MI of the list, prints the corresponding instruction in the str, and actualice the APL
         for(int j=0; j<ML->getCount(); j++) {

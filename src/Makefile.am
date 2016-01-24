@@ -50,6 +50,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     AllocationList.cpp \
     MotionProgramValidator.cpp \
     MotionProgramGenerator.cpp \
+    outputs.cpp \
     vclemu.h \
     Exceptions.h \
     Vectors.h \
@@ -101,7 +102,8 @@ libfmtp_la_SOURCES = vclemu.cpp \
     Allocation.h \
     AllocationList.h \
     MotionProgramValidator.h \
-    MotionProgramGenerator.h
+    MotionProgramGenerator.h \
+    outputs.h
 
 ## Version info is in current : revision : age form
 ## A library supports interfaces from current downto current - age
@@ -162,7 +164,8 @@ pkginclude_HEADERS = vclemu.h \
     Allocation.h \
     AllocationList.h \
     MotionProgramValidator.h \
-    MotionProgramGenerator.h
+    MotionProgramGenerator.h \
+    outputs.h
 
 bin_PROGRAMS = fmpt_saa
 fmpt_saa_SOURCES = main.cpp

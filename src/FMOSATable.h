@@ -123,6 +123,9 @@ public:
 
     //build a FMOSA table by default
     TFMOSATable(void);
+
+    //clone a FMOSA table
+    void Clone(TFMOSATable&);
 };
 
 //---------------------------------------------------------------------------

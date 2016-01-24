@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2014-201 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -29,6 +29,7 @@
 #include "Strings.h"
 #include "TextFile.h"
 #include "Geometry.h" //distanceSegmentPoint
+#include "outputs.h" //Outputs
 
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
@@ -86,7 +87,7 @@ string help(void)
     str += "\r\n\tView the SPM values pending varibales PAkd and Purpose.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa testRadialMotion";
-    str += "\r\n\tTake the measure of maximun deviation arount the radial trayectory of the fiber of each RP.";
+    str += "\r\n\tTake the measure of maximun deviation around the radial trayectory of the fiber of each RP.";
     str += "\r\n";
 
     str += "\r\n$ fmpt_saa applyPC <path_PC>";
@@ -157,7 +158,7 @@ string aboutOf(void)
 {
     string str;
 
-    str += "Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.\r\n";
+    str += "Copyright (c) 2014-2016 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
     str += "This file is part of FMPT (Fiber MOS Positioning Tools)\r\n";
@@ -259,16 +260,17 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         //LOAD SETTINGS FROM FILES:
 
         //load the FMOSA table from a file
-        TFMOSATable FMOSA;
-        unsigned int Bid;
         string str;
         strReadFromFile(str, input_path);
-        FMOSA.setTableText(Bid, str);
+//        TFMOSATable FMOSA;
+        Outputs outputs;
+        unsigned int Bid;
+        outputs.FMOSAT.setTableText(Bid, str);
         append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
 
         //get the allocation from the FMOSA table
         TMotionProgramGenerator MPG(&FMM);
-        FMOSA.getAllocations(MPG);
+        outputs.FMOSAT.getAllocations(MPG);
         append("Allocations got from the FMOSA table in MPG.", log_filename.c_str());
 
         //MAKE THE OPERATIONS:
@@ -279,11 +281,11 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
 
         //The filename will be used to attach the outputs filenames witht the input filename.
 
-        //move the RPs to the more closer stable point to the TPs
+        //move the RPs to the more closer stable position to the allocated projection points
         MPG.MoveToTargetP3();
         append("RPs moved to observing positions.", log_filename.c_str());
 
-        //Other way to obtain the more closer stablepoints to the projection points,
+        //Other way to obtain the more closer stable positions to the allocated projection points,
         //consist in get from the FMOSA table the following lists:
         //  the allocation list;
         //  the projection point list.
@@ -302,9 +304,9 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the observing position table directly in text format:
-        //  FMM.RPL.getPositionsPAPTableText()
+        //  FMM.RPL.getPositionsPPATableText()
 
-        //segregates the operative outsiders RPs
+        //segregates the operative outsider RPs
         TRoboticPositionerList Outsiders;
         FMM.RPL.segregateOperativeOutsiders(Outsiders);
 
@@ -329,9 +331,9 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         DPvalid = false;
         Collided.Clear();
         Obstructed.Clear();
-        PP.Clear();
-        DP.Clear();
-        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
+        outputs.PP.Clear();
+        outputs.DP.Clear();
+        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, outputs.PP, outputs.DP, Outsiders);
 
         //Now are fulfilled the postconditions:
         //  All RPs of the Fiber MOS Model will be configured for MP validation
@@ -344,18 +346,12 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         //#the preconditions.                                                    #
         //########################################################################
 
-        //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING SMESSAGES:
+        //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
         //if generation function was successfully generated
         if(PPvalid && DPvalid) {
             //indicates the result of the generation
             append("Generated pair (PP, DP) is valid.", log_filename.c_str());
-
-            //save the DP in the format of the FMPT
-            str = DP.getText().str;
-            output_filename = output_dir+"/DP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save the PP in the format of the FMPT
             str = PP.getText().str;
@@ -363,12 +359,15 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             strWriteToFile(output_filename, str);
             append("Positioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
-            //Given that here the generated pair ((PP, DP) is valid,
-            //all operative outsiders RPs which aren't obstructed,can be:
+            //save the DP in the format of the FMPT
+            str = DP.getText().str;
+            output_filename = output_dir+"/DP-FMPT-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Depositioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //Given that here the generated pair (PP, DP) is valid,
+            //all operative outsider RPs which aren't obstructed,can be:
             //- in the origin positions, in their final position after execute the DP.
-            //  if success == true.
-            //- in the first position where the collision was detected.
-            //  if success == false.
 
             //captures the initial positions of the RPs in a PPA list
             TPairPositionAnglesList IPL;
@@ -380,43 +379,45 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Other whay to obtain the observing position table directly in text format:
-            //  FMM.RPL.getPositionsPAPTableText()
-
-            //translates the depositioning program to the format of the interface MCS-FMPT
-            //and save it in a file
-            DP.getInterfaceText(str, "obs depos", Bid, OPL);
-            append("Depositiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/DP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+            //  FMM.RPL.getPositionsPPATableText()
 
             //translates the positioning program to the format of the interface MCS-FMPT
             //and save it in a file
-            PP.getInterfaceText(str, "obs pos", Bid, IPL);
-            append("Positiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/PP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Positioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+//            PP.getInterfaceText(str, "pos", Bid, IPL);
+//            append("Positiong program translated to the MCS format.", log_filename.c_str());
+//            output_filename = output_dir+"/PP-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("Positioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
 
-            //save DP-Dfmin in a file
-            DP.getDfminInterfaceText(str, "obs depos", Bid);
-            output_filename = output_dir+"/DP-Dfmin-from-"+filename;
+            //translates the depositioning program to the format of the interface MCS-FMPT
+            //and save it in a file
+//            DP.getInterfaceText(str, "depos", Bid, OPL);
+//            append("Depositiong program translated to the MCS format.", log_filename.c_str());
+//            output_filename = output_dir+"/DP-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("Depositioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+
+            outputs.getText(str, Bid, OPL, IPL);
+            output_filename = output_dir+"/PPDPandFMOSA-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("DP-Dfmin saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Pair (PP, DP) saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save PP-Dfmin in a file
-            PP.getDfminInterfaceText(str, "obs pos", Bid);
+            PP.getDfminInterfaceText(str, "pos", Bid);
             output_filename = output_dir+"/PP-Dfmin-from-"+filename;
             strWriteToFile(output_filename, str);
             append("PP-Dfmin saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //save DP-Dfmin in a file
+            DP.getDfminInterfaceText(str, "depos", Bid);
+            output_filename = output_dir+"/DP-Dfmin-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("DP-Dfmin saved in '"+output_filename+"'.", log_filename.c_str());
         }
         else {
-            //Given that here the generated pair (PP, DP) can be valid or invalid,
-            //all operative outsiders RPs which aren't obstructed,can be:
-            //- in the starting positions, in their final position after execute the PP.
-            //  if success == true.
+            //Given that here the generated pair (PP, DP) is invalid,
+            //all operative outsider RPs which aren't obstructed,can be:
             //- in the first position where the collision was detected.
-            //  if success == false.
 
             //print the result of generation of the DP
             if(DPvalid)
@@ -515,12 +516,12 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
         append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the observing position table directly in text format:
-        //  FMM.RPL.getPositionsPAPTableText()
+        //  FMM.RPL.getPositionsPPATableText()
 
         //-------------------------------------------------------------------
         //sustituir lo siguiente:
 
-        //segregates the operative outsiders RPs
+        //segregates the operative outsider RPs
 //        TRoboticPositionerList Outsiders;
   //      FMM.RPL.segregateOperativeOutsiders(Outsiders);
 
@@ -581,7 +582,7 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
             append("Positioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated pair ((PP, DP) is valid,
-            //all operative outsiders RPs which aren't obstructed,can be:
+            //all operative outsider RPs which aren't obstructed,can be:
             //- in the origin positions, in their final position after execute the DP.
             //  if success == true.
             //- in the first position where the collision was detected.
@@ -597,11 +598,11 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
             append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Other whay to obtain the observing position table directly in text format:
-            //  FMM.RPL.getPositionsPAPTableText()
+            //  FMM.RPL.getPositionsPPATableText()
 
             //translates the depositioning program to the format of the interface MCS-FMPT
             //and save it in a file
-            DP.getInterfaceText(str, "obs depos", Bid, OPL);
+            DP.getInterfaceText(str, "depos", Bid, OPL);
             append("Depositiong program translated to the MCS format.", log_filename.c_str());
             output_filename = output_dir+"/DP-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -609,7 +610,7 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
 
             //translates the positioning program to the format of the interface MCS-FMPT
             //and save it in a file
-            PP.getInterfaceText(str, "obs pos", Bid, IPL);
+            PP.getInterfaceText(str, "pos", Bid, IPL);
             append("Positiong program translated to the MCS format.", log_filename.c_str());
             output_filename = output_dir+"/PP-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -617,7 +618,7 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
         }
         else {
             //Given that here the generated pair (PP, DP) can be valid or invalid,
-            //all operative outsiders RPs which aren't obstructed,can be:
+            //all operative outsider RPs which aren't obstructed,can be:
             //- in the starting positions, in their final position after execute the PP.
             //  if success == true.
             //- in the first position where the collision was detected.
@@ -678,8 +679,8 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
         append("Positioning program loaded from '"+path_PP+"'.", log_filename.c_str());
 
         //check the precondition
-        if(PP_label != "obs pos")
-            throw EImproperArgument("PP label should be \"obs pos\"");
+        if(PP_label != "pos")
+            throw EImproperArgument("PP label should be \"pos\"");
 
         //load the DP from a file
         TMotionProgram DP;
@@ -691,8 +692,8 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
         append("Depositioning program loaded from '"+path_DP+"'.", log_filename.c_str());
 
         //check the preconditions
-        if(DP_label != "obs depos")
-            throw EImproperArgument("DP label should be \"obs depos\"");
+        if(DP_label != "depos")
+            throw EImproperArgument("DP label should be \"depos\"");
         if(DP_Bid != PP_Bid)
             throw EImproperArgument("PP Bid should be equal to DP Bid");
 
@@ -755,8 +756,8 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         append("Positioning program loaded from '"+path_PP+"'.", log_filename.c_str());
 
         //check the precondition
-        if(PP_label != "obs pos")
-            throw EImproperArgument("PP label should be \"obs pos\"");
+        if(PP_label != "pos")
+            throw EImproperArgument("PP label should be \"pos\"");
 
         //load the DP from a file
         TMotionProgram DP;
@@ -767,8 +768,8 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         append("Depositioning program loaded from '"+path_DP+"'.", log_filename.c_str());
 
         //check the precondition
-        if(DP_label != "obs depos")
-            throw EImproperArgument("DP label should be \"obs depos\"");
+        if(DP_label != "depos")
+            throw EImproperArgument("DP label should be \"depos\"");
         if(DP_Bid != PP_Bid)
             throw EImproperArgument("DP Bid should be equal to PP Bid");
 
@@ -833,14 +834,14 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
             append("The pair (PP, DP) has been regenerated excluding the following RPs: "+Excluded.getText().str, log_filename.c_str());
 
             //save the regenerated PP
-            PP.getInterfaceText(str, "obs pos", PP_Bid, IPL);
+            PP.getInterfaceText(str, "pos", PP_Bid, IPL);
             append("Positiong program translated to the MCS format.", log_filename.c_str());
             output_filename = "regeneratedPP-from-"+filename;
             strWriteToFile(output_filename, str);
             append("Regenerated PP saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save the regenerated DP
-            DP.getInterfaceText(str, "obs depos", DP_Bid, OPL);
+            DP.getInterfaceText(str, "depos", DP_Bid, OPL);
             append("Depositiong program translated to the MCS format.", log_filename.c_str());
             output_filename = "regeneratedDP-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -921,9 +922,9 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
         append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the starting position table directly in text format:
-        //  FMM.RPL.getPositionsPAPTableText()
+        //  FMM.RPL.getPositionsPPATableText()
 
-        //segregates the operative outsiders RPs
+        //segregates the operative outsider RPs
         TRoboticPositionerList Outsiders;
         FMM.RPL.segregateOperativeOutsiders(Outsiders);
 
@@ -972,26 +973,26 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
             append("Parking program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated parking program is valid,
-            //all operative outsiders RPs which aren't obstructed are in the origin positions,
+            //all operative outsider RPs which aren't obstructed are in the origin positions,
             //in their final position after execute the MP.
 
             //translates the parking program to the format of the interface MCS-FMPT
             //and save it in a file
-            ParkingProgram.getInterfaceText(str, "obs depos", Bid, SPL);
+            ParkingProgram.getInterfaceText(str, "depos", Bid, SPL);
             append("Parking program translated to the MCS format.", log_filename.c_str());
             output_filename = output_dir+"/ParkingProgram-from-"+filename;
             strWriteToFile(output_filename, str);
             append("Parking program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save ParkingProgram-Dfmin in a file
-            ParkingProgram.getDfminInterfaceText(str, "obs depos", Bid);
+            ParkingProgram.getDfminInterfaceText(str, "depos", Bid);
             output_filename = output_dir+"/ParkingProgram-Dfmin-from-"+filename;
             strWriteToFile(output_filename, str);
             append("ParkingProgram-Dfmin saved in '"+output_filename+"'.", log_filename.c_str());
         }
 
         //Given that here the generated parking program can be valid or invalid,
-        //all operative outsiders RPs which aren't obstructed,can be:
+        //all operative outsider RPs which aren't obstructed,can be:
         //- in the origin positions, in their final position after execute the MP.
         //  if success == true.
         //- in the first position where the collision was detected.
@@ -1087,7 +1088,7 @@ void generateParkingProgram_online(bool& ParkingProgramValid,
         append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the starting position table directly in text format:
-        //  FMM.RPL.getPositionsPAPTableText()
+        //  FMM.RPL.getPositionsPPATableText()
 
         //------------------------------------------------------------
 
@@ -1125,12 +1126,12 @@ void generateParkingProgram_online(bool& ParkingProgramValid,
             append("Parking program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated parking program is valid,
-            //all operative outsiders RPs which aren't obstructed are in the origin positions,
+            //all operative outsider RPs which aren't obstructed are in the origin positions,
             //in their final position after execute the MP.
 
             //translates the parking program to the format of the interface MCS-FMPT
             //and save it in a file
-            ParkingProgram.getInterfaceText(str, "obs depos", Bid, SPL);
+            ParkingProgram.getInterfaceText(str, "depos", Bid, SPL);
             append("Parking program translated to the MCS format.", log_filename.c_str());
             output_filename = output_dir+"/ParkingProgram-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -1138,7 +1139,7 @@ void generateParkingProgram_online(bool& ParkingProgramValid,
         }
 
         //Given that here the generated parking program can be valid or invalid,
-        //all operative outsiders RPs which aren't obstructed,can be:
+        //all operative outsider RPs which aren't obstructed,can be:
         //- in the origin positions, in their final position after execute the MP.
         //  if success == true.
         //- in the first position where the collision was detected.
@@ -1210,6 +1211,7 @@ void testGeneratePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
         do {
             //contabilize the test and print the test tittle
             append("\r\nTEST "+inttostr(++count)+":", log_filename.c_str());
+            append("=======", log_filename.c_str());
 
             //build the filename of reference
             filename = "test-"+inttostr(count)+".txt";
@@ -1282,8 +1284,8 @@ void testGeneratePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
             input_path = output_filename;
 
             //call the function to test
-            append("--------------------------------------------", log_filename.c_str());
             append("Calling function generatePairPPDP_offline...", log_filename.c_str());
+            append("--------------------------------------------", log_filename.c_str());
             generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,
                              FMM, input_path, output_dir, log_filename);
             append("------------------------------------------------", log_filename.c_str());
@@ -1348,6 +1350,7 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
         do {
             //contabilize the test and print the test tittle
             append("\r\nTEST "+inttostr(++Bid)+":", log_filename.c_str());
+            append("=======", log_filename.c_str());
 
             //build the filename of reference
             filename = "test-"+inttostr(Bid)+".txt";
@@ -1392,7 +1395,7 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
             append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Other whay to obtain the observing position list directly in text format:
-            //  FMM.RPL.getPositionsPAPTableText()
+            //  FMM.RPL.getPositionsPPATableText()
 
             //copy the position angles in the input parameters
             p_1s.clear();
@@ -1416,8 +1419,8 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
             /*TBD*/
 
             //call the function to test
-            append("-------------------------------------------", log_filename.c_str());
             append("Calling function generatePairPPDP_online...", log_filename.c_str());
+            append("-------------------------------------------", log_filename.c_str());
             PairPPDPvalid = generatePairPPDP_online(PP, DP,
                              FMM, p_1s, p___3s, Ids);
             append("-----------------------------------------------", log_filename.c_str());
@@ -1453,7 +1456,7 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
                 append("Positioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
                 //Given that here the generated pair (PP, DP) is valid,
-                //all operative outsiders RPs which aren't obstructed, should be:
+                //all operative outsider RPs which aren't obstructed, should be:
                 //- in the origin positions.
                 //Because function TMotionProgramGenerator::generatePairPPDP,
                 //test first the DP and after the PP, but at the end
@@ -1469,11 +1472,11 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
                 append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
                 //Other whay to obtain the observing position table directly in text format:
-                //  FMM.RPL.getPositionsPAPTableText()
+                //  FMM.RPL.getPositionsPPATableText()
 
                 //translates the depositioning program to the format of the interface MCS-FMPT
                 //and save it in a file
-                DP.getInterfaceText(str, "obs depos", Bid, OPL);
+                DP.getInterfaceText(str, "depos", Bid, OPL);
                 append("Depositiong program translated to the MCS format.", log_filename.c_str());
                 output_filename = output_dir+"/DP-from-"+filename;
                 strWriteToFile(output_filename, str);
@@ -1481,7 +1484,7 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
 
                 //translates the positioning program to the format of the interface MCS-FMPT
                 //and save it in a file
-                PP.getInterfaceText(str, "obs pos", Bid, IPL);
+                PP.getInterfaceText(str, "pos", Bid, IPL);
                 append("Positiong program translated to the MCS format.", log_filename.c_str());
                 output_filename = output_dir+"/PP-from-"+filename;
                 strWriteToFile(output_filename, str);
@@ -1489,7 +1492,7 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
             }
             else {
                 //Given that here the generated pair (PP, DP) is invalid,
-                //all operative outsiders RPs which aren't obstructed, should be:
+                //all operative outsider RPs which aren't obstructed, should be:
                 //- in the first position where the collision was detected.
                 //During the test of DP or the test of PP.
 
@@ -1575,6 +1578,7 @@ void testGenerateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filenam
         do {
             //contabilize the test and print the test tittle
             append("\r\nTEST "+inttostr(++count)+":", log_filename.c_str());
+            append("=======", log_filename.c_str());
 
             //build the filename of reference
             filename = "test-"+inttostr(count)+".txt";
@@ -1647,8 +1651,8 @@ void testGenerateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filenam
             input_path = output_filename;
 
             //call the function to test
-            append("--------------------------------------------------", log_filename.c_str());
             append("Calling function generateParkingProgram_offline...", log_filename.c_str());
+            append("--------------------------------------------------", log_filename.c_str());
             generateParkingProgram_offline(ParkingProgramValid, Collided, Obstructed, ParkingProgram,
                                    FMM, input_path, output_dir, log_filename);
             append("------------------------------------------------------", log_filename.c_str());
@@ -1712,6 +1716,7 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
         do {
             //contabilize the test and print the test tittle
             append("\r\nTEST "+inttostr(++Bid)+":", log_filename.c_str());
+            append("=======", log_filename.c_str());
 
             //build the filename of reference
             filename = "test-"+inttostr(Bid)+".txt";
@@ -1756,7 +1761,7 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
             append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Other whay to obtain the starting position table directly in text format:
-            //  FMM.RPL.getPositionsPAPTableText()
+            //  FMM.RPL.getPositionsPPATableText()
 
             //copy the position angles in the input parameters
             p_1s.clear();
@@ -1780,8 +1785,8 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
             /*TBD*/
 
             //call the function to test
-            append("-------------------------------------------------", log_filename.c_str());
             append("Calling function generateParkingProgram_online...", log_filename.c_str());
+            append("-------------------------------------------------", log_filename.c_str());
             ParkingProgramValid = generateParkingProgram_online(ParkingProgram,
                                                                 FMM, p_1s, p___3s, Ids);
             append("-----------------------------------------------------", log_filename.c_str());
@@ -1811,7 +1816,7 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
                 append("Parking program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
                 //Given that here the generated pair ((PP, DP) is valid,
-                //all operative outsiders RPs which aren't obstructed, should be:
+                //all operative outsider RPs which aren't obstructed, should be:
                 //- in the origin positions, in their final position after execute the DP.
 
                 //captures the initial positions of the RPs in a PPA list
@@ -1824,11 +1829,11 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
                 append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
 
                 //Other whay to obtain the observing position table directly in text format:
-                //  FMM.RPL.getPositionsPAPTableText()
+                //  FMM.RPL.getPositionsPPATableText()
 
                 //translates the parking program to the format of the interface MCS-FMPT
                 //and save it in a file
-                ParkingProgram.getInterfaceText(str, "obs depos", Bid, SPL);
+                ParkingProgram.getInterfaceText(str, "depos", Bid, SPL);
                 append("Parking program translated to the MCS format.", log_filename.c_str());
                 output_filename = output_dir+"/ParkingProgram-from-"+filename;
                 strWriteToFile(output_filename, str);
@@ -1836,7 +1841,7 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
             }
             else {
                 //Given that here the generated parking program is invalid,
-                //all operative outsiders RPs which aren't obstructed, should be:
+                //all operative outsider RPs which aren't obstructed, should be:
                 //- in the first position where the collision was detected.
 
                 //print the result of generation of the parking program
@@ -1880,7 +1885,7 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
     }
 }
 
-//take the measure of deviation arount the radial trayectory of each RP
+//take the measure of deviation around the radial trayectory of each RP
 void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
 {
     try {
@@ -2132,7 +2137,7 @@ int main(int argc, char *argv[])
         }
 
         //indicates that the program is running
-        append("FMPT SAA 1.3.1 is running...", log_filename.c_str());
+        append("FMPT SAA 3.0.0 is running...", log_filename.c_str());
 
         //print  the arguments
         string str;
