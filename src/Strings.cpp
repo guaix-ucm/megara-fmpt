@@ -115,6 +115,55 @@ int StrSearch(const AnsiString &S, char c, int i)
     return i;
 }
 
+//busca en str, a partir de i, el próximo caracter imprimible distinto de espacio
+//si no lo encuentra devuelve la posúltima posición
+int strNextChar(const string &str, int i)
+{
+    //el índice i debería indicar un caracter en la cadena S
+    if(i<0 || int(str.length())<=i)
+        throw EImproperArgument("index should indicate a character in string");
+
+    char c;
+
+    while(i < str.length()) {
+        //asigna el caracter para facilitar su acceso
+        c = str[i];
+
+        //si es un caracter imprimible no delimitador
+        if((isprint(c) || islatinprint(c)) && c!=' ')
+            return i;
+
+        //apunta al primer caracter del siguiente símbolo
+        i++;
+    }
+
+    return i;
+}
+//busca en str, a partir de i, el caracter previo imprimible distnto de espacio
+//si no lo encuentrsa devuelve la preprimera posición
+int strPreviusChar(const string &str, int i)
+{
+    //el índice i debería indicar un caracter en la cadena S
+    if(i<0 || int(str.length())<=i)
+        throw EImproperArgument("index should indicate a character in string");
+
+    char c;
+
+    while(i >= 0) {
+        //asigna el caracter para facilitar su aceso
+        c = str[i];
+
+        //si es un caracter imprimible no delimitador
+        if((isprint(c) || islatinprint(c)) && c!=' ')
+            return i;
+
+        //apunta al último caracter del siguiente símbolo
+        i--;
+    }
+
+    return i;
+}
+
 //invierte el orden de los elementos de una cadena
 void StrFlip(AnsiString &S)
 {
@@ -712,6 +761,9 @@ void StrSplit(TStrings& Strings, const AnsiString& S, char c)
 //la cadena de destino D puede ser la misma cadena fuente S
 void StrTrim(AnsiString &D, const AnsiString &S)
 {
+    //initialize the output
+    D.SetLength(0);
+
     //si la cadena está vacía
     if(S.Length() < 1)
         return; //no hace nada
@@ -719,26 +771,26 @@ void StrTrim(AnsiString &D, const AnsiString &S)
     //busca el último caracter imprimible distinto de espacio
     int i2 = StrPreviusChar(S, S.Length());
 
-    //inicializa la cadena de destino
-    D.SetLength(i2);
-
     //busca el primer caracter imprimible distinto de espacio
     int i1 = StrNextChar(S, 1);
 
-    //inicializa el índice de la cadena de destino
-    int j = 1;
+    if(i1 <= i2) {
+        //inicializa la cadena de destino
+        D.SetLength(i2-i1+1);
 
-    //copia la cadena fuente en la cadena de destino
-    //la cadena de destino
-    for(int i=i1; i<=i2; i++, j++)
-        D[j] = S[i];
+        //inicializa el índice de la cadena de destino
+        int j = 1;
 
-    //elimina los caracteres sobrantes de la cadena de destino
-    D.SetLength(j-1);
+        //copia la cadena fuente en la cadena de destino
+        //la cadena de destino
+        for(int i=i1; i<=i2; i++, j++)
+            D[j] = S[i];
+    }
 }
 //elimina los espacios y caracteres de control marginales de una cadena
 AnsiString StrTrim(const AnsiString &S)
 {
+    //initialize the output
     AnsiString D;
 
     //si la cadena está vacía
@@ -748,24 +800,83 @@ AnsiString StrTrim(const AnsiString &S)
     //busca el último caracter imprimible distinto de espacio
     int i2 = StrPreviusChar(S, S.Length());
 
-    //inicializa la cadena de destino
-    D.SetLength(i2);
-
     //busca el primer caracter imprimible distinto de espacio
     int i1 = StrNextChar(S, 1);
 
-    //inicializa el índice de la cadena de destino
-    int j = 1;
+    if(i1 <= i2) {
+        //inicializa la cadena de destino
+        D.SetLength(i2-i1+1);
 
-    //copia la cadena fuente en la cadena de destino
-    //la cadena de destino
-    for(int i=i1; i<=i2; i++, j++)
-        D[j] = S[i];
+        //inicializa el índice de la cadena de destino
+        int j = 1;
 
-    //elimina los caracteres sobrantes de la cadena de destino
-    D.SetLength(j-1);
-
+        //copia la cadena fuente en la cadena de destino
+        //la cadena de destino
+        for(int i=i1; i<=i2; i++, j++)
+            D[j] = S[i];
+    }
     return D;
+}
+
+//elimina los espacios y caracteres de control marginales de una cadena
+//la cadena de destino dest puede ser la misma cadena fuente src
+void strTrim(string &des, const string &src)
+{
+    //initialize the output
+    des.resize(0);
+
+    //si la cadena está vacía
+    if(src.length() < 1)
+        return; //no hace nada
+
+    //busca el último caracter imprimible distinto de espacio
+    int i2 = strPreviusChar(src, src.length()-1);
+
+    //busca el primer caracter imprimible distinto de espacio
+    int i1 = strNextChar(src, 0);
+
+    if(i1 <= i2) {
+        //inicializa la cadena de destino
+        des.resize(i2-i1+1);
+
+        //inicializa el índice de la cadena de destino
+        int j = 0;
+
+        //copia la cadena fuente en la cadena de destino
+        //la cadena de destino
+        for(int i=i1; i<=i2; i++, j++)
+            des[j] = src[i];
+    }
+}
+//elimina los espacios y caracteres de control marginales de una cadena
+AnsiString strTrim(const string &src)
+{
+    //initialize the output
+    string des;
+
+    //si la cadena está vacía
+    if(src.length() < 1)
+        return des; //no hace nada
+
+    //busca el último caracter imprimible distinto de espacio
+    int i2 = strPreviusChar(src, src.length()-1);
+
+    //busca el primer caracter imprimible distinto de espacio
+    int i1 = strNextChar(src, 0);
+
+    if(i1 <= i2) {
+        //inicializa la cadena de destino
+        des.resize(i2-i1+1);
+
+        //inicializa el índice de la cadena de destino
+        int j = 0;
+
+        //copia la cadena fuente en la cadena de destino
+        //la cadena de destino
+        for(int i=i1; i<=i2; i++, j++)
+            des[j] = src[i];
+    }
+    return des;
 }
 
 //Si la longitud de la cadena es mayor que el número de caracteres indicado,

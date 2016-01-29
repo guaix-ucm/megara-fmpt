@@ -8,10 +8,11 @@
 #ifndef PLOTERSHAPES_H
 #define PLOTERSHAPES_H
 
-#include "tcanvas.h"
-#include "tpaintbox.h"
-//#include "..\src\Vectors.h"
-#include "../src/Polypoint.h"
+//#include "../src/Polypoint.h"
+#include "../src/Vectors.h"
+
+#include <QPicture>
+#include <QColor>
 
 //ADVERTENCIA: incluir QtQuick/QQuickWindow provoca que
 //TextOut sea una palabra reservada, de modo que el método
@@ -43,8 +44,7 @@ class TPloterShapes {
 
     //FOTOGRAFÍA DEL TRAZADOR:
 
-    TPicture *__Picture;
-    TCanvas *__PictureCanvas;
+    QPicture *__Picture;
 
     QColor __BackColor;
 
@@ -62,11 +62,6 @@ class TPloterShapes {
     int __LAPx, __LAPy;
     double __LAUx, __LAUy;
     double __PBUx, __PBUy;
-
-    //OBJETOS EXTERNOS:
-
-    TPaintBox *__PaintBox;
-    TCanvas *__PaintBoxCanvas;
 
     //MÉTODOS DE ASIMILACIÓN:
 
@@ -120,14 +115,12 @@ public:
     //FOTOGGRAFÍA DEL TRAZADOR:
 
     //fotografía donde se trazarán las figuras
-    TPicture *getPicture(void) const {return __Picture;}
-    //lienzo de la fotografía
-    TCanvas *getPictureCanvas(void) const {return __PictureCanvas;}
+    QPicture *getPicture(void) const {return __Picture;}
 
     //El lienzo de la fotografía es apuntado mediante un puntero en
     //el momento de contruir la fotografía con objeto de mejorar
     //su tiempo de acceso.
-
+/*
     //color de la brocha del lienzo de la fotografía
     //valor por defecto: el de la fotografía
     QColor getBrushColor(void) {return __PictureCanvas->getBrushColor();}
@@ -149,7 +142,7 @@ public:
     //valor por defecto: Picture->Bitmap->TransparentColor
     QColor getBackColor(void) const {return __BackColor;}
     void setBackColor(QColor _BackColor) {__BackColor=_BackColor;}
-
+*/
     //El color de fondo conviene que sea una propiedad de la clase
     //ya que es inicializado al color transparente y el lienzo
     //es rellenado del color de fondo cada vez que es redimensionado
@@ -173,9 +166,15 @@ public:
     //el objeto global Screen: (Screen->Width, Screen->Height)
 
     //dimensiones de la ventana en pixels
-    int getWidth(void) {return __Picture->getBitmap()->getWidth();}
+    int getWidth(void) {
+        QRect r = getPicture()->boundingRect();
+        return r.width();
+    }
     void setWidth(int);
-    int getHeight(void) {return __Picture->getBitmap()->getHeight();}
+    int getHeight(void) {
+        QRect r = getPicture()->boundingRect();
+        return r.height();
+    }
     void setHeight(int);
 
     //coordenadas del centro de la ventana en unidades
@@ -212,27 +211,13 @@ public:
     double getPBUx(void) const {return __PBUx;}
     double getPBUy(void) const {return __PBUy;}
 
-    //OBJETOS EXTERNOS:
-
-    //caja de pintura externa adscrita
-    TPaintBox *getPaintBox(void) const {return __PaintBox;}
-    //lienzo de la caja de pintura externa adscrita
-    TCanvas *getPaintBoxCanvas(void) const {return __PaintBoxCanvas;}
-
-    //el lienzo de la caja de pintura externa adscrita es apuntado
-    //en un puntero en el momento de la adscripción para mejorar
-    //el tiempo de acceso.
-
     //MÉTODOS PÚBLICOS:
 
     //construye un trazador adscrito a la caja de pintura indicada
     //centrado en el origen de coordenadas
-    TPloterShapes(TPaintBox *_PaintBox);
+    TPloterShapes(void);
     //libera la memoria dinámica
     ~TPloterShapes();
-
-    //El trazador de formas debe construirse adscrito a la caja de pintura
-    //ya que esta contiene las propiedades de dimension de su lienzo
 
     //redimensiona el lienzo de la fotografía del trazador
     void SetSize(int _Width, int _Height);
@@ -267,27 +252,29 @@ public:
 
     //MÉTODOS DE TRAZADO DE FORMAS:
 
-    //rellena el fondo con BackColor
-    void FillBack(void);
+/*    //rellena el fondo con BackColor
+    void FillBack(void);*/
     //dibuja un punto
-    void Point(TDoublePoint);
-    //dibuja un círculo centrado en C de radio R
+    void Point(TDoublePoint, QPainter& painter);
+/*    //dibuja un círculo centrado en C de radio R
     void Circle(TDoublePoint C, double R);
     //dibuja una polilínea
-    void Polygon(TPolypoint *P);
+    void Polygon(TPolypoint *P);*/
     //dibuja un segmento
-    void Segment(TDoublePoint P1, TDoublePoint P2);
+    void Segment(TDoublePoint P1, TDoublePoint P2,
+                 QPainter& painter);
     //dibuja el arco de la circunferencia (Pc, R)
     //limitado en sentido levógiro por los lados
     //(Pc, Pini) y (Pc, Pfin)
     void Arc(TDoublePoint Pfin, TDoublePoint Pini,
-             TDoublePoint Pc, double R);
+             TDoublePoint Pc, double R,
+             QPainter& painter);
 
     //dibuja una circunferencia centrada en C de radio R
-    void Circunference(TDoublePoint C, double R);
+    void Circunference(TDoublePoint C, double R, QPainter& painter);
 
     //imprime una cadena de texto centrada en P
-    void Print(TDoublePoint P, const AnsiString& Text);
+//    void Print(TDoublePoint P, const AnsiString& Text);
 
     //POSIBLE MEJORA: esta clase no tiene método Paint,
     //ya que ello requeriría alistar las instrucciones de trazado
@@ -303,7 +290,7 @@ public:
     void DisplacePloterArea(double SX, double SY);
     //redimensiona el lienzo de la fotografía
     //conforme a las dimensiones del lienzo de la caja de pintura
-    void Resize(void);
+//    void Resize(void);
     //ADVERTENCIA: cambiar las dimensiones del lienzo de la fotografía
     //puede provocar la pérdida de información de la misma.
     //RECORDATORIO: el método Paint es invocado automáticamente

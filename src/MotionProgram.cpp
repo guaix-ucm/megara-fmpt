@@ -409,7 +409,7 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
                         throw EImproperArgument("missing '\\n' after '\\r'");
                 } else if(c != '{')
                     aux += c;
-                else
+                else //c == '{'
                     try {
                         t_Bid = strtoint(aux);
                         aux = "";

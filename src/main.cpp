@@ -2137,7 +2137,7 @@ int main(int argc, char *argv[])
         }
 
         //indicates that the program is running
-        append("FMPT SAA 3.0.0 is running...", log_filename.c_str());
+        append("FMPT SAA 3.0.3 is running...", log_filename.c_str());
 
         //print  the arguments
         string str;

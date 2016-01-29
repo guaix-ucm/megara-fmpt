@@ -86,6 +86,13 @@ int StrPreviusChar(const AnsiString &S, int i);
 //busca en S la primera ocurrencia de c a partir de i
 int StrSearch(const AnsiString &S, char c, int i);
 
+//busca en str, a partir de i, el próximo caracter imprimible distinto de espacio
+//si no lo encuentra devuelve la posúltima posición
+int strNextChar(const string &str, int i);
+//busca en str, a partir de i, el caracter previo imprimible distnto de espacio
+//si no lo encuentrsa devuelve la preprimera posición
+int strPreviusChar(const string &str, int i);
+
 //invierte el orden de los elementos de una cadena
 void StrFlip(AnsiString &S);
 //determina si una cadena contiene solo caracteres imprimibles
@@ -149,6 +156,12 @@ AnsiString StrTrim(const AnsiString &S);
 //sin embargo no elimina al menos el caracter '\n'
 //por eso se define la función StrTrim(AnsiString &) que
 //si elimina todos los caracteres de control marginales
+
+//elimina los espacios y caracteres de control marginales de una cadena
+//la cadena de destino dest puede ser la misma cadena fuente src
+void strTrim(AnsiString &des, const string &src);
+//elimina los espacios y caracteres de control marginales de una cadena
+AnsiString strTrim(const string &src);
 
 //Si la longitud de la cadena es mayor que el número de caracteres indicado,
 //sustituye la parte sobrante de la cadena por "...".

@@ -1105,10 +1105,15 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
                     ; //do nothing (keep the status)
                 else if(c == '\r')
                     status++;
-                else if(c=='+' || c=='-' || ('0'<=c && c<='9')) {
+                else if(c=='+' || c=='-') {
                     t_dst += c;
                     status = 2;
-                } else
+                }
+                else if('0'<=c && c<='9') {
+                    t_dst += c;
+                    status = 3;
+                }
+                else
                     throw EImproperArgument("integer value not found");
                 break;
 

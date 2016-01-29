@@ -6,13 +6,15 @@
 //---------------------------------------------------------------------------
 
 #include "PloterShapes.h"
-#include "../src/vclemu.h"
+//#include "../src/vclemu.h"
 #include "../src/Scalars.h"
-#include "../src/StrSimbolic.h"
+//#include "../src/StrSimbolic.h"
+#include "../src/Exceptions.h"
+#include <QPainter>
 
 //---------------------------------------------------------------------------
 
-using namespace Strings;
+//using namespace Strings;
 using namespace Mathematics;
 
 //espacio de nombres de clases de objetos gráficos
@@ -44,7 +46,7 @@ void TPloterShapes::setscrd_inch(double _scrd_inch)
     Procesate(); //calcula las propiedades dependientes
 }
 
-//FOTOGRAFÍA DEL TRAZADOR:
+/*//FOTOGRAFÍA DEL TRAZADOR:
 
 void TPloterShapes::setBrushColor(QColor _BrushColor)
 {
@@ -60,7 +62,7 @@ void TPloterShapes::setFontColor(QColor _FontColor)
 
     //El color de la fuente coincide con el de la pluma.
 }
-
+*/
 //PROPIEDADES IMPOSITIVAS:
 
 void TPloterShapes::setWidth(int _Width)
@@ -70,7 +72,10 @@ void TPloterShapes::setWidth(int _Width)
         throw EImproperArgument("Width shuld be almos one pixel");
 
     //cambia y procesa las propiedades
-    __Picture->getBitmap()->setWidth(_Width); //cambia el ancho de la fotografía
+//    __Picture->getBitmap()->setWidth(_Width); //cambia el ancho de la fotografía
+    QRect rect = getPicture()->boundingRect();
+    rect.setWidth(_Width);
+    getPicture()->setBoundingRect(rect);
     Procesate(); //calcula las propiedades dependientes
 }
 void TPloterShapes::setHeight(int _Height)
@@ -80,7 +85,10 @@ void TPloterShapes::setHeight(int _Height)
         throw EImproperArgument("Height should be almos one pixel");
 
     //cambia y procesa las propiedades
-    __Picture->getBitmap()->setHeight(_Height);
+//    __Picture->getBitmap()->setHeight(_Height);
+    QRect rect = getPicture()->boundingRect();
+    rect.setHeight(_Height);
+    getPicture()->setBoundingRect(rect);
     Procesate(); //calcula las propiedades dependientes
 }
 void TPloterShapes::setxw(double _xw)
@@ -133,8 +141,8 @@ void TPloterShapes::Procesate(void)
     //        import QtQuick.Window 2.1;
     //calcula las dimensiones de la ventana en unidades
 
-    __winw = __LAPx/double(Screen.Width)*__scrw;
-    __winh = __LAPy/double(Screen.Height)*__scrh;
+    __winw = __LAPx/double(/*Screen.Width*/640)*__scrw;
+    __winh = __LAPy/double(/*Screen.Height*/480)*__scrh;
 
     //calcula los límites del intervalo de trazado en unidades
     double deltax = __winw/2./__scale;
@@ -145,8 +153,8 @@ void TPloterShapes::Procesate(void)
     __Y2 = __yw + deltay;
 
     //calcula la lungitud de los ejes en undiades
-    __LAUx = SumDouble(__X2, -__X1);
-    __LAUy = SumDouble(__Y2, -__Y1);
+    __LAUx = __X2 - __X1; //SumDouble(__X2, -__X1);
+    __LAUy = __Y2 - __Y1; //SumDouble(__Y2, -__Y1);
 
     //calcula los factores de conversión
     __PBUx = double(__LAPx)/__LAUx;
@@ -158,43 +166,26 @@ void TPloterShapes::Procesate(void)
 
 //construye un trazador adscrito a la caja de pintura indicada
 //centrado en el origen de coordenadas
-TPloterShapes::TPloterShapes(TPaintBox *_PaintBox)
+TPloterShapes::TPloterShapes(void)
 {
-    //el puntero PaintBox debería apuntar a una caja de pintura contruida
-    if(_PaintBox == NULL)
-        throw EImproperArgument("pointer PaintBox should point to built paint box");
-
-    //apunta los objetos externos
-    __PaintBox = _PaintBox;
-
-    //apunta el lienzo de la caja de pintura para facilitar su acceso
-    __PaintBoxCanvas = __PaintBox->getCanvas();
-
     //inicializa la relación de aspecto y el tamaño de la pantalla
-    __scrr = double(Screen.Width)/double(Screen.Height);
-    __scrw_inch = double(Screen.Width)/double(Screen.PixelsPerInch);
-    __scrh_inch = double(Screen.Height)/double(Screen.PixelsPerInch);
+    __scrr = double(/*Screen.Width*/640)/double(/*Screen.Height*/480);
+    __scrw_inch = double(/*Screen.Width*/640)/double(/*Screen.PixelsPerInch*/120);
+    __scrh_inch = double(/*Screen.Height*/480)/double(/*Screen.PixelsPerInch*/120);
     __scrd_inch = sqrt(__scrw_inch*__scrw_inch + __scrh_inch*__scrh_inch);
 
     //construye la fotografía
-    __Picture = new TPicture;
-    //apunta el lienzo de la fotografía para facilitar su acceso
-    __PictureCanvas = __Picture->getBitmap()->getCanvas();
+    __Picture = new QPicture;
     //inicia el color de fondo a transparente
-    __BackColor = getTransparentColor();
+//    __BackColor = getTransparentColor();
 
     //prepara el color de fondo para el autollenado al redimensionar
-    __Picture->getBitmap()->getCanvas()->setBrushColor(__BackColor);
+//    __Picture->getBitmap()->getCanvas()->setBrushColor(__BackColor);
 
     //dimensiona el lienzo de la fotografía
     //conforme al lienzo de la caja de pintura
 //    __Picture->getBitmap()->setWidth(__PaintBox->width());
   //  __Picture->getBitmap()->setHeight(__PaintBox->height());
-    QRect rect = __PaintBox->contentsRect();
-    __Picture->getBitmap()->getCanvas()->picture.setBoundingRect(rect);
-
-    //ERROR: y deberá redimensionar cada vez que la PaintBox
-    //se rediomensione.
 
     //inicializa las coordenadas del centro
     //de la ventana a su valor por defecto
@@ -224,26 +215,32 @@ void TPloterShapes::SetSize(int _Width, int _Height)
         throw EImproperArgument("Height should be uppe zero");
 
     //cambia y procesa las propiedades
-    __Picture->getBitmap()->setWidth(_Width);
-    __Picture->getBitmap()->setHeight(_Height);
+    QRect rect = getPicture()->boundingRect();
+    rect.setWidth(_Width);
+    rect.setHeight(_Height);
+    getPicture()->setBoundingRect(rect);
     Procesate(); //calcula las propiedades dependientes
 }
 
-//rellena el fondo con BackColor
+/*//rellena el fondo con BackColor
 void TPloterShapes::FillBack(void)
 {
     //pinta el fondo
     __PictureCanvas->setBrushColor(__BackColor);
     __PictureCanvas->FillRect(__PictureCanvas->getClipRect());
-}
+}*/
 //dibuja un punto
-void TPloterShapes::Point(TDoublePoint P)
+void TPloterShapes::Point(TDoublePoint P, QPainter& painter)
 {
     int X = Round(UnitsToPixelsX(P.x));
     int Y = Round(UnitsToPixelsY(P.y));
-    __PictureCanvas->Point(X, Y); //pinta el último punto
+    //__PictureCanvas->Point(X, Y); //pinta el último punto
+    QPoint QP;
+    QP.setX(X);
+    QP.setY(Y);
+    painter.drawPoint(QP);
 }
-//dibuja un círculo centrado en C d eradio R
+/*//dibuja un círculo centrado en C d eradio R
 void TPloterShapes::Circle(TDoublePoint C, double R)
 {
     int u = Round(UnitsToPixelsY(C.y + R));
@@ -287,30 +284,33 @@ void TPloterShapes::Polygon(TPolypoint *P)
 
     //libera los objetos dinámicos
     delete ps;
-}
+}*/
 //dibuja un segmento
-void TPloterShapes::Segment(TDoublePoint P1, TDoublePoint P2)
+void TPloterShapes::Segment(TDoublePoint P1, TDoublePoint P2,
+                            QPainter& painter)
 {
     int X1 = Round(UnitsToPixelsX(P1.x));
     int Y1 = Round(UnitsToPixelsY(P1.y));
     int X2 = Round(UnitsToPixelsX(P2.x));
     int Y2 = Round(UnitsToPixelsY(P2.y));
 
-    //la función LineTo es algo defectuosa
-    //pudiéndose dejar el último punto sin pintar
-
-    //__PictureCanvas->MoveTo(X1, Y1);
-    //__PictureCanvas->LineTo(X2, Y2);
-    __PictureCanvas->Segment(X1, Y1, X2, Y2);
-
-//    __PictureCanvas->Point(X2, Y2); //pinta el último punto
+    QPoint p1, p2;
+    p1.setX(X1);
+    p1.setY(Y1);
+    p2.setX(X2);
+    p2.setY(Y2);
+    QLine QL;
+    QL.setP1(p1);
+    QL.setP2(p2);
+    painter.drawLine(QL);
 }
 
 //dibuja el arco de la circunferencia (Pc, R)
 //limitado en sentido levógiro por los lados
 //(Pc, Pini) y (Pc, Pfin)
 void TPloterShapes::Arc(TDoublePoint Pfin, TDoublePoint Pini,
-                        TDoublePoint Pc, double R)
+                        TDoublePoint Pc, double R,
+                        QPainter& painter)
 {
     //Los puntos (X1, Y1) y (X2, Y2) delimitan
     //el rectángulo que contien una elipse.
@@ -368,17 +368,26 @@ void TPloterShapes::Arc(TDoublePoint Pfin, TDoublePoint Pini,
     //cuando (X3, Y3)==(X4, Y4), solo debe intentar pintar el arco
     //cuando el ángulo es mayor que llano
     if(X3!=X4 || Y3!=Y4 || AnglePos(Pini-Pc, Pfin-Pc)>M_PI) {
-        //traza el arco
-        __PictureCanvas->Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4);
-        //pinta el último punto
-//        __PictureCanvas->Point(X4, Y4);
+        //traduce los parámetros
+        double xc = double(X1 + X2)/2.;
+        double yc = double(Y1 + Y2)/2.;
+        int a = Round(ArgPos(X3-xc, yc-Y3)/M_PI*180.*16.);
+        int alen;
+        if(X3!=X4 || Y3!=Y4)
+            alen = Round(AnglePos(TDoublePoint(X3-xc, yc-Y3),
+                                  TDoublePoint(X4-xc, yc-Y4))/M_PI*180.*16.);
+        else
+            alen = 360*16;
+
+        //utiliza el painter
+        painter.drawArc(X1, Y1, X2-X1, Y2-Y1, a, alen);
     }
 
     //para poder pintar el último punto del arco debe haber normalizado Pfin
 }
 
 //dibuja una circunferencia centrada en C de radio R
-void TPloterShapes::Circunference(TDoublePoint C, double R)
+void TPloterShapes::Circunference(TDoublePoint C, double R, QPainter& painter)
 {
     int X1 = Round(UnitsToPixelsX(C.x - R));
     int Y1 = Round(UnitsToPixelsY(C.y + R));
@@ -391,9 +400,32 @@ void TPloterShapes::Circunference(TDoublePoint C, double R)
     int Y4 = Y3;
 
     //traza el arco
-    __PictureCanvas->Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4);
-}
+    //__PictureCanvas->Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4);
+    try {
+        //traduce los parámetros
+        //QRect rectangle(x1, y1, x2, y2);
+        double xc = double(X1 + X2)/2.;
+        double yc = double(Y1 + Y2)/2.;
+        int a = Round(ArgPos(X3-xc, yc-Y3)/M_PI*180.*16.);
+        int alen;
+        if(X3!=X4 || X3!=X4)
+            alen = Round(AnglePos(TDoublePoint(X3-xc, yc-Y3),
+                                  TDoublePoint(X4-xc, yc-Y4))/M_PI*180.*16.);
+        else
+            alen = 360*16;
 
+        //utiliza el painter
+        //painter.setBrush(__BrushColor);
+        //painter.setPen(__PenColor);
+        painter.drawArc(X1, Y1, X2-X1, Y2-Y1, a, alen);
+        //pinta el último punto
+//        painter.drawPoint(x4, y4);
+
+    } catch(...) {
+        throw;
+    }
+}
+/*
 //imprime una cadena de texto centrada en P
 void TPloterShapes::Print(TDoublePoint P, const AnsiString& Text)
 {
@@ -403,7 +435,7 @@ void TPloterShapes::Print(TDoublePoint P, const AnsiString& Text)
 
     //determina las dimesiones del texto
     int Width = __PictureCanvas->TextWidth(Text);
-    int Height = __PictureCanvas->TextHeight(/*Text*/);
+    int Height = __PictureCanvas->TextHeight(**//*Text*//**);
 
     //determina las coordenadas para que el texto quede centrado
     int X = Round(x - double(Width)/2);
@@ -412,7 +444,7 @@ void TPloterShapes::Print(TDoublePoint P, const AnsiString& Text)
     //imprime el texto
    __PictureCanvas->TextOut(X, Y, Text);
 }
-
+*/
 //mueve el área de trazado a la posición (xw, yw)
 void TPloterShapes::MovePloterArea(double _xw, double _yw)
 {
@@ -428,21 +460,21 @@ void TPloterShapes::DisplacePloterArea(double SX, double SY)
     __yw += SY/__PBUy;
     Procesate(); //calcula las propiedades dependientes
 }
-//redimensiona el lienzo de la fotografía
+/*//redimensiona el lienzo de la fotografía
 //conforme a las dimensiones del lienzo de la caja de pintura
 void TPloterShapes::Resize(void)
 {
     //redimensiona el lienzo de la fotografía
-    SetSize(__PaintBox->width(), __PaintBox->height());
-}
-//imprime el lienzo de la fotografía en el lienzo externo adscrito
+//    SetSize(__PaintBox->width(), __PaintBox->height());
+}*/
+/*//imprime el lienzo de la fotografía en el lienzo externo adscrito
 void TPloterShapes::Draw(void)
 {
     //para que Draw copie pixel a pixel debe estar en modo ScrCopy
     //        PaintBoxCanvas->CopyMode = cmSrcCopy;
     //realiza la impresión a partir del primer pixel del lienzo
     __PaintBoxCanvas->Draw(0, 0, __Picture->getBitmap());
-}
+}*/
 
 //---------------------------------------------------------------------------
 
