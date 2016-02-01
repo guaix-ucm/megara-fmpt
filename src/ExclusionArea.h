@@ -38,7 +38,6 @@
 
 //---------------------------------------------------------------------------
 
-//using namespace MoveFunctions;
 using namespace Lists;
 
 //espacio de nombres de modelos

@@ -156,6 +156,7 @@ public:
 
         //contruye una barrera
         TBarrier(TDoublePoint P0, double thetaO1=1.5*M_PI);
+        TBarrier(double x, double y, double thetaO1=1.5*M_PI);
         //copia una barrera
         void copy(const TBarrier*);
         //contruye un clon de una barrera

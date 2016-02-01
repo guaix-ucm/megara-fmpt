@@ -330,7 +330,19 @@ TBarrier::TBarrier(TDoublePoint P0, double thetaO1) :
     p_thetaO1(thetaO1), p_P0(P0),
     p_Contour()
 {
-    //initialize the SPM components
+    //initialize the SPM component
+    p_SPM = MEGARA_Eo*getr_max() + MEGARA_Ep;
+
+    //set the default value to the contour
+    setContour_Text(MEGARA_Contour_);
+}
+TBarrier::TBarrier(double x, double y, double thetaO1) :
+    p_Contour_(),
+    p_r_max(0),
+    p_thetaO1(thetaO1), p_P0(x, y),
+    p_Contour()
+{
+    //initialize the SPM component
     p_SPM = MEGARA_Eo*getr_max() + MEGARA_Ep;
 
     //set the default value to the contour

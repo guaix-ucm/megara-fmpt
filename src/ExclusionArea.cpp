@@ -467,9 +467,9 @@ void  TExclusionArea::readInstance(TExclusionArea* &EA,
 //contruye un área de exclusión
 //con los valores por defecto
 TExclusionArea::TExclusionArea(void) :
-    Barrier(TDoublePoint(0, 0), 0),
     p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
     p_Id(0),
+    Barrier(0, 0, 0),
     Adjacents(64, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
     Pending(true)
 {
@@ -484,8 +484,8 @@ TExclusionArea::TExclusionArea(void) :
 //si el número de identificación es menor que uno
 //      lanza una execepción EImproperArgument
 TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
-    Barrier(P0, thetaO1),
     p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
+    Barrier(P0.x, P0.y, thetaO1),
     Adjacents(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
     Pending(true)
 {

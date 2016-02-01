@@ -320,8 +320,16 @@ template <class T> void TVector<T>::SetDimension(int Dimension)
 
     int i = this->getCount(); //indica al primer nuevo parámetro
     this->setCount(Dimension); //redimensiona el vector
-    for(i; i<this->getCount(); i++) //a cada nuevo parámetro
+//    for(i; i<this->getCount(); i++) //a cada nuevo parámetro
+    for(i; i<Dimension; i++) //a cada nuevo parámetro
         this->Items[i] = 0; //le asigna cero
+
+    //ERROR 01-02-2016: estaba haciendo el bucle desde getCount() <getCount(),
+    //con loq ue saltaba warning de no usado:
+    //In file included from Geometry.cpp:30:
+    //./Vector.h:323:9: warning: expression result unused [-Wunused-value]
+    //    for(i; i<this->getCount(); i++) //a cada nuevo parámetro
+
 }
 
 //copia los elemeentos de una lista

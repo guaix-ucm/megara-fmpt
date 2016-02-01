@@ -249,7 +249,7 @@ public:
 
     //MÉTODOS DE ACCESO:
 
-    //NOTA: el intervalo de indexación corresponde a: [0, getCount-1].
+    //NOTA: el intervalo de indexación corresponde a: [0, getCount()-1].
 
     //ADVERTENCIA: en listas de punteros, la sobreescritura o eliminación
     //de un item puede ocasionar el descolgamiento de un objeto
@@ -342,9 +342,9 @@ public:
     void SortInc(int first, int last);
     //ordena de mayor a menor en el intervalo [first, last]
     void SortDec(int first, int last);
-    //ordena de menor a mayor en el intervalo [0, getCount-1]
+    //ordena de menor a mayor en el intervalo [0, getCount()-1]
     void SortInc(void);
-    //ordena de mayor a menor en el intervalo [0, getCount-1]
+    //ordena de mayor a menor en el intervalo [0, getCount()-1]
     void SortDec(void);
     //inserta en orden creciente
     //devuelve un índice a la posición de inserción
@@ -364,7 +364,7 @@ public:
 
     //asigna el mismo valor a todas las componentes
     void SetAll(double x);
-    //asigna valores equiespaciados en [xmin, (getCount-1) deltax]
+    //asigna valores equiespaciados en [xmin, (getCount()-1) deltax]
     void SetEquidist(double xmin, double deltax);
     //asigna las particiones del segmento [xmin, xmax] en (getCount() - 1) partes
     void SetPartitions(double xmin, double xmax);
@@ -400,20 +400,29 @@ public:
 template <class T> void  TItemsList<T>::PrintRow(AnsiString &S,
                                                            const TItemsList<T> *L)
 {
-    S += getRowText();
+    if(L == NULL)
+        throw EImproperArgument("pointer L should point to built based pointer list");
+
+    S += L->getRowText();
 }
 //imprime una lista en una cadena de texto
 //en formato de columna de texto
 template <class T> void  TItemsList<T>::PrintColumn(AnsiString &S,
                                                               const TItemsList<T> *L)
 {
-    S += getColumnText;
+    if(L == NULL)
+        throw EImproperArgument("pointer L should point to built item list");
+
+    S += L->getColumnText;
 }
 //lee una lista de una cadena de texto
 //en formato de fila de texto
 template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
                                                                 const AnsiString &S, int &i)
 {
+    if(L == NULL)
+        throw EImproperArgument("pointer L should point to built based pointer list");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
@@ -514,7 +523,7 @@ template <class T> void  TItemsList<T>::PrintList(AnsiString &S,
 {
     //el puntero L debería apuntar a una lista de construida
     if(L == NULL)
-        throw EImproperArgument("pointr L should point to built list");
+        throw EImproperArgument("pointer L should point to built list");
 
     //la lista L debería tener una función de impresión apuntada
     if(L->Print == NULL)
@@ -538,7 +547,7 @@ template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
 {
     //el puntero L debería apuntar a una lista construida
     if(L == NULL)
-        throw EImproperArgument("pointr L should point to built list");
+        throw EImproperArgument("pointer L should point to built list");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -706,7 +715,7 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
 
     //el puntero L debería apuntar a una lista basada en puntero construida
     if(L == NULL)
-        throw EImproperArgument("pointr L should point to built based pointer list");
+        throw EImproperArgument("pointer L should point to built based pointer list");
 
     //la lista L debería tener una función de lectura apuntada
     if(L->Read == NULL)
@@ -717,7 +726,7 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
         throw EImproperArgument("index i should indicate a position in string S");
 
     //si la lista no contiene elementos
-    if(getCount() < 1)
+    if(L->getCount() < 1)
         return; //no lee nada
 
     //Aunque la cadena contuviera una lista de lementos legibles,
@@ -1026,12 +1035,14 @@ template <class T> double TItemsList<T>::getVar(void) const
 
 template <class T> AnsiString TItemsList<T>::getCapacityText(void) const
 {
-    return IntToStr(getCapacity);
+    return IntToStr(getCapacity());
 }
 template <class T> void TItemsList<T>::setCapacityText(const AnsiString& S)
 {
     try {
-        getCapacity = StrToInt_(S);
+        int aux = StrToInt_(S);
+        setCapacity(aux);
+
     } catch(...) {
         throw;
     }
@@ -1044,6 +1055,7 @@ template <class T> void TItemsList<T>::setCountText(const AnsiString &S)
 {
     try {
         getCount() = StrToInt_(S);
+
     } catch(...) {
         throw;
     }
@@ -1058,6 +1070,7 @@ template <class T> AnsiString TItemsList<T>::getItemsText(int i) const
 
     try {
         Print(S, Items[i]);
+
     } catch(...) {
         throw;
     }
@@ -1069,6 +1082,7 @@ template <class T> void TItemsList<T>::setItemsText(int i, const AnsiString &S)
     try {
         int j = 1;
         Read(Items[i], S, j);
+
     } catch(...) {
         throw;
     }
@@ -1082,7 +1096,8 @@ template <class T> AnsiString TItemsList<T>::getFirstText(void) const
     AnsiString S;
 
     try {
-        Print(S, getFirst);
+        Print(S, getFirst());
+
     } catch(...) {
         throw;
     }
@@ -1098,7 +1113,8 @@ template <class T> void TItemsList<T>::setFirstText(const AnsiString &S)
     int i = 1;
 
     try {
-        Read(getFirst, S, i);
+        Read(getFirst(), S, i);
+
     } catch(...) {
         throw;
     }
@@ -1112,7 +1128,8 @@ template <class T> AnsiString TItemsList<T>::getLastText(void) const
     AnsiString S;
 
     try {
-        Print(S, getLast);
+        Print(S, getLast());
+
     } catch(...) {
         throw;
     }
@@ -1128,7 +1145,8 @@ template <class T> void TItemsList<T>::setLastText(const AnsiString &S)
     int i = 1;
 
     try {
-        Read(getLast, S, i);
+        Read(getLast(), S, i);
+
     } catch(...) {
         throw;
     }
@@ -1141,6 +1159,7 @@ template <class T> AnsiString TItemsList<T>::getText(void) const
 
     try {
         PrintList(S, this);
+
     } catch(...) {
         throw;
     }
@@ -1615,7 +1634,7 @@ template <class T> void TItemsList<T>::Randomize(void)
         int j; //índice a la posición de intercambio
         T aux; //para el intercambio
 
-        for(int i=getCount-1; i>0; i--) {
+        for(int i=getCount()-1; i>0; i--) {
             j = random(i+1); //genera la posición de intercambio
             if(j!=i) { //si sale el mismo no se intercambia
                 aux = Items[i];
@@ -1928,7 +1947,7 @@ template <class T> int TItemsList<T>::InsertDec(const T& item)
         return 0; //retorna la posición de inserción
     } else {
         //la lista debe estar ordenada
-        if(!getDecreasing)
+        if(!getDecreasing())
             throw EImproperArgument("list isn't decreasing");
 
         //Busca la posición donde debe insertarlo
@@ -1997,7 +2016,7 @@ template <class T> void TItemsList<T>::SetAll(double x)
     for(int i=0; i<getCount(); i++)
         Assign(Items[i], x);
 }
-//asigna valores equiespaciados en [xmin, (getCount-1) deltax]
+//asigna valores equiespaciados en [xmin, (getCount()-1) deltax]
 template <class T> void TItemsList<T>::SetEquidist(double xmin, double deltax)
 {
     //debe haber una función de asignación apuntada
@@ -2022,7 +2041,7 @@ template <class T> void TItemsList<T>::SetPartitions(double xmin, double xmax)
 
     if(getCount() > 1) {
         for(int i=0; i<getCount(); i++) {
-            delta = double(i)/double(getCount-1);
+            delta = double(i)/double(getCount()-1);
             Assign(Items[i], xmin*(1 - delta) + xmax*delta);
         }
     } else if(getCount() > 0) { //Count==1
