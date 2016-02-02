@@ -259,13 +259,28 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
 
         //LOAD SETTINGS FROM FILES:
 
-        //load the FMOSA table from a file
+        //load the Outputs structure from a file
         string str;
         strReadFromFile(str, input_path);
-//        TFMOSATable FMOSA;
         Outputs outputs;
         unsigned int Bid;
-        outputs.FMOSAT.setTableText(Bid, str);
+        try {
+            outputs.setText(Bid, str);
+        } catch(EImproperArgument& E) {
+            try {
+                outputs.FMOSAT.setTableText(Bid, str);
+            } catch(Exception& E) {
+                E.Message.Insert(1, "reading FMOSA file: ");
+                throw;
+            } catch(...) {
+                throw;
+            }
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading PPDPandFMOSA file: ");
+            throw;
+        } catch(...) {
+            throw;
+        }
         append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
 
         //get the allocation from the FMOSA table
@@ -454,6 +469,8 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
     } catch(Exception& E) {
         E.Message.str.insert(0, "generating pair (PP, DP) offline: ");
         throw E;
+    } catch(...) {
+        throw;
     }
 }
 
@@ -2137,7 +2154,7 @@ int main(int argc, char *argv[])
         }
 
         //indicates that the program is running
-        append("FMPT SAA 3.0.3 is running...", log_filename.c_str());
+        append("FMPT SAA 3.0.5 is running...", log_filename.c_str());
 
         //print  the arguments
         string str;

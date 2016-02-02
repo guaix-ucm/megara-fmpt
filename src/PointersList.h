@@ -461,14 +461,14 @@ public:
 template <class T> void  TPointersList<T>::PrintRow(AnsiString &S,
                                                               const TPointersList<T> *L)
 {
-    S += getRowText();
+    S += L->getRowText();
 }
 //imprime una lista en una cadena de texto
 //en formato de columna de texto
 template <class T> void  TPointersList<T>::PrintColumn(AnsiString &S,
                                                                  const TPointersList<T> *L)
 {
-    S += getColumnText();
+    S += L->getColumnText();
 }
 //lee una lista de una cadena de texto
 //en formato de fila o columna de texto
@@ -552,7 +552,7 @@ template <class T> void  TPointersList<T>::ReadSeparatedForBuiltItems(TPointersL
         throw EImproperArgument("index i should indicate a posicion in the string text S");
 
     //si la lista no contiene elementos
-    if(getCount() < 1)
+    if(L->getCount() < 1)
         return; //no lee nada
 
     //Aunque la cadena contuviera una lista de lementos legibles,
@@ -796,7 +796,7 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
         throw EImproperArgument("index i should indicate a position in string S");
 
     //si la lista no contiene elementos
-    if(getCount() < 1)
+    if(L->getCount() < 1)
         return; //no lee nada
 
     //Aunque la cadena contuviera una lista de lementos legibles,
@@ -828,10 +828,10 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
         L->Read(Item, S, i);
 
         //por cada puntero adicional de la lista
-        for(j; j<Items.getCount(); j++) {
+        for(; j<Items.getCount(); j++) {
             //apunta el elemento indicado para facilitar su acceso
             Item = Items[j];
-            //siel puntero apunta a un elemento construido
+            //si el puntero apunta a un elemento construido
             if(Item != NULL) {
                 //atraviesa el caracter delimitador de lista
                 StrTravelLabel(",", S, i);

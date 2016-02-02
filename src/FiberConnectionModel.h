@@ -148,6 +148,17 @@ public:
         //clone a Fiber Connection Model
         void Clone(const TFiberConnectionModel&);
 
+        //Definitions:
+        //  (x, y): the returned spaxel center
+        //  (x3, y3): the P3 of the RP
+        //  theta3: the orientation in S0 of the vector from P1 to P3.
+        //This is the numeration of the espaxels:
+        //                              5
+        //                          6   |   2
+        //   P1 ------------------------P3
+        //                          7   |   1
+        //                              3
+
         //determina las coordenadas en S0 del centro del spaxel 1
         void GetSpaxelCenter1(double&x, double& y,
                 double x3, double y3, double theta3);
@@ -159,7 +170,7 @@ public:
                 double x3, double y3, double theta3);
         //determina las coordenadas en S0 del centro del spaxel 4
         void GetSpaxelCenter4(double&x, double& y,
-                double x3, double y3, double theta3);
+                double x3, double y3);
         //determina las coordenadas en S0 del centro del spaxel 5
         void GetSpaxelCenter5(double&x, double& y,
                 double x3, double y3, double theta3);

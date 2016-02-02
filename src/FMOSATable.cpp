@@ -195,131 +195,126 @@ TSPPP& TSPPP::operator=(const TSPPP& SPPP)
 //set a FMOSA table in text format
 void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 {
+    //divide the string str in lines
+    TStrings Strings;
+    StrDivideInLines(Strings, str);
+
+    //--------------------------------------------------------------
+
+    //initialize the index to the first line
+    int i = 0;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("label @@SOB@@ not found");
+
+    //--------------------------------------------------------------
+
+    //discard the coments and empty lines
+    while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i].str).Length()<=0))
+        i++;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("label @@SOB@@ not found");
+
+    //check if actual line contains the label @@SOB@@
+    if(StrTrim(Strings[i]) != AnsiString("@@SOB@@"))
+        throw EImproperArgument("label @@SOB@@ not found");
+
+    //discard the label @@SOB@@
+    i++;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("CB Id and Telescope Pointing Parameters not found");
+
+    //discard all lines until the close label @@EOB@
+    while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOB@@"))
+        i++;
+
+    //check if actual line contains the label @@EOB@@
+    if(StrTrim(Strings[i]) != AnsiString("@@EOB@@"))
+        throw EImproperArgument("label @@EOB@@ not found");
+
+    //discard the label @@EOB@@
+    i++;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("label @@SOS@@ not found");
+
+    //--------------------------------------------------------------
+
+    //discard the coments and empty lines
+    while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i]).Length()<=0))
+        i++;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("label @@SOS@@ not found");
+
+    //check if actual line contains the label @@SOS@@
+    if(StrTrim(Strings[i]) != AnsiString("@@SOS@@"))
+        throw EImproperArgument("label @@SOS@@ not found");
+
+    //discard the label @@SOS@@
+    i++;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("should have some line containing the parameters: Name |RADec |Mag |Type |Pr |Bid |Pid |X(mm) |Y(mm) |Enabled |Comment)");
+
+    //read all lines (using a tampon variable) until the close label @@EOS@
     try {
-        //divide the string str in lines
-        TStrings Strings;
-        StrDivideInLines(Strings, str);
+        TFMOSATable SPPPL;
 
-        //--------------------------------------------------------------
-
-        //initialize the index to the first line
-        int i = 0;
-
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("label @@SOB@@ not found");
-
-        //--------------------------------------------------------------
-
-        //discard the coments and empty lines
-        while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i].str).Length()<=0))
+        while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
+            TSPPP *SPPP = new TSPPP();
+            SPPPL.Add(SPPP);
+            SPPP->setText(Strings[i].str);
             i++;
-
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("label @@SOB@@ not found");
-
-        //check if actual line contains the label @@SOB@@
-        if(StrTrim(Strings[i]) != AnsiString("@@SOB@@"))
-            throw EImproperArgument("label @@SOB@@ not found");
-
-        //discard the label @@SOB@@
-        i++;
-
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("CB Id and Telescope Pointing Parameters not found");
-
-        //discard all lines until the close label @@EOB@
-        while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOB@@"))
-            i++;
-
-        //check if actual line contains the label @@EOB@@
-        if(StrTrim(Strings[i]) != AnsiString("@@EOB@@"))
-            throw EImproperArgument("label @@EOB@@ not found");
-
-        //discard the label @@EOB@@
-        i++;
-
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("label @@SOS@@ not found");
-
-        //--------------------------------------------------------------
-
-        //discard the coments and empty lines
-        while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i]).Length()<=0))
-            i++;
-
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("label @@SOS@@ not found");
-
-        //check if actual line contains the label @@SOS@@
-        if(StrTrim(Strings[i]) != AnsiString("@@SOS@@"))
-            throw EImproperArgument("label @@SOS@@ not found");
-
-        //discard the label @@SOS@@
-        i++;
-
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("should have some line containing the parameters: Name |RADec |Mag |Type |Pr |Bid |Pid |X(mm) |Y(mm) |Enabled |Comment)");
-
-        //read all lines (using a tampon variable) until the close label @@EOS@
-        try {
-            TFMOSATable SPPPL;
-
-            while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
-                TSPPP *SPPP = new TSPPP();
-                SPPPL.Add(SPPP);
-                SPPP->setText(Strings[i].str);
-                i++;
-            }
-
-            *this = SPPPL;
-
-        } catch(Exception& E) {
-            E.Message.Insert(1, "reading OS table: ");
-            throw E;
         }
 
-        //check if there is more lines
-        if(i >= Strings.getCount())
-            throw EImproperArgument("label @@EOS@@ not found");
-
-        //check if actual line contains the label @@EOS@@
-        if(StrTrim(Strings[i]) != AnsiString("@@EOS@@"))
-            throw EImproperArgument("label @@EOS@@ not found");
-
-        //discard the label @@EOS@@
-        i++;
-
-        //discard the coments and empty lines
-        while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i]).Length()<=0))
-            i++;
-
-        //check if there isn't more lines
-        if(i < Strings.getCount())
-            throw EImproperArgument("only should to be OB and OS block");
-
-        //--------------------------------------------------------------
-
-        //check the preconditions
-        for(int i=1; i<getCount(); i++) {
-            TSPPP *SPPP = Items[i];
-
-            if(SPPP->Bid != Items[0]->Bid)
-                throw EImproperArgument("all Bid should be equal each other");
-        }
-
-        //return the Bid value
-        Bid = Items[0]->Bid;
+        *this = SPPPL;
 
     } catch(Exception& E) {
-        E.Message.Insert(1, "reading a FMOSA table");
+        E.Message.Insert(1, "reading OS table: ");
         throw E;
     }
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("label @@EOS@@ not found");
+
+    //check if actual line contains the label @@EOS@@
+    if(StrTrim(Strings[i]) != AnsiString("@@EOS@@"))
+        throw EImproperArgument("label @@EOS@@ not found");
+
+    //discard the label @@EOS@@
+    i++;
+
+    //discard the coments and empty lines
+    while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i]).Length()<=0))
+        i++;
+
+    //check if there isn't more lines
+    if(i < Strings.getCount())
+        throw EImproperArgument("only should to be OB and OS block");
+
+    //--------------------------------------------------------------
+
+    //check the preconditions
+    for(int i=1; i<getCount(); i++) {
+        TSPPP *SPPP = Items[i];
+
+        if(SPPP->Type != ptUNKNOWN)
+            if(SPPP->Bid != Items[0]->Bid)
+                throw EImproperArgument("all Bid should be equal each other");
+    }
+
+    //return the Bid value
+    Bid = Items[0]->Bid;
 }
 
 //get the FMOSA table in text format

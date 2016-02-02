@@ -392,7 +392,7 @@ void TFiberConnectionModel::GetSpaxelCenter1(double&x, double& y,
         TDoublePoint V(getR(), 0);
 
         //rota el punto V (-PI/6 + theta3) rad
-        double a = -M_PI/6;// + theta3;
+        double a = -M_PI/6 + theta3;
         x = V.x*cos(a) - V.y*sin(a);
         y = V.x*sin(a) + V.y*cos(a);
 
@@ -408,7 +408,7 @@ void TFiberConnectionModel::GetSpaxelCenter2(double&x, double& y,
         TDoublePoint V(getR(), 0);
 
         //rota el punto V (PI/6 + theta3) rad
-        double a = M_PI/6;// + theta3;
+        double a = M_PI/6 + theta3;
         x = V.x*cos(a) - V.y*sin(a);
         y = V.x*sin(a) + V.y*cos(a);
 
@@ -424,7 +424,7 @@ void TFiberConnectionModel::GetSpaxelCenter3(double&x, double& y,
         TDoublePoint V(getR(), 0);
 
         //rota el punto V (-PI/2 + theta3) rad
-        double a = -M_PI/2;// + theta3;
+        double a = -M_PI/2 + theta3;
         x = V.x*cos(a) - V.y*sin(a);
         y = V.x*sin(a) + V.y*cos(a);
 
@@ -434,7 +434,7 @@ void TFiberConnectionModel::GetSpaxelCenter3(double&x, double& y,
 }
 //determina las coordenadas en S0 del centro del spaxel 4
 void TFiberConnectionModel::GetSpaxelCenter4(double&x, double& y,
-        double x3, double y3, double theta3)
+        double x3, double y3)
 {
         //desplaza (x, y) a (x3, y3)
         x = x3;
@@ -448,7 +448,7 @@ void TFiberConnectionModel::GetSpaxelCenter5(double&x, double& y,
         TDoublePoint V(getR(), 0);
 
         //rota el punto V (PI/2 + theta3) rad
-        double a = M_PI/2;// + theta3;
+        double a = M_PI/2 + theta3;
         x = V.x*cos(a) - V.y*sin(a);
         y = V.x*sin(a) + V.y*cos(a);
 
@@ -464,7 +464,7 @@ void TFiberConnectionModel::GetSpaxelCenter6(double&x, double& y,
         TDoublePoint V(getR(), 0);
 
         //rota el punto V (PI*5/6 + theta3) rad
-        double a = M_PI*5./6;// + theta3;
+        double a = M_PI*5./6 + theta3;
         x = V.x*cos(a) - V.y*sin(a);
         y = V.x*sin(a) + V.y*cos(a);
 
@@ -480,7 +480,7 @@ void TFiberConnectionModel::GetSpaxelCenter7(double&x, double& y,
         TDoublePoint V(getR(), 0);
 
         //rota el punto V (-PI*5/6 + theta3) rad
-        double a = -M_PI*5./6;// + theta3;
+        double a = -M_PI*5./6 + theta3;
         x = V.x*cos(a) - V.y*sin(a);
         y = V.x*sin(a) + V.y*cos(a);
 

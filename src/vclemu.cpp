@@ -219,12 +219,13 @@ void AnsiString::Insert(int i, char c)
 void AnsiString::Insert(int i, const AnsiString& S)
 {
     //check the precondition
-    if(i<0 || Length()+1<i)
-        throw EImproperArgument("index i shall indicates a position in the string");
+    if(i<1 || Length()<i)
+        throw EImproperArgument("index out bounds");
 
-    for(int i=1; i<=S.Length(); i++) {
-        char c = S[i];
-        str.insert(i, sizeof(typeof(c)), c);
+    //insert all chars of S.str in the position i-1 of S.str
+    for(unsigned int j=0; j<S.str.length(); j++) {
+        char c = S.str[j];
+        str.insert(i-1+j, sizeof(c), c);
     }
 }
 
