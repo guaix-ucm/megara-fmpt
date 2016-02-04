@@ -2432,7 +2432,7 @@ template <class T> void TPoinList<T>::SetCount(int _Count)
                 //reserva los nuevos punteros
                 Items.NewLast(_Count - Count);
                 //construye los nuevos elementos
-                for(i; i<getCount(); i++)
+                for(; i<getCount(); i++)
                         Items[i] = new T;
         }
 }
@@ -2458,7 +2458,7 @@ template <class T> inline void TPoinList<T>::NewLast(int n)
         int i = Count; //captura el índice al pirmer nuevo elemento
     Items.NewLast(n); //reserva los punteros a elementos
         //construye los elementos
-        for(i; i<getCount(); i++)
+        for(; i<getCount(); i++)
             Items[Count] = new T;
 }
 //destruye n elementos al principio de la lista

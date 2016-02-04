@@ -366,6 +366,28 @@ string floattostr(double value)
 
     return ss.str();
 }
+//translate from double to string
+string floattostr_fixed(double value, int precision)
+{
+    if(precision<0 || std::numeric_limits<double>::digits10<precision)
+        throw EImproperArgument("precision should be in [0, "+inttostr(std::numeric_limits<double>::digits10)+"]");
+
+    stringstream ss;
+
+    ss.precision(precision);
+    bool ok = (ss << fixed << value);
+    if(!ok) {
+        throw EImproperArgument(AnsiString("can't convert double to string"));
+    }
+
+    //WARNING: if precision is upper to digits10 decimals, conversión to
+    //string can introduce numerial error for somevalues.Example:
+    //  value       ->  string
+    //  87.035553	->  "87.03555299999999"
+    //  -70.35		->  "-70.34999999999999"
+
+    return ss.str();
+}
 //translate from int to string
 string inttostr(int value)
 {

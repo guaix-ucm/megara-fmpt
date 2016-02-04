@@ -42,10 +42,67 @@ namespace Models {
 //get the structure in text format
 AnsiString TSPPP::getRowText(void) const
 {
-    string str = Name+"\t|"+floattostr(RA)+"|"+floattostr(Dec)+"|"+floattostr(Mag)+"|"+pointTypeToStr(Type)+
-            "\t|"+inttostr(Pr)+"|"+inttostr(Bid)+"|"+inttostr(Pid)+
-            "|"+floattostr(X)+"|"+floattostr(Y)+"|"+inttostr(int(Enabled))+
-            "|"+Comment;
+    string str = Name;
+    while(str.length() < 20)
+        str += ' ';
+
+    str += "|"+floattostr_fixed(RA, 6);
+    while(str.length() < 30)
+        str += ' ';
+
+    str += "|"+floattostr_fixed(Dec, 6);
+    while(str.length() < 40)
+        str += ' ';
+
+
+    str += "|";
+    if(there_is_Mag)
+        str += floattostr_fixed(Mag, 2);
+    else
+        str += "     ";
+    while(str.length() < 46)
+        str += ' ';
+
+    str += "|"+pointTypeToStr(Type);
+    while(str.length() < 63)
+        str += ' ';
+
+    str += "|";
+    if(there_is_Pr)
+        str += inttostr(Pr);
+    else
+        str += "  ";
+    while(str.length() < 66)
+        str += ' ';
+
+    str += "|";
+    if(there_is_Bid)
+        str += inttostr(Bid);
+    else
+        str += "   ";
+    while(str.length() < 70)
+        str += ' ';
+
+
+    str += "|"+inttostr(Pid);
+    while(str.length() < 74)
+        str += ' ';
+
+    str += "|"+floattostr_fixed(X, 6);
+    while(str.length() < 85)
+        str += ' ';
+
+    str += "|"+floattostr_fixed(Y, 6);
+    while(str.length() < 96)
+        str += ' ';
+
+    str += "|"+inttostr(int(Enabled));
+    while(str.length() < 98)
+        str += ' ';
+
+    str += "|"+Comment;
+    while(str.length() < 119)
+        str += ' ';
 
     AnsiString S(str);
     return S;
@@ -153,7 +210,7 @@ void  TSPPP::PrintRow(AnsiString &S, const TSPPP *SPPP)
 //PUBLIC METHODS:
 
 //build a structure by default
-TSPPP::TSPPP() : RA(0), Dec(0), Type(ptUNKNOWN), Pr(0), Bid(0), Pid(0),
+TSPPP::TSPPP() : RA(0), Dec(0), Mag(0), Type(ptUNKNOWN), Pr(0), Bid(0), Pid(0),
       X(0), Y(0), Enabled(false), notAllocated(true), allocateInAll(false),
       there_is_Mag(false), there_is_Pr(false), there_is_Bid(false)/*,
       there_is_notAllocated(false), there_is_allocateInAll(false)*/
@@ -227,11 +284,32 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 
     //check if there is more lines
     if(i >= Strings.getCount())
-        throw EImproperArgument("CB Id and Telescope Pointing Parameters not found");
+        throw EImproperArgument("block parameters not found: Id| Ra| Dec| Pos");
 
-    //discard all lines until the close label @@EOB@
-    while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOB@@"))
-        i++;
+//    //discard all lines until the close label @@EOB@
+  //  while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOB@@"))
+    //    i++;
+
+    //read the block parameters in tampon variables
+    unsigned int j=0;
+    int _Id;
+    strReadInt(_Id, Strings[i].str, j);
+    double _Ra;
+    strTravelLabel("|", Strings[i].str, j);
+    strReadFloat(_Ra, Strings[i].str, j);
+    double _Dec;
+    strTravelLabel("|", Strings[i].str, j);
+    strReadFloat(_Dec, Strings[i].str, j);
+    double _Pos;
+    strTravelLabel("|", Strings[i].str, j);
+    strReadFloat(_Pos, Strings[i].str, j);
+
+    //contabilize the readed line
+    i++;
+
+    //check if there is more lines
+    if(i >= Strings.getCount())
+        throw EImproperArgument("label @@EOB@@ not found");
 
     //check if actual line contains the label @@EOB@@
     if(StrTrim(Strings[i]) != AnsiString("@@EOB@@"))
@@ -276,7 +354,12 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
             i++;
         }
 
+        //set the tampons variables
         *this = SPPPL;
+        Id = _Id;
+        Ra = _Ra;
+        Dec = _Dec;
+        Pos = _Pos;
 
     } catch(Exception& E) {
         E.Message.Insert(1, "reading OS table: ");
@@ -305,16 +388,16 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
     //--------------------------------------------------------------
 
     //check the preconditions
-    for(int i=1; i<getCount(); i++) {
+    for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
 
         if(SPPP->Type != ptUNKNOWN)
-            if(SPPP->Bid != Items[0]->Bid)
-                throw EImproperArgument("all Bid should be equal each other");
+            if(SPPP->Bid != Id)
+                throw EImproperArgument("all Bid should be equal to Id");
     }
 
     //return the Bid value
-    Bid = Items[0]->Bid;
+    Bid = Id;
 }
 
 //get the FMOSA table in text format
@@ -322,7 +405,7 @@ void TFMOSATable::getTableText(string& str) const
 {
     str = "# Id| Ra| Dec| Pos";
     str += "\r\n@@SOB@@";
-    str += "\r\n0| 0| 0| 0";
+    str += "\r\n"+inttostr(Id)+"| "+floattostr_fixed(Ra, 6)+"| "+floattostr_fixed(Dec, 6)+"| "+floattostr_fixed(Pos, 5);
     str += "\r\n@@EOB@@";
 
     str += "\r\n#      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment";
@@ -358,7 +441,8 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
 }
 
 //build a FMOSA table by default
-TFMOSATable::TFMOSATable(void) : TPointersList<TSPPP>()
+TFMOSATable::TFMOSATable(void) : TPointersList<TSPPP>(),
+    Id(0), Ra(0), Dec(0), Pos(0)
 {
     Print = TSPPP::PrintRow;
 }

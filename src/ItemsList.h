@@ -758,7 +758,7 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
         L->Read(Item, S, i);
 
         //por cada puntero adicional de la lista
-        for(j; j<Items.getCount(); j++) {
+        for(; j<Items.getCount(); j++) {
             //apunta el elemento indicado para facilitar su acceso
             Item = &(Items[j]);
             //siel puntero apunta a un elemento construido

@@ -112,6 +112,11 @@ public:
 
 class TFMOSATable : public TPointersList<TSPPP> {
 public:
+    int Id;     //the block identification
+    double Ra;  //the rect ascension of the block
+    double Dec; //the declination of the block
+    double Pos; //
+
     //set a FMOSA table in text format
     void setTableText(unsigned int& Bid, const string& str);
 

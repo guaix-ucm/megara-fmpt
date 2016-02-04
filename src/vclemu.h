@@ -28,6 +28,8 @@
 
 #include <stdint.h>
 #include <string>
+#include <limits> //std::numeric_limits
+
 
 //---------------------------------------------------------------------------
 
@@ -175,6 +177,7 @@ public:
 
 //translate from double to string
 string floattostr(double value);
+string floattostr_fixed(double value, int precision=std::numeric_limits<double>::digits10);
 //translate from int to string
 string inttostr(int value);
 
