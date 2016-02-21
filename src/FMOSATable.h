@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -112,7 +112,7 @@ public:
 
 class TFMOSATable : public TPointersList<TSPPP> {
 public:
-    int Id;     //the block identification
+    unsigned int Id;     //the block identification
     double Ra;  //the rect ascension of the block
     double Dec; //the declination of the block
     double Pos; //

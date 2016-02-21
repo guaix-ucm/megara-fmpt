@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -125,7 +125,7 @@ int strNextChar(const string &str, int i)
 
     char c;
 
-    while(i < str.length()) {
+    while(i < int(str.length())) {
         //asigna el caracter para facilitar su acceso
         c = str[i];
 
@@ -477,9 +477,9 @@ int StrCountLines(const AnsiString &String)
     return count;
 }
 //determines if there is the substring "\r\n" in the position i of a string
-bool thereIsntEndline(const string& str, int i)
+bool thereIsntEndline(const string& str, unsigned int i)
 {
-    if(i<0 || i>str.length())
+    if(str.length() < i)
         throw EImproperArgument("index i should indicates a position of string");
 
     int remaining = str.length() - 1 - i;

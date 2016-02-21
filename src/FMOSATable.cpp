@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -304,6 +304,10 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
     strTravelLabel("|", Strings[i].str, j);
     strReadFloat(_Pos, Strings[i].str, j);
 
+    //check the preconditions of the block parameters
+    if(_Id < 0)
+        throw EImproperArgument("block identificator should be nonnegative");
+
     //contabilize the readed line
     i++;
 
@@ -356,7 +360,7 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 
         //set the tampons variables
         *this = SPPPL;
-        Id = _Id;
+        Id = (unsigned int)_Id;
         Ra = _Ra;
         Dec = _Dec;
         Pos = _Pos;
@@ -389,7 +393,7 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 
     //check the preconditions
     for(int i=0; i<getCount(); i++) {
-        TSPPP *SPPP = Items[i];
+        const TSPPP *SPPP = Items[i];
 
         if(SPPP->Type != ptUNKNOWN)
             if(SPPP->Bid != Id)
@@ -419,8 +423,8 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
 {
     for(int i=0; i<getCount(); i++) {
         TSPPP *SPPP = Items[i];
-        if(SPPP->there_is_Bid) { //if the SPPP correspond to an PP
-            if(SPPP->Enabled) { //if the PP is allocated to the RP
+        if(SPPP->there_is_Bid) { //if the PP is allocated to the RP
+            if(SPPP->Enabled) { //if the RP is enabled
                 //extract the Id from the SPPP
                 int Id = SPPP->Pid;
                 //search the RP in the RPL attached to the AL

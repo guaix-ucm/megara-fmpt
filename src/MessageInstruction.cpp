@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -287,12 +287,12 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
 //PUBLIC METHODS:
 
 //build a MI by default
-TMessageInstruction::TMessageInstruction(void) : p_Id(0), Instruction(), p_Comment1(""), p_Comment2("")
+TMessageInstruction::TMessageInstruction(void) : p_Id(0), p_Comment1(""), p_Comment2(""), Instruction()
 {
 }
 //build a MI with the indicated values
 TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
-        Instruction(), p_Comment1(""), p_Comment2("")
+        p_Comment1(""), p_Comment2(""), Instruction()
 {
         try {
                 setId(Id);
@@ -303,7 +303,7 @@ TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
 }
 //clone a MI
 TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
-        p_Id(), Instruction(), p_Comment1(), p_Comment2()
+        p_Id(), p_Comment1(), p_Comment2(), Instruction()
 {
         try {
                 Copy(MI);

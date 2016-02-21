@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -128,7 +128,7 @@ void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
 //si la cadena String no es imprimible lanza una excepción EImproperArgument
 int StrCountLines(const AnsiString &String);
 //determines if there is the substring "\r\n" in the position i of a string
-bool thereIsntEndline(const string& str, int i);
+bool thereIsntEndline(const string& str, unsigned int i);
 //divide una cadena por cada "\r\n" que encuentre
 void StrDivideInLines(TStrings *Lines, const AnsiString &S);
 void StrDivideInLines(TStrings& Lines, const AnsiString &S);

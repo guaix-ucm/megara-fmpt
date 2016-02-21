@@ -1,6 +1,6 @@
 This is a package to install the MEGARA FMPT, the Fiber MOS Positioning Tool for MEGARA.
 
-Copyright IAA-CSIC 2013-2016.
+Copyright IAA-CSIC 2014-2016.
 
 ##################
 Table of Contents
@@ -31,7 +31,7 @@ Requirements
 This package is written in C++, requires GNU C++ to compile.
 
 It has been tested in:
-- Fedora 20 x86 64-bit.
+- Ubuntu 14.04.3 x86 64-bit.
 - SUSE Linux Enterprises SLES 11 SP1 64-bit.
 - Mac OS X 10.7, 10.9 and 10.10.
 
@@ -43,8 +43,9 @@ The process to install this S/W can be found in the file INSTALL. The summarized
 1. Decompress tar file 'megara-fmpt-3.0.6.tar.gz' (or .xz).
 2. Change to directory './megara-fmpt-3.0.6'.
 3. Execute './configure; make;' to configure and build this package.
-4. Turn on superuser to have access to '/usr/local/...'.
-5. Execute 'make install' (as superuser) to install the library and the application.
+4. Grant superuser privileges to have access to '/usr/local/...'.
+5. Execute 'make install' (as superuser) to install the library and the application. 
+6. Execute 'ldconfig' (as superuser) for update the linkage with the libraries of the system.
 
 This process will install the libraries (static and dynamic) FMPT, and the FMPT SAA application, in the usual directories of the user distribution of the user operative system. For example:
 - the libraries (estatic and dynamic) will be installed in '/usr/local/lib';
@@ -69,10 +70,11 @@ These locations can vary depending on the operating system and distribution wher
 
 Known issues
 ============
-If installation is completed successfully but execution produce the following error:
-	fmpt_saa. error while loading shared libraries: libfmp.so: can not open shhared object file: No such file or directory.
+If you dont use ldconfig for update the linkage to the libraries of the system, when you execute the fmpt_saa application, will be printed the following error message:
+	fmpt_saa. error while loading shared libraries: libfmp.so: can not open shared object file: No such file or directory.
 
-Then you must add the path of the library in the file '.bashrc' or the corresponding to the shell of your system:
+One alternative to the use of ldconfig is add the path '/usr/local/lib' to the environmen variable LD_LIBRARY_PATH.
+For this you can add the following lines to the file '.bashrc' or the corresponding to the shell of your system:
 	LD_LiBRARY_PATH=/usr/local/lib
 	export LD_LIBRARY_PATH
 
