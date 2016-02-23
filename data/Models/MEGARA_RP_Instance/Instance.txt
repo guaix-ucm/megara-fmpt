@@ -1,7 +1,7 @@
 ActuatorInstance:
     L01 = 5.8025
-    theta_1min = -0.043633231299858194
-    theta_1max = 6.326818538479438194
+    theta_1min = -0.0436332312998582
+    theta_1max = 6.32681853847944
     theta_1 = 0
     theta_O3o = 3.14159265358979
     SB1 = 8123.07692
@@ -11,8 +11,8 @@ ActuatorInstance:
         theta__O3 = 0
         R3 = 0.75
         thetaO3 = -3.14159265358979
-        theta___3min = -0.043633231299858194
-        theta___3max = 3.185225884889648194
+        theta___3min = -0.0436332312998582
+        theta___3max = 3.18522588488965
         theta___3 = 0
         SB2 = 10000
     SPMmin = 0.005

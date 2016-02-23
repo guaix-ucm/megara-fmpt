@@ -1,0 +1,138 @@
+obs depos_0 {
+	group_01 {
+	rp03 r1 1165
+	rp03 r2 62
+	rp06 r1 3713
+	rp06 r2 62
+	rp13 r1 3484
+	rp13 r2 62
+	rp19 r1 6063
+	rp19 r2 62
+	rp25 r1 510
+	rp25 r2 62
+	rp32 r1 3948
+	rp32 r2 62
+	rp47 r1 1010
+	rp47 r2 62
+	rp51 r1 4330
+	rp51 r2 62
+	rp57 r1 0
+	rp57 r2 208
+	rp62 r1 6964
+	rp62 r2 62
+	rp63 r1 0
+	rp63 r2 1666
+	rp75 r1 6546
+	rp75 r2 62
+	rp81 r1 0
+	rp81 r2 369
+	rp92 r1 4977
+	rp92 r2 62
+	}
+	group_02 {
+	rp57 r1 0
+	rp57 r2 62
+	rp63 r1 0
+	rp63 r2 62
+	rp81 r1 0
+	rp81 r2 62
+	}
+	group_03 {
+	rp07 r1 6985
+	rp07 r2 62
+	rp11 r1 1268
+	rp11 r2 62
+	rp29 r1 6592
+	rp29 r2 62
+	rp33 r1 0
+	rp33 r2 1103
+	rp45 r1 1675
+	rp45 r2 62
+	rp67 r1 5083
+	rp67 r2 62
+	rp69 r1 6460
+	rp69 r2 62
+	rp85 r1 1817
+	rp85 r2 62
+	rp89 r1 6362
+	rp89 r2 62
+	}
+	group_04 {
+	rp33 r1 0
+	rp33 r2 62
+	}
+	group_05 {
+	rp05 r1 4605
+	rp05 r2 62
+	rp15 r1 3470
+	rp15 r2 62
+	rp21 r1 1611
+	rp21 r2 62
+	rp53 r1 1922
+	rp53 r2 62
+	rp65 r1 0
+	rp65 r2 2220
+	}
+	group_06 {
+	rp65 r1 0
+	rp65 r2 62
+	}
+	group_07 {
+	rp03 r1 0
+	rp03 r2 0
+	rp05 r1 0
+	rp05 r2 0
+	rp06 r1 0
+	rp06 r2 0
+	rp07 r1 0
+	rp07 r2 0
+	rp11 r1 0
+	rp11 r2 0
+	rp13 r1 0
+	rp13 r2 0
+	rp15 r1 0
+	rp15 r2 0
+	rp19 r1 0
+	rp19 r2 0
+	rp21 r1 0
+	rp21 r2 0
+	rp25 r1 0
+	rp25 r2 0
+	rp29 r1 0
+	rp29 r2 0
+	rp32 r1 0
+	rp32 r2 0
+	rp33 r1 0
+	rp33 r2 0
+	rp45 r1 0
+	rp45 r2 0
+	rp47 r1 0
+	rp47 r2 0
+	rp51 r1 0
+	rp51 r2 0
+	rp53 r1 0
+	rp53 r2 0
+	rp57 r1 0
+	rp57 r2 0
+	rp62 r1 0
+	rp62 r2 0
+	rp63 r1 0
+	rp63 r2 0
+	rp65 r1 0
+	rp65 r2 0
+	rp67 r1 0
+	rp67 r2 0
+	rp69 r1 0
+	rp69 r2 0
+	rp75 r1 0
+	rp75 r2 0
+	rp81 r1 0
+	rp81 r2 0
+	rp85 r1 0
+	rp85 r2 0
+	rp89 r1 0
+	rp89 r2 0
+	rp92 r1 0
+	rp92 r2 0
+	}
+}
