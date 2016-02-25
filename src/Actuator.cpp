@@ -1297,7 +1297,7 @@ void  TActuator::readInstance(TActuator* &A,
 //en formato fila de texto
 AnsiString TActuator::getOriginsLabelsRow(void)
 {
-    return "Id      x0      y0      thetaO1";
+    return "Id\tx0\ty0\tthetaO1";
 }
 //atraviesa las etiquetas de las propiedades de origen
 //("Id", "x0", "y0", "thetaO1")

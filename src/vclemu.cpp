@@ -32,11 +32,13 @@
 #include <stdlib.h> //rands, rand
 #include <sstream> //ostringstream
 #include <stdlib.h> //strtod
-#include <unistd.h> //getcwd
+#include <unistd.h> //getcwd, rmdir
 #include <sys/stat.h> //stat, S_ISDIR
 #include <locale.h> //struct lconv, localeconv()
 #include <cstring> //strlen
 #include <stdio.h> //printf, scanf
+#include <sys/stat.h> //mkdir, stat
+#include <dirent.h> //DIR
 
 //---------------------------------------------------------------------------
 
@@ -594,9 +596,9 @@ int mkpath(const string& path)
         //indica que la ruta no puede ser construida
 //        return 1;
 
-    //ERROR: hace falta una función para comrpobar
+    //ERROR: hace falta una función para comprobar
     //si una ruta de directorios es válida. Este error
-    //tendrá el efecto de que los dir3ectorios serán
+    //tendrá el efecto de que los directorios serán
     //constuidos de izquierda a derecha hasta que dejen
     //de ser válidos.
 
@@ -656,6 +658,96 @@ int mkpath(const string& path)
     //construye el directorio actual
     //cuando la subpath contenedora ya está construida
     return mkdir(dir);*/
+}
+//borra un directorio y todo su contenido
+int rmpath(string& path)
+{
+    //lee los atributos de la entrada
+    struct stat sb;
+    int result = stat(path.c_str(), &sb);
+
+    //si no ha podido leer los atributos de la entrada
+    if(result != 0)
+        //indica que no ha podido realizar la funcion
+        return 1;
+
+    //si la ruta se refiere a un directorio
+    if(S_ISDIR(sb.st_mode)) {
+
+        DIR *dp; //puntero a directorio
+        struct dirent *ep; //puntero a entrada (de directorio)
+
+        //intenta abrir el directorio
+        dp = opendir(path.c_str());
+
+        //si no puede abrir el directorio
+        if (dp == NULL)
+            //indica que no puede realizar la función
+            return 2;
+
+        //intenta obtener un puntero a la próxima entrada
+        ep = readdir(dp);
+
+        //mientras haya una nueva entrada
+        while (ep != NULL) {
+            //---------------------
+
+            //compone la ruta de la entrada
+            string d_name = string(ep->d_name);
+            string entry;
+            if(path[path.length()-1] != '/')
+                entry = path+"/"+d_name;
+            else
+                entry = path+d_name;
+
+            //lee los atributos de la entrada
+            result = stat(entry.c_str(), &sb);
+
+            //si no ha podido leer los atributos de la entrada
+            if(result != 0)
+                //indica que no ha podido realizar la funcion
+                return 3;
+
+            //si la entrada no es "." ni ".."
+            if(d_name!="." && d_name!="..") {
+                //si la entrada es un directorio
+                if(S_ISDIR(sb.st_mode)) {
+                    //intenta borrar el subdirectorio y todo su contenido
+                    result = rmpath(entry);
+                    //si no puede borrar el subdirectorio
+                    if(result != 0)
+                        //indica que no puede realizar la funcion
+                        return 4;
+                }
+                //si la entrada es un archivo
+                else
+                    //borra la entrada
+                    result = remove(entry.c_str());
+
+                //si no ha podido borrar la entrada
+                if(result != 0)
+                    //indica que no ha podido realizar la funcion
+                    return 5;
+            }
+
+            //---------------------
+
+            //intenta obtener un puntero a la próxima entrada
+            ep = readdir(dp);
+        }
+        (void) closedir (dp);
+    }
+
+    //borra la entrada correspondiente a la ruta
+    result = remove(path.c_str());
+
+    //si no ha podido borrar la entrada
+    if(result != 0)
+        //indica que no ha podido realizar la funcion
+        return 5;
+
+    //indica que ha podido realizar la función
+    return 0;
 }
 
 //obtiene la ruta del directorio actual

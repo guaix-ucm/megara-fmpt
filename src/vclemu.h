@@ -226,6 +226,8 @@ QColor StringToColor(const AnsiString&);
 
 //construye una ruta de directorios
 int mkpath(const string& dir);
+//borra un directorio y todo su contenido
+int rmpath(string& path);
 
 //obtiene la ruta del directorio actual
 string getCurrentDir(void);

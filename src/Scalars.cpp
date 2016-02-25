@@ -192,7 +192,7 @@ bool Numerical(const type_info& t)
             t==typeid(unsigned char) ||
             t==typeid(signed char) ||
             t==typeid(int) || t==typeid(signed int) ||
-            t==typeid(unsigned) || t==typeid( unsigned int) ||
+            t==typeid(unsigned) || t==typeid(unsigned int) ||
             t==typeid(short) || t==typeid(short int) ||
             t==typeid(signed short int) ||
             t==typeid(unsigned short) ||

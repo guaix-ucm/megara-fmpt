@@ -30,8 +30,6 @@
 #include "../src/TextFile.h"
 #include "../src/FileMethods.h"
 
-#include <unistd.h> //rmdir
-
 using namespace Strings;
 using namespace Models;
 
@@ -63,15 +61,10 @@ void TestFileMethods::setUp() {
     //      TrueBoolStrs[0] == "True" && FalseBoolStrs[0] == "False",
     //instead of these shall be used the function BoolToStr_ which
     //check the precondition.
-
-    //------------------------------------------------------------------
-
-//    RP = new TRoboticPositioner();
 }
 
 //overide tearDown(), free allocated memory, etc
 void TestFileMethods::tearDown() {
-//    delete RP;
 }
 
 //---------------------------------------------------------------------------
@@ -79,12 +72,10 @@ void TestFileMethods::tearDown() {
 
 void TestFileMethods::test_readInstanceFromDir_RP()
 {
-    //declare and initialize the properties for call the function
+    //read an original instance of a RP from a directory
+    //using the function to test
     TRoboticPositioner RP;
     string dir = "../../../data/Models/MEGARA_RP_Instance";
-
-    //read an instance of a RP from a directory
-    //using the function to test
     readInstanceFromDir(RP, dir);
 
     //--------------------------------------------------------------
@@ -97,7 +88,7 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     //regenerate the set in other string
     string str_regenerated = RP.getActuator()->getArm()->getContour____().getColumnText().str;
 
-    //determine if the string is wrong assigned
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
@@ -111,7 +102,7 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     //regenerate the set in other string
     str_regenerated = RP.getActuator()->getBarrier()->getContour_().getColumnText().str;
 
-    //determine if the string is wrong assigned
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
@@ -125,7 +116,7 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     //regenerate the set in other string
     str_regenerated = RP.getActuator()->getF().getTableText().str;
 
-    //determine if the string is wrong assigned
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
@@ -139,7 +130,7 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     //regenerate the set in other string
     str_regenerated = RP.getActuator()->getArm()->getF().getTableText().str;
 
-    //determine if the string is wrong assigned
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
@@ -153,7 +144,7 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     //regenerate the set in other string
     str_regenerated = RP.getInstanceText().str;
 
-    //determine if the string is wrong assigned
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
@@ -164,45 +155,44 @@ void TestFileMethods::test_readInstanceFromDir_RP()
 
 void TestFileMethods::test_writeInstanceToDir_RPL()
 {
-    //read the original instance of a RPL from a directory
+    //read an original instance of a RPL from a directory
     TRoboticPositionerList RPL;
     string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     readInstanceFromDir(RPL, dir);
 
     //write the instance of the RPL in a temporal directory
-    string dir_ = "../../../MEGARA_FiberMOSModel_Instance";
+    //with te function to test
+    string dir_ = "../../../MEGARA_FiberMOSModel_Instance_temporal";
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, RPL);
 
     //The new written instance will be the regenerated value to compare.
 
-    rmdir(dir_.c_str());
-
-/*
     //--------------------------------------------------------------
 
-    //lee el valor original de la lista de orígenes de coordenadas de la lista de posicionadores
+    //read the original value of the RP origins table
     string str_loaded;
     strReadFromFile(str_loaded, dir+"/RoboticPositionerOriginsTable.txt");
 
-    //lee el valor temporal de la lista de orígenes de coordenadas de la lista de posicionadores
+    //read the temporal value of the RP origins table
     string str_regenerated;
     strReadFromFile(str_regenerated, dir_+"/RoboticPositionerOriginsTable.txt");
 
-    //determine if the string is wrong regenerated
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
     //--------------------------------------------------------------
 
+    //for each RP of the RPL
     for(int i=0; i<RPL.getCount(); i++) {
         //point the indexed RP to facilitate their access
         TRoboticPositioner *RP = RPL[i];
 
-        //construye el nombre del subdirectorio que contiene el valor original de la instancia del posicionador
+        //build the subdirectory path containing the instance of the original RP
         string subdir = dir+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
 
-        //construye el nombre del subdirectorio que contiene el valor regenerado de la instancia del posicionador
+        //build the subdirectory path containing the instance of the regenerated RP
         string subdir_ = dir_+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
 
         //--------------------------------------------------------------
@@ -217,7 +207,7 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
         string filename_ = subdir_+"/Contour____.txt";
         strReadFromFile(str_regenerated, filename_);
 
-        //determine if the string is wrong regenerated
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -233,7 +223,7 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
         filename_ = subdir_+"/Contour_.txt";
         strReadFromFile(str_regenerated, filename_);
 
-        //determine if the string is wrong regenerated
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -249,7 +239,7 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
         filename_ = subdir_+"/F1.txt";
         strReadFromFile(str_regenerated, filename_);
 
-        //determine if the string is wrong regenerated
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -265,7 +255,7 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
         filename_ = subdir_+"/F2.txt";
         strReadFromFile(str_regenerated, filename_);
 
-        //determine if the string is wrong regenerated
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -281,44 +271,47 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
         filename_ = subdir_+"/Instance.txt";
         strReadFromFile(str_regenerated, filename_);
 
-        //determine if the string is wrong regenerated
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
     }
 
     //--------------------------------------------------------------
-*/
+
+    //remove the temporal directory and all their content
+    rmpath(dir_);
+
     CPPUNIT_ASSERT(true);
 }
 void TestFileMethods::test_readInstanceFromDir_RPL()
 {
-    //declare and initialize the properties for call the function
+    //read an original instance of a RPL from a directory
+    //with the function to test
     TRoboticPositionerList RPL;
     string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
-
-    //read an instance of a RP from a directory
-    //using the function to test
     readInstanceFromDir(RPL, dir);
 
     //--------------------------------------------------------------
 
-    //lee y asigna la lista de orígenes de coordenadas de la lista de posicionadores
+    //load the RP origins table
     string str_loaded;
     strReadFromFile(str_loaded, dir+"/RoboticPositionerOriginsTable.txt");
 
+    //regenerate the RP origins table
     string str_regenerated = TActuator::getOriginsLabelsRow().str+"\r\n"+RPL.getOriginsTableText().str;
 
-    //determine if the string is wrong assigned
+    //determine if the values dont match
     if(strTrim(str_loaded) != strTrim(str_regenerated))
         CPPUNIT_ASSERT(false);
 
     //--------------------------------------------------------------
 
+    //for each RP of the RPL
     for(int i=0; i<RPL.getCount(); i++) {
         //point the indexed RP to facilitate their access
         TRoboticPositioner *RP = RPL[i];
 
-        //construye el nombre del subdirectorio que contiene la instancia del posicionador
+        //build the subdirectory path containing the instance of RP
         string subdir = dir+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
 
         //--------------------------------------------------------------
@@ -331,7 +324,7 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
         //regenerate the set in other string
         str_regenerated = RP->getActuator()->getArm()->getContour____().getColumnText().str;
 
-        //determine if the string is wrong assigned
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -345,7 +338,7 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
         //regenerate the set in other string
         str_regenerated = RP->getActuator()->getBarrier()->getContour_().getColumnText().str;
 
-        //determine if the string is wrong assigned
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -359,7 +352,7 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
         //regenerate the set in other string
         str_regenerated = RP->getActuator()->getF().getTableText().str;
 
-        //determine if the string is wrong assigned
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -373,7 +366,7 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
         //regenerate the set in other string
         str_regenerated = RP->getActuator()->getArm()->getF().getTableText().str;
 
-        //determine if the string is wrong assigned
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
 
@@ -387,7 +380,502 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
         //regenerate the set in other string
         str_regenerated = RP->getInstanceText().str;
 
-        //determine if the string is wrong assigned
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+    }
+
+    //--------------------------------------------------------------
+
+    CPPUNIT_ASSERT(true);
+}
+
+void TestFileMethods::test_writeInstanceToDir_EAL()
+{
+    //read an original instance of a EAL from a directory
+    TExclusionAreaList EAL;
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
+    TRoboticPositionerList RPL;
+    readInstanceFromDir(EAL, dir, RPL);
+
+    //write the instance of the EAL in a temporal directory
+    //with the function to test
+    string dir_ = "../../../MEGARA_FiberMOSModel_Instance_temporal";
+    ForceDirectories(dir_);
+    writeInstanceToDir(dir_, EAL);
+
+    //The new written instance will be the regenerated value to compare.
+
+    //--------------------------------------------------------------
+
+    //load the EA origins table from the original file
+    string str_loaded;
+    strReadFromFile(str_loaded, dir+"/ExclusionAreaOriginsTable.txt");
+
+    //load the EA origins table from the temporal file
+    string str_regenerated;
+    strReadFromFile(str_regenerated, dir_+"/ExclusionAreaOriginsTable.txt");
+
+    //determine if the vlaues dont match
+    if(strTrim(str_loaded) != strTrim(str_regenerated))
+        CPPUNIT_ASSERT(false);
+
+    //--------------------------------------------------------------
+
+    //for each EA of the EAL
+    for(int i=0; i<EAL.getCount(); i++) {
+        //point the indexed EA to facilitate their access
+        TExclusionArea *EA = EAL[i];
+
+        //build the subdirectory path containing the original instance of the EA
+        string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
+
+        //build the subdirectory path containing the regenerated instance of the EA
+        string subdir_ = dir_+"/ExclusionArea"+EA->getIdText().str;
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        string filename = subdir+"/Contour_.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        string filename_ = subdir_+"/Contour_.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the vlaues dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        filename = subdir+"/Instance.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        filename_ = subdir_+"/Instance.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the vlaues dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+    }
+
+    //--------------------------------------------------------------
+
+    //remove the temporal directory and all their content
+    rmpath(dir_);
+
+    CPPUNIT_ASSERT(true);
+}
+void TestFileMethods::test_readInstanceFromDir_EAL()
+{
+    //read an original instance of a EAL from a directory
+    //using the function to test
+    TExclusionAreaList EAL;
+    TRoboticPositionerList RPL;
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
+    readInstanceFromDir(EAL, dir, RPL);
+
+    //--------------------------------------------------------------
+
+    //load the EA origins table from the original file
+    string str_loaded;
+    strReadFromFile(str_loaded, dir+"/ExclusionAreaOriginsTable.txt");
+
+    //regenerate the EA origins table
+    string str_regenerated = TActuator::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str;
+
+    //determine if the values dont match
+    if(strTrim(str_loaded) != strTrim(str_regenerated))
+        CPPUNIT_ASSERT(false);
+
+    //--------------------------------------------------------------
+
+    //for each EA of the EAL
+    for(int i=0; i<EAL.getCount(); i++) {
+        //point the indexed EA to facilitate their access
+        TExclusionArea *EA = EAL[i];
+
+        //build the sundirectory path containing the instance of the EA
+        string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        string filename = subdir+"/Contour_.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = EA->Barrier.getContour_().getColumnText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        filename = subdir+"/Instance.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = EA->getInstanceText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+    }
+
+    //--------------------------------------------------------------
+
+    CPPUNIT_ASSERT(true);
+}
+
+void TestFileMethods::test_writeInstanceToDir_FMM()
+{
+    //read an original instance of a FMM from a directory
+    TFiberMOSModel FMM;
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
+    readInstanceFromDir(FMM, dir);
+
+    //write the instance of the FMM in a temporal directory
+    //using the function to test
+    string dir_ = "../../../MEGARA_FiberMOSModel_Instance_temporal";
+    ForceDirectories(dir_);
+    writeInstanceToDir(dir_, FMM);
+
+    //The new written instance will be the regenerated value to compare.
+
+    //--------------------------------------------------------------
+
+    //load the the RP origins table from the original file
+    string str_loaded;
+    strReadFromFile(str_loaded, dir+"/RoboticPositionerOriginsTable.txt");
+
+    //load the the RP origins table from the regenerated file
+    string str_regenerated;
+    strReadFromFile(str_regenerated, dir_+"/RoboticPositionerOriginsTable.txt");
+
+    //determine if the values dont match
+    if(strTrim(str_loaded) != strTrim(str_regenerated))
+        CPPUNIT_ASSERT(false);
+
+    //--------------------------------------------------------------
+
+    //for each RP of the FMM
+    for(int i=0; i<FMM.RPL.getCount(); i++) {
+        //point the indexed RP to facilitate their access
+        TRoboticPositioner *RP = FMM.RPL[i];
+
+        //build the subdirectory path containing the original instance of the RP
+        string subdir = dir+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
+
+        //build the subdirectory path containing the regenerated instance of the RP
+        string subdir_ = dir_+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        string filename = subdir+"/Contour____.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        string filename_ = subdir_+"/Contour____.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        filename = subdir+"/Contour_.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        filename_ = subdir_+"/Contour_.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        filename = subdir+"/F1.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        filename_ = subdir_+"/F1.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        filename = subdir+"/F2.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        filename_ = subdir_+"/F2.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        filename = subdir+"/Instance.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        filename_ = subdir_+"/Instance.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+    }
+
+    //--------------------------------------------------------------
+
+    //load the EA origins table from the original file
+    strReadFromFile(str_loaded, dir+"/ExclusionAreaOriginsTable.txt");
+
+    //load the EA origins table from the regenerated file
+    strReadFromFile(str_regenerated, dir_+"/ExclusionAreaOriginsTable.txt");
+
+    //determine if the values dont match
+    if(strTrim(str_loaded) != strTrim(str_regenerated))
+        CPPUNIT_ASSERT(false);
+
+    //--------------------------------------------------------------
+
+    //for each EA of the FMM
+    for(int i=0; i<FMM.EAL.getCount(); i++) {
+        //point the indexed EA to facilitate their access
+        TExclusionArea *EA = FMM.EAL[i];
+
+        //build the subdirectory path containing the original instance of the EA
+        string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
+
+        //build the subdirectory path containing the regenerated instance of the EA
+        string subdir_ = dir_+"/ExclusionArea"+EA->getIdText().str;
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        string filename = subdir+"/Contour_.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        string filename_ = subdir_+"/Contour_.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the orignal set in a string
+        str_loaded = "";
+        filename = subdir+"/Instance.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //load the regenerated set in a string
+        str_regenerated = "";
+        filename_ = subdir_+"/Instance.txt";
+        strReadFromFile(str_regenerated, filename_);
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+    }
+
+    //--------------------------------------------------------------
+
+    //remove the temporal directory and all their content
+    rmpath(dir_);
+
+    CPPUNIT_ASSERT(true);
+}
+void TestFileMethods::test_readInstanceFromDir_FMM()
+{
+    //read an original instance of a FMM from a directory
+    //using the function to test
+    TFiberMOSModel FMM;
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
+    readInstanceFromDir(FMM, dir);
+
+    //--------------------------------------------------------------
+
+    //load the RP origins table
+    string str_loaded;
+    strReadFromFile(str_loaded, dir+"/RoboticPositionerOriginsTable.txt");
+
+    //regenerate the RP origins table
+    string str_regenerated = TActuator::getOriginsLabelsRow().str+"\r\n"+FMM.RPL.getOriginsTableText().str;
+
+    //determine if the values dont match
+    if(strTrim(str_loaded) != strTrim(str_regenerated))
+        CPPUNIT_ASSERT(false);
+
+    //--------------------------------------------------------------
+
+    //for each RP of the FMM
+    for(int i=0; i<FMM.RPL.getCount(); i++) {
+        //point the indexed RP to facilitate their access
+        TRoboticPositioner *RP = FMM.RPL[i];
+
+        //build the subdirectory path containing the instance of RP
+        string subdir = dir+"/RoboticPositioner"+RP->getActuator()->getIdText().str;
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        string filename = subdir+"/Contour____.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = RP->getActuator()->getArm()->getContour____().getColumnText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        filename = subdir+"/Contour_.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = RP->getActuator()->getBarrier()->getContour_().getColumnText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        filename = subdir+"/F1.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = RP->getActuator()->getF().getTableText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        filename = subdir+"/F2.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = RP->getActuator()->getArm()->getF().getTableText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        filename = subdir+"/Instance.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = RP->getInstanceText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+    }
+
+    //--------------------------------------------------------------
+
+    //load the EA origins table from the original file
+    strReadFromFile(str_loaded, dir+"/ExclusionAreaOriginsTable.txt");
+
+    //regenerate the EA origins table
+    str_regenerated = TActuator::getOriginsLabelsRow().str+"\r\n"+FMM.EAL.getOriginsTableText().str;
+
+    //determine if the values dont match
+    if(strTrim(str_loaded) != strTrim(str_regenerated))
+        CPPUNIT_ASSERT(false);
+
+    //--------------------------------------------------------------
+
+    //for each EA of the FMM
+    for(int i=0; i<FMM.EAL.getCount(); i++) {
+        //point the indexed EA to facilitate their access
+        TExclusionArea *EA = FMM.EAL[i];
+
+        //build the subdirectory path containing the original instance of the EA
+        string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        string filename = subdir+"/Contour_.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = EA->Barrier.getContour_().getColumnText().str;
+
+        //determine if the values dont match
+        if(strTrim(str_loaded) != strTrim(str_regenerated))
+            CPPUNIT_ASSERT(false);
+
+        //--------------------------------------------------------------
+
+        //load the set in a string
+        str_loaded = "";
+        filename = subdir+"/Instance.txt";
+        strReadFromFile(str_loaded, filename);
+
+        //regenerate the set in other string
+        str_regenerated = EA->getInstanceText().str;
+
+        //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated))
             CPPUNIT_ASSERT(false);
     }
