@@ -89,8 +89,10 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     string str_regenerated = RP.getActuator()->getArm()->getContour____().getColumnText().str;
 
     //determine if the values dont match
-    if(strTrim(str_loaded) != strTrim(str_regenerated))
+    if(strTrim(str_loaded) != strTrim(str_regenerated)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //--------------------------------------------------------------
 
@@ -103,8 +105,10 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     str_regenerated = RP.getActuator()->getBarrier()->getContour_().getColumnText().str;
 
     //determine if the values dont match
-    if(strTrim(str_loaded) != strTrim(str_regenerated))
+    if(strTrim(str_loaded) != strTrim(str_regenerated)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //--------------------------------------------------------------
 
@@ -117,8 +121,10 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     str_regenerated = RP.getActuator()->getF().getTableText().str;
 
     //determine if the values dont match
-    if(strTrim(str_loaded) != strTrim(str_regenerated))
+    if(strTrim(str_loaded) != strTrim(str_regenerated)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //--------------------------------------------------------------
 
@@ -131,8 +137,10 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     str_regenerated = RP.getActuator()->getArm()->getF().getTableText().str;
 
     //determine if the values dont match
-    if(strTrim(str_loaded) != strTrim(str_regenerated))
+    if(strTrim(str_loaded) != strTrim(str_regenerated)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //--------------------------------------------------------------
 
@@ -145,8 +153,10 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     str_regenerated = RP.getInstanceText().str;
 
     //determine if the values dont match
-    if(strTrim(str_loaded) != strTrim(str_regenerated))
+    if(strTrim(str_loaded) != strTrim(str_regenerated)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //--------------------------------------------------------------
 

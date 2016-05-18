@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //Archivo: Scalars.cpp
-//Contenido: funciones escalares
-//Última actualización: 07/05/2014
+//Contenido: scalar functions
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -215,88 +214,8 @@ bool FloatingPoint(const type_info& t)
 }
 
 //---------------------------------------------------------------------------
+
 //Funciones de manipulación de tipos numéricos:
-
-//determina la mantisa y el exponente en base decimal
-//de un nº en en punto flotante
-double frexp10(double x, int& exponent10)
-//x: nº al que se va a calcular la mantisa y el exponente en base 10
-//exponent10: exponente decimal
-{
-    //    int exponent2; //exponente binario
-    double mantissa10;
-
-
-    //retira el signo decimal
-    double sign;
-    if(x < 0) {
-        x *= -1;
-        sign = -1;
-    } else
-        sign = 1;
-
-    if(x >= 1) {//si x[i] tiene parte entera
-        //nº de cifras decimales enteras
-        exponent10 = ceil(log10(floor(x)+1));
-        mantissa10 = x/pow(10, double(exponent10));
-    } else if(0<x && x<0.1) {
-        //calcula el exponente
-        exponent10 = floor(log10(x)) + 1;
-        //calcula la mantisa
-        mantissa10 = x*pow(10, double(-exponent10));
-    } else {
-        exponent10 = 0;
-        mantissa10 = x;
-    }
-
-    mantissa10 *= sign; //restaura el signo
-
-    return mantissa10;
-}
-//determina el nº de cifras decimales significativas de x
-int nsigfig(double x)
-{
-    AnsiString S = FloatToStr(x);
-    int n; //nº de cifras significativas
-    bool point; //si hay un punto decimal
-    int first; //índice a la primera cifra entre 1 y 9
-    int last; //índice a la última cifra entre 1 y 9 antes de la E
-
-    //Busca la primera cifra significativa y un punto decimal
-    first = 1;
-    while(S[first]<'1' || '9'<S[first])
-        first++;
-
-    last = S.Length();
-
-    //Busca una E en las cuatro penúltimas posiciones
-    //El éxponente más largo corresponde a -324
-    if(S[last-1]=='E')
-        last = last-2;
-    else if(S[last-2]=='E')
-        last = last-3;
-    else if(S[last-3]=='E')
-        last = last-4;
-    else if(S[last-4]=='E')
-        last = last-5;
-    //Descarta los ceros del final
-    while(S[last]=='0')
-        last--;
-    //Busca un punto decimal
-    int i=first;
-    point = false;
-    do {
-        i++;
-        if(S[i] == '.')
-            point = true;
-    } while(!point && i<S.Length());
-
-    n = last-first;
-    if(!point)
-        n++;
-
-    return n;
-}
 //determina el incremento mínimo de un double
 //correspondiente a incrementar su mantisa una unidad
 double incmin(double x)

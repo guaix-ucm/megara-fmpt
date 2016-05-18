@@ -130,7 +130,7 @@ void Outputs::setText(unsigned int& Bid, const string& str)
         TMotionProgram _PP;
         string labelPP;
         unsigned int BidPP;
-        PP.setInterfaceText(labelPP, BidPP, S.str);
+        _PP.setInterfaceText(labelPP, BidPP, S.str);
 
         //-----------------------------------------------------------------------
         //SEGREGATE THE DP AND CONVERT IT TO STRUCTURE:
@@ -182,7 +182,7 @@ void Outputs::setText(unsigned int& Bid, const string& str)
         TMotionProgram _DP;
         string labelDP;
         unsigned int BidDP;
-        DP.setInterfaceText(labelDP, BidDP, S.str);
+        _DP.setInterfaceText(labelDP, BidDP, S.str);
 
         //-----------------------------------------------------------------------
         //SEGREGATE THE FMOSAT AND CONVERT IT TO STRUCTURE:
@@ -198,7 +198,7 @@ void Outputs::setText(unsigned int& Bid, const string& str)
 
         TFMOSATable _FMOSAT;
         unsigned int BidOB;
-        FMOSAT.setTableText(BidOB, S.str);
+        _FMOSAT.setTableText(BidOB, S.str);
 
         //-----------------------------------------------------------------------
         //CHECK THE PRECONDITIONS:

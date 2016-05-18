@@ -663,6 +663,14 @@ void  TRoboticPositioner::readPositionP3Row(TRoboticPositioner* &FP,
     TActuator::readPositionP3Row(A, S,  i);
 }
 //imprime los valores de las propiedades de posición de un posicionador
+//(Id, x_3, y_3) al final de una cadena de texto
+//en formato fila de texto
+void  TRoboticPositioner::printPositionP_3Row(AnsiString& S,
+                                             TRoboticPositioner *FP)
+{
+    TActuator::printPositionP_3Row(S, FP->getActuator());
+}
+//imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
 void  TRoboticPositioner::printPositionPPARow(AnsiString& S,

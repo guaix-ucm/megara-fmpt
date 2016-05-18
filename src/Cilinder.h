@@ -398,12 +398,12 @@ public:
     //------------------------------------------------------------------
     //LOCATION PROPERTIES R/W:
 
-    //posición del eje 1 o centro del posicionador de fibra respecto S0
+    //position of rotor 1 or center of the RP respect S0
     TDoublePoint getP0(void) const {return p_P0;}
     void setP0(TDoublePoint);
-    //Arm->P1 es la posición del eje 2 respecto S0
-    //Arm->P2 es la posición del centro del cabezal del brazo respecto S0
-    //Arm->P3 es la posición del centro de la lente del brazo respecto S0
+    //Arm->P1 is the position of the rotor 2 respect S0
+    //Arm->P2 is the position of the center of the armp's head respect S0
+    //Arm->P3 is the position of the fiber respect S0
 
     /*        //coordenadas polar radial de P0 en el momento de
         //construirse el posicionador

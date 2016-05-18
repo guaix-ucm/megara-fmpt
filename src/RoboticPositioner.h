@@ -385,6 +385,12 @@ public:
                                        const AnsiString& S, int &i);
 
         //print the value of the position properties of a RP
+        //  (Id, x_3, y_3)
+        //to the end of a text string
+        //in row text format
+        static void  printPositionP_3Row(AnsiString& S,
+                                        TRoboticPositioner *FP);
+        //print the value of the position properties of a RP
         //  (Id, p_1, p___3)
         //to the end of a text string
         //in row text format

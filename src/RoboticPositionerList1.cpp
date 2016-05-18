@@ -297,6 +297,27 @@ void TRoboticPositionerList1::setPositionsP3TableText(const AnsiString &S)
         throw;
     }
 }
+//get the P_3 table in text format:
+//      Id      x_3      y_3
+AnsiString TRoboticPositionerList1::getPositionsP_3TableText(void) const
+{
+    //guarda el valor de Print
+    void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
+    PrintBak = Print;
+
+    //apunta la lista de posicionadores con un puntero no constante para facilitar su escritura
+    TRoboticPositionerList1 *RPL = (TRoboticPositionerList1*)this;
+
+    //apunta la función de impresión de coordenadas de posición en formato linea de texto
+    RPL->Print = TRoboticPositioner::printPositionP_3Row;
+    //obtiene la lista de coordenadas de posición en una cadena de texto
+    AnsiString S = RPL->getColumnText();
+
+    //restaura el valor de Print
+    RPL->Print = PrintBak;
+
+    return S; //devuelve la cadena de texto
+}
 //get the PPA table in text format:
 //      Id      p_1     p___3
 AnsiString TRoboticPositionerList1::getPositionsPPATableText(void) const

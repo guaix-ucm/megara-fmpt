@@ -1624,7 +1624,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(TRoboticPositionerLis
 
         //segregate the operative inners RPs out of the origin and sorts it
         TRoboticPositionerList Inners;
-        Outsiders.segregateOperativeInnersOutTheOrigins(Inners);
+        getFiberMOSModel()->RPL.segregateOperativeInnersOutTheOrigins(Inners);
         Inners.SortInc();
 
         //Sort the RPs isn't really necessary, but is recomendable because produce a more legible output.

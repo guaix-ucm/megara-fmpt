@@ -1,3 +1,27 @@
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Institute of Astrophysics of Andalusia, IAA-CSIC
+//
+// This file is part of FMPT (Fiber MOS Positioning Tools)
+//
+// FMPT is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+//---------------------------------------------------------------------------
+//File: testScalars.h
+//Content: test for the module Scalars
+//Author: Isaac Morales Durán
+//---------------------------------------------------------------------------
+
 #ifndef FMPT_TESTSCALARS_H
 #define FMPT_TESTSCALARS_H
 
@@ -19,6 +43,9 @@ class TestScalars: public CppUnit::TestFixture
 
     CPPUNIT_TEST(testMin);
     CPPUNIT_TEST(testMax);
+
+//    CPPUNIT_TEST(test_frexp10);
+    CPPUNIT_TEST(test_incmin);
 
     //finish the process
     CPPUNIT_TEST_SUITE_END();
@@ -54,24 +81,8 @@ protected:
     void testNumerical();
     void testFloatingPoint();
 
-    //---------------------------------------------------------------------------
-    //Funciones de manipulación de tipos numéricos:
-/*
-    //determina la mantisa y el exponente en base 10
-    double frexp10(double x, int& exponent10);
-    //determina el nº de cifras decimales significativas de x en base 10
-    int nsigfig(double x);
-    //determina el incremento mínimo de un double
-    //correspondiente a incrementar su mantisa una unidad
-    double incmin(double x);
-
-    //Incremento mínimo de la mantisa de un double:
-    //      normalmente la mantisa de un double tiene DSIGNIF+1=54 bits
-    //      y su incremento mínimo corresponde a:
-    //          1/pow(2., 54.) = 5.55111512312578E-17
-    //Incremento mínimo de un double 'x':
-    //          pow(2., xexp)/pow(2., 54.)
-    //donde xexp es el exponente binario de x.*/
+//    void test_frexp10();
+    void test_incmin();
 };
 
 #endif // FMPT_TESTSCALARS_H

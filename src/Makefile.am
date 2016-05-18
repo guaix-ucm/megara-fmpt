@@ -7,7 +7,6 @@ libfmtp_la_SOURCES = vclemu.cpp \
     Geometry.cpp \
     Strings.cpp \
     StrPR.cpp \
-    StrSimbolic.cpp \
     TextFile.cpp \
     ItemsList.cpp \
     SlideArray.cpp \
@@ -59,7 +58,6 @@ libfmtp_la_SOURCES = vclemu.cpp \
     Geometry.h \
     Strings.h \
     StrPR.h \
-    StrSimbolic.h \
     TextFile.h \
     ItemsList.h \
     SlideArray.h \
@@ -121,7 +119,6 @@ pkginclude_HEADERS = vclemu.h \
     Geometry.h \
     Strings.h \
     StrPR.h \
-    StrSimbolic.h \
     TextFile.h \
     ItemsList.h \
     SlideArray.h \

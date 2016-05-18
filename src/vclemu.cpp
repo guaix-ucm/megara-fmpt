@@ -19,7 +19,6 @@
 //---------------------------------------------------------------------------
 //File: vclemu.cpp
 //Content: VCL emulator
-//Last update: 14/02/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -42,7 +41,7 @@
 
 //---------------------------------------------------------------------------
 
-//lee elvalor del separador decimal
+//get the decimal separator value
 char get_decimal_separator(void)
 {
     struct lconv *lc;
@@ -55,121 +54,121 @@ char get_decimal_separator(void)
     return s[0];
 }
 
-//inicializa la semilla de los números pseudoaleatorios
+//initialize the random seed according to the time
 void randomize(void)
 {
     srand(time(NULL));
 }
-//genera un número aleatorio en [0, max)
+//generate a random number in [0, max)
 unsigned int random(unsigned int max) {
-    //genera el número en [0, RAND_MAX)
+    //generate the number in [0, RAND_MAX)
     unsigned int n = rand();
-    //normaliza el número
+    //normalize the number
     double x = double(n)/double(RAND_MAX);
-    //obtiene el número en [0, max)
+    //project the number in [0, max)
     x *= max;
-    //toma la parte entera
+    //get the integer part
     n = floor(x);
-    //devuelve la parte entera
+    //return the integer part
     return n;
 
-    //para realizar la portabilidad a otro sistema,
-    //deberán sustituirse:
-    //  rand    ->  qrand   (en stdlib.h)
-    //  floor   ->  qFloor  (en Qt/Core/qmat.h)
+    //for perform portability to other system,
+    //it must be replaced:
+    //  rand    ->  qrand   (in stdlib.h)
+    //  floor   ->  qFloor  (in Qt/Core/qmat.h)
 }
 
 //---------------------------------------------------------------------------
 //AnsiString
 
-//MÉTODOS PÚBLICOS:
+//PUBLIC METHODS:
 
-//construye una AnsiString por defecto
+//build an AnsiString by default
 AnsiString::AnsiString(void) : str()
 {
 }
-//construye un AnsiString a partir de una char
+//build an AnsiString from a char
 AnsiString::AnsiString(const char c) : str()
 {
     str = c;
 }
-//construye un AnsiString a partir de una char*
-AnsiString::AnsiString(const char *cs) : str(cs)
+//build an AnsiString from a c string
+AnsiString::AnsiString(const char *c_str) : str(c_str)
 {
 }
-//construye un AnsiString a partir de una string
+//build an AnsiString from a string
 AnsiString::AnsiString(const string& t_str)
 {
     str = t_str;
 }
-/*#//construye una AnsiString a partir de una QString
-AnsiString::AnsiString(const QString& QS) : str(QS.toLocal8Bit())
-{
-}*/
+//build an AnsiString from a QString
+//AnsiString::AnsiString(const QString& QS) : str(QS.toLocal8Bit())
+//{
+//}
 
-//construye una AnsiString a partir de un int
+//build an AnsiString from an integer
 AnsiString::AnsiString(int x)
 {
     *this = IntToStr(x);
 }
-//construye una AnsiString a partir de un double
+//build an AnsiString from a double
 AnsiString::AnsiString(double x)
 {
     *this = FloatToStr(x);
 }
 
-//contatena dos cadenas
+//concatenate two AnsiStrings
 AnsiString AnsiString::operator+(const AnsiString& S) const
 {
     return AnsiString(str + S.str);
 }
-//contatena dos cadenas
+//concatenate an AnsiString and a string
 AnsiString AnsiString::operator+(const string& t_str) const
 {
     return AnsiString(str + t_str);
 }
-//concatena una cadena a esta
+//concatenate an AnsiString to this AnsiString
 AnsiString& AnsiString::operator+=(const AnsiString& S)
 {
     str += S.str;
     return *this;
 }
-//concatena un caracter a esta cadena
+//concatenate a char to this AnsiString
 AnsiString& AnsiString::operator+=(const char& c)
 {
     str += c;
     return *this;
 }
-//copia una AnsiString
+//copy an AnsiString
 AnsiString& AnsiString::operator=(const AnsiString& S)
 {
     str = S.str;
     return *this;
 }
-//copia una string
+//copy a string
 AnsiString& AnsiString::operator=(const string& t_str)
 {
     str = t_str;
     return *this;
 }
-//copia una char* (no la ñade, sino que la copia)
-AnsiString& AnsiString::operator=(const char *chars)
+//copy a c string (not add it, copy it)
+AnsiString& AnsiString::operator=(const char *c_str)
 {
-    //el puntero chars debería apuntar a un caracter construido
-    if(chars == NULL)
-        throw EImproperArgument("pointer chars should point to built char");
+    //check the precondition
+    if(c_str == NULL)
+        throw EImproperArgument("pointer c_str should point to built char");
 
-    str = chars;
+    str = c_str;
     return *this;
 }
-//determina si una cadena es igual a esta
+//determine if an AnsiString is equal to this AnsiString
 bool AnsiString::operator==(const AnsiString& S) const
 {
     if(str == S.str)
         return true;
     return false;
 }
-//determina si una cadena es desigual a esta
+//determine if an AnsiString is unequal to this AnsiString
 bool AnsiString::operator!=(const AnsiString& S) const
 {
     if(str == S.str)
@@ -177,26 +176,26 @@ bool AnsiString::operator!=(const AnsiString& S) const
     return true;
 }
 
-//lectura del caracter indicado en cadenas no constantes
+//access to the indexed char in non constant AnsiStrings
 char& AnsiString::operator[](int i)
 {
-    //i debe indicar un caracter existente
+    //check the precondition
     if(i<1 || Length()<i)
-        throw Exception("index i out bounds");
+        throw Exception("index i should indicate a char in the string");
 
     return str[i-1];
 }
-//lectura del caracter indicado en cadenas constantes
+//access to the indexed char in constant AnsiStrings
 const char& AnsiString::operator[](int i) const
 {
-    //i debe indicar un caracter existente
+    //check the precondition
     if(i<1 || str.length()<(unsigned int)i)
-        throw EImproperArgument("index i out bounds");
+        throw Exception("index i should indicate a char in the string");
 
     return str[i-1];
 }
 
-//cambia la longitud de una cadena
+//set the length of the AnsiString
 void AnsiString::SetLength(int n)
 {
     try {
@@ -222,7 +221,7 @@ void AnsiString::Insert(int i, const AnsiString& S)
 {
     //check the precondition
     if(i<1 || Length()<i)
-        throw EImproperArgument("index out bounds");
+        throw EImproperArgument("index i should indicate a char in the string");
 
     //insert all chars of S.str in the position i-1 of S.str
     for(unsigned int j=0; j<S.str.length(); j++) {
@@ -231,16 +230,16 @@ void AnsiString::Insert(int i, const AnsiString& S)
     }
 }
 
-//obtiene la subcadena en el intervalo [offset, offset+count]
+//get the substring in the interval [offset, offset+count]
+//if offset or offset+count not indicates a position in the AnsiString:
+//  throw EImproperArgument
 AnsiString AnsiString::SubString(int offset, int count) const
 {
-    //el índice offset debería indicar a una posiciíon de la cadena
+    //check the preconditions
     if(offset<1 || Length()<offset)
-        throw EImproperArgument("index offset should indicate a position in the string");
-
-    //el índice count debería indicar a una posiciíon de la cadena
-    if(count<1 || Length()<count)
-        throw EImproperArgument("index count should indicate a position in the string Src");
+        throw EImproperArgument("index offset should indicate a char in the string");
+    if(count<1 || Length()+1<offset+count)
+        throw EImproperArgument("index offset+count should indicate a position in the string");
 
     AnsiString Dest;
     offset--;
@@ -250,7 +249,7 @@ AnsiString AnsiString::SubString(int offset, int count) const
     return Dest;
 }
 
-//convierte la cadena a double
+//convetrt the string to double
 double AnsiString::ToDouble() const
 {
     try {
@@ -274,7 +273,7 @@ double AnsiString::ToDouble() const
             throw;
     }
 }
-//convierte la cadena a entero
+//convert the string to integer
 int AnsiString::ToInt() const
 {
     try {
@@ -299,12 +298,8 @@ int AnsiString::ToInt() const
     }
 }
 
-//No sabemos como configurar un stringstream para que funcione en base hexadecimal.
-//Por eso vamos a comentar las funciones de conversión en base hexadecimal
-//hasta que sean necesarias.
-
-//convierte la cadena a entero
-//en base hexadecimal
+//convert the string to integer
+//in hexadecimal
 int AnsiString::ToHex() const
 {
     try {
@@ -316,8 +311,8 @@ int AnsiString::ToHex() const
     }
 }
 /*#
-//convierte la cadena a entero
-//en base hexadecimal
+//convert the string to unsigned integer
+//in hexadecimal
 uint AnsiString::ToUHex() const
 {
     //indica a la primera posición

@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //Archivo: Scalars.h
-//Contenido: funciones escalares
-//Última actualización: 07/05/2014
+//Contenido: scalar functions
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -27,7 +26,7 @@
 #define SCALARS_H
 
 #include "vclemu.h"
-#include "Exceptions.h" //excepciones no predefinidas
+#include "Exceptions.h"
 
 #include <typeinfo> //namespace std
 #include <ctime> //clock_t
@@ -67,15 +66,6 @@ template <class T> T Abs(T x); //Valor absoluto de un tipo numérico desconocido
 template <class T> T Min(T x1, T x2);
 //determina el máximo de dos argumentos
 template <class T> T Max(T x1, T x2);
-
-/*comentado por dar error:
-    multiple definition of `Mathematics::MinN(int, ...)'
-
-//determina el mínimo de N argumentos
-double MinN(int N, ...);
-//determina el máximo de N argumentos
-double MaxN(int N, ...);
-*/
 
 //ADVERTENCIAS:
 //      Si se define una plantilla con un número indefinido de
@@ -127,10 +117,6 @@ bool FloatingPoint(const type_info& t);
 //---------------------------------------------------------------------------
 //Funciones de manipulación de tipos numéricos:
 
-//determina la mantisa y el exponente en base 10
-double frexp10(double x, int& exponent10);
-//determina el nº de cifras decimales significativas de x en base 10
-int nsigfig(double x);
 //determina el incremento mínimo de un double
 //correspondiente a incrementar su mantisa una unidad
 double incmin(double x);
@@ -143,35 +129,6 @@ double incmin(double x);
 //          pow(2., xexp)/pow(2., 54.)
 //donde xexp es el exponente binario de x.
 
-/*#//---------------------------------------------------------------------------
-//Funciones de colores:
-
-//QColor dispone de los siguientes métodos:
-//extrae las componentes RGB de un color
-//  void	getRgb(int * r, int * g, int * b, int * a = 0) const
-//asigna las compnentes RGB a un color
-//  void	setRgb(int r, int g, int b, int a = 255)
-
-//extrae las componentes RGB de un color
-void ColorToRGB(unsigned char &R, unsigned char &G, unsigned char &B,
-    QColor Color);
-//asigna las compnentes RGB a un color
-void RGBToColor(QColor &Color,
-    unsigned char R, unsigned char G, unsigned char B);
-
-//determina la luminancia de un color L = R+G+B
-int Luminance(QColor Color);
-
-//multiplica las coomponentes de un color por un factor de escala
-//si alguna de las componentes resultantes excede de 0xFF le asigna 0xFF
-QColor HighlightColor(QColor Color, double f);
-
-//resalta un color al máximo manteniendo las proporciones entre sus componentes
-QColor HighlightColor(QColor Color);
-
-//obtiene el color complementario de un color
-QColor ComplementaryColor(QColor Color);
-*/
 //---------------------------------------------------------------------------
 //Plantillas de funciones matemáticas:
 
@@ -222,65 +179,6 @@ template <class T> T Max(T x1, T x2)
     return x2;
 }
 
-/*//determina el mínimo de N argumentos
-double MinN(int N, ...)
-{
-    //el número de argumentos N debería ser al menos uno
-    if(N < 1)
-        throw EImproperArgument(AnsiString("number arguments N should be one almost"));
-
-    //abre la lista de argumentos
-    va_list ap; //puntero a argumento
-    va_start(ap, N); //apunta al siguiente argumento a N
-
-    //inicializa el mínimo con el primer argumento
-    double min = va_arg(ap, double);
-
-    //por ada argumento posterior
-    double arg;
-    for (int i=1; i<N; i++) {
-        //extrae el valor del argumento
-    arg = va_arg(ap, double);
-        //si el argumento es menor que el mínimo
-        if(arg < min)
-            min = arg; //actualiza el mínimo
-    }
-
-    //cierra la lista de argumentos
-    va_end(ap);
-
-    return min;
-}
-//determina el máximo de N argumentos
-double MaxN(int N, ...)
-{
-    //el número de argumentos N debería ser al menos uno
-    if(N < 1)
-        throw EImproperArgument("number arguments N should be one almost");
-
-    //abre la lista de argumentos
-    va_list ap; //puntero a argumento
-    va_start(ap, N); //apunta al siguiente argumento a N
-
-    //inicializa el mínimo con el primer argumento
-    double max = va_arg(ap, double);
-
-    //por ada argumento posterior
-    double arg;
-    for (int i=1; i<N; i++) {
-        //extrae el valor del argumento
-    arg = va_arg(ap, double);
-        //si el argumento es mayor que el máximo
-        if(arg > max)
-            max = arg; //actualiza el máximo
-    }
-
-    //cierra la lista de argumentos
-    va_end(ap);
-
-    return max;
-}
-*/
 //determina el nº más próximo más próximo a x
 //perteneciente al dominio [xmin, xmax]
 template <class T> T LimitDomain(T x, T xmin, T xmax)
@@ -426,70 +324,7 @@ public:
     //asigna los límites del intervalo simultaneamente
     void SetLimits(double lmin, double lmax);
 };
-/* comentado para evitar tener que traducirlo
-//---------------------------------------------------------------------------
-//TPairIntegers
 
-//clase par de enteros
-class TPairIntegers {
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetxText(void) const; void SetxText(const AnsiString&);
-    AnsiString GetyText(void) const; void SetyText(const AnsiString&);
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetText(void) const;
-    void SetText(const AnsiString&);
-
-    AnsiString GetRowText(void) const;
-    void SetRowText(const AnsiString&);
-
-public:
-    //primer valor del par
-    //valor por defecto: 0
-    int x;
-    //segundo valor del par
-    //valor por defecto: 0
-    int y;
-
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    __property AnsiString xText = {read=GetxText, write=SetxText};
-    __property AnsiString yText = {read=GetyText, write=SetyText};
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    //par de enteros en formato texto
-    __property AnsiString Text = {read=GetText, write=SetText};
-    //par de enteros en formato fila de texto
-    __property AnsiString RowText = {read=GetRowText, write=SetRowText};
-
-    //FUNCIONES ESTÁTICAS:
-
-    //función de impresión de elementos tipo TPairIntegers
-    static void  Print(AnsiString &S, const TPairIntegers *PI);
-    //función de lectura de elementos tipo TPairIntegers
-    static void  Read(TPairIntegers *PI,
-        const AnsiString &S, int &i);
-
-    //función de impresión de elementos tipo TPairIntegers
-    static void  PrintRow(AnsiString &S, const TPairIntegers *PI);
-    //función de lectura de elementos tipo TPairIntegers
-    static void  ReadRow(TPairIntegers *PI,
-        const AnsiString &S, int &i);
-
-    //MÉTODOS PÚBLICOS:
-
-    //construye un par de enteros por defecto
-    TPairIntegers(void);
-    //contruye un par de enteros con los valores indicados
-    TPairIntegers(int _x, int _y);
-
-    //copia las propiedades de un par
-    TPairIntegers& operator=(const TPairIntegers &PI);
-};
-*/
 //---------------------------------------------------------------------------
 //TPair:
 
@@ -519,298 +354,7 @@ public:
     //asigna simultaneamente los valores al par
     void SetValues(double x, double y);
 };
-/* comentado para evitar tener que traducirlo
-//---------------------------------------------------------------------------
-//TPairIB
 
-//Clase par (integer, boolean):
-class TPairIB {
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetxText(void) const; void SetxText(const AnsiString&);
-    AnsiString GetyText(void) const; void SetyText(const AnsiString&);
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetText(void) const;
-    void SetText(const AnsiString&);
-
-    AnsiString GetRowText(void) const;
-    void SetRowText(const AnsiString&);
-
-public:
-    //ETIQUETAS DE LAS PROPIEDADES DE DEFINICIÓN:
-
-    //etiqueta delavariable entera
-    //valor por defecto: "x"
-    static AnsiString xLabel;
-    //etiqueta de la variable lógica
-    //valor por defecto: "y"
-    static AnsiString yLabel;
-
-    //PROPIEDADES DEL GRUPO:
-
-    //variable entera
-    //valor por defecto: 0
-    int x;
-    //variable double
-    //valor por defecto: false
-    bool y;
-
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    __property AnsiString xText = {read=GetxText, write=SetxText};
-    __property AnsiString yText = {read=GetyText, write=SetyText};
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    //par en formato texto
-    __property AnsiString Text = {read=GetText, write=SetText};
-    //par en formato fila de texto
-    __property AnsiString RowText = {read=GetRowText, write=SetRowText};
-
-    //FUNCIONES ESTÁTICAS DE COMPARACIÓN:
-
-    //compara la variable x
-    //      si P1->x < P2->x devuelve -1
-    //      si P1->x > P2->x devuelve 1
-    //      si P1->x == P2->x devuelve 0
-    static int  Comparex(const TPairIB *P1, const TPairIB *P2);
-
-    //FUNCIONES ESTÁTICAS DE CONJUNTOS DE PROPIEDADES:
-
-    //imprime los valores de las propiedades de la clase
-    //en formato texto entre paréntesis
-    static void  Print(AnsiString &S, const TPairIB *P);
-    //lee los valores de las etiquetas de las propiedades de la clase
-    //en formato textoentre paréntesis
-    static void  Read(TPairIB *P,
-        const AnsiString &S, int &i);
-
-    //imprime los valores de las propiedades de la clase
-    //en formato fila de texto
-    static void  PrintRow(AnsiString &S, const TPairIB *P);
-    //lee los valores de las etiquetas de las propiedades de la clase
-    //en formato fila de texto
-    static void  ReadRow(TPairIB *P,
-        const AnsiString &S, int &i);
-
-    //obtiene las etiquetas de las propiedades de la clase
-    //en formato texto entre paréntesis
-    static AnsiString GetLabels(void);
-    //obtiene las etiquetas de las propiedades de la clase
-    //en formato fila de texto
-    static AnsiString GetRowLabels(void);
-    //atraviesa las etiquetas de la clase
-    //en formato fila de texto
-    static void  TravelRowLabels(const AnsiString &S,
-        int &i);
-
-    //MÉTODOS PÚBLICOS:
-
-    //construye un par pordefecto
-    TPairIB(void);
-    //contruye un par con los valores indicados
-    TPairIB(int _x, int _y);
-
-    //copia las propiedades de un par
-    TPairIB& operator=(const TPairIB&);
-};
-
-//---------------------------------------------------------------------------
-//TPairID
-
-//Clase par (integer, double):
-class TPairID {
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetxText(void) const; void SetxText(const AnsiString&);
-    AnsiString GetyText(void) const; void SetyText(const AnsiString&);
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetText(void) const;
-    void SetText(const AnsiString&);
-
-    AnsiString GetRowText(void) const;
-    void SetRowText(const AnsiString&);
-
-public:
-    //ETIQUETAS DE LAS PROPIEDADES:
-
-    //etiqueta delavariable entera
-    //valor por defecto: "x"
-    static AnsiString xLabel;
-    //etiqueta de la variable double
-    //valor por defecto: "y"
-    static AnsiString yLabel;
-
-    //PROPIEDADES:
-
-    //variable entera
-    //valor por defecto: 0
-    int x;
-    //variable double
-    //valor por defecto: 0
-    double y;
-
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    __property AnsiString xText = {read=GetxText, write=SetxText};
-    __property AnsiString yText = {read=GetyText, write=SetyText};
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    //par en formato texto
-    __property AnsiString Text = {read=GetText, write=SetText};
-    //par en formato fila de texto
-    __property AnsiString RowText = {read=GetRowText, write=SetRowText};
-
-    //FUNCIONES ESTÁTICAS DE COMPARACIÓN:
-
-    //compara la variable x
-    //      si P1->x < P2->x devuelve -1
-    //      si P1->x > P2->x devuelve 1
-    //      si P1->x == P2->x devuelve 0
-    static int  Comparex(const TPairID *P1, const TPairID *P2);
-
-    //FUNCIONES ESTÁTICAS DE CONJUNTOS DE PROPIEDADES:
-
-    //imprime los valores de las propiedades de la clase
-    //en formato texto entre paréntesis
-    static void  Print(AnsiString &S, const TPairID *P);
-    //lee los valores de las etiquetas de las propiedades de la clase
-    //en formato textoentre paréntesis
-    static void  Read(TPairID *P,
-        const AnsiString &S, int &i);
-
-    //imprime los valores de las propiedades de la clase
-    //en formato fila de texto
-    static void  PrintRow(AnsiString &S, const TPairID *P);
-    //lee los valores de las etiquetas de las propiedades de la clase
-    //en formato fila de texto
-    static void  ReadRow(TPairID *P,
-        const AnsiString &S, int &i);
-
-    //obtiene las etiquetas de las propiedades de la clase
-    //en formato texto entre paréntesis
-    static AnsiString GetLabels(void);
-    //obtiene las etiquetas de las propiedades de la clase
-    //en formato fila de texto
-    static AnsiString GetRowLabels(void);
-    //atraviesa las etiquetas de la clase
-    //en formato fila de texto
-    static void  TravelRowLabels(const AnsiString &S,
-        int &i);
-
-    //MÉTODOS PÚBLICOS:
-
-    //construye un objeto de la clase
-    //con los valores por defecto
-    TPairID(void);
-    //construye un objeto de la clase
-    //con los valores indicados
-    TPairID(int _x, int _y);
-
-    //copia las propiedades de un objeto de la clase
-    TPairID& operator=(const TPairID&);
-};
-
-//---------------------------------------------------------------------------
-//TPairIS
-
-//Clase par (integer, AnsiString):
-class TPairIS {
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetxText(void) const; void SetxText(const AnsiString&);
-    AnsiString GetyText(void) const; void SetyText(const AnsiString&);
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    AnsiString GetText(void) const;
-    void SetText(const AnsiString&);
-
-    AnsiString GetRowText(void) const;
-    void SetRowText(const AnsiString&);
-
-public:
-    //ETIQUETAS DE LAS PROPIEDADES DE DEFINICIÓN:
-
-    //etiqueta delavariable entera
-    //valor por defecto: "x"
-    static AnsiString xLabel;
-    //etiqueta de la variable double
-    //valor por defecto: "y"
-    static AnsiString yLabel;
-
-    //PROPIEDADES DEL GRUPO:
-
-    //variable entera
-    //valor por defecto: 0
-    int x;
-    //variable AnsiString
-    //valor por defecto: ""
-    AnsiString y;
-
-    //PROPIEDADES EN FORMATO TEXTO:
-
-    __property AnsiString xText = {read=GetxText, write=SetxText};
-    __property AnsiString yText = {read=GetyText, write=SetyText};
-
-    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
-
-    //par en formato texto
-    __property AnsiString Text = {read=GetText, write=SetText};
-    //par en formato fila de texto
-    __property AnsiString RowText = {read=GetRowText, write=SetRowText};
-
-    //FUNCIONES ESTÁTICAS DE COMPARACIÓN:
-
-    //compara la variable x
-    //      si P1->x < P2->x devuelve -1
-    //      si P1->x > P2->x devuelve 1
-    //      si P1->x == P2->x devuelve 0
-    static int  Comparex(const TPairIS *P1, const TPairIS *P2);
-
-    //FUNCIONES ESTÁTICAS DE CONJUNTOS DE PROPIEDADES:
-
-    //obtiene las etiquetas de las propiedades de definición
-    //en formato (xLabel, yLabel)
-    static AnsiString GetLabels(void);
-
-    //función de impresión de pares
-    //en formato (x, y)
-    static void  Print(AnsiString &S, const TPairIS *P);
-    //función de lectura de pares
-    //en formato (x, y)
-    static void  Read(TPairIS *P, const AnsiString &S, int &i);
-
-    //obtiene las etiquetas
-    //en formato fila de texto
-    static AnsiString GetRowLabels(void);
-    //función de atravesar las etiquetas
-    //en formato fila de texto
-    static void  TravelRowLabels(const AnsiString &S, int &i);
-
-    //función de impresión de pares
-    //en formato fila de texto
-    static void  PrintRow(AnsiString &S, const TPairIS *P);
-    //función de lectura de pares
-    //en formato fila de texto
-    static void  ReadRow(TPairIS *P, const AnsiString &S, int &i);
-
-    //MÉTODOS PÚBLICOS:
-
-    //construye un par por defecto
-    TPairIS(void);
-    //contruye un par con los valores indicados
-    TPairIS(int _x, int _y);
-
-    //copia las propiedades de un par
-    TPairIS& operator=(const TPairIS&);
-};
-*/
 //---------------------------------------------------------------------------
 //TPairTD
 

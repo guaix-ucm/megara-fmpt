@@ -1038,6 +1038,10 @@ AnsiString TActuator::getPositionP3RowText(void) const
 {
     return getIdText()+AnsiString("\t")+getArm()->getP3().getRowText();
 }
+AnsiString TActuator::getPositionP_3RowText(void) const
+{
+    return getIdText()+AnsiString("\t")+getP_3().getRowText();
+}
 AnsiString TActuator::getPositionPAPRowText(void) const
 {
     return getIdText()+AnsiString("\t")+getp_1Text()+AnsiString("\t")+getArm()->getp___3Text();
@@ -1422,6 +1426,13 @@ AnsiString TActuator::getPositionP3LabelsRow(void)
     return "Id\tx3\ty3";
 }
 //obtiene las etiquetas de las propiedades de posición de un posicionador
+//("Id", "x_3", "y_3") al final de una cadena de texto
+//en formato fila de texto
+AnsiString TActuator::getPositionP_3LabelsRow(void)
+{
+    return "Id\tx_3\ty_3";
+}
+//obtiene las etiquetas de las propiedades de posición de un posicionador
 //("Id", "p_1", "p___3") al final de una cadena de texto
 //en formato fila de texto
 AnsiString TActuator::getPositionPPALabelsRow(void)
@@ -1532,6 +1543,17 @@ void  TActuator::readPositionP3Row(TActuator* &A,
     //El método de lectura de las posiciones debe asignar el identificador
     //y no comprobar que coincide, ya que la lectura de una lista puede
     //tener desordenados los elementos.
+}
+//imprime los valores de las propiedades de posición de un posicionador
+//(Id, x_3, y_3) al final de una cadena de texto
+//en formato fila de texto
+void  TActuator::printPositionP_3Row(AnsiString& S, TActuator *A)
+{
+    //el puntero A debe apuntar a un actuador construido
+    if(A == NULL)
+        throw EImproperArgument("pointer A should bepoint to built actuator");
+
+    S += A->getPositionP_3RowText();
 }
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto

@@ -1,11 +1,35 @@
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Institute of Astrophysics of Andalusia, IAA-CSIC
+//
+// This file is part of FMPT (Fiber MOS Positioning Tools)
+//
+// FMPT is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+//---------------------------------------------------------------------------
+//File: testScalars.cpp
+//Content: test for the module Scalars
+//Author: Isaac Morales Durán
+//---------------------------------------------------------------------------
 
 #include "testScalars.h"
 #include "../src/Constants.h" //M_2PI
+#include "../src/Scalars.h"
 
 #include <cmath> //abs
 #include <vector>
-
-#include "../src/Scalars.h"
+//#include <stdlib.h>
+#include <limits> //std::numeric_limits
 
 using namespace Mathematics;
 
@@ -26,21 +50,31 @@ void TestScalars::testFactorial()
     try {
         Factorial(-1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
 
-    if(Factorial(0) != 1)
+    if(Factorial(0) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Factorial(1) != 1)
+    if(Factorial(1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Factorial(2) != 2)
+    if(Factorial(2) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Factorial(3) != 6)
+    if(Factorial(3) != 6) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
@@ -51,6 +85,8 @@ void TestScalars::testBinomial()
     try {
         Binomial(-1, 0);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -58,6 +94,8 @@ void TestScalars::testBinomial()
     try {
         Binomial(0, -1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -65,57 +103,116 @@ void TestScalars::testBinomial()
     try {
         Binomial(-1, -1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
 
-    if(Binomial(0, 0) != 1)
+    if(Binomial(0, 0) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Binomial(1, 0) != 1)
+    if(Binomial(1, 0) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(1, 1) != 1)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Binomial(2, 0) != 1)
+    if(Binomial(1, 1) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(2, 1) != 2)
-        CPPUNIT_ASSERT(false);
-    if(Binomial(2, 2) != 1)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Binomial(3, 0) != 1)
+    if(Binomial(2, 0) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(3, 1) != 3)
-        CPPUNIT_ASSERT(false);
-    if(Binomial(3, 2) != 3)
-        CPPUNIT_ASSERT(false);
-    if(Binomial(3, 3) != 1)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Binomial(4, 0) != 1)
+    if(Binomial(2, 1) != 2) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(4, 1) != 4)
-        CPPUNIT_ASSERT(false);
-    if(Binomial(4, 2) != 6)
-        CPPUNIT_ASSERT(false);
-    if(Binomial(4, 3) != 4)
-        CPPUNIT_ASSERT(false);
-    if(Binomial(4, 4) != 1)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Binomial(5, 0) != 1)
+    if(Binomial(2, 2) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(5, 1) != 5)
+        return;
+    }
+
+    if(Binomial(3, 0) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(5, 2) != 10)
+        return;
+    }
+
+    if(Binomial(3, 1) != 3) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(5, 3) != 10)
+        return;
+    }
+
+    if(Binomial(3, 2) != 3) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(5, 4) != 5)
+        return;
+    }
+
+    if(Binomial(3, 3) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Binomial(5, 5) != 1)
+        return;
+    }
+
+    if(Binomial(4, 0) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(4, 1) != 4) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(4, 2) != 6) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(4, 3) != 4) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(4, 4) != 1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(5, 0) != 1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(5, 1) != 5) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(5, 2) != 10) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(5, 3) != 10) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(5, 4) != 5) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Binomial(5, 5) != 1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
@@ -126,18 +223,26 @@ void TestScalars::testLog()
     try {
         Log(0, 1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
+
     try {
         Log(1, 0);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
+
     try {
         Log(0, 0);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -145,31 +250,55 @@ void TestScalars::testLog()
     try {
         Log(1, 1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
+
     try {
         Log(1, 2);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
 
-    if(Log(2, 1) != 0)
+    if(Log(2, 1) != 0) {
         CPPUNIT_ASSERT(false);
-    if(Log(2, 2) != 1)
-        CPPUNIT_ASSERT(false);
-    if(Log(2, 4) != 2)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Log(3, 1) != 0)
+    if(Log(2, 2) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Log(3, 3) != 1)
+        return;
+    }
+
+    if(Log(2, 4) != 2) {
         CPPUNIT_ASSERT(false);
-    if(Log(3, 9) != 2)
+        return;
+    }
+
+    if(Log(3, 1) != 0) {
         CPPUNIT_ASSERT(false);
-    if(Log(3, 27) != 3)
+        return;
+    }
+
+    if(Log(3, 3) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Log(3, 9) != 2) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Log(3, 27) != 3) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
@@ -178,89 +307,157 @@ void TestScalars::testLog2()
     try {
         Log2(-1);
         CPPUNIT_ASSERT(false);
-    } catch(...) {
-        //do nothing
-    }
-    try {
-        Log2(0);
-        CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
 
-    if(Log2(1) != 0)
+    try {
+        Log2(0);
         CPPUNIT_ASSERT(false);
-    if(Log2(2) != 1)
+        return;
+
+    } catch(...) {
+        //do nothing
+    }
+
+    if(Log2(1) != 0) {
         CPPUNIT_ASSERT(false);
-    if(Log2(4) != 2)
+        return;
+    }
+
+    if(Log2(2) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Log2(8) != 3)
+        return;
+    }
+
+    if(Log2(4) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Log2(8) != 3) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 void TestScalars::testSign()
 {
-    if(Sign(-1) != -1)
+    if(Sign(-1) != -1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Sign(0) != 1)
+    if(Sign(0) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Sign(1) != 1)
+    if(Sign(1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 void TestScalars::testAbs()
 {
-    if(Abs(-2) != 2)
+    if(Abs(-2) != 2) {
         CPPUNIT_ASSERT(false);
-    if(Abs(-1) != 1)
+        return;
+    }
+
+    if(Abs(-1) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Abs(0) != 0)
+        return;
+    }
+
+    if(Abs(0) != 0) {
         CPPUNIT_ASSERT(false);
-    if(Abs(1) != 1)
+        return;
+    }
+
+    if(Abs(1) != 1) {
         CPPUNIT_ASSERT(false);
-    if(Abs(2) != 2)
+        return;
+    }
+
+    if(Abs(2) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 
 void TestScalars::testMin()
 {
-    if(Min(-1, -10) != -10)
+    if(Min(-1, -10) != -10) {
         CPPUNIT_ASSERT(false);
-    if(Min(-1, 0) != -1)
-        CPPUNIT_ASSERT(false);
-    if(Min(0, -10) != -10)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Min(-1.1, -10.1) != -10.1)
+    if(Min(-1, 0) != -1) {
         CPPUNIT_ASSERT(false);
-    if(Min(-1.1, 0.) != -1.1)
+        return;
+    }
+
+    if(Min(0, -10) != -10) {
         CPPUNIT_ASSERT(false);
-    if(Min(0., -10.1) != -10.1)
+        return;
+    }
+
+    if(Min(-1.1, -10.1) != -10.1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Min(-1.1, 0.) != -1.1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Min(0., -10.1) != -10.1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 void TestScalars::testMax()
 {
-    if(Max(-1, -10) != -1)
+    if(Max(-1, -10) != -1) {
         CPPUNIT_ASSERT(false);
-    if(Max(-1, 0) != 0)
-        CPPUNIT_ASSERT(false);
-    if(Max(0, -10) != 0)
-        CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Max(-1.1, -10.1) != -1.1)
+    if(Max(-1, 0) != 0) {
         CPPUNIT_ASSERT(false);
-    if(Max(-1.1, 0.) != 0)
+        return;
+    }
+
+    if(Max(0, -10) != 0) {
         CPPUNIT_ASSERT(false);
-    if(Max(0., -10.1) != 0)
+        return;
+    }
+
+    if(Max(-1.1, -10.1) != -1.1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Max(-1.1, 0.) != 0) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(Max(0., -10.1) != 0) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
@@ -270,120 +467,180 @@ void TestScalars::testLimitDomain()
     try {
         LimitDomain(0, 1, -1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
 
-    if(LimitDomain(0, -1, 1) != 0)
+    if(LimitDomain(0, -1, 1) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(LimitDomain(-2, -1, 1) != -1)
+    if(LimitDomain(-2, -1, 1) != -1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(LimitDomain(2, -1, 1) != 1)
+    if(LimitDomain(2, -1, 1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     try {
         LimitDomain(0., 1., -1.);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
 
-    if(LimitDomain(0., -1., 1.) != 0)
+    if(LimitDomain(0., -1., 1.) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(LimitDomain(-2., -1., 1.) != -1)
+    if(LimitDomain(-2., -1., 1.) != -1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(LimitDomain(2., -1., 1.) != 1)
+    if(LimitDomain(2., -1., 1.) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 
 void TestScalars::testRound()
 {
-    //determina el entero n más próximo tq [n-0.5 <= x < n+0.5)
+    //determine the integer n nearest s.t. [n-0.5 <= x < n+0.5)
 
-    if(Round(-0.501) != -1)
+    if(Round(-0.501) != -1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Round(-0.5) != 0)
+    if(Round(-0.5) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Round(0.499) != 0)
+    if(Round(0.499) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Round(0.5) != 1)
+    if(Round(0.5) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 
 void TestScalars::testNear()
 {
-    //      Near(x) = Floor(Abs(x))*Sign(x)
+    //Near(x) = Floor(Abs(x))*Sign(x)
 
-    if(Near(-2) != 2)
+    if(Near(-2) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(-1.9) != 1)
+    if(Near(-1.9) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(-1) != 1)
+    if(Near(-1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(-0.9) != 0)
+    if(Near(-0.9) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(2) != 2)
+    if(Near(2) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(1.9) != 1)
+    if(Near(1.9) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(1) != 1)
+    if(Near(1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Near(0.9) != 0)
+    if(Near(0.9) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 void TestScalars::testFar()
 {
-    //      Far(x) = Ceil(Abs(x))*Sign(x)
+    //Far(x) = Ceil(Abs(x))*Sign(x)
 
-    if(Far(-2) != 2)
+    if(Far(-2) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(-1.1) != 2)
+    if(Far(-1.1) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(-1) != 1)
+    if(Far(-1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(-0.1) != 1)
+    if(Far(-0.1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(-0) != 0)
+    if(Far(-0) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(2) != 2)
+    if(Far(2) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(1.1) != 2)
+    if(Far(1.1) != 2) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(1) != 1)
+    if(Far(1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(0.1) != 1)
+    if(Far(0.1) != 1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Far(0) != 0)
+    if(Far(0) != 0) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
@@ -396,8 +653,10 @@ void TestScalars::testRandomReal()
     for(int i=0; i<1000000; i++) {
         double x = RandomReal();
         v.push_back(x);
-        if(x<0 || 1<x)
+        if(x<0 || 1<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     bool allequals = true;
@@ -407,22 +666,28 @@ void TestScalars::testRandomReal()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - 0.5) > 0.1)
+    if(abs(ave - 0.5) > 0.1) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 void TestScalars::testRandomUniformDouble()
 {
-    //genera un número real aleatorio con distribución uniforme en [x1, x2]
+    //generate a random real number with uniform distribution in [x1, x2]
 
     try {
         RandomUniform(1., -1.);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -430,6 +695,8 @@ void TestScalars::testRandomUniformDouble()
     try {
         RandomUniform(0., 0.);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -444,8 +711,10 @@ void TestScalars::testRandomUniformDouble()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     bool allequals = true;
@@ -455,12 +724,16 @@ void TestScalars::testRandomUniformDouble()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -472,8 +745,10 @@ void TestScalars::testRandomUniformDouble()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     allequals = true;
@@ -483,12 +758,16 @@ void TestScalars::testRandomUniformDouble()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -500,8 +779,10 @@ void TestScalars::testRandomUniformDouble()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     allequals = true;
@@ -511,12 +792,16 @@ void TestScalars::testRandomUniformDouble()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -528,8 +813,10 @@ void TestScalars::testRandomUniformDouble()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     allequals = true;
@@ -539,12 +826,16 @@ void TestScalars::testRandomUniformDouble()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -557,6 +848,8 @@ void TestScalars::testRandomUniformInteger()
     try {
         RandomUniform(1, -1);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -564,6 +857,8 @@ void TestScalars::testRandomUniformInteger()
     try {
         RandomUniform(0, 0);
         CPPUNIT_ASSERT(false);
+        return;
+
     } catch(...) {
         //do nothing
     }
@@ -578,8 +873,10 @@ void TestScalars::testRandomUniformInteger()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     bool allequals = true;
@@ -589,12 +886,16 @@ void TestScalars::testRandomUniformInteger()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -606,8 +907,10 @@ void TestScalars::testRandomUniformInteger()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     allequals = true;
@@ -617,12 +920,16 @@ void TestScalars::testRandomUniformInteger()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -634,8 +941,10 @@ void TestScalars::testRandomUniformInteger()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     allequals = true;
@@ -645,12 +954,16 @@ void TestScalars::testRandomUniformInteger()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -662,8 +975,10 @@ void TestScalars::testRandomUniformInteger()
     for(int i=0; i<1000000; i++) {
         double x = RandomUniform(x1, x2);
         v.push_back(x);
-        if(x<x1 || x2<x)
+        if(x<x1 || x2<x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     allequals = true;
@@ -673,12 +988,16 @@ void TestScalars::testRandomUniformInteger()
             allequals = false;
         ave += v[i];
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     ave = ave/double(v.size());
-    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1))
+    if(abs(ave - (x1 + x2)/2.) > 0.1*(x2 - x1)) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     //-----------------------------------------------------------------
 
@@ -686,8 +1005,8 @@ void TestScalars::testRandomUniformInteger()
 }
 void TestScalars::testArgPos()
 {
-    //desplaza theta al intervalo [0, M_2PI)
-    //una distancia múltiplo de M_2PI
+    //translate theta to the interval [0, M_2PI)
+    //a distance multiple of M_2PI
 
     vector<int> v;
 
@@ -695,8 +1014,10 @@ void TestScalars::testArgPos()
         double x = RandomUniform(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
         x = ArgPos(x);
         v.push_back(x);
-        if(x<0 || M_2PI<=x)
+        if(x<0 || M_2PI<=x) {
             CPPUNIT_ASSERT(false);
+            return;
+        }
     }
 
     bool allequals = true;
@@ -704,15 +1025,17 @@ void TestScalars::testArgPos()
         if(v[0] != v[i])
             allequals = false;
     }
-    if(allequals)
+    if(allequals) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 
 void TestScalars::testNumerical()
 {
-    //determina si un tipo es numérico
+    //determine if a type is numerical
 
     if(!Numerical(typeid(char))  || !Numerical(typeid(signed char))  ||
             !Numerical(typeid(unsigned char))  ||
@@ -726,20 +1049,26 @@ void TestScalars::testNumerical()
             !Numerical(typeid(long))  || !Numerical(typeid(long int))  ||
             !Numerical(typeid(signed long int))  ||
             !Numerical(typeid(unsigned long))  || !Numerical(typeid(unsigned long int))  ||
-            !Numerical(typeid(float))  || !Numerical(typeid(double))  || !Numerical(typeid(long double)))
+            !Numerical(typeid(float))  || !Numerical(typeid(double))  || !Numerical(typeid(long double))) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
-    if(Numerical(typeid(string)) || Numerical(typeid(void)) || Numerical(typeid(vector<int>)) || Numerical(typeid(type_info)))
+    if(Numerical(typeid(string)) || Numerical(typeid(void)) || Numerical(typeid(vector<int>)) || Numerical(typeid(type_info))) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }
 void TestScalars::testFloatingPoint()
 {
-    //determina si un tipo es de punto flotante
+    //determine if a type is of floating point
 
-    if(!FloatingPoint(typeid(float)) || !FloatingPoint(typeid(double)) || !FloatingPoint(typeid(long double)))
+    if(!FloatingPoint(typeid(float)) || !FloatingPoint(typeid(double)) || !FloatingPoint(typeid(long double))) {
         CPPUNIT_ASSERT(false);
+        return;
+    }
 
     if(FloatingPoint(typeid(char))  || FloatingPoint(typeid(signed char))  ||
             FloatingPoint(typeid(unsigned char))  ||
@@ -752,11 +1081,173 @@ void TestScalars::testFloatingPoint()
             FloatingPoint(typeid(unsigned short int))  ||
             FloatingPoint(typeid(long))  || FloatingPoint(typeid(long int))  ||
             FloatingPoint(typeid(signed long int))  ||
-            FloatingPoint(typeid(unsigned long))  || FloatingPoint(typeid(unsigned long int)))
+            FloatingPoint(typeid(unsigned long))  || FloatingPoint(typeid(unsigned long int))) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    if(FloatingPoint(typeid(string)) || FloatingPoint(typeid(void)) || FloatingPoint(typeid(vector<int>)) || FloatingPoint(typeid(type_info))) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    CPPUNIT_ASSERT(true);
+}
+
+/*void TestScalars::test_frexp10()
+{
+    //calculates the mantissa and the exponent of a floating point number
+
+    //VALUES UPPER ZERO:
+
+    double x = 314.15926535897932; //17 sig fig
+    int exp;
+    double mantissa = frexp10(x, exp);
+    if(mantissa != 0.31415926535897932 && exp != 3)
         CPPUNIT_ASSERT(false);
 
-    if(FloatingPoint(typeid(string)) || FloatingPoint(typeid(void)) || FloatingPoint(typeid(vector<int>)) || FloatingPoint(typeid(type_info)))
+    x = 31.415926535897932; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.31415926535897932 && exp != 2)
         CPPUNIT_ASSERT(false);
+
+    x = 3.1415926535897932; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.31415926535897932 && exp != 1)
+        CPPUNIT_ASSERT(false);
+
+    x = 1.0000000000000001; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.10000000000000001 && exp != 1)
+        CPPUNIT_ASSERT(false);
+
+    x = 1; //1 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.1 && exp != 1)
+        CPPUNIT_ASSERT(false);
+
+    x = 0.9999999999999999; //16 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.9999999999999999 && exp != 0)
+        CPPUNIT_ASSERT(false);
+
+    x = 0.1; //1 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.1 && exp != 0)
+        CPPUNIT_ASSERT(false);
+
+    x = 0.0999999999999999; //15 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.999999999999999 && exp != -1)
+        CPPUNIT_ASSERT(false);
+
+    x = 0.0000000000000000000000000000000010000000000000001; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.10000000000000001 && exp != -32)
+        CPPUNIT_ASSERT(false);
+
+    x = 0.000000000000000000000000000000001; //1 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0.1 && exp != -32)
+        CPPUNIT_ASSERT(false);
+
+    //VALUE EQUAL TO ZERO:
+
+    x = 0;
+    mantissa = frexp10(x, exp);
+    if(mantissa != 0 && exp != 0)
+        CPPUNIT_ASSERT(false);
+
+    //VALUES LESS ZERO:
+
+    x = -314.15926535897932; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.31415926535897932 && exp != 3)
+        CPPUNIT_ASSERT(false);
+
+    x = -31.415926535897932; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.31415926535897932 && exp != 2)
+        CPPUNIT_ASSERT(false);
+
+    x = -3.1415926535897932; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.31415926535897932 && exp != 1)
+        CPPUNIT_ASSERT(false);
+
+    x = -1.0000000000000001; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.10000000000000001 && exp != 1)
+        CPPUNIT_ASSERT(false);
+
+    x = -1; //1 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.1 && exp != 1)
+        CPPUNIT_ASSERT(false);
+
+    x = -0.9999999999999999; //16 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.9999999999999999 && exp != 0)
+        CPPUNIT_ASSERT(false);
+
+    x = -0.1; //1 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.1 && exp != 0)
+        CPPUNIT_ASSERT(false);
+
+    x = -0.0999999999999999; //15 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.999999999999999 && exp != -1)
+        CPPUNIT_ASSERT(false);
+
+    x = -0.0000000000000000000000000000000010000000000000001; //17 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.10000000000000001 && exp != -32)
+        CPPUNIT_ASSERT(false);
+
+    x = -0.000000000000000000000000000000001; //1 sig fig
+    mantissa = frexp10(x, exp);
+    if(mantissa != -0.1 && exp != -32)
+        CPPUNIT_ASSERT(false);
+
+    CPPUNIT_ASSERT(true);
+}*/
+void TestScalars::test_incmin()
+{
+    //Incremento mínimo de la mantisa de un double:
+    //      normalmente la mantisa de un double tiene DSIGNIF+1=54 bits
+    //      y su incremento mínimo corresponde a:
+    //          1/pow(2., 54.) = 5.55111512312578E-17
+    //Incremento mínimo de un double 'x':
+    //          pow(2., xexp)/pow(2., 54.)
+    //donde xexp es el exponente binario de x.
+
+    //asigna un valor a x
+    double x = 3.14159265358979;
+
+    //determina el exponente de x
+    int xexp;
+    frexp(x, &xexp);
+    //calcula el incremento mínimo de x
+    double y = pow(2, double(xexp))/pow(2, double(std::numeric_limits<double>::digits+1));
+
+    if(incmin(x) != y) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+
+    //asigna un valor a x
+    x = 2.718281828182818;
+
+    //determina el exponente de x
+    frexp(x, &xexp);
+    //calcula el incremento mínimo de x
+    y = pow(2, double(xexp))/pow(2, double(std::numeric_limits<double>::digits+1));
+
+    if(incmin(x) != y) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
 
     CPPUNIT_ASSERT(true);
 }

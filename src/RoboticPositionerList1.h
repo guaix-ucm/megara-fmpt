@@ -212,6 +212,9 @@ public:
     //set the P3 table in text format:
     //      Id      x3      y3
     void setPositionsP3TableText(const AnsiString&);
+    //get the P_3 table in text format:
+    //      Id      x_3      y_3
+    AnsiString getPositionsP_3TableText(void) const;
     //tabla de PPA table in text format:
     //      Id      p_1     p___3
     AnsiString getPositionsPPATableText(void) const;

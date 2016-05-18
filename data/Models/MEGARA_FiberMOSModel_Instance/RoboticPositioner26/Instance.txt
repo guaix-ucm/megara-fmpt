@@ -1,41 +1,41 @@
 ActuatorInstance:
     L01 = 5.8025
-    theta_1min = -0.0436332312998582
-    theta_1max = 6.32681853847944
+    theta_1min = -0.043633231
+    theta_1max = 6.326818538
     theta_1 = 0
     theta_O3o = 3.14159265358979
-    SB1 = 8123.07692
+    SB1 = 194953.8462
     ArmInstance:
         L12 = 5.8025
         L13 = 5.8025
         theta__O3 = 0
         R3 = 0.75
         thetaO3 = -3.14159265358979
-        theta___3min = -0.0436332312998582
-        theta___3max = 3.18522588488965
+        theta___3min = -0.043633231
+        theta___3max = 3.185225885
         theta___3 = 0
-        SB2 = 10000
+        SB2 = 30720
     SPMmin = 0.005
-    SPMsim = 0.005
+    SPMsim = 0.2
     PAkd = Pre
 CMFInstance:
-    SF1->vmaxabs = 1
-    SF2->vmaxabs = 2.462121213
-    RF1->vmaxabs = 1
-    RF2->vmaxabs = 2.462121213
-    RF1->amaxabs = 0.0007
-    RF2->amaxabs = 0.001723485
-    MFM = Ramp
+    SF1->vmaxabs = 3
+    SF2->vmaxabs = 0.945
+    RF1->vmaxabs = 3
+    RF2->vmaxabs = 0.945
+    RF1->amaxabs = 4294.967295
+    RF2->amaxabs = 4294.967295
+    MFM = Square
     SSM = Free
     RSM = Free
     Id1 = 0
     Id2 = 0
 Tolerances:
-    Eo = 0.001
-    Ep = 0.01
+    Eo = 0.000872665
+    Ep = 0.1
     Tstop = 0
     Tshiff = 1
-    SPMadd = 0.1
+    SPMadd = 0.2
 Status:
     Disabled = False
     FaultProbability = 0

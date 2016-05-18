@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //Archivo: Exceptions.cpp
-//Contenido: clases de excepciones
-//Última actualización: 08/03/2011
+//Contenido: class of exceptions
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

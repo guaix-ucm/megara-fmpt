@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: main.cpp
-//Content: principal program fmpt_saa
+//Content: main program fmpt_saa
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -31,8 +31,15 @@
 #include "Geometry.h" //distanceSegmentPoint
 #include "outputs.h" //Outputs
 
+//#include "../ui/GenerateFrames.h"
+//#include "../ui/mainwindow.h"
+
+//#include <QCoreApplication> //Qt only
+//#include <QApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
+
+//#include "../megarafmpt/tests/test_vclemu.h"
 
 using namespace Strings;
 using namespace Models;
@@ -83,6 +90,22 @@ string help(void)
     str += "\r\n    Print this help.";
     str += "\r\n";
 
+/**/    str += "\r\n$ fmpt_saa valuesSPM";
+    str += "\r\n    View the SPM values pending varibales PAkd and Purpose.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa testRadialMotion";
+    str += "\r\n    Take the measure of maximun deviation around the radial trayectory of the fiber of each RP.";
+    str += "\r\n";
+
+    str += "\r\n$ fmpt_saa applyPC <path_PC>";
+    str += "\r\n    <path_PC>: absolute or relative path to file containing a positioner center table.";
+    str += "\r\n    Apply a positioner center table to the Fiber MOS Model instance.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa applyRP <dir_RP>";
+    str += "\r\n    <dir_RP>: absolute or relative path to dir containing a RP instance.";
+    str += "\r\n    Apply a RP instance to the Fiber MOS Model instance.";
+    str += "\r\n";
+/**/
     str += "\r\n$ fmpt_saa generatePairPPDP_offline <path_FMOSA>";
     str += "\r\n    <path_FMOSA>: absolute or relative path to file type FMOSA.";
     str += "\r\n    Generate a pair (PP, DP) offline.";
@@ -93,13 +116,64 @@ string help(void)
     str += "\r\n        When Bid is empty:";
     str += "\r\n            parameters Name, Mag, Pr and Comment will be empty;";
     str += "\r\n            parameter Type will be UNKNOWN.";
+/**/    str += "\r\n";
+    str += "\r\n$ fmpt_saa testGeneratePairPPDP_offline";
+    str += "\r\n    Test the function generatePairPPDP_offline.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa testGeneratePairPPDP_online";
+    str += "\r\n    Test the function generatePairPPDP_online.";
+    str += "\r\n";
 
+    str += "\r\n$ fmpt_saa checkPairPPDP <path_PP> <path_DP> [Pid list]";
+    str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
+    str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
+    str += "\r\n    [Pid list]: optional identifier list of RPs to be disabled.";
+    str += "\r\n    Check the enabling status of the RPs included in a pair (PP, DP),";
+    str += "\r\n    The instance of the Fiber MOS Model will not be written.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa validatePairPPDP <path_outputs>";
+    str += "\r\n    <path_outputs>: absolute or relative path to file containing the pair (PP, DP).";
+    str += "\r\n    Check if a pair (PP, DP) avoid collisions,";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa regeneratePairPPDP <path_PP> <path_DP> <path_FMOSA> [Pid list]";
+    str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
+    str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
+    str += "\r\n    <path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
+    str += "\r\n    [Pid list]: optional identifier list of RPs to be disabled.";
+    str += "\r\n    Attempt regenerate a pair (PP, DP).";
+    str += "\r\n    The instance of the Fiber MOS Model will not be written.";
+    str += "\r\n";
+
+    str += "\r\n$ fmpt_saa generateParkingProgram_offline <path_FMOSA>";
+    str += "\r\n    <path_FMOSA>: absolute or relative path to file containing a FMOSA table.";
+    str += "\r\n    Generate a parking program offline.";
+    str += "\r\n    In the file FMOSA:";
+    str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
+    str += "\r\n        Parameter Bid indicates if the source is allocated or no.";
+    str += "\r\n        Parameter Enabled indicates if the RP is enabled or no.";
+    str += "\r\n        When Bid is empty:";
+    str += "\r\n            parameters Name, Mag, Pr and Comment will be empty;";
+    str += "\r\n            parameter Type will be UNKNOWN.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa testGenerateParkingProgram_offline";
+    str += "\r\n    Test the function generateParkingProgram_offline.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa testGenerateParkingProgram_online";
+    str += "\r\n    Test the function generateParkingProgram_online.";
+/**/
     str += "\r\n";
     str += "\r\n$ fmpt_saa aboutOf";
     str += "\r\n    Print the legend about of...";
     str += "\r\n";
 
     //Note that here not has sense define functions for generate MPs online.
+
+    //Others diserable functionalities:
+    //  - Determine the RPs included in a MP.
+    //  - Determine the RPs included in a pair of MPs.
+    //  - Enable all not faulty RPs of the FMM instance,
+    //  - Disable the indicated PRs of the FMM instance,
+    //  - Print the samples includes in the directory data/Samples
 
     return str;
 }
@@ -262,6 +336,22 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         //Other whay to obtain the observing position table directly in text format:
         //  FMM.RPL.getPositionsPPATableText()
 
+        //captures the observing positions of the RPs in cartesian coordinates respect S0
+        str = TActuator::getPositionP3LabelsRow().str;
+        str += "\r\n";
+        str += FMM.RPL.getPositionsP3TableText().str;
+        output_filename = output_dir+"/OPL_S0-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Observing position list (in cartesian coordinates respect S0) saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //captures the observing positions of the RPs in cartesian coordinates respect S1
+        str = TActuator::getPositionP_3LabelsRow().str;
+        str += "\r\n";
+        str += FMM.RPL.getPositionsP_3TableText().str;
+        output_filename = output_dir+"/OPL_S1-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Observing position list (in cartesian coordinates respect S1) saved in '"+output_filename+"'.", log_filename.c_str());
+
         //segregates the operative outsider RPs
         TRoboticPositionerList Outsiders;
         FMM.RPL.segregateOperativeOutsiders(Outsiders);
@@ -271,29 +361,29 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             append("WARNING: all operative RPs are in the origin. The generated pair (PP, DP) will be empty.", log_filename.c_str());
         //else, check the limiting case when all operative RPs are in security positions
         else if(Outsiders.getCount() <= 0)
-            append("WARNING: all operative RPs are in security positions. The generated (PP, DP) will contains only a message-instruction list to go to the observing positions and back to the origin.", log_filename.c_str());
+            append("WARNING: all operative RPs are in security positions. The generated pair (PP, DP) will contains only a message-instruction list to go to the observing positions and back to the origin.", log_filename.c_str());
 
         //Now are fulfilled the preconditions:
-        //  All RPs of the Fiber MOS Model, shall be in their initial positions.
+        //  All RPs of the Fiber MOS Model, shall be in their observing positions.
         //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
         //  All RPs of the list Outsiders, shall be operatives.
-        //  All RPs of the list Outsiders, shall be in unsecure positions.
+        //  All RPs of the list Outsiders, shall be in unsecurity positions.
         //  All RPs of the list Outsiders, shall have enabled the quantifiers.
 
-        //generates a de PP for the operative RPs in insecure positions
+        //generates a pair (PP, DP) for the operative RPs in unsecurity positions
         //and determines the RPs in collision status or obstructed in insecure positions
         append("Generating pair (PP, DP)...", log_filename.c_str());
         PPvalid = false;
         DPvalid = false;
         Collided.Clear();
         Obstructed.Clear();
-        outputs.PP.Clear();
-        outputs.DP.Clear();
-        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, outputs.PP, outputs.DP, Outsiders);
+        PP.Clear();
+        DP.Clear();
+        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
 
         //Now are fulfilled the postconditions:
-        //  All RPs of the Fiber MOS Model will be configured for MP validation
-        //  All RPs of the fiber MOS Model will be in their final positions,
+        //  All RPs of the Fiber MOS Model will be configured for MP validation.
+        //  All RPs of the fiber MOS Model will be in their origin positions,
         //  or the first position where the collision was detected.
         //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
 
@@ -304,7 +394,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
 
         //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
-        //if generation function was successfully generated
+        //if the pair (PP, DP) is valid
         if(PPvalid && DPvalid) {
             //indicates the result of the generation
             append("Generated pair (PP, DP) is valid.", log_filename.c_str());
@@ -322,7 +412,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             append("DP in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated pair (PP, DP) is valid,
-            //all operative outsider RPs which aren't obstructed,can be:
+            //all operative outsider RPs which aren't obstructed, can be:
             //- in the origin positions, in their final position after execute the DP.
 
             //captures the initial positions of the RPs in a PPA list
@@ -334,7 +424,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             strWriteToFile(output_filename, str);
             append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
-            //Other whay to obtain the observing position table directly in text format:
+            //Other whay to obtain the initial position list directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
 
             //translates the PP to the format of the interface MCS-FMPT
@@ -353,8 +443,11 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
 //            strWriteToFile(output_filename, str);
 //            append("DP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
 
+            //get the outputs file
+            outputs.PP = PP;
+            outputs.DP = DP;
             outputs.getText(str, Bid, OPL, IPL);
-            output_filename = output_dir+"/PPDPandFMOSA-from-"+filename;
+            output_filename = output_dir+"/outputs-from-"+filename;
             strWriteToFile(output_filename, str);
             append("Pair (PP, DP) saved in '"+output_filename+"'.", log_filename.c_str());
 
@@ -372,7 +465,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         }
         else {
             //Given that here the generated pair (PP, DP) is invalid,
-            //all operative outsider RPs which aren't obstructed,can be:
+            //all operative outsider RPs which aren't obstructed, can be:
             //- in the first position where the collision was detected.
 
             //print the result of generation of the DP
@@ -403,7 +496,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
         if(PP.thereIsSomeComment1())
             str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
-        output_filename = output_dir+"/outputs-from-"+filename;
+        output_filename = output_dir+"/other_outputs-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
 
@@ -540,7 +633,7 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
             append("PP in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated pair ((PP, DP) is valid,
-            //all operative outsider RPs which aren't obstructed,can be:
+            //all operative outsider RPs which aren't obstructed, can be:
             //- in the origin positions, in their final position after execute the DP.
             //  if success == true.
             //- in the first position where the collision was detected.
@@ -576,7 +669,7 @@ void generatePairPPDP_online(bool& PPvalid, bool& DPvalid,
         }
         else {
             //Given that here the generated pair (PP, DP) can be valid or invalid,
-            //all operative outsider RPs which aren't obstructed,can be:
+            //all operative outsider RPs which aren't obstructed, can be:
             //- in the starting positions, in their final position after execute the PP.
             //  if success == true.
             //- in the first position where the collision was detected.
@@ -682,18 +775,180 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
 
         //The filename will be used to attach the outputs filenames witht the input filename.
 
-        //PROBLEMA: elnombre del archivo 'outputs-from...' se contruye a partir
+        //PROBLEM: elnombre del archivo 'other-outputs-from...' se contruye a partir
         //del filename de path_FMOSA, pero en esta función, solo se pasan path_PP y path_DP.
 
         //print the other outputs in the corresponding file
         str = "checkPairPPDP: "+BoolToStr(valid, true).str;
-        string output_filename = "outputs-from-"+filename_PP+"-"+filename_DP;
+        string output_filename = "other-outputs-from-"+filename_PP+"-"+filename_DP;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
 
     } catch(Exception& E) {
         E.Message.str.insert(0, "checking pair (PP, DP): ");
         throw E;
+    }
+}
+
+//validate a pair (PP, DP) from a outputs file
+void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_dir, string& log_filename)
+{
+    try {
+        //LOAD SETTINGS FROM FILES:
+
+        //load the Outputs structure from a file
+        string str;         //auxiliary string
+        Outputs outputs;    //outputs structure
+        unsigned int Bid;   //the block identificator in the FMOSA FILE
+        try {
+            //load the outputs structure
+            strReadFromFile(str, path_outputs);
+            outputs.setText(Bid, str);
+
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading FMOSA file: ");
+            throw E;
+        }
+        append("Outputs structure loaded from '"+path_outputs+"'.", log_filename.c_str());
+
+        //Now the PP and the DP will be validated.
+
+        //---------------------------------------------
+        //MAKE THE OPERATIONS:
+
+        //split the path of the file containing the FMOSA table
+        string parent_path, filename;
+        splitpath(parent_path, filename, path_outputs);
+        string output_filename; //auxiliary string
+
+        //The filename will be used to attach the outputs filenames witht the input filename.
+
+        //built a MPV attached to the FMM
+        TMotionProgramValidator MPV(&FMM);
+
+        //configure the SPM of all RPs for validate the PP and validate it
+        FMM.RPL.setPurpose(pValPP);
+        bool PPvalid = MPV.validateMotionProgram(outputs.PP);
+
+        //initalize the flags for indicate the validity of the DP
+        bool DPvalid = false;
+
+        //if the PP avoid collisions
+        if(PPvalid) {
+            //indicates the result of the validation
+            append("The PP is valid.", log_filename.c_str());
+
+            //Given that here the PP is valid,
+            //all operative outsider RPs which aren't obstructed, can be:
+            //- in the observing positions, in their final position after execute the PP.
+
+            //A PPA table shall be stored how a table (Id, p_1, p___3).
+
+            //captures the observing positions of the RPs in a PPA list
+            TPairPositionAnglesList OPL;
+            FMM.RPL.getPositions(OPL);
+            str = TActuator::getPositionPPALabelsRow().str;
+            str += "\r\n"+OPL.getColumnText().str;
+            ForceDirectories(AnsiString(path_outputs));
+            output_filename = output_dir+"/OPL-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //Other whay to obtain the observing position table directly in text format:
+            //  FMM.RPL.getPositionsPPATableText()
+
+            //captures the observing positions of the RPs in cartesian coordinates respect S0
+            str = TActuator::getPositionP3LabelsRow().str;
+            str += "\r\n";
+            str += FMM.RPL.getPositionsP3TableText().str;
+            output_filename = output_dir+"/OPL_S0-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Observing position list (in cartesian coordinates respect S0) saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //captures the observing positions of the RPs in cartesian coordinates respect S1
+            str = TActuator::getPositionP_3LabelsRow().str;
+            str += "\r\n";
+            str += FMM.RPL.getPositionsP_3TableText().str;
+            output_filename = output_dir+"/OPL_S1-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Observing position list (in cartesian coordinates respect S1) saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //save PP-Dfmin in a file
+            outputs.PP.getDfminInterfaceText(str, "pos", Bid);
+            output_filename = output_dir+"/PP-Dfmin-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("PP-Dfmin saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //configure the SPM for validate the PP and validate it
+            FMM.RPL.setPurpose(pValDP);
+            DPvalid = MPV.validateMotionProgram(outputs.DP);
+
+            //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
+
+            //if the pair (PP, DP) is valid
+            if(DPvalid) {
+                //indicates the result of the validation
+                append("The DP is valid.", log_filename.c_str());
+
+                //Given that here the pair (PP, DP) is valid,
+                //all operative outsider RPs which aren't obstructed, can be:
+                //- in the origin positions, in their final position after execute the DP.
+
+                //captures the initial positions of the RPs in a PPA list
+                TPairPositionAnglesList IPL;
+                FMM.RPL.getPositions(IPL);
+                string str = TActuator::getPositionPPALabelsRow().str;
+                str += "\r\n"+IPL.getColumnText().str;
+                string output_filename = output_dir+"/IPL-from-"+filename;
+                strWriteToFile(output_filename, str);
+                append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+
+                //Other whay to obtain the initial position list directly in text format:
+                //  FMM.RPL.getPositionsPPATableText()
+
+                //save DP-Dfmin in a file
+                outputs.DP.getDfminInterfaceText(str, "depos", Bid);
+                output_filename = output_dir+"/DP-Dfmin-from-"+filename;
+                strWriteToFile(output_filename, str);
+                append("DP-Dfmin saved in '"+output_filename+"'.", log_filename.c_str());
+            }
+        }
+
+        //if the pair (PP, DP) is not valid
+        if(!PPvalid || !DPvalid) {
+            //Given that here the generated pair (PP, DP) is invalid,
+            //all operative outsider RPs which aren't obstructed, can be:
+            //- in the first position where the collision was detected.
+
+            //print the result of generation of the DP
+            if(DPvalid)
+                append("Generated DP is valid.", log_filename.c_str());
+            else
+                append("Generated DP is not valid.", log_filename.c_str());
+
+            //print the result of generation of the PP
+            if(PPvalid)
+                append("Generated PP is valid.", log_filename.c_str());
+            else
+                append("Generated PP is not valid.", log_filename.c_str());
+        }
+
+        //print the other outputs in the corresponding file
+        str = "PPvalid: "+BoolToStr(PPvalid,true).str;
+        str += "\r\nDPvalid: "+BoolToStr(DPvalid,true).str;
+        if(outputs.PP.thereIsSomeComment1())
+            str += "\r\nPP comments:\r\n"+outputs.PP.getComment1sColumnText();
+        if(outputs.DP.thereIsSomeComment1())
+            str += "\r\nDP comments:\r\n"+outputs.DP.getComment1sColumnText();
+        output_filename = output_dir+"/other_outputs-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
+
+    } catch(Exception& E) {
+        E.Message.str.insert(0, "validating pair (PP, DP) offline: ");
+        throw E;
+    } catch(...) {
+        throw;
     }
 }
 
@@ -950,7 +1205,7 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
         }
 
         //Given that here the generated parking program can be valid or invalid,
-        //all operative outsider RPs which aren't obstructed,can be:
+        //all operative outsider RPs which aren't obstructed, can be:
         //- in the origin positions, in their final position after execute the MP.
         //  if success == true.
         //- in the first position where the collision was detected.
@@ -1097,7 +1352,7 @@ void generateParkingProgram_online(bool& ParkingProgramValid,
         }
 
         //Given that here the generated parking program can be valid or invalid,
-        //all operative outsider RPs which aren't obstructed,can be:
+        //all operative outsider RPs which aren't obstructed, can be:
         //- in the origin positions, in their final position after execute the MP.
         //  if success == true.
         //- in the first position where the collision was detected.
@@ -1972,6 +2227,87 @@ void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
     }
 }
 
+/*int visualizePPDP(int argc, char *argv[], TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& log_filename)
+{
+    try {
+
+        //load the PP from a file
+        TMotionProgram PP;
+        string PP_label;
+        unsigned int PP_Bid;
+        string str;
+        strReadFromFile(str, path_PP);
+        PP.setInterfaceText(PP_label, PP_Bid, str);
+        append("PP loaded from '"+path_PP+"'.", log_filename.c_str());
+
+        //check the precondition
+        if(PP_label != "obs pos")
+            throw EImproperArgument("PP label should be \"obs pos\"");
+
+        //load the DP from a file
+        TMotionProgram DP;
+        string DP_label;
+        unsigned int DP_Bid;
+        strReadFromFile(str, path_DP);
+        DP.setInterfaceText(DP_label, DP_Bid, str);
+        append("DP loaded from '"+path_DP+"'.", log_filename.c_str());
+
+        //check the precondition
+        if(DP_label != "obs depos")
+            throw EImproperArgument("DP label should be \"obs depos\"");
+        if(DP_Bid != PP_Bid)
+            throw EImproperArgument("DP Bid should be equal to PP Bid");
+
+        //TODO
+        //set path_frames according to nomenclature based on configuration block and/or number of sources
+        //
+        //
+        //
+        //
+        string path_frames = "/home/user/MEGARA/megarafmpt/data/Samples/frames/builder10/";
+        QString pathSequence = QString(path_frames.c_str());
+
+        //check if folder exists
+        if (!QDir(pathSequence).exists()){
+            QDir().mkdir(pathSequence);
+        }
+
+        //check if sequence is already stored in disk
+        if(QDir(pathSequence).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() == 0)
+        {
+
+            //generate Frames
+            GenerateFrames FrameBuilder;
+            FrameBuilder.pathSequence = pathSequence;
+            FrameBuilder.FMM = &FMM;
+            FrameBuilder.PP = &PP;
+            FrameBuilder.DP = &DP;
+
+            append("Generating PP frames in '"+path_frames+"'.", log_filename.c_str());
+            FrameBuilder.generatePPFrames();
+
+            append("Generating DP frames in '"+path_frames+"'.", log_filename.c_str());
+            FrameBuilder.generateDPFrames();
+        }
+
+
+        //set pathSequence dir
+        //..
+        //QString appPath = QDir().currentPath();
+        //QDir dir(appPath+"/../megarafmpt/data/Samples/frames/eclipse/");
+        //..
+        QDir dir(pathSequence);
+        w.setFramesDir(dir);
+
+        w.show();          // visualize PP/DP sequence
+        return a.exec();
+
+    } catch(Exception& E) {
+        E.Message.str.insert(0, "visualizing motion progress");
+        throw E;
+    }
+}
+*/
 //main function
 int main(int argc, char *argv[])
 {
@@ -2095,7 +2431,7 @@ int main(int argc, char *argv[])
         }
 
         //indicates that the program is running
-        append("FMPT SAA 3.0.7 is running...", log_filename.c_str());
+        append("FMPT SAA 3.0.8 is running...", log_filename.c_str());
 
         //-------------------------------------------------------------------
         //REACTS ACCORDING THE COMMAND AND THE ARGUMENTS:
@@ -2156,7 +2492,7 @@ int main(int argc, char *argv[])
         else if(command == "applyPC") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyCP sould have 1 arguments");
+                throw EImproperArgument("command applyPC sould have 1 arguments");
 
             //built a path from arg 1
             string path_PC(argv[2]);
@@ -2290,8 +2626,27 @@ int main(int argc, char *argv[])
                 append("Identifiers of the disabled RPs: "+Ids.getText().str, log_filename.c_str());
             }
 
-            //validates a pair (PP, DP) from a path and write the events in the log file
+            //check a pair (PP, DP) from a path and write the events in the log file
             checkPairPPDP(FMM, path_PP, path_DP, log_filename);
+        }
+        else if(command == "validatePairPPDP") {
+            //check the precondition
+            if(argc != 3)
+                throw EImproperArgument("command validatePairPPDP sould have 1 arguments");
+
+            //built a path from arg 1
+            string path_outputs(argv[2]);
+
+            //make a rutinary check
+            if(path_outputs.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative path, if any
+            if(path_outputs[0] != '/')
+                path_outputs.insert(0, getCurrentDir()+"/");
+
+            //validates a pair (PP, DP) from a path and write the events in the log file
+            validatePairPPDP(FMM, path_outputs, ".", log_filename);
         }
         else if(command == "regeneratePairPPDP") {
             //check the precondition
@@ -2388,6 +2743,29 @@ int main(int argc, char *argv[])
             //execute the test
             testGenerateParkingProgram_online(FMM, log_filename);
         }
+/*        //-------------------------------------------------------------------
+        else if(command == "visualizePPDP") {
+            //check the precondition
+            if(argc != 4)
+                throw EImproperArgument("command visualizePPDP should have 2 arguments");
+
+            //built a path from arg 1
+            string path_PP(argv[2]);
+            //built a path from arg 2
+            string path_DP(argv[3]);
+
+            //make a rutinary check
+            if(path_PP.length()<=0 || path_DP.length()<=0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative path, if any
+            if(path_PP[0] != '/')
+                path_PP.insert(0, getCurrentDir()+"/");
+            if(path_DP[0] != '/')
+                path_DP.insert(0, getCurrentDir()+"/");
+
+            visualizePPDP(argc, argv, FMM, path_PP, path_DP, log_filename);
+        }*/
         //-------------------------------------------------------------------
         else if(command == "aboutOf") {
             //print the about of legend

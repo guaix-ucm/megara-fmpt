@@ -17,62 +17,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: mainwindow.h
-//Content: gráfical classes and grphical functions
-//Autor: Pique
+//File: test_vclemu.h
+//Content: test for the module vclemu
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef TEST_VCLEMU_H
+#define TEST_VCLEMU_H
 
-#include <QMainWindow>
-#include <QLabel>
-#include <QDir>
-#include <QList>
-#include <QTimer>
+#include <cppunit/extensions/HelperMacros.h>
 
-namespace Ui {
-class MainWindow;
-}
+void test_get_decimal_separator();
+void test_random();
+void test_AnsiString();
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    void setFramesDir(QDir framesDir);
-    QDir getFramesDir();
-    QTimer *timer;
-
-    void readFrames();
-    ~MainWindow();
-
-    void generatePPFrames();
-    void generateDPFrames();
-
-private slots:
-    void open();
-    void close();
-    void about();
-    void loopFrames();
-    void displayFrame();    
-
-    void on_horizontalSlider_sliderMoved(int position);
-
-private:
-
-    Ui::MainWindow *ui;
-
-    QDir framesDir;
-    QFileInfoList ImageList;
-    int index;
-
-    QAction *actionOpen;
-    QAction *actionClose;
-    QAction *actionAboutFMPT;
-    QAction *actionAboutQt;
-
-};
-
-#endif // MAINWINDOW_H
+#endif // TEST_VCLEMU_H

@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //Archivo: Exceptions.h
-//Contenido: clases de excepciones
-//Última actualización: 03/10/2011
+//Contenido: class of exceptions
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -82,17 +81,6 @@ public:
         EImproperFileLoadedValue(AnsiString Message) : Exception(Message) {;}
 };
 
-/*//objeto no construido
-class ENoBuiltObject : public Exception {
-public:
-        ENoBuiltObject(AnsiString Message) : Exception(Message) {;}
-};
-
-//ENoBuiltObject sirve para indicar que un objeto que se está intentando
-//utilizar no está construido, por eemplo para destruirlo.
-//EImproperCall no se considera adecuado para indicar esto,
-//ya que sirve para llevar un control de configuración en vez de existencia.
-*/
 //error imposible
 class EImpossibleError : public Exception {
 public:

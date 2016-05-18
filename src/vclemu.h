@@ -19,7 +19,6 @@
 //---------------------------------------------------------------------------
 //File: vclemu.h
 //Content: VCL emulator
-//Last update: 14/02/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -30,12 +29,13 @@
 #include <string>
 #include <limits> //std::numeric_limits
 
+using namespace std; //string
 
 //---------------------------------------------------------------------------
 
 //Numeric limits:
 //Value                     VCL             STL
-//                          values.h        limits
+//                          <values.h>      <limits>
 //53                        DSIGNIF         std::numeric_limits<double>::digits
 //15                        -               std::numeric_limits<double>::digits10
 //0x7fffffff                MAXINT          std::numeric_limits<int>::max()
@@ -43,83 +43,93 @@
 //
 //WARNING: maximun value of a double can not be translated to text using
 //QString::toDouble(), generating an error.
-//this is the reasom why is prefferible used stringstream or ostringstream.
+//this is the reasom why is prefferible use stringstream or ostringstream.
 
 //Other conversion functin in Qt:
 //  QString::number(x, 'g', 18);
 //  QString::number(n, 10);
 
-
-//lee el valor del separador decimal
+//get the decimal separator value
 char get_decimal_separator(void);
 
-//El valor del separador decimal se asigna mediante:
-//    setlocale(LC_NUMERIC, s);
-//donde s es una char* conteniendo el separador.
+//The decimal separator value is assigned using:
+//  char* setlocale( int category, const char* locale);
+//Parameters:
+//  - category: locale category identifier, one of the LC_xxx macros. May be 0.
+//  - locale: system-specific locale identifier.
+//    Can be "" for the user-preferred locale or "C" for the minimal locale.
+//Return value:
+//  - Pointer to a narrow null-terminated string identifying the C locale
+//    after applying the changes, if any, or null pointer on failure.
+//  - A copy of the returned string along with the category used in this call
+//    to std::setlocale may be used later in the program to restore the locale
+//    back to the state at the end of this call.
+//For set '.' how decimal separator:
+//    setlocale(LC_NUMERIC, "C");
 
-//inicializa la semilla de los números pseudoaleatorios
+//initialize the random seed according to the time
 void randomize(void);
-//genera un número aleatorio en [0, max)
+//generate a random number in [0, max)
 unsigned int random(unsigned int max);
 
 //---------------------------------------------------------------------------
 //AnsiString
 
-using namespace std; //string
-
-//clase AnsiString
+//class AnsiString
 class AnsiString {
 public:
-    //cadena contenedora
+    //contained string
     string str;
 
-    //MÉTODOS PÚBLICOS:
+    //PUBLIC METHODS:
 
-    //construye una AnsiString por defecto
+    //build an AnsiString by default
     AnsiString(void);
-    //construye un AnsiString a partir de una char
+    //build an AnsiString from a char
     AnsiString(const char);
-    //construye un AnsiString a partir de una char*
+    //build an AnsiString from a c string
     AnsiString(const char*);
-    //construye un AnsiString a partir de una string
+    //build an AnsiString from a string
     AnsiString(const string&);
-    //construye una AnsiString a partir de una QString
-    //#AnsiString(const QString&);
+    //build an AnsiString from a QString
+    //AnsiString(const QString&);
 
-    //construye una AnsiString a partir de un int
+    //build an AnsiString from an integer
     AnsiString(int);
-    //construye una AnsiString a partir de un double
+    //build an AnsiString from a double
     AnsiString(double);
 
-    //contatena dos cadenas
+    //concatenate two AnsiStrings
     AnsiString operator+(const AnsiString&) const;
-    //contatena dos cadenas
+    //concatenate an AnsiString and a string
     AnsiString operator+(const string&) const;
-    //concatena una cadena a esta
+    //concatenate an AnsiString to this AnsiString
     AnsiString& operator+=(const AnsiString&);
-    //concatena un caracter a esta cadena
+    //concatenate a char to this AnsiString
     AnsiString& operator+=(const char&);
-    //copia una AnsiString
+    //copy an AnsiString
     AnsiString& operator=(const AnsiString&);
-    //copia una string
+    //copy a string
     AnsiString& operator=(const string& str);
-    //copia una char* (no la ñade, sino que la copia)
+    //copy a c string (not add it, copy it)
     AnsiString& operator=(const char*);
-    //determina si una cadena es igual a esta
+    //determine if an AnsiString is equal to this AnsiString
     bool operator==(const AnsiString&) const;
-    //determina si una cadena es desigual a esta
+    //determine if an AnsiString is unequal to this AnsiString
     bool operator!=(const AnsiString&) const;
 
-    //lectura del caracter indicado en cadenas no constantes
+    //access to the indexed char in non constant AnsiStrings
     char& operator[](int i);
-    //lectura del caracter indicado en cadenas constantes
+    //access to the indexed char in constant AnsiStrings
     const char& operator[](int i) const;
 
-    //puntero al primer caracteer de la cadena
+    //In AnsiString the indexed access start in 1, not in 0.
+
+    //get a pointer to the first char of the AnsiString
     const char *c_str(void) const {return str.c_str();}
-    //determina la longitud de una cadena
+    //get the number of shars of the AnsiString
     int Length() const {return str.length();}
-    //cambia la longitud de una cadena
+    //set the length of the AnsiString
     void SetLength(int);
 
     //insert a char in a position of the string
@@ -129,21 +139,27 @@ public:
     //insert a substring in a position of the string
     void Insert(int i, const AnsiString&);
 
-    //obtiene la subcadena en el intervalo [offset, offset+count]
-    //si offset o count no indican una posición de la cadena Src:
-    //  lanza EImproperArgument
+    //get the substring in the interval [offset, offset+count]
+    //if offset or offset+count not indicates a position in the AnsiString:
+    //  throw EImproperArgument
     AnsiString SubString(int offset, int count) const;
 
-    //convierte la cadena a double
+    //convetrt the string to double
     double ToDouble() const;
-    //convierte la cadena a entero
+    //convert the string to integer
     int ToInt() const;
-    //convierte la cadena a entero
-    //en base hexadecimal
+
+    //convert the string to integer
+    //in hexadecimal
     int ToHex() const;
-/*#    //convierte la cadena a entero sin signo
-    //en base hexadecimal
+    /*#
+    //convert the string to unsigned integer
+    //in hexadecimal
     uint ToUHex() const;*/
+
+    //No sabemos como configurar un stringstream para que funcione en base hexadecimal.
+    //Por eso vamos a comentar las funciones de conversión en base hexadecimal
+    //hasta que sean necesarias.
 };
 
 //---------------------------------------------------------------------------
@@ -168,7 +184,7 @@ public:
 };
 
 //---------------------------------------------------------------------------
-//FUNCIONES DE CONVERSIÓN:
+//CONVERSION FUNCTIONS:
 
 //The more large integer has 13 characters,
 //including the sign.
@@ -222,7 +238,7 @@ QColor StringToColor(const AnsiString&);
 //Hay riesgo de error de declaración múltiple.
 
 //---------------------------------------------------------------------------
-//FUNCIONES DEL SISTEMA DE ARCHIVOS:
+//FUNCTIONS OF THE FILE SYSTEM:
 
 //construye una ruta de directorios
 int mkpath(const string& dir);
@@ -237,7 +253,7 @@ void ForceDirectories(const AnsiString&);
 //---------------------------------------------------------------------------
 //TStrings
 
-//clase array de cadenas de texto
+//class array of AnsiStrings
 class TStrings {
     //array de cadenas de texto
     AnsiString **Items;
@@ -323,6 +339,7 @@ public:
 };
 
 //---------------------------------------------------------------------------
+//TPoint
 
 struct TPoint
 {
@@ -344,6 +361,9 @@ struct TPoint
         return pt;
     }*/
 };
+
+//---------------------------------------------------------------------------
+//TRect
 
 struct TRect
 {

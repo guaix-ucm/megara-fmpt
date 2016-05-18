@@ -658,6 +658,9 @@ public:
     //conjunto de propiedades de posición de P3 (Id, x3, y3)
     //en formato línea de texto
     AnsiString getPositionP3RowText(void) const;
+    //conjunto de propiedades de posición de P3 (Id, x_3, y_3)
+    //en formato línea de texto
+    AnsiString getPositionP_3RowText(void) const;
     //conjunto de propiedades de posición de P3 (Id, p_1, p___3)
     //en formato línea de texto
     AnsiString getPositionPAPRowText(void) const;
@@ -710,6 +713,10 @@ public:
     //en formato fila de texto
     static AnsiString getPositionP3LabelsRow(void);
     //obtiene las etiquetas de las propiedades de posición
+    //("Id", "x_3", "y_3") al final de una cadena de texto
+    //en formato fila de texto
+    static AnsiString getPositionP_3LabelsRow(void);
+    //obtiene las etiquetas de las propiedades de posición
     //("Id", "p_1", "p___3") al final de una cadena de texto
     //en formato fila de texto
     static AnsiString getPositionPPALabelsRow(void);
@@ -727,6 +734,11 @@ public:
     //de texto, en formato fila de texto
     static void  readPositionP3Row(TActuator* &FP,
                                              const AnsiString& S, int &i);
+    //imprime los valores de las propiedades de posición de un posicionador
+    //(Id, x_3, y_3) al final de una cadena de texto
+    //en formato fila de texto
+    static void  printPositionP_3Row(AnsiString&, TActuator*);
+
     //imprime los valores de las propiedades de posición de un posicionador
     //(Id, p_1, p___3) al final de una cadena de texto
     //en formato fila de texto

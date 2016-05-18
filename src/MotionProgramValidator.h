@@ -127,7 +127,7 @@ public:
     //      will be in the firstposition where collission was detected.
     //  If the MP avoid collisions, all RPs of the FMM:
     //      will have the quantifiers of their rotors in their initial status,
-    //      sill be in their final positions.
+    //      will be in their final positions.
     //Inputs:
     //  MP: motion program to be validated
     //Outputs:
