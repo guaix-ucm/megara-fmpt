@@ -22,6 +22,45 @@
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
+//###########################################################################
+//This file contains an example to ilustrate the use of the FMPT library
+//for generate a pair (PP, DP) using the online function.
+//If you want compile and execute this example perform the following actions:
+//
+//    1. Decompress the release 'megara-fmpt-3.3.0.tar.gz (or xz)
+//
+//    2. Move this file to 'megara-fmpt-3.3.0/src'.
+//
+//    3. Edit the file 'megara-fmpt-3.0.0/src/Makefile.am', and change:
+//           bin_PROGRAMS = fmpt_saa
+//           fmpt_saa_SOURCES = main.cpp
+//           fmpt_saa_LDADD = libfmtp.la
+//           fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
+//       By:
+//           bin_PROGRAMS = fmpt_example
+//           fmpt_example_SOURCES = main_example_generatePairPPDP_online.cpp
+//           fmpt_example_LDADD = libfmtp.la
+//           fmpt_example_CPPFLAGS = $(AM_CPPFLAGS)
+//
+//    4. Install and execute the example in a separated directory:
+//           $ make build
+//           $ cd build
+//           $ ../megara-fmpt-3.3.0/configure (or the corresponding path)
+//           $ sudo make install
+//           
+//    Then the executable will be written in '/usr/local/bin' (or similar).
+//    If you have installed previously the FMPT SAA, the directory will look:
+//        fmpt_saa
+//        fmpt_example
+//
+//    If you don't have installed the FMPT SAA previously, maybe you need
+//    execute $ ldcondig for assimilate the FMPT library in the system. 
+//
+//    Now you may execute the example written $ fmpt_example. The output 
+//    files will be written in the directory where you execute it.
+//###########################################################################
+
+
 #include "FileMethods.h"
 #include "MotionProgramGenerator.h"
 #include "FMOSATable.h"
@@ -29,7 +68,7 @@
 #include "Strings.h"
 #include "TextFile.h"
 #include "Geometry.h" //distanceSegmentPoint
-#include "outputs.h" //Outputs
+#include "Outputs.h" //Outputs
 
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
@@ -153,14 +192,30 @@ int main(int argc, char *argv[])
     //
     //###################################################################
 
-    //initalize the log file
-    string log_filename = "fmpt_saa.log";
-    char mode[] = "w";
-    TTextFile TF(log_filename.c_str(), mode);
-    TF.Close();
+    //-----------------------------------------------------------------------
+
+    string log_filename; //the log filename
 
     try {
+        //initalize the log file
+        log_filename = "fmpt_testGeneratePairPPDP_online.log";
+        char mode[] = "w";
+        TTextFile TF(log_filename.c_str(), mode);
+        TF.Close();
+    }
+    catch(Exception &E) {
+        //indicates that has happened an exception
+        //and show the message of the exception
+        cout << "ERROR generating example: "+E.Message.str << endl;
+        return 1;
+    }
+    catch(...) {
+        //indicates that has happened an unknoledge exception
+        cout << "ERROR generating example: unknowledge exception" << endl;
+        return 2;
+    }
 
+    try {
         //-------------------------------------------------------------------
         //CONFIGURATES THE SYSTEM:
 
@@ -170,98 +225,121 @@ int main(int argc, char *argv[])
         //configurates the decimal separator
         setlocale(LC_NUMERIC, "C");
 
-        //initializes the global variables
-        if(TrueBoolStrs.getCount() < 1) {
-            TrueBoolStrs.setCount(1);
-            TrueBoolStrs[0] = "True";
-        }
-        if(FalseBoolStrs.getCount() < 1) {
-            FalseBoolStrs.setCount(1);
-            FalseBoolStrs[0] = "False";
-        }
-
         //-----------------------------------------------------------------------
-        //MAKE ACTIONS:
+        //LOAD THE FIBER MOS MODEL INSTANCE FROM A DIR:
 
         //indicates that the program is running
-        append("FMPT SAA 3.0.0 is running...", log_filename.c_str());
+        append("FMPT example generatePairPPDP_online is running...", log_filename.c_str());
 
         //built the paths where search the Fiber MOS Model
         string dir_FMM1 = DATADIR;
         dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
         string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
 
-        std::cout << dir_FMM1 << endl;
-        std::cout << dir_FMM2 << endl;
-
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
-        string dir_FMM;
         try {
+            append("Loading FMM instance from: '"+dir_FMM1+"'.", log_filename.c_str());
             readInstanceFromDir(FMM, dir_FMM1);
-            dir_FMM = dir_FMM1;
-        } catch(...) {
+        }
+        catch(Exception& E) {
+            append("FMM instance can't be loaded: '"+E.Message.str, log_filename.c_str());
             try {
+                append("Loading FMM instance from: '"+dir_FMM2+"'.", log_filename.c_str());
                 readInstanceFromDir(FMM, dir_FMM2);
-                dir_FMM = dir_FMM2;
-            } catch(...) {
+            }
+            catch(Exception& E) {
+                E.Message.Insert(1, "loading instance: ");
                 throw;
             }
         }
-        append("Fiber MOS Model instance loaded from '"+dir_FMM+"'.", log_filename.c_str());
+        append("FMM instance loaded.", log_filename.c_str());
 
         //-------------------------------------------------------------------
-        //EXECUTE AN ONLINE GENERATION EXAMPLE OF A PAIR (PP, DP):
+        //DECLARE AND BUILD ALL VARIABLES:
 
-        //builds the MPG attached to the FMM
-        TMotionProgramGenerator MPG(&FMM);
-
-        //outputs parameters of the function generatePairPPDP_online
-        bool PairPPDPvalid;
-        TMotionProgram PP, DP;
-
-        //inputs parameters of the function generatePairPPDP_online
-        vector<double> p_1s, p___3s;
-        vector<int> Ids;
-
-        //other variables
-        int Bid = 0; //block identification
-        string filename; //filename of reference including the Bid
-        string output_dir; //folder to put the outputss
-        string output_filename; //output filename each time
-        string str; //string to write to file each time
-
-        output_dir = "example_generatePairPPDP_online";
+        //make the folder to put the outputss
+        string output_dir = "example_generatePairPPDP_online";
         ForceDirectories(AnsiString(output_dir));
 
         //print the tittle
-        append("\r\nOnline generation example of a pair (PP, DP) for CB"+inttostr(Bid)+":", log_filename.c_str());
-        append("=====================================================", log_filename.c_str());
+        unsigned int Bid = 0; //block identifier
+        append("\r\nOnline generation example of a pair (PP, DP) for a CB"+inttostr(Bid)+":", log_filename.c_str());
+        append("=======================================================", log_filename.c_str());
 
-        //build the filename of reference
-        filename = "example-"+inttostr(Bid)+".txt";
+        //build the filename of reference (including the Bid)
+        string filename = "example-"+inttostr(Bid)+".txt";
+
+        //the filename will be used to attach the outputs with the input.
+
+        //###################################################################
+        //There are two ways to get a set of allocations:
+        // 1. Load the allocations from a FMOSA file and get them from the MPG.
+        // 2. Randomize the allocations without collisions.
 
         //-------------------------------------------------------------------
-        //RANDOMIZE THE POSITION ANGLES WITHOUT COLLISIONS AND SAVE THE ALLOCATIONS:
+        //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
 
-        //add to the MPG an allocation for each RP of the FMM
-        Destroy(MPG);
-        for(int i=0; i<FMM.RPL.getCount(); i++)
-            MPG.AddAllocation(i);
+        //load the Outputs structure from a file
+        string input_path = "/usr/local/share/megara-fmpt/Samples/megara-cb0.txt";
+        Outputs outputs;
+        string str; //string to be written to file each time
+        try {
+            strReadFromFile(str, input_path);
+            outputs.FMOSAT.setTableText(Bid, str);
 
-        //randomize the projection points in the domain of their attached RPs
-        FMM.RPL.setPurpose(pGenPairPPDP);
-        MPG.RandomizeWithoutCollision();
-        append("Projection points randomized avoinding collisions.", log_filename.c_str());
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading FMOSA file: ");
+            throw;
+        }
+        append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
+
+        //get the allocation from the FMOSA table
+        TMotionProgramGenerator MPG(&FMM);
+        outputs.FMOSAT.getAllocations(MPG);
+        append("Allocations got from the FMOSA table in MPG.", log_filename.c_str());
 
         //save the allocation table
         str = TAllocation::GetIdPPLabelsRow().str;
         str += "\r\n"+MPG.getColumnText().str;
-        output_filename = output_dir+"/AL-from-"+filename;
+        string output_filename = output_dir+"/AL-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
 
-        //-------------------------------------------------------------------
+        //FOR UNCOMMENT THE GETTING OF THE OUTPUTS FILE GO TO LABEL:
+        //  "//get the output file".
+
+/*        //-------------------------------------------------------------------
+        //WAY 2: GETTING A SET OF ALLOCATIONS RANDOMIZING THEM WITHOUT COLLISIONS:
+
+        //add to the MPG an allocation for each RP of the FMM
+        TMotionProgramGenerator MPG(&FMM);
+        for(int i=0; i<FMM.RPL.getCount(); i++)
+            MPG.AddAllocation(i);
+
+        //When you reuse the MPG, you need to do:
+        //  Destroy(MPG);
+
+        //randomize the projection points in the domain of their attached RPs
+        FMM.RPL.setPurpose(pGenPairPPDP);
+            append("FMM configured for generate a pair (PP, DP). (Purpose = GenPairPPDP).", log_filename.c_str());
+        MPG.RandomizeWithoutCollision();
+        append("Projection points randomized avoinding collisions.", log_filename.c_str());
+
+        //Note that before randomize the allocations withoud collisions,
+        //must be configured the FMM for generate a pair (PP, DP).
+
+        //save the allocation table
+        string str = TAllocation::GetIdPPLabelsRow().str;
+        str += "\r\n"+MPG.getColumnText().str;
+        string output_filename = output_dir+"/AL-from-"+filename;
+        strWriteToFile(output_filename, str);
+        append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
+
+        //FOR COMMENT THE GETTING OF THE OUTPUTS FILE GO TO LABEL:
+        //  "//get the output file".
+*/
+        //###################################################################
         //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) ONLINE:
 
         //move the RPs to the more closer stable point to the projection points
@@ -284,8 +362,7 @@ int main(int argc, char *argv[])
         //  FMM.RPL.getPositionsPPATableText()
 
         //copy the position angles in the input parameters
-        p_1s.clear();
-        p___3s.clear();
+        vector<double> p_1s, p___3s;
         for(int i=0; i<FMM.RPL.getCount(); i++) {
             TRoboticPositioner *RP = FMM.RPL[i];
             p_1s.push_back(RP->getActuator()->getp_1());
@@ -297,19 +374,36 @@ int main(int argc, char *argv[])
         FMM.RPL.moveToOrigins();
         append("RPs moved to origins.", log_filename.c_str());
 
-        //Move the FMM to the origins in convenient because this function
-        //is for test the generating function.
+        //Move the FMM to the origins is convenient because this function is
+        //for test the generating function, but it is not really necessary.
 
         //determine the RPs to be disabled
-        Ids.clear();
-        /*TBD*/
+        vector<int> Ids;
+        //TBD
+
+        //When you reuse the Ids, you need to do:
+        //  Ids.clear();
+
+        //The RPs that shall be disabled depend of the status of the RPs
+        //of the real Fiber MOS.
 
         //call the function to test
+        TMotionProgram PP, DP;
         append("Calling function generatePairPPDP_online...", log_filename.c_str());
-        append("-------------------------------------------", log_filename.c_str());
-        PairPPDPvalid = generatePairPPDP_online(PP, DP,
-                                                FMM, p_1s, p___3s, Ids);
+        append("----------------------------------------------------------------", log_filename.c_str());
+        append("PairPPDPvalid = generatePairPPDP_online(PP, DP,", log_filename.c_str());
+        append("                                        FMM, p_1s, p___3s, Ids);", log_filename.c_str());
+        bool PairPPDPvalid = generatePairPPDP_online(PP, DP,
+                                                     FMM, p_1s, p___3s, Ids);
+        append("----------------------------------------------------------------", log_filename.c_str());
         append("Returned from function generatePairPPDP_online.", log_filename.c_str());
+
+        //When you reuse the MPs, you need to do:
+        //  PP.clear();
+        //  DP.clear();
+        //before call the generation function.
+
+        //THE DISABLED RPs WILL STAY DISABLED IN THE FMM.
 
         //restore de enabling status of all RPs
         for(unsigned int i=0; i<Ids.size(); i++) {
@@ -374,6 +468,22 @@ int main(int argc, char *argv[])
             output_filename = output_dir+"/PP-from-"+filename;
             strWriteToFile(output_filename, str);
             append("Positioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //###############################################################
+            //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
+
+            //THE OUTPUTS FILE ONLY CAN BE OBTAINED WHEN THE ALLOCATIONS
+            //HAS BEEN LOADEN FROM A FMOSA FILE, BECAUSE CONTTAINS THE
+            //FMOSA TABLE IN ADDITION TO THE PAIR (PP, DP):
+
+            //get the outputs file
+            outputs.PP = PP;
+            outputs.DP = DP;
+            outputs.getText(str, Bid, OPL, IPL);
+            output_filename = output_dir+"/outputs-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Pair (PP, DP) saved in '"+output_filename+"'.", log_filename.c_str());
+            //###############################################################
         }
         else {
             //Given that here the generated pair (PP, DP) is invalid,
@@ -401,7 +511,7 @@ int main(int argc, char *argv[])
             str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
         if(PP.thereIsSomeComment1())
             str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
-        output_filename = output_dir+"/outputs-from-"+filename;
+        output_filename = output_dir+"/other-outputs-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
 
@@ -415,7 +525,6 @@ int main(int argc, char *argv[])
         append("PairPPDPvalid: "+BoolToStr(PairPPDPvalid, true).str, log_filename.c_str());
         //append("Collided: "+Collided.gettText().str, log_filename.c_str());
         //append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str());
-
     }
     catch(Exception &E) {
         //indicates that has happened an exception
@@ -434,3 +543,4 @@ int main(int argc, char *argv[])
     //indicates that the program has been executed without error
     return 0;
 }
+
