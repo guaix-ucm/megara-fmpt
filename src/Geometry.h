@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Geometry.h
-//Contenido: clases y funciones geométricas
-//Última actualización: 25/08/2011
-//Autor: Isaac Morales Durán
+//File: Geometry.h
+//Content: geometric functions
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef GEOMETRY_H
@@ -76,7 +75,7 @@ bool intersection(TDoublePoint& r,
 //Parámetros devueltos:
 //	Intersectión: true si los segmentos se intersecan
 //	r: punto de intersección en caso de haberlo
-//	s: posición relativa de los vñertices p1 y p2 a la recta contiente
+//	s: posición relativa de los vértices p1 y p2 a la recta contiente
 //		del segmento clipeante:
 //			-2: p1 y p2 ambos a la dcha
 //			-1: p1 a la izda y p2 a la dcha
@@ -139,7 +138,7 @@ bool intersectionSegmentArc(TDoublePoint Pa, TDoublePoint Pb,
 //el segmento (Pa, Pb) en sentido levógiro
 //si no hay intersección devuelve falso
 bool intersectionArcSegment(TDoublePoint Pfin, TDoublePoint Pini,
-    TDoublePoint Pv, double R, TDoublePoint Pa, TDoublePoint Pb);
+    TDoublePoint Pc, double R, TDoublePoint Pa, TDoublePoint Pb);
 
 //determina si hay intersección entre
 //el círculo (Pc1, R1) y el círculo (Pc2, R2)

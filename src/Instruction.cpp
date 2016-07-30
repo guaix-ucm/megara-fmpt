@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Instruction.cpp
-//Contenido: instrucción de posicionador
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Instruction.cpp
+//Content: instruction of a RP
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Instruction.h"
@@ -59,7 +58,7 @@ void TInstruction::setName(AnsiString Name)
         Args.Clear();
     } else { //si no (es que no conoce el nombre de instrucción)
         //indica que el nombre de instrucción no es conocido
-        throw EImproperArgument(AnsiString("instruction name '")+Name+AnsiString("' should be known"));
+        throw EImproperArgument(AnsiString("instruction name \"")+Name+AnsiString("\" should be known"));
     }
 
     //asigna el nuevo valor
@@ -84,11 +83,25 @@ AnsiString TInstruction::getText(void) const
 
 void TInstruction::setText(const AnsiString &S)
 {
+    int i = 1; //initialize the index to the first position of the string
+
     try {
-        int i = 1;
-        Read(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+        //read the instruction in a tampon variable
+        TInstruction I;
+        Read(&I, S, i);
+
+        //look for unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //clone the tampon variable
+        *this = I;
+    }
+    catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting instruction in text format in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }
@@ -107,11 +120,9 @@ void TInstruction::Print(AnsiString &S, const TInstruction *I)
 //lee una instrucción en una cadena de texto
 void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
 {
-    //el puntro I debería apuntar a una instrucción construida
+    //comprueba las precondiciones
     if(I == NULL)
         throw EImproperArgument("pointer I should point to built instruction");
-
-    //el índice i debe indicar al primer caracteer de una instrucción
     if(i<1 || S.Length()+1<i)
         throw EImproperArgument("instruction not found");
 
@@ -123,7 +134,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
     //      1: leyendo la primera palabra y esperando ' '
     //      2: esperando ' ' o primer caracter de la segunda palabra
     //      3: esperando ' ' o primer caracter de la tercera palabra
-    //      4: instrucción leida con éxito
+    //      4: instrucción leída con éxito
     int status = 0;
 
     char c; //caracter indicado S[i]
@@ -285,7 +296,7 @@ void  TInstruction::Read(TInstruction *I, const AnsiString &S, int &i)
             }
             break;
         }
-        //mientras la instrucción no hya sido leida con éxito
+        //mientras la instrucción no hya sido leída con éxito
     } while(status < 4);
 
     //asigna la variable tampón

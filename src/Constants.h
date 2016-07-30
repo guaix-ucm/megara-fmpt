@@ -25,23 +25,25 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+//GENERAL CONSTANTS
+//--------------------------------------------------------------------------
 
-//El valor de M_PI leido con el depurador es 3.14159265358979
-//define un valor textual para 2PI con objeto de evitar
-//la discrepancia de los valores cargados de archivo y 2*M_PI
+//The value of M_PI readed by the debugger is 3.14159265358979
+//define a textual value for 2PI to avoid discrepancy
+//of values loaded from file and 2*M_PI
 #define M_2PI 6.28318530717959
 
-//número de elementos de un array
-#define NELEMS(arr) (sizeof(arr) / sizeof(arr[0]))
+//number of items of an array
+#define NITEMS(arr) (sizeof(arr) / sizeof(arr[0]))
 
-//La macro NELEMS no puede ser sustituida por una función, porque para
-//la función sizeof, el puntero a un array no es o mismo que el array,
-//de modo que la siguiente función simepre devolverá 1:
-//      template <class T> int NumberElements(T *arr) {
+//The macro NITEMS can't be relaceb by a function, because for the function
+//sizeof, the pointer to an array and the array aren't the same,
+//so the following frunction alwais return 1:
+//      template <class T> int numberItems(T *arr) {
 //              return sizeof(arr)/sizeof(arr[0]);}
 
-//cota superior para el error numérico final
+//upper bound for the final numercal error
 #define ERR_NUM 0.00000001
 
 //---------------------------------------------------------------------------

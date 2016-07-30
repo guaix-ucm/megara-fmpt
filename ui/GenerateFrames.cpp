@@ -19,7 +19,7 @@
 //---------------------------------------------------------------------------
 //File: GenerateFrames.cpp
 //Content: gráfical classes and grphical functions
-//Autor: Pique
+//Autor: José Enrique Ruíz
 //---------------------------------------------------------------------------
 
 #include "GenerateFrames.h"

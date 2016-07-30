@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Exceptions.cpp
-//Contenido: class of exceptions
-//Autor: Isaac Morales Durán
+//File: Exceptions.h
+//Content: classes of exceptions
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Exceptions.h"

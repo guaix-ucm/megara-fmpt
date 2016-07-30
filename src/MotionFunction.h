@@ -17,16 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: MotionFunction.h
-//Contenido: función de movimiento
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: MotionFunction.h
+//Content: motion function
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONFUNCTION_H
 #define MOTIONFUNCTION_H
 
-#include "vclemu.h"
+#include "VCLemu.h"
 #include "FiberMOSModelConstants.h" //VMAXABS, AMAXABS
 
 //---------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: PositioningProgram.cpp
-//Content: class of positioning program
+//Content: positioning program
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -45,7 +45,8 @@ void  TMessageList::PrintMessageList(AnsiString &S,
 {
     try {
         PrintList(S, L);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "printing message list: ");
         throw;
     }
 }
@@ -55,7 +56,8 @@ void  TMessageList::ReadMessageList(TMessageList *L,
 {
     try {
         ReadList(L, S, i);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "reading message list: ");
         throw;
     }
 }
@@ -411,12 +413,12 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
                     aux += c;
                 else //c == '{'
                     try {
-                        t_Bid = strtoint(aux);
+                        t_Bid = strToInt(aux);
                         aux = "";
                         status++;
                     } catch(Exception &E) {
-                        E.Message.Insert(0, AnsiString("improper value for Bid: "));
-                        throw E;
+                        E.Message.Insert(1, AnsiString("improper value for Bid: "));
+                        throw;
                     }
                 break;
 
@@ -504,11 +506,11 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
     Bid = (unsigned int)t_Bid;
 }
 
-//Get MP-Dfmins in the interface format of the MCS.
+//Get MP-Dmins in the interface format of the MCS.
 //Inputs:
-//  label: string labeling all the MP-Dfmin.
+//  label: string labeling all the MP-Dmin.
 //  Bid: univoque identifier of the CB.
-void TMotionProgram::getDfminInterfaceText(string& str, const string& label,
+void TMotionProgram::getDminInterfaceText(string& str, const string& label,
                                            unsigned int Bid) const
 {
     //CHECK THE PRECONDITIONS:
@@ -530,7 +532,7 @@ void TMotionProgram::getDfminInterfaceText(string& str, const string& label,
     if(int(Bid) < 0)
         throw EImproperArgument("block identifier Bid should be less maximun integer value");
 
-    //PRINT THE MP-Dfmin:
+    //PRINT THE MP-Dmin:
 
     //print the label of the motion program and their start delimiter
     str = label+"_"+inttostr(int(Bid))+" {";
@@ -557,15 +559,15 @@ void TMotionProgram::getDfminInterfaceText(string& str, const string& label,
 
             //print the corresponding instruction in the interface format
             if(MI->Instruction.getName() == "M1") {
-                //print the comment with the Dfmin
+                //print the comment with the Dmin
                 str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
 
             } else if(MI->Instruction.getName() == "M2") {
-                //print the comment with the Dfmin
+                //print the comment with the Dmin
                 str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
 
             } else if(MI->Instruction.getName() == "MM") {
-                //print the comment with the Dfmin
+                //print the comment with the Dmin
                 str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
 
             } else

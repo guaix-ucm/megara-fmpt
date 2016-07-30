@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Cilinder.cpp
-//Content: class cilinder of an actuator of a RP
+//Content: cilinder model of an actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -27,6 +27,8 @@
 #include "StrPR.h"
 #include "TextFile.h"
 #include "Geometry.h"
+
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -37,13 +39,14 @@ namespace Models {
 
 //---------------------------------------------------------------------------
 //TCilinder
+
 //---------------------------------------------------------------------------
 //PROPIEDADE DE DIMENSIONAMIENTO
 //DE LECTURA/ESCRITURA:
 
 void TCilinder::setL01(double L01)
 {
-    //el radio del cilindro L01 debe ser mayor que cero
+    //comprueba la precondicion
     if(L01 <= 0)
         throw EImproperArgument("cilinder radio L01 should to be upper zero");
 
@@ -79,13 +82,11 @@ void TCilinder::setthetaO1(double thetaO1)
 
 void TCilinder::settheta_1min(double theta_1min)
 {
-    //el ángulo theta_1min debe estar en el dominio de definición de F(theta_1)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta_1min))
         throw EImproperArgument("angle theta_1min should be in domain F(theta_1)");
-
-    //el ángulo theta_1min debe ser menor que theta_1max
     if(theta_1min >= gettheta_1max())
-        throw EImproperArgument("angles theta_1min should be less theta_1max");
+        throw EImproperArgument("angle theta_1min should be less theta_1max");
 
     p_theta_1min = theta_1min; //asigna el nuevo valor
 
@@ -97,13 +98,11 @@ void TCilinder::settheta_1min(double theta_1min)
 
 void TCilinder::settheta_1max(double theta_1max)
 {
-    //el ángulo theta_1max debe estar en el domaxio de definición de F(theta_1)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta_1max))
         throw EImproperArgument("angle theta_1max should be in domain F(theta_1)");
-
-    //el ángulo theta_1max debe ser mayor que theta_1min
     if(theta_1max >= gettheta_1max())
-        throw EImproperArgument("angles theta_1max should be upper theta_1min");
+        throw EImproperArgument("angle theta_1max should be upper theta_1min");
 
     p_theta_1max = theta_1max; //asigna el nuevo valor
 
@@ -115,7 +114,7 @@ void TCilinder::settheta_1max(double theta_1max)
 
 void TCilinder::settheta_1(double theta_1)
 {
-    //el ángulo theta_1 debe estar en [theta_1min, theta_1max]
+    //comprueba las precondiciones
     if(isntInDomaintheta_1(theta_1))
         throw EImproperArgument("angle theta_1 should be in [thata_1min, thata_1max]");
 
@@ -151,7 +150,8 @@ void TCilinder::settheta1(double theta1)
 {
     try {
         settheta_1(getthetaO1() - theta1);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta1: ");
         throw;
     }
 }
@@ -165,17 +165,28 @@ void TCilinder::settheta_O3o(double theta_O3o)
     getArm()->set(newP1(), getthetaO3());
 }
 
+//first position angle of rotor 1 in rad
+//  theta_1first = max(0, theta_1min)
+double TCilinder::gettheta_1first(void) const
+{
+    return max(0., gettheta_1min());
+}
+//last position angle of rotor 1 in rad
+//  theta_1last = min(M_2PI, theta_1max)
+double TCilinder::gettheta_1last(void) const
+{
+    return min(M_2PI, gettheta_1max());
+}
+
 //--------------------------------------------------------------------------
 //PROPIEDADES DE CUANTIFICACIÓN
 //DE LECTURA/ESCRITURA:
 
 void TCilinder::setF(const TFunction &F)
 {
-    //la función F(theta_1) debe estar definida en algún punto
+    //comprueba las precondiciones
     if(F.getCount() <= 0)
         throw EImproperArgument("the function F should be defined in some point");
-
-    //la función F(theta_1) debe ser monótona creciente
     if(F.Monotony() != 1)
         throw EImproperArgument("function F(theta_1) should be monotically increasing");
 
@@ -223,11 +234,9 @@ void TCilinder::setp_1min(double p_1min)
     //traduce a radianes
     double theta_1min = getG().Image(p_1min);
 
-    //el ángulo p_1min debe estar en el dominio imagen de F(theta_1)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta_1min))
         throw EImproperArgument("angle p_1min should be in image domain F(theta_1)");
-
-    //el ángulo p_1min no debe ser mayor que el ángulo p_1max
     if(theta_1min > gettheta_1max())
         throw EImproperArgument("angle p_1min should not be upper than angle p_1max");
 
@@ -250,11 +259,9 @@ void TCilinder::setp_1max(double p_1max)
     //traduce a radianes
     double theta_1max = getG().Image(p_1max);
 
-    //el ángulo p_1max debe estar en el domaxio imagen de F(theta_1)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta_1max))
         throw EImproperArgument("angle p_1max should be in image domain F(theta_1)");
-
-    //el ángulo p_1max no debe ser menor que el ángulo p_1max
     if(theta_1max < gettheta_1max())
         throw EImproperArgument("angle p_1max should not be less than angle p_1max");
 
@@ -311,60 +318,10 @@ void TCilinder::setP0(TDoublePoint P0)
     //desplazar el posicionador cambiará la ubicación del brazo
     //pero no su orientación
 
-    //asimila P0:
-    /*        p_L0 = P0.Mod();
-        if(L0 != 0)
-                p_theta0 = P0.Arg();
-        else
-                p_theta0 = 0;*/
     getArm()->setP1(newP1()); //mueve el brazo a la nueva posición
     getBarrier()->setP0(getP0()); //mueve la barrera a la nueva posición
 }
 
-/*double TCilinder::getL0(void) const
-{
-    return getP0().Mod();
-}
-void TCilinder::setL0(double L0)
-{
-    //la coordenada radial L0 debería ser no negativa
-    if(_L0 < 0)
-        throw EImproperArgument("radial coordinate L0 should be nonnegative");
-
-    //        p_L0 = L0; //asigna el nuevo valor
-
-    //desplazar el posicionador cambiará la ubicación del brazo
-    //pero no su orientación
-
-    //asimila L0
-    p_P0.x = L0+cos(gettheta0());
-    p_P0.y = L0+sin(gettheta0());
-    getArm()->setP1(NewP1()); //mueve el brazo a la nueva posición
-    getBarrier()->setP0(getP0()); //mueve la barrera a la nueva posición
-}
-double TCilinder::gettheta0(void) const
-{
-    if(getL0() != 0)
-        return getP0().Arg();
-
-    return 0;
-}
-void TCilinder::settheta0(double theta0)
-{
-    //Nótese que theta0 admite cualquier valor.
-
-    //        p_theta0 = theta0; //asigna el nuevo valor
-
-    //desplazar el posicionador cambiará la ubicación del brazo
-    //pero no su orientación
-
-    //asimila L0
-    p_P0.x = getL0()+cos(_theta0);
-    p_P0.y = getL0()+sin(_theta0);
-    getArm()->setP1(NewP1()); //mueve el brazo a la nueva posición
-    getBarrier()->setP0(getP0()); //mueve la barrera a la nueva posición
-}
-*/
 //PROPIEDADES DE LOCALIZACIÓN
 //DE SOLO LECTURA:
 
@@ -399,12 +356,12 @@ double TCilinder::gettheta_12(void) const
     double den = 2*getL01()*getr_2();
 
     if(den != 0) //si no está en el orig
-        //al ángulo del eje 1 se le suma un ángulo que
+        //al ángulo del rotor 1 se le suma un ángulo que
         //puede calcularse por la fórmula del coseno
-        return acos(Min(1., (getL01()*getL01() + getr_2()*getr_2() -
+        return acos(min(1., (getL01()*getL01() + getr_2()*getr_2() -
                              getArm()->getL12()*getArm()->getL12())/den));
     else //si está en el origen
-        //la dirección radial es normal a la orientación del eje 1 (en S1)
+        //la dirección radial es normal a la orientación del rotor 1 (en S1)
         return M_PI/2;
 
     //Sean a, b y c la longitud de los lados de un triángulo,
@@ -465,12 +422,12 @@ double TCilinder::gettheta_13(void) const
     double den = 2*getL01()*getr_3();
 
     if(den != 0) //si no está en el orig
-        //al ángulo del eje 1 se le suma un ángulo que
+        //al ángulo del rotor 1 se le suma un ángulo que
         //puede calcularse por la fórmula del coseno
-        return acos(Min(1., (getL01()*getL01() + getr_3()*getr_3() -
+        return acos(min(1., (getL01()*getL01() + getr_3()*getr_3() -
                              getArm()->getL13()*getArm()->getL13())/den));
     else //si está en el origen
-        //la dirección radial es normal a la orientación del eje 1 (en S1)
+        //la dirección radial es normal a la orientación del rotor 1 (en S1)
         return M_PI/2;
 
     //Sean a, b y c la longitud de los lados de un triángulo,
@@ -531,12 +488,8 @@ TDoublePoint TCilinder::getP3o(void) const
     //traduce a S0
     TDoublePoint P3o = S1recToS0rec(x_3o, y_3o);
 
-    return P3o; //devuelve el punto en S0*/
+    return P3o; //devuelve el punto en S0
 }
-
-//##########################################################################
-//PROPIEDADES EN FORMATO TEXTO:
-//##########################################################################
 
 //--------------------------------------------------------------------------
 //PROPIEDADES DE DIMENSIONAMIENTO
@@ -549,8 +502,9 @@ AnsiString TCilinder::getL01Text(void) const
 void TCilinder::setL01Text(AnsiString &S)
 {
     try {
-        setL01(StrToFloat_(S));
-    } catch(...) {
+        setL01(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting L01 in text format: ");
         throw;
     }
 }
@@ -609,8 +563,9 @@ AnsiString TCilinder::getthetaO1Text(void) const
 void TCilinder::setthetaO1Text(AnsiString &S)
 {
     try {
-        setthetaO1(StrToFloat_(S));
-    } catch(...) {
+        setthetaO1(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting thetaO1 in text format: ");
         throw;
     }
 }
@@ -622,8 +577,9 @@ AnsiString TCilinder::gettheta_1Text(void) const
 void TCilinder::settheta_1Text(AnsiString &S)
 {
     try {
-        settheta_1(StrToFloat_(S));
-    } catch(...) {
+        settheta_1(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta_1 in text format: ");
         throw;
     }
 }
@@ -634,8 +590,9 @@ AnsiString TCilinder::gettheta_1minText(void) const
 void TCilinder::settheta_1minText(AnsiString &S)
 {
     try {
-        settheta_1min(StrToFloat_(S));
-    } catch(...) {
+        settheta_1min(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta_1min in text format: ");
         throw;
     }
 }
@@ -646,8 +603,9 @@ AnsiString TCilinder::gettheta_1maxText(void) const
 void TCilinder::settheta_1maxText(AnsiString &S)
 {
     try {
-        settheta_1max(StrToFloat_(S));
-    } catch(...) {
+        settheta_1max(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta_1max in text format: ");
         throw;
     }
 }
@@ -659,8 +617,9 @@ AnsiString TCilinder::gettheta1Text(void) const
 void TCilinder::settheta1Text(AnsiString &S)
 {
     try {
-        settheta1(StrToFloat_(S));
-    } catch(...) {
+        settheta1(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta1 in text format: ");
         throw;
     }
 }
@@ -672,8 +631,9 @@ AnsiString TCilinder::gettheta_O3oText(void) const
 void TCilinder::settheta_O3oText(const AnsiString &S)
 {
     try {
-        settheta_O3o(StrToFloat_(S));
-    } catch(...) {
+        settheta_O3o(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta_O3o in text format: ");
         throw;
     }
 }
@@ -692,7 +652,7 @@ AnsiString TCilinder::getthetaO3Text(void) const
 
 AnsiString TCilinder::getFAddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(&p_F), 8);
+    return IntToHex(intptr_t(&p_F));
 }
 void TCilinder::setFPointsText(const AnsiString &S)
 {
@@ -711,18 +671,21 @@ void TCilinder::setFPointsText(const AnsiString &S)
         //a F.PointsText, por que el método SetF comprubea si F
         //cumple las restricciones.
 
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting FPoints in text format: ");
         throw;
     }
 }
 void TCilinder::setFTableText(const AnsiString &S)
 {
     try {
-        //clona la función F
+        //lee la FTable en una variable tampón
         TFunction F;
-        //asigna el nuevo valor al clon
-        F.setTableText(S);
-        //intenta asignar el clon a la función
+        AnsiString D;
+        StrTrim(D, S);
+        F.setTableText(D);
+
+        //asigna la variable tampón
         setF(F);
 
         //La asignación a F provocará la asimilación de F mediante:
@@ -733,7 +696,9 @@ void TCilinder::setFTableText(const AnsiString &S)
         //No olvidar que la cadena S no no debe asignarse directamente
         //a F.PointsText, por que el método SetF comprubea si F
         //cumple las restricciones.
-    } catch(...) {
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting FTable in text format: ");
         throw;
     }
 }
@@ -746,7 +711,8 @@ void TCilinder::setQuantify_Text(AnsiString &S)
 {
     try {
         setQuantify_(StrToBool(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Quantify_ in text format: ");
         throw;
     }
 }
@@ -756,7 +722,7 @@ void TCilinder::setQuantify_Text(AnsiString &S)
 
 AnsiString TCilinder::getGAddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(&p_G), 8);
+    return IntToHex(intptr_t(&p_G));
 }
 
 AnsiString TCilinder::getSB1Text(void) const
@@ -779,8 +745,9 @@ AnsiString TCilinder::getp_1minText(void) const
 void TCilinder::setp_1minText(AnsiString &S)
 {
     try {
-        setp_1min(StrToFloat_(S));
-    } catch(...) {
+        setp_1min(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p_1min in text format: ");
         throw;
     }
 }
@@ -791,8 +758,9 @@ AnsiString TCilinder::getp_1maxText(void) const
 void TCilinder::setp_1maxText(AnsiString &S)
 {
     try {
-        setp_1max(StrToFloat_(S));
-    } catch(...) {
+        setp_1max(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p_1max in text format: ");
         throw;
     }
 }
@@ -803,8 +771,9 @@ AnsiString TCilinder::getp_1Text(void) const
 void TCilinder::setp_1Text(AnsiString &S)
 {
     try {
-        setp_1(StrToFloat_(S));
-    } catch(...) {
+        setp_1(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p_1 in text format: ");
         throw;
     }
 }
@@ -821,36 +790,12 @@ void TCilinder::setP0Text(const AnsiString &S)
 {
     try {
         setP0(StrToDPoint(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting P0 in text format: ");
         throw;
     }
 }
 
-/*AnsiString TCilinder::getL0Text(void) const
-{
-    return FloatToStr(getL0());
-}
-void TCilinder::setL0Text(const AnsiString &S)
-{
-    try {
-        setL0(StrToFloat_(S));
-    } catch(...) {
-        throw;
-    }
-}
-AnsiString TCilinder::gettheta0Text(void) const
-{
-    return FloatToStr(gettheta0());
-}
-void TCilinder::settheta0Text(const AnsiString &S)
-{
-    try {
-        settheta0(StrToFloat_(S));
-    } catch(...) {
-        throw;
-    }
-}
-*/
 //PROPIEDADES DE LOCALIZACIÓN
 //DE SOLO LECTURA EN FORMATO TEXTO:
 
@@ -1008,9 +953,7 @@ AnsiString TCilinder::getLocationText(void) const
     S += "R/W:\r\n";
 
     S += AnsiString("    P0 = ")+getP0Text()+AnsiString("\r\n");
-/*    S += AnsiString("    L0 = ")+getL0Text()+AnsiString("\r\n");
-    S += AnsiString("    theta0 = ")+gettheta0Text()+AnsiString("\r\n");
-*/
+
     S += "R:\r\n";
 
     S += AnsiString("    rmax = ")+getrmaxText()+AnsiString("\r\n");
@@ -1072,7 +1015,8 @@ void TCilinder::processateF(void)
     try {
         //determina la función G (inversa de F)
         p_G.Inverse(getF());
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "getting inverse of F: ");
         throw;
     }
 
@@ -1080,22 +1024,19 @@ void TCilinder::processateF(void)
 
     //selecciona el intervalo a partir del cual va a calcular
     //el número de pasos de una vuelta completa
-    double xmax = Min(M_2PI, getF().getXLast());
-    double xmin = Max(double(0), getF().getXFirst());
+    double xmax = min(M_2PI, getF().getXLast());
+    double xmin = max(double(0), getF().getXFirst());
     //calcula el número de pasos de una vuelta completa
     p_SB1 = (getF().Image(xmax) - getF().Image(xmin))/(xmax - xmin)*M_2PI;
 
     //calcula el escalón de cuantificación promedio en [0, M_2PI]
     p_rbs = M_2PI/getSB1();
 
-    //si el dominio de F no contiene todo [theta_1min, theta_1max]
-//    if(gettheta_1min()<getF().getXFirst() || getF().getXLast()<gettheta_1max()) {
-        //constriñe los límites del dominio de theta_1 según el dominio de F
-        if(gettheta_1min() < getF().getXFirst())
-            p_theta_1min = getF().getXFirst();
-        if(gettheta_1max() > getF().getXLast())
-            p_theta_1max = getF().getXLast();
-//    }
+    //constriñe los límites del dominio de theta_1 según el dominio de F
+    if(gettheta_1min() < getF().getXFirst())
+        p_theta_1min = getF().getXFirst();
+    if(gettheta_1max() > getF().getXLast())
+        p_theta_1max = getF().getXLast();
 
     //asimila [theta_1min, theta_1max]
     p_Q.Set(1, getp_1min(), getp_1max());
@@ -1119,10 +1060,6 @@ TDoublePoint TCilinder::newP1(void)
 
     return P1;
 }
-
-//##########################################################################
-//MÉTODOS PÚBLICOS:
-//##########################################################################
 
 //---------------------------------------------------------------------------
 //MÉTODOS DE CONTRUCCION, COPIA Y DESTRUCCIÓN:
@@ -1189,12 +1126,14 @@ TCilinder::TCilinder(TDoublePoint P0, double thetaO1) :
 
     //construye la barrera del área de exclusión con sus propiedades por defecto
     p_Barrier = new TBarrier(getP0(), getthetaO1());
+    //set the contour of the barrier of a RP
+    p_Barrier->setContour_Text(MEGARA_Contour_Text);
 }
 
 //copia un conjunto de propiedades de un cilindro
 void TCilinder::copySizing(const TCilinder *C)
 {
-    //el puntero C debería apuntar a un cilindro construído
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
@@ -1203,7 +1142,7 @@ void TCilinder::copySizing(const TCilinder *C)
 }
 void TCilinder::copyOrientationRadians(const TCilinder *C)
 {
-    //el puntero C debería apuntar a un cilindro construído
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
@@ -1216,7 +1155,7 @@ void TCilinder::copyOrientationRadians(const TCilinder *C)
 }
 void TCilinder::copyQuantification(const TCilinder *C)
 {
-    //el puntero C debería apuntar a un cilindro construído
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
@@ -1231,18 +1170,16 @@ void TCilinder::copyQuantification(const TCilinder *C)
 }
 void TCilinder::copyLocation(const TCilinder *C)
 {
-    //el puntero C debería apuntar a un cilindro construído
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
     //copia las propiedades
     p_P0 = C->p_P0;
-    /*        p_L0 = C->p_L0;
-        p_theta0 = C->p_theta0;*/
 }
 void TCilinder::copyCilinder(const TCilinder *C)
 {
-    //el puntero C debería apuntar a un cilindro construído
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
@@ -1258,15 +1195,15 @@ void TCilinder::copyCilinder(const TCilinder *C)
 //build a clone of a cilinder
 TCilinder::TCilinder(const TCilinder *C)
 {
-    //check the precondition
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built cilinder");
 
-    //build the components of the cilinder by default
+    //construye los componentes del cilindro por defecto
     p_Arm = new TArm(newP1(), getthetaO1() - M_PI);
     p_Barrier = new TBarrier(getP0(), getthetaO1());
 
-    //copy all properties of the cilinder
+    //copia todas las propiedades del cilindro
     copyCilinder(C);
 }
 
@@ -1346,7 +1283,7 @@ bool TCilinder::isntInDomaintheta_1(double theta_1) const
 //está fuera del intervalo [p_1min, p_1max]
 bool TCilinder::isntInDomainp_1(double p_1) const
 {
-    //el ángulo p_1 debería estar en el dominio de G(p_1)
+    //comprueba las precondiciones
     if(!getG().BelongToDomain(p_1))
         throw EImproperArgument("angle p_1 should be in domain G(p_1)");
 
@@ -1394,7 +1331,7 @@ double TCilinder::Qtheta_1(double theta_1)
 void TCilinder::setTemplate(double L01, double L12, double L13,
                             double theta___3, double R3)
 {
-    //el radio del cilindro L01 debe ser mayor que cero
+    //comprueba las precondiciones
     if(L01 <= 0)
         throw EImproperArgument("cilinder radio L01 shoud be upper zero");
 
@@ -1404,20 +1341,20 @@ void TCilinder::setTemplate(double L01, double L12, double L13,
     getArm()->setTemplate(L12, L13, theta___3, R3);
 }
 
-//desactiva la cuantificación de los ejes del posicionador
+//desactiva la cuantificación de los rotores del posicionador
 void TCilinder::disableQuantification(void)
 {
-    //desactiva la cuantificación del eje 1
+    //desactiva la cuantificación del rotor 1
     setQuantify_(false);
-    //desactiva la cuantificación del eje 2
+    //desactiva la cuantificación del rotor 2
     getArm()->setQuantify___(false);
 }
-//activa la cuantificación de los ejes del posicionador
+//activa la cuantificación de los rotores del posicionador
 void TCilinder::enableQuantification(void)
 {
-    //activa la cuantificación del eje 1
+    //activa la cuantificación del rotor 1
     setQuantify_(true);
-    //activa la cuantificación del eje 2
+    //activa la cuantificación del rotor 2
     getArm()->setQuantify___(true);
 }
 
@@ -1435,7 +1372,7 @@ void TCilinder::pushtheta_1(void)
 //si no hay una posición apilada lanza EImproperCall
 void TCilinder::restoretheta_1(void)
 {
-    //la pila theta_1s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(theta_1s.getCount() < 1)
         throw EImproperCall("stack theta_1s should contain some stacking value");
 
@@ -1447,7 +1384,7 @@ void TCilinder::restoretheta_1(void)
 //si no hay una posición apilada lanza EImproperCall
 void TCilinder::poptheta_1(void)
 {
-    //la pila theta_1s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(theta_1s.getCount() < 1)
         throw EImproperCall("stack theta_1s should contain some stacking value");
 
@@ -1459,7 +1396,7 @@ void TCilinder::poptheta_1(void)
 //si no hay una posición apilada lanza EImproperCall
 void TCilinder::restoreAndPoptheta_1(void)
 {
-    //la pila theta_1s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(theta_1s.getCount() < 1)
         throw EImproperCall("stack theta_1s should contain some stacking value");
 
@@ -1483,7 +1420,7 @@ void TCilinder::pushQuantify_(void)
 //si no hay una posición apilada lanza EImproperCall
 void TCilinder::restoreQuantify_(void)
 {
-    //la pila Quantify_s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(Quantify_s.getCount() < 1)
         throw EImproperCall("stack Quantify_s should contain some stacking value");
 
@@ -1495,7 +1432,7 @@ void TCilinder::restoreQuantify_(void)
 //si no hay una posición apilada lanza EImproperCall
 void TCilinder::popQuantify_(void)
 {
-    //la pila Quantify_s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(Quantify_s.getCount() < 1)
         throw EImproperCall("stack Quantify_s should contain some stacking value");
 
@@ -1507,7 +1444,7 @@ void TCilinder::popQuantify_(void)
 //si no hay una posición apilada lanza EImproperCall
 void TCilinder::restoreAndPopQuantify_(void)
 {
-    //la pila Quantify_s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(Quantify_s.getCount() < 1)
         throw EImproperCall("stack Quantify_s should contain some stacking value");
 
@@ -1538,11 +1475,9 @@ void TCilinder::moveOrigin(TDoublePoint P0, double thetaO1)
 //asigna conjuntamente theta_1 y theta___3
 void TCilinder::setAnglesRadians(double theta_1, double theta___3)
 {
-    //el ángulo theta_1 debe estar en [theta_1min, theta_1max]
+    //comprueba las precondiciones
     if(isntInDomaintheta_1(theta_1))
         throw EImproperArgument("angle theta_1 should be in [thata_1min, thata_1max]");
-
-    //el ángulo theta___3 debe estar en [theta___3min, theta___3max]
     if(getArm()->isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in [theta___3min, theta___3max]");
 
@@ -1567,11 +1502,9 @@ void TCilinder::setAnglesRadians(double theta_1, double theta___3)
 //asigna conjuntamente p_1 y p___3
 void TCilinder::setAnglesSteps(double p_1, double p___3)
 {
-    //el ángulo p_1 debe estar en [p_1min, p_1max]
+    //comprueba las precondiciones
     if(isntInDomainp_1(p_1))
         throw EImproperArgument("angle p_1 should be in [thata_1min, thata_1max]");
-
-    //el ángulo p___3 debe estar en [p___3min, p___3max]
     if(getArm()->isntInDomainp___3(p___3))
         throw EImproperArgument("angle p___3 should be in [p___3min, p___3max]");
 
@@ -1597,7 +1530,7 @@ void TCilinder::setAnglesSteps(double p_1, double p___3)
     }
 }
 
-//mueve los ejes hasta el origen de coordenadas
+//mueve los rotores hasta el origen de coordenadas
 void TCilinder::setAnglesZeroSteps(void)
 {
     setp_1(0);
@@ -1607,17 +1540,17 @@ void TCilinder::setAnglesZeroSteps(void)
 //añade conjuntamente 'at_1' y 'at___3' a 'theta_1' y 'theta___3'
 void TCilinder::addAnglesRadians(double at_1, double at__3)
 {
-    //calcula el ángulo para el eje 1
+    //calcula el ángulo para el rotor 1
     double theta_1 = gettheta_1() + at_1;
 
-    //el ángulo theta_1 debe estar en [theta_1min, theta_1max]
+    //comprueba las precondiciones
     if(isntInDomaintheta_1(theta_1))
         throw EImproperArgument("angle theta_1 should be in [thata_1min, thata_1max]");
 
-    //calcula el ángulo para el eje 2
+    //calcula el ángulo para el rotor 2
     double theta___3 = gettheta_3() + at__3;
 
-    //el ángulo theta___3 debe estar en [theta___3min, theta___3max]
+    //comprueba las precondiciones
     if(getArm()->isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in [theta___3min, theta___3max]");
 
@@ -1641,17 +1574,17 @@ void TCilinder::addAnglesRadians(double at_1, double at__3)
 //añade conjuntamente 'a_1' y 'a___3' a 'p_1' y 'p___3'
 void TCilinder::addAnglesSteps(double ap_1, double ap___3)
 {
-    //calcula el ángulo para el eje 1
+    //calcula el ángulo para el rotor 1
     double p_1 = getp_1() + ap_1;
 
-    //el ángulo p_1 debe estar en [p_1min, p_1max]
+    //comprueba las precondiciones
     if(isntInDomainp_1(p_1))
         throw EImproperArgument("angle p_1 should be in [thata_1min, thata_1max]");
 
-    //calcula el ángulo para el eje 2
+    //calcula el ángulo para el rotor 2
     double p___3 = getArm()->getp___3() + ap___3;
 
-    //el ángulo p___3 debe estar en [p___3min, p___3max]
+    //comprueba las precondiciones
     if(getArm()->isntInDomainp___3(p___3))
         throw EImproperArgument("angle p___3 should be in [p___3min, p___3max]");
 
@@ -1678,13 +1611,13 @@ void TCilinder::addAnglesSteps(double ap_1, double ap___3)
 }
 
 //genera un valor aleatorio con distribución uniforme en:
-//      [Max(0, p_1min), Min(floor(SB1), p_1max)]
+//      [max(0, p_1min), min(floor(SB1), p_1max)]
 double TCilinder::randomp_1(void)
 {
-    return RandomUniform(Max(0., getp_1min()), Min(floor(getSB1()), getp_1max()));
+    return RandomUniform(max(0., getp_1min()), min(floor(getSB1()), getp_1max()));
 }
 //asigna a p_1 un valor aleatorio con distribución uniforme en
-//      [Max(0, p_1min), Min(floor(SB1), p_1max)]
+//      [max(0, p_1min), min(floor(SB1), p_1max)]
 void TCilinder::randomizep_1(void)
 {
     setp_1(randomp_1());
@@ -1697,7 +1630,7 @@ void TCilinder::randomizep_1(void)
 //calcula (theta_1, theta___3) para que P3 vaya a él;
 //si el punto no está dentro del dominio devuelve falso.
 //Aunque el punto sea inalcanzable, este método devolverá
-//las posiciones límite a la que los ejes pueden ir.
+//las posiciones límite a la que los rotores pueden ir.
 bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
                               double r_3, double theta_3) const
 {
@@ -1711,14 +1644,14 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
     //si no obtiene el argumento principal
     //pueden obtenerse valores de theta_1 fuera del dominio
 
-    //calcula las posiciones de los ejes
+    //calcula las posiciones de los rotores
     //como si no tuvieran límites
 
     double den = 2*getL01()*r_3;
     if(den == 0) { //si P3 está sobre P0
-        //el eje 1 debe ir a un cuarto de vuelta antes
+        //el rotor 1 debe ir a un cuarto de vuelta antes
         theta_1 = theta_3 - M_PI/2;
-        theta___3 = 0; //el eje 2 debe permanecer en cero
+        theta___3 = 0; //el rotor 2 debe permanecer en cero
     }
     else { //si el denominador es mayor que cero
         //calcula la proyección del ángulo 1
@@ -1728,9 +1661,9 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
             x_ = -1;
         else if(x_ > 1)
             x_ = 1;
-        //obtiene la posición del eje 1
+        //obtiene la posición del rotor 1
         theta_1 = theta_3 - acos(x_);
-        //normaliza la posición del eje 1
+        //normaliza la posición del rotor 1
         theta_1 = ArgPos(theta_1);
 
         //calcula la proyección del ángulo 2
@@ -1742,11 +1675,11 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
             x__ = -1;
         else if(x__ > 1)
             x__ = 1;
-        //obtiene la posición del eje 2
+        //obtiene la posición del rotor 2
         theta___3 = acos(x__);
     }
 
-    //determina si los posiciones de los ejes están dentro de sus dominios
+    //determina si los posiciones de los rotores están dentro de sus dominios
 
     bool reachable;
     if(theta_1<gettheta_1min() || gettheta_1max()<theta_1)
@@ -1756,13 +1689,13 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
     else
         reachable = true;
 
-    //constriñe la posición del eje 1 a los límites del dominio
+    //constriñe la posición del rotor 1 a los límites del dominio
     if(theta_1 < gettheta_1min())
         theta_1 = gettheta_1min();
     else if(gettheta_1max() < theta_1)
         theta_1 = gettheta_1max();
 
-    //constriñe la posición del eje 2 a los límites del dominio
+    //constriñe la posición del rotor 2 a los límites del dominio
     if(theta___3 < getArm()->gettheta___3min())
         theta___3 = getArm()->gettheta___3min();
     else if(getArm()->gettheta___3max() < theta___3)
@@ -1774,7 +1707,7 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
 //calcula (theta_1, theta___3) para que P3 vaya a él;
 //si el punto no está dentro del dominio devuelve falso.
 //Aunque el punto sea inalcanzable, este método devolverá
-//las posiciones límite a la que los ejes pueden ir.
+//las posiciones límite a la que los rotores pueden ir.
 bool TCilinder::anglesToGoP3(double &theta_1, double &theta___3,
                              double x3, double y3) const
 {
@@ -1883,27 +1816,27 @@ bool TCilinder::theta___3ToGor_3(double &theta___3, double r_3)
 
 //determina las posiciones angulares estables que hacen que
 //la fibra de este posicionador se ubique lo más cerca posible
-//del punto correspondiente a unas posiciones angulares de los ejes
+//del punto correspondiente a unas posiciones angulares de los rotores
 //devuelve la distancia al punto hallado
 double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
                                            double theta_1, double theta___3)
 {
     //GUARDA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
 
-    //guarda el estado de habilitación de los cuantificadores de los ejes
+    //guarda el estado de habilitación de los cuantificadores de los rotores
     pushQuantify_();
     getArm()->pushQuantify___();
-    //guarda las posiciones angulares de los ejes
+    //guarda las posiciones angulares de los rotores
     pushtheta_1();
     getArm()->pushtheta___3();
 
     //DETERMINA LAS COORDENAS CARTESIANAS DEL PUNTO DADO:
 
-    //desactiva la cuantificación de los ejes
+    //desactiva la cuantificación de los rotores
     setQuantify_(false);
     getArm()->setQuantify___(false);
 
-    //mueve los ejes a las posiciones indicadas
+    //mueve los rotores a las posiciones indicadas
     setAnglesRadians(theta_1, theta___3);
 
     //guarda P
@@ -1920,11 +1853,11 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     double p___3min = floor(getArm()->getp___3());
     double p___3max = ceil(getArm()->getp___3());
 
-    //activa los cuantificadores de los ejes
+    //activa los cuantificadores de los rotores
     setQuantify_(true);
     getArm()->setQuantify___(true);
 
-    //mueve los ejes al punto (min, min)
+    //mueve los rotores al punto (min, min)
     setAnglesSteps(p_1min, p___3min);
     //guarda la solución
     p_1nsp = p_1min;
@@ -1936,7 +1869,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     if(getArm()->getP3() == P)
         return 0; //termina la búsqueda indicando distancia igual a cero
 
-    //mueve los ejes al punto (max, min)
+    //mueve los rotores al punto (max, min)
     setAnglesSteps(p_1max, p___3min);
     //calcula la distancia entre puntos
     double r = Mod(getArm()->getP3() - P);
@@ -1953,7 +1886,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     if(getArm()->getP3() == P)
         return 0; //termina la búsqueda indicando distancia igual a cero
 
-    //mueve los ejes al punto (max, max)
+    //mueve los rotores al punto (max, max)
     setAnglesSteps(p_1max, p___3max);
     //calcula la distancia entre puntos
     r = Mod(getArm()->getP3() - P);
@@ -1970,7 +1903,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     if(getArm()->getP3() == P)
         return 0; //termina la búsqueda indicando distancia igual a cero
 
-    //mueve los ejes al punto (min, max)
+    //mueve los rotores al punto (min, max)
     setAnglesSteps(p_1min, p___3max);
     //calcula la distancia entre puntos
     r = Mod(getArm()->getP3() - P);
@@ -1998,7 +1931,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
 
     //calcula theta___3min
     double r_3 = r - R;
-    r_3 = Max(r_3, getr_3min());
+    r_3 = max(r_3, getr_3min());
     double theta___3min;
     bool exist = theta___3ToGor_3(theta___3min, r_3);
 
@@ -2008,7 +1941,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
 
     //calcula theta___3max
     r_3 = r + R;
-    r_3 = Min(r_3, getr_3max());
+    r_3 = min(r_3, getr_3max());
     double theta___3max;
     exist = theta___3ToGor_3(theta___3max, r_3);
 
@@ -2084,15 +2017,15 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     p___3max = getArm()->getF().Image(theta___3max);
 
     //por cada punto estable de las trayectorias que atraviesan el círculo (P, R)
-    for(int i=ceil(p_1min); i<p_1max; i++) {
-        for(int j=ceil(p___3min); j<p___3max; j++) {
-            //transforma los ángulos de los ejes a double
+    for(int i=(int)ceil(p_1min); i<p_1max; i++) {
+        for(int j=(int)ceil(p___3min); j<p___3max; j++) {
+            //transforma los ángulos de los rotores a double
             double p_1 = double(i);
             double p___3 = double(j);
 
             //asigna las coordenadas correspondientes en pasos
             setAnglesSteps(p_1, p___3);
-            //ADVERTECNIA: como la cuentificación de los ejes está
+            //ADVERTECNIA: como la cuentificación de los rotores está
             //habilitada el error numérico es corregido
 
             //si el punto P3 coincide exactamente con el punto dado
@@ -2127,11 +2060,11 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     //------------------------------------------------------------------
     //RESTAURA Y DESCARTA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
 
-    //restaura y descarta las posiciones angulares de los ejes
+    //restaura y descarta las posiciones angulares de los rotores
     getArm()->restoreAndPoptheta___3();
     restoreAndPoptheta_1();
     //restaura y desempila el estado de habilitación de
-    //los cuantificadores de los ejes
+    //los cuantificadores de los rotores
     getArm()->restoreAndPopQuantify___();
     restoreAndPopQuantify_();
 
@@ -2139,6 +2072,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     return R;
 }
 
+//------------------------------------------------------------------
 //MÉTODOS DE PERTENENCIA AL DOMINIO DE P3:
 
 //determina si el punto P está dentro del dominio de P3
@@ -2206,8 +2140,8 @@ bool TCilinder::pointIsOutDomainP3(double x, double y)
     return true; //indica que está fuera
 }
 
-//determina el arco descrito por P3 al girar el eje 1
-//en el intervalo [Max(0., theta_1min), Min(2_MPI, theta_imax)]
+//determina el arco descrito por P3 al girar el rotor 1
+//en el intervalo [max(0., theta_1min), min(2_MPI, theta_imax)]
 //con el brazo totalmente extendido
 //si el arco contiene un error numérico significativo hace Pfin = Pini
 void TCilinder::getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
@@ -2220,7 +2154,7 @@ void TCilinder::getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
     R = getL01() + getArm()->getL13();
 
     //determina el límite inferior angular de P3 en S1
-    double theta_ini = Max(0., gettheta_1min());
+    double theta_ini = max(0., gettheta_1min());
     //determina el vértice superior del arco en S1
     Pini.x = R*cos(theta_ini);
     Pini.y = R*sin(theta_ini);
@@ -2228,7 +2162,7 @@ void TCilinder::getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
     Pini = S1recToS0rec(Pini.x, Pini.y);
 
     //determina el límite superior angular de P3 en S1
-    double theta_fin = Min(M_2PI, gettheta_1max());
+    double theta_fin = min(M_2PI, gettheta_1max());
     //determina el vértice inferior del arco en S1
     Pfin.x = R*cos(theta_fin);
     Pfin.y = R*sin(theta_fin);
@@ -2248,11 +2182,11 @@ void TCilinder::getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
         Pfin = Pini;
 }
 //determina el arco descrito por P3 al plegar el brazo
-//con el eje 1 en el ángulo theta_
+//con el rotor 1 en el ángulo theta_
 void TCilinder::getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
                        double &R, double theta_)
 {
-    //el ángulo theta_ debería estar en [theta_1min, theta_1max]
+    //comprueba las precondiciones
     if(theta_<gettheta_1min() || gettheta_1max()<theta_)
         throw EImproperArgument("angle theta_ should be in [theta_1min, theta_1max]");
 
@@ -2283,7 +2217,7 @@ void TCilinder::getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pc,
 }
 
 //Determina si un segmento interseca al arco descrito por P3
-//al girar el eje 1 con el brazo totalemnte extendido.
+//al girar el rotor 1 con el brazo totalemnte extendido.
 bool TCilinder::intersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb)
 {
     //el centro del arco ya viene dado por P0
@@ -2293,7 +2227,7 @@ bool TCilinder::intersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb)
     double R = getL01() + getArm()->getL13();
 
     //determina el límite inferior angular de P3 en S1
-    double theta_ini = Max(0., gettheta_1min());
+    double theta_ini = max(0., gettheta_1min());
     //determina el vértice superior del arco en S1
     TDoublePoint Pini;
     Pini.x = R*cos(theta_ini);
@@ -2302,7 +2236,7 @@ bool TCilinder::intersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb)
     Pini = S1recToS0rec(Pini.x, Pini.y);
 
     //determina el límite superior angular de P3 en S1
-    double theta_fin = Min(M_2PI, gettheta_1max());
+    double theta_fin = min(M_2PI, gettheta_1max());
     //determina el vértice inferior del arco en S1
     TDoublePoint Pfin;
     Pfin.x = R*cos(theta_fin);
@@ -2344,32 +2278,32 @@ bool TCilinder::intersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb)
     return false;
 }
 //Determina si un segmento interseca al arco descrito por P3
-//al plegar el brazo cuando theta_1 = Max(0, theta_1min).
+//al plegar el brazo cuando theta_1 = max(0, theta_1min).
 bool TCilinder::intersectionSegmentArc2(TDoublePoint Pa, TDoublePoint Pb)
 {
-    //determina el arco en theta_ = Max(0, theta_1min)
+    //determina el arco en theta_ = max(0, theta_1min)
     TDoublePoint Pini, Pfin, Pc;
     double R;
-    getArc(Pini, Pfin, Pc, R, Max(0., gettheta_1min()));
+    getArc(Pini, Pfin, Pc, R, max(0., gettheta_1min()));
 
     //determina si hay intersección y devulve el resultado
     return intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R);
 }
 //Determina si un segmento interseca al arco descrito por P3
-//al plegar el brazo cuando theta_1 = Min(M_2PI, theta_1max).
+//al plegar el brazo cuando theta_1 = min(M_2PI, theta_1max).
 bool TCilinder::intersectionSegmentArc3(TDoublePoint Pa, TDoublePoint Pb)
 {
-    //determina el arco en theta_ = Min(M_2PI, theta_1max)
+    //determina el arco en theta_ = min(M_2PI, theta_1max)
     TDoublePoint Pini, Pfin, Pc;
     double R;
-    getArc(Pini, Pfin, Pc, R, Min(M_2PI, gettheta_1max()));
+    getArc(Pini, Pfin, Pc, R, min(M_2PI, gettheta_1max()));
 
     //determina si hay intersección y devulve el resultado
     return intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R);
 }
 
 //Determina si un segmento invade el dominio de P3
-//teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+//teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
 bool TCilinder::segmentInvadeDomainP3(TDoublePoint Pa, TDoublePoint Pb)
 {
     double theta_1, theta___3;
@@ -2386,26 +2320,6 @@ bool TCilinder::segmentInvadeDomainP3(TDoublePoint Pa, TDoublePoint Pb)
     //del segmento puede estar dentro del dominio, en cuyo caso
     //intersecará alguno de los arcos que delimitan el dominio.
 
-    /*        //determina el arco 1
-        TDoublePoint Pini, Pfin, Pc;
-        double R;
-        GetArc(Pini, Pfin, Pc, R);
-        //si hay intersección entre el segmneto y el arco
-        if(intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R))
-                return true; //indica que el segmento invado el dominio de P3
-
-        //determina el arco 2
-        GetArc(Pini, Pfin, Pc, R, Max(0., theta_1min));
-        //si hay intersección entre el segmneto y el arco
-        if(intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R))
-                return true; //indica que el segmento invado el dominio de P3
-
-        //determina el arco 3
-        GetArc(Pini, Pfin, Pc, R, Min(M_2PI, theta_1max));
-        //si hay intersección entre el segmneto y el arco
-        if(intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R))
-                return true; //indica que el segmento invado el dominio de P3
-  */
     if(intersectionSegmentArc1(Pa, Pb))
         return true;
 
@@ -2420,7 +2334,7 @@ bool TCilinder::segmentInvadeDomainP3(TDoublePoint Pa, TDoublePoint Pb)
 }
 //Determina si el segmento (Pa, Pb) no puede ser recorrido
 //totalmente mediante un movimeinto continuo del punto P3,
-//teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+//teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
 bool TCilinder::segmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb)
 {
     double theta_1, theta___3;
@@ -2444,13 +2358,13 @@ bool TCilinder::segmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb)
     //determina el arco 2
     TDoublePoint Pini, Pfin, Pc;
     double R;
-    getArc(Pini, Pfin, Pc, R, Max(0., gettheta_1min()));
+    getArc(Pini, Pfin, Pc, R, max(0., gettheta_1min()));
     //si hay intersección entre el segmneto y el arco
     if(intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R))
         return true; //indica que el segmento no puede ser recorrido
 
     //determina el arco 3
-    getArc(Pini, Pfin, Pc, R, Min(M_2PI, gettheta_1max()));
+    getArc(Pini, Pfin, Pc, R, min(M_2PI, gettheta_1max()));
     //si hay intersección entre el segmneto y el arco
     if(intersectionSegmentArc(Pa, Pb, Pini, Pfin, Pc, R))
         return true; //indica que el segmento no puede ser recorrido
@@ -2460,7 +2374,7 @@ bool TCilinder::segmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb)
 }
 
 //Determina si un polisegmento invade el dominio de P3,
-//teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+//teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
 bool TCilinder::polysegmentInvadeDomainP3(TItemsList<TDoublePoint> &Polysegment)
 {
     //para cada segmento del polisegmento
@@ -2475,7 +2389,7 @@ bool TCilinder::polysegmentInvadeDomainP3(TItemsList<TDoublePoint> &Polysegment)
 
 //Determina si un polisegmento no puede ser recorrido
 //totalmente mediante un movimeinto continuo del punto P3,
-//teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+//teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
 bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegment)
 {
     //para cada segmento del polisegmento
@@ -2488,7 +2402,7 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
     return false;
     /*        //DETERMINA SI HAY ALGÚN PUNTO DEL POLISEGMENTO FUERA DEL DOMINIO DE P3:
 
-        double theta_1, theta___3; //coordenadas posicionales de los ejes
+        double theta_1, theta___3; //coordenadas posicionales de los rotores
         bool isindomain; //indica la pertenencia al dominio de P3
         TDoublePoint P; //un punto del polisegmento
 
@@ -2496,7 +2410,7 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
         for(int i=0; i<Polysegment.Count; i++) {
                 //asigna el punto indicado para facilitar su acceso
                 P = Polysegment[i];
-                //traduce el punto a coordenadas posicionales de los ejes
+                //traduce el punto a coordenadas posicionales de los rotores
                 //y determina si está dentro del dominio
                 isindomain = AnglesToGoP3(theta_1, theta___3, P.x, P.y);
                 //si no está en el dominio
@@ -2508,29 +2422,29 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
         //el brazo está totalmente extendido, solo podrá haber partes
         //del polisegmento fuera del dominio cuando algún punto esté fuera
         //o cuando un polisegmento atraviese alguno de los arcos descritos
-        //por P3 al girar el eje 2.
+        //por P3 al girar el rotor 2.
 
-        //si el eje 1 no llega a dar una vuelta completa
+        //si el rotor 1 no llega a dar una vuelta completa
         if(theta_1max-theta_1min < M_2PI) {
                 //------------------------------------------------------------------
                 //DETERMINA SI HAY INTERSECCIÓN DEL POLISEGMENTO CON
-                //EL ARCO DESCRITO POR P3 EN EL LÍMITE INFERIOR DEL EJE 1:
+                //EL ARCO DESCRITO POR P3 EN EL LÍMITE INFERIOR DEL rotor 1:
 
-                double theta_; //un ángulo del eje 1
-                double theta___; //un ángulo del eje 2
+                double theta_; //un ángulo del rotor 1
+                double theta___; //un ángulo del rotor 2
 
                 TDoublePoint Pc; //punto ccentral del arco
                 TDoublePoint Pini; //vértice inicial del arco
                 TDoublePoint Pfin; //vértice final del arco
 
                 //traduce el centro del arco a coordenadas cartesianas de S1
-                theta_ = Max(0., theta_1min);
+                theta_ = max(0., theta_1min);
                 Pc.x = L01*cos(theta_);
                 Pc.y = L01*sin(theta_);
 
                 //traduce la coordenada limíte superior angular de P3
                 //a coordenada angular de S1
-                theta___ = Min(M_PI, Arm->theta___3max);
+                theta___ = min(M_PI, Arm->theta___3max);
                 theta_ = Arm->theta__O3 + theta___;
 
                 //traduce el vértice superior del arco a coordenadas cartesianas de S1
@@ -2539,7 +2453,7 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
 
                 //traduce la coordenada limíte inferior angular de P3
                 //a coordenada angular de S1
-                theta___ = Max(0., Arm->theta___3min);
+                theta___ = max(0., Arm->theta___3min);
                 theta_ = Arm->theta__O3 + theta___;
 
                 //traduce el vértice inferior del arco a coordenadas cartesianas de S1
@@ -2567,16 +2481,16 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
 
                 //------------------------------------------------------------------
                 //DETERMINA SI HAY INTERSECCIÓN DEL POLISEGMENTO CON
-                //EL ARCO DESCRITO POR P3 EN EL LÍMITE SUPERIOR DEL EJE 1:
+                //EL ARCO DESCRITO POR P3 EN EL LÍMITE SUPERIOR DEL rotor 1:
 
                 //traduce el centro del arco a coordenadas cartesianas de S1
-                theta_ = Min(M_2PI, theta_1max);
+                theta_ = min(M_2PI, theta_1max);
                 Pc.x = L01*cos(theta_);
                 Pc.y = L01*sin(theta_);
 
                 //traduce la coordenada limíte superior angular de P3
                 //a coordenada angular de S1
-                theta___ = Min(M_PI, Arm->theta___3max);
+                theta___ = min(M_PI, Arm->theta___3max);
                 theta_ = Arm->theta__O3 + theta___;
 
                 //traduce el vértice superior del arco a coordenadas cartesianas de S1
@@ -2585,7 +2499,7 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
 
                 //traduce la coordenada limíte inferior angular de P3
                 //a coordenada angular de S1
-                theta___ = Max(0., Arm->theta___3min);
+                theta___ = max(0., Arm->theta___3min);
                 theta_ = Arm->theta__O3 + theta___;
 
                 //traduce el vértice inferior del arco a coordenadas cartesianas de S1
@@ -2615,6 +2529,7 @@ bool TCilinder::polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegm
         return false;   */
 }
 
+//------------------------------------------------------------------
 //MÉTODOS DE MOVIMIENTO A PUNTOS:
 
 //asigna coordenadas polares a P_3
@@ -2630,7 +2545,7 @@ void TCilinder::setPolarP_3(double r_3, double theta_3)
     if(!isindomine)
         throw EImproperArgument("point (r_3, theta_3) should be in domain P_3");
 
-    //mueve los ejes a las posiciones correspondientes
+    //mueve los rotores a las posiciones correspondientes
     setAnglesRadians(theta_1, theta___3);
 }
 
@@ -2651,7 +2566,7 @@ void TCilinder::setCartesianP_3(double x_3, double y_3)
     if(!isindomine)
         throw EImproperArgument("point (x_3, y_3) should be in domain P_3");
 
-    //mueve los ejes a las posiciones correspondientes
+    //mueve los rotores a las posiciones correspondientes
     setAnglesRadians(theta_1, theta___3);
 }
 void TCilinder::setCartesianP_3(TDoublePoint P_3)
@@ -2669,7 +2584,7 @@ void TCilinder::setCartesianP_3(TDoublePoint P_3)
     if(!isindomine)
         throw EImproperArgument("point (x_3, y_3) should be in his domain");
 
-    //mueve los ejes a las posiciones correspondientes
+    //mueve los rotores a las posiciones correspondientes
     setAnglesRadians(theta_1, theta___3);
 }
 

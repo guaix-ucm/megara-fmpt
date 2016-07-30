@@ -17,8 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TAllocationList.cpp
-//Content: class allocation list
+//File: AllocationList.cpp
+//Content: allocation list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -34,39 +34,38 @@ namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-AnsiString TAllocationList::geTAllocationsText(void)
+AnsiString TAllocationList::getAllocationsText(void)
 {
-    AnsiString S;
-
-    AnsiString aux;
-    TAllocation *TP;
+    //print the labels of the table
+    string str = TAllocation::GetIdPPLabelsRow().str;
 
     //para cada asignación de la lista
     for(int i=0; i<getCount(); i++) {
         //apunta el objeto indicado para facilitar su acceso
-        TP = Items[i];
+        TAllocation *A = Items[i];
 
         //imprime el identificador
-        aux = IntToStr(TP->getRP()->getActuator()->getId());
-        while(aux.Length() < 8)
-            aux += char(32);
+        string row = "\r\n";
+        row += A->getRP()->getActuator()->getIdText().str;
 
-        //imprime x
-        aux += FloatToStr(TP->PP.x);
-        while(aux.Length() < 32)
-            aux += char(32);
+        //imprime la coordenada x
+        row += "\t";
+        row += A->PP.getxText().str;
 
-        //imprime y
-        aux += FloatToStr(TP->PP.y);
-        aux += "\r\n";
+        //imprime la coordenada y
+        row += "\t";
+        row += A->PP.getyText().str;
 
-        S += aux;
+        //aade la fila
+        str += row;
     }
 
-    return S;
+    return AnsiString(str);
 }
-void TAllocationList::seTAllocationsText(AnsiString &S)
+void TAllocationList::setAllocationsText(AnsiString &S)
 {
+    TSlideArray<TAllocation*> Items; //variable tampón
+
     try {
         //indica a la primera posición de la cadena
         int i = 1;
@@ -85,64 +84,60 @@ void TAllocationList::seTAllocationsText(AnsiString &S)
         //-----------------------------------------------------------------------------
 
         //el índice i debería indicar a alguna posición de la cadena de texto S
-        if(i<0 || S.Length()+1<i)
-            throw EImproperArgument("index i should indicate a posicion in the string text S");
+        if(i<1 || S.Length()+1<i)
+            throw EImproperArgument("index i should indicate a posicion in the string S");
 
         //estado de la máquina de estados
         //      0: esperando próximo elemento o fin de cadena
-        //      1: fin de cadena encontrada y lista de elementos leida con éxito
+        //      1: fin de cadena encontrada y lista de elementos leída con éxito
         int status = 0;
-
-        int Id;
-        double x, y;
-        TAllocation *Item;
-        TSlideArray<TAllocation*> Items;
 
         //avanza el índice hasta el próximo caracter no separador
         StrTravelSeparatorsIfAny(S, i);
 
         do { //repite
             //si no ha llegado al final de la cadena
-            if(i <= S.Length())
+            if(i <= S.Length()) {
                 try {
-                //lee los valores de las propiedades próximo elemento
-                TAllocation::ReadSeparated(Id, x, y, S, i);
-                //busca el RP en la RPL de la TPL
-                int j = getRoboticPositionerList()->searchId(Id);
-                //si no ha encontrado el RP
-                if(j >= getRoboticPositionerList()->getCount())
-                    //indica que no ha encontrado el RP indicado
-                    throw EImproperFileLoadedValue(AnsiString("RP ")+IntToStr(Id)+AnsiString("not found"));
-                //apunta el RP encontrado
-                TRoboticPositioner *RP = getRoboticPositionerList()->Get(j);
-                //contruye el elemento adscrito al RP encontrado
-                Item = new TAllocation(RP, x, y);
+                    //lee los valores de las propiedades próximo elemento
+                    int Id;
+                    double x, y;
+                    TAllocation::ReadSeparated(Id, x, y, S, i);
+                    //busca el RP en la RPL de la TPL
+                    int j = getRoboticPositionerList()->searchId(Id);
+                    //comprueba que ha encontrado el RP
+                    if(j >= getRoboticPositionerList()->getCount())
+                        throw EImproperFileLoadedValue("RP "+inttostr(Id)+"not found");
+                    //apunta el RP encontrado
+                    TRoboticPositioner *RP = getRoboticPositionerList()->Get(j);
+                    //contruye el elemento adscrito al RP encontrado
+                    TAllocation *Item = new TAllocation(RP, x, y);
 
-                //ERROR: si el RP tiene otro RP asignado, TAllocation lanzará una excepción EImproperArgument.
-                //Eso impedirá que puedan signarse nuevas PP tables, amenos que la TPL esté inicializada.
+                    //ERROR: si el RP tiene otro RP asignado, TAllocation lanzará una excepción EImproperArgument.
+                    //Eso impedirá que puedan signarse nuevas PP tables, amenos que la TPL esté inicializada.
 
-                //añade el elemento
-                Items.AddLast(Item);
-                //avanza el índice hasta el próximo caracter no separador
-                StrTravelSeparators(S, i);
-                //si el índice indica a la posúltima posición de la cadena
-                if(i > S.Length())
-                    status++; //indica que se ha leido la lista con éxito
+                    //añade el elemento
+                    Items.AddLast(Item);
+                    //avanza el índice hasta el próximo caracter no separador
+                    StrTravelSeparatorsIfAny(S, i);
+                    //si el índice indica a la posúltima posición de la cadena
+                    if(i > S.Length())
+                        status++; //indica que se ha leido la lista con éxito
 
-                //ADVERTENCIA: el elemento tiene que ser añadido a la lista tampón
-                //tan pronto como es contruido, para que pueda ser destruido
-                //en caso de error
+                    //ADVERTENCIA: el elemento tiene que ser añadido a la lista tampón
+                    //tan pronto como es contruido, para que pueda ser destruido
+                    //en caso de error
 
-            } catch(...) {
-                throw;
+                } catch(...) {
+                    throw;
+                }
             }
-
             else //si ha llegado al final de la cadena
-            //indica que ha llegado al final de la cadena
-            status++;
-
-            //mientras no se haya acabado la cadena y no se haya leido la lista con éxito
-        } while(status < 1);
+                //indica que ha llegado al final de la cadena
+                status++;
+        }
+        //mientras no se haya acabado la cadena y no se haya leido la lista con éxito
+        while(status < 1);
 
         //asigna la variable tampón:
 
@@ -152,8 +147,8 @@ void TAllocationList::seTAllocationsText(AnsiString &S)
         for(int j=0; j<Items.getCount(); j++)
             Add(Items[j]);
         Items.DelLast(Items.getCount());
-
-    } catch(...) {
+    }
+    catch(...) {
         //destruye los elementos tampón
         for(int i=0; i<Items.getCount(); i++)
             delete Items[i];
@@ -162,8 +157,7 @@ void TAllocationList::seTAllocationsText(AnsiString &S)
 }
 
 //---------------------------------------------------------------------------
-//CONSTRUCCIÓN Y DESTRUCCIÓN:
-//---------------------------------------------------------------------------
+//BUILDING AND DESTROYING METHODS:
 
 //construye una lista de puntos objetivo
 //adscrita a una lista de RPs
@@ -188,8 +182,7 @@ TAllocationList::~TAllocationList()
 }
 
 //---------------------------------------------------------------------------
-//BÚSQUEDA:
-//---------------------------------------------------------------------------
+//SEARCHING METHODS:
 
 //busca el punto objetivo adscrito a un posicionador
 int TAllocationList::searchAllocation(const TRoboticPositioner *RP) const
@@ -215,32 +208,30 @@ int TAllocationList::searchAllocation(int Id) const
 }
 
 //---------------------------------------------------------------------------
-//OBJETOS INDICADOS:
-//---------------------------------------------------------------------------
+//LISTED ITEMS:
 
-//añade un punto objetivo para el posicionador indicado de la lista
+//añade una asignación para el posicionador indicado de la lista
 void TAllocationList::AddAllocation(int i)
 {
-    //el índice i debería indicar un posicionador de la lista RoboticPositionerList
+    //comprueba las precondiciones
     if(i<0 || getRoboticPositionerList()->getCount()<=i)
         throw EImproperArgument("index i should indicate a position in the list ListFibeRPositioners");
 
     //apunta el posicionador indicado para facilitar su acceso
     TRoboticPositioner *RP = getRoboticPositionerList()->Get(i);
 
-    //busca el punto objetivo adscrito al posicionador
+    //busca la asignación adscrita al posicionador
     i = searchAllocation(RP);
 
-    //si el posicionador indicado i ya tiene un ponto objetivo adscrito
+    //comprueba que el posicionador no tenga una asignación adscrita
     if(i > getRoboticPositionerList()->getCount())
-        //indica que el posicionador indicado i ya tiene adscrito un punto objetivo
         throw EImproperArgument("indexed positioner i already have assigned a allocation");
 
-    //añade el punto objetivo para el posiciondor indicado
-    //con ls coordenadas de su punto P3
-    Add(new TAllocation(RP, RP->getActuator()->getArm()->getP3().x, RP->getActuator()->getArm()->getP3().y));
+    //contruye y añade una asignación adscrita al posicionador
+    //con las coordenadas de su punto P3
+    Add(new TAllocation(RP, RP->getActuator()->getArm()->getP3()));
 }
-//borra el punto objetivo indicada de la lista
+//borra la asignación indicada de la lista
 void TAllocationList::DeleteAllocation(int i)
 {
     //el índice i debería indicar un punto objetivo de la lista
@@ -253,265 +244,10 @@ void TAllocationList::DeleteAllocation(int i)
     Delete(i);
 }
 
-/*/---------------------------------------------------------------------------
-//OBJETOS SELECCIONADOS DE LA LISTA:
 //---------------------------------------------------------------------------
+//ALL ITEMS:
 
-//añade puntos objetivo con la posición del punto P3
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-int TAllocationList::AddP3Selected(void)
-{
-    TRoboticPositioner *RP;
-    int j;
-    int acum = 0;
-
-    //para cada posicionador de la lista de posicionadores
-    for(int i=0; i<getRoboticPositionerList()->getCount(); i++) {
-        //apunta el posicionador indicado para facilitar su acceso
-        RP = getRoboticPositionerList()->Get(i);
-
-        //si el posicionador está seleccionado
-        if(RP->getActuator()->Selected) {
-            //busca el posicionador en la lista de puntos objetivo
-            j = searchAllocation(RP->getActuator()->getId());
-            //si el posicionador ya tiene un punto objetivo asignado
-            if(j < getCount())
-                //asigna la posición del posicionador al punto objetivo
-                Items[j]->PP = RP->getActuator()->getArm()->getP3();
-            else //si el posicionador no tiene un punto objetivo asignado
-                //añade un punto objetivo con sus coordenadas actuales
-                Add(new TAllocation(RP, RP->getActuator()->getArm()->getP3()));
-            //contabiliza el posicionador seleccionado
-            acum++;
-        }
-    }
-
-    return acum;
-}
-
-//destruye los puntos objetivo
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-int TAllocationList::DeleteSelected(void)
-{
-    int i = 0;
-    TAllocation *TP;
-    int acum = 0;
-
-    //por cada punto objetivo de la lista
-    while(i < getCount()) {
-        //apunta el punto objetivo indicado para facilitar su acceso
-        TP = Items[i];
-        //si el posicionador adscrito está seleccionado
-        if(TP->getRP()->getActuator()->Selected) {
-            //destruye el punto objetivo
-            DeleteAllocation(i);
-            //contabilizael posicionador adscrito seleccionado
-            acum++;
-        } else  //si elposicionador adscrito no está seleccionado
-            i++; //indica al próximo punto objetivo
-    }
-
-    return acum;
-}
-
-//asigna el punto P3o a los puntos objetivo
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-int TAllocationList::SetP3oSelected(void)
-{
-    TAllocation *TP;
-    int acum = 0;
-
-    //por cada punto objetivo de la lista
-    for(int i=0; i<getCount(); i++) {
-        //apunta el punto objetivo indicado para facilitar su acceso
-        TP = Items[i];
-        //si el posicionador adscrito está seleccionado
-        if(TP->getRP()->getActuator()->Selected) {
-            //asigna el P0 del posicionador adscrito al punto objetivo
-            TP->SetP3o();
-            //contabiliza el posicionador seleccionado
-            acum++;
-        }
-    }
-
-    return acum;
-}
-
-//asigna el punto P3 a los puntos objetivo
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-int TAllocationList::SetP3Selected(void)
-{
-    TAllocation *TP;
-    int acum = 0;
-
-    //por cada punto objetivo de la lista
-    for(int i=0; i<getCount(); i++) {
-        //apunta el punto objetivo para facilitar su acceso
-        TP = Items[i];
-        //si el posicionador adscrito está seleccionado
-        if(TP->getRP()->getActuator()->Selected) {
-            //asigna la posición actual del posicioandor
-            TP->SetP3();
-            //contabiliza el posicionador seleccionado
-            acum++;
-        }
-    }
-
-    return acum;
-}
-
-//randomiza los puntos objetivo con distribución uniforme
-//en el dominio del punto P3 de sus posicionadores adscrito
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-int TAllocationList::RandomizeSelected(void)
-{
-    TAllocation *TP;
-    int acum = 0;
-
-    //por cada punto objetivo de la lista
-    for(int i=0; i<getCount(); i++) {
-        //apunta el punto objetivo indicado para facilitar su acceso
-        TP = Items[i];
-        //si elposicionador adscrito está seleccionado
-        if(TP->getRP()->getActuator()->Selected) {
-            //randomiza el punto en el dominio de su RP adscrito
-            Items[i]->RandomizePP();
-            //contabiliza el posicionador seleccionado
-            acum++;
-        }
-    }
-
-    return acum;
-}
-
-//randomiza los puntos objetivo con distribución uniforme
-//en el dominio del punto P3 de sus posicionadores adscritos
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-int TAllocationList::RandomizeWithoutCollisionSelected(void)
-{
-    TAllocation *TP;
-    TRoboticPositioner *RP;
-    int acum = 0;
-
-    //vectores para guardar la configuración inicial
-    TVector<char> Quantify_;
-    TVector<char> Quantify__;
-    TVector<double> theta_1;
-    TVector<double> theta__3;
-
-    //bandera de colisión detectada
-    bool collision;
-
-    //levanta las baderas de colisión de todos los posicionadores
-    getRoboticPositionerList()->enablePending();
-
-    //ADVERTENCIA: no basta con levantar las banderas de colisión de
-    //los posicionadores adscritos  los puntos objetivo de la lista
-    //porque la colisión puede darse con posicionadores que no tengan
-    //punto objetivo adscrito.
-
-    //por cada punto objetivo de la lista
-    for(int i=0; i<getCount(); i++) {
-        //apunta el punto objetivo indicado para facilitar su acceso
-        TP = Items[i];
-        //apunta el posicionador adscrito para facilitar su acceso
-        RP = TP->getRP();
-
-        //sielposicionador adscrito está seleccionado
-        if(RP->getActuator()->Selected) {
-            //guarda la configuración inicial del posicionador
-            Quantify_.Add(char(RP->getActuator()->getQuantify_()));
-            Quantify__.Add(char(RP->getActuator()->getArm()->getQuantify___()));
-            theta_1.Add(RP->getActuator()->gettheta_1());
-            theta__3.Add(RP->getActuator()->getArm()->gettheta___3());
-
-            //desactiva la cuantificación de los ejes
-            RP->getActuator()->setQuantify_(false);
-            RP->getActuator()->getArm()->setQuantify___(false);
-
-            //repite
-            do {
-                //randomiza el punto en el dominio de su RP adscrito
-                TP->RandomizePP();
-                //mueve el posicionador al punto objetivo
-                TP->MoveToPP();
-                //determina is hay colisión
-                collision = RP->getActuator()->thereIsCollisionWithAdjacent();
-                //mientras el brazo del posicionador invada a sus adyacentes
-            } while(collision);
-
-            //contabiliza el posicionador adscrito seleccionado
-            acum++;
-        }
-    }
-
-    //restaura las posiciones de los ejes de los posicionadores:
-
-    //si hay posicionadores adscritosseleccionados
-    if(acum > 0) {
-        int j = 0; //índice a registros de configuración
-
-        //por cada punto objetivo de la lista
-        for(int i=0; i<getCount(); i++) {
-            //apunta el posicionador para faciltiar su acceso
-            RP = Items[i]->getRP();
-
-            //si el posicionador está seleccionado
-            if(RP->getActuator()->Selected) {
-                //restaura la posición de los ejes
-                RP->getActuator()->getArm()->settheta___3(theta__3[j]);
-                RP->getActuator()->settheta_1(theta_1[j]);
-                //restaura la cuantificación de los ejes
-                RP->getActuator()->getArm()->setQuantify___(bool(Quantify__[j]));
-                RP->getActuator()->setQuantify_(bool(Quantify_[j]));
-
-                //indica al prósimo registro de configuración
-                j++;
-            }
-        }
-    }
-
-    return acum;
-}
-
-//asigna los puntos objetivo
-//al punto P3 de sus posicionadores adscritos
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
-//si algún punto objetivo no está en el dominio de
-//su posicionador adscrito lanza EImproperCall
-int TAllocationList::MoveToTargetP3Selected(void)
-{
-    TAllocation *TP;
-    int acum = 0;
-
-    //para cada punto objetivo de la lista
-    for(int i=0; i<getCount(); i++) {
-        //apunta el punto objetivo indicado para facilitar su acceso
-        TP = Items[i];
-        //si el posicionador adscrito está seleccionado
-        if(TP->getRP()->getActuator()->Selected) {
-            //asigna el punto objetivo a su RP adscrito
-            TP->MoveToPP();
-            //contabiliza el posicionador seleccionado
-            acum++;
-        }
-    }
-
-    return acum;
-}
-*/
-//---------------------------------------------------------------------------
-//TODOS LOS OBJETOS DE LA LISTA:
-//---------------------------------------------------------------------------
-
-//añade puntos objetivo con la posición del punto P3
+//añade asignaciones con la posición del punto P3
 //de todos los posicionadores de la lista
 void TAllocationList::AddP3(void)
 {
@@ -535,9 +271,8 @@ void TAllocationList::AddP3(void)
     }
 }
 
-//destruye los puntos objetivo
-//de los posicionadores seleccionados de la lista
-//e indica el número de posicionadores seleccionados
+//destruye las asignaciones
+//de todos los posicionadores de la lista
 void TAllocationList::Delete_(void)
 {
     //por cada punto objetivo de la lista
@@ -549,9 +284,9 @@ void TAllocationList::Delete_(void)
     Clear();
 }
 
-//asigna el punto PO3 a los puntos objetivo
+//asigna el punto P3o a los puntos objetivo
 //de todos los posicionadores de la lista
-void TAllocationList::SetPO3(void)
+void TAllocationList::SetP3o(void)
 {
     //todos los posicionadores adscritos deben estar en la lista
     TVector<int> indices;
@@ -598,7 +333,7 @@ void TAllocationList::Randomize(void)
 //de todos los posicionadores de la lista
 void TAllocationList::RandomizeWithoutCollision(void)
 {
-    //check the prcondition
+    //comprueba las precondiciones
     TVector<int> indices;
     SearchMissingRPs(indices);
     if(indices.getCount() > 0)
@@ -667,32 +402,33 @@ void TAllocationList::RandomizeWithoutCollision(void)
 //de todos los posicionadores de la lista
 void TAllocationList::MoveToTargetP3(void)
 {
-    //todos los puntos objetivo deben estar en
-    //el dominio de su posicionador adscrito
+    try {
+    //comprueba las precondiciones
     TVector<int> indices;
     SearchOutDomineTAllocations(indices);
     if(indices.getCount() > 0) {
-        //build a list with the pointer to the RP whose TAllocationis out of their scope
-        TItemsList<TRoboticPositioner*> RPL;
-        RPL.Print = TRoboticPositioner::printId;
-        for(int i=0; i<indices.getCount(); i++) {
-            TAllocation *TP = Items[indices[i]];
-            RPL.Add(TP->getRP());
-        }
+        //obtiene el vector de identificadores
+        TVector<int> Ids;
+        for(int i=0; i<indices.getCount(); i++)
+            Ids.Add(Items[indices[i]]->getRP()->getActuator()->getId());
 
-        //indicates the error
-        throw EImproperCall(AnsiString("there is some allocation out of the scope of their atached RP ")+RPL.getText());
+        //indica el error
+        throw EImproperCall(AnsiString("there is some allocation out of the scope of their atached RP: ")+Ids.getText());
     }
 
     //para cada punto objetivo de la lista
     for(int i=0; i<getCount(); i++)
         //asigna el punto objetivo a su RP adscrito
         Items[i]->MoveToPP();
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "moving the RPs to their attached target points: ");
+        throw;
+    }
 }
 
 //---------------------------------------------------------------------------
-//VALIDACIÓN:
-//---------------------------------------------------------------------------
+//VALIDATION:
 
 //busca los puntos objetivo adscritos a posicionadores repetidos
 void TAllocationList::SearchRepeatedRPs(TVector<int> &indices)
@@ -733,25 +469,22 @@ void TAllocationList::SearchMissingRPs(TVector<int> &indices)
 //de sus posicionadores adscritos
 void TAllocationList::SearchOutDomineTAllocations(TVector<int> &indices)
 {
-    TAllocation *TP;
-    TRoboticPositioner *RP;
-
     //reinicial el vector de índices en congruencia
     //con la situación de partida
     indices.Clear();
 
-    //por cada punto objetivo de la lista
+    //por cada asignación de la lista
     for(int i=0; i<getCount(); i++) {
-        //apunta el punto objetivo indicado para facilitar su acceso
-        TP = Items[i];
+        //apunta la asignación indicada para facilitar su acceso
+        TAllocation *A = Items[i];
 
-        //apunta el posicionador adscrito para facilitar su acceso
-        RP = TP->getRP();
+        //apunta el posicionador asignado para facilitar su acceso
+        TRoboticPositioner *RP = A->getRP();
 
         //traduce el punto a coordenadas angulares de los ejes
         //y determina si está en el dominio del posicionador
         double theta_1, theta___3;
-        bool isindomine = RP->getActuator()->anglesToGoP3(theta_1, theta___3, TP->PP.x, TP->PP.y);
+        bool isindomine = RP->getActuator()->anglesToGoP3(theta_1, theta___3, A->PP.x, A->PP.y);
 
         //si el punto objetivo está fuera del dominio del posicionador
         if(!isindomine)
@@ -760,14 +493,12 @@ void TAllocationList::SearchOutDomineTAllocations(TVector<int> &indices)
     }
 }
 
-//Determina la invalidez de una lista de puntos objetivo
+//Determina la invalidez de una lista de asignaciones
 //para ser programada.
 //Valores de retorno:
-//      0: lista de puntos objetivo válida;
-//      1: posicionadores adscritos de los puntos objetivo indicados
-// ausentes;
-//      2: puntos objetivo indicados fuera del dominio de
-//         sus posicionadores adscritos.
+//  0: lista de asignaciones válida;
+//  1: puntos objetivo adscritos a posicionadores ausentes;
+//  2: puntos objetivo fuera del dominio de sus posicionadores adscritos.
 int TAllocationList::Invalid(TVector<int> &indices)
 {
     //se supone que ninguno de los posicionadores adscritos
@@ -788,12 +519,11 @@ int TAllocationList::Invalid(TVector<int> &indices)
 }
 
 //---------------------------------------------------------------------------
-//SEGREGACIÓN:
-//---------------------------------------------------------------------------
+//SEGREGATION:
 
-//segrega los posicionadores de los puntos objetivo en dos listas:
-//      internos: con el brazo dentro del área de seguridad;
-//      externos: con el brazo fuera del área de seguridad;
+//segrega los posicionadores de las asignaciones en dos listas:
+//  internos: con el brazo dentro del área de seguridad;
+//  externos: con el brazo fuera del área de seguridad;
 //si algún punto objetivo está fuera del dominio de
 //su posicionador adscrito:
 //      lanza EImproperCall
@@ -851,8 +581,7 @@ void TAllocationList::SegregateInOut(TRoboticPositionerList &Inners,
 }
 
 //---------------------------------------------------------------------------
-//ALMACENAMIENTO Y RECUPERACIÓN DE POSICIONES:
-//---------------------------------------------------------------------------
+//STACKING AND RETRIEVAL OF POSITIONS:
 
 //apila las posiciones de los posicionadores adscritos
 void TAllocationList::PushPositions(void)
@@ -918,18 +647,17 @@ void TAllocationList::RestoreAndPopPositions(void)
 }
 
 //---------------------------------------------------------------------------
-//COLISIÓN:
-//---------------------------------------------------------------------------
+//COLLISION:
 
 //levanta las banderas indicadoras de determinación de colisión
-//pendiente de todos los posicionadores adscritos a los puntos objetivo
+//pendiente de todos los posicionadores adscritos a las asignaciones
 void TAllocationList::EnablePendingCollisionDetermineTAllocations(void)
 {
     for(int i=0; i<getCount(); i++)
         Items[i]->getRP()->getActuator()->Pending = true;
 }
 
-//busca los puntos objetivo que colisionan con otros puntos objetivo
+//busca las asignaciones que colisionan con otras asignaciones
 void TAllocationList::SearchCollindingTAllocations(TVector<int> &indices)
 {
     TAllocation *TP;
@@ -1026,24 +754,24 @@ void TAllocationList::SearchCollindingTAllocations(TVector<int> &indices)
 
 //COUNT OF ALLOCATION TYPES:
 
-//count the number of reference sources in the SPPP list
+//count the number of reference sources in the allocation list
 unsigned int TAllocationList::countNR(void) const
 {
     unsigned int count = 0;
     for(int i=0; i<getCount(); i++) {
-        const TAllocation *TP = Items[i];
-        if(TP->PP.Type == ptREFERENCE)
+        const TAllocation *A = Items[i];
+        if(A->PP.Type == ptREFERENCE)
             count++;
     }
     return count;
 }
-//count the number of blanks in the SPPP list
+//count the number of blanks in the allocation list
 unsigned int TAllocationList::countNB(void) const
 {
     unsigned int count = 0;
     for(int i=0; i<getCount(); i++) {
-        const TAllocation *TP = Items[i];
-        if(TP->PP.Type == ptBLANK)
+        const TAllocation *A = Items[i];
+        if(A->PP.Type == ptBLANK)
             count++;
     }
     return count;

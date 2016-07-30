@@ -17,15 +17,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: StrPR.cpp
-//Contenido: funciones de impresión y lectura de cadenas de texto
-//Última actualización: 18/03/2014
-//Autor: Isaac Morales Durán
+//File: StrPR.cpp
+//Content: functions for print and read text strings
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Exceptions.h" //EImproperArgument
 #include "Strings.h" //StrFill
 #include "StrPR.h"
+
+#include <stdio.h> //printf, scanf, sprintf, sscanf
 
 //---------------------------------------------------------------------------
 
@@ -38,375 +39,373 @@ namespace Strings {
 //intenta leer una palabra desde la posición i de una cadena de texto
 void StrReadWord(AnsiString &Word, const AnsiString S, int &i)
 {
-        //el índice i debería indicar a una posición de la cadena de texto S
-        if(i<1 || S.Length()+1<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+    //el índice i debería indicar a una posición de la cadena de texto S
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-        //si el índice i indica a la posúltima posición
-        if(i > S.Length())
-                //indica que no se ha encontrado la palabra
-                throw EImproperArgument("word not found");
+    //si el índice i indica a la posúltima posición
+    if(i > S.Length())
+        //indica que no se ha encontrado la palabra
+        throw EImproperArgument("word not found");
 
-        //estado de lectura
-        //      0: esperando ' ', '\r' o primer caracter de la palabra
-        //      1: leyendo palabra y esperando ' ' o '\r\n'
-        //      2: palabra leída con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: esperando ' ', '\r' o primer caracter de la palabra
+    //      1: leyendo palabra y esperando ' ' o '\r\n'
+    //      2: palabra leída con éxito
+    int status = 0;
 
-        //variables auxiliares
-        char c; //S[i]
-        AnsiString t_Word; //variable tampón
+    //variables auxiliares
+    char c; //S[i]
+    AnsiString t_Word; //variable tampón
 
-        do {
-                c = S[i];
+    do {
+        c = S[i];
 
-                switch(status) {
-                        case 0: //esperando ' ', '\r' o primer caracter de la palabra
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("word not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("word not found");
-                                                break;
-                                        default:
-                                                t_Word += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        status = 2;
-                                                else
-                                                        status++;
-                                }
-                                break;
-                        case 1: //leyendo palabra y esperando ' ' o '\r\n'
-                                switch(c) {
-                                        case ' ':
-                                                status++;
-                                                break;
-                                        case '\r':
-                                                status++;
-                                                break;
-                                        default:
-                                                t_Word += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        status++;
-                                }
-                                break;
-                }
-        } while(status < 2);
+        switch(status) {
+        case 0: //esperando ' ', '\r' o primer caracter de la palabra
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("word not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("word not found");
+                break;
+            default:
+                t_Word += c;
+                i++;
+                if(i > S.Length())
+                    status = 2;
+                else
+                    status++;
+            }
+            break;
+        case 1: //leyendo palabra y esperando ' ' o '\r\n'
+            switch(c) {
+            case ' ':
+                status++;
+                break;
+            case '\r':
+                status++;
+                break;
+            default:
+                t_Word += c;
+                i++;
+                if(i > S.Length())
+                    status++;
+            }
+            break;
+        }
+    } while(status < 2);
 
-        //asigna la variable tampón
-        Word = t_Word;
+    //asigna la variable tampón
+    Word = t_Word;
 }
 
 //intenta leer una cadena desde la posición i de una cadena de texto
 //incluyendo las comillas simples delimitadoras
 void StrReadString(AnsiString &String, const AnsiString &S, int &i)
 {
-        //si el índice i no indica a una posicion de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                //indica que no ha encontrado un acadena
-                throw EImproperArgument("String value not found");
+    //comprueba la precondición
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("String value not found");
 
-        //estado de lectura
-        //      0: esperando ' ', '\r' o ''' inicial
-        //      1: leyendo cadena y esperando ''' final
-        //      2: cadena de texto leida con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: esperando ' ', '\r' o ''' inicial
+    //      1: leyendo cadena y esperando ''' final
+    //      2: cadena de texto leída con éxito
+    int status = 0;
 
-        //variables auxiliares
-        AnsiString t_String; //variable tampón
+    //variables auxiliares
+    AnsiString t_String; //variable tampón
 
-        do {
-                char c = S[i];
+    do {
+        char c = S[i];
 
-                switch(status) {
-                        case 0: //esperando ' ', '\r' o ''' inicial
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("initial quote not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("initial quote ''' not found");
-                                                break;
-                                        case char(39):
-                                                t_String += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("final quote ''' not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '''"));
-                                }
-                                break;
-                        case 1: //leyendo cadena y esperando ''' final
-                                t_String += c;
-                                i++;
-                                switch(c) {
-                                        case char(39):
-                                                status++;
-                                                break;
-                                        default:
-                                                if(i >S.Length())
-                                                        throw EImproperArgument("final quote ''' not found");
-                                }
-                                break;
-                }
-        } while(status < 2);
+        switch(status) {
+        case 0: //esperando ' ', '\r' o ''' inicial
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("initial quote not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("initial quote ''' not found");
+                break;
+            case char(39):
+                t_String += c;
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("final quote ''' not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '''"));
+            }
+            break;
+        case 1: //leyendo cadena y esperando ''' final
+            t_String += c;
+            i++;
+            switch(c) {
+            case char(39):
+                status++;
+                break;
+            default:
+                if(i >S.Length())
+                    throw EImproperArgument("final quote ''' not found");
+            }
+            break;
+        }
+    } while(status < 2);
 
-        //asigna la variable tampón
-        String = t_String;
+    //asigna la variable tampón
+    String = t_String;
 }
 //intenta leer una cadena desde la posición i de una cadena de texto
 //que se encuentra delimitada por dos caracteres determinados
 void StrReadStringBetweenChars(AnsiString &String, const AnsiString &S, int &i,
-        char c1, char c2)
+                               char c1, char c2)
 {
-        //si el índice i no indica a una posicion de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                //indica que no ha encontrado un acadena
-                throw EImproperArgument("String value not found");
+    //si el índice i no indica a una posicion de la cadena de texto S
+    if(i<1 || S.Length()<i)
+        //indica que no ha encontrado un acadena
+        throw EImproperArgument("String value not found");
 
-        //estado de lectura
-        //      0: esperando c1
-        //      1: leyendo cadena y esperando c2
-        //      2: cadena de texto leida con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: esperando c1
+    //      1: leyendo cadena y esperando c2
+    //      2: cadena de texto leída con éxito
+    int status = 0;
 
-        //variables tampón
-        AnsiString t_String;
+    //variables tampón
+    AnsiString t_String;
 
-        //avanza el índice hasta el próximo caracter no separador
-        //o hasta la posúltimaposición de la cadena
-        StrTravelSeparatorsIfAny(S, i);
-        //si la cadena se ha acabado
-        if(i > S.Length())
-                //indica que no ha encontrado el caracter c1
+    //avanza el índice hasta el próximo caracter no separador
+    //o hasta la posúltimaposición de la cadena
+    StrTravelSeparatorsIfAny(S, i);
+    //si la cadena se ha acabado
+    if(i > S.Length())
+        //indica que no ha encontrado el caracter c1
+        throw EImproperArgument("char c1 not found");
+
+    do {
+        //asigna el caracter indicado para facilitar su acceso
+        char c = S[i];
+
+        //REACCIONA SEGÚN EL ESTADOY EL CARACTERINDICADO:
+
+        //en caso de que el estado sea
+        switch(status) {
+        case 0: //esperando c1
+            //si el primer caracter es distinto de c1
+            if(c != c1)
+                //indica que no ha encontrado el pirmer caracter delimitador
                 throw EImproperArgument("char c1 not found");
 
-        do {
-                //asigna el caracter indicado para facilitar su acceso
-                char c = S[i];
+            //si la cadena se ha acabado
+            if(i > S.Length())
+                //indica que no ha encontrado una cadena después de c1
+                throw EImproperArgument("string after c1 not found");
 
-                //REACCIONA SEGÚN EL ESTADOY EL CARACTERINDICADO:
+            i++; //indica al próximo caracter
+            status++; //pasa a leer la cadena
+            break;
 
-                //en caso de que el estado sea
-                switch(status) {
-                        case 0: //esperando c1
-                                //si el primer caracter es distinto de c1
-                                if(c != c1)
-                                        //indica que no ha encontrado el pirmer caracter delimitador
-                                        throw EImproperArgument("char c1 not found");
+        case 1: //leyendo cadena y esperando c2
+            //si la cadena se ha acabado
+            if(i > S.Length())
+                //indica que no ha encontrado c2
+                throw EImproperArgument("char c2 not found");
 
-                                //si la cadena se ha acabado
-                                if(i > S.Length())
-                                        //indica que no ha encontrado una cadena después de c1
-                                        throw EImproperArgument("string after c1 not found");
+            i++; //indica al próximo caracter
 
-                                i++; //indica al próximo caracter
-                                status++; //pasa a leer la cadena
-                                break;
-
-                        case 1: //leyendo cadena y esperando c2
-                                //si la cadena se ha acabado
-                                if(i > S.Length())
-                                        //indica que no ha encontrado c2
-                                        throw EImproperArgument("char c2 not found");
-
-                                i++; //indica al próximo caracter
-
-                                //si el caracter es c2
-                                if(c == c2)
-                                        //indica que la cadena ha sido leida con éxito
-                                        status++;
-                                else //si no (si es otro caractercualquiera)
-                                        //añadeel caracter a la cadena tampón
-                                        t_String += c;
-                                break;
-                }
-        //mientras no se haya leido la cadena con éxito
-        } while(status < 2);
-
-        //asigna la variable tampón
-        String = t_String;
-}
-//traduce uan cadena entredoscaracteres a la misma cadena sin los caracteres
-AnsiString StrBetweenCharsToStr(const AnsiString &S,
-        char c1, char c2)
-{
-        try {
-                AnsiString SubS;
-                int i = 1;
-                StrReadStringBetweenChars(SubS, S, i, c1, c2);
-
-                //avanza el índice i hasta la próxima posición que no contenga un separador
-                StrTravelSeparators(S, i);
-                //si el índice i indica a algún caracter de la cadena S
-                if(i <= S.Length())
-                        //indica que la cadena S solo debería contener el valor para instancia de realización
-                        throw EImproperArgument("string S should contain a value to realization instance only");
-
-                //devuelve la subcadena
-                return SubS;
-
-        } catch(...) {
-                throw;
+            //si el caracter es c2
+            if(c == c2)
+                //indica que la cadena ha sido leída con éxito
+                status++;
+            else //si no (si es otro caractercualquiera)
+                //añadeel caracter a la cadena tampón
+                t_String += c;
+            break;
         }
+        //mientras no se haya leido la cadena con éxito
+    } while(status < 2);
+
+    //asigna la variable tampón
+    String = t_String;
+}
+//traduce una cadena entre dos caracteres a la misma cadena sin los caracteres
+AnsiString StrBetweenCharsToStr(const AnsiString &S,
+                                char c1, char c2)
+{
+    try {
+        AnsiString SubS;
+        int i = 1;
+        StrReadStringBetweenChars(SubS, S, i, c1, c2);
+
+        //avanza el índice i hasta la próxima posición que no contenga un separador
+        StrTravelSeparators(S, i);
+        //si el índice i indica a algún caracter de la cadena S
+        if(i <= S.Length())
+            //indica que la cadena S solo debería contener el valor para instancia de realización
+            throw EImproperArgument("string S should contain a value to realization instance only");
+
+        //devuelve la subcadena
+        return SubS;
+
+    } catch(...) {
+        throw;
+    }
 }
 //lee una subcadena SubS desde la posición indicada de una cadena S
 //hasta el caracter delimitador (d) que se indique
 void StrReadStringToChar(AnsiString &SubS, const AnsiString &S, int &i, char d)
 {
-        //el índice i debería indicar una posición en la cadena S
-        if(i<1 || S.Length()<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+    //el índice i debería indicar una posición en la cadena S
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("index i should indicate a charactewr of the string S");
 
-        //inicializa la subcadena
-        SubS = "";
-        //caracter auxiliar
-        char c;
+    //inicializa la subcadena
+    SubS = "";
+    //caracter auxiliar
+    char c;
 
-        do {
-                c = S[i]; //extrae el próximo caarcter de la cadena
-                SubS += c; //añade el caracter a la cadena
-                i++; //indica a la próxima posición
+    do {
+        c = S[i]; //extrae el próximo caarcter de la cadena
+        SubS += c; //añade el caracter a la cadena
+        i++; //indica a la próxima posición
         //mientras el índice indique una posición de la cadena
         //y el caracter en la posición indicada no sea el delimitador
-        } while(i<=S.Length() && c!=d);
+    } while(i<=S.Length() && c!=d);
 
-        //si el último caracter encontrado es el delimitador
-        if(c == d) {
-                i--;
-                SubS.SetLength(SubS.Length()-1);
-        }
+    //si el último caracter encontrado es el delimitador
+    if(c == d) {
+        i--;
+        SubS.SetLength(SubS.Length()-1);
+    }
 }
 //intenta recorrer una cadena de texto (entre comillas simples)
 //desde la posición i de una cadena de texto
 void StrTravelString(const AnsiString &S, int &i)
 {
-        //si el índice i no indica a una posicion de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                //indica que no ha encontrado un acadena
-                throw EImproperArgument("String value not found");
+    //comprueba la precondición
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("String value not found");
 
-        //estado de lectura
-        //      0: esperando ' ', '\r' o ''' inicial
-        //      1: leyendo cadena y esperando ''' final
-        //      2: cadena de texto leida con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: esperando ' ', '\r' o ''' inicial
+    //      1: leyendo cadena y esperando ''' final
+    //      2: cadena de texto leída con éxito
+    int status = 0;
 
-        do {
-                char c = S[i];
+    do {
+        char c = S[i];
 
-                switch(status) {
-                        case 0: //esperando ' ', '\r' o ''' inicial
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("initial quote not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("initial quote ''' not found");
-                                                break;
-                                        case char(39):
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("final quote ''' not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '''"));
-                                }
-                                break;
-                        case 1: //leyendo cadena y esperando ''' final
-                                switch(c) {
-                                        case char(39):
-                                                status++;
-                                                break;
-                                        default:
-                                                i++;
-                                                if(i >S.Length())
-                                                        throw EImproperArgument("final quote ''' not found");
-                                }
-                                break;
-                }
-        } while(status < 2);
+        switch(status) {
+        case 0: //esperando ' ', '\r' o ''' inicial
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("initial quote not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("initial quote ''' not found");
+                break;
+            case char(39):
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("final quote ''' not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '''"));
+            }
+            break;
+        case 1: //leyendo cadena y esperando ''' final
+            switch(c) {
+            case char(39):
+                status++;
+                break;
+            default:
+                i++;
+                if(i >S.Length())
+                    throw EImproperArgument("final quote ''' not found");
+            }
+            break;
+        }
+    } while(status < 2);
 }
 
 //intenta leer una etiqueta desde
 //la posición indicada de una cadena de texto
 void StrReadLabel(AnsiString &Reading, const AnsiString &Label,
-        const AnsiString &S, int &i)
+                  const AnsiString &S, int &i)
 {
-        //si el índice i no indica a un caracter de la cadena S
-        if(i<1 || S.Length()<i)
-                //indica que no ha encontrado la etiqueta
+    //si el índice i no indica a un caracter de la cadena S
+    if(i<1 || S.Length()<i)
+        //indica que no ha encontrado la etiqueta
+        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+
+    //la etiqeuta Label debería tener algún caracter
+    if(Label.Length() < 1)
+        throw EImproperArgument("label Label should contain some character");
+
+    //estado de lectura:
+    //      0: esperando ' ', '\r' (cuando la etiqueta no empieza por '\r') o etiqueta
+    //      1: etiqueta leída con éxito
+    int status = 0;
+
+    //variables auxiliares
+    char c; //S[i]
+    AnsiString t_Reading; //variable tampón
+
+    do {
+        c = S[i];
+
+        //esperando ' ', '\r' o etiqueta
+        if(c == ' ') {
+            i++;
+            if(i > S.Length())
                 throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+        } else if(c=='\r' && Label[1]!='\r') {
+            StrTravelLabel("\r\n", S, i);
+            if(i > S.Length())
+                throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+        } else {
+            char c1, c2;
 
-        //la etiqeuta Label debería tener algún caracter
-        if(Label.Length() < 1)
-                throw EImproperArgument("label Label should contain some character");
+            for(int j=1; j<=Label.Length(); j++) {
+                c1 = Label[j];
 
-        //estado de lectura:
-        //      0: esperando ' ', '\r' (cuando la etiqueta no empieza por '\r') o etiqueta
-        //      1: etiqueta leida con éxito
-        int status = 0;
+                if(i > S.Length())
+                    throw EImproperArgument(AnsiString("'")+AnsiString(c1)+AnsiString("' of '")+Label+AnsiString("' not found"));
 
-        //variables auxiliares
-        char c; //S[i]
-        AnsiString t_Reading; //variable tampón
+                c2 = S[i];
 
-        do {
-                c = S[i];
+                //si los caracteres no coinciden
+                if(c1 != c2)
+                    throw EImproperArgument(AnsiString("'")+AnsiString(c2)+AnsiString("' should be '")+AnsiString(c1)+AnsiString("'"));
+                else {
+                    t_Reading += c2;
+                    i++;
+                }
+            }
+            //indica que ha leido la etiqueta con éxito
+            status++;
+        }
+    } while(status < 1);
 
-                //esperando ' ', '\r' o etiqueta
-                        if(c == ' ') {
-                                i++;
-                                if(i > S.Length())
-                                        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
-                        } else if(c=='\r' && Label[1]!='\r') {
-                                StrTravelLabel("\r\n", S, i);
-                                if(i > S.Length())
-                                        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
-                        } else {
-                                char c1, c2;
-
-                                for(int j=1; j<=Label.Length(); j++) {
-                                        c1 = Label[j];
-
-                                        if(i > S.Length())
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c1)+AnsiString("' of '")+Label+AnsiString("' not found"));
-
-                                        c2 = S[i];
-
-                                        //si los caracteres no coinciden
-                                        if(c1 != c2)
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c2)+AnsiString("' should be '")+AnsiString(c1)+AnsiString("'"));
-                                        else {
-                                                t_Reading += c2;
-                                                i++;
-                                        }
-                                }
-                                //indica que ha leido la etiqueta con éxito
-                                status++;
-                        }
-        } while(status < 1);
-
-        //asigna la variable tampón
-        Reading = t_Reading;
+    //asigna la variable tampón
+    Reading = t_Reading;
 }
 //recorre una etiqueta a partir de
 //la posición indicada de un acadena de texto
@@ -415,7 +414,7 @@ void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i)
     //si el índice i no indica a un caracter de la cadena S
     if(i<1 || S.Length()<i)
         //indica que no ha encontrado la etiqueta
-        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+        throw EImproperArgument(AnsiString("label '")+Label+AnsiString("' not found"));
 
     //la etiqueta Label debería tener algún caracter
     if(Label.Length() < 1)
@@ -450,7 +449,7 @@ void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i)
                     break;
                 default: //si no es un separador
                     //indica que no se ha encontrado la etiqueta
-                    throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+                    throw EImproperArgument(AnsiString("label '")+Label+AnsiString("' not found"));
                 }
             //si el caracter coincide con el primer caracter de la etiqueta
             else {
@@ -466,11 +465,11 @@ void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i)
                 status = 0; //vuelve a esperar un separador o retorno de carro, o primer caracter de etiqueta
             } else
                 //indica que no se ha encontrado la etiqueta
-                throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+                throw EImproperArgument(AnsiString("label '")+Label+AnsiString("' not found"));
             break;
         }
 
-    //mientrasnos e haya empezado a atravesar la etiqueta
+        //mientrasnos e haya empezado a atravesar la etiqueta
     } while(status < 2);
 
     //mientras queden caracteres por atravesar y los caracteres coincidan
@@ -483,7 +482,7 @@ void StrTravelLabel(const AnsiString &Label, const AnsiString &S, int &i)
     //si no se han atravesado todos los caracteres de la etiqueta
     if(j <= Label.Length())
         //indica que no se ha encontrado la etiqueta
-        throw EImproperArgument(AnsiString("'")+Label+AnsiString("' not found"));
+        throw EImproperArgument(AnsiString("label '")+Label+AnsiString("' not found"));
 }
 
 //trabel a label from
@@ -526,7 +525,7 @@ void strTravelLabel(const string& label, const string& str, unsigned int& i)
 
     //indicates the result in funtion if the label was whole traveled
     if(j < label.length())
-        throw EImproperArgument("label not found: \""+label+"\"");
+        throw EImproperArgument("label \""+label+"\" not found: '"+str[i]+"' should be '"+label[j]+"'");
 }
 
 /*
@@ -537,7 +536,7 @@ void StrReadAssign(AnsiString &Ident, const AnsiString &S, int &i)
         //estado de lectura
         //      0: esperando ' ', '\r', o primer caracter del identificador distinto de '='
         //      1: leyendo identificador y esperando ' ' o '='
-        //      2: asignación leida con éxito
+        //      2: asignación leída con éxito
         int status = 0;
 
         //variables ausiliares
@@ -598,7 +597,7 @@ void StrReadAssign(AnsiString &Ident, const AnsiString &S, int &i)
         //asigna la variable tampón
         Ident = t_Ident;
 }      */
-              /*
+/*
 //segrega la subcadena desde la posición indicada hasta el final
 //i quedará indicando a la posúltima posición
 void StrReadToEnd(AnsiString &SubS, const AnsiString &S, int &i)
@@ -619,170 +618,170 @@ void StrReadToEnd(AnsiString &SubS, const AnsiString &S, int &i)
 //i quedará indicando a la posúltima posición
 void StrTravelToEnd(const AnsiString &S, int &i)
 {
-        //el índice i debe indicara una posición de la cadena de texto S
-        if(i<1 || S.Length()+1<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+    //el índice i debe indicara una posición de la cadena de texto S
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-        //si el índice i está indicando a la posúltima posición
-        if(i > S.Length())
-                return; //ya ha terminado de leer
+    //si el índice i está indicando a la posúltima posición
+    if(i > S.Length())
+        return; //ya ha terminado de leer
 
-        //estado de lectura
-        //      0: esperando ' ' o '\r'
-        //      1: cadena leida con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: esperando ' ' o '\r'
+    //      1: cadena leída con éxito
+    int status = 0;
 
-        //variables auxiliares
-        char c;
+    //variables auxiliares
+    char c;
 
-        do {
-                c = S[i];
+    do {
+        c = S[i];
 
-                switch(status) {
-                        case 0:
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        status++;
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ' ' or '\r'"));
-                                }
-                                break;
-                }
-        } while(status < 1);
+        switch(status) {
+        case 0:
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    status++;
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ' ' or '\r'"));
+            }
+            break;
+        }
+    } while(status < 1);
 }
 
 //recorre una cadena desde la posición indicada
 //hasta que encuentra un caracter no separador
 void StrTravelSeparatorsIfAny(const AnsiString &S, int &i)
 {
-        //el índice i debería indicar a una posición de la cadena S
-        if(i<1 || S.Length()+1<1)
-                throw EImproperArgument("index i should indicate a position in string S");
+    //el índice i debería indicar a una posición de la cadena S
+    if(i<1 || S.Length()+1<1)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-        //estado de lectura
-        //      0: esperando separador (' ', '\t' o '\r')
-        //      1: caracter no separador encontrado
-        int status = 0;
+    //estado de lectura
+    //      0: esperando separador (' ', '\t' o '\r')
+    //      1: caracter no separador encontrado
+    int status = 0;
 
-        char c; //caracter indicado
+    char c; //caracter indicado
 
-        do {
-                //si ha llegado al final de la cadena
-                if(i > S.Length())
-                        status++;
+    do {
+        //si ha llegado al final de la cadena
+        if(i > S.Length())
+            status++;
 
-                else { //si no ha llegado al final de la cadena
-                        c = S[i]; //lee el próximo caracter
+        else { //si no ha llegado al final de la cadena
+            c = S[i]; //lee el próximo caracter
 
-                        switch(c) { //en caso de que el el caracter sea
-                                case ' ': //epacio
-                                case '\t': //tabulador
-                                        i++; //recorre el caracter
-                                        break;
-                                case '\r': //retorno de carro
-                                        try {
-                                                //recorre el retorno de carro y fin de línea
-                                                StrTravelLabel("\r\n", S, i);
-                                        } catch(...) {
-                                                throw;
-                                        }
-                                        break;
-                                default: //si el caracter no es ' ', '\t' ni '\r'
-                                        //indica que ha encontrado un caracter no separador
-                                        status++;
-                                        break;
-                        }
-                }
+            switch(c) { //en caso de que el el caracter sea
+            case ' ': //epacio
+            case '\t': //tabulador
+                i++; //recorre el caracter
+                break;
+            case '\r': //retorno de carro
+                try {
+                //recorre el retorno de carro y fin de línea
+                StrTravelLabel("\r\n", S, i);
+            } catch(...) {
+                throw;
+            }
+                break;
+            default: //si el caracter no es ' ', '\t' ni '\r'
+                //indica que ha encontrado un caracter no separador
+                status++;
+                break;
+            }
+        }
 
         //mientras no haya encontrado un caracter no separador
         //y no haya llegado al final de la cadena
-        } while(status < 1);
+    } while(status < 1);
 }
 //atraviesa uno más separadores
 void StrTravelSeparators(const AnsiString &S, int &i)
 {
-        //el índice i debería indicar a una posición de la cadena S
-        if(i<1 || S.Length()+1<1)
-                throw EImproperArgument("index i should indicate a position in string S");
+    //el índice i debería indicar a una posición de la cadena S
+    if(i<1 || S.Length()+1<1)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-        //estado de lectura
-        //      0: esperando primer separador (' ', '\t' o '\r')
-        //      1: esperando separador (' ', '\t' o '\r')
-        //      2: caracter no separador encontrado
-        int status = 0;
+    //estado de lectura
+    //      0: esperando primer separador (' ', '\t' o '\r')
+    //      1: esperando separador (' ', '\t' o '\r')
+    //      2: caracter no separador encontrado
+    int status = 0;
 
-        char c; //caracter indicado
+    char c; //caracter indicado
 
-        do {
-                //si ha llegado al final de la cadena
-                if(i > S.Length())
-                        status++;
+    do {
+        //si ha llegado al final de la cadena
+        if(i > S.Length())
+            status++;
 
-                else { //si no ha llegado al final de la cadena
-                        c = S[i]; //lee el próximo caracter
+        else { //si no ha llegado al final de la cadena
+            c = S[i]; //lee el próximo caracter
 
-                        //en caso deque el estado sea
-                        switch(status) {
-                                case 0: //esperando primer separador (' ', '\t' o '\r')
+            //en caso deque el estado sea
+            switch(status) {
+            case 0: //esperando primer separador (' ', '\t' o '\r')
 
-                                        switch(c) { //en caso de que el el caracter sea
-                                                case ' ': //epacio
-                                                case '\t': //tabulador
-                                                        i++; //recorre el caracter
-                                                        status++; //pasa aesperar separadores (en su caso)
-                                                        break;
+                switch(c) { //en caso de que el el caracter sea
+                case ' ': //epacio
+                case '\t': //tabulador
+                    i++; //recorre el caracter
+                    status++; //pasa aesperar separadores (en su caso)
+                    break;
 
-                                                case '\r': //retorno de carro
-                                                        try {
-                                                                //recorre el retorno de carro y fin de línea
-                                                                StrTravelLabel("\r\n", S, i);
-                                                        } catch(...) {
-                                                                throw;
-                                                        }
-                                                        status++; //pasa aesperar separadores (en su caso)
-                                                        break;
-
-                                                default: //si el caracter no es ' ', '\t' ni '\r'
-                                                        //indica que no hay un primer separador
-                                                        throw EImproperArgument("there isn't a first separator");
-                                        }
-                                        break;
-
-                                case 1: //esperando separador (' ', '\t' o '\r')
-                                        switch(c) { //en caso de que el el caracter sea
-                                                case ' ': //epacio
-                                                case '\t': //tabulador
-                                                        i++; //recorre el caracter
-                                                        break;
-
-                                                case '\r': //retorno de carro
-                                                        try {
-                                                                //recorre el retorno de carro y fin de línea
-                                                                StrTravelLabel("\r\n", S, i);
-                                                        } catch(...) {
-                                                                throw;
-                                                        }
-                                                        break;
-
-                                                default: //si el caracter no es ' ', '\t' ni '\r'
-                                                        //indica que ha encontrado un caracter no separador
-                                                        status++;
-                                        }
-                                        break;
-                        }
+                case '\r': //retorno de carro
+                    try {
+                    //recorre el retorno de carro y fin de línea
+                    StrTravelLabel("\r\n", S, i);
+                } catch(...) {
+                    throw;
                 }
+                    status++; //pasa aesperar separadores (en su caso)
+                    break;
+
+                default: //si el caracter no es ' ', '\t' ni '\r'
+                    //indica que no hay un primer separador
+                    throw EImproperArgument("there isn't a first separator");
+                }
+                break;
+
+            case 1: //esperando separador (' ', '\t' o '\r')
+                switch(c) { //en caso de que el el caracter sea
+                case ' ': //epacio
+                case '\t': //tabulador
+                    i++; //recorre el caracter
+                    break;
+
+                case '\r': //retorno de carro
+                    try {
+                    //recorre el retorno de carro y fin de línea
+                    StrTravelLabel("\r\n", S, i);
+                } catch(...) {
+                    throw;
+                }
+                    break;
+
+                default: //si el caracter no es ' ', '\t' ni '\r'
+                    //indica que ha encontrado un caracter no separador
+                    status++;
+                }
+                break;
+            }
+        }
 
         //mientras no haya encontrado un caracter no separador
         //y no haya llegado al final de la cadena
-        } while(status < 2);
+    } while(status < 2);
 }
 
 //travel one or more separators
@@ -790,7 +789,7 @@ void strTravelSeparators(const string& str, unsigned int& i)
 {
     //check the precondition
     if(str.length() < i)
-        throw EImproperArgument("index i should indicate a position in string S");
+        throw EImproperArgument("index i should indicate a position in the string str");
 
     //reading status:
     //  0: waiting first ' ', '\t' or '\r'
@@ -801,7 +800,7 @@ void strTravelSeparators(const string& str, unsigned int& i)
     int status = 0;
 
     do {
-        //if and has finished the string
+        //if the string and has finished
         if(i >= str.length()) {
             //reacts according to the status
             switch(status) {
@@ -865,7 +864,7 @@ void strTravelSeparators(const string& str, unsigned int& i)
             }
         }
 
-    //while non separator character or post-last position not found
+        //while non separator character or post-last position not found
     } while(status < 4);
 }
 
@@ -887,7 +886,7 @@ void strTravelSeparatorsIfAny(const string& str, unsigned int& i)
     int status = 0;
 
     do {
-        //if string finished
+        //if the string has finished
         if(i >= str.length())
             status = 2; //finish the searching
 
@@ -927,153 +926,16 @@ void strTravelSeparatorsIfAny(const string& str, unsigned int& i)
             }
         }
 
-    //while:
-    //- not not string finished
-    //- and NSC not found
+        //while:
+        //- not not string finished
+        //- and NSC not found
     } while(status < 2);
 }
 
 //---------------------------------------------------------------------------
+//CONVERSION FUNCTIONS:
 
-//escudriña S a partir de i en busca de un número entero
-//i quedará indicando a la posúltima posición
-void StrReadIntStr(AnsiString &I, const AnsiString &S, int &i)
-{
-        //NOTA: no se exige que la cadena de texto S sea imprimible,
-        //de modo que cuando se quiera imprimir uno de sus caracteres,
-        //si no es imprimible saldrá el caraacter por defecto.
-
-        //el índice i debería apauntar a un caracter de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                throw EImproperArgument("integer value not found");
-
-        //inicializa los parámetros referidos
-        I = "";
-
-        char c; //caracter S[i]
-        //estado de la máquina de estados
-        //      0: esperando ' ', '\r', '+'. '-' o primer caracter decimal
-        //      1: esperando primer caracter decimal
-        //      2: esperando caracter decimal posterior al primero
-        //      3: número entero segregado con éxito
-        int status = 0;
-
-        do {
-                //asigna el próximo caracter para facilitar su acceso
-                c = S[i];
-
-                //reacciona en función del estado y el caracter
-                switch(status) {
-                        case 0: //esperando ' ', '\r', '-', '+' o primer carcacter decimal
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("integer value not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("integer value not found");
-                                                break;
-                                        case '+': case '-':
-                                                I += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("first decimal figure not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                if(c<'0' || '9'<c)
-                                                        throw EImproperArgument("integer value not found");
-                                                I += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        status = 3;
-                                                else
-                                                        status = 2;
-                                }
-                                break;
-                        case 1: //esperando primer caracter decimal
-                                if(c<'0' || '9'<c)
-                                        throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be a decimal figure"));
-                                I += c;
-                                i++;
-                                if(i > S.Length())
-                                        status = 3;
-                                else
-                                        status++;
-                                break;
-                        case 2: //esperando caracter decimal posterior al primero
-                                if(c<'0' || '9'<c)
-                                        status++;
-                                else {
-                                        I += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 3;
-                                }
-                                break;
-                }
-        //mientras no se haya segregado con éxito un número entero
-        } while(i<=S.Length() && status<3);
-}
-//escudriña S a partir de i en busca de un número entero
-//e intenta convertirlo a entero mediante StrToInt
-void  StrReadInt(int &n, const AnsiString &S, int &i)
-{
-        //ADVERTENCIA: S puede contener un valor en punto flotante,
-        //por lo cual no vale leer solo la mantisa, pues debe advertirse
-        //de dicho error.
-
-        AnsiString I;
-
-        try {
-                //segrega un número a partir de i
-                StrReadFloatStr(I, S, i);
-
-                //En caso de que S no contenga un número entero a partir de i
-                //StrReadIntStr lanzará una excepción EImproperArgument.
-
-                //intenta convertir a entero
-                n = StrToInt(I);
-
-                //En caso de que I contenga un valor entero demasiado grande
-                //StrToInt lanzará una excepción EConvertError con el mensaje
-                //'I is not a valid integer value'.
-
-                //Por consiguiente la excepción EConvertError de StrToInt
-                //es equivalente a la excepción EOverflow de AtrToFloat,
-                //ya que solo es lanzada cuando I contiene un número entero.
-
-                //captura el efecto lateral de la función de conversión
-//                int aux = 0; aux + aux;
-
-/*comentado para traducción
-        } catch(EConvertError &E) {
-//                throw EImproperArgument("'"+I+"' is a integer value out of range");
-                throw EImproperArgument(E.Message);*/
-        } catch(...) {
-                throw;
-        }
-}
-//convierte un valor entero de formato texto a entero
-//si S contiene algo más que un valor entero
-//lanza una excepción EImproperArgument
-int StrToInt_(const AnsiString &S)
-{
-        try {
-                int i = 1;
-                int aux;
-                StrReadInt(aux, S, i);
-                StrTravelToEnd(S, i);
-                return aux;
-        } catch(...) {
-                throw;
-        }
-}
-
-//read an integer in the indicated position of a text string
+//read an integer in the indicated position of a string
 void strReadIntStr(string& dst, const string& src, unsigned int& i)
 {
     //Note that it is not required that source string is printable.
@@ -1087,7 +949,7 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
     //  1: waiting '\n'
     //  2: waiting first decimal char
     //  3: waiting decimal char or other char
-    //  4: integer value readed successfully
+    //  4: value readed successfully
     int status = 0;
 
     //tampon variable
@@ -1169,237 +1031,260 @@ void strReadIntStr(string& dst, const string& src, unsigned int& i)
             }
         }
 
-    //while the integer value has not readed successfully
+        //while the integer value has not readed successfully
     } while(status < 4);
 
     //set the tampon variables
     dst = t_dst;
 }
-//read an integer in the indicated position of a text string
+//translate from string to int
+int strToInt(const string& str)
+{
+    try {
+        //segregates the floating value in other string
+        unsigned int i = 0;
+        string dst;
+        strReadIntStr(dst, str, i);
+
+        //look for unexpected text
+        strTravelSeparatorsIfAny(str, i);
+        if(i < str.length())
+            throw EImproperArgument("unexpected text: \""+StrFirstChars(str.substr(i, str.length() - i)).str+"\"");
+
+        //convert to double
+        istringstream ss(dst);
+        int value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to int"));
+        }
+
+        //Other way of translate to integer:
+        //  int value;
+        //  sscanf(dst.c_str(), "%d", &value);
+
+        //Other way of translate to integer:
+        //  int value = atoi(dst.c_str());
+
+        return value;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "converting string to int: ");
+        throw;
+    }
+}
+//read an integer in the indicated position of a string
 void strReadInt(int& value, const string& src, unsigned int& i)
 {
     try {
         string dst;
         strReadIntStr(dst, src, i);
-        value = strtoint(dst);
+        value = strToInt(dst);
 
     } catch(Exception& E) {
-        E.Message.Insert(0, "reading integer: ");
-        throw E;
+        E.Message.Insert(1, "reading integer: ");
+        throw;
     }
 }
 
-//imprime el valor de una variable double en una cadena de texto
-void  StrPrintFloat(AnsiString &S, double x)
+//read an integer in the indicated position of an AnsiString
+void StrReadIntStr(AnsiString& D, const AnsiString& S, int& i)
 {
-        S += FloatToStr(x);
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
+
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadIntStr(D.str, S.str, _i);
+    i = int(_i + 1);
 }
-//escudriña S a partir de i en busca de un número de punto flotante
-//i quedará indicando a la posúltima posición
-void StrReadFloatStr(AnsiString &F, const AnsiString &S, int &i)
+
+//read an integer in the indicated position of an AnsiString
+void StrReadInt(int& value, const AnsiString& S, int &i)
 {
-        //NOTA: no se exige que la cadena de texto S sea imprimible,
-        //de modo que cuando se quiera imprimir uno de sus caracteres,
-        //si no es imprimible saldrá el caraacter por defecto.
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
 
-        //el índice i debería indicar un caracter de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                throw EImproperArgument("floating point value not found");
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadInt(value, S.str, _i);
+    i = int(_i + 1);
+}
 
-        //estado de la máquian de estados
-        //      0: esperando ' ', '\t', '\r', '+', '-' o primer caracter decimal
-        //      1: esperando primer caracter decimal
-        //      2: esperando caracter decimal o separador decimal o 'e'/'E'
-        //      3: esperando caracter decimal o 'e'/'E'
-        //      4: esperando '+', '-' o primer caracter decimal
-        //      5: esperando primer caracter decimal
-        //      6: esperando caracter decimal o primer caracter de otra cosa
-        //      7: número de punto flotante segregado con éxito
-        int status = 0;
+//read an integer in the indicated position of a string
+//in hexadecimal format
+void strReadHexStr(string& dst, const string& src, unsigned int& i)
+{
+    //Note that it is not required that source string is printable.
 
-        //variables auxiliares
-        char c; //caracter S[i]
-        AnsiString t_F; //variable tampón
+    //check the precondition
+    if(i > src.length())
+        throw EImproperArgument("index i should indicate a position of the string src");
 
-        do {
-                //asigna el próximo caracter para facilitar su acceso
-                c = S[i];
+    //reading status:
+    //  0: waiting ' ', '\t', '\r', '+', '-' or first hexadecimal char
+    //  1: waiting '\n'
+    //  2: waiting first hexadecimal char
+    //  3: waiting hexadecimal char or other char
+    //  4: value readed successfully
+    int status = 0;
 
-                //reacciona en función del estado y el caracter
-                switch(status) {
-                        case 0: //esperando ' ', '\t', '\r', '+', '-' o primer carcacter decimal
-                                switch(c) {
-                                        case ' ': case '\t':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("floating point value not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("floating point value not found");
-                                                break;
-                                        case '+': case '-':
-                                                t_F += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("first decimal figure not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                if(c<'0' || '9'<c)
-                                                        throw EImproperArgument("floating point value not found");
-                                                t_F += c;
-                                                i++;
-                                                if(i > S.Length())
-                                                        status = 7;
-                                                else
-                                                        status = 2;
-                                }
-                                break;
-                        case 1: //esperando primer caracter decimal
-                                if(c<'0' || '9'<c)
-                                        throw EImproperArgument("first decimal figure not found");
-                                t_F += c;
-                                i++;
-                                if(i > S.Length())
-                                        status = 7;
-                                else
-                                        status++;
-                                break;
-                        case 2: //esperando caracter decimal o separador decimal o 'e'/'E'
-                                if('0'<=c && c<='9') {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 7;
-                                } else if(c == get_decimal_separator()) {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 7;
-                                        else
-                                                status++;
-                                } else if(c=='e' || c=='E') {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                throw EImproperArgument("exponent not found");
-                                        status = 4;
-                                } else
-                                        status = 7;
-                                break;
-                        case 3: //esperando caracter decimal o 'e'/'E'
-                                if('0'<=c && c<='9') {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 7;
-                                } else if(c=='e' || c=='E') {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                throw EImproperArgument("exponent not found");
-                                        status++;
-                                } else
-                                        status = 7;
-                                break;
-                        case 4: //esperando '+', '-', o primer caracter decimal
-                                if(c=='-' || c=='+') {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                throw EImproperArgument("exponent's first decimal figure not found");
-                                        status++;
-                                } else if('0'<=c && c<='9') {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 7;
-                                        else
-                                                status = 6;
-                                } else
-                                        throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '+', '-' or a decimal figure"));
-                                break;
-                        case 5: //esperando primer caracter decimal
-                                if(c<'0' || '9'<c)
-                                        throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be a decimal figure"));
-                                else {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 7;
-                                        else
-                                                status++;
-                                }
-                                break;
-                        case 6: //esperando caracter decimal o primer caracter de otra cosa
-                                if(c<'0' || '9'<c)
-                                        status = 7;
-                                else {
-                                        t_F += c;
-                                        i++;
-                                        if(i > S.Length())
-                                                status = 7;
-                                }
-                                break;
+    //tampon variable
+    string t_dst;
+
+    do {
+        //if the index i indicates a char of the source string
+        if(i < src.length()) {
+            char c = src[i++]; //get the next char
+
+            //reacts according the status and the char
+            switch(status) {
+            case 0: //waiting ' ', '\t', '\r', '+', '-' or first hexadecimal char
+                if(c==' ' || c=='\t')
+                    ; //do nothing (keep the status)
+                else if(c == '\r')
+                    status++;
+                else if(c=='+' || c=='-') {
+                    t_dst += c;
+                    status = 2;
                 }
-        //mientras no se haya segregado con éxito un número de punto flotante
-        } while(status < 7);
+                else if(('0'<=c && c<='9') || c=='a' || c=='b' || c=='c' || c=='d' || c=='e' || c=='f' || c=='A' || c=='B' || c=='C' || c=='D' || c=='E' || c=='F') {
+                    t_dst += c;
+                    status = 3;
+                }
+                else
+                    throw EImproperArgument("hexadecimal value not found");
+                break;
 
-        //asigna la variable tampón
-        F = t_F;
-}
-//escudriña S a partir de i en busca de un número de punto flotante
-//e intenta convertirlo a double mediante StrToFloat
-void  StrReadFloat(double &x, const AnsiString &S, int &i)
-{
-        AnsiString F;
+            case 1: //waiting '\n'
+                if(c != '\n')
+                    throw EImproperArgument("'\\n' notfound");
+                else
+                    status--;
+                break;
 
-        try {
-                //segrega un punto flotante a partir de i
-                StrReadFloatStr(F, S, i);
+            case 2: //waiting first hexadecimal char
+                if(!(('0'<=c && c<='9') || c=='a' || c=='b' || c=='c' || c=='d' || c=='e' || c=='f' || c=='A' || c=='B' || c=='C' || c=='D' || c=='E' || c=='F'))
+                    throw EImproperArgument("integer value not found");
+                else {
+                    t_dst += c;
+                    status++;
+                }
+                break;
 
-                //intenta convertir a entero
-                x = StrToFloat(F);
+            case 3: //waiting hexadecimal char or not decimal char
+                if(!(('0'<=c && c<='9') || c=='a' || c=='b' || c=='c' || c=='d' || c=='e' || c=='f' || c=='A' || c=='B' || c=='C' || c=='D' || c=='E' || c=='F')) {
+                    i--;
+                    status++;
+                } else
+                    t_dst += c;
+                break;
 
-                //captura el efecto lateral de la función de conversión
-//                double aux = 0; aux + aux;
-
-/*comentado para traducción
-        } catch(EOverflow &E) {
-                throw EImproperArgument(AnsiString("'")+F+AnsiString("' is a floating point value out of range"));*/
-        } catch(...) {
-                throw;
+            default:
+                throw EImpossibleError("lateral effect");
+            }
         }
-}
-//convierte un valor en punto flotante de formato texto a double
-//si S contiene algo más que un valor en punto flotante
-//lanza una excepción EImproperArgument
-double StrToFloat_(const AnsiString &S)
-{
-        try {
-                //lee Float en la cadena S desde la posición 1
-                int i = 1;
-                AnsiString FloatText;
-                StrReadFloatStr(FloatText, S, i);
+        //if the source string has finished
+        else {
+            switch(status) {
+            case 0: //waiting ' ', '\t', '\r', '+', '-' or first decimal char
+                throw EImproperArgument("integer value not found");
+                break;
 
-                //avanza el índice i hasta la próxima posición que no contenga un separador
-                StrTravelSeparatorsIfAny(S, i);
-                //si el índice i indica a algún caracter de la cadena S
-                if(i <= S.Length())
-                        //indica que la cadena S solo debería contener el valor para Id
-                        throw EImproperArgument("string S should contain the Id value only");
+            case 1: //waiting '\n'
+                throw EImproperArgument("'\\n' not found");
+                break;
 
-                //traduce a double y devuelve el valor
-                return StrToFloat(FloatText);
+            case 2: //waiting first decimal char
+                throw EImproperArgument("fist hexadecinal char not found");
+                break;
 
-        } catch(...) {
-                throw;
+            case 3: //waiting hexadecimal char or other char
+                status++;
+                break;
+
+            default:
+                throw EImpossibleError("lateral effect");
+            }
         }
+
+        //while the integer value has not readed successfully
+    } while(status < 4);
+
+    //set the tampon variables
+    dst = t_dst;
+}
+//translate from string to int
+//in hexadecimal format
+int hexToInt(const string& str)
+{
+    try {
+        //segregate the hexadecimal value in other string
+        unsigned int i = 0;
+        string dst;
+        strReadHexStr(dst, str, i);
+
+        //look for unexpected text
+        strTravelSeparatorsIfAny(str, i);
+        if(i < str.length())
+            throw EImproperArgument("unexpected text: \""+StrFirstChars(str.substr(i, str.length() - i)).str+"\"");
+
+        //traslate to numerical type
+        int value;
+        sscanf(dst.c_str(), "%x", &value);
+
+        //Other way of translate from hexadecimal string to int:
+        //  int value = (int)strtol(str.c_str(), NULL, 16);
+
+        //return the value
+        return value;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "converting hexadecimal string to int: ");
+        throw;
+    }
+}
+//read an integer in the indicated position of a string
+//in hexadecimal format
+void strReadHex(int& value, const string& src, unsigned int& i)
+{
+    try {
+        string dst;
+        strReadHexStr(dst, src, i);
+        value = hexToInt(dst);
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "reading hexadecimal integer: ");
+        throw;
+    }
 }
 
-//read an float in the indicated position of a text string
+//read an integer in the indicated position of an AnsiString
+//in hexadecimal format
+void StrReadHexStr(AnsiString& D, const AnsiString& S, int& i)
+{
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
+
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadHexStr(D.str, S.str, _i);
+    i = int(_i + 1);
+}
+//read an integer in the indicated position of an AnsiString
+//in hexadecimal format
+void StrReadHex(int& value, const AnsiString& S, int &i)
+{
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
+
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadHex(value, S.str, _i);
+    i = int(_i + 1);
+}
+
+//read a float in the indicated position of a string
 void strReadFloatStr(string& dst, const string& src, unsigned int& i)
 {
     //Note that it is not required that source string is printable.
@@ -1559,192 +1444,253 @@ void strReadFloatStr(string& dst, const string& src, unsigned int& i)
             }
         }
 
-    //while the floating point value has not readed successfully
+        //while the floating point value has not readed successfully
     } while(status < 8);
 
     //set the tampon variables
     dst = t_dst;
 }
-//read an float in the indicated position of a text string
+//translate from string to double
+double strToFloat(const string& str)
+{
+    try {
+        //segregate the value in other string
+        unsigned int i = 0;
+        string dst;
+        strReadFloatStr(dst, str, i);
+
+        //look for unexpected text
+        strTravelSeparatorsIfAny(str, i);
+        if(i < str.length())
+            throw EImproperArgument("unexpected text: \""+StrFirstChars(str.substr(i, str.length() - i)).str+"\"");
+
+        //translate the value to numerical type
+        stringstream ss(dst);
+        ss.precision(DBL_DIG);
+        double value;
+        bool ok = (ss >> value);
+        if(!ok) {
+            throw EImproperArgument(AnsiString("can't convert string to double"));
+        }
+
+        //Other way of translate to double:
+        //  double value;
+        //  sscanf(dst.c_str(), "%lf", &value);
+
+        //Other way of translate to double:
+        //  char *pEnd;
+        //  double value = strtod(dst.c_str(), &pEnd);
+
+        //WARNING: if precision is upper to DBL_DIG decimals, conversión to
+        //string can introduce numerial error for somevalues.Example:
+        //  value       ->  string
+        //  87.035553	->  "87.03555299999999"
+        //  -70.35		->  "-70.34999999999999"
+
+        //return the value
+        return value;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "converting string to float: ");
+        throw;
+    }
+}
+//read a float in the indicated position of a string
 void strReadFloat(double& value, const string& src, unsigned int& i)
 {
     try {
         string dst;
         strReadFloatStr(dst, src, i);
-        value = strtofloat(dst);
+        value = strToFloat(dst);
 
     } catch(Exception& E) {
-        E.Message.Insert(0, "reading integer: ");
-        throw E;
+        E.Message.Insert(1, "reading float: ");
+        throw;
     }
 }
 
-//Imprime el valor de una variable lógica al final de una cadena de texto.
-//Utiliza los identificadores:
-//      TrueBoolStrs[0] en vez de "1", y
-//      FalseBoolStrs[0] en vez de "0".
-//Si b==true y TrueBoolStrs[0] no está definido
-//lanza una excepción EImproperCall.
-//Si b==false y FalseBoolStrs[0] no está definido
-//lanza una excepción EImproperCall.
-void  StrPrintBool(AnsiString &S, bool b)
+//print a double in an AnsiString
+void StrPrintFloat(AnsiString& S, double value)
 {
-        //la cadena TrueBoolStrs[0] debería contener al menos un caracter
-        if(b && TrueBoolStrs.getCount()<1 && TrueBoolStrs[0].Length()<1)
-                throw EImproperCall("string TrueBoolStrs[0] should contain one character almost");
-
-        //la cadena FalseBoolStrs[0] debería contener al menos un caracter
-        if(!b && FalseBoolStrs.getCount()<1 && FalseBoolStrs[0].Length()<1)
-                throw EImproperCall("string FalseBoolStrs[0] should contain one character almost");
-
-        //imprime el contenido de TrueBoolStrs[0] o FalseBoolStrs[0]
-        S += BoolToStr(b, true);
+    S += FloatToStr(value);
 }
-//Intenta leer un valor lógico en S desde la posición i.
-//Deberán estar definidos los identificadores:
-//      TrueBoolStrs[0] y
-//      FalseBoolStrs[0].
-//Si encuentra TrueBoolStrs[0] devuelve B = TrueBoolStrs[0].
-//Si encuentra FalseBoolStrs[0] devuelve B = TrueBoolStrs[0].
-//El índice i quedará indicando a la posúltima posición
-void StrReadBoolStr(AnsiString &B, const AnsiString &S, int &i)
+//read a float in the indicated position of an AnsiString
+void StrReadFloatStr(AnsiString& D, const AnsiString& S, int &i)
 {
-        //la cadena TrueBoolStrs[0] debería contener al menos un caracter
-        if(TrueBoolStrs.getCount()<1 && TrueBoolStrs[0].Length()<1)
-                throw EImproperCall("strings TrueBoolStrs[0] should contain one character almost");
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
 
-        //la cadena FalseBoolStrs[0] debería contener al menos un caracter
-        if(FalseBoolStrs.getCount()<1 && FalseBoolStrs[0].Length()<1)
-                throw EImproperCall("strings FalseBoolStrs[0] should contain one character almost");
-
-        //el indice i debería indicar un caracter de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                throw EImproperArgument("boolean value not found");
-
-        //estado de lectura
-        //      0: espernado ' ', '\r', TrueBoolStrs[0][1] o FalseBoolStrs[0][1]
-        //      1: valor lógico leido con éxito
-        int status = 0;
-
-        //variables auxiliares
-        char c; //S[i]
-        AnsiString t_B; //variable tampón
-        AnsiString aux;
-
-        do {
-                c = S[i];
-
-                switch(status) {
-                        case 0: //esperando ' ', '\r', TrueBoolStrs[0][1] o FalseBoolStrs[0][1]
-                                if(c == ' ') {
-                                        i++;
-                                        if(i > S.Length())
-                                                throw EImproperArgument("boolean value not found");
-                                } else if(c == '\r') {
-                                        StrTravelLabel("\r\n", S, i);
-                                        if(i > S.Length())
-                                                throw EImproperArgument("boolean value not found");
-                                } else if(c == TrueBoolStrs[0][1]) {
-                                        try {
-                                                StrReadLabel(t_B, TrueBoolStrs[0], S, i);
-                                        } catch(...) {
-                                                throw;
-                                        }
-                                        status++;
-                                } else if(c == FalseBoolStrs[0][1]) {
-                                        try {
-                                                StrReadLabel(t_B, FalseBoolStrs[0], S, i);
-                                        } catch(...) {
-                                                throw;
-                                        }
-                                        status++;
-                                } else
-                                        throw EImproperArgument("boolean value not found");
-                                break;
-                }
-        } while(status < 1);
-
-        //asigna la variable tampón
-        B = t_B;
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadFloatStr(D.str, S.str, _i);
+    i = int(_i + 1);
 }
-//escudriña S a partir de i en busca de un valor lógico
-//e intenta convertirlo a lógico mediante StrToBool
-void  StrReadBool(bool &b, const AnsiString &S, int &i)
+//read a float in the indicated position of an AnsiString
+void StrReadFloat(double& value, const AnsiString& S, int &i)
 {
-        AnsiString F;
-
-        try {
-                //segrega un lógico a aprtir de i
-                StrReadBoolStr(F, S, i);
-
-                //intenta convertir a lógico
-                b = StrToBool(F);
-
-        } catch(...) {
-                throw;
-        }
-}
-
-//Convierte un valor lógico a un AnsiString.
-//Si UseBoolStrs==true, B==true y TrueBoolStrs[0] no está definido
-//      lanza una excepción EImproperCall.
-//Si UseBoolStrs==true, B==false y FalseBoolStrs[0] no está definido
-//      lanza una excepción EImproperCall.
-AnsiString  BoolToStr(bool B, bool UseBoolStrs)
-{
+    try {
         //check the precondition
-        if(UseBoolStrs) {
-                if(B && (TrueBoolStrs.getCount()<=0 || TrueBoolStrs[0].Length()<1))
-                        throw EImproperCall("string TrueBoolStrs[0] should contain one character almost");
-                if(!B && (FalseBoolStrs.getCount()<=0 || FalseBoolStrs[0].Length()<1))
-                        throw EImproperCall("string FalseBoolStrs[0] should contain one character almost");
-        }
+        if(i <= 0)
+            throw EImproperArgument("index i should be upper zero");
 
-        if(UseBoolStrs) {
-            if(B)
-                return TrueBoolStrs[0];
-            else
-                return FalseBoolStrs[0];
-        }
-
-        else {
-            if(B)
-                return AnsiString("1");
-            else
-                return AnsiString("0");
-        }
+        unsigned int _i = (unsigned int)(i - 1);
+        strReadFloat(value, S.str, _i);
+        i = int(_i + 1);
+    }
+    catch(...) {
+        throw;
+    }
 }
-//Convierte un AnsiString a un valor lógico.
-//Si TrueBoolStrs[0] o FalseBoolStrs[0] no están definidos
-//lanza una excepción EImproperCall.
-bool  StrToBool(const AnsiString S) {
-        //check the preconditions
-        if(TrueBoolStrs.getCount()<1 || TrueBoolStrs[0].Length()<1)
-                throw EImproperArgument("string TrueBoolStrs[0] should contain one character almost");
-        if(FalseBoolStrs.getCount()<1 || FalseBoolStrs[0].Length()<1)
-                throw EImproperArgument("string FalseBoolStrs[0] should contain one character almost");
 
-        if(S.Length() == 1) {
-            if(S == "1")
-                return true;
-            else if(S == "0")
-                return false;
-        }
+//read a bool in the indicated position of a string
+void strReadBoolStr(string& dst, const string& src, unsigned int& i)
+{
+    //check the precondition
+    if(src.length() <= i)
+        throw EImproperArgument("boolean value not found");
 
-        if(TrueBoolStrs.getCount()>0 && S==TrueBoolStrs[0])
-            return true;
+    //discard the initial separators if any
+    strTravelSeparatorsIfAny(src, i);
 
-        if(FalseBoolStrs.getCount()>0 && S==FalseBoolStrs[0])
-            return false;
+    //check if there is any text
+    if(i >= src.length())
+        throw EImproperArgument("boolean value not found");
 
-        //indica que la cadena S debería contener un valor lógico
-        throw EImproperArgument("strins S should contains a Boolean value");
+    //get the first char
+    char c = src[i];
+
+    //if the first char is '0' or '1'
+    if(c == '0' || c == '1') {
+        dst = c;
+        i++;
+    }
+    //else, if the first char is 'f' or 'F'
+    else if(tolower(c) == 'f') {
+        //check if there are enough chars for contains the word "false"
+        if(src.length() <= i + 5)
+            throw EImproperArgument("boolean value not found");
+
+        //check if from position i is the word "false"
+        if(src[i + 1] != 'a' || src[i + 2] != 'l' || src[i + 3] != 's' || src[i + 4] != 'e')
+            throw EImproperArgument("boolean value not found");
+
+        //copy the word in the dst string
+        dst = src.substr(i, 5);
+        i += 5; //indicates to the next char
+    }
+    //else, if the first char is 't' or 'T'
+    else if(tolower(c) == 't') {
+        //check if there are enough chars for contains the word "true"
+        if(src.length() <= i + 4)
+            throw EImproperArgument("boolean value not found");
+
+        //check if from position i is the word "true"
+        if(src[i + 1] != 'r' || src[i + 2] != 'u' || src[i + 3] != 'e')
+            throw EImproperArgument("boolean value not found");
+
+        //copy the word in the dst string
+        dst = src.substr(i, 4);
+        i += 4; //indicates to the next char
+    }
+    else
+        //indicates that there isnt a boolean value in the position i of the string src
+        throw EImproperArgument("boolean value not found");
 }
+//translate from string to bool
+bool strToBool(const string& str)
+{
+    try {
+        //segregates the boolean value in other string
+        string dst;
+        unsigned int i = 0;
+        strReadBoolStr(dst, str, i);
+
+        //look for unexpected text
+        strTravelSeparatorsIfAny(str, i);
+        if(i < str.length())
+            throw EImproperArgument("unexpected text: \""+StrFirstChars(str.substr(i, str.length() - i)).str+"\"");
+
+        //traslate to bool
+        bool value;
+        if(dst=="0" || dst=="false" || dst=="False")
+            value = false;
+        else if(dst=="1" || dst=="true" || dst=="True")
+            value = true;
+        else
+            throw EImproperArgument("string should be [\"0\" | \"false\" | \"False\"] or  [\"1\" | \"true\" | \"True\"]: \""+str+"\"");
+
+        //Other way to do this?:
+        //  istringstream ss(str);
+        //  bool value;
+        //  bool ok = (ss >> value);
+        //  if(!ok) {
+        //      throw EImproperArgument(AnsiString("can't convert string to bool"));
+        //  }
+
+        return value;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "converting string to bool: ");
+        throw;
+    }
+}
+//read a bool in the indicated position of a string
+void strReadBool(bool& value, const string& src, unsigned int& i)
+{
+    try {
+        //segregates the boolean value in other string
+        string dst;
+        strReadBoolStr(dst, src, i);
+
+        //traslate to bool
+        if(dst=="0" || dst=="false" || dst=="False")
+            value = false;
+        else if(dst=="1" || dst=="true" || dst=="True")
+            value = true;
+        else
+            throw EImproperArgument("string should be [\"0\" | \"false\" | \"False\"] or  [\"1\" | \"true\" | \"True\"]: \""+StrFirstChars(src.substr(i, src.length() - i)).str+"\"");
+
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "converting string to bool: ");
+        throw;
+    }
+}
+
+//print a bool in an AnsiString
+void StrPrintBool(AnsiString& S, bool value)
+{
+    S += BoolToStr(value);
+}
+//read a bool in the indicated position of an AnsiString
+void StrReadBoolStr(AnsiString& D, const AnsiString& S, int &i)
+{
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
+
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadBoolStr(D.str, S.str, _i);
+    i = int(_i + 1);
+}
+//read a bool in the indicated position of an AnsiString
+void StrReadBool(bool& value, const AnsiString& S, int &i)
+{
+    //check the precondition
+    if(i <= 0)
+        throw EImproperArgument("index i should be upper zero");
+
+    unsigned int _i = (unsigned int)(i - 1);
+    strReadBool(value, S.str, _i);
+    i = int(_i + 1);
+}
+
+//---------------------------------------------------------------------------
 
 //imprime un punto en una cadena de texto
-void  StrPrintPoint(AnsiString &S, TPoint P)
+void StrPrintPoint(AnsiString &S, const TPoint& P)
 {
-        S = AnsiString("(")+IntToStr(P.x)+AnsiString(" ")+IntToStr(P.y)+AnsiString(")");
+    S = "{"+inttostr(P.x)+", "+inttostr(P.y)+"}";
 }
 //compara dos punto
 //valores devueltos:
@@ -1753,393 +1699,393 @@ void  StrPrintPoint(AnsiString &S, TPoint P)
 //      0: si x1==x2 && y1==y2
 int  CompareDPoints(const TDoublePoint *P1, const TDoublePoint *P2)
 {
-        //el puntero P1 deberí aapuntar a un punto construido
-        if(P1 == NULL)
-                throw EImproperArgument("pointer P1 should point to built point");
+    //el puntero P1 deberí aapuntar a un punto construido
+    if(P1 == NULL)
+        throw EImproperArgument("pointer P1 should point to built point");
 
-        //el puntero P2 deberí aapuntar a un punto construido
-        if(P2 == NULL)
-                throw EImproperArgument("pointer P2 should point to built point");
+    //el puntero P2 deberí aapuntar a un punto construido
+    if(P2 == NULL)
+        throw EImproperArgument("pointer P2 should point to built point");
 
-        if(P1->x<P2->x || (P1->x==P2->x && P1->y<P2->y))
-                return -1;
-        if(P1->x>P2->x || (P1->x==P2->x && P1->y>P2->y))
-                return 1;
-        return 0;
+    if(P1->x<P2->x || (P1->x==P2->x && P1->y<P2->y))
+        return -1;
+    if(P1->x>P2->x || (P1->x==P2->x && P1->y>P2->y))
+        return 1;
+    return 0;
 }
 //imprime un punto al final de una cadena de texto
-void  StrPrintDPoint(AnsiString &S, const TDoublePoint *P)
+void StrPrintDPoint(AnsiString &S, const TDoublePoint *P)
 {
-        //el puntero P debería apuntar a un punto construido
-        if(P == NULL)
-                throw EImproperArgument("pointer P should point to built point");
+    //el puntero P debería apuntar a un punto construido
+    if(P == NULL)
+        throw EImproperArgument("pointer P should point to built point");
 
-        S += DPointToStr(*P);
+    S += DPointToStr(*P);
 }
 //intenta leer un punto a partir de la posición i de una cadena de texto
-//e intenta convertirlo a TDoublePoint mediante StrToFloat_
-void  StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
+//e intenta convertirlo a TDoublePoint mediante StrToFloat
+void StrReadDPoint(TDoublePoint *P, const AnsiString &S, int &i)
 {
-        //el puntero P debería apuntar a un punto contruido
-        if(P == NULL)
-                throw EImproperArgument("pointer P should point to built point");
+    //el puntero P debería apuntar a un punto contruido
+    if(P == NULL)
+        throw EImproperArgument("pointer P should point to built point");
 
-        //el indice i debería indicar un caracter de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                throw EImproperArgument("point value not found");
+    //el indice i debería indicar un caracter de la cadena de texto S
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("point value not found");
 
-        //estado de lectura
-        //      0: espernado ' ', '\r' o '{'
-        //      1: esperando valor en punto flotante
-        //      2: esperando ' '. '\r' o ','
-        //      3: esperando valor en punto flotante
-        //      4: esperando ' '. '\r' o '}'
-        //      5: valor punto leido con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: espernado ' ', '\r' o '{'
+    //      1: esperando valor en punto flotante
+    //      2: esperando ' '. '\r' o ','
+    //      3: esperando valor en punto flotante
+    //      4: esperando ' '. '\r' o '}'
+    //      5: valor punto leido con éxito
+    int status = 0;
 
-        //variables auxiliares
-        char c; //S[i]
-        TDoublePoint t_P; //variable tampón
-        AnsiString aux;
+    //variables auxiliares
+    char c; //S[i]
+    TDoublePoint t_P; //variable tampón
+    AnsiString aux;
 
-        do {
-                c = S[i];
+    do {
+        c = S[i];
 
-                switch(status) {
-                        case 0: //espernado ' ', '\r' o '{'
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'{' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'{' not found");
-                                                break;
-                                        case '{':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("value to x not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '{'"));
-                                }
-                                break;
-                        case 1: //esperando valor en punto flotante
-                                try {
-                                        StrReadFloat(t_P.x, S, i);
-                                        status++;
-                                } catch(EImproperArgument &E) {
-                                        throw EImproperArgument(E.Message+AnsiString(" for property x"));
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
-                        case 2: //esperando ' ', '\r' o ','
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case ',':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("value to y not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
-                                }
-                                break;
-                        case 3: //esperando valor en punto flotante
-                                try {
-                                        StrReadFloat(t_P.y, S, i);
-                                        status++;
-                                } catch(EImproperArgument &E) {
-                                        throw EImproperArgument(E.Message+AnsiString(" for property y"));
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
-                        case 4: //esperando ' ', '\r' o '}'
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'}' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'}' not found");
-                                                break;
-                                        case '}':
-                                                i++;
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '}'"));
-                                }
-                                break;
-                }
-        } while(status < 5);
+        switch(status) {
+        case 0: //espernado ' ', '\r' o '{'
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("'{' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("'{' not found");
+                break;
+            case '{':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("value to x not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '{'"));
+            }
+            break;
+        case 1: //esperando valor en punto flotante
+            try {
+            StrReadFloat(t_P.x, S, i);
+            status++;
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property x"));
+            } catch(...) {
+            throw;
+        }
+            break;
+        case 2: //esperando ' ', '\r' o ','
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case ',':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("value to y not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
+            }
+            break;
+        case 3: //esperando valor en punto flotante
+            try {
+            StrReadFloat(t_P.y, S, i);
+            status++;
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property y"));
+            } catch(...) {
+            throw;
+        }
+            break;
+        case 4: //esperando ' ', '\r' o '}'
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("'}' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("'}' not found");
+                break;
+            case '}':
+                i++;
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '}'"));
+            }
+            break;
+        }
+    } while(status < 5);
 
-        //asigna la variable tampón
-        *P = t_P;
+    //asigna la variable tampón
+    *P = t_P;
 }
 //convierte un valor punto de formato texto a TDoublePoint
 //si S contiene algo más que un valor punto
 //lanza una excepción EImproperArgument
 TDoublePoint StrToDPoint(const AnsiString &S)
 {
-        TDoublePoint P;
+    TDoublePoint P;
 
-        try {
-                int i = 1;
+    try {
+        int i = 1;
 
-                //lee un punto a aprtir de i
-                StrReadDPoint(&P, S, i);
+        //lee un punto a aprtir de i
+        StrReadDPoint(&P, S, i);
 
-                //atraviesa la cadena hasta el final
-                StrTravelToEnd(S, i);
+        //atraviesa la cadena hasta el final
+        StrTravelToEnd(S, i);
 
-                return P; //devuelve el valor leído
+        return P; //devuelve el valor leído
 
-        } catch(...) {
-                throw;
-        }
+    } catch(...) {
+        throw;
+    }
 }
 
 //intenta leer un rectángulo a partir de la posición i de una cadena de texto
-//e intenta convertirlo a TDoubleRect mediante StrToFloat_
-void  StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
+//e intenta convertirlo a TDoubleRect mediante StrToFloat
+void StrReadDRect(TDoubleRect *R, const AnsiString &S, int &i)
 {
-        //el punteroR debería apuntar a un rectángulo contruido
-        if(R == NULL)
-                throw EImproperArgument("pointer R should point to built recttangle");
+    //el punteroR debería apuntar a un rectángulo contruido
+    if(R == NULL)
+        throw EImproperArgument("pointer R should point to built recttangle");
 
-        //el indice i debería indicar un caracter de la cadena de texto S
-        if(i<1 || S.Length()<i)
-                throw EImproperArgument("rectangle value not found");
+    //el indice i debería indicar un caracter de la cadena de texto S
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("rectangle value not found");
 
-        //estado de lectura
-        //      0: espernado ' ', '\r' o '{'
-        //      1: esperando valor en punto flotante
-        //      2: esperando ' '. '\r' o ','
-        //      3: esperando valor en punto flotante
-        //      4: esperando ' '. '\r' o '}'
-        //      5: esperando valor en punto flotante
-        //      6: esperando ' '. '\r' o '}'
-        //      7: esperando valor en punto flotante
-        //      8: esperando ' '. '\r' o '}'
-        //      9: valor rectángulo leido con éxito
-        int status = 0;
+    //estado de lectura
+    //      0: espernado ' ', '\r' o '{'
+    //      1: esperando valor en punto flotante
+    //      2: esperando ' '. '\r' o ','
+    //      3: esperando valor en punto flotante
+    //      4: esperando ' '. '\r' o '}'
+    //      5: esperando valor en punto flotante
+    //      6: esperando ' '. '\r' o '}'
+    //      7: esperando valor en punto flotante
+    //      8: esperando ' '. '\r' o '}'
+    //      9: valor rectángulo leido con éxito
+    int status = 0;
 
-        //variables auxiliares
-        char c; //S[i]
-        TDoubleRect t_R; //variable tampón
-        AnsiString aux;
+    //variables auxiliares
+    char c; //S[i]
+    TDoubleRect t_R; //variable tampón
+    AnsiString aux;
 
-        do {
-                c = S[i];
+    do {
+        c = S[i];
 
-                switch(status) {
-                        case 0: //espernado ' ', '\r' o '{'
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'{' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'{' not found");
-                                                break;
-                                        case '{':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("value to Left not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '{'"));
-                                }
-                                break;
-                        case 1: //esperando valor en punto flotante
-                                try {
-                                        StrReadFloat(t_R.Left, S, i);
-                                        status++;
-                                } catch(EImproperArgument &E) {
-                                        throw EImproperArgument(E.Message+AnsiString(" for property Left"));
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
-                        case 2: //esperando ' ', '\r' o ','
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case ',':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("value to Bottom not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
-                                }
-                                break;
-                        case 3: //esperando valor en punto flotante
-                                try {
-                                        StrReadFloat(t_R.Bottom, S, i);
-                                        status++;
-                                } catch(EImproperArgument &E) {
-                                        throw EImproperArgument(E.Message+AnsiString(" for property Bottom"));
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
-                        case 4: //esperando ' ', '\r' o ','
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case ',':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("value to Right not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
-                                }
-                                break;
-                        case 5: //esperando valor en punto flotante
-                                try {
-                                        StrReadFloat(t_R.Right, S, i);
-                                        status++;
-                                } catch(EImproperArgument &E) {
-                                        throw EImproperArgument(E.Message+AnsiString(" for property Right"));
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
-                        case 6: //esperando ' ', '\r' o ','
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("',' not found");
-                                                break;
-                                        case ',':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("value to Top not found");
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
-                                }
-                                break;
-                        case 7: //esperando valor en punto flotante
-                                try {
-                                        StrReadFloat(t_R.Top, S, i);
-                                        status++;
-                                } catch(EImproperArgument &E) {
-                                        throw EImproperArgument(E.Message+AnsiString(" for property Top"));
-                                } catch(...) {
-                                        throw;
-                                }
-                                break;
-                        case 8: //esperando ' ', '\r' o '}'
-                                switch(c) {
-                                        case ' ':
-                                                i++;
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'{' not found");
-                                                break;
-                                        case '\r':
-                                                StrTravelLabel("\r\n", S, i);
-                                                if(i > S.Length())
-                                                        throw EImproperArgument("'{' not found");
-                                                break;
-                                        case '}':
-                                                i++;
-                                                status++;
-                                                break;
-                                        default:
-                                                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '}'"));
-                                }
-                                break;
-                }
-        } while(status < 9);
+        switch(status) {
+        case 0: //espernado ' ', '\r' o '{'
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("'{' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("'{' not found");
+                break;
+            case '{':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("value to Left not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '{'"));
+            }
+            break;
+        case 1: //esperando valor en punto flotante
+            try {
+            StrReadFloat(t_R.Left, S, i);
+            status++;
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Left"));
+            } catch(...) {
+            throw;
+        }
+            break;
+        case 2: //esperando ' ', '\r' o ','
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case ',':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("value to Bottom not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
+            }
+            break;
+        case 3: //esperando valor en punto flotante
+            try {
+            StrReadFloat(t_R.Bottom, S, i);
+            status++;
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Bottom"));
+            } catch(...) {
+            throw;
+        }
+            break;
+        case 4: //esperando ' ', '\r' o ','
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case ',':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("value to Right not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
+            }
+            break;
+        case 5: //esperando valor en punto flotante
+            try {
+            StrReadFloat(t_R.Right, S, i);
+            status++;
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Right"));
+            } catch(...) {
+            throw;
+        }
+            break;
+        case 6: //esperando ' ', '\r' o ','
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("',' not found");
+                break;
+            case ',':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("value to Top not found");
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be ','"));
+            }
+            break;
+        case 7: //esperando valor en punto flotante
+            try {
+            StrReadFloat(t_R.Top, S, i);
+            status++;
+        } catch(EImproperArgument &E) {
+                throw EImproperArgument(E.Message+AnsiString(" for property Top"));
+            } catch(...) {
+            throw;
+        }
+            break;
+        case 8: //esperando ' ', '\r' o '}'
+            switch(c) {
+            case ' ':
+                i++;
+                if(i > S.Length())
+                    throw EImproperArgument("'{' not found");
+                break;
+            case '\r':
+                StrTravelLabel("\r\n", S, i);
+                if(i > S.Length())
+                    throw EImproperArgument("'{' not found");
+                break;
+            case '}':
+                i++;
+                status++;
+                break;
+            default:
+                throw EImproperArgument(AnsiString("'")+AnsiString(c)+AnsiString("' should be '}'"));
+            }
+            break;
+        }
+    } while(status < 9);
 
-        //asigna la variable tampón
-        *R = t_R;
+    //asigna la variable tampón
+    *R = t_R;
 }
 //convierte un valor rectángulo de formato texto a TDoubleRect
 //si S contiene algo más que un valor rectángulo
 //lanza una excepción EImproperArgument
 TDoubleRect StrToDRect(const AnsiString &S)
 {
-        TDoubleRect R;
+    TDoubleRect R;
 
-        try {
-                int i = 1;
+    try {
+        int i = 1;
 
-                //lee un punto a aprtir de i
-                StrReadDRect(&R, S, i);
+        //lee un punto a aprtir de i
+        StrReadDRect(&R, S, i);
 
-                //atraviesa la cadena hasta el final
-                StrTravelToEnd(S, i);
+        //atraviesa la cadena hasta el final
+        StrTravelToEnd(S, i);
 
-                return R; //devuelve el valor leído
+        return R; //devuelve el valor leído
 
-        } catch(...) {
-                throw;
-        }
+    } catch(...) {
+        throw;
+    }
 }
 
-//imprime dos enteros en una xadena indentados a 12 espacios
+//imprime dos enteros en una cadena indentados a 12 espacios
 AnsiString IntToRowStr(int n1, int n2)
 {
-        AnsiString S;
+    AnsiString S;
 
-        S = IntToStr(n1);
-        StrFill(S, 12, ' ');
-        S += IntToStr(n2);
+    S = IntToStr(n1);
+    StrFill(S, 12, ' ');
+    S += IntToStr(n2);
 
-        return S;
+    return S;
 }
 
 //---------------------------------------------------------------------------
@@ -2170,7 +2116,7 @@ void StrReadSentence(AnsiString &Sentence, const AnsiString &S, int &i)
                 throw EImproperArgument("sentence not found");
 }   */
 
- /*
+/*
 //imprime en S las palabras de SL entre c1 y c2 y separadas por s;
 //s puede ser un simple espacio
 void PrintSecuency (AnsiString &S, TStringList *SL,
@@ -2414,7 +2360,7 @@ void ReadVector (TStringList *SL, const AnsiString &S, char c1, char c2)
 //lee la fecha-hora en una cadena de texto a partir de la posición indicada
 //en el formato "dd/mm/yyyy hh:mm:ss" en formato de 24h sin AM/PM
 //si S no contiene un dato válido, lanza EConvertError
-void  StrReadDateTime(QDateTime &DT,
+void StrReadDateTime(QDateTime &DT,
         const AnsiString &S, int &i)
 {
         //NOTA: no se exige que la cadena de texto S sea imprimible,

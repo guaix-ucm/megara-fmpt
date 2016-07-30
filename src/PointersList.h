@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: PointersList.h
-//Content: lista de punteros a elementos genéricos
+//Content: template for pointer list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -473,23 +473,21 @@ template <class T> void  TPointersList<T>::PrintColumn(AnsiString &S,
 //lee una lista de una cadena de texto
 //en formato de fila o columna de texto
 template <class T> void  TPointersList<T>::ReadSeparated(TPointersList<T> *L,
-                                                                   const AnsiString &S, int &i)
+                                                         const AnsiString &S, int &i)
 {
+    //comprueba las precondiciones
+    if(L->Read == NULL)
+        throw EImproperCall("pointer Read should point to reading function");
+    if(i<0 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a posicion in the string S");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el puntero Read debería apuntar a una función de lectura
-    if(L->Read == NULL)
-        throw EImproperCall("pointer Read should point to reading function");
-
-    //el índice i debería indicar a alguna posición de la cadena de texto S
-    if(i<0 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a posicion in the string text S");
-
     //estado de la máquina de estados
     //      0: esperando próximo elemento o fin de cadena
-    //      1: fin de cadena encontrada y lista de elementos leida con éxito
+    //      1: fin de cadena encontrada y lista de elementos leída con éxito
     int status = 0;
 
     TPointersSlideArray<T> Items;
@@ -500,30 +498,31 @@ template <class T> void  TPointersList<T>::ReadSeparated(TPointersList<T> *L,
 
     do { //repite
         //si no ha llegado al final de la cadena
-        if(i <= S.Length())
+        if(i <= S.Length()) {
             try {
-            //contruye el elemento
-            Item = new T;
-            //añade el elemento
-            Items.AddLast(Item);
-            //lee el elemento
-            L->Read(Item, S, i);
-            //avanza el índice hasta el próximo caracter no separador
-            StrTravelSeparators(S, i);
-            //si el índice indica a la posúltima posición de la cadena
-            if(i > S.Length())
-                status++; //indica que se ha leido la lista con éxito
+                //contruye el elemento
+                Item = new T;
+                //añade el elemento
+                Items.AddLast(Item);
+                //lee el elemento
+                L->Read(Item, S, i);
+                //avanza el índice hasta el próximo caracter no separador
+                StrTravelSeparatorsIfAny(S, i);
+                //si el índice indica a la posúltima posición de la cadena
+                if(i > S.Length())
+                    status++; //indica que se ha leido la lista con éxito
 
-            //ADVERTENCIA: el elemento tiene que ser añadido a la lista tampón
-            //tan pronto como es contruido, para que pueda ser destruido
-            //en caso de error
-
-        } catch(...) {
-            throw;
-        }
-        else //si ha llegado al final de la cadena
-        //indica que ha llegado al final de la cadena
-        status++;
+                //ADVERTENCIA: el elemento tiene que ser añadido a la lista tampón
+                //tan pronto como es contruido, para que pueda ser destruido
+                //en caso de error
+            }
+            catch(Exception& E) {
+                E.Message.Insert(1, "reading separated item list in text format: ");
+                throw;
+            }
+        } else //si ha llegado al final de la cadena
+            //indica que ha llegado al final de la cadena
+            status++;
         //mientras no se haya acabado la cadena y no se haya leido la lista con éxito
     } while(status < 1);
 
@@ -549,7 +548,7 @@ template <class T> void  TPointersList<T>::ReadSeparatedForBuiltItems(TPointersL
 
     //el índice i debería indicar a alguna posición de la cadena de texto S
     if(i<0 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a posicion in the string text S");
+        throw EImproperArgument("index i should indicate a posicion in the string S");
 
     //si la lista no contiene elementos
     if(L->getCount() < 1)
@@ -563,7 +562,7 @@ template <class T> void  TPointersList<T>::ReadSeparatedForBuiltItems(TPointersL
 
     //estado de la máquina de estados
     //      0: esperando próximo elemento o fin de cadena
-    //      1: fin de cadena encontrada y lista de elementos leida con éxito
+    //      1: fin de cadena encontrada y lista de elementos leída con éxito
     int status = 0;
 
     //lista tampón
@@ -634,7 +633,7 @@ template <class T> void  TPointersList<T>::ReadList(TPointersList<T> *L,
 
     //el índice i debería indicar a una posición de la adena de texto S
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in string S");
+        throw EImproperArgument("index i should indicate a char of the string S");
 
     //COMPRUEBA EL FORMATO DE LA LISTA:
 
@@ -793,7 +792,7 @@ template <class T> void  TPointersList<T>::ReadListForBuiltItems(TPointersList<T
 
     //el índice i debería indicar a una posición de la adena de texto S
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in string S");
+        throw EImproperArgument("index i should indicate a char of the string S");
 
     //si la lista no contiene elementos
     if(L->getCount() < 1)
@@ -1215,7 +1214,7 @@ template <class T> AnsiString TPointersList<T>::getCapacityText(void) const
 template <class T> void TPointersList<T>::setCapacityText(const AnsiString& S)
 {
     try {
-        setCapacity(StrToInt_(S));
+        setCapacity(StrToInt(S));
     } catch(...) {
         throw;
     }
@@ -1227,7 +1226,7 @@ template <class T> AnsiString TPointersList<T>::getCountText(void) const
 template <class T> void TPointersList<T>::setCountText(const AnsiString& S)
 {
     try {
-        setCount(StrToInt_(S));
+        setCount(StrToInt(S));
     } catch(...) {
         throw;
     }
@@ -1339,10 +1338,23 @@ template <class T> AnsiString TPointersList<T>::getColumnText(void) const
 //traduce de formato texto a lista
 template <class T> void TPointersList<T>::setColumnText(const AnsiString &S)
 {
+    int i = 1; //initialize the index to the first char of string S
+
     try {
-        int i = 1;
+        //lee los elementos de la lista separados por separadores
         ReadSeparated(this, S, i);
-    } catch(...) {
+
+        //avanza el índice i hasta la próxima posición que no contenga un separador
+        StrTravelSeparators(S, i);
+        //si el índice i indica a algún caracter de la cadena S
+        if(i <= S.Length())
+            //indica que la cadena S solo debería contener la lista de elmentos
+            throw EImproperArgument("string S should contain the item list only");
+    }
+    catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting column text in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }

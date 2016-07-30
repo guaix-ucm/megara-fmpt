@@ -19,14 +19,14 @@
 //---------------------------------------------------------------------------
 //File: GenerateFrames.h
 //Content: gráfical classes and grphical functions
-//Autor: Pique
+//Autor: José Enrique Ruíz
 //---------------------------------------------------------------------------
 
 #ifndef GENERATEFRAMES_H
 #define GENERATEFRAMES_H
 
 #include "../megarafmpt/src/MotionProgram.h"
-#include "../megarafmpt/src/FiberMOSModel2.h"
+#include "../megarafmpt/src/FiberMOSModel.h"
 #include "../megarafmpt/ui/PloterShapes.h"
 
 using namespace Graphics;
@@ -49,6 +49,5 @@ private:
 
 };
 
-
-
+//---------------------------------------------------------------------------
 #endif // GENERATEFRAMES_H

@@ -19,7 +19,6 @@
 //---------------------------------------------------------------------------
 //File: PairPositionAngles.h
 //Content: pair of projection angles
-//Last update: 30/12/2014
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -43,13 +42,13 @@ namespace Models {
 //predeclares classes to avoid loops
 class TRoboticPositioner;
 
-//class pait position angles
+//class pair position angles
 class TPairPositionAngles {
 protected:
     //ATTACHED EXTERN OBJECTS:
 
-    TRoboticPositioner *p_RoboticPositioner;
-    TProjectionPoint *p_ProjectionPoint;
+    TRoboticPositioner *p_RP;
+    TProjectionPoint *p_PP;
 
 public:
     //SATIC PROPERTIES:
@@ -68,16 +67,16 @@ public:
 
     //extern attached robotic positioner
     //default value: NULL
-    TRoboticPositioner *getRoboticPositioner(void) const {return p_RoboticPositioner;}
+    TRoboticPositioner *getRP(void) const {return p_RP;}
     //extern attached projection point
     //default value: NULL
-    TProjectionPoint *getProjectionPoint(void) const {return p_ProjectionPoint;}
+    TProjectionPoint *getPP(void) const {return p_PP;}
 
     //PROPERTIES:
 
     //single identification number of the attached robotic positioner
-    //      RoboticPositioner->Id
-    int getId(void) const;// void setId(int);
+    //  RoboticPositioner->Id
+    int getId(void) const;
 
     //position angle for rotor 1
     double p_1;
@@ -86,7 +85,7 @@ public:
 
     //PROPERTIES IN TEXT FORMAT:
 
-    AnsiString getIdText(void) const;// void setIdText(const AnsiString&);
+    AnsiString getIdText(void) const;
     AnsiString getp_1Text(void) const; void setp_1Text(const AnsiString&);
     AnsiString getp___3Text(void) const; void setp___3Text(const AnsiString&);
 
@@ -98,39 +97,39 @@ public:
     //STATIC METHODS:
 
     //labels of all properties in a row:
-    //      IdLabel+"\t"p_1Label+"\t"p___3Label
+    //  IdLabel+"\t"+p_1Label+"\t"+p___3Label
     static AnsiString getLabelsRow(void);
     //travel the labels of the properties
     //in row text format
     static void travelLabelsRow(const AnsiString& S, int& i);
 
-
     //print the properties of a pair of position angles in a string
     //in row format
-    static void  PrintRow(AnsiString &S,
+    static void  printRow(AnsiString &S,
                           const TPairPositionAngles *PPA);
     //read the properties of a pair of position angles in a string
     //in row format
-    static void  ReadRow(TPairPositionAngles *PPA,
+    static void  readRow(TPairPositionAngles *PPA,
                          const AnsiString &S, int &i);
 
     //PUBLIC METHODS:
 
     //build a PPA attached to a RP
+    //pointer RP can be null
     TPairPositionAngles(TRoboticPositioner *RP= NULL);
-    //clone a PPA
-    TPairPositionAngles(TPairPositionAngles*);
-
-    //WARNING: the PPA without attached PP can't be regenerated.
 
     //copy all properties of a PPA
-    void Copy(TPairPositionAngles*);
+    void clone(TPairPositionAngles*);
     TPairPositionAngles &operator=(const TPairPositionAngles&);
 
-    //WARNIG: the PPA will remain attached to the same RP and the same PP.
+    //build a clon a PPA
+    TPairPositionAngles(TPairPositionAngles*);
+
+    //set the PPA
+    void setPPA(double p_1, double p___3);
 
     //randomize the PPA
-    void Randomize(double p_1min, double p_1max,
+    void randomize(double p_1min, double p_1max,
                    double p___3min, double p___3max);
 };
 

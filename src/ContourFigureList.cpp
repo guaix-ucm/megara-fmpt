@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ContourFigureList.cpp
-//Contenido: clase lista de figuras de contorno
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: FigureList.cpp
+//Content: contour figure list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "ContourFigureList.h"
@@ -30,7 +29,7 @@
 #include "Geometry.h"
 #include "Constants.h"
 
-#include <limits> //std::numeric_limits
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -132,18 +131,19 @@ TContourFigureList::TContourFigureList(const TContourFigureList &FigureList) :
         Copy(FigureList);
 }
 
-//--------------------------------------------------------------------------
-//MÉTODOS DE GRÁFICOS:
-/*#
-//asigna un color a todas las figuras del contorno
-void TContourFigureList::setAllColor(QColor Color)
+//determina si una CFL es distinta
+bool TContourFigureList::operator!=(const TContourFigureList& CFL) const
 {
-        //por cada figura geométrica del contorno
-        for(int i=0; i<getCount(); i++)
-                //le asigna el color
-                Items[i]->Color = Color;
+    if(getCount() != CFL.getCount())
+        return true;
+
+    for(int i=0; i<getCount(); i++)
+        if(areUnequals(Items[i], CFL[i]))
+            return true;
+
+    return false;
 }
-*/
+
 //--------------------------------------------------------------------------
 //MÉTODOS DE CARACTERIZACIÓN:
 
@@ -288,7 +288,7 @@ double TContourFigureList::distanceMin(TDoublePoint P) const
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el punto y cada figura
-        double dmin = std::numeric_limits<double>::max(); //distancia mínima hasta el momento
+        double dmin = DBL_MAX; //distancia mínima hasta el momento
         TFigure *F; //puntero a una figura indicada de este contorno
 
         //calcula la distancia entre las figuras de este contorno
@@ -356,7 +356,7 @@ double TContourFigureList::distanceMin(const TContourFigureList &C) const
                 throw EImproperCall("this contour should contain one figure almost");
 
         double d; //distancia entre el par de figuras
-        double dmin = std::numeric_limits<double>::max(); //distancia mínima hasta el momento
+        double dmin = DBL_MAX; //distancia mínima hasta el momento
         TFigure *F; //puntero a una figura indicada de este contorno
         TFigure *Fo; //puntero a una figura indicada del otro contorno
         int i, j;
@@ -399,7 +399,7 @@ double TContourFigureList::distanceMin(const TContourFigureList &C) const
 //es inferior al margen perimetral de seguridad SPM.
 bool TContourFigureList::collides(const TContourFigureList &C, double SPM) const
 {
-        //el contorno C debería contener al menos una figura
+        //comprueba las precondiciones
         if(C.areAllNULL())
                 throw EImproperArgument("contour C should contain one figure almost");
 
@@ -517,223 +517,7 @@ bool TContourFigureList::isInner(TDoublePoint P) const
         //indica que el punto no está en el interior del contorno
         return false;
 }
-/*//---------------------------------------------------------------------------
-//MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO:
 
-//determina los ángulos que hay que rotar este contorno
-//entorno al punto Q para que quede adyacente al segmento (Pa, Pb)
-void TContourFigureList::turnSegment(TVector<double> &dts,
-        TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Q)
-{
-        //determina la distancia mínima entre el segmento y el brazo
-        double da = Mod(Pa - Q);
-        double db = Mod(Pb - Q);
-        double d = Min(Pa, Pb);
-        //si no hay colisión
-        if(d-Ra >= SPM) {
-                dts.Clear(); //borra todas las soluciones
-                return; //no hace nada más
-        }
-
-        //vector de soluciones auxiliar
-        TVector<double> solutions;
-
-        //arco (PB, PC, P2, R2)
-        TurnArcSegment(solutions, PB, PC, P2, R2, Pa, Pb, Q);
-
-        //arco (PC, PF, P1, Ra);
-        TurnArcSegment(solutions, PC, PF, P1, Ra, Pa, Pb, Q);
-
-        //arco (PF, PG, P2, R2)
-        TurnArcSegment(solutions, PF, PG, P2, R2, Pa, Pb, Q);
-
-        //-----------------
-
-        //segmento (PA, PB)
-        TurnSegmentSegment(solutions, PA, PB, Pa, Pb, Q);
-
-        //segmento (PG, PH)
-        TurnSegmentSegment(solutions, PG, PH, Pa, Pb, Q);
-
-        //-----------------
-
-        //arco (PH, PI, P1, R1)
-        TurnArcSegment(solutions, PH, PI, P1, R1, Pa, Pb, Q);
-
-        //arco (PI, PJ, P2, Rb)
-        TurnArcSegment(solutions, PI, PJ, P2, Rb, Pa, Pb, Q);
-
-        //arco (PJ, PA, P1, R1)
-        TurnArcSegment(solutions, PJ, PA, P1, R1, Pa, Pb, Q);
-
-        //añade las soluciones mínima y máxima
-        if(solutions.Count > 0) {
-                double dtmin = solutions.Min;
-                if(dts.Search(dtmin) >= dts.Count)
-                        dts.Add(dtmin);
-        }
-        if(solutions.Count > 1) {
-                double dtmax = solutions.Max;
-                if(dts.Search(dtmax) >= dts.Count)
-                        dts.Add(dtmax);
-        }
-}
-
-//determina los ángulos que hay que rotar este contorno
-//entorno al punto Q para que quede adyacente al arco (Pa, Pb, Pc, R)
-void TContourFigureList::turnArc(TVector<double> &dts,
-        TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R,
-        TDoublePoint Q)
-{
-        //determina la distancia mínima entre el segmento y el brazo
-        double d = Mod(Pc - Q) - R;
-        //si no hay colisión
-        if(d-Ra >= SPM) {
-                dts.Clear(); //borra todas las soluciones
-                return; //no hace nada más
-        }
-
-        //vector de soluciones auxiliar
-        TVector<double> solutions;
-
-        //arco (PB, PC, P2, R2)
-        TurnArcArc(solutions, PB, PC, P2, R2, Pa, Pb, Pc, R, Q);
-
-        //arco (PC, PF, P1, Ra);
-        TurnArcArc(solutions, PC, PF, P1, Ra, Pa, Pb, Pc, R, Q);
-
-        //arco (PF, PG, P2, R2)
-        TurnArcArc(solutions, PF, PG, P2, R2, Pa, Pb, Pc, R, Q);
-
-        //-----------------
-
-        //segmento (PA, PB)
-        TurnSegmentArc(solutions, PA, PB, Pa, Pb, Pc, R, Q);
-
-        //segmento (PG, PH)
-        TurnSegmentArc(solutions, PG, PH, Pa, Pb, Pc, R, Q);
-
-        //-----------------
-
-        //arco (PH, PI, P1, R1)
-        TurnArcArc(solutions, PH, PI, P1, R1, Pa, Pb, Pc, R, Q);
-
-        //arco (PI, PJ, P2, Rb)
-        TurnArcArc(solutions, PI, PJ, P2, Rb, Pa, Pb, Pc, R, Q);
-
-        //arco (PJ, PA, P1, R1)
-        TurnArcArc(solutions, PJ, PA, P1, R1, Pa, Pb, Pc, R, Q);
-
-        //añade las soluciones mínima y máxima
-        if(solutions.Count > 0) {
-                double dtmin = solutions.Min;
-                if(dts.Search(dtmin) >= dts.Count)
-                        dts.Add(dtmin);
-        }
-        if(solutions.Count > 1) {
-                double dtmax = solutions.Max;
-                if(dts.Search(dtmax) >= dts.Count)
-                        dts.Add(dtmax);
-        }
-}
-
-//determina los ángulos que hay que rotar este contorno
-//entorno al punto Q para que quede adyacente al brazo Arm
-void TContourFigureList::turnArm(TVector<double> &dts, TContourFigureList *Arm_, TDoublePoint Q)
-{
-        //determina la distancia mínima entre el segmento y el brazo
-        double d = Mod(Arm->P1 - Q) - Arm->Ra;
-        //si no hay colisión
-        if(d-Ra >= SPM) {
-                dts.Clear(); //borra todas las soluciones
-                return; //no hace nada más
-        }
-
-        //apunta el brazo con un puntero específico
-        TContourFigureList *Arm = (TContourFigureList*)Arm_;
-
-        //vector de soluciones auxiliar
-        TVector<double> solutions;
-
-        //------------------
-        //CABEZAL:
-
-        //arco (Arm->PB, Arm->PC, Arm->P2, Arm->R2)
-        TurnArc(solutions, Arm->PB, Arm->PC, Arm->P2, Arm->R2, Q);
-
-        //arco (Arm->PC, Arm->PF, Arm->P1, Arm->Ra)
-        TurnArc(solutions, Arm->PC, Arm->PF, Arm->P1, Arm->Ra, Q);
-
-        //arco (Arm->PF, Arm->PG, Arm->P2, Arm->R2)
-        TurnArc(solutions, Arm->PF, Arm->PG, Arm->P2, Arm->R2, Q);
-
-        //------------------
-        //BRAZO:
-
-        //segmento (Arm->PA, Arm->PB)
-        TurnSegment(solutions, Arm->PA, Arm->PB, Q);
-
-        //segmento (Arm->PG, Arm->PH)
-        TurnSegment(solutions, Arm->PG, Arm->PH, Q);
-
-        //------------------
-        //CODO:
-
-        //arco (Arm->PH, Arm->PI, Arm->P1, Arm->R1)
-        TurnArc(solutions, Arm->PH, Arm->PI, Arm->P1, Arm->R1, Q);
-
-        //arco (Arm->PI, Arm->PJ, Arm->P2, Arm->Rb)
-        TurnArc(solutions, Arm->PI, Arm->PJ, Arm->P2, Arm->Rb, Q);
-
-        //arco (Arm->PJ, Arm->PA, Arm->P1, Arm->R1)
-        TurnArc(solutions, Arm->PJ, Arm->PA, Arm->P1, Arm->R1, Q);
-//AnsiString aux = solutions.Text;
-        //------------------
-
-        //si ha encontrado alguna solución
-        if(solutions.Count > 0) {
-                //busca las soluciones mínima y máxima
-                double dtmin = MAXDOUBLE;
-                double dtmax = -MAXDOUBLE;
-                double dt;
-                for(int i=0; i<solutions.Count; i++) {
-                        //asigna el desplazameinto angular para facilitar el acceso
-                        dt = solutions[i];
-                        //actualiza el mínimo y el máximo
-                        if(dt < dtmin)
-                                dtmin = dt;
-                        if(dt > dtmax)
-                                dtmax = dt;
-                }
-
-                //añade una corrección del margen de error a las soluciones
-                dtmin = dtmin + 0.000000000001*Sign(dtmin);
-                dtmax = dtmax + 0.000000000001*Sign(dtmax);
-
-                //si no está en la lista
-                if(dts.Search(dtmin) >= dts.Count)
-                        //añade la solución mínima
-                        dts.Add(dtmin);
-
-                //si no está en la lista
-                if(dts.Search(dtmax) >= dts.Count)
-                        //añade la solución máxima
-                        dts.Add(dtmax);
-        }
-**//*
-        //añade las soluciones mínima y máxima
-        if(solutions.Count > 0) {
-                double dtmin = solutions.Min;
-                if(dts.Search(dtmin) >= dts.Count)
-                        dts.Add(dtmin);
-        }
-        if(solutions.Count > 1) {
-                double dtmax = solutions.Max;
-                if(dts.Search(dtmax) >= dts.Count)
-                        dts.Add(dtmax);
-        }*//**
-}
-**/
 //--------------------------------------------------------------------------
 //MÉTODOS DE TRANSFORMACIONES GEOMÉTRICAS:
 
@@ -769,41 +553,6 @@ void TContourFigureList::getRotatedAndTranslated(TContourFigureList &Contour,
   //      int xxx = 0;
 }
 
-//MÉTODOS GRÁFICOS:
-/*#
-//dibuja las figuras de una  lista
-//en un trazador de formas
-void TContourFigureList::paint(TPloterShapes *PS) const
-{
-        //el puntero PS debería apuntar a un trazador de formas construido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-        //por cada puntero de la lista
-        for(int i=0; i<getCount(); i++) {
-                //asigna el puntero indicado para facilitar su acceso
-                TFigure *F = Items[i];
-                //si el puntero apunta a una figura construida
-                if(F != NULL) {
-                        //configura el color de la pluma
-                        PS->setPenColor(F->Color);
-
-                        //si la figura de contorno es del tipo segmento
-                        if(typeid(*F) == typeid(TSegment)) {
-                                //apunta lafigura con un puntero de la clase
-                                TSegment *S = (TSegment*)F;
-                                PS->Segment(S->getPa(), S->getPb());
-                        }
-                        //si no, si la figura de contorno es del tipo arco
-                        else if(typeid(*F) == typeid(TArc)) {
-                                //apunta lafigura con un puntero de la clase
-                                TArc *A = (TArc*)F;
-                                PS->Arc(A->getPa(), A->getPb(), A->getPc(), A->getR());
-                        }
-                }
-        }
-}
-*/
 //--------------------------------------------------------------------------
 //FUNCIONES RELACIONADAS:
 

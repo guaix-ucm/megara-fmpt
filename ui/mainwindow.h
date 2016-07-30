@@ -19,7 +19,7 @@
 //---------------------------------------------------------------------------
 //File: mainwindow.h
 //Content: gráfical classes and grphical functions
-//Autor: Pique
+//Autor: José Enrique Ruíz
 //---------------------------------------------------------------------------
 
 #ifndef MAINWINDOW_H

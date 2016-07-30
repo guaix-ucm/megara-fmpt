@@ -17,8 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: ComposedMotionFunction.h
-//Content: class composed motion funtion of a RP
+//File: ComposedMotionFunction.cpp
+//Content: composed motion funtion (CMF) model of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -28,6 +28,9 @@
 #include "Scalars.h"
 #include "Strings.h"
 #include "StrPR.h"
+#include "TextFile.h"
+
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -104,7 +107,7 @@ void  StrReadMotionFunctionMode(TMotionFunctionMode& mfm,
         }
     }
 
-    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in position i of string S");
 }
 AnsiString MotionFunctionModeToStr(TMotionFunctionMode mfm)
 {
@@ -155,7 +158,7 @@ TMotionFunctionMode StrToMotionFunctionMode(const AnsiString& S)
             return mfmRamp;
     }
 
-    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in string text S");
+    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in string S");
 }
 
 //##########################################################################
@@ -247,7 +250,7 @@ void  StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
         }
     }
 
-    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in position i of string S");
 }
 AnsiString SquareSynchronismModeToStr(TSquareSynchronismMode ssm)
 {
@@ -312,7 +315,7 @@ TSquareSynchronismMode StrToSquareSynchronismMode(const AnsiString& S)
             return ssmTmin;
     }
 
-    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in string text S");
+    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in string S");
 }
 
 //##########################################################################
@@ -448,7 +451,7 @@ void  StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
         }
     }
 
-    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in position i of string S");
 }
 AnsiString RampSynchronismModeToStr(TRampSynchronismMode rsm)
 {
@@ -545,7 +548,7 @@ TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S)
             return rsmTv;
     }
 
-    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in string text S");
+    throw EImproperArgument("there isn't a value of type TMotionFunctionMode in string S");
 }
 
 //##########################################################################
@@ -593,14 +596,14 @@ void TComposedMotionFunction::setSSM(TSquareSynchronismMode SSM)
         p_SF1->setT(p_SF1->getTmin());
         p_SF2->setT(p_SF2->getTmin());
         break;
-    case ssmMaxTmin: { //SF2->T = SF1->T = Max(SF1->Tmin, SF2->Tmin);
-        double SFMaxTmin = Max(p_SF1->getTmin(), p_SF2->getTmin());
+    case ssmMaxTmin: { //SF2->T = SF1->T = max(SF1->Tmin, SF2->Tmin);
+        double SFMaxTmin = max(p_SF1->getTmin(), p_SF2->getTmin());
         p_SF1->setT(SFMaxTmin);
         p_SF2->setT(SFMaxTmin);
     }
         break;
     case ssmDouTmin: { //2*SF1->T = SF1->Tmin*2; SF2->T = SF2->Tmin;
-        double SFMaxTmin = Max(p_SF1->getTmin(), p_SF2->getTmin());
+        double SFMaxTmin = max(p_SF1->getTmin(), p_SF2->getTmin());
         p_SF1->setT(SFMaxTmin*2);
         p_SF2->setT(SFMaxTmin);
     }
@@ -621,14 +624,14 @@ void TComposedMotionFunction::setRSM(TRampSynchronismMode RSM)
         p_RF1->setT(p_RF1->getTmin());
         p_RF2->setT(p_RF2->getTmin());
         break;
-    case rsmMaxTmin: { //RF2->T = RF1->T = Max(RF1->Tmin, RF2->Tmin);
-        double RFMaxTmin = Max(p_RF1->getTmin(), p_RF2->getTmin());
+    case rsmMaxTmin: { //RF2->T = RF1->T = max(RF1->Tmin, RF2->Tmin);
+        double RFMaxTmin = max(p_RF1->getTmin(), p_RF2->getTmin());
         p_RF1->setT(RFMaxTmin);
         p_RF2->setT(RFMaxTmin);
     }
         break;
     case rsmDouTmin: { //RF1->T = RF1->Tmin*2; RF2->T = RF2->Tmin;
-        double RFMaxTmin = Max(p_RF1->getTmin(), p_RF2->getTmin());
+        double RFMaxTmin = max(p_RF1->getTmin(), p_RF2->getTmin());
         p_RF1->setT(RFMaxTmin*2);
         p_RF2->setT(RFMaxTmin);
     }
@@ -638,14 +641,14 @@ void TComposedMotionFunction::setRSM(TRampSynchronismMode RSM)
         p_RF1->setT(p_RF1->getTv());
         p_RF2->setT(p_RF2->getTv());
         break;
-    case rsmMaxTv: {//RF2->T = RF1->T = Max(RF1->Tv, RF2->Tv);
-        double RFMaxTv = Max(p_RF1->getTv(), p_RF2->getTv());
+    case rsmMaxTv: {//RF2->T = RF1->T = max(RF1->Tv, RF2->Tv);
+        double RFMaxTv = max(p_RF1->getTv(), p_RF2->getTv());
         p_RF1->setT(RFMaxTv);
         p_RF2->setT(RFMaxTv);
     }
         break;
     case rsmDouTv: { //RF1->T = RF1->Tv*2; RF2->T = RF2->Tv;
-        double RFMaxTv = Max(p_RF1->getTv(), p_RF2->getTv());
+        double RFMaxTv = max(p_RF1->getTv(), p_RF2->getTv());
         p_RF1->setT(RFMaxTv*2);
         p_RF2->setT(RFMaxTv);
     }
@@ -658,7 +661,7 @@ double TComposedMotionFunction::GetT(void)
 {
         //si hay funciones para ambos ejes devuelve el periodo mayor
         if(MF1!=NULL && MF2!=NULL)
-                return Max(MF1->T, MF2->T);
+                return max(MF1->T, MF2->T);
 
         //si solo hay una función para el eje 1 devuelve su periodo
         if(MF1!=NULL && MF2==NULL)
@@ -762,7 +765,7 @@ double TComposedMotionFunction::gettend2(void) const
 double TComposedMotionFunction::gettstamin(void) const
 {
     if(p_MF1!=NULL && p_MF2!=NULL)
-        return Min(p_tsta1, p_tsta2);
+        return min(p_tsta1, p_tsta2);
     if(p_MF1!=NULL && p_MF2==NULL)
         return p_tsta1;
     if(p_MF1==NULL && p_MF2!=NULL)
@@ -773,7 +776,7 @@ double TComposedMotionFunction::gettstamin(void) const
 double TComposedMotionFunction::gettendmax(void) const
 {
     if(p_MF1!=NULL && p_MF2!=NULL)
-        return Max(gettend1(), gettend2());
+        return max(gettend1(), gettend2());
     if(p_MF1!=NULL && p_MF2==NULL)
         return gettend1();
     if(p_MF1==NULL && p_MF2!=NULL)
@@ -814,19 +817,19 @@ void TComposedMotionFunction::setLabel(AnsiString Label)
 
 AnsiString TComposedMotionFunction::getSF1AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(p_SF1), 8);
+    return IntToHex(intptr_t(p_SF1));
 }
 AnsiString TComposedMotionFunction::getRF1AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(p_RF1), 8);
+    return IntToHex(intptr_t(p_RF1));
 }
 AnsiString TComposedMotionFunction::getSF2AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(p_SF2), 8);
+    return IntToHex(intptr_t(p_SF2));
 }
 AnsiString TComposedMotionFunction::getRF2AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(p_RF2), 8);
+    return IntToHex(intptr_t(p_RF2));
 }
 
 AnsiString TComposedMotionFunction::getMFMText(void) const
@@ -855,7 +858,8 @@ void TComposedMotionFunction::setSSMText(AnsiString &S)
 {
     try {
         setSSM(StrToSquareSynchronismMode(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SSM in text format: ");
         throw;
     }
 }
@@ -867,7 +871,8 @@ void TComposedMotionFunction::setRSMText(AnsiString &S)
 {
     try {
         setRSM(StrToRampSynchronismMode(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting RSM in text format: ");
         throw;
     }
 }
@@ -902,8 +907,9 @@ AnsiString TComposedMotionFunction::gettsta1Text(void) const
 void TComposedMotionFunction::settsta1Text(AnsiString &S)
 {
     try {
-        settsta1(StrToFloat_(S));
-    } catch(...) {
+        settsta1(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting tsta1 in text format: ");
         throw;
     }
 }
@@ -914,33 +920,36 @@ AnsiString TComposedMotionFunction::gettsta2Text(void) const
 void TComposedMotionFunction::settsta2Text(AnsiString &S)
 {
     try {
-        settsta2(StrToFloat_(S));
-    } catch(...) {
+        settsta2(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting tsta2 in text format: ");
         throw;
     }
 }
 
 AnsiString TComposedMotionFunction::getId1Text(void) const
 {
-    return IntToStr(p_Id1);
+    return IntToStr(getId1());
 }
 void TComposedMotionFunction::setId1Text(AnsiString& S)
 {
     try {
-        setId1(StrToInt_(S));
-    } catch(...) {
+        setId1(StrToInt(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Id1 in text format: ");
         throw;
     }
 }
 AnsiString TComposedMotionFunction::getId2Text(void) const
 {
-    return IntToStr(p_Id2);
+    return IntToStr(getId2());
 }
 void TComposedMotionFunction::setId2Text(AnsiString& S)
 {
     try {
-        setId2(StrToInt_(S));
-    } catch(...) {
+        setId2(StrToInt(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Id2 in text format: ");
         throw;
     }
 }
@@ -1026,26 +1035,26 @@ AnsiString TComposedMotionFunction::getAllText(void) const
 
 AnsiString TComposedMotionFunction::getInstanceText(void) const
 {
-    AnsiString S;
+    string str;
 
     //velocidad máxima absoluta
-    S += AnsiString("SF1->vmaxabs = ")+p_SF1->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("SF2->vmaxabs = ")+p_SF2->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF1->vmaxabs = ")+p_RF1->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF2->vmaxabs = ")+p_RF2->getvmaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF1->amaxabs = ")+p_RF1->getamaxabsText()+AnsiString("\r\n");
-    S += AnsiString("RF2->amaxabs = ")+p_RF2->getamaxabsText()+AnsiString("\r\n");
+    str = commentedLine("SF1.vmaxabs = "+p_SF1->getvmaxabsText().str, "absolute maximum velocity of rot 1 when MFT = mftSquare (in step/ms)");
+    str += "\r\n"+commentedLine("SF2.vmaxabs = "+p_SF2->getvmaxabsText().str, "absolute maximum velocity of rot 2 when MFT = mftSquare (in step/ms)");
+    str += "\r\n"+commentedLine("RF1.vmaxabs = "+p_RF1->getvmaxabsText().str, "absolute maximum velocity of rot 1 when MFT = mftRamp (in step/ms)");
+    str += "\r\n"+commentedLine("RF2.vmaxabs = "+p_RF2->getvmaxabsText().str, "absolute maximum velocity of rot 2 when MFT = mftRamp (in step/ms)");
+    str += "\r\n"+commentedLine("RF1.amaxabs = "+p_RF1->getamaxabsText().str, "absolute maximum acceleration of rot 1 when MFT = mftRamp (in step/ms^2)");
+    str += "\r\n"+commentedLine("RF2.amaxabs = "+p_RF2->getamaxabsText().str, "absolute maximum acceleration of rot 2 when MFT = mftRamp (in step/ms^2)");
 
     //tipo de función, tipo de sincronismo y tipo de gesto
-    S += AnsiString("MFM = ")+getMFMText()+AnsiString("\r\n");
-    S += AnsiString("SSM = ")+getSSMText()+AnsiString("\r\n");
-    S += AnsiString("RSM = ")+getRSMText()+AnsiString("\r\n");
+    str += "\r\n"+commentedLine("MFM = "+getMFMText().str, "motion function type [Square | Ramp]");
+    str += "\r\n"+commentedLine("SSM = "+getSSMText().str, "square synchronous mode [Free, Tmin, MaxTmin]");
+    str += "\r\n"+commentedLine("RSM = "+getRSMText().str, "ramp synchronous mode [Free | Tmin | MaxTmin | Tv | MaxTv]");
 
     //identificadores de los rotores
-    S += AnsiString("Id1 = ")+getId1Text()+AnsiString("\r\n");
-    S += AnsiString("Id2 = ")+getId2Text();
+    str += "\r\n"+commentedLine("Id1 = "+getId1Text().str, "CAN identifier of the rot 1 controller (a nonnegative integer number)");
+    str += "\r\n"+commentedLine("Id2 = "+getId2Text().str, "CAN identifier of the rot 2 controller (a nonnegative integer number)");
 
-    return S;
+    return AnsiString(str);
 }
 void TComposedMotionFunction::setInstanceText(const AnsiString& S)
 {
@@ -1066,211 +1075,120 @@ void TComposedMotionFunction::setInstanceText(const AnsiString& S)
 
         //asigna la variable tampón
         Copy(CMF);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting instance to CMF in text format: ");
         throw;
     }
 }
-
-//##################################################################
-//MÉTODOS PÚBLICOS:
-//##################################################################
 
 //------------------------------------------------------------------
 //MÉTODOS ESTÁTICOS:
 
 //lee una instancia de función de movimiento compuesta en una cadena
-void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction* &CMF,
+void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction *CMF,
                                             const AnsiString& S, int &i)
 {
-    //el puntero CMF debe apuntar a una función de movimeinto compuesta construido
+    //check the preconditions
     if(CMF == NULL)
         throw EImproperArgument("pointer CMF shouldpoint to built composed motion function");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
+    try {
+        //constuye la variable tampón
+        TComposedMotionFunction t_CMF(CMF);
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando asignación a SF1->vmaxabs
-    //      1: esperando asignación a SF2->vmaxabs
-    //      2: esperando asignación a RF1->vmaxabs
-    //      3: esperando asignación a RF2->vmaxabs
-    //      4: esperando asignación a RF1->amaxabs
-    //      5: esperando asignación a RF2->amaxabs
-    //      6: esperando asignación a MFM
-    //      7: esperando asignación a SSM
-    //      8: esperando asignación a RSM
-    //      9: esperando asignación a Id1
-    //      10: esperando asignación a Id2
-    //      11: instancia de función de movimiento compuesta leida con éxito
-    int status = 0;
+        StrTravelLabel("SF1.vmaxabs", S, i);
+        StrTravelLabel("=", S, i);
+        double aux;
+        StrReadFloat(aux, S, i);
+        t_CMF.p_SF1->setvmaxabs(aux);
 
-    //constuye la variable tampón
-    TComposedMotionFunction t_CMF(CMF);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SF2.vmaxabs", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_CMF.p_SF2->setvmaxabs(aux);
 
-    do {
-        switch(status) {
-        case 0: //esperando asignación a SF1->vmaxabs
-            try {
-            StrTravelLabel("SF1->vmaxabs", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_CMF.p_SF1->setvmaxabs(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando asignación a SF2->vmaxabs
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SF2->vmaxabs", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_CMF.p_SF2->setvmaxabs(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando asignación a RF1->vmaxabs
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("RF1->vmaxabs", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_CMF.p_RF1->setvmaxabs(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando asignación a RF2->vmaxabs
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("RF2->vmaxabs", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_CMF.p_RF2->setvmaxabs(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 4: //esperando asignación a RF1->amaxabs
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("RF1->amaxabs", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_CMF.p_RF1->setamaxabs(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 5: //esperando asignación a RF2->amaxabs
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("RF2->amaxabs", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_CMF.p_RF2->setamaxabs(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 6: //esperando asignación a MFM
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("MFM", S, i);
-            StrTravelLabel("=", S, i);
-            TMotionFunctionMode aux;
-            StrReadMotionFunctionMode(aux, S, i);
-            t_CMF.setMFM(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 7: //esperando asignación a SSM
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SSM", S, i);
-            StrTravelLabel("=", S, i);
-            TSquareSynchronismMode aux;
-            StrReadSquareSynchronismMode(aux, S, i);
-            t_CMF.setSSM(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 8: //esperando asignación a RSM
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("RSM", S, i);
-            StrTravelLabel("=", S, i);
-            TRampSynchronismMode aux;
-            StrReadRampSynchronismMode(aux, S, i);
-            t_CMF.setRSM(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 9: //esperando asignación a Id1
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Id1", S, i);
-            StrTravelLabel("=", S, i);
-            int aux;
-            StrReadInt(aux, S, i);
-            t_CMF.setId1(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 10: //esperando asignación a Id2
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Id2", S, i);
-            StrTravelLabel("=", S, i);
-            int aux;
-            StrReadInt(aux, S, i);
-            t_CMF.setId2(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido la instancia con éxito
-    } while(status < 11);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("RF1.vmaxabs", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_CMF.p_RF1->setvmaxabs(aux);
 
-    //clona la variable tampón
-    CMF->Copy(t_CMF);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("RF2.vmaxabs", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_CMF.p_RF2->setvmaxabs(aux);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("RF1.amaxabs", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_CMF.p_RF1->setamaxabs(aux);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("RF2.amaxabs", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_CMF.p_RF2->setamaxabs(aux);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("MFM", S, i);
+        StrTravelLabel("=", S, i);
+        TMotionFunctionMode aux_mfm;
+        StrReadMotionFunctionMode(aux_mfm, S, i);
+        t_CMF.setMFM(aux_mfm);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SSM", S, i);
+        StrTravelLabel("=", S, i);
+        TSquareSynchronismMode aux_ssm;
+        StrReadSquareSynchronismMode(aux_ssm, S, i);
+        t_CMF.setSSM(aux_ssm);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("RSM", S, i);
+        StrTravelLabel("=", S, i);
+        TRampSynchronismMode aux_rsm;
+        StrReadRampSynchronismMode(aux_rsm, S, i);
+        t_CMF.setRSM(aux_rsm);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Id1", S, i);
+        StrTravelLabel("=", S, i);
+        int aux_i;
+        StrReadInt(aux_i, S, i);
+        t_CMF.setId1(aux_i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Id2", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadInt(aux_i, S, i);
+        t_CMF.setId2(aux_i);
+
+        //clona la variable tampón
+        CMF->Copy(t_CMF);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of the CMF: ");
+        throw;
+    }
 }
+
 //---------------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
 
 //construye una función de movimiento compuesta
 TComposedMotionFunction::TComposedMotionFunction(void) :
     //inicializa los selectores a sus valores por defecto
-    p_MFM(mfmRamp), p_SSM(ssmFree), p_RSM(rsmFree),
+    p_MFM(mfmSquare), p_SSM(ssmFree), p_RSM(rsmFree),
     //inicializa los instantes de inicio de desplazamiento
     p_tsta1(0), p_tsta2(0),
     //inicializa los identificadores de las microcontroladoras
@@ -1284,6 +1202,12 @@ TComposedMotionFunction::TComposedMotionFunction(void) :
     p_RF1 = new TRampFunction(MEGARA_VMAXABS1, MEGARA_AMAXABS1);
     p_RF2 = new TRampFunction(MEGARA_VMAXABS2, MEGARA_AMAXABS2);
 
+    //set the relative velocity and acceleration of rotor 2:
+    //  double r = 2*MEGARA_SB1/MEGARA_SB2;
+    //  p_SF2->setvmaxabs(r*p_SF1->getvmaxabs());
+    //  p_RF2->setvmaxabs(r*p_RF1->getvmaxabs());
+    //  p_RF2->setamaxabs(r*p_RF1->getamaxabs());
+
     //nombra las funciones
     p_SF1->setLabel("SF1");
     p_SF2->setLabel("SF2");
@@ -1293,14 +1217,8 @@ TComposedMotionFunction::TComposedMotionFunction(void) :
     //inicializa con ningún gesto
     p_MF1 = NULL;
     p_MF2 = NULL;
-/*
-    //set the relative velocity and acceleration of rotor 2
-    double r = 2*MEGARA_SB1/MEGARA_SB2;
-    p_SF2->setvmaxabs(r*p_SF1->getvmaxabs());
-    p_RF2->setvmaxabs(r*p_RF1->getvmaxabs());
-    p_RF2->setamaxabs(r*p_RF1->getamaxabs());
 
-    //This values will be overwritten wirh the loaded instance values.*/
+    //This values will be overwritten wirh the loaded instance values.
 }
 
 //copia todas las propiedades de una función de movimiento compuesta
@@ -1584,7 +1502,7 @@ void TComposedMotionFunction::InvertTime(void)
 {
     double aux = gettendmax();
 
-    //se recuerda que T = Max(tend1, tend2)
+    //se recuerda que T = max(tend1, tend2)
 
     if(p_MF1 != NULL) {
         p_MF1->InvertTime();

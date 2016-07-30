@@ -17,16 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Vectors.h
-//Contenido: clases y funciones vectoriales
-//Última actualización: 20/03/2014
-//Autor: Isaac Morales Durán
+//File: Vectors.h
+//Content: classes and functions for vectors
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef VECTORS_H
 #define VECTORS_H
 
-#include "vclemu.h" //AnsiString
+#include "VCLemu.h" //AnsiString
 
 #include <complex> //complex
 
@@ -104,6 +103,10 @@ public:
 
     //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
     //DE LAS PROPIEDADES EN FORMATO TEXTO:
+
+    //print the properties of an double point in a string
+    //in row format
+    static void  PrintRow(AnsiString&, const TDoublePoint);
 
     //obtiene las etiquetas de las propiedades de definición
     //en formato texto entre paréntesis

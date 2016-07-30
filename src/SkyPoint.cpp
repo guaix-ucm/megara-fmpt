@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: SkyPoint.cpp
-//Contenido: punto de cielo
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: SkyPoint.cpp
+//Content: sky point list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "SkyPoint.h"
@@ -99,7 +98,7 @@ void  strReadPointType(TPointType& value, const string& str, unsigned int& i)
         return;
     }
 
-    throw EImproperArgument("there is a value of type TPointType from position i in string text str");
+    throw EImproperArgument("there is a value of type TPointType from position i in string str");
 }
 string pointTypeToStr(TPointType value)
 {
@@ -122,32 +121,32 @@ TPointType strToPointType(const string& str)
     //      strlen("BLANK"): 5
 
     //copy the index in an auxiliary variable
-    unsigned int i_ = 0;
+    unsigned int i = 0;
 
     //advance the auxiliary index to the nextnon separator character
-    strTravelSeparatorsIfAny(str, i_);
+    strTravelSeparatorsIfAny(str, i);
 
     //determine if the label is "REFERENCE" and return the corresponding value if any
-    bool label_found = strTravelLabel_("REFERENCE", str, i_);
+    bool label_found = strTravelLabel_("REFERENCE", str, i);
     if(label_found)
         return ptREFERENCE;
 
     //determine if the label is "UNKNOWN" and return the corresponding value if any
-    label_found = strTravelLabel_("UNKNOWN", str, i_);
+    label_found = strTravelLabel_("UNKNOWN", str, i);
     if(label_found)
         return ptUNKNOWN;
 
     //determine if the label is "SOURCE" and return the corresponding value if any
-    label_found = strTravelLabel_("SOURCE", str, i_);
+    label_found = strTravelLabel_("SOURCE", str, i);
     if(label_found)
         return ptSOURCE;
 
     //determine if the label is "BLANK" and return the corresponding value if any
-    label_found = strTravelLabel_("BLANK", str, i_);
+    label_found = strTravelLabel_("BLANK", str, i);
     if(label_found)
         return ptBLANK;
 
-    throw EImproperArgument("there is a value of type TPointType from position i in string text str");
+    throw EImproperArgument("Point Type should be [\"UNKNOWN\" | \"SOURCE\" | \"REFERENCE\" | \"BLANCK\"] but it is: \""+StrFirstChars(strTrim(str.substr(i, str.length() - i))).str+"\"");
 }
 
 //---------------------------------------------------------------------------
@@ -169,7 +168,7 @@ AnsiString TSkyPoint::PriorityLabel = "Priority";
 
 void TSkyPoint::setId(int Id)
 {
-    //el número de identificación debería ser mayor que cero
+    //comprueba las preocndiciones
     if(Id < 1)
         throw EImproperArgument("identifier number Id should be upper zero");
 
@@ -193,7 +192,7 @@ void TSkyPoint::setRA(double RA)
 
 void TSkyPoint::setTint(double Tint)
 {
-    //el tiempo de integración Tint debería ser no negativo
+    //comprueba las preocndiciones
     if(Tint < 0)
         throw EImproperArgument("integration time Tint should be nonnegative");
 
@@ -227,7 +226,7 @@ AnsiString TSkyPoint::getIdText(void) const
 void TSkyPoint::setIdText(const AnsiString &S)
 {
     try {
-        p_Id = StrToInt_(S);
+        p_Id = StrToInt(S);
     } catch(...) {
         throw;
     }
@@ -239,7 +238,7 @@ AnsiString TSkyPoint::getRAText(void) const
 void TSkyPoint::setRAText(const AnsiString &S)
 {
     try {
-        setRA(StrToFloat_(S));
+        setRA(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -251,7 +250,7 @@ AnsiString TSkyPoint::getDECText(void) const
 void TSkyPoint::setDECText(const AnsiString &S)
 {
     try {
-        setDEC(StrToFloat_(S));
+        setDEC(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -263,7 +262,7 @@ AnsiString TSkyPoint::getTintText(void) const
 void TSkyPoint::setTintText(const AnsiString &S)
 {
     try {
-        p_Tint = StrToFloat_(S);
+        p_Tint = StrToFloat(S);
     } catch(...) {
         throw;
     }
@@ -482,7 +481,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
     //deben ser clones de las variables que se pretenden modificar.
 
-    //NOTA: adviertase que las propiedades enteras son leidas como
+    //NOTA: adviertase que las propiedades enteras son leídas como
     //valores en punto flotante para detectar errores en los cuales
     //sea especificado un valor en punto flotante en vez de un valor entero.
 
@@ -558,7 +557,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
     //deben ser clones de las variables que se pretenden modificar.
 
-    //NOTA: adviertase que las propiedades enteras son leidas como
+    //NOTA: adviertase que las propiedades enteras son leídas como
     //valores en punto flotante para detectar errores en los cuales
     //sea especificado un valor en punto flotante en vez de un valor entero.
 
@@ -634,7 +633,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
     //deben ser clones de las variables que se pretenden modificar.
 
-    //NOTA: adviertase que las propiedades enteras son leidas como
+    //NOTA: adviertase que las propiedades enteras son leídas como
     //valores en punto flotante para detectar errores en los cuales
     //sea especificado un valor en punto flotante en vez de un valor entero.
 

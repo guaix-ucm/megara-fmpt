@@ -18,15 +18,13 @@
 
 //---------------------------------------------------------------------------
 //File: MotionProgramValidator.cpp
-//Content: validator of motion programs
+//Content: motion program validator
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MotionProgramValidator.h"
 #include "TextFile.h" //StrWriteToFile
 #include "Geometry.h" //distanceLineToPoint
-
-#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
@@ -174,6 +172,51 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
 //TMotionProgramValidator:
 //###########################################################################
 
+//calculates the time free of collission of a RP and an EA
+double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
+                   const TExclusionArea *EAA) const
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
+    if(EAA == NULL)
+        throw EImproperArgument("pointer EAA should point to built exclusion area");
+
+    //MAKE ACTIONS:
+
+    //calcula la distancia entre los contornos
+    double D = RP->getActuator()->distanceMin(EAA);
+    //calcula la distancia libre
+    double Df = D - RP->getActuator()->getArm()->getSPM() - EAA->Barrier.getSPM();
+
+    //El calculo de la distancia entre contornos,
+    //actualizará el vector de distancias mínimas.
+
+    //actualize the minimun free distance of the RP
+    if(D < RP->Dmin)
+        RP->Dmin = D;
+
+    //Para que el método de vlaidación de MPs funciones, el tiempo libre debe poder ser negativo.
+    //Por eso aquí no debe hacerse:
+    //  //si los brazos colisionan entre si
+    //  if(Df < 0)
+    //      return 0; //indica que el tiempo libre es cero
+
+    //calculates an upper top for longitudinal velocity
+    double vmaxabs = RP->calculatevmaxabs();
+
+    //calculates Tf
+    double Tf;
+    if(vmaxabs != 0)
+        Tf = Df/vmaxabs;
+    else
+        Tf = DBL_MAX;
+
+    //Note that when vmaxabs == 0, the Tf is infinity, even when Df == 0.
+
+    return Tf; //return Tf
+}
 //calculates the time free of collission of two RPs
 double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
                                             const TRoboticPositioner *RPA) const
@@ -187,18 +230,23 @@ double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
 
     //MAKE ACTIONS:
 
-    //calcula la distancia entre los contornos de los brazos de los RPs
-    double D = RP->getActuator()->getArm()->getContour().distanceMin(RPA->getActuator()->getArm()->getContour());
+    //calcula la distancia entre los contornos
+    double D = RP->getActuator()->distanceMin(RPA->getActuator());
     //calcula la distancia libre de los brazos
     double Df = D - RP->getActuator()->getArm()->getSPM() - RPA->getActuator()->getArm()->getSPM();
 
-    //actualize the minimun free distance of the RP
-    if(Df < RP->Dfmin)
-        RP->Dfmin = Df;
+    //El calculo de la distancia entre contornos,
+    //actualizará el vector de distancias mínimas.
 
-    //si los brazos colisionan entre si
-    if(Df < 0)
-        return 0; //indica que el tiempo libre es cero
+    //actualize the minimun free distance of the RP
+    if(D < RP->Dmin)
+        RP->Dmin = D;
+
+    //Para que el método de vlaidación de MPs funciones, el tiempo libre debe poder ser negativo.
+    //Por eso aquí no debe hacerse:
+    //  //si los brazos colisionan entre si
+    //  if(Df < 0)
+    //      return 0; //indica que el tiempo libre es cero
 
     //calculates an upper top for longitudinal velocity
     double vmaxabs1 = RP->calculatevmaxabs();
@@ -210,11 +258,36 @@ double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
     if(vmaxabs != 0)
         Tf = Df/vmaxabs;
     else
-        Tf = std::numeric_limits<double>::max();
+        Tf = DBL_MAX;
 
     //Note that when vmaxabs == 0, the Tf is infinity, even when Df == 0.
 
     return Tf; //return Tf
+}
+//calculates the minimun step time of a pair (RP, EA)
+double TMotionProgramValidator::calculateTmin(const TRoboticPositioner *RP,
+                     const TExclusionArea *EAA) const
+{
+    //check the preconditions
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
+    if(EAA == NULL)
+        throw EImproperArgument("pointer EAA should point to built exclusion area");
+
+
+    //calculates the joint SPMmin
+    double SPMmin = RP->getActuator()->getSPMmin();
+
+    //calculates an upper level for longitudinal velocity
+    double vmaxabs = RP->calculatevmaxabs();
+
+    //calculates and return Tmin
+    double Tmin;
+    if(vmaxabs != 0)
+        Tmin = SPMmin/vmaxabs;
+    else
+        Tmin = DBL_MAX;
+    return Tmin;
 }
 //calculates the minimun step time of two RPs
 double TMotionProgramValidator::calculateTmin(const TRoboticPositioner *RP,
@@ -240,7 +313,7 @@ double TMotionProgramValidator::calculateTmin(const TRoboticPositioner *RP,
     if(vmaxabs != 0)
         Tmin = SPMmin/vmaxabs;
     else
-        Tmin = std::numeric_limits<double>::max();
+        Tmin = DBL_MAX;
     return Tmin;
 }
 
@@ -253,9 +326,15 @@ double TMotionProgramValidator::calculateTfmin(TRoboticPositioner *RP) const
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //determines the Tf between each adjacent RP and select the minimun
-    double Tfmin = std::numeric_limits<double>::max();
-    for(int i=0; i<RP->getActuator()->Adjacents.getCount(); i++) {
-        TRoboticPositioner *RPA = RP->getActuator()->Adjacents[i];
+    double Tfmin = DBL_MAX;
+    for(int i=0; i<RP->getActuator()->AdjacentEAs.getCount(); i++) {
+        TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[i];
+        double Tf = calculateTf(RP, EAA);
+        if(Tf < Tfmin)
+            Tfmin = Tf;
+    }
+    for(int i=0; i<RP->getActuator()->AdjacentRPs.getCount(); i++) {
+        TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[i];
         double Tf = calculateTf(RP, RPA);
         if(Tf < Tfmin)
             Tfmin = Tf;
@@ -272,9 +351,15 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositioner *RP) c
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
     //determines the Tmin between each adjacent RP and select the minimun
-    double Tminmin = std::numeric_limits<double>::max();
-    for(int i=0; i<RP->getActuator()->Adjacents.getCount(); i++) {
-        TRoboticPositioner *RPA = RP->getActuator()->Adjacents[i];
+    double Tminmin = DBL_MAX;
+    for(int i=0; i<RP->getActuator()->AdjacentEAs.getCount(); i++) {
+        TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[i];
+        double Tmin = calculateTmin(RP, EAA);
+        if(Tmin < Tminmin)
+            Tminmin = Tmin;
+    }
+    for(int i=0; i<RP->getActuator()->AdjacentRPs.getCount(); i++) {
+        TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[i];
         double Tmin = calculateTmin(RP, RPA);
         if(Tmin < Tminmin)
             Tminmin = Tmin;
@@ -288,7 +373,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositioner *RP) c
 double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL) const
 {
     //minimun time free of the RPs of the RPL
-    double Tfmin = std::numeric_limits<double>::max(); //initialize Tfmin with its maximun possible value
+    double Tfmin = DBL_MAX; //initialize Tfmin with its maximun possible value
     bool notcollision = true; //initialize the collision indicator flag
 
     //calculates the Tf for the RPs of the RPL and select the minimun
@@ -299,9 +384,34 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
 
         //calculates the Tf for the RP with their adjacents and select the minimun
         int k = 0;
-        while(k<RP->getActuator()->Adjacents.getCount() && notcollision) {
+        while(k<RP->getActuator()->AdjacentEAs.getCount() && notcollision) {
             //point the indicated adjacent RP to facilitateits access
-            TRoboticPositioner *RPA = RP->getActuator()->Adjacents[k];
+            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[k];
+
+            //calculates the free time between the RP and its adjacent
+            double Tf = calculateTf(RP, EAA);
+
+            //if there is collision
+            if(Tf < 0) {
+                //indicates that the minimun free time is zero
+                return Tf;
+
+            } else { //else, if there isn't collision
+                //actualize the minimun free time
+                if(Tf < Tfmin)
+                    Tfmin = Tf;
+
+                k++; //indicates to the next adjacent
+            }
+
+            //Note that collision is detected when Tf < 0, and not <=.
+        }
+
+        //calculates the Tf for the RP with their adjacents and select the minimun
+        k = 0;
+        while(k<RP->getActuator()->AdjacentRPs.getCount() && notcollision) {
+            //point the indicated adjacent RP to facilitateits access
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[k];
 
             //calculates the free time between the RP and its adjacent
             double Tf = calculateTf(RP, RPA);
@@ -320,9 +430,8 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
             }
 
             //Note that collision is detected when Tf < 0, and not <=.
-
-            //POSIBLE ERROR: venia funcionando cuando la colision se detectaba cuando Tf <= 0
         }
+
         //indicates to the next RP of the RPL
         j++;
     }
@@ -336,7 +445,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
 double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& RPL) const
 {
     //minimun time free of the RPs of the RPL
-    double Tminmin = std::numeric_limits<double>::max(); //initialize Tminmin with its maximun possible value
+    double Tminmin = DBL_MAX; //initialize Tminmin with its maximun possible value
     bool notcollision = true; //initialize the collision indicator flag
 
     //calculates the Tmin for the RPs of the RPL and select the minimun
@@ -347,9 +456,34 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
 
         //calculates the Tmin for the RP with their adjacents and select the minimun
         int k = 0;
-        while(k<RP->getActuator()->Adjacents.getCount() && notcollision) {
+        while(k<RP->getActuator()->AdjacentEAs.getCount() && notcollision) {
             //point the indicated adjacent RP to facilitateits access
-            TRoboticPositioner *RPA = RP->getActuator()->Adjacents[k];
+            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[k];
+
+            //calculates the free time between the RP and its indicated adjacent
+            double Tmin = calculateTmin(RP, EAA);
+
+            //if there is collision
+            if(Tmin < 0) {
+                //indicates that the minimun step time is zero
+                return Tmin;
+
+            } else { //else, if there isn't collision
+                //actualize the minimun step time
+                if(Tmin < Tminmin)
+                    Tminmin = Tmin;
+
+                k++; //indicates to the next adjacent
+            }
+
+            //Note that collision is detected when Tmin < 0, and not <=.
+        }
+
+        //calculates the Tmin for the RP with their adjacents and select the minimun
+        k = 0;
+        while(k<RP->getActuator()->AdjacentRPs.getCount() && notcollision) {
+            //point the indicated adjacent RP to facilitateits access
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[k];
 
             //calculates the free time between the RP and its indicated adjacent
             double Tmin = calculateTmin(RP, RPA);
@@ -367,10 +501,9 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
                 k++; //indicates to the next adjacent
             }
 
-            //Note that collision is detected when Tf < 0, and not <=.
-
-            //POSIBLE ERROR: venia funcionando cuando la colision se detectaba cuando Tf <= 0
+            //Note that collision is detected when Tmin < 0, and not <=.
         }
+
         //indicates to the next RP of the RPL
         j++;
     }
@@ -470,21 +603,23 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
             getFiberMOSModel()->RPL.setInstruction(MI->getId(), MI->Instruction);
         }
 
-        //reset the parameter Dfmin of all RPs of the FMM
+        //reset the parameter Dmin of all RPs of the FMM
         for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
             TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
-            RP->Dfmin = std::numeric_limits<double>::max();
+            RP->Dmin = DBL_MAX  ;
+            RP->getActuator()->DminEAs.SetAll(DBL_MAX);
+            RP->getActuator()->DminRPs.SetAll(DBL_MAX);
         }
 
-        //The parameter Dfmin of the RPs included in the MP,
+        //The parameter Dmin of the RPs included in the MP,
         //will be updated in the method:
         //  Tfmin = calculateTfmin(RPL);
         //The obtained valued shall be transcribed from the RPs
         //of the RPL to the corresponding MIs of the ML.
 
-        //Note that only will be used the parameter Dfmin
+        //Note that only will be used the parameter Dmin
         //of the RPs included in the MP, but is convenient
-        //reset the parameter Dfmin of all RPs of the FMM.
+        //reset the parameter Dmin of all RPs of the FMM.
 
         //EXECUTE THE GESTURE:
 
@@ -502,11 +637,11 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
             //calculates the minimun free time of the RPL
             Tfmin = calculateTfmin(RPL);
 
-            //Calculus of Tfmin pruduces update of Dfmin of the RPs of the RPL.
+            //Calculus of Tfmin pruduces update of Dmin of the RPs of the RPL.
 
             //if there is collision
             if(Tfmin < 0) {
-                //transcript the Dfmin of the RPs to corresponding MIs
+                //transcript the Dmin of the RPs to corresponding MIs
                 //and reset them
                 for(int i=0; i<ML->getCount(); i++) {
                     TMessageInstruction *MI = ML->GetPointer(i);
@@ -514,15 +649,15 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
                     if(j >= RPL.getCount())
                         throw EImpossibleError("lateral effect");
                     TRoboticPositioner *RP = RPL[j];
-                    MI->setComment2("Dfmin = "+floattostr(RP->Dfmin));
+//                    MI->setComment2("Dmin = "+floattostr(RP->Dmin));
+                    MI->setComment2(RP->getDminsText().str);
                 }
                 //indicates that the motion program not avoid dynamic collision
                 return false;
             }
 
-            //Note that collision is detected when Tf < 0, and not <=.
-
-            //POSIBLE ERROR: venia funcionando cuando la colision se detectaba cuando Tf <= 0
+            //Note that collision is detected when Tfmin < 0, and not <=,
+            //becuase Tfmin can not be less zero.
 
             //calculates and applies the minimun jump time of the RPL
             double Tmin = calculateTminmin(RPL);
@@ -534,7 +669,7 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
 
             //NOTE: numerical error accumulated in t is eclipsed by
             //the additional margins of Tfmin. Tfmin has additional margins
-            //due to the trayectory of all points of the armis circular.
+            //due to the trajectory of all points of the armis circular.
 
         } //while(t < Tdis);
 
@@ -544,9 +679,9 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
         //calculates the minimun free time
         Tfmin = calculateTfmin(RPL);
 
-        //Calculus of Tfmin pruduces update of Dfmin of the RPs of the RPL.
+        //Calculus of Tfmin pruduces update of Dmin of the RPs of the RPL.
 
-        //transcribe los Dfmin de los RPs a los MIs
+        //transcript the Dmin of the RPs to corresponding MIs
         //and reset them
         for(int i=0; i<ML->getCount(); i++) {
             TMessageInstruction *MI = ML->GetPointer(i);
@@ -554,7 +689,8 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
             if(j >= RPL.getCount())
                 throw EImpossibleError("lateral effect");
             TRoboticPositioner *RP = RPL[j];
-            MI->setComment2("Dfmin = "+floattostr(RP->Dfmin));
+//            MI->setComment2("Dmin = "+floattostr(RP->Dmin));
+            MI->setComment2(RP->getDminsText().str);
         }
 
         //if there is collision
@@ -562,9 +698,8 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
             //indicates that the motion program not avoid dynamic collision
             return false;
 
-        //Note that collision is detected when Tf < 0, and not <=.
-
-        //POSIBLE ERROR: venia funcionando cuando la colision se detectaba cuando Tf <= 0
+        //Note that collision is detected when Tfmin < 0, and not <=,
+        //becuase Tfmin can not be less zero.
     }
 
     //restore and discard the initial status of the quantifiers of the rotors
@@ -602,7 +737,8 @@ bool TMotionProgramValidator::checkPairPPDP(const TMotionProgram &PP,
         return true;
 
     } catch(Exception& E) {
-        throw E;
+        E.Message.Insert(1, "checking pair (PP, DP): ");
+        throw;
     }
 }
 

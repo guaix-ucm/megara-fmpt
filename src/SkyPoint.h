@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: SkyPoint.h
-//Content: sky point
+//Content: sky point list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -131,7 +131,7 @@ public:
 
     //tiempo de integración del SP
     //debe ser no negativo
-    //valor por defecto: 0
+    //valor por defecto: 0 s
     double getTint(void) const {return p_Tint;} void setTint(double);
 
     //type of point

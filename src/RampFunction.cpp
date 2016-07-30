@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: RampFunction.cpp
-//Contenido: funcion de movimiento con rampas de aceleración y deceleración
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: RampFunction.cpp
+//Content: ramp motion function with acceleration and deceleration ramps
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include <math.h>
@@ -293,7 +292,7 @@ AnsiString TRampFunction::getamaxabsText(void) const
 void TRampFunction::setamaxabsText(const AnsiString& S)
 {
         try {
-                setamaxabs(StrToFloat_(S));
+                setamaxabs(StrToFloat(S));
         } catch(...) {
                 throw;
         }

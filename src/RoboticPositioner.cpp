@@ -17,16 +17,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: RoboticPositioner.cpp
-//Contenido: posicionador básico (dimensión y posición)
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: RoboticPositioner.cpp
+//Content: robotic positioner (RP) model
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "RoboticPositioner.h"
 #include "Strings.h" //StrIndent
+#include "TextFile.h"
 
-#include <limits> //std::numeric_limits
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -36,9 +36,8 @@ using namespace Positioning;
 //espacio de nombres de modelos
 namespace Models {
 
-//##########################################################################
+//---------------------------------------------------------------------------
 //TControlMode
-//##########################################################################
 
 void  StrPrintControlMode(AnsiString& S,
                           TControlMode cm)
@@ -102,7 +101,7 @@ void  StrReadControlMode(TControlMode& cm,
         }
     }
 
-    throw EImproperArgument("there isn't a value of type TControlMode in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TControlMode in position i of string S");
 }
 AnsiString ControlModeToStr(TControlMode cm)
 {
@@ -152,12 +151,11 @@ TControlMode StrToControlMode(const AnsiString& S)
             return cmSinc;
     }
 
-    throw EImproperArgument("there isn't a value of type TControlMode in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TControlMode in position i of string S");
 }
 
-//##########################################################################
+//---------------------------------------------------------------------------
 //TFaultType
-//##########################################################################
 
 void  StrPrintFaultType(AnsiString& S,
                         TFaultType ft)
@@ -226,7 +224,7 @@ void  StrReadFaultType(TFaultType& ft,
         }
     }
 
-    throw EImproperArgument("there isn't a value of type TFaultType in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TFaultType in position i of string S");
 }
 AnsiString FaultTypeToStr(TFaultType ft)
 {
@@ -277,12 +275,11 @@ TFaultType StrToFaultType(const AnsiString& S)
             return ftDyn;
     }
 
-    throw EImproperArgument("there isn't a value of type TFaultType in position i of string text S");
+    throw EImproperArgument("there isn't a value of type TFaultType in position i of string S");
 }
 
-//##########################################################################
+//---------------------------------------------------------------------------
 //TRoboticPositioner
-//##########################################################################
 
 //---------------------------------------------------------------------------
 //PROPIEDADES ESTÁTICAS:
@@ -395,7 +392,7 @@ AnsiString TRoboticPositioner::getEoText(void) const
 void TRoboticPositioner::setEoText(const AnsiString &S)
 {
     try {
-        setEo(StrToFloat_(S));
+        setEo(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -407,7 +404,7 @@ AnsiString TRoboticPositioner::getEpText(void) const
 void TRoboticPositioner::setEpText(const AnsiString &S)
 {
     try {
-        setEp(StrToFloat_(S));
+        setEp(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -419,7 +416,7 @@ AnsiString TRoboticPositioner::getTstopText(void) const
 void TRoboticPositioner::setTstopText(const AnsiString &S)
 {
     try {
-        setTstop(StrToFloat_(S));
+        setTstop(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -431,7 +428,7 @@ AnsiString TRoboticPositioner::getTshiffText(void) const
 void TRoboticPositioner::setTshiffText(const AnsiString &S)
 {
     try {
-        setTshiff(StrToFloat_(S));
+        setTshiff(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -443,7 +440,7 @@ AnsiString TRoboticPositioner::getSPMaddText(void) const
 void TRoboticPositioner::setSPMaddText(const AnsiString &S)
 {
     try {
-        setSPMadd(StrToFloat_(S));
+        setSPMadd(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -471,7 +468,7 @@ AnsiString TRoboticPositioner::getFaultProbabilityText(void) const
 void TRoboticPositioner::setFaultProbabilityText(const AnsiString &S)
 {
     try {
-        setFaultProbability(StrToFloat_(S));
+        setFaultProbability(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -512,41 +509,40 @@ AnsiString TRoboticPositioner::getOperativeText(void) const
 
 AnsiString TRoboticPositioner::getToleranceText(void) const
 {
-    AnsiString S;
+    string str;
 
     //PROPIEDADES DE SEGURIDAD:
 
-    S = "R/W:\r\n";
+    str = commentedLine("Eo = "+getEoText().str, "error margin in theta_ orientation (in rad)");;
+    str += "\r\n"+commentedLine("Ep = "+getEpText().str, "error margin in P0 position (in mm)");
+    str += "\r\n"+commentedLine("Tstop = "+getTstopText().str, "margin time from last position stored in memory, to stopping rotors (in ms)");;
+    str += "\r\n"+commentedLine("Tshiff = "+getTshiffText().str, "margin time to shift of all rotors of RPs in Fiber MOS (in ms)");
+    str += "\r\n"+commentedLine("SPMadd = "+getSPMaddText().str, "SPM additional: is a component of SPM added once (in mm)");
 
-    S += AnsiString("    Eo = ")+getEoText()+AnsiString("\r\n");
-    S += AnsiString("    Ep = ")+getEpText()+AnsiString("\r\n");
-    S += AnsiString("    Tstop = ")+getTstopText()+AnsiString("\r\n");
-    S += AnsiString("    Tshiff = ")+getTshiffText()+AnsiString("\r\n");
-    S += AnsiString("    SPMadd = ")+getSPMaddText();
+    //There aren't only read tolerance properties.
 
-    return S;
+    return AnsiString(str);
 }
 AnsiString TRoboticPositioner::getStatusText(void) const
 {
-    AnsiString S;
+    string str;
 
     //PROPIEDADES DE ESTADO:
 
-    S = "R/W:\r\n";
+    str = commentedLine("Disabled = "+getDisabledText().str, "disabling status [False | True]");
+    str += "\r\n"+commentedLine("FaultProbability = "+getFaultProbabilityText().str, "probability of fault status (a real number in [0, 1])");
+    str += "\r\n"+commentedLine("FaultType = "+getFaultTypeText().str, "type of fault [Unk | Sta | Dyn]");
 
-    S += AnsiString("    Disabled = ")+getDisabledText()+AnsiString("\r\n");
-    S += AnsiString("    FaultProbability = ")+getFaultProbabilityText()+AnsiString("\r\n");
-    S += AnsiString("    FaultType = ")+getFaultTypeText()+AnsiString("\r\n");
-    S += AnsiString("    ControlMode = ")+getControlModeText()+AnsiString("\r\n");
+    //Thefollowing R/W status property is disused:
+    //  ControlMode
 
-    S += "R:\r\n";
+    //There are the following only read status properties:
+    //  Operative
 
-    S += AnsiString("    Operative = ")+getOperativeText();
-
-    return S;
+    return AnsiString(str);
 }
 
-AnsiString TRoboticPositioner::getAllText(void) const
+/*AnsiString TRoboticPositioner::getAllText(void) const
 {
     AnsiString S;
 
@@ -556,27 +552,27 @@ AnsiString TRoboticPositioner::getAllText(void) const
     S += AnsiString("Status:\r\n")+StrIndent(getStatusText());
 
     return S;
-}
+}*/
 AnsiString TRoboticPositioner::getInstanceText(void) const
 {
-    AnsiString S;
+    string str;
 
-    S += AnsiString("ActuatorInstance:\r\n")+StrIndent(getActuator()->getInstanceText())+AnsiString("\r\n");
-    S += AnsiString("CMFInstance:\r\n")+StrIndent(CMF.getInstanceText())+AnsiString("\r\n");
+    str = commentedLine("ActuatorInstance:", "Instance properties of the RP.Actuator (sizing, orientation and others):");
+    str += "\r\n"+StrIndent(getActuator()->getInstanceText()).str;
 
-    S += "Tolerances:\r\n";
-    S += AnsiString("    Eo = ")+getEoText()+AnsiString("\r\n");
-    S += AnsiString("    Ep = ")+getEpText()+AnsiString("\r\n");
-    S += AnsiString("    Tstop = ")+getTstopText()+AnsiString("\r\n");
-    S += AnsiString("    Tshiff = ")+getTshiffText()+AnsiString("\r\n");
-    S += AnsiString("    SPMadd = ")+getSPMaddText()+AnsiString("\r\n");
+    str += "\r\n";
+    str += "\r\n"+commentedLine("CMFInstance:", "Instance properties of the RP.CMF:");
+    str += "\r\n"+StrIndent(CMF.getInstanceText()).str;
 
-    S += "Status:\r\n";
-    S += AnsiString("    Disabled = ")+getDisabledText()+AnsiString("\r\n");
-    S += AnsiString("    FaultProbability = ")+getFaultProbabilityText()+AnsiString("\r\n");
-    S += AnsiString("    FaultType = ")+getFaultTypeText();
+    str += "\r\n";
+    str += "\r\n"+commentedLine("Tolerances:", "Tolerances of the RP:");
+    str += "\r\n"+StrIndent(getToleranceText()).str;
 
-    return S;
+    str += "\r\n";
+    str += "\r\n"+commentedLine("Status:", "Qualitative status of the RP:");
+    str += "\r\n"+StrIndent(getStatusText()).str;
+
+    return AnsiString(str);
 }
 void TRoboticPositioner::setInstanceText(const AnsiString &S)
 {
@@ -602,6 +598,24 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
         throw;
     }
 }
+
+//set of minimun distances in text format
+AnsiString TRoboticPositioner::getDminsText(void) const
+{
+    //comprueba las precondiciones
+    if(getActuator()->DminEAs.getCount() != getActuator()->AdjacentEAs.getCount())
+        throw EImproperCall("DminEAs.Count should be equal to AdjacentEAs.Count");
+
+    //print the Dmins in a string
+    string str;
+    str = "min: "+floattostr(Dmin);
+    str += "; with EAs: "+getActuator()->DminEAs.getText().str;
+    str += "; with RPs: "+getActuator()->DminRPs.getText().str;
+
+    //return the string
+    return AnsiString(str);
+}
+
 
 //---------------------------------------------------------------------------
 //MÉTODOS ESTÁTICOS:
@@ -666,7 +680,7 @@ void  TRoboticPositioner::readPositionP3Row(TRoboticPositioner* &FP,
 //(Id, x_3, y_3) al final de una cadena de texto
 //en formato fila de texto
 void  TRoboticPositioner::printPositionP_3Row(AnsiString& S,
-                                             TRoboticPositioner *FP)
+                                              TRoboticPositioner *FP)
 {
     TActuator::printPositionP_3Row(S, FP->getActuator());
 }
@@ -683,207 +697,95 @@ void  TRoboticPositioner::printPositionPPARow(AnsiString& S,
 void  TRoboticPositioner::readInstance(TRoboticPositioner* &RP,
                                        const AnsiString& S, int &i)
 {
-    //CHECK THE PRECONDITIONS:
+    //comprueba las precondiciones
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built robotic positioner");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    if(RP == NULL)
-        throw EImproperArgument("pointer RP should point to built robotic positioner");
+    try {
+        //lee la instancia en una variables tampón
+        TRoboticPositioner t_RP(RP);
 
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
+        StrTravelSeparatorsIfAny(S, i);
+        StrTravelLabel("ActuatorInstance:", S, i);
+        StrTravelSeparators(S, i);
+        TActuator::readInstance(t_RP.getActuator(), S, i);
 
-    //MAKE ACTIONS:
+        StrTravelLabel("CMFInstance:", S, i);
+        StrTravelSeparators(S, i);
+        TComposedMotionFunction::ReadInstance(&t_RP.CMF, S, i);
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando etiqueta "ActuatorInstance:"
-    //      1: esperando instancia de Actuator
-    //      2: esperando etiqueta "CMF:"
-    //      3: esperando instancia de CMF
-    //      4: esperando etiqueta "Tolerances:"
-    //      5: esperando separador y asignación a Eo
-    //      6: esperando separador y asignación a Ep
-    //      7: esperando separador y asignación a Tstop
-    //      8: esperando separador y asignación a Tshiff
-    //      9: esperando separador y asignación a SPMadd
-    //      10: esperando etiqueta "Status:"
-    //      11: esperando asignación a Disabled
-    //      12: esperando asignación a FaultProbability
-    //      13: esperando asignación a FaultType
-    //      14: instancia de posicionador leida con éxito
-    int status = 0;
+        //-------------------------------------------------------
 
-    //variables tampón
-    TRoboticPositioner t_RP(RP);
+        StrTravelLabel("Tolerances:", S, i);
 
-    do {
-        switch(status) {
-        case 0: //esperando etiqueta "ActuatorInstance:"
-            try {
-            StrTravelLabel("ActuatorInstance:", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando instancia de Actuator
-            try {
-            StrTravelSeparators(S, i);
-            TActuator *aux = t_RP.getActuator();
-            TActuator::readInstance(aux, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Eo", S, i);
+        StrTravelLabel("=", S, i);
+        double auxd;
+        StrReadFloat(auxd, S,i);
+        t_RP.setEo(auxd);
 
-        case 2: //esperando etiqueta "CMFInstance:"
-            try {
-            StrTravelLabel("CMFInstance:", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando instancia de CMF
-            try {
-            StrTravelSeparators(S, i);
-            TComposedMotionFunction *aux = &t_RP.CMF;
-            TComposedMotionFunction::ReadInstance(aux, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 4: //esperando etiqueta "Tolerances:"
-            try {
-            StrTravelLabel("Tolerances:", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 5: //esperando separador y asignación a Eo
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Eo", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S,i);
-            t_RP.setEo(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 6: //esperando separador y asignación a Ep
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Ep", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S,i);
-            t_RP.setEp(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 7: //esperando separador y asignación a Tstop
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Tstop", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S,i);
-            t_RP.setTstop(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 8: //esperando separador y asignación a Tshiff
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Tshiff", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S,i);
-            t_RP.setTshiff(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 9: //esperando separador y asignación a SPMadd
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SPMadd", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S,i);
-            t_RP.setSPMadd(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 10: //esperando etiqueta "Status:"
-            try {
-            StrTravelLabel("Status:", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 11: //esperando asignación a Disabled
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Disabled", S, i);
-            StrTravelLabel("=", S, i);
-            bool aux;
-            StrReadBool(aux, S, i);
-            t_RP.Disabled = aux;
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 12: //esperando asignación a FaultProbability
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("FaultProbability", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_RP.setFaultProbability(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 13: //esperando asignación a FaultType
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("FaultType", S, i);
-            StrTravelLabel("=", S, i);
-            TFaultType aux;
-            StrReadFaultType(aux, S, i);
-            t_RP.FaultType = aux;
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Ep", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(auxd, S,i);
+        t_RP.setEp(auxd);
 
-        }
-        //mientras no se haya leido la instancia de posicionador con éxito
-    } while(status < 14);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Tstop", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(auxd, S,i);
+        t_RP.setTstop(auxd);
 
-    //asigna la variable tampón
-    RP->clone(&t_RP);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Tshiff", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(auxd, S,i);
+        t_RP.setTshiff(auxd);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SPMadd", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(auxd, S,i);
+        t_RP.setSPMadd(auxd);
+
+        //-------------------------------------------------------
+
+        StrTravelLabel("Status:", S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Disabled", S, i);
+        StrTravelLabel("=", S, i);
+        bool auxb;
+        StrReadBool(auxb, S, i);
+        t_RP.Disabled = auxb;
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("FaultProbability", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(auxd, S, i);
+        t_RP.setFaultProbability(auxd);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("FaultType", S, i);
+        StrTravelLabel("=", S, i);
+        TFaultType auxft;
+        StrReadFaultType(auxft, S, i);
+        t_RP.FaultType = auxft;
+
+        //asigna la variable tampón
+        RP->clone(&t_RP);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of RP: ");
+        throw;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -902,7 +804,7 @@ TRoboticPositioner::TRoboticPositioner(void) :
     //inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
     ControlMode(cmSinc), MPturn(), MPretraction(),
-    Dfmin(std::numeric_limits<double>::max())
+    Dmin(DBL_MAX)
 {
     //contruye el actuador del posicionador
     //con el identificador 0
@@ -930,7 +832,7 @@ TRoboticPositioner::TRoboticPositioner(int Id, TDoublePoint P0,
     //construye e inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
     ControlMode(cmSinc), MPturn(), MPretraction(),
-    Dfmin(std::numeric_limits<double>::max())
+    Dmin(DBL_MAX)
 {
     //el número de identificación Id debe ser mayor que cero
     if(Id < 1)
@@ -977,7 +879,7 @@ void TRoboticPositioner::copyStatus(const TRoboticPositioner *RP)
     MPretraction.Clone(RP->MPretraction);
     p_DsecMax = RP->p_DsecMax;
     p_Dsec = RP->p_Dsec;
-    Dfmin = RP->Dfmin;
+    Dmin = RP->Dmin;
 }
 
 //copy all properties of a RP
@@ -1058,8 +960,8 @@ TRoboticPositioner::~TRoboticPositioner()
     //si no ha encontrado el objeto
     if(i >= Builts.getCount())
         //indica que está intentando destruir un objeto no contruido
-        throw EImproperCall(AnsiString("destruction attempt of non built object: ")+
-                            IntToHex(reinterpret_cast<intptr_t>(this), 8));
+        throw EImproperCall("destruction attempt of non built object: "+
+                            IntToHex(intptr_t(this)).str);
 
     //destruye el actuador
     delete p_Actuator;
@@ -2001,10 +1903,10 @@ double TRoboticPositioner::d___MaxAbs(double T)
 //determina una cota superior para la distancia máxima recorrida
 //por un punto del brazo del posicionador, al moverse ambos rotores
 //durante un intervalo de tiempo T
-//      dMaxAbs = Max(d_MaxAbs(T), d___MaxAbs(T))
+//      dMaxAbs = max(d_MaxAbs(T), d___MaxAbs(T))
 double TRoboticPositioner::dMaxAbs(double T)
 {
-    return Max(d_MaxAbs(T), d___MaxAbs(T));
+    return max(d_MaxAbs(T), d___MaxAbs(T));
 }
 
 //determine a upper top for longitudinal velocity

@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Instruction.h
-//Contenido: instrucción de posicionador
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Instruction.h
+//Content: instruction of a RP
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef INSTRUCTION_H
@@ -114,7 +113,7 @@ public:
     //El nombre del comando ya está en formato texto.
 
     //argumentos en formato texto
-    //      Args.ItemsText[i]
+    //      Args.getItemsText(i)
 
     //instrucción en formato de linea de texto
     //      "Name Arg1 Arg2..."

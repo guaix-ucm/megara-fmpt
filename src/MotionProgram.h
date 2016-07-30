@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: PositioningProgram.h
-//Content: class of positioning program
+//Content: positioning program
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -130,11 +130,11 @@ public:
     void setInterfaceText(string& label, unsigned int& Bid,
                           const string& str);
 
-    //Get MP-Dfmins in the interface format of the MCS.
+    //Get MP-Dmins in the interface format of the MCS.
     //Inputs:
-    //  label: string labeling all the MP-Dfmin.
+    //  label: string labeling all the MP-Dmin.
     //  Bid: univoque identifier of the CB.
-    void getDfminInterfaceText(string& str, const string& label,
+    void getDminInterfaceText(string& str, const string& label,
                                unsigned int Bid) const;
 };
 

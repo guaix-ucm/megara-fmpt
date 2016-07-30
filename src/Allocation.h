@@ -17,15 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TAllocation.h
-//Content: class allocation of a RP to a projection point
+//File: Allocation.h
+//Content: RP to projection point allocation
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TALLOCATION_H
 #define TALLOCATION_H
 
-#include "FiberMOSModel2.h"
+#include "FiberMOSModel.h"
 
 //---------------------------------------------------------------------------
 
@@ -39,15 +39,15 @@ namespace Positioning {
 //TAllocation:
 //---------------------------------------------------------------------------
 
-//class target point
+//class RP to projection point allocation
 class TAllocation {
         //STATIC PROPERTIES:
 
-        //list of pointers to built target points
+        //list of pointers to built allocations
         static TItemsList<TAllocation*> Builts;
 
-        //Allows to control the construction of a single target point by RP,
-        //and the destruction of existing target point.
+        //Allows to control the construction of a single allocation by RP,
+        //and the destruction of existing allocations.
 
         //DYNAMIC PROPERTIES:
 
@@ -59,9 +59,12 @@ public:
         //pointer to the allocated RP
         TRoboticPositioner *getRP(void) const {return p_RP;}
 
-        //PP allocated to the RP
+        //projection point allocated to the RP,
         //where shall be positioned the point P3 of the attached RP
         TProjectionPoint PP;
+
+        //The target point is the more close stable point to
+        //the projection point.
 
         //PROPERTIES IN TEXT FORMAT:
 
@@ -72,16 +75,15 @@ public:
 
         //SETS OF PROPERTIES IN TEXT FORMAT:
 
-        //target point in text format
+        //allocation in text format
         AnsiString getText(void) const;
         AnsiString getRowText(void) const;
 
         //------------------------------------------------------------------
         //STATIC METHODS:
 
-        //compare the identifiers of the RPs attached to two target points
-        static int  CompareIds(TAllocation *TPA1,
-                TAllocation *TPA2);
+        //compare the identifiers of the RPs attached to two allocations
+        static int  CompareIds(TAllocation *TPA1, TAllocation *TPA2);
         //this method shall be pointed in a pointer list
         //to allow the functioning of shorting and comparing methods
 
@@ -95,7 +97,8 @@ public:
 
         //read the values of the properties
         //in a text string from the position i
-        static void  ReadSeparated(int& Id, double& x, double& y, const AnsiString& S, int& i);
+        static void  ReadSeparated(int& Id, double& x, double& y,
+                                   const AnsiString& S, int& i);
 
         //print the properties of an allocation in a string
         //in row format
@@ -110,17 +113,17 @@ public:
         TAllocation(TRoboticPositioner  *RP, TDoublePoint PP);
 
         //destroy a TAllocation
-        //if thereisn't a built target point
+        //if thereisn't a built allocation
         //  throw an exception EImproperCall
         ~TAllocation();
 
         //CHECKING METHODS:
 
         //determines if the target point is out of the domain
-        //of thepoint P3 of the attached RP
+        //of the point P3 of the attached RP
         bool IsOutDomainP3(void);
         //determines if the target point is in the secure area
-        //of thepoint P3 of the attached RP
+        //of the point P3 of the attached RP
         bool IsInSafeAreaP3(void);
 
         //MOTION METHODS:
@@ -144,9 +147,9 @@ public:
         //    thepoint is inthedomain of the RP.
         //Themethod Ramize, implement the las way.
 
-        //assign the point PP to the point P3 of its attached RP
-        //and return the distance from the stable position to the target point
-        //if the the point PP isn't on the domain of its attached RP:
+        //assign the target point to the point P3 of its attached RP
+        //and return the distance from the target point to the projection point
+        //if the the projection point isn't on the domain of its attached RP:
         //  throw an exception EImpropercall
         double MoveToPP(void);
 

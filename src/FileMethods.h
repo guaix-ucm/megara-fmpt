@@ -19,14 +19,13 @@
 //---------------------------------------------------------------------------
 //File: FileMethods.h
 //Content: file functions for read and write instances of models
-//Last update: 12/02/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FILEMETHODS_H
 #define FILEMETHODS_H
 
-#include "FiberMOSModel2.h"
+#include "FiberMOSModel.h"
 #include "FiberConnectionModel.h"
 
 //---------------------------------------------------------------------------
@@ -36,42 +35,39 @@ namespace Models {
 
 //---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR ROBOTIC POSITIONERS:
+//---------------------------------------------------------------------------
 
 //read an instance of a RP
 //from a directory
 void readInstanceFromDir(TRoboticPositioner&, const string& dir);
 
 //---------------------------------------------------------------------------
-//FILE FUNCTIONS FOR ROBOTIC POSITIONER LISTS:
-
-//write the instance of a RP list
-//in a directory
-void writeInstanceToDir(const string& dir, const TRoboticPositionerList&);
-//read an instance of a RP list
-//from a directory
-void readInstanceFromDir(TRoboticPositionerList&, const string& dir);
-
-//---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR EXCLUSION AREA LIST:
+//---------------------------------------------------------------------------
 
 //write the instance of a EA list
 //in a directory
 void writeInstanceToDir(const string& dir, const TExclusionAreaList&);
 //read an instance of a EA list
 //from a directory
-void readInstanceFromDir(TExclusionAreaList&, const string& dir,
-        const TRoboticPositionerList&);
+void readInstanceFromDir(TExclusionAreaList&, const string& dir);
+
+//---------------------------------------------------------------------------
+//FILE FUNCTIONS FOR ROBOTIC POSITIONER LISTS:
+//---------------------------------------------------------------------------
+
+//write the instance of a RP list
+//in a directory
+void writeInstanceToDir(const string& dir, const TRoboticPositionerList&);
+//read an instance of a RP list
+//from a directory
+void readInstanceFromDir(TRoboticPositionerList&, const string& dir,
+                         const TExclusionAreaList& EAL);
 
 //---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR Fiber MOS Models:
+//---------------------------------------------------------------------------
 
-/*//write the instance of a Fiber MOS Model
-//in a directory
-void writeInstanceToDir(const string& Dir, const TFiberMOSModel*);
-//read an instance of a Fiber MOS Model
-//from a directory
-void readInstanceFromDir(TFiberMOSModel*, const string& dir);
-*/
 //write the instance of a Fiber MOS Model
 //in a directory
 void writeInstanceToDir(const string& dir, const TFiberMOSModel&);
@@ -81,20 +77,16 @@ void readInstanceFromDir(TFiberMOSModel&, const string& dir);
 
 //---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR Fiber Connection Models:
+//---------------------------------------------------------------------------
 
-/*//write the instance of a Fiber Connection Model
-//in a directory
-void writeInstanceToDir(const string& dir, const TFiberConnectionModel*);
-//read an instance of a Fiber Connection Model
-//from a directory
-void readInstanceFromDir(TFiberConnectionModel*, const string& dir);
-*/
 //write the instance of a Fiber Connection Model
 //in a directory
 void writeInstanceToDir(const string& dir, const TFiberConnectionModel&);
 //read an instance of a Fiber Connection Model
 //from a directory
 void readInstanceFromDir(TFiberConnectionModel&, const string& dir);
+
+//---------------------------------------------------------------------------
 
 } //namespace Models
 

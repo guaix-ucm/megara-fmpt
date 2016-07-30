@@ -17,16 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Strings.h
-//Contenido: funciones con cadenas de texto
-//Última actualización: 22/04/2013
-//Autor: Isaac Morales Durán
+//File: Strings.h
+//Content: functions for text strings
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef STRINGS_H
 #define STRINGS_H
 
-#include "vclemu.h" //AnsiString
+#include "VCLemu.h" //AnsiString
 
 //---------------------------------------------------------------------------
 
@@ -37,8 +36,8 @@ namespace Strings {
 //---------------------------------------------------------------------------
 
 //caracteres imprimibles de ISO8859-1 (ISO Latin 1 ó Alfabeto Latino nº1):
-//      anglosajones: [32, 126] (los mismos que en código ASCII)
-//      latinos: [160, 255] (lo mismos que en unicode)
+//  anglosajones: [32, 126] (los mismos que en código ASCII)
+//  latinos: [160, 255] (lo mismos que en unicode)
 
 //La función isprint(c) determina si c está en [32, 126]
 
@@ -71,7 +70,7 @@ bool islatinprint(unsigned char c);// {if(c<160) return false; else return true;
 //juntos en un documento de texto escrito en el siguiente orden: "\r\n"
 
 //determina si la cadena contiene un separador de los usualmente escritos
-bool StrIsUsualSeparator(AnsiString &S);/* {if(S==AnsiString(char(9)) ||
+bool StrIsUsualSeparator(const AnsiString &S);/* {if(S==AnsiString(char(9)) ||
         S==AnsiString(char(32)) || S=="\r\n") return true; else return false;}*/
 
 //en las siguientes funciones se usa el término imprimible para
@@ -80,18 +79,18 @@ bool StrIsUsualSeparator(AnsiString &S);/* {if(S==AnsiString(char(9)) ||
 //busca en S, a partir de i, el próximo caracter imprimible distinto de espacio
 //si no lo encuentra devuelve la posúltima posición
 int StrNextChar(const AnsiString &S, int i);
-//busca en S, a partir de i, el caracter previo imprimible distnto de espacio
+//busca en S, a partir de i, el caracter previo imprimible distinto de espacio
 //si no lo encuentrsa devuelve la preprimera posición
-int StrPreviusChar(const AnsiString &S, int i);
+int StrPreviousChar(const AnsiString &S, int i);
 //busca en S la primera ocurrencia de c a partir de i
 int StrSearch(const AnsiString &S, char c, int i);
 
 //busca en str, a partir de i, el próximo caracter imprimible distinto de espacio
 //si no lo encuentra devuelve la posúltima posición
 int strNextChar(const string &str, int i);
-//busca en str, a partir de i, el caracter previo imprimible distnto de espacio
+//busca en str, a partir de i, el caracter previo imprimible distinto de espacio
 //si no lo encuentrsa devuelve la preprimera posición
-int strPreviusChar(const string &str, int i);
+int strPreviousChar(const string &str, int i);
 
 //invierte el orden de los elementos de una cadena
 void StrFlip(AnsiString &S);
@@ -105,12 +104,13 @@ bool StrIsntPrintable(const AnsiString &S);
 bool StrIsntString(const AnsiString &S);
 //sustituye las secuencias de espacios y tabuladores por un solo espacio
 //AnsiString& StrTighten(AnsiString &S);
-//Segrega en Value la subcadena que precede al primer '=' en S
+//Segrega en Ident la subcadena que precede al primer '=' en S
 //y en Value la subcadena que le sucede; si tiene éxito devuelve true
 //y si S no contiene un caracter '=' devuelve false
 bool StrSplitAssign(AnsiString &Ident, AnsiString &Value, const AnsiString &S);
 //separa la última extensión de un nombre de archivo
 //si no tiene extensión devuelve la cadena vacía
+//la extensión incluye el punto separador
 AnsiString StrExtension(const AnsiString &filename);
 //copia el intervalo [i1, i2], de la cadena origen en la cadena destino
 //la cadena de destino perderá su contenido original
@@ -125,8 +125,10 @@ void strreplace(string& str, const string& str_to_replace,
 void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
                 const AnsiString& S_substitute);
 //cuenta las líneas de texto contenidas en una cadena de texto imprimible
-//si la cadena String no es imprimible lanza una excepción EImproperArgument
-int StrCountLines(const AnsiString &String);
+//si la cadena no es imprimible lanza una excepción EImproperArgument
+int StrCountLines(const AnsiString&);
+//determine the coordinates (row, col) from the position i of a string
+void strPositionToCoordinates(unsigned int& row, unsigned int& col, string str, unsigned int i);
 //determines if there is the substring "\r\n" in the position i of a string
 bool thereIsntEndline(const string& str, unsigned int i);
 //divide una cadena por cada "\r\n" que encuentre
@@ -147,21 +149,21 @@ void StrSplit(TStrings&, const AnsiString&, char c);
 
 //elimina los espacios y caracteres de control marginales de una cadena
 //la cadena de destino D puede ser la misma cadena fuente S
-void StrTrim(AnsiString &D, const AnsiString &S);
+void StrTrim(AnsiString& D, const AnsiString& S);
 //elimina los espacios y caracteres de control marginales de una cadena
-AnsiString StrTrim(const AnsiString &S);
+AnsiString StrTrim(const AnsiString& S);
 
 //la función Trim(const AnsiString &) elimina los espacios marginales
 //de una cadena y quizás también algunos caracteres de control
 //sin embargo no elimina al menos el caracter '\n'
-//por eso se define la función StrTrim(AnsiString &) que
+//por eso se define la función StrTrim(AnsiString&) que
 //si elimina todos los caracteres de control marginales
 
 //elimina los espacios y caracteres de control marginales de una cadena
 //la cadena de destino dest puede ser la misma cadena fuente src
-void strTrim(AnsiString &des, const string &src);
+void strTrim(string& des, const string& src);
 //elimina los espacios y caracteres de control marginales de una cadena
-AnsiString strTrim(const string &src);
+string strTrim(const string& src);
 
 //Si la longitud de la cadena es mayor que el número de caracteres indicado,
 //sustituye la parte sobrante de la cadena por "...".

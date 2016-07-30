@@ -25,6 +25,7 @@
 #include "testScalars.h"
 #include "../src/Constants.h" //M_2PI
 #include "../src/Scalars.h"
+//#include "cppunit_assert_emulator.h" //Qt only.
 
 #include <cmath> //abs
 #include <vector>
@@ -33,6 +34,9 @@
 
 using namespace Mathematics;
 
+//---------------------------------------------------------------------------
+
+//commented in Qt:
 CPPUNIT_TEST_SUITE_REGISTRATION(TestScalars);
 
 //overide setUp(), init data, etc
@@ -45,7 +49,33 @@ void TestScalars::tearDown() {
 
 //---------------------------------------------------------------------------
 
-void TestScalars::testFactorial()
+void TestScalars::test_ceil()
+{
+    if(ceil(0.01) != 1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+    if(ceil(-0.99) != 0) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+    CPPUNIT_ASSERT(true);
+}
+
+void TestScalars::test_floor()
+{
+    if(floor(0.99) != 0) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+    if(floor(-0.01) != -1) {
+        CPPUNIT_ASSERT(false);
+        return;
+    }
+    CPPUNIT_ASSERT(true);
+}
+
+void TestScalars::test_Factorial()
 {
     try {
         Factorial(-1);
@@ -78,7 +108,7 @@ void TestScalars::testFactorial()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testBinomial()
+void TestScalars::test_Binomial()
 {
     //Binomial(m, n) = Factorial(m)/(Factorial(n)*Factorial(m-n))
 
@@ -216,7 +246,7 @@ void TestScalars::testBinomial()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testLog()
+void TestScalars::test_Log()
 {
     //log(a, x) = log(x)/log(a)
 
@@ -302,7 +332,7 @@ void TestScalars::testLog()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testLog2()
+void TestScalars::test_Log2()
 {
     try {
         Log2(-1);
@@ -344,7 +374,7 @@ void TestScalars::testLog2()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testSign()
+void TestScalars::test_Sign()
 {
     if(Sign(-1) != -1) {
         CPPUNIT_ASSERT(false);
@@ -363,7 +393,7 @@ void TestScalars::testSign()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testAbs()
+void TestScalars::test_Abs()
 {
     if(Abs(-2) != 2) {
         CPPUNIT_ASSERT(false);
@@ -393,68 +423,68 @@ void TestScalars::testAbs()
     CPPUNIT_ASSERT(true);
 }
 
-void TestScalars::testMin()
+void TestScalars::test_min()
 {
-    if(Min(-1, -10) != -10) {
+    if(min(-1, -10) != -10) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Min(-1, 0) != -1) {
+    if(min(-1, 0) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Min(0, -10) != -10) {
+    if(min(0, -10) != -10) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Min(-1.1, -10.1) != -10.1) {
+    if(min(-1.1, -10.1) != -10.1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Min(-1.1, 0.) != -1.1) {
+    if(min(-1.1, 0.) != -1.1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Min(0., -10.1) != -10.1) {
+    if(min(0., -10.1) != -10.1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testMax()
+void TestScalars::test_max()
 {
-    if(Max(-1, -10) != -1) {
+    if(max(-1, -10) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Max(-1, 0) != 0) {
+    if(max(-1, 0) != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Max(0, -10) != 0) {
+    if(max(0, -10) != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Max(-1.1, -10.1) != -1.1) {
+    if(max(-1.1, -10.1) != -1.1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Max(-1.1, 0.) != 0) {
+    if(max(-1.1, 0.) != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Max(0., -10.1) != 0) {
+    if(max(0., -10.1) != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
@@ -462,7 +492,7 @@ void TestScalars::testMax()
     CPPUNIT_ASSERT(true);
 }
 
-void TestScalars::testLimitDomain()
+void TestScalars::test_LimitDomain()
 {
     try {
         LimitDomain(0, 1, -1);
@@ -515,7 +545,7 @@ void TestScalars::testLimitDomain()
     CPPUNIT_ASSERT(true);
 }
 
-void TestScalars::testRound()
+void TestScalars::test_Round()
 {
     //determine the integer n nearest s.t. [n-0.5 <= x < n+0.5)
 
@@ -524,7 +554,7 @@ void TestScalars::testRound()
         return;
     }
 
-    if(Round(-0.5) != 0) {
+    if(Round(-0.5) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
@@ -534,7 +564,7 @@ void TestScalars::testRound()
         return;
     }
 
-    if(Round(0.5) != 1) {
+    if(Round(0.5) != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
@@ -542,21 +572,21 @@ void TestScalars::testRound()
     CPPUNIT_ASSERT(true);
 }
 
-void TestScalars::testNear()
+void TestScalars::test_Near()
 {
     //Near(x) = Floor(Abs(x))*Sign(x)
 
-    if(Near(-2) != 2) {
+    if(Near(-2) != -2) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Near(-1.9) != 1) {
+    if(Near(-1.9) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Near(-1) != 1) {
+    if(Near(-1) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
@@ -588,26 +618,26 @@ void TestScalars::testNear()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testFar()
+void TestScalars::test_Far()
 {
-    //Far(x) = Ceil(Abs(x))*Sign(x)
+    //Far(x) = ceil(Abs(x))*Sign(x)
 
-    if(Far(-2) != 2) {
+    if(Far(-2) != -2) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Far(-1.1) != 2) {
+    if(Far(-1.1) != -2) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Far(-1) != 1) {
+    if(Far(-1) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
 
-    if(Far(-0.1) != 1) {
+    if(Far(-0.1) != -1) {
         CPPUNIT_ASSERT(false);
         return;
     }
@@ -644,7 +674,7 @@ void TestScalars::testFar()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testRandomReal()
+void TestScalars::test_RandomReal()
 {
     //genera un número real aleatorio con distribución uniforme en [0, 1]
 
@@ -661,7 +691,7 @@ void TestScalars::testRandomReal()
 
     bool allequals = true;
     double ave = v[0];
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -679,26 +709,21 @@ void TestScalars::testRandomReal()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testRandomUniformDouble()
+void TestScalars::test_RandomUniformDouble()
 {
     //generate a random real number with uniform distribution in [x1, x2]
 
     try {
         RandomUniform(1., -1.);
+    }
+    catch(...) {
         CPPUNIT_ASSERT(false);
         return;
-
-    } catch(...) {
-        //do nothing
     }
 
-    try {
-        RandomUniform(0., 0.);
+    if(RandomUniform(0.5, 0.5) != 0.5) {
         CPPUNIT_ASSERT(false);
         return;
-
-    } catch(...) {
-        //do nothing
     }
 
     //-----------------------------------------------------------------
@@ -719,7 +744,7 @@ void TestScalars::testRandomUniformDouble()
 
     bool allequals = true;
     double ave = v[0];
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -753,7 +778,7 @@ void TestScalars::testRandomUniformDouble()
 
     allequals = true;
     ave = v[0];
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -787,7 +812,7 @@ void TestScalars::testRandomUniformDouble()
 
     allequals = true;
     ave = v[0];
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -821,7 +846,7 @@ void TestScalars::testRandomUniformDouble()
 
     allequals = true;
     ave = v[0];
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -841,26 +866,21 @@ void TestScalars::testRandomUniformDouble()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testRandomUniformInteger()
+void TestScalars::test_RandomUniformInteger()
 {
     //genera un número entero aleatorio con distribución uniforme en [x1, x2]
 
     try {
         RandomUniform(1, -1);
+    }
+    catch(...) {
         CPPUNIT_ASSERT(false);
         return;
-
-    } catch(...) {
-        //do nothing
     }
 
-    try {
-        RandomUniform(0, 0);
+    if(RandomUniform(7, 7) != 7) {
         CPPUNIT_ASSERT(false);
         return;
-
-    } catch(...) {
-        //do nothing
     }
 
     //-----------------------------------------------------------------
@@ -881,7 +901,7 @@ void TestScalars::testRandomUniformInteger()
 
     bool allequals = true;
     double ave = double(v[0]);
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -915,7 +935,7 @@ void TestScalars::testRandomUniformInteger()
 
     allequals = true;
     ave = double(v[0]);
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -949,7 +969,7 @@ void TestScalars::testRandomUniformInteger()
 
     allequals = true;
     ave = double(v[0]);
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -983,7 +1003,7 @@ void TestScalars::testRandomUniformInteger()
 
     allequals = true;
     ave = double(v[0]);
-    for(int i=1; i<v.size(); i++) {
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
             allequals = false;
         ave += v[i];
@@ -1003,7 +1023,7 @@ void TestScalars::testRandomUniformInteger()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testArgPos()
+void TestScalars::test_ArgPos()
 {
     //translate theta to the interval [0, M_2PI)
     //a distance multiple of M_2PI
@@ -1011,7 +1031,7 @@ void TestScalars::testArgPos()
     vector<int> v;
 
     for(int i=0; i<1000000; i++) {
-        double x = RandomUniform(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+        double x = RandomUniform(-1000000*M_2PI, 1000000*M_2PI);
         x = ArgPos(x);
         v.push_back(x);
         if(x<0 || M_2PI<=x) {
@@ -1020,12 +1040,12 @@ void TestScalars::testArgPos()
         }
     }
 
-    bool allequals = true;
-    for(int i=1; i<v.size(); i++) {
+    bool all_equals = true;
+    for(unsigned int i=1; i<v.size(); i++) {
         if(v[0] != v[i])
-            allequals = false;
+            all_equals = false;
     }
-    if(allequals) {
+    if(all_equals) {
         CPPUNIT_ASSERT(false);
         return;
     }
@@ -1033,7 +1053,7 @@ void TestScalars::testArgPos()
     CPPUNIT_ASSERT(true);
 }
 
-void TestScalars::testNumerical()
+void TestScalars::test_Numerical()
 {
     //determine if a type is numerical
 
@@ -1061,7 +1081,7 @@ void TestScalars::testNumerical()
 
     CPPUNIT_ASSERT(true);
 }
-void TestScalars::testFloatingPoint()
+void TestScalars::test_FloatingPoint()
 {
     //determine if a type is of floating point
 

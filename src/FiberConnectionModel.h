@@ -17,16 +17,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: FiberConnectionModel.h
-//Contenido: modelo de conexión de fibras
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: FiberConnectionModel.h
+//Content: fiber connection model
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FIBERCONNECTIONMODEL_H
 #define FIBERCONNECTIONMODEL_H
 
-#include "PointersList.h"
+#include "RoboticPositionerList3.h"
+//#include "PointersList.h"
 
 //---------------------------------------------------------------------------
 
@@ -35,6 +35,8 @@ using namespace Lists;
 //espacio de nombres de modelos
 namespace Models {
 
+//---------------------------------------------------------------------------
+//TConection
 //---------------------------------------------------------------------------
 
 //Se considera que el espectrógrafo enpieza en las microlentes, de modo que
@@ -52,17 +54,23 @@ namespace Models {
 
 //clase conexión de la pseudoslit
 class TConection {
+    //PROPIEDADES DE DEFINICIÓN:
+
         int p_RPId;
         int p_SpaxelId;
         int p_FiberId;
         double p_s;
 
 public:
+        //PROPIEDADES ESTÁTICAS:
+
         //etiquetas
         static AnsiString RPIdLabel;
         static AnsiString SpaxelIdLabel;
         static AnsiString FiberIdLabel;
         static AnsiString sLabel;
+
+        //PROPIEDADES DE DEFINICIÓN:
 
         //identificador único del RP del que proviene la fibra
         //debe ser no negativo
@@ -95,7 +103,7 @@ public:
         AnsiString getsText(void) const;
         void setsText(const AnsiString&);
 
-        //MÉTODOS:
+        //MÉTODOS ESTÁTICOS:
 
         //lee los valores de las propiedades en una fila de texto
         static void  ReadRow(TConection *Item,
@@ -107,13 +115,15 @@ public:
         //atraviesa las etiquetas de las propiedades
         static void TravelLabelsRow(const AnsiString& S, int& i);
 
+        //MÉTODOS PÚBLICOS:
+
         //construye una conexión con los valores por defecto
         TConection(void) : p_RPId(0), p_SpaxelId(0), p_FiberId(0), p_s(0) {;}
 
-        //copy all properties of a conection
+        //copy all properties of a connection
         TConection& operator=(const TConection&);
 
-        //build a clon of a conection
+        //build a clon of a connection
         TConection(const TConection*);
 
         //asigna las propiedades atómicamente
@@ -121,6 +131,10 @@ public:
         //      lanza una excepción EImproperArgument
         void Set(int RPId, int SpaxelId, int FiberId, double s);
 };
+
+//---------------------------------------------------------------------------
+//TFiberConnectionModel
+//---------------------------------------------------------------------------
 
 //clase Fiber Connection Model
 class TFiberConnectionModel {
@@ -138,11 +152,11 @@ public:
         //tabla de conexiones de la pseudoslit
         TPointersList<TConection> Conections;
 
-        //tabla de cnexiones en formato texto
+        //tabla de conexiones en formato texto
         AnsiString getConnectionsText(void) const;
         void setConnectionsText(const AnsiString&);
 
-        //construye un espectrógrafo con los valores por defecto
+        //construye un Fiber Connection Model con los valores por defecto
         TFiberConnectionModel(void);
 
         //clone a Fiber Connection Model

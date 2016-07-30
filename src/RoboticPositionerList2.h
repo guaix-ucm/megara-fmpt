@@ -19,7 +19,6 @@
 //---------------------------------------------------------------------------
 //File: RoboticPositionerList2.h
 //Content: RP list with hash table
-//Last update: 13/02/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -234,12 +233,12 @@ public:
 
     //assimilates the configuration of RPs executing:
     //      calculateSPMComponents();
-    //      assimilateSizing();
+    //      assimilateSizing(EAL);
     //      generateMap();
-    void assimilate(void);
+    void assimilate(const TExclusionAreaList& EAL);
 
     //assimilates all RPs of the RPL to a given RP
-    void apply(const TRoboticPositioner*);
+    void apply(const TRoboticPositioner*, const TExclusionAreaList&);
 
     //transform x in j by default
     //      x = floor((x - xmin)/qx)
@@ -266,7 +265,7 @@ public:
 //      //set the mapping limits
 //      RPL->SetLimits(-RPL->R, RPL->R, -RPL->R, RPL->R);
 //      //setthedimensions of the cell matrix
-//      RPL->SetDimensions(floor(2*RPL->R/(L/2)), floor(2*RPL->R/(L/2)));
+//      RPL->SetDimensions((int)floor(2*RPL->R/(L/2)), (int)floor(2*RPL->R/(L/2)));
 //      //maps the RPs ofthe RPL
 //      RPL->Map(RPL);
 //      //determines the RPs whose scope is a point

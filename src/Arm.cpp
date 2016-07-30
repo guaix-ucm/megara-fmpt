@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Arm.cpp
-//Content: class arm of am actuator of a RP
+//Content: arm model of an actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@
 #include "TextFile.h"
 
 #include <math.h>
-//#include <sysutils.hpp>
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -40,20 +40,138 @@ namespace Models {
 //---------------------------------------------------------------------------
 //TArm
 //---------------------------------------------------------------------------
-//INICIALIZA LAS PROPIEDADES CONSTANTES:
-
-//const TDoublePoint TArm::P____1 = {0, 0};
 
 //ADVERTENCIA: el contructor se ejecutará antes
 //de que se inicialicen las variables estáticas.
 
 //---------------------------------------------------------------------------
+//MÉTODOS DE ASIMILACIÓN:
+
+//Apartir de:
+//  {L12, L13, theta____3}
+//  {Contour____}
+//Determina:
+//  {P____2, P____3}
+//  {V____, L1V}
+void TArm::processateTemplate(void)
+{
+    //calcula las coordenadas de los puntos significativos
+    p_P____2.x = getL12();
+    p_P____2.y = 0;
+    p_P____3.x = getL13()*cos(gettheta____3());
+    p_P____3.y = getL13()*sin(gettheta____3());
+
+    //libera las figuras de la plantilla previa
+    Destroy((TContourFigureList&)getContour());
+    //contruye el contorno del brazo a partir de la plantilla
+    p_Contour.Copy(getContour____());
+
+    //ADVERTENCIA: aquí no debe usarse el operador =
+    //por que es una lista de punteros y se asignarian
+    //los punteros a los mismos objetos.
+    //El método Copy ha sido especialmente definido para
+    //que se contruyan clones de los objetos.
+
+    //determina la distancia máxima del contorno al origen de S4
+    if(getContour____().getCount() < 1)
+        p_L1V = 0;
+    else
+        p_L1V = getContour____().distanceMax(P____1);
+
+    p_V____.x = getL1V();
+    p_V____.y = 0;
+}
+
+//A partir de:
+//  {F(theta___3)}
+//Determina:
+//  {G(p___3), SB2, rbs}
+//  {theta___3min, theta___3max}
+//  {Q(p___3)}
+//Restricciones:
+//  La función F(theta___3) debe ser monótona creciente.
+void TArm::processateF(void)
+{
+    try {
+        //determina la función G (inversa de F)
+        p_G.Inverse(getF());
+    } catch(Exception& E) {
+        E.Message.Insert(1, "getting inverse of F: ");
+        throw;
+    }
+
+    //ADVERTENCIA: es posible que F no esté definida en 0 y/o en M_2PI.
+
+    //selecciona el intervalo a partir del cual va a calcular
+    //el número de pasos de una vuelta completa
+    double xmax = min(M_2PI, getF().getXLast());
+    double xmin = max(0., getF().getXFirst());
+    //calcula el número de pasos de una vuelta completa
+    p_SB2 = (getF().Image(xmax) - getF().Image(xmin))/(xmax - xmin)*M_2PI;
+
+    //calcula el escalón de cuantificación promedio en [0, M_2PI]
+    p_rbs = M_2PI/getSB2();
+
+    //constriñe los límites del dominio de theta___3 según el dominio de F
+    if(gettheta___3min() < getF().getXFirst())
+        p_theta___3min = getF().getXFirst();
+    if(gettheta___3max() > getF().getXLast())
+        p_theta___3max = getF().getXLast();
+
+    //asimila [theta___3min, theta___3max]
+    p_Q.Set(1, getp___3min(), getp___3max());
+
+    //constriñe theta___3 a su dominio
+    //y/o lo cuantifica en su caso
+    if(gettheta___3() < gettheta___3min())
+        settheta___3(gettheta___3min());
+    else if(gettheta___3() > gettheta___3max())
+        settheta___3(gettheta___3max());
+    else
+        settheta___3(gettheta___3());
+}
+
+//a partir de:
+//  {P____2, P____3}
+//  {Contour____, V____}
+//  {P1, theta2}
+//Determina:
+//  {P2, P3}
+//  {Contour, V}
+void TArm::calculateImage(void)
+{
+    //calcula el ángulo en coordenadas absolutas
+    double theta = gettheta2();
+
+    //calcula los coeficientes de rotación
+    const double COS = cos(theta);
+    const double SIN = sin(theta);
+    //rota los puntos P2 y P3
+    p_P2.x = getP____2().x*COS - getP____2().y*SIN + getP1().x;
+    p_P2.y = getP____2().x*SIN + getP____2().y*COS + getP1().y;
+    p_P3.x = getP____3().x*COS - getP____3().y*SIN + getP1().x;
+    p_P3.y = getP____3().x*SIN + getP____3().y*COS + getP1().y;
+
+    //determina el contorno del brazo (rotado y trasladado):
+    getContour____().getRotatedAndTranslated(p_Contour, theta, getP1());
+
+    //rota el punto V
+    p_V.x = getV____().x*COS - getV____().y*SIN + getP1().x;
+    p_V.y = getV____().x*SIN + getV____().y*COS + getP1().y;
+}
+
+//---------------------------------------------------------------------------
 //PROPIEDADES DE PLANTILLA
 //DE LECTURA/ESCRITURA:
 
+//distancia desde rotor del brazo hasta
+//el punto de referencia del cabezal de la plantilla
+//distancia de P1 a P2
+//debe ser mayor que cero
+//valor por defecto: MEGARA_L mm
 void TArm::setL12(double L12)
 {
-    //la longitud L12 debe ser mayor que cero
+    //comprueba las precondiciones
     if(L12 <= 0)
         throw EImproperArgument("length L12 should be upper zero");
 
@@ -63,13 +181,13 @@ void TArm::setL12(double L12)
     processateTemplate();
     calculateImage();
 }
+//punto de referencia del cabezal de la plantilla en S4
+//valor por defecto: {L12, 0}
 void TArm::setP____2(const TDoublePoint& P____2)
 {
-    //P____2.x no debe ser cero
+    //comprueba las precondiciones
     if(getP____2().x == 0)
         throw EImproperArgument("P____2.x not should be zero");
-
-    //P____2.y debe ser cero
     if(getP____2().y != 0)
         throw EImproperArgument("P____2.y should be zero");
 
@@ -85,9 +203,12 @@ void TArm::setP____2(const TDoublePoint& P____2)
     calculateImage();
 }
 
+//coordenada radial de P3 en S4
+//debe ser no negativa
+//valor por defecto: MEGARA_L mm
 void TArm::setL13(double L13)
 {
-    //el radio L13 debe ser no negativo
+    //comprueba las precondiciones
     if(L13 < 0)
         throw EImproperArgument("radio L13 should be nonnegative");
 
@@ -98,6 +219,10 @@ void TArm::setL13(double L13)
     calculateImage();
 }
 
+//coordenada angular de P3 en S4
+//puede ser cualquier valor
+//pero es recomendable que esté en (-M_PI, M_PI]
+//valor por defecto: 0 rad
 void TArm::settheta____3(double theta____3)
 {
     //Nótese que theta____3 debe admitir cualquier valor.
@@ -108,15 +233,20 @@ void TArm::settheta____3(double theta____3)
     processateTemplate();
     calculateImage();
 }
+//orientación del origen de coordenadas de S3 en S2
+//es igual que theta____3
+//valor por defecto: 0 rad
 void TArm::settheta__O3(double theta__O3)
 {
     try {
         settheta____3(theta__O3);
-
-    } catch(...) {
+        //es igual que theta____3
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta__O3: ");
         throw;
     }
 }
+//centro de la lente de la plantilla en S4
 void TArm::setP____3(const TDoublePoint& P____3)
 {
     //Nótese que P____3 debe admitir cualquier valor.
@@ -134,9 +264,12 @@ void TArm::setP____3(const TDoublePoint& P____3)
     calculateImage();
 }
 
+//radio de la lente del brazo
+//debe ser mayor que cero
+//valor por defecto: 0.75 mm
 void TArm::setR3(double R3)
 {
-    //debe ser mayor que cero
+    //comprueba las precondiciones
     if(R3 <= 0)
         throw EImproperArgument("radio R3 should be upper zero");
 
@@ -146,12 +279,13 @@ void TArm::setR3(double R3)
     //o se determina si un punto está sobre la lente
 }
 
-//asigna una plantilla y la asimila por primera vez
+//plantilla del contorno del brazo en S4
+//valor por defecto: MEGARA_Contour____Text
 void TArm::setContour____(const TContourFigureList &_Contour____)
 {
-    //el contorno debe estar ordenado
+    //comprueba las precondiciones
     if(!_Contour____.isAContourSorted())
-        throw EImproperArgument("the contour should be sorted");
+        throw EImproperArgument("the contour (Contour____) should be sorted");
 
     //libera las figuras de la plantilla previa
     Destroy((TContourFigureList&)getContour____());
@@ -168,6 +302,14 @@ void TArm::setContour____(const TContourFigureList &_Contour____)
 //PROPIEDADES DE ORIENTACIÓN EN RADIANES
 //DE LECTURA/ESCRITURA:
 
+//orientación del origen de coordenadas de S3 en S0
+//cuando el eje 2 está en el origen
+//valor por defecto: thetaO2 + gettheta__O3() rad
+//donde:
+//  thetaO2: lo indica el usuario en el constructor
+//      y su valor por defecto es M_PI/2
+//  theta__O3: es igual a theta____3
+//      y su valor por defecto es 0
 void TArm::setthetaO3(double thetaO3)
 {
     //asigna el nuevo valor
@@ -177,13 +319,15 @@ void TArm::setthetaO3(double thetaO3)
     calculateImage();
 }
 
+//límite inferior del intervalo de giro de P3 en S3
+//debe estar en el dominio de definición de F(theta___3)
+//no debe ser mayor que theta___3max
+//valor por defecto: MEGARA_theta___3min rad
 void TArm::settheta___3min(double theta___3min)
 {
-    //el ángulo theta___3min debe estar en el dominio de F(theta___3)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3min))
         throw EImproperArgument("angle theta___3min should be in domain F(theta___3)");
-
-    //el ángulo theta___3min no debe ser mayor que el ángulo theta___3max
     if(theta___3min > gettheta___3max())
         throw EImproperArgument("angle theta___3min should not be upper than angle theta___3max");
 
@@ -196,13 +340,15 @@ void TArm::settheta___3min(double theta___3min)
 
     //la asignación a theta___3 implicaría su asimilación
 }
+//límite superior del intervalo de giro de P3 en S3
+//debe estar en el dominio de definición de F(theta___3)
+//no debe ser menor que theta___3min
+//valor por defecto: MEGARA_theta___3max rad
 void TArm::settheta___3max(double theta___3max)
 {
-    //el ángulo theta___3max debe estar en el dominio de F(theta___3)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3max))
         throw EImproperArgument("angle theta___3max should be in domain F(theta___3)");
-
-    //el ángulo theta___3max no debe ser menor que el ángulo theta___3min
     if(theta___3max < gettheta___3min())
         throw EImproperArgument("angle theta___3max should be less than angle theta___3min");
 
@@ -215,9 +361,17 @@ void TArm::settheta___3max(double theta___3max)
 
     //la asignación a theta___3 implicaría su asimilación
 }
+//ángulo de orientación de P3 en S3
+//debe estar en el dominio de definición de F(theta___3)
+//Escrutura:
+//  if(Quantify___)
+//      p_theta___3 = Qtheta___3(_theta___3);
+//  else
+//      p_theta___3 = theta___3;
+//valor por defecto: 0 rad
 void TArm::settheta___3(double theta___3)
 {
-    //el ángulo theta___3 debe estar en su dominio [theta___3min, theta___3max]
+    //comprueba las precondiciones
     if(isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in his domain [theta___3min, theta___3max]");
 
@@ -243,6 +397,13 @@ void TArm::settheta___3(double theta___3)
         calculateImage();
     }
 }
+//ángulo de orientación de P3 en S0
+//theta3 debe estar en su dominio
+//Lectura:
+//  theta3 = thetaO2 + theta__O3 + theta___3
+//Escritura:
+//  theta___3 = theta3 - thetaO2 - theta__O3
+//valor por defecto: 0 + PI/2 + 0 rad
 double TArm::gettheta3(void) const
 {
     return getthetaO3() + gettheta___3();
@@ -253,14 +414,17 @@ void TArm::settheta3(double theta3)
         settheta___3(theta3 - getthetaO2() - gettheta__O3());
         //las propiedades de orientación serán asimiladas
         //en la asignación a theta___3
-
     } catch(EImproperArgument &E) {
-        //cambia el texto de la excepción
-        E.Message = "angle theta3 should be in his domain";
-        throw E; //relanza la excepción
+        E.Message.Insert(1, "setting theta3: ");
+        throw; //relanza la excepción
     }
 }
 
+//orientación del origen de coordenadas de S2 en S0
+//Lectura:
+//  thetaO2 = thetaO3 - theta__O3
+//Escritura:
+//  p_thetaO3 = thetaO2 + theta__O3
 double TArm::getthetaO2(void) const
 {
     //traduce y devuelve el valor
@@ -268,10 +432,24 @@ double TArm::getthetaO2(void) const
 }
 void TArm::setthetaO2(double thetaO2)
 {
-    //traduce y asigna el nuevo valor
-    setthetaO3(thetaO2 + gettheta__O3());
+    try {
+        //traduce y asigna el nuevo valor
+        setthetaO3(thetaO2 + gettheta__O3());
+    } catch(EImproperArgument &E) {
+        E.Message.Insert(1, "setting thetaO2: ");
+        throw; //relanza la excepción
+    }
 }
 
+//valor aproximado de referencia del
+//límite inferior del intervalo de giro de P2 en S3
+//debe estar en su dominio
+//debe ser menor que theta___2max
+//Lectura:
+//  theta___2min = theta___3min - theta___3;
+//Escritura:
+//  p_theta___3min = theta___2min + theta___3;
+//valor por defecto: MEGARAtheta__2min rad
 double TArm::gettheta___2min(void) const
 {
     return gettheta___3min() - gettheta____3();
@@ -281,11 +459,9 @@ void TArm::settheta___2min(double theta___2min)
     //calcula theta___3min
     double theta___3min = theta___2min + gettheta____3();
 
-    //el ángulo theta___2min debe estar en su dominio de definición
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3min))
         throw EImproperArgument("angle theta___2min should be in his definition domain");
-
-    //el ángulo theta___2min no debe ser mayor que el ángulo theta___2max
     if(theta___3min > gettheta___3max())
         throw EImproperArgument("angle theta___2min should not be upper than angle theta___2max");
 
@@ -298,6 +474,15 @@ void TArm::settheta___2min(double theta___2min)
 
     //la asignación a theta___3 implicaría su asimilación
 }
+//valor aproximado de referencia del
+//límite superior del intervalo de giro de P2 en S3
+//debe estar en su dominio
+//debe ser mayor que theta___2min
+//Lectura:
+//  p_theta___2max = theta___3max - theta___3;
+//Escritura:
+//  theta___3max = theta___2max + theta___3;
+//valor por defecto: MEGARAtheta__2max rad
 double TArm::gettheta___2max(void) const
 {
     return gettheta___3max() - gettheta____3();
@@ -307,11 +492,9 @@ void TArm::settheta___2max(double theta___2max)
     //calcula theta___3max
     double theta___3max = theta___2max + gettheta____3();
 
-    //el ángulo theta___2max debe estar en su dominio de definición
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3max))
         throw EImproperArgument("angle theta___2max should be in his definition domain");
-
-    //el ángulo theta___2max mo debe ser menor que el ángulo theta___2min
     if(theta___3max < gettheta___3min())
         throw EImproperArgument("angle theta___2max should not be less than angle theta___2min");
 
@@ -324,6 +507,21 @@ void TArm::settheta___2max(double theta___2max)
 
     //la asignación a theta___3 implicaría su asimilación
 }
+//valor aproximado de referencia del
+//ángulo de orientación de P2 en S3
+//debe estar en su dominio
+//Lectura:
+//  theta___2 = theta___3 - theta___23
+//Escritura:
+//  double theta___3 = theta___2 + theta___23;
+//  if(IsntInDomaintheta___3(theta___3))
+//      if(IsntInDomaintheta___2(theta___2)
+//          throw EImproperArgument("value for theta___2 isn't in domain");
+//      else
+//          theta___3 = ConstrainInDomaintheta___3(_theta___3);
+//  p_theta___3 = theta___3;
+//la escritura en theta___3 tendrá en cuenta la cuantificación
+//valor por defecto: 0 - 0 rad
 double TArm::gettheta___2(void) const
 {
     return gettheta___3() - gettheta____3();
@@ -334,13 +532,18 @@ void TArm::settheta___2(double theta___2)
         settheta___3(theta___2 + gettheta____3());
         //las propiedades de orientación serán asimiladas
         //en la asignación a theta___3
-
     } catch(EImproperArgument &E) {
-        //cambia el texto de la excepción
-        E.Message = "angle theta___2 should be in his domain";
-        throw E; //relanza la excepción
+        E.Message.Insert(1, "setting theta___2: ");
+        throw;
     }
 }
+//ángulo de orientación de P2 en S0
+//theta2 debe estar en su dominio
+//Lectura:
+//  theta2 = theta3 - theta___23
+//Escritura:
+//  theta3 = theta2 + theta___23
+//valor por defecto: PI/2 - 0 rad
 double TArm::gettheta2(void) const
 {
     return gettheta3() - gettheta____3();
@@ -353,24 +556,44 @@ void TArm::settheta2(double theta2)
         //en la asignación a theta___3
     } catch(EImproperArgument &E) {
         //cambia el texto de la excepción
-        E.Message = "angle theta2 should be in his domain";
-        throw E; //relanza la excepción
+        E.Message.Insert(1, "setting theta2: ");
+        throw;
     }
+}
+
+//first position angle of rotor 2 in rad
+//  theta___3first = max(0, theta___3min)
+double TArm::gettheta___3first(void) const
+{
+    return max(0., gettheta___3min());
+}
+//last position angle of rotor 2 in rad
+//  theta___3last = min(M_2PI, theta___3max)
+double TArm::gettheta___3last(void) const
+{
+    return min(M_2PI, gettheta___3max());
 }
 
 //--------------------------------------------------------------------------
 //PROPIEDADES DE CUANTIFICACIÓN
 //DE LECTURA/ESCRITURA:
 
+//función de transformación de de radianes a pasos de P3
+//debe estar definida en algún punto
+//debe ser monótona creciente
+//valor por defecto:
+//  {(M_2PI, MEGARASB2),
+//  (0, 0),
+//  (M_2PI, MEGARASB2)}
 void TArm::setF(const TFunction &F)
 {
-    //la función F(theta___3) debe estar definida en algún punto
+    //comprueba las precondiciones
     if(F.getCount() <= 0)
-        throw EImproperArgument("the function F should be defined in some point");
-
-    //la función F(theta___3) debe ser monótona creciente
+        throw EImproperArgument("function F should be defined in some point");
     if(F.Monotony() != 1)
         throw EImproperArgument("function F(theta___3) should be monotically increasing");
+    if(F.haventInverse())
+        throw EImproperArgument("function F should have inverse");
 
     //F(theta___3) debe ser monótona creciente
     //para poder obtener la función inversa G(p___3).
@@ -394,6 +617,9 @@ void TArm::setF(const TFunction &F)
     //la cual será asimilada.
 }
 
+//interruptor de cuantificación de p___3
+//indica si deben cuantificarse los valores asignados a p___3
+//valor por defecto: true
 void TArm::setQuantify___(bool Quantify___)
 {
     //si activa la cuantificación
@@ -408,6 +634,14 @@ void TArm::setQuantify___(bool Quantify___)
 //PROPIEDADES DE ORIENTACIÓN EN PASOS
 //DE LECTURA/ESCRITURA:
 
+//Valor aproximado de referencia del límite inferior
+//del intervalo de orientación de P3 en S3 en pasos.
+//El ángulo p___3min debe estar en el dominio imagen de F(theta___3).
+//Lectura:
+//  p___3min = F(theta___3min);
+//Escritura:
+//  p_theta___3min = G(p___3min);
+//Valor por defecto: F(MEGARAtheta___3min) steps.
 double TArm::getp___3min(void) const
 {
     //devuelve theta___3min traducido a pasos
@@ -418,11 +652,9 @@ void TArm::setp___3min(double p___3min)
     //traduce a radianes
     double theta___3min = getG().Image(p___3min);
 
-    //el ángulo p___3min debe estar en el dominio imagen de F(theta___3)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3min))
         throw EImproperArgument("angle p___3min should be in image domain F(theta___3)");
-
-    //el ángulo p___3min no debe ser mayor que el ángulo p___3max
     if(theta___3min > gettheta___3max())
         throw EImproperArgument("angle p___3min should not be upper than angle p___3max");
 
@@ -435,6 +667,13 @@ void TArm::setp___3min(double p___3min)
 
     //la asignación a theta___3 implicaría su asimilación
 }
+//Valor aproximado de referencia del límite superior
+//del intervalo de orientación de P3 en S3 en pasos.
+//Lectura:
+//  p___3max = F(theta___3max);
+//Escritura:
+//  p_theta___3max = G(p___3max);
+//Valor por defecto: F(MEGARAtheta___3max) steps.
 double TArm::getp___3max(void) const
 {
     return getF().Image(gettheta___3max());
@@ -444,11 +683,9 @@ void TArm::setp___3max(double p___3max)
     //traduce a radianes
     double theta___3max = getG().Image(p___3max);
 
-    //el ángulo p___3max debe estar en el domaxio imagen de F(theta___3)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3max))
         throw EImproperArgument("angle p___3max should be in image domain F(theta___3)");
-
-    //el ángulo p___3max debe ser mayor que el ángulo p___3max
     if(theta___3max <= gettheta___3max())
         throw EImproperArgument("angle p___3max should be upper than angle p___3max");
 
@@ -461,6 +698,21 @@ void TArm::setp___3max(double p___3max)
 
     //la asignación a theta___3 implicaría su asimilación
 }
+//Valor aproximado de referencia del ángulo de orientación
+//de P3 en S3 en pasos.
+//Lectura:
+//  if(Quantify___)
+//      p___3 = Q(F(theta___3));
+//  else
+//      p___3 = F(theta___3);
+//Escritura:
+//  if(Quantify___)
+//      p_theta___3 = G(Q(p___3));
+//  else
+//      p_theta___3 = G(p___3);
+//Valor por defecto: Q(F(0)) steps.
+//En lectura p___3 se cuantifica para evitar el error numérico
+//introducido por la función F(theta___3).
 double TArm::getp___3(void) const
 {
     //si la cuantificación está activada
@@ -492,6 +744,7 @@ void TArm::setp___3(double p___3)
 //PROPIEDADES DE LOCALIZACIÓN
 //DE LECTURA/ESCRITURA:
 
+//posición del eje de rotación del brazo en S0
 void TArm::setP1(TDoublePoint P1)
 {
     p_P1 = P1; //asigna el nuevo valor
@@ -500,6 +753,9 @@ void TArm::setP1(TDoublePoint P1)
     calculateImage();
 }
 
+//margen perimentral de seguridad
+//debe ser mayor que cero
+//valor por defecto: MEGARA_SPMgenPairPPDP_p mm
 void TArm::setSPM(double SPM)
 {
     //el margen perimetral de seguridad SPM debería ser mayor que cero
@@ -512,10 +768,7 @@ void TArm::setSPM(double SPM)
     //      bool Collides(TArm *Arm);
 }
 
-//##################################################################
-//PROPIEDADES EN FORMATO TEXTO:
-//##################################################################
-
+//--------------------------------------------------------------------------
 //PROPIEDADES DE PLANTILLA
 //INDEPENDIENTES EN FORMATO TEXTO
 
@@ -530,8 +783,9 @@ AnsiString TArm::getL12Text(void) const
 void TArm::setL12Text(const AnsiString &S)
 {
     try {
-        setL12(StrToFloat_(S));
-    } catch(...) {
+        setL12(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting L12 in text format: ");
         throw ;
     }
 }
@@ -542,8 +796,9 @@ AnsiString TArm::getL13Text(void) const
 void TArm::setL13Text(const AnsiString &S)
 {
     try {
-        setL13(StrToFloat_(S));
-    } catch(...) {
+        setL13(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting L13 in text format: ");
         throw ;
     }
 }
@@ -554,8 +809,9 @@ AnsiString TArm::gettheta____3Text(void) const
 void TArm::settheta____3Text(const AnsiString &S)
 {
     try {
-        settheta____3(StrToFloat_(S));
-    } catch(...) {
+        settheta____3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta____3 in text format: ");
         throw ;
     }
 }
@@ -566,8 +822,9 @@ AnsiString TArm::gettheta__O3Text(void) const
 void TArm::settheta__O3Text(const AnsiString &S)
 {
     try {
-        settheta__O3(StrToFloat_(S));
-    } catch(...) {
+        settheta__O3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta__O3 in text format: ");
         throw ;
     }
 }
@@ -578,16 +835,19 @@ AnsiString TArm::getR3Text(void) const
 void TArm::setR3Text(const AnsiString &S)
 {
     try {
-        setR3(StrToFloat_(S));
-    } catch(...) {
+        setR3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting R3 in text format: ");
         throw ;
     }
 }
 
+//dirección en memoria de la propiedad compuesta Contour____
 AnsiString TArm::getContour____AddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(&p_Contour____), 8);
+    return IntToHex(intptr_t(&p_Contour____));
 }
+//propiedad Contour____ en formato texto lista
 void TArm::setContour____Text(const AnsiString &S)
 {
     try {
@@ -606,10 +866,12 @@ void TArm::setContour____Text(const AnsiString &S)
         //a Contour____.Text, por que el método SetContour____ comprueba si Contour____
         //cumple las restricciones.
 
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Contour____ in text format: ");
         throw;
     }
 }
+//propiedad Contour____ en formato texto columna
 void TArm::setContour____ColumnText(const AnsiString &S)
 {
     try {
@@ -628,7 +890,8 @@ void TArm::setContour____ColumnText(const AnsiString &S)
         //a Contour____.Text, por que el método SetContour____ compruba si Contour____
         //cumple las restricciones.
 
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Contour____ in column text format: ");
         throw;
     }
 }
@@ -666,8 +929,9 @@ AnsiString TArm::getthetaO3Text(void) const
 void TArm::setthetaO3Text(const AnsiString &S)
 {
     try {
-        setthetaO3(StrToFloat_(S));
-    } catch(...) {
+        setthetaO3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting thetaO3 in text format: ");
         throw;
     }
 }
@@ -679,8 +943,9 @@ AnsiString TArm::gettheta___3minText(void) const
 void TArm::settheta___3minText(const AnsiString &S)
 {
     try {
-        settheta___3min(StrToFloat_(S));
-    } catch(...) {
+        settheta___3min(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta___3min in text format: ");
         throw;
     }
 }
@@ -691,8 +956,9 @@ AnsiString TArm::gettheta___3maxText(void) const
 void TArm::settheta___3maxText(const AnsiString &S)
 {
     try {
-        settheta___3max(StrToFloat_(S));
-    } catch(...) {
+        settheta___3max(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta___3max in text format: ");
         throw;
     }
 }
@@ -703,8 +969,9 @@ AnsiString TArm::gettheta___3Text(void) const
 void TArm::settheta___3Text(const AnsiString &S)
 {
     try {
-        settheta___3(StrToFloat_(S));
-    } catch(...) {
+        settheta___3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta___3 in text format: ");
         throw;
     }
 }
@@ -715,8 +982,9 @@ AnsiString TArm::gettheta3Text(void) const
 void TArm::settheta3Text(const AnsiString &S)
 {
     try {
-        settheta3(StrToFloat_(S));
-    } catch(...) {
+        settheta3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta3 in text format: ");
         throw;
     }
 }
@@ -728,8 +996,9 @@ AnsiString TArm::getthetaO2Text(void) const
 void TArm::setthetaO2Text(const AnsiString &S)
 {
     try {
-        setthetaO2(StrToFloat_(S));
-    } catch(...) {
+        setthetaO2(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting thetaO2 in text format: ");
         throw;
     }
 }
@@ -741,8 +1010,9 @@ AnsiString TArm::gettheta___2minText(void) const
 void TArm::settheta___2minText(const AnsiString &S)
 {
     try {
-        settheta___2min(StrToFloat_(S));
-    } catch(...) {
+        settheta___2min(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta___2min in text format: ");
         throw;
     }
 }
@@ -753,8 +1023,9 @@ AnsiString TArm::gettheta___2maxText(void) const
 void TArm::settheta___2maxText(const AnsiString &S)
 {
     try {
-        settheta___2max(StrToFloat_(S));
-    } catch(...) {
+        settheta___2max(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta___2max in text format: ");
         throw;
     }
 }
@@ -765,8 +1036,9 @@ AnsiString TArm::gettheta___2Text(void) const
 void TArm::settheta___2Text(const AnsiString &S)
 {
     try {
-        settheta___2(StrToFloat_(S));
-    } catch(...) {
+        settheta___2(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta___2 in text format: ");
         throw;
     }
 }
@@ -777,8 +1049,9 @@ AnsiString TArm::gettheta2Text(void) const
 void TArm::settheta2Text(const AnsiString &S)
 {
     try {
-        settheta2(StrToFloat_(S));
-    } catch(...) {
+        settheta2(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting theta2 in text format: ");
         throw;
     }
 }
@@ -787,10 +1060,12 @@ void TArm::settheta2Text(const AnsiString &S)
 //PROPIEDADES DE CUANTIFICACIÓN
 //DE LECTURA/ESCRITURA EN FORMATO TEXTO
 
+//dirección en memoria de la función F
 AnsiString TArm::getFAddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(&p_F), 8);
+    return IntToHex(intptr_t(&p_F));
 }
+//puntos de lafunción F enformato lista
 void TArm::setFPointsText(const AnsiString &S)
 {
     try {
@@ -802,36 +1077,42 @@ void TArm::setFPointsText(const AnsiString &S)
         setF(F);
 
         //La asignación a F provocará la asimilación de F mediante:
-        //      processateF();
-        //      calculateImage();
+        //  processateF();
+        //  calculateImage();
 
         //No olvidar que la cadena S no no debe asignarse directamente
         //a F.PointsText, por que el método SetF comprubea si F
         //cumple las restricciones.
 
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting FPoints in text format: ");
         throw;
     }
 }
+//puntos de lafunción F enformato tabla
 void TArm::setFTableText(const AnsiString &S)
 {
     try {
         //construye una función tampón
         TFunction F;
+        //borra los separadores iniciales y finales
+        AnsiString D;
+        StrTrim(D, S);
         //asigna el nuevo valor a la función tampón
-        F.setTableText(S);
+        F.setTableText(D);
         //intenta asignar la función tampón a la función
         setF(F);
 
         //La asignación a F provocará la asimilación de F mediante:
-        //      processateF();
-        //      calculateImage();
+        //  processateF();
+        //  calculateImage();
 
         //No olvidar que la cadena S no no debe asignarse directamente
         //a F.PointsText, por que el método SetF comprubea si F
         //cumple las restricciones.
 
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting FTable in text format: ");
         throw;
     }
 }
@@ -844,7 +1125,8 @@ void TArm::setQuantify___Text(const AnsiString &S)
 {
     try {
         p_Quantify___ = StrToBool(S);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Quantify___ in text format: ");
         throw;
     }
 }
@@ -853,9 +1135,10 @@ void TArm::setQuantify___Text(const AnsiString &S)
 //PROPIEDADES DE CUANTIFICACIÓN
 //DE SOLO LECTURA EN FORMATO TEXTO
 
+//dirección en memoria de la función G
 AnsiString TArm::getGAddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(&p_G), 8);
+    return IntToHex(intptr_t(&p_G));
 }
 
 AnsiString TArm::getSB2Text(void) const
@@ -878,8 +1161,9 @@ AnsiString TArm::getp___3minText(void) const
 void TArm::setp___3minText(const AnsiString &S)
 {
     try {
-        setp___3min(StrToFloat_(S));
-    } catch(...) {
+        setp___3min(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p___3min in text format: ");
         throw;
     }
 }
@@ -890,8 +1174,9 @@ AnsiString TArm::getp___3maxText(void) const
 void TArm::setp___3maxText(const AnsiString &S)
 {
     try {
-        setp___3max(StrToFloat_(S));
-    } catch(...) {
+        setp___3max(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p___3max in text format: ");
         throw;
     }
 }
@@ -902,8 +1187,9 @@ AnsiString TArm::getp___3Text(void) const
 void TArm::setp___3Text(const AnsiString &S)
 {
     try {
-        setp___3(StrToFloat_(S));
-    } catch(...) {
+        setp___3(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p___3 in text format: ");
         throw;
     }
 }
@@ -920,7 +1206,8 @@ void TArm::setP1Text(const AnsiString &S)
 {
     try {
         setP1(StrToDPoint(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting P1 in text format: ");
         throw;
     }
 }
@@ -932,8 +1219,9 @@ AnsiString TArm::getSPMText(void) const
 void TArm::setSPMText(const AnsiString& S)
 {
     try {
-        setSPM(StrToFloat_(S));
-    } catch(...) {
+        setSPM(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPM in text format: ");
         throw;
     }
 }
@@ -955,14 +1243,17 @@ AnsiString TArm::getVText(void) const
     return DPointToStr(getV());
 }
 
+//dirección en memoria de la propiedad compuesta Contour
 AnsiString TArm::getContourAddressText(void) const
 {
-    return IntToHex(reinterpret_cast<intptr_t>(&p_Contour), 8);
+    return IntToHex(intptr_t(&p_Contour));
 }
 
 //---------------------------------------------------------------------------
 //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO
 
+//conjunto de propiedades de plantilla
+//en formato texto
 AnsiString TArm::getTemplateText(void) const
 {
     AnsiString S;
@@ -986,7 +1277,8 @@ AnsiString TArm::getTemplateText(void) const
 
     return S;
 }
-
+//conjunto de propiedades de orientación en radianes
+//en formato texto
 AnsiString TArm::getOrientationRadiansText(void) const
 {
     AnsiString S;
@@ -1010,7 +1302,8 @@ AnsiString TArm::getOrientationRadiansText(void) const
 
     return S;
 }
-
+//conjunto de propiedades de cuantificación
+//en formato texto
 AnsiString TArm::getQuantificationText(void) const
 {
     AnsiString S;
@@ -1032,7 +1325,8 @@ AnsiString TArm::getQuantificationText(void) const
 
     return S;
 }
-
+//conjunto de propiedades de orientación en pasos
+//en formato texto
 AnsiString TArm::getOrientationStepsText(void) const
 {
     AnsiString S;
@@ -1045,7 +1339,8 @@ AnsiString TArm::getOrientationStepsText(void) const
 
     return S;
 }
-
+//conjunto de propiedades de localización
+//en formato texto
 AnsiString TArm::getLocationText(void) const
 {
     AnsiString S;
@@ -1066,6 +1361,8 @@ AnsiString TArm::getLocationText(void) const
     return S;
 }
 
+//conjunto de todas las propiedades
+//en formato texto
 AnsiString TArm::getAllText(void) const
 {
     AnsiString S;
@@ -1086,375 +1383,146 @@ AnsiString TArm::getAllText(void) const
 
 //CONJUNTOS DE LAS PROPIEDADES DE INSTANCIA EN FORMATO TEXTO:
 
+//conjunto de todas las propiedades de instancia
+//en formato texto
 AnsiString TArm::getInstanceText(void) const
 {
-    AnsiString S;
+    string str;
 
-    S += AnsiString("L12 = ")+getL12Text()+AnsiString("\r\n");
-    S += AnsiString("L13 = ")+getL13Text()+AnsiString("\r\n");
-    S += AnsiString("theta__O3 = ")+gettheta__O3Text()+AnsiString("\r\n");
-    S += AnsiString("R3 = ")+getR3Text()+AnsiString("\r\n");
+    str = commentedLine("L12 = "+getL12Text().str, "distance between P1 and P2 (in mm)");
+    str += "\r\n"+commentedLine("L13 = "+getL13Text().str, "distance between P1 and P3 (in mm)");
+    str += "\r\n"+commentedLine("theta__O3 = "+gettheta__O3Text().str, "orientation of S3 respect S2 (in rad)");
+    str += "\r\n"+commentedLine("R3 = "+getR3Text().str, "radio of representative circle of the microlens (in mm)");
 
-    S += AnsiString("thetaO3 = ")+getthetaO3Text()+AnsiString("\r\n");
-    S += AnsiString("theta___3min = ")+gettheta___3minText()+AnsiString("\r\n");
-    S += AnsiString("theta___3max = ")+gettheta___3maxText()+AnsiString(AnsiString("\r\n"));
-    S += AnsiString("theta___3 = ")+gettheta___3Text()+AnsiString("\r\n");
+    str += "\r\n"+commentedLine("thetaO3 = "+getthetaO3Text().str, "orientation of S3 respect S2 (in rad)");
+    str += "\r\n"+commentedLine("theta___3min = "+gettheta___3minText().str, "position angle’s lower limit of axis 1-3 respect S3 (in rad)");
+    str += "\r\n"+commentedLine("theta___3max = "+gettheta___3maxText().str, "position angle’s upper limit of axis 1-3 respect S3 (in rad)");
+    str += "\r\n"+commentedLine("theta___3 = "+gettheta___3Text().str, "position angle of axis 1-3 respect S3 (in rad)");
 
-    S += AnsiString("SB2 = ")+getSB2Text();
+    str += "\r\n"+commentedLine("SB2 = "+getSB2Text().str, "number of steps by lap of rotor 2");
 
-    return S;
+    return AnsiString(str);
 }
 void TArm::setInstanceText(const AnsiString& S)
 {
+    //initalize the index to the first char of S
+    int i = 1;
     try {
-        //contruye una variable tampón
-        TArm aux(this);
-        TArm *A = &aux;
-        //lee la instancia y la asigna a la variable tampón
-        int i = 1;
-        readInstance((TArm*&)A, S, i);
+        //lee la instancia en una variable tampón
+        TArm A(this);
+        readInstance(&A, S, i);
 
-        //avanza el índice i hasta la próxima posición que no contenga un separador
+        //busca un texto inesperado
         StrTravelSeparatorsIfAny(S, i);
-        //si el índice i indica a algún caracter de la cadena S
         if(i <= S.Length())
-            //indica que la cadena S solo debería contener un valor de instancia
-            throw EImproperArgument("string S should contain a instance value only");
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
 
         //asigna la variable tampón
-        copy(A);
-
-    } catch(...) {
+        copy(&A);
+    }
+    catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting p___3min in text format in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }
-
-//##################################################################
-//MÉTODOS PRIVADOS:
-//##################################################################
 
 //---------------------------------------------------------------------------
-//MÉTODOS DE ASIMILACIÓN:
+//MÉTODOS ESTÁTICOS:
 
-//Apartir de:
-//      {L12, L13, theta____3},
-//      {Contour____}
-//Determina:
-//      {P____2, P____3},
-//      {V____, L1V}
-void TArm::processateTemplate(void)
-{
-    //calcula las coordenadas de los puntos significativos
-    p_P____2.x = getL12();
-    p_P____2.y = 0;
-    p_P____3.x = getL13()*cos(gettheta____3());
-    p_P____3.y = getL13()*sin(gettheta____3());
-
-    //libera las figuras de la plantilla previa
-    Destroy((TContourFigureList&)getContour());
-    //contruye el contorno del brazo a partir de la plantilla
-    p_Contour.Copy(getContour____());
-
-    //ADVERTENCIA: aquí no debe usarse el operador =
-    //por que es una lista de punteros y se asignarian
-    //los punteros a los mismos objetos.
-    //El método Copy ha sido especialmente definido para
-    //que se contruyan clones de los objetos.
-
-    //determina la distancia máxima delcontorno al origen de S4
-    if(getContour____().getCount() < 1)
-        p_L1V = 0;
-    else {
-        p_L1V = getContour____().distanceMax(P____1);
-    }
-
-    p_V____.x = getL1V();
-    p_V____.y = 0;
-}
-
-//A partir de:
-//      {F(theta___3)}.
-//Determina:
-//      {G(p___3), SB2, rbs},
-//      {theta___3min, theta___3max}.
-//      {Q(p___3)}
-//Restricciones:
-//      La función F(theta___3) debe ser monótona creciente.
-void TArm::processateF(void)
+//lee una instancia de brazo en una cadena
+void  TArm::readInstance(TArm *A, const AnsiString& S, int &i)
 {
     try {
-        //determina la función G (inversa de F)
-        p_G.Inverse(getF());
-    } catch(...) {
-        throw;
-    }
+        //comprueba las precondiciones
+        if(A == NULL)
+            throw EImproperArgument("pointer A shouldpoint to built arm");
+        if(i<1 || S.Length()+1<i)
+            throw EImproperArgument("index i should indicate a position in the string S");
 
-    //ADVERTENCIA: esposible que F no esté definida en 0 y/o en M_2PI.
+        //NOTA: no se exige que la cadena de texto S sea imprimible,
+        //de modo que cuando se quiera imprimir uno de sus caracteres,
+        //si no es imprimible saldrá el caracter por defecto.
 
-    //selecciona el intervalo a partir del cual va a calcular
-    //el número de pasos de una vuelta completa
-    double xmax = Min(M_2PI, getF().getXLast());
-    double xmin = Max(0., getF().getXFirst());
-    //calcula el número de pasos de una vuelta completa
-    p_SB2 = (getF().Image(xmax) - getF().Image(xmin))/(xmax - xmin)*M_2PI;
+        //variables tampón
+        double L12, L13, theta__O3, R3;
+        double thetaO3, theta___3min, theta___3max, theta___3;
+        double SB2;
 
-    //calcula el escalón de cuantificación promedio en [0, M_2PI]
-    p_rbs = M_2PI/getSB2();
+        StrTravelSeparators(S, i);
+        StrTravelLabel("L12", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(L12, S, i);
 
-    //si el dominio de F no contiene todo [theta___3min, theta___3max]
-    //        if(gettheta___3min()<getF().getXFirst() || getF().getXLast()<gettheta___3max()) {
-    //constriñe los límites del dominio de theta___3 según el dominio de F
-    if(gettheta___3min() < getF().getXFirst())
-        p_theta___3min = getF().getXFirst();
-    if(gettheta___3max() > getF().getXLast())
-        p_theta___3max = getF().getXLast();
-    //        }
+        StrTravelSeparators(S, i);
+        StrTravelLabel("L13", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(L13, S, i);
 
-    //asimila [theta___3min, theta___3max]
-    p_Q.Set(1, getp___3min(), getp___3max());
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta__O3", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(theta__O3, S, i);
 
-    //constriñe theta___3 a su dominio
-    //y/o lo cuantifica en su caso
-    if(gettheta___3() < gettheta___3min())
-        settheta___3(gettheta___3min());
-    else if(gettheta___3() > gettheta___3max())
-        settheta___3(gettheta___3max());
-    else
-        settheta___3(gettheta___3());
-}
+        StrTravelSeparators(S, i);
+        StrTravelLabel("R3", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(R3, S, i);
 
-//a partir de:
-//      {P____2, P____3}
-//      {Contour____}
-//      {theta2, P1}
-//Determina:
-//      {P2, P3}
-//      {Contour, V},
-void TArm::calculateImage(void)
-{
-    //calcula el ángulo en coordenadas absolutas
-    double theta = gettheta2();
+        StrTravelSeparators(S, i);
+        StrTravelLabel("thetaO3", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(thetaO3, S, i);
 
-    //calcula los coeficientes de rotación
-    const double COS = cos(theta);
-    const double SIN = sin(theta);
-    //rota los puntos P2 y P3
-    p_P2.x = getP____2().x*COS - getP____2().y*SIN + getP1().x;
-    p_P2.y = getP____2().x*SIN + getP____2().y*COS + getP1().y;
-    p_P3.x = getP____3().x*COS - getP____3().y*SIN + getP1().x;
-    p_P3.y = getP____3().x*SIN + getP____3().y*COS + getP1().y;
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta___3min", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(theta___3min, S, i);
 
-    //determina el contorno del brazo (rotado y trasladado):
-    getContour____().getRotatedAndTranslated(p_Contour, theta, getP1());
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta___3max", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(theta___3max, S, i);
 
-    //rota el punto V
-    p_V.x = getV____().x*COS - getV____().y*SIN + getP1().x;
-    p_V.y = getV____().x*SIN + getV____().y*COS + getP1().y;
-}
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta___3", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(theta___3, S, i);
 
-/*//a partir de:
-//      {p___3min, p___3max}.
-//Determina:
-//      {Q(p___3)},
-void TArm::CalculateQ(void)
-{
-        //configura la función de cuantificación
-        p_Q.Set(1, F.YMin,F.YMax);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SB2", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(SB2, S, i);
 
-**//*        //busca el primer centroide dentro del rango dinámico
-        p_Qmin = Q[p___3min];
-        if(G.Image(Qmin) < theta___3min)
-                p_Qmin++;
-        else if(G.Image(Qmin - 1) >= theta___3min)
-                p_Qmin--;
-
-        //ADVERTENCIA: si se hiciera Qmin = ceil(p___3min)
-        //los errores numéricos en p___3min podrían provocar
-        //que el centroide se saliera del dominio de theta___3.
-
-        //busca el último centroide dentro del rango dinámico
-        p_Qmax = Q[p___3max];
-        if(G.Image(Qmax) > theta___3max)
-                p_Qmin--;
-        else if(G.Image(Qmin + 1) <= theta___3max)
-                p_Qmax++;
-
-        //ADVERTENCIA: si se hiciera Qmax = floor(p___3max)
-        //los errores numéricos en p___3max podrían provocar
-        //que el centroide se saliera del dominio de theta___3.
-*/ /**
-}     **/
-
-//##########################################################################
-//MÉTODOS PÚBLICOS:
-//##########################################################################
-
-//lee una instancia de posicionador de fibra en una cadena
-void  TArm::readInstance(TArm* &A, const AnsiString& S, int &i)
-{
-    //el puntero A debe apuntar a un brazo construido
-    if(A == NULL)
-        throw EImproperArgument("pointer A shouldpoint to built arm");
-
-    //NOTA: no se exige que la cadena de texto S sea imprimible,
-    //de modo que cuando se quiera imprimir uno de sus caracteres,
-    //si no es imprimible saldrá el caracter por defecto.
-
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
-
-    //estado de la máquina de estados de lectura
-    //      0: L12
-    //      1: L13
-    //      2: theta__O3
-    //      3: R3
-    //      4: thetaO3
-    //      5: theta___3min
-    //      6: theta___3max
-    //      7: theta___3
-    //      8: SB2
-    //      9: instancia de brazo leida con éxito
-    int status = 0;
-
-    //variables tampón
-    double L12, L13, theta__O3, R3;
-    double thetaO3, theta___3min, theta___3max, theta___3;
-    double SB2;
-
-    do {
-        switch(status) {
-        case 0: //esperando asignación a L12
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("L12", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(L12, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando asignación a L13
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("L13", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(L13, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando asignación a theta__O3
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta__O3", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta__O3, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando asignación a R3
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("R3", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(R3, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 4: //esperando asignación a thetaO3
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("thetaO3", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(thetaO3, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 5: //esperando asignación a theta___3min
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta___3min", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta___3min, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 6: //esperando asignación a theta___3max
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta___3max", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta___3max, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 7: //esperando asignación a theta___3
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta___3", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta___3, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 8: //esperando asignación a SB2
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SB2", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(SB2, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido la instancia con éxito
-    } while(status < 9);
-
-    //asigna las variables tampón
-    try {
+        //asigna las variables tampón
         A->setTemplate(L12, L13, theta__O3, R3);
         A->setOrientationRadians(thetaO3, theta___3min, theta___3max, theta___3);
         A->setQuantification(SB2);
 
-    }catch(...) {
+    }catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of arm: ");
         throw;
     }
 }
 
 //--------------------------------------------------------------------------
-//MÉTODOS DE CONTRUCCIÓN Y COPIA:
+//MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN:
 
-//build an arm
-//with the position and orientation indicated
+//construye un brazo
+//con la posición y orientación indicadas
 TArm::TArm(TDoublePoint P1, double thetaO2) :
-    //build the private properties
+    //construye las propiedades privadas
     p_Contour____(8),
     p_F(),
     p_G(), p_Q(),
     p_Contour(8),
-    //build the public properties
-    P____1(0, 1),
+    //construye las propiedades públicas
+    P____1(0, 0),
     theta___3s(2), //las funciones de theta___3s ya están apuntadas por que es de tipo TVector
     Quantify___s(2, NULL, NULL, NULL, StrPrintBool)
 {
-    //INITIALIZE THE TEMPLATE:
+    //INICIALIZA LA PLANTILLA:
 
     //inicializa los parámetros de dimensión por defecto
     p_L12 = MEGARA_L;
@@ -1465,7 +1533,7 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //inicializa el contorno
     setContour____Text(MEGARA_Contour____Text);
 
-    //INITIALIZE THE ORIENTATION PROPERTIES:
+    //INICIALIZA LAS PROPIEDADES DE ORIENTACIÓN:
 
     //inicializa los parámetros y variables de orientación en radianes
     p_thetaO3 = thetaO2 + gettheta__O3();
@@ -1479,7 +1547,7 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //será arrastrado, pudiendo ser cuantificado por Q.
     //Por eso theta___3 dbe inicializarse dentro de su dominio.
 
-    //INITIALIZE THE QUANTIFICATION PROPERTIES:
+    //INICIALIZA LAS PROPIEDADES DE CUANTIFICACIÓN:
 
     //añade los puntos de la función de compresión
     p_F.Add(-M_2PI, -double(MEGARA_SB2));
@@ -1496,7 +1564,7 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //inicializa las propiedades de cuantificación
     p_Quantify___ = true;
 
-    //INITIALIZE THE LOCATION PROPERTIES:
+    //INICIALIZA LAS PROPIEDADES DE LOCACLIZACIÓN:
 
     //inicializa las propiedades de posición
     p_P1 = P1;
@@ -1506,7 +1574,7 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
 
 
     //------------------------------------------------------------------
-    //ASSIMILATES THE VALUES OF THE TEMPLATE:
+    //ASIMILA LAS PROPIEDADES DE LA PLANTILLA:
 
     //Apartir de:
     //      {L12, L13, theta____3},
@@ -1516,7 +1584,7 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //      {V____, L1V}
     processateTemplate();
 
-    //ASSIMILATES THE VALUES OF THE QUANTIFICATION:
+    //ASIMILA LOS VALORES DE CUANTIFICACIÓN:
 
     //A partir de:
     //      {F(theta___3)}.
@@ -1528,7 +1596,7 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //      La función F(theta___3) debe ser monótona creciente.
     processateF();
 
-    //ASSIMILATES THE VALUES OF ORIENTATION AND LOCATION:
+    //ASIMILA LOS VALORES DE ORIENTACIÓN Y LOCACLIZACIÓN:
 
     //a partir de:
     //      {P____2, P____3}
@@ -1579,9 +1647,11 @@ void TArm::copy(TArm *Arm)
     p_theta___3 = Arm->gettheta___3();
     p_theta___3min = Arm->gettheta___3min();
     p_theta___3max = Arm->gettheta___3max();
+    theta___3s.Clone(Arm->theta___3s);
 
     //copia las propiedades de localización de lectura/escritura
     p_P1 = Arm->getP1();
+    p_SPM = Arm->getSPM();
 
     //copia las propiedades de localización de solo lectura
     p_P2 = Arm->getP2();
@@ -1607,7 +1677,7 @@ TArm::~TArm()
 }
 
 //--------------------------------------------------------------------------
-//NÉTODOS DE TRANSFORMACIÓN ENTRE SISTEMAS DE COORDENADAS:
+//MÉTODOS DE TRANSFORMACIÓN ENTRE SISTEMAS DE COORDENADAS:
 
 //transforma la coordenada angular polar de S3 a S2
 //      theta__ = theta___ + theta__O3
@@ -1630,7 +1700,7 @@ TDoublePoint TArm::S2polToS2rec(double r__, double theta__) const
 }
 
 //--------------------------------------------------------------------------
-//MÉTODOS DE DETERMINACIÓN DE PERTENENCIA A DOMINIOS DE ORIENTACIÓN:
+//MÉTODOS PARA DETERMINAR LA PERTENENCIA A DOMINIOS DE ORIENTACIÓN:
 
 //determina si un ángulo en radianes está fuera
 //del intervalo [theta__3min, theta__3max]
@@ -1644,8 +1714,8 @@ bool TArm::isntInDomaintheta___3(double theta___3)
 }
 //determina si un ángulo en radianes está fuera
 //del intervalo [theta___2min, theta___2max]
-//      IsntInDomaintheta___2(theta___2) =
-//      IsntInDomaintheta___3(theta___2 + theta____23)
+//  IsntInDomaintheta___2(theta___2) =
+//      IsntInDomaintheta___3(theta___2 + theta___23)
 bool TArm::isntInDomaintheta___2(double theta___2)
 {
     //traduce a theta___3 y aplica el método IsntInDomaintheta___3
@@ -1654,7 +1724,7 @@ bool TArm::isntInDomaintheta___2(double theta___2)
 
 //determina si un ángulo en pasos está fuera
 //del intervalo [p___3min, p___3max]
-//      IsntInDomainp___3(p___3) = IsntInDomaintheta___3(G(p___3))
+//  IsntInDomainp___3(p___3) = IsntInDomaintheta___3(G(p___3))
 bool TArm::isntInDomainp___3(double p___3)
 {
     //traduce a theta___3 y aplica el método IsntInDomaintheta___3
@@ -1667,7 +1737,7 @@ bool TArm::isntInDomainp___3(double p___3)
 //cuantifica theta___3
 double TArm::Qtheta___3(double theta___3)
 {
-    //el ángulo de orientación theta___3 debería estar en el dominio de theta___3
+    //comprueba las precondiciones
     if(theta___3<gettheta___3min() || gettheta___3max()<theta___3)
         throw EImproperArgument("orientation angle theta___3 should be in theta___3 domain");
 
@@ -1692,15 +1762,11 @@ double TArm::Qtheta___2(double theta___2)
 //si no espeficifa argumentos se asignan valores por defecto
 void TArm::setTemplate(double L12, double L13, double theta____3, double R3)
 {
-    //la longitud L12 debe ser mayor que cero
+    //comprueba las precondiciones
     if(L12 <= 0)
         throw EImproperArgument("length L12 should be upper zero");
-
-    //la coordenada radial L13 debe ser no negativa
     if(L13 <= 0)
         throw EImproperArgument("radial coordinate L13 should be nonnegative");
-
-    //el radio R3 debe ser mayor que cero
     if(R3 <= 0)
         throw EImproperArgument("radio R3 should be upper zero");
 
@@ -1719,19 +1785,13 @@ void TArm::setOrientationRadians(double thetaO3,
                                  double theta___3min, double theta___3max,
                                  double theta___3)
 {
-    //el ángulo theta___3min debe estar en el dominio de F(theta___3)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta___3min))
         throw EImproperArgument("angle theta___3min should be in domain F(theta___3)");
-
-    //el ángulo theta___3max debe estar en el domaxio de F(theta___3)
     if(!getF().BelongToDomain(theta___3max))
         throw EImproperArgument("angle theta___3max should be in domain F(theta___3)");
-
-    //el ángulo theta___3min no debe ser mayor que el ángulo theta___3max
     if(theta___3min > theta___3max)
         throw EImproperArgument("angle theta___3min should not be upper than angle theta___3max");
-
-    //el ángulo theta___3 debe estar en su dominio [theta___3min, theta___3max]
     if(isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in his domain [theta___3min, theta___3max]");
 
@@ -1793,84 +1853,127 @@ void TArm::setQuantification(double SB2)
 }
 
 //---------------------------------------------------------------------------
-//MÉTODOS PARA DETERMINAR DISTANCIAS:
-
-//---------------------------------------------------------------------------
 //MÉTODOS PARA DETERMINAR SI HAY COLISIÓN:
 
-//Determina si la distancia entre el contorno de un brazo y
-//el contorno de este brazo, es inferior a la suma del SPM
-//de cada uno de ellos.
-//      Mod(Arm->P2 - P2) >= Arm->L1V+Arm->SPM + L1V+SPM + ERR_NUM
-//no invoca a Contour.DistanceMin, y devuelve directamente false.
-bool TArm::collides(TArm *Arm)
+//determina la distancia mínima con una barrera
+double TArm::distanceMin(const TBarrier *Barrier) const
 {
-    //el puntero Arm debe apuntar a un brazo construido
-    if(Arm != NULL)
+    //comprueba las precondiciones
+    if(Barrier == NULL)
+        throw EImproperArgument("pointer Barrier should point to built barrier");
+
+    //Una manera de aligerar el proceso sería incluir el código siguiente:
+    //  //calcula la suma de SPMs
+    //  double SPM = Barrier->getSPM() + getSPM();
+    //  //si la distancia entre los ejes es al menos la distancia mínima para que no haya colisión
+    //  if(Mod(Barrier->getP0() - getP1()) > Barrier->getr_max() + getL1V() + SPM + ERR_NUM)
+    //      return DBL_MAX; //indica distancia infinita
+    //Pero con este código las distancias mínimas calculadas resultan más confusas.
+
+    //calcula la distancia mínima en cada sentido
+    double distanceMin1 = getContour().distanceMin(Barrier->getContour());
+    double distanceMin2 = Barrier->getContour().distanceMin(getContour());
+
+    //devuelve la distancia mínima
+    return min(distanceMin1, distanceMin2);
+}
+//determina la distancia mínima con un brazo
+double TArm::distanceMin(const TArm *Arm) const
+{
+    //comprueba las precondiciones
+    if(Arm == NULL)
         throw EImproperArgument("pointer Arm should point to built arm");
 
-    //si la distancia entre los ejes 2 es al menos la distancia mínima
-    //de seguridad para que no haya colisión
-    if(Mod(Arm->getP2() - getP2()) >= Arm->getL1V()+getL1V()+getSPM())
-        return false; //indica que no hay colisión
+    //Una manera de aligerar el proceso sería incluir el código siguiente:
+    //  //calcula el SPM conjunto
+    //  double SPM = getSPM() + Arm->getSPM();
+    //  //si la distancia entre los ejes es al menos la distancia mínima para que no haya colisión
+    //  if(Mod(Arm->getP1() - getP1()) > Arm->getL1V() + getL1V() + SPM + ERR_NUM)
+    //      return DBL_MAX; //indica distancia infinita
+    //Pero con este código las distancias mínimas calculadas resultan más confusas.
 
-    //determina si hay colisión entre los contornos de los brazos
-    return getContour().collides(Arm->getContour(), getSPM());
+    //calcula la distancia mínima en cada sentido
+    double distanceMin1 = getContour().distanceMin(Arm->getContour());
+    double distanceMin2 = Arm->getContour().distanceMin(getContour());
+
+    //devuelve la distancia mínima
+    return min(distanceMin1, distanceMin2);
 }
 
-//determina si el punto indicado está sobre el brazo
-bool TArm::covers(TDoublePoint P)
+//determina si hay colisión con una barrera
+bool TArm::collides(const TBarrier *Barrier) const
+{
+    //comprueba las precondiciones
+    if(Barrier == NULL)
+        throw EImproperArgument("pointer Barrier should point to built barrier");
+
+    //calcula la suma de SPMs
+    double SPM = Barrier->getSPM() + getSPM();
+
+    //si la distancia entre los ejes es al menos la distancia mínima para que no haya colisión
+    if(Mod(Barrier->getP0() - getP1()) > Barrier->getr_max() + getL1V() + SPM + ERR_NUM)
+        return false; //indica que no hay colisión
+
+    //determina si hay colisión entre los contornos (en ambos sentidos)
+    if(getContour().collides(Barrier->getContour(), SPM))
+        return true;
+    if(Barrier->getContour().collides(getContour(), SPM))
+        return true;
+
+    //indica que no ha encontrado colisión en ningún sentido
+    return false;
+}
+
+//determina si hay colisión con un brazo
+bool TArm::collides(const TArm *Arm) const
+{
+    //comprueba las precondiciones
+    if(Arm == NULL)
+        throw EImproperArgument("pointer Arm should point to built arm");
+
+    //calcula la suma de SPMs
+    double SPM = Arm->getSPM() + getSPM();
+
+    //si la distancia entre los ejes es al menos la distancia mínima para que no haya colisión
+    if(Mod(Arm->getP2() - getP1()) > Arm->getL1V() + getL1V() + SPM + ERR_NUM)
+        return false; //indica que no hay colisión
+
+    //determina si hay colisión entre los contornos (en ambos sentidos)
+    if(getContour().collides(Arm->getContour(), SPM))
+        return true;
+    if(Arm->getContour().collides(getContour(), SPM))
+        return true;
+
+    //indica que no ha encontrado colisión en ningún sentido
+    return false;
+}
+
+//determina si un punto está sobre el brazo
+bool TArm::covers(TDoublePoint P) const
 {
     //si la distancia entre el punto y el eje del brazo es mayor que L1V
-    if(Mod(P - getP1()) > getL1V())
+    if(Mod(P - getP1()) > getL1V() + ERR_NUM)
         return false; //indica que no hay colisión
 
     //determina si el punto indicado está en el interior del contorno
     return getContour().isInner(P);
 }
 
-/*//---------------------------------------------------------------------------
-//MÉTODOS PARA CALCULAR ÁNGULOS DE GIRO:
-
-//determina los ángulos que hay que rotar este brazo en torno al punto Q
-//para que quede adyacente al segmento (Pa, Pb)
-//las soluciones que no estén en dts serán añadidas a dicho vector
-void TArm::turnSegment(TVector<double> &dts,
-        TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Q)
-{
-}
-
-//determina los ángulos que hay que rotar este brazo en torno al punto Q
-//para que quede adyacente al arco (Pa, Pb, Pc, R)
-//las soluciones que no estén en dts serán añadidas a dicho vector
-void TArm::turnArc(TVector<double> &dts,
-        TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R,
-        TDoublePoint Q)
-{
-}
-
-//determina los ángulos que hay que rotar este brazo en torno al punto Q
-//para que quede adyacente al brazo Arm
-//las soluciones que no estén en dts serán añadidas a dicho vector
-void TArm::turnArm(TVector<double> &dts, TArm *Arm_, TDoublePoint Q)
-{
-}
-*/
 //---------------------------------------------------------------------------
 //MÉTODOS PARA APILAR Y RECUPERAR ORIENTACIONES:
 
 //apila theta___3 en la pila LIFO theta___3s
-//      theta___3s.Add(theta___3)
+//  theta___3s.Add(theta___3)
 void TArm::pushtheta___3(void)
 {
     theta___3s.Add(gettheta___3());
 }
 //restaura el último theta___3 de la pila LIFO theta___3s
-//      theta___3 = theta___3s.Last
+//  theta___3 = theta___3s.Last
 //si no hay una posición apilada lanza EImproperCall
 void TArm::restoretheta___3(void)
 {
-    //la pila theta___3s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(theta___3s.getCount() < 1)
         throw EImproperCall("stack theta___3s should contain some stacking value");
 
@@ -1878,11 +1981,11 @@ void TArm::restoretheta___3(void)
     settheta___3(theta___3s.getLast());
 }
 //desempila el último theta___3 de la pila LIFO theta___3s
-//      theta___3s.Delete(theta___3.Count - 1)
+//  theta___3s.Delete(theta___3.Count - 1)
 //si no hay una posición apilada lanza EImproperCall
 void TArm::poptheta___3(void)
 {
-    //la pila theta___3s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(theta___3s.getCount() < 1)
         throw EImproperCall("stack theta___3s should contain some stacking value");
 
@@ -1890,11 +1993,11 @@ void TArm::poptheta___3(void)
     theta___3s.Delete(theta___3s.getCount() - 1);
 }
 //restaura y desempila el último theta___3 de la pila LIFO theta___3s
-//      theta___3s.Delete(theta___3.Count - 1)
+//  theta___3s.Delete(theta___3.Count - 1)
 //si no hay una posición apilada lanza EImproperCall
 void TArm::restoreAndPoptheta___3(void)
 {
-    //la pila theta___3s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(theta___3s.getCount() < 1)
         throw EImproperCall("stack theta___3s should contain some stacking value");
 
@@ -1908,17 +2011,17 @@ void TArm::restoreAndPoptheta___3(void)
 //MÉTODOS PARA APILAR Y RECUPERAR ESTADOS DE CUANTIFICACIÓN:
 
 //apila Quantify___ en la pila LIFO Quantify___s
-//      Quantify___s.Add(Quantify___)
+//  Quantify___s.Add(Quantify___)
 void TArm::pushQuantify___(void)
 {
     Quantify___s.Add(getQuantify___());
 }
 //restaura el último Quantify___ de la pila LIFO Quantify___s
-//      Quantify___ = Quantify___s.Last
+//  Quantify___ = Quantify___s.Last
 //si no hay una posición apilada lanza EImproperCall
 void TArm::restoreQuantify___(void)
 {
-    //la pila Quantify___s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(Quantify___s.getCount() < 1)
         throw EImproperCall("stack Quantify___s should contain some stacking value");
 
@@ -1926,11 +2029,11 @@ void TArm::restoreQuantify___(void)
     setQuantify___(Quantify___s.getLast());
 }
 //desempila el último Quantify___ de la pila LIFO Quantify___s
-//      Quantify___s.Delete(Quantify___.Count - 1)
+//  Quantify___s.Delete(Quantify___.Count - 1)
 //si no hay una posición apilada lanza EImproperCall
 void TArm::popQuantify___(void)
 {
-    //la pila Quantify___s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(Quantify___s.getCount() < 1)
         throw EImproperCall("stack Quantify___s should contain some stacking value");
 
@@ -1938,11 +2041,11 @@ void TArm::popQuantify___(void)
     Quantify___s.Delete(Quantify___s.getCount() - 1);
 }
 //restaura y desempila el último Quantify___ de la pila LIFO Quantify___s
-//      Quantify___s.Delete(Quantify___.Count - 1)
+//  Quantify___s.Delete(Quantify___.Count - 1)
 //si no hay una posición apilada lanza EImproperCall
 void TArm::restoreAndPopQuantify___(void)
 {
-    //la pila Quantify___s debería contener algún valor apilado
+    //comprueba las precondiciones
     if(Quantify___s.getCount() < 1)
         throw EImproperCall("stack Quantify___s should contain some stacking value");
 
@@ -1968,12 +2071,12 @@ void TArm::set(TDoublePoint P1, double thetaO3)
 }
 
 //Cambia simultaneamente:
-//      la posición del brazo;
-//      la orientación del del origen de coordenadas del brazo;
-//      la orientación del brazo respecto de su origen de coordenadas.
+//  la posición del brazo;
+//  la orientación del del origen de coordenadas de S3;
+//  la orientación del brazo respecto de su origen de coordenadas.
 void TArm::set(TDoublePoint P1, double thetaO3, double theta___3)
 {
-    //el ángulo theta___3 debe estar en su dominio [theta___3min, theta___3max]
+    //comprueba las precondiciones
     if(isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in his domain [theta___3min, theta___3max]");
 
@@ -1994,13 +2097,13 @@ void TArm::set(TDoublePoint P1, double thetaO3, double theta___3)
 }
 
 //genera un valor aleatorio con distribución uniforme en
-//[Max(0, Qmin), Min(floor(SB2/2), Qmax)]
+//[max(0, Qmin), min(floor(SB2/2), Qmax)]
 double TArm::randomp___3(void)
 {
-    return RandomUniform(Max(0., getp___3min()), Min(floor(getSB2()/2), getp___3max()));
+    return RandomUniform(max(0., getp___3min()), min(floor(getSB2()/2), getp___3max()));
 }
-//asigna a p__3 un valor aleatorio con distribución uniforme en
-//[Max(0, ceil(p___3min)), Min(floor(SB2/2), floor(p___3max))]
+//asigna a p___3 un valor aleatorio con distribución uniforme en
+//[max(0, Qmin), min(floor(SB2/2), Qmax)]
 void TArm::randomizep___3(void)
 {
     setp___3(randomp___3());
@@ -2010,7 +2113,7 @@ void TArm::randomizep___3(void)
 //estable menor o igual que el indicado
 void TArm::settheta___3FirstStableLessOrEqual(double theta___3)
 {
-    //el ángulo theta___3 debe estar en [theta___3min, theta___3max]
+    //comprueba las precondiciones
     if(isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in [theta___3min, theta___3max]");
 
@@ -2024,7 +2127,7 @@ void TArm::settheta___3FirstStableLessOrEqual(double theta___3)
 //estable menor o igual que el indicado
 void TArm::settheta___2FirstStableLessOrEqual(double theta___2)
 {
-    //el ángulo theta___2 debe estar en [theta___2min, theta___2max]
+    //comprueba las precondiciones
     if(isntInDomaintheta___2(theta___2))
         throw EImproperArgument("angle theta___2 should be in [theta___2min, theta___2max]");
 

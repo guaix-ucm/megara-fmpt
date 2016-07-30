@@ -18,14 +18,14 @@
 
 //---------------------------------------------------------------------------
 //File: MotionProgramValidator.h
-//Content: validator of motion programs
+//Content: motion program validator
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONPROGRAMVALIDATOR_H
 #define MOTIONPROGRAMVALIDATOR_H
 
-#include "FiberMOSModel2.h"
+#include "FiberMOSModel.h"
 #include "MotionProgram.h"
 
 #include <vector>
@@ -67,9 +67,9 @@ protected:
     TFiberMOSModel *p_FiberMOSModel;
 
 protected:
-    //DEFINITION: minimun free distance between two barriers (Dfmin)
+    //DEFINITION: minimun free distance between two barriers (Dmin)
     //is the distance between the barriers less the SPM of each:
-    //  Dfmin = Barrier1->Contour.DistanceMin(Barrier2->Contour) -
+    //  Dmin = Barrier1->Contour.DistanceMin(Barrier2->Contour) -
     //      Barrier1->SPM - Barrier2->SPM.
     //Each barrier can be an arm or to be part of an exclusion area.
 
@@ -77,9 +77,15 @@ protected:
     //is displacement time during which there is garantee
     //that cannot collide.
 
+    //calculates the time free of collission of a RP and an EA
+    double calculateTf(TRoboticPositioner *RP,
+                       const TExclusionArea *EAA) const;
     //calculates the time free of collission of two RPs
     double calculateTf(TRoboticPositioner *RP,
                        const TRoboticPositioner *RPA) const;
+    //calculates the minimun step time of a pair (RP, EA)
+    double calculateTmin(const TRoboticPositioner *RP,
+                         const TExclusionArea *EAA) const;
     //calculates the minimun step time of two RPs
     double calculateTmin(const TRoboticPositioner *RP,
                          const TRoboticPositioner *RPA) const;

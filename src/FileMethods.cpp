@@ -17,16 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: FileMethods.cpp
-//Contenido: métodos de archivo para lectura y escritura de modelos
-//Última actualización: 15/05/2014
-//Autor: Isaac Morales Durán
+//File: FileMethods.cpp
+//Content: file functions for read and write instances of models
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FileMethods.h"
 #include "TextFile.h" //StrReadFromFile, StrWriteToFile
 
-#include <iostream> //std::cout
+//#include <iostream>
 
 using namespace Strings;
 
@@ -69,8 +68,108 @@ void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
         readAndAssign(t_RP, dir);
         //clone the tampon variable
         RP.clone(&t_RP);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of RP"+RP.getActuator()->getIdText().str+": ");
+        throw;
+    }
+}
 
-    } catch(...) {
+//---------------------------------------------------------------------------
+//FILE FUNCTIONS FOR EXCLUSION AREA LIST:
+
+//write the instance of a EA list
+//in a directory
+void writeInstanceToDir(const string& dir, const TExclusionAreaList& EAL)
+{
+    try {
+        string str;
+
+        //por cada área de exclusión de la lista
+        for(int i=0; i<EAL.getCount(); i++) {
+            //apunta el área de exclusión indicado para facilitar su acceso
+            TExclusionArea *EA = EAL[i];
+
+            //construye el nombre del subdirectorio que debe contener la instancia del área de exclusión
+            string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
+            //fuerza la construcción del directorio
+            mkpath(subdir);
+
+            //archiva el contorno de la barrera
+            str = "#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe";
+            str += "\r\n#the template of EA.Barrier.Contour_, in S1 (in mm):";
+            str += "\r\n\r\n"+EA->Barrier.getContour_().getColumnText().str;
+            strWriteToFile(subdir+"/Contour_.txt", str);
+
+            //archiva la instancia del área de exclusión
+            str = "#Instance properties of the EA (Exclusion Area):";
+            str += "\r\n\r\n"+EA->getInstanceText().str;
+            strWriteToFile(subdir+"/Instance.txt", str);
+        }
+
+        //archiva la lista de orígenes de coordenadas de la lista de área de exclusiónes
+        str = "#A table for indicate the position and orientation of each EA (Exclusion Area):";
+        str += "\r\n#    Id: identifier of the EA (a nonnegative integer number)";
+        str += "\r\n#    x0: abscissa of the point P0 of the EA in S0 (in mm)";
+        str += "\r\n#    y0: ordinate of the point P0 of the EA in S0 (in mm)";
+        str += "\r\n#    thetaO1: orientation of S1 in S0 (in rad)";
+        str += "\r\n\r\n"+TExclusionArea::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str;
+        strWriteToFile(dir+"/ExclusionAreaOriginsTable.txt", str);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "writing instance of EAL to dir '"+dir+"': ");
+        throw;
+    }
+}
+//read an instance of a EA list
+//from a directory
+void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir)
+{
+    try {
+        //contruye una lista tampón
+        TExclusionAreaList t_EAL;
+
+        string str;
+
+        //lee y asigna la tabla de orígenes de coordenadas
+        strReadFromFile(str, dir+"/ExclusionAreaOriginsTable.txt");
+        t_EAL.setOriginsTableText(str);
+
+        //por cada área de exclusión de la lista
+        for(int i=0; i<t_EAL.getCount(); i++) {
+            //apunta el área de exclusión indicada para facilitar su acceso
+            TExclusionArea *EA = t_EAL[i];
+
+            //construye el nombre del subdirectorio que contiene la instancia del área de exclusión
+            string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
+
+            //lee y asigna el contorno de la barrera
+            strReadFromFile(str, subdir+"/Contour_.txt");
+            EA->Barrier.setContour_ColumnText(str);
+
+            //lee y asigna la instancia del área de exclusión
+            strReadFromFile(str, subdir+"/Instance.txt");
+            EA->setInstanceText(str);
+        }
+
+        //lee y asigna la instancia de la lista de EAs
+        //                strReadFromFile(S, dir+"/Instance.txt");
+        //              t_EAL.InstanceText = S;
+
+        //clona la lista tampón
+        EAL.Clone(&t_EAL);
+        //asimila los parámetros de dimensionamiento
+        EAL.assimilate();
+
+        //desturye las EAs de la lista tampón
+        //                t_EAL.Destroy();
+
+        //Las EAs de la lista tampón no deben
+        //ser destruidas porque se trata de una lista de punteros
+        //y no de una lista basada en punteros.
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of EAL: ");
         throw;
     }
 }
@@ -83,11 +182,18 @@ void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
 void writeInstanceToDir(const string& dir, const TRoboticPositionerList& RPL)
 {
     try {
-        //write the RP map
-        strWriteToFile(dir+"/InstanceMap.txt", RPL.getInstanceMapText().str);
+        string str;
 
-        //write the additional properties of the RPL instance
-        strWriteToFile(dir+"/Instance.txt", RPL.getInstanceText().str);
+        //write the RP map
+        str = "#A matrix to transform each point (x, y) given in Cartesian coordinates in S0,";
+        str += "\r\n#in a list of identifiers of RPs {Id} in whose observing domain could be the point (x, y):";
+        str += "\r\n\r\n"+RPL.getInstanceMapText().str;
+        strWriteToFile(dir+"/InstanceMap.txt", str);
+
+        //write the instance properties of the RPL
+        str = "#Instance properties of the FMM (Fiber MOS Model):";
+        str += "\r\n\r\n"+RPL.getInstanceText().str;
+        strWriteToFile(dir+"/Instance.txt", str);
 
         //por cada posicionador de la lista
         for(int i=0; i<RPL.getCount(); i++) {
@@ -100,39 +206,64 @@ void writeInstanceToDir(const string& dir, const TRoboticPositionerList& RPL)
             mkpath(subdir);
 
             //archiva el contorno del brazo
-            strWriteToFile(subdir+"/Contour____.txt", RP->getActuator()->getArm()->getContour____().getColumnText().str);
+            str = "#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc) for describe";
+            str += "\r\n#the template of RP.Actuator.Arm.Contour____ in S4 (in mm):";
+            str += "\r\n\r\n"+RP->getActuator()->getArm()->getContour____().getColumnText().str;
+            strWriteToFile(subdir+"/Contour____.txt", str);
 
             //archiva el contorno de la barrera
-            strWriteToFile(subdir+"/Contour_.txt", RP->getActuator()->getBarrier()->getContour_().getColumnText().str);
+            str = "#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe";
+            str += "\r\n#the template of the RP.Barrier.Contour_, in S1 (in mm):";
+            str += "\r\n\r\n"+RP->getActuator()->getBarrier()->getContour_().getColumnText().str;
+            strWriteToFile(subdir+"/Contour_.txt", str);
 
             //archiva la función de compresión del rotor 1
-            strWriteToFile(subdir+"/F1.txt", RP->getActuator()->getF().getTableText().str);
+            str = "#The compression-function of the quantifier of rot 1 of the RP in step/rad.";
+            str += "\r\n#Must be defined almost in the rot 1 domain [theta_1min, theta_1max]:";
+            str += "\r\n#    theta_1: position of rot 1 (in rad)";
+            str += "\r\n#    p_1: position of rot 1 (in step)";
+            str += "\r\n\r\n"+RP->getActuator()->getF().getTableText().str;
+            strWriteToFile(subdir+"/F1.txt", str);
 
             //archiva la función de compresión del rotor 2
-            strWriteToFile(subdir+"/F2.txt", RP->getActuator()->getArm()->getF().getTableText().str);
+            str = "#The compression-function of the quantifier of rot 2 of the RP in step/rad.";
+            str += "\r\n#Must be defined in the rot 2 domain [theta___3min, theta___3max]:";
+            str += "\r\n#    theta___3: position of rot 2 (in rad)";
+            str += "\r\n#    p___3: position of rot 2 (in step)";
+            str += "\r\n\r\n"+RP->getActuator()->getArm()->getF().getTableText().str;
+            strWriteToFile(subdir+"/F2.txt", str);
 
             //archiva la instancia del posicionador
-            strWriteToFile(subdir+"/Instance.txt", RP->getInstanceText().str);
+            str = "#Instance properties of the RP (Robotic Positioner):";
+            str += "\r\n\r\n"+RP->getInstanceText().str;
+            strWriteToFile(subdir+"/Instance.txt", str);
         }
 
         //archiva la lista de orígenes de coordenadas de la lista de posicionadores
-        strWriteToFile(dir+"/RoboticPositionerOriginsTable.txt", TActuator::getOriginsLabelsRow().str+"\r\n"+RPL.getOriginsTableText().str);
-
-    } catch(...) {
+        str = "#A table for indicate the position and orientation of each RP (Robotic Positioner):";
+        str += "\r\n#    Id: identifier of the RP (a nonnegative integer number)";
+        str += "\r\n#    x0: abscissa of the point P0 of the RP in S0 (in mm)";
+        str += "\r\n#    y0: ordinate of the point P0 of the RP in S0 (in mm)";
+        str += "\r\n#    thetaO1: orientation of S1 in S0 (in rad)";
+        str += "\r\n\r\n"+TActuator::getOriginsLabelsRow().str+"\r\n"+RPL.getOriginsTableText().str;
+        strWriteToFile(dir+"/RoboticPositionerOriginsTable.txt", str);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "writing instance of RPL: ");
         throw;
     }
 }
 //read an instance of a RP list
 //from a directory
-void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir)
+void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir,
+                         const TExclusionAreaList& EAL)
 {
     try {
         //contruye una lista tampón
         TRoboticPositionerList t_RPL;
 
-        string str;
-
         //lee y asigna la lista de orígenes de coordenadas de la lista de posicionadores
+        string str;
         strReadFromFile(str, dir+"/RoboticPositionerOriginsTable.txt");
         t_RPL.setOriginsTableText(str);
 
@@ -178,7 +309,7 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir)
         //      void TRoboticPositioneer::GenerateMap(void);
 
         //asimila los parámetros de dimensionamiento
-        t_RPL.assimilate();
+        t_RPL.assimilate(EAL);
 
         //clona la lista tampón
         RPL.Clone(&t_RPL);
@@ -188,96 +319,9 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir)
 
         //RPs of thetampon list must be destroyed here, because
         //the RPL is a list of pointers.
-
-    } catch(...) {
-        throw;
     }
-}
-
-//---------------------------------------------------------------------------
-//FILE FUNCTIONS FOR EXCLUSION AREA LIST:
-
-//write the instance of a EA list
-//in a directory
-void writeInstanceToDir(const string& dir, const TExclusionAreaList& EAL)
-{
-    try {
-        //escribe la instancia en el archivo 'Instance.txt'
-        //                strWriteToFile(dir+"/Instance.txt", EAL.InstanceText);
-
-        //por cada área de exclusión de la lista
-        for(int i=0; i<EAL.getCount(); i++) {
-            //apunta el área de exclusión indicado para facilitar su acceso
-            TExclusionArea *EA = EAL[i];
-
-            //construye el nombre del subdirectorio que debe contener la instancia del área de exclusión
-            string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
-            //fuerza la construcción del directorio
-            mkpath(subdir);
-
-            //archiva el contorno de la barrera
-            strWriteToFile(subdir+"/Contour_.txt", EA->Barrier.getContour_().getColumnText().str);
-
-            //archiva la instancia del área de exclusión
-            strWriteToFile(subdir+"/Instance.txt", EA->getInstanceText().str);
-        }
-
-        //archiva la lista de orígenes de coordenadas de la lista de área de exclusiónes
-        strWriteToFile(dir+"/ExclusionAreaOriginsTable.txt", TExclusionArea::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str);
-
-    } catch(...) {
-        throw;
-    }
-}
-//read an instance of a EA list
-//from a directory
-void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir,
-                         const TRoboticPositionerList& RPL)
-{
-    try {
-        //contruye una lista tampón
-        TExclusionAreaList t_EAL;
-
-        string str;
-
-        //lee y asigna la tabla de orígenes de coordenadas
-        strReadFromFile(str, dir+"/ExclusionAreaOriginsTable.txt");
-        t_EAL.setOriginsTableText(str);
-
-        //por cada área de exclusión de la lista
-        for(int i=0; i<t_EAL.getCount(); i++) {
-            //apunta el área de exclusión indicada para facilitar su acceso
-            TExclusionArea *EA = t_EAL[i];
-
-            //construye el nombre del subdirectorio que contiene la instancia del área de exclusión
-            string subdir = dir+"/ExclusionArea"+EA->getIdText().str;
-
-            //lee y asigna el contorno de la barrera
-            strReadFromFile(str, subdir+"/Contour_.txt");
-            EA->Barrier.setContour_ColumnText(str);
-
-            //lee y asigna la instancia del área de exclusión
-            strReadFromFile(str, subdir+"/Instance.txt");
-            EA->setInstanceText(str);
-        }
-
-        //lee y asigna la instancia de la lista de EAs
-        //                strReadFromFile(S, dir+"/Instance.txt");
-        //              t_EAL.InstanceText = S;
-
-        //clona la lista tampón
-        EAL.Clone(&t_EAL);
-        //asimila los parámetros de dimensionamiento
-        EAL.assimilate(RPL);
-
-        //desturye las EAs de la lista tampón
-        //                t_EAL.Destroy();
-
-        //Las EAs de la lista tampón no deben
-        //ser destruidas porque se trata de una lista de punteros
-        //y no de una lista basada en punteros.
-
-    } catch(...) {
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of RPL: ");
         throw;
     }
 }
@@ -285,81 +329,21 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir,
 //---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR Fiber MOS Models:
 
-/*//write the instance of a Fiber MOS Model
-//in a directory
-void writeInstanceToDir(const string& dir, const TFiberMOSModel *FMM)
-{
-    //el puntero FMM debe apuntar a un Fiber MOS Model construido
-    if(FMM == NULL)
-        throw EImproperArgument("pointer FMM should pointto built Fiber MOS Model");
-
-    try {
-
-        //escribe las demás propiedades de la instancia
-        //en el archivo 'FiberMOSModelInstance.txt'
-        //            strWriteToFile(dir+AnsiString("/FiberMOSModelInstance.txt"), FMM->getInstanceText().str);
-
-        //escribe las instancias de las listas de objetos en el directorio
-        writeInstanceToDir(dir, FMM->EAL);
-        writeInstanceToDir(dir, FMM->RPL);
-
-    } catch(...) {
-        throw;
-    }
-}
-//read an instance of a Fiber MOS Model
-//from a directory
-void readInstanceFromDir(TFiberMOSModel *FMM, const string& dir)
-{
-    //el puntero FMM debe apuntar a un Fiber MOS Model construido
-    if(FMM == NULL)
-        throw EImproperArgument("pointer FMM should pointto built Fiber MOS Model");
-
-    try {
-        //contruye una variable tampón
-        TFiberMOSModel t_FMM;
-
-        //lee las instancias de las listas de objetos del directorio
-        readInstanceFromDir(t_FMM.RPL, dir);
-        readInstanceFromDir(t_FMM.EAL, dir, t_FMM.RPL);
-
-        //lee las demás propiedades de la instancia
-        //del archivo 'Instance.txt'
-        string str;
-        strReadFromFile(str, dir+"/Instance.txt");
-        t_FMM.setInstanceText(str);
-
-        //Note that here is not necessary assimilate the instance
-        //because the reading of each list producess the assimilation.
-
-        //clona la variable tampón
-        FMM->Clone(&_FMM);
-        //asimila las propiedades
-        FMM->Assimilate();
-
-        //ADVERTENCIA: la configuración del FMM debe ser asimilada,
-        //ya que algunas de sus propiedades dependen de su posición
-        //en la memoria. Sean los punteros de Adjacents.
-
-    } catch(...) {
-        throw;
-    }
-}
-*/
 //write the instance of a Fiber MOS Model
 //in a directory
-void writeInstanceToDir(const string& dir, const TFiberMOSModel &FMM)
+void writeInstanceToDir(const string& dir, const TFiberMOSModel& FMM)
 {
     try {
         //escribe las demás propiedades de la instancia
-        //en el archivo 'FiberMOSModelInstance.txt'
-//        strWriteToFile(dir+"/FiberMOSModelInstance.txt", FMM.InstanceText);
+        //en el archivo 'Instance.txt'
+        strWriteToFile(dir+"/Instance.txt", FMM.getInstanceText().str);
 
         //escribe las instancias de las listas de objetos en el directorio
         writeInstanceToDir(dir, FMM.EAL);
         writeInstanceToDir(dir, FMM.RPL);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "writing instance of FMM: ");
         throw;
     }
 }
@@ -372,8 +356,8 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
         TFiberMOSModel t_FMM;
 
         //lee las instancias de las listas de objetos del directorio
-        readInstanceFromDir(t_FMM.RPL, dir);
-        readInstanceFromDir(t_FMM.EAL, dir, t_FMM.RPL);
+        readInstanceFromDir(t_FMM.EAL, dir);
+        readInstanceFromDir(t_FMM.RPL, dir, t_FMM.EAL);
 
         //lee las demás propiedades de la instancia
         //del archivo 'Instance.txt'
@@ -392,8 +376,9 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
         //ADVERTENCIA: la configuración del FMM debe ser asimilada,
         //ya que algunas de sus propiedades dependen de su posición
         //en la memoria. Sean los punteros de Adjacents.
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of FMM: ");
         throw;
     }
 }
@@ -401,49 +386,6 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
 //---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR Fiber Connection Models:
 
-/*//write the instance of a Fiber Connection Model
-//in a directory
-void writeInstanceToDir(const string& dir, const TFiberConnectionModel *FCM)
-{
-    //el puntero FCM debe apuntar a un Fiber Connection Mdoel construido
-    if(FCM == NULL)
-        throw EImproperArgument("pointer FCM should point to built Fiber Connection Model");
-
-    try {
-        //fuerza la construcción del directorio
-        mkpath(dir);
-        //escribe la tabla de conexiones de la pseudoslit en el archivo correspondiente
-        strWriteToFile(dir+"/Connections.txt", FCM->getConnectionsText().str);
-
-    } catch(...) {
-        throw;
-    }
-}
-//read an instance of a Fiber Connection Model
-//from a directory
-void readInstanceFromDir(TFiberConnectionModel *FCM, const string& dir)
-{
-    //el puntero FCM debe apuntar a un Fiber Connection Mdoel construido
-    if(FCM == NULL)
-        throw EImproperArgument("pointer FCM should point to built Fiber Connection Model");
-    try {
-        //construye una variable tampón
-        TFiberConnectionModel t_FCM;
-
-        //lee la tabla de conexiones de la pseudoslit en una cadena de texto
-        string str;
-        strReadFromFile(str, dir+"/Connections.txt");
-        //asigna la cadena de texto a la tabla de conexiones de la pseudoslit
-        t_FCM.setConnectionsText(str);
-
-        //clona la variable tampón
-        //        FCM->Clone(t_FCM);
-
-    } catch(...) {
-        throw;
-    }
-}
-*/
 //write the instance of a Fiber Connection Model
 //in a directory
 void writeInstanceToDir(const string& dir, const TFiberConnectionModel& FCM)
@@ -453,8 +395,9 @@ void writeInstanceToDir(const string& dir, const TFiberConnectionModel& FCM)
         mkpath(dir);
         //escribe la tabla de conexiones de la pseudoslit en el archivo correspondiente
         strWriteToFile(dir+"/Connections.txt", FCM.getConnectionsText().str);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "writing instance of FCM: ");
         throw;
     }
 }
@@ -463,22 +406,24 @@ void writeInstanceToDir(const string& dir, const TFiberConnectionModel& FCM)
 void readInstanceFromDir(TFiberConnectionModel& FCM, const string& dir)
 {
     try {
-        //construye una variable tampón
-        TFiberConnectionModel t_FCM;
-
         //lee la tabla de conexiones de la pseudoslit en una cadena de texto
         string str;
         strReadFromFile(str, dir+"/Connections.txt");
-        //asigna la cadena de texto a la tabla de conexiones de la pseudoslit
+
+        //asigna la cadena de texto a una variable tampón
+        TFiberConnectionModel t_FCM;
         t_FCM.setConnectionsText(str);
 
         //clona la variable tampón
         FCM.Clone(t_FCM);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of FCM: ");
         throw;
     }
 }
+
+//---------------------------------------------------------------------------
 
 } //namespace Models
 

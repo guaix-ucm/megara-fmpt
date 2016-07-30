@@ -17,17 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: FigureList.h
-//Contenido: clase lista de figuras de contorno
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: FigureList.h
+//Content: contour figure list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef CONTOURFIGURELIST_H
 #define CONTOURFIGURELIST_H
 
 #include "Figure.h"
-//##include "..\5_Graphics\PloterShapes.h"
 #include "PointersList.h"
 #include "Vectors.h"
 
@@ -35,7 +33,6 @@
 
 using namespace Mathematics;
 using namespace Lists;
-//#using namespace Graphics;
 
 //espacio de nombres de modelos
 namespace Models {
@@ -73,14 +70,8 @@ public:
         //construye un clon de una lista de figuras
         TContourFigureList(const TContourFigureList &Contour);
 
-        //MÉTODOS DE CONFIGURACIÓN:
-
-        //asigna un color a todas las figuras del contorno
-        //#void SetAllColor(QColor Color);
-
-        //Colores recomendados para Color:
-        //      clGray: no resaltado.
-        //      clWhite: resaltado.
+        //determina si una CFL es distinta
+        bool operator!=(const TContourFigureList&) const;
 
         //MÉTODOS DE CARACTERIZACIÓN:
 
@@ -126,24 +117,6 @@ public:
         //determina si un punto está en el interior del contorno
         bool isInner(TDoublePoint P) const;
 
-/*        //MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO:
-
-        //determina los ángulos que hay que rotar este contorno
-        //entorno al punto Q para que quede adyacente al segmento (Pa, Pb)
-        void TurnSegment(TVector<double> &dts,
-                TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Q);
-
-        //determina los ángulos que hay que rotar este contorno
-        //entorno al punto Q para que quede adyacente al arco (Pa, Pb, Pc, R)
-        void turnArc(TVector<double> &dts,
-                TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R,
-                TDoublePoint Q);
-
-        //determina los ángulos que hay que rotar este contorno
-        //entorno al punto Q para que quede adyacente al brazo Arm
-        void turnArm(TVector<double> &dts, TArm *Arm_,
-                TDoublePoint Q);
-*/
         //MÉTODOS DE TRANSFORMACIONES GEOMÉTRICAS:
 
         //obtiene la lista de figuras rotada y trasladada.
@@ -153,12 +126,6 @@ public:
         //      lanza EImproperArgument
         void getRotatedAndTranslated(TContourFigureList &Contour,
                 double theta, TDoublePoint V) const;
-
-        //MÉTODOS GRÁFICOS:
-
-        //dibuja las figuras de una  lista
-        //en un trazador de formas
-        //#void paint(TPloterShapes *PS) const;
 };
 
 //--------------------------------------------------------------------------

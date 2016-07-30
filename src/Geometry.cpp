@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Geometry.cpp
-//Contenido: clases y funciones geométricas
-//Última actualización: 19/10/2011
-//Autor: Isaac Morales Durán
+//File: Geometry.cpp
+//Content: geometric functions
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 
@@ -29,6 +28,8 @@
 #include "Scalars.h"
 #include "Vector.h"
 #include "Exceptions.h"
+
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ bool intersection(TDoublePoint& r,
 //Parámetros devueltos:
 //	Intersectión: true si los segmentos se intersecan
 //	r: punto de intersección en caso de haberlo
-//	s: posición relativa de los vñertices p1 y p2 a la recta contiente
+//	s: posición relativa de los vértices p1 y p2 a la recta contiente
 //		del segmento clipeante:
 //			-2: p1 y p2 ambos a la dcha
 //			-1: p1 a la izda y p2 a la dcha
@@ -163,19 +164,19 @@ bool intersection(const TDoublePoint& p1, const TDoublePoint& p2,
     //Comprueba la pertenencia de r al segmento (p1, p2)
     bool belongp=false; //flags de pertenencia de r al segmento (p1, p2)
     if(fabs(p2.x - p1.x)>fabs(p2.y - p1.y)) {
-        if(Min(p1.x, p2.x)<=r.x && r.x<=Max(p2.x, p1.x))
+        if(min(p1.x, p2.x)<=r.x && r.x<=max(p2.x, p1.x))
             belongp = true;
     } else
-        if(Min(p1.y, p2.y)<=r.y && r.y<=Max(p2.y, p1.y))
+        if(min(p1.y, p2.y)<=r.y && r.y<=max(p2.y, p1.y))
             belongp = true;
 
     //Comprueba la pertenencia de r al segmento (q1, q2)
     bool belongq=false; //flags de pertenencia de r al segmento (q1, q2)
     if(fabs(q2.x - q1.x)>fabs(q2.y - q1.y)) {
-        if(Min(q1.x, q2.x)<=r.x && r.x<=Max(q2.x, q1.x))
+        if(min(q1.x, q2.x)<=r.x && r.x<=max(q2.x, q1.x))
             belongq = true;
     } else
-        if(Min(q1.y, q2.y)<=r.y && r.y<=Max(q2.y, q1.y))
+        if(min(q1.y, q2.y)<=r.y && r.y<=max(q2.y, q1.y))
             belongq = true;
 
     //Si pertenece a ambos segmentos esque se intersecan
@@ -372,7 +373,7 @@ int intersectionCircumCircum(TDoublePoint &P1, TDoublePoint &P2,
             if(R1==R2) //si sin de igual rádio
                 return 1; //las toma como coincidentes
             else //si son de distinto radio
-                H = Min(H, Rmin); //corrige el error numérico
+                H = min(H, Rmin); //corrige el error numérico
         }
         double D1 = Rmax*sqrt(1 - pow(H/Rmax, 2.));
 
@@ -406,12 +407,10 @@ bool intersectionSegmentSegment(TDoublePoint &P,
         //calcula los coeficientes (a1, b1)
         double a1 = -Det(Pb-Qb, Qa-Qb)/denom;
         double b1 = Det(Qb-Pb, Pa-Pb)/denom;
-        /*                double b1 = ((Qb.y-Pb.y)*(Pa.x-Pb.x) - (Qb.x-Pb.x)*(Pa.y-Pb.y))/
-                        denom;
-                double a1 = (b1*(Qa.x-Qb.x)+Qb.x-Pb.x)/(Pa.x-Pb.x);*/
 
         if(b1<=0 || 1<=b1 || a1<=0 || 1<=a1) //si los segmentos no se cortan
             return false; //indica que no se intersecan
+
         else { //si los segmentos se cortan
             P = a1*Pa + (1-a1)*Pb; //calcula el punto
             return true; //indica que se intersecan en un punto
@@ -438,14 +437,11 @@ bool intersectionSegmentCircle(TDoublePoint Pa, TDoublePoint Pb,
 bool intersectionSegmentArc(TDoublePoint Pa, TDoublePoint Pb,
                             TDoublePoint Pfin, TDoublePoint Pini, TDoublePoint Pc, double R)
 {
-    //los puntos del segmento no deben coincidir
+    //comprueba las precondiciones
     if(Pa == Pb)
         throw EImproperArgument("Pa should be unequal Pb");
-    //el radio de la circunferecnia debe ser mayor que cero
     if(R <= 0)
         throw EImproperArgument("R should be upper zero");
-    //los puntos de las cuerdas del arco no deben
-    //coincidir con el centro de la circunferencia
     if(Pfin == Pc)
         throw EImproperArgument("Pfin should be unequal Pc");
     if(Pini == Pc)
@@ -472,9 +468,9 @@ bool intersectionSegmentArc(TDoublePoint Pa, TDoublePoint Pb,
 //el segmento (Pa, Pb) en sentido levógiro
 //si no hay intersección devuelve falso
 bool intersectionArcSegment(TDoublePoint Pfin, TDoublePoint Pini,
-                            TDoublePoint Pv, double R, TDoublePoint Pa, TDoublePoint Pb)
+                            TDoublePoint Pc, double R, TDoublePoint Pa, TDoublePoint Pb)
 {
-    return intersectionSegmentArc(Pa, Pb, Pfin, Pini, Pv, R);
+    return intersectionSegmentArc(Pa, Pb, Pfin, Pini, Pc, R);
 }
 
 //determina si hay intersección entre
@@ -1428,7 +1424,7 @@ double distanceSegmentSegment(TDoublePoint Pa, TDoublePoint Pb,
     //al ser l atrayectoria de un vértice a otro lineal,
     //la distancia corresponde a la distancia mínima
     //de alguno de los vértices
-    return Min(Min(d1, d2), Min(d3, d4));
+    return min(min(d1, d2), min(d3, d4));
 }
 //calcula la distancia entre el segmento (Pa, Pb) y la circunferencia (Pc, R)
 double distanceSegmentCircunference(TDoublePoint Pa, TDoublePoint Pb,
@@ -1445,7 +1441,7 @@ double distanceSegmentCircunference(TDoublePoint Pa, TDoublePoint Pb,
         return 0;
 
     if(d1<0 && d2<0)
-        return Max(d1, d2);
+        return max(d1, d2);
 
     double d = distanceSegmentPoint(Pa, Pb, Pc);
 
@@ -1508,7 +1504,7 @@ double distanceArcPoint(TDoublePoint Pa, TDoublePoint Pb,
         Pb = Pc + V/Mod(V)*R;
 
         //devuelve la distancia mínima a los vértices
-        return Min(Mod(P - Pa), Mod(P - Pb));
+        return min(Mod(P - Pa), Mod(P - Pb));
     }
 }
 //calcula la distancia entre el arco (Pc, R, Pa, Pb) y el segmento (Qa, Qb)
@@ -1548,7 +1544,7 @@ double distanceArcSegment(TDoublePoint Pa, TDoublePoint Pb,
     double d4 = distanceSegmentPoint(Qa, Qb, Pb);
 
     //la distancia entre el segmento y el arco es la mínima
-    return Min(Min(d1, d2), Min(d3, d4));
+    return min(min(d1, d2), min(d3, d4));
 }
 //calcula la distancia entre el círculo (Pc, R1) y el arco (Qa, Qb, Qc, R2)
 double distanceArcCircle(
@@ -1656,7 +1652,7 @@ double distanceArcCircunference(
     double d2 = distanceCircunferencePoint(Qc, R2, Pb);
 
     //la distancia entre el segmento y el arco es la mínima
-    return Min(d1, d2);
+    return min(d1, d2);
 }
 //calcula la distancia entre el arco (Pa1, Pb1, Pc1, R1)
 //y el arco (Pa2, Pb2, Pc2, R2)
@@ -1751,7 +1747,7 @@ double distanceArcArc(
     double d4 = distanceArcPoint(Pa2, Pb2, Pc2, R2, Pb1);
 
     //la distancia entre el segmento y el arco es la mínima
-    return Min(Min(d1, d2), Min(d3, d4));
+    return min(min(d1, d2), min(d3, d4));
 }
 
 //determina la distancia entre una circunferencia y un punto
@@ -1778,7 +1774,7 @@ double distanceCircunferenceSegment(TDoublePoint Pc, double R,
         return 0;
 
     if(d1<0 && d2<0)
-        return Max(d1, d2);
+        return max(d1, d2);
 
     double d = distanceSegmentPoint(Pa, Pb, Pc);
 
@@ -1934,7 +1930,7 @@ double distanceCircunferenceArc(
     double d2 = distanceCircunferencePoint(Qc, R2, Pb);
 
     //la distancia entre el segmento y el arco es la mínima
-    return Min(d1, d2);
+    return min(d1, d2);
 }
 
 //alcula la distancia entre los círculos (Pc1, R1) y (Pc2, R2)
@@ -2096,7 +2092,7 @@ double distanceCirclePointMax(TDoublePoint Pc, double R,
 double distanceSegmentPointMax(TDoublePoint Pa, TDoublePoint Pb,
                                TDoublePoint P)
 {
-    return Max(Mod(P - Pa), Mod(P - Pb));
+    return max(Mod(P - Pa), Mod(P - Pb));
 }
 double distanceCircunferencePointMax(TDoublePoint Pc, double R,
                                      TDoublePoint P)
@@ -2127,7 +2123,7 @@ double distanceArcPointMax(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
         Pb = Pc + Vb; //mueve Pb al vértice del arco
 
         //devuelve la distancia máxima a los vértices
-        return Max(Mod(P - Pa), Mod(P - Pb));
+        return max(Mod(P - Pa), Mod(P - Pb));
     }
     //si el punto P está fuera del ángulo (Pb_, Pa_, Pc)
     else

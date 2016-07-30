@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: FMOSATable.h
-//Content: class FMOSA table
-//Last update: 23/01/2015
+//Content: FMOSA table
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -28,7 +27,7 @@
 
 #include "MotionProgramValidator.h"
 #include "AllocationList.h"
-#include "FiberMOSModel2.h"
+#include "FiberMOSModel.h"
 #include "MotionProgram.h"
 #include "PointersList.h"
 
@@ -38,9 +37,9 @@
 namespace Models {
 
 //---------------------------------------------------------------------------
-//class TSPPP:
+//class TObservingSource:
 
-class TSPPP {
+class TObservingSource {
 public:
     //SP properties:
     string Name;        //name ("")                 (can be empty)
@@ -60,10 +59,10 @@ public:
     bool Enabled;       //indicates if the point is allocated to the RP (false)
 
     //Allocation properties:
-    bool notAllocated;  //indicates if the point is not allocated in other CB
-                        //(true)    (could be empty)
-    bool allocateInAll; //indicates if the point must be allocated in all CBs
-                        //(false)   (could be empty)
+    //bool notAllocated;  //indicates if the point is not allocated in other CB
+    //                    //(true)    (could be empty)
+    //bool allocateInAll; //indicates if the point must be allocated in all CBs
+    //                    //(false)   (could be empty)
     string Comment;     //coment ("")               (can be empty)
 
     //Used to generate a pair (PP, DP):
@@ -71,7 +70,7 @@ public:
 
     //If field Bid is not empty, all fields (except Name and Comment)
     //shall be filled.
-    //If field Bid is not empty, the SPPP correspond to a projection point.
+    //If field Bid is not empty, the OS correspond to a projection point.
     //If field Enabled is true, the projection point is allocated to the RP.
 
     //Used to determine if an allocation is of must type
@@ -83,8 +82,8 @@ public:
     bool there_is_Mag;
     bool there_is_Pr;
     bool there_is_Bid;
-/*    bool there_is_notAllocated;
-    bool there_is_allocateInAll;*/
+    //bool there_is_notAllocated;
+    //bool there_is_allocateInAll;
 
     //SETS OF PROPERTIES IN TEXT FORMAT:
 
@@ -94,23 +93,33 @@ public:
     //set the structure in text format
     void setText(const string& str);
 
-    //print the properties of an SPPP in a string
+    //print the properties of an OS in a string
     //in row format
-    static void  PrintRow(AnsiString &S, const TSPPP *SPPP);
+    static void  printRow(AnsiString &S, const TObservingSource *OS);
 
     //PUBLIC METHODS:
 
     //build a structure by default
-    TSPPP(void);
+    TObservingSource(void);
 
     //copy all properties of an object of the same type
-    TSPPP& operator=(const TSPPP&);
+    TObservingSource& operator=(const TObservingSource&);
+
+    //build a clon
+    TObservingSource(TObservingSource *OS);
+
+    //compare all properties of an object of the same type
+    bool operator!=(const TObservingSource&);
 };
 
 //---------------------------------------------------------------------------
 //class TFMOSATable:
 
-class TFMOSATable : public TPointersList<TSPPP> {
+class TFMOSATable : public TPointersList<TObservingSource> {
+    //read the OB section in tampon variables
+    void readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
+                    const string& str);
+
 public:
     unsigned int Id;     //the block identification
     double Ra;  //the rect ascension of the block
@@ -122,6 +131,11 @@ public:
 
     //get the FMOSA table in text format
     void getTableText(string& str) const;
+
+    //get the Pids of the allocations which accomplish:
+    //  there_is_Bid && Enabled
+    //  and Pid is not found in the FMM
+    void searchMissingPids(TVector<int>& Pids, TAllocationList& AL);
 
     //get the allocations which accomplish: there_is_Bid && Enabled
     void getAllocations(TAllocationList& AL);

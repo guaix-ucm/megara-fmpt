@@ -18,15 +18,14 @@
 
 //---------------------------------------------------------------------------
 //File: TextFile.h
-//Content: generic text file
-//Last update: 25/04/2013
+//Content: classes and functions for generic text file
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TEXTFILE_H
 #define TEXTFILE_H
 
-#include "vclemu.h" //AnsiString
+#include "VCLemu.h" //AnsiString
 
 #include <stdio.h>  //FILE
 
@@ -52,12 +51,6 @@ class TTextFile {
     AnsiString FileName;
     bool IsOpen;
 
-    /*	//Segrega en Ident la subcadena que precede al primer '=' en S
-    //y en Value la subcadena que le sucede; si tiene éxito devuelve true
-    //y si S no contiene un caracter '=' devuelve false
-    friend bool StrSplitAssign (AnsiString &Ident, AnsiString &Value,
-            const AnsiString &S);
-                                     */
 public:
     //PROPIEDADES DE ESTADO:
 
@@ -132,6 +125,12 @@ public:
 
 //lee un subdirectorio en una lista de cadenas de texto
 void ReadDir(TStringList *StringList, const AnsiString& Dir);
+
+//erase from the first '#' to the end of the line
+void strClearComments(string&);
+//imprime texto y un comentario en una cadena
+//indenta el comentario en la posición i
+string commentedLine(const string& text, const string& comment, unsigned int i=31);
 
 //read a text string from a file
 void strReadFromFile(string& str, const string& fileName);

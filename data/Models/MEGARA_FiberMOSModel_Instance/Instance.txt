@@ -1,3 +1,5 @@
-Tolerance:
-    PAem = 0
-    Pem = 0
+#Instance properties of the FMM (Fiber MOS Model):
+
+Tolerances:                    # Tolerances of the Fiber MOS:
+    PAem = 0                       # orientation error margin of the system S0 (in rad)
+    Pem = 0                        # pointing error margin of the system S0 (in mm)

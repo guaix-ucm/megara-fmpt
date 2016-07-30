@@ -18,15 +18,14 @@
 
 //---------------------------------------------------------------------------
 //File: RoboticPositionerList1.h
-//Content: RPlist with sizing properties
-//Last update: 06/05/2014
+//Content: RP list with sizing properties
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONERLIST1_H
 #define ROBOTICPOSITIONERLIST1_H
 
-#include "ExclusionArea.h"
+#include "RoboticPositioner.h"
 #include "PointersList.h"
 #include "PairPositionAngles.h"
 #include "MotionProgram.h"
@@ -46,7 +45,6 @@ class TRoboticPositionerList1 : public TItemsList<TRoboticPositioner*> {
 protected:
     //TOLERANCES:
 
-//    double p_SPMmin;
     double p_PAem;
     double p_Pem;
 
@@ -71,11 +69,6 @@ protected:
 public:
     //TOLERANCE PROPERTIES:
 
-/*    //SPM for minimun jump
-    //must be nonnegative
-    //default value: MEGARA_SPMmin mm
-    double getSPMmin(void) const {return p_SPMmin;}
-    void setSPMmin(double);*/
     //margen de error de orientación de S0.
     //debe ser no negativo
     //valor por defecto: MEGARA_PAem rad
@@ -97,13 +90,13 @@ public:
     //Los márgenes de seguridad serán tenidas en cuenta en el cálculo
     //de las componentes del SPM de cada posicionador. Para facilitar
     //este proceso se definen dos métodos en la lista de posicionadores:
-    //      void calculateSPMcomponents(TRoboticPositioner&);
-    //      void calculateSPMcomponents();
+    //  void calculateSPMcomponents(TRoboticPositioner&);
+    //  void calculateSPMcomponents();
     //Ý los métodos de cálculo de las componentes de SPM en elposicionador:
-    //      double SPMrec(void) const;
-    //      double SPMsta(void) const;
-    //      double SPMdyn(void) const;
-    //      double SPMoff(double PAem, double Pem) const;
+    //  double SPMrec(void) const;
+    //  double SPMsta(void) const;
+    //  double SPMdyn(void) const;
+    //  double SPMoff(double PAem, double Pem) const;
 
     //SIZING PROPERTIES:
 
@@ -133,24 +126,24 @@ public:
 
     //NOTA: los parámetros Sp, Se y Re son calculados analíticamente
     //para el caso en que los posicionadores adyacentes cumplen:
-    //       radio del dominio igual r_3max;
-    //       equidistantes 4*L*cos(M_PI/6).
+    //  radio del dominio igual r_3max;
+    //  equidistantes 4*L*cos(M_PI/6).
 
     //área de participación del conjunto de posicionadores
-    //      Spt = Sum{Spt[i]}
+    //  Spt = Sum{Spt[i]}
     double getSpt(void) const {return p_Spt;}
 
     //área exclusiva del conjunto de posicionadores
-    //      Set = Sum{Set[i]}
+    //  Set = Sum{Set[i]}
     double getSet(void) const {return p_Set;}
 
     //proporción de área exclusiva del conjunto de posicionadores
-    //      Ret = Sum{Ret[i]*Spt[i]}/Spt
+    //  Ret = Sum{Ret[i]*Spt[i]}/Spt
     double getRet(void) const {return p_Ret;}
 
     //densidad de posicionadores de la lista
     //número de posicionadores por unidad de superficie
-    //      FiberDensity = double(RoboticPositioners.Count)/Spt
+    //  FiberDensity = double(RoboticPositioners.Count)/Spt
     double getFiberDensity(void) const {return p_FiberDensity;}
 
     //ADVERTENCIA: cuando cambia el radio del dominio del posicionador
@@ -161,20 +154,18 @@ public:
     //ADVERTENCIA: cuando r_3min!=0 se tiene que parte del área excusiva
     //no forma parte del dominio del posicioandor, con lo que habría que
     //distinguir dos tipos de áreas exclusivas:
-    //      área exclusiva total;
-    //      área exclusiva accesible.
+    //  área exclusiva total;
+    //  área exclusiva accesible.
 
     //-------------------------------------------------------------------
     //COMPOSED PROPERTIES IN TEXT FORMAT:
 
     //dirección en memoria de la lista de elementos
     AnsiString getItemsAddressText(void) const {
-        return IntToHex(reinterpret_cast<intptr_t>(&Items), 8);}
+        return IntToHex(intptr_t(&Items));}
 
     //TOLERANCE PROPERTIES IN TEXT FORMAT:
 
-//    AnsiString getSPMminText(void) const;
-  //  void setSPMminText(const AnsiString&);
     AnsiString getPAemText(void) const;
     void setPAemText(const AnsiString&);
     AnsiString getPemText(void) const;
@@ -201,22 +192,22 @@ public:
     //SETS OF PROPERTIES IN TEXT FORMAT:
 
     //get the origins table in text format:
-    //      Id      x0      y0      thetaO1
+    //  Id      x0      y0      thetaO1
     AnsiString getOriginsTableText(void) const;
     //set the origins table in text format:
-    //      Id      x0      y0      thetaO1
+    //  Id      x0      y0      thetaO1
     void setOriginsTableText(const AnsiString&);
     //get the P3 table in text format:
-    //      Id      x3      y3
+    //  Id      x3      y3
     AnsiString getPositionsP3TableText(void) const;
     //set the P3 table in text format:
-    //      Id      x3      y3
+    //  Id      x3      y3
     void setPositionsP3TableText(const AnsiString&);
     //get the P_3 table in text format:
-    //      Id      x_3      y_3
+    //  Id      x_3      y_3
     AnsiString getPositionsP_3TableText(void) const;
     //tabla de PPA table in text format:
-    //      Id      p_1     p___3
+    //  Id      p_1     p___3
     AnsiString getPositionsPPATableText(void) const;
 
     //conjunto de todas las propiedades de seguridad
@@ -254,23 +245,23 @@ public:
     TRoboticPositionerList1(void);
 
     //copia las propiedades de tolerancia
-    //      (PAem, Pem)
+    //  (PAem, Pem)
     void copyTolerance(const TRoboticPositionerList1*);
     //copia las propiedades de dimensionamiento
-    //      (LO3, x3min, y3min, x3max, y3max)
+    //  (LO3, x3min, y3min, x3max, y3max)
     void copySizing(const TRoboticPositionerList1*);
     //copia las propiedades de área
-    //      (Spt, Set, Ret, FiberDensity)
+    //  (Spt, Set, Ret, FiberDensity)
     void copyArea(const TRoboticPositionerList1*);
     //copia las propiedades gráficas
-    //      (LimitDomainColor, PaintActuators_, PaintLimitDomain_, PaintMap)
+    //  (LimitDomainColor, PaintActuators_, PaintLimitDomain_, PaintMap)
     void copyGraphics(const TRoboticPositionerList1*);
 
     //clone a RP list
-    //      (Tolerance, Sizing, Area, Graphics)
+    //  (Tolerance, Sizing, Area, Graphics)
     void Clone(const TRoboticPositionerList1*);
 
-    //WARNING: inherited methods must be redefined withidentical name
+    //WARNING: inherited methods must be redefined with identical name
     //for avoid errors.
 
     //construye un clon de una lista de posicionadores
@@ -294,7 +285,8 @@ public:
     //return the position where the RP was found
     int deleteIfFind(const TRoboticPositioner* RP);
 
-    //METHODS TOBUILD RPs:
+    //-------------------------------------------------------------------
+    //METHODS TO BUILD RPs:
 
     //construye la capa n de posicionadores equidistantes una distancia D
     //donde la capa 0 representa el posicionador central
@@ -316,14 +308,13 @@ public:
     //Valores recomendados para BuildquareHive:
     //      MEGARA 104: M=5 pos; N=4 pos;
 
+    //-------------------------------------------------------------------
     //METHODS TO DESTROY RPs:
 
     //detruye el posicionador indicado de la lista
     void Destroy(int i);
     //destruye todos los posicionadores de la lista
     void Destroy(void);
-    /*        //destruye los posicionadores seleccionados de la lista
-        int DestroySelected(void);*/
     //detruye los posicionadores que se encuentren a
     //una distancia del centro mayor que la indicada
     void Destroy(double rmax);
@@ -331,6 +322,7 @@ public:
     //WARNING: inherited methods must be redefined withidentical name
     //for avoid errors.
 
+    //-------------------------------------------------------------------
     //METHODS TO SEARCH RPs:
 
     //busca un posicionador en la lista
@@ -357,20 +349,20 @@ public:
     //ASSIMILATION METHODS:
 
     //A partir de:
-    //      (Items[i]->Eo, Items[i]->Ep, Items[i]->Tstop_em, Items[i]->Tshif_em, SPMmin, PAem, Pem)
-    //      {Items[i]->rmax}
+    //  (Items[i]->Eo, Items[i]->Ep, Items[i]->Tstop_em, Items[i]->Tshif_em, SPMmin, PAem, Pem)
+    //  {Items[i]->rmax}
     //Obtiene y asigna a cada posicionador de la lista:
-    //      (Items[i]->SPMrec, Items[i]->SPMsta, Items[i]->SPMdyn, Items[i]->SPMmin, Items[i]->SPMoff)
+    //  (Items[i]->SPMrec, Items[i]->SPMsta, Items[i]->SPMdyn, Items[i]->SPMmin, Items[i]->SPMoff)
     void calculateSPMcomponents(void);
 
     //El método calculateSPMcomponents() y los sucesivos
     //deberán ser invocados toda vez que los márgenes de seguridad
     //sean modificados.
 
-    //determina los posicionadores que están lo bastante cerca
+    //determina las EAs y los RPs que están lo bastante cerca
     //de cada posicionador como para invadir su dominio de maniobra
-    void determineAdjacents(void);
-    //ordena las listas de posicionadores adyacentes en
+    void determineAdjacents(const TExclusionAreaList& EAL);
+    //ordena las listas de EAs adyacentes y RPs adyacentes en
     //sentido levógiro empezando por el más próximo a 0
     void sortAdjacents(void);
 
@@ -381,15 +373,15 @@ public:
 
     //calcula las propiedades de seguridad
     //paracada posicionador de la lista:
-    //      {r_min, r_saf, r_2saf, theta___2saf, theta_2rad}
+    //  {r_min, r_saf, r_2saf, theta___2saf, theta_2rad}
     void calculateSafeParameters(void);
 
-    //el método CalculateSafeParameters() debe ser invicado
-    //toda vez que se invoque el método DetermineAdjacets()
+    //el método calculateSafeParameters() debe ser invocado
+    //toda vez que se invoque el método determineAdjacets()
     //o se cambie algún parámetro de dimensionameinto o posicionamiento
     //de algún cilindro adyacente
 
-    //la invocación a CalculateSafeParámeters() no es automática
+    //la invocación a calculateSafeParámeters() no es automática
     //quedando bajo responsabilidad del programador su invocación
     //ya que los posicionadores son accesibles individualmente
     //y por consiguientes sus parámetros, de todos modos,
@@ -398,41 +390,47 @@ public:
     //de cada posicionador sería demasiado engorroso
 
     //Los métodos de asimilación:
-    //      Deben ser aplicados despues de contruir, destruir posicionadores
-    //      o modificar la geometría de alguno de ellos.
+    //  Deben ser aplicados despues de contruir, destruir posicionadores
+    //  o modificar la geometría de alguno de ellos.
     //
-    //      Son computacionalmente costosos, de modo que no serán invocados
-    //      automáticamente al ajustar cada parámetro independiente,
-    //      si no que deben ser invocados manualmente una sola vez
-    //      despues de ajustar todos los parámetros.
+    //  Son computacionalmente costosos, de modo que no serán invocados
+    //  automáticamente al ajustar cada parámetro independiente,
+    //  si no que deben ser invocados manualmente una sola vez
+    //  despues de ajustar todos los parámetros.
 
     //calcula las propiedades de dimensionamiento:
-    //      (LO3max, x3min, x3max, y3min, y3max)
+    //  (LO3max, x3min, x3max, y3min, y3max)
     void calculateSizingParameters(void);
 
     //calcula todos los parámetros de dimensionamiento derivados
-    //      (Spt, Set, Ret, FiberDensity)
+    //  (Spt, Set, Ret, FiberDensity)
     void calculateAreaParameters(void);
 
     //invoca a todos los métodos de asimilación de
     //los parámetros de dimensionamiento:
-    //      determineAdjacents
-    //      sortAdjacents
-    //      calculateSafeParameters();
-    //      calculateSizingParameters();
-    //      calculateAreaParameters
-    void assimilateSizing(void);
+    //  determineAdjacents
+    //  sortAdjacents
+    //  calculateSafeParameters();
+    //  calculateSizingParameters();
+    //  calculateAreaParameters
+    void assimilateSizing(const TExclusionAreaList& EAL);
 
-    /*        //asimila la configurración de posicionadores dada ejecutando:
-        //      calculateSPMcomponents();
-        //      assimilateSizing();
-        void assimilate(void);
-*/
+    //asimila la configurración de posicionadores dada ejecutando:
+    //  calculateSPMcomponents();
+    //  assimilateSizing();
+    void assimilate(const TExclusionAreaList& EAL);
+
+    //------------------------------------------------------------------
     //METHODS FOR JOINTLY READING:
 
     //get the PPA list in steps
     void getPositions(TPairPositionAnglesList& PPAL) const;
+    //get the corner 1 list in cartesian coordinates respect S0
+    void getPositionsCorners1(TItemsList<TDoublePoint>& Corners1) const;
+    //get the corner 2 list in cartesian coordinates respect S0
+    void getPositionsCorners2(TItemsList<TDoublePoint>& Corners2) const;
 
+    //------------------------------------------------------------------
     //METHODS FOR JOINTLY ALLOCATION:
 
     //asigna las posiciones angulares de los ejes
@@ -465,28 +463,23 @@ public:
     //determine if all operative RPs of the list are in the origin
     bool allOperativeRPsAreInTheOrigin(void) const;
 
-    //METHODS FOR JOINTLY DISOPLACEMENT:
+    //------------------------------------------------------------------
+    //METHODS FOR JOINTLY DISPLACEMENT:
 
     //mueve los ejes de los posicionadores
     //a sus orígenes de coordenadas
     void moveToOrigins(void);
-    /*        //mueve los ejes de los posicionadores seleccionados
-        //a sus orígenes de coordenadas
-        int moveToOriginsSelected(void);*/
 
     //mueve los brazos que están fuera del área de seguridad a
     //las posiciones de seguridad estables más próximas
     void moveOutsideArmsToSafePositions(void);
-    /*        //mueve los brazos de los posicionadores seleccionados que
-        //están fuera del área de seguridad a las posiciones de
-        //seguridad estables más próximas
-        int moveOutsideArmsToSafePositionsSelected(void);*/
 
+    //------------------------------------------------------------------
     //METHODS TO SEGREGATE RPs:
 
     //segrega los posicionadores en dos listas:
-    //      lista con el brazo dentro del área de seguridad;
-    //      lista con el brazo fuera del área de seguridad;
+    //  lista con el brazo dentro del área de seguridad;
+    //  lista con el brazo fuera del área de seguridad;
     void segregateInOut(TRoboticPositionerList1 &Inners,
                         TRoboticPositionerList1 &Outsiders) const;
 
@@ -503,9 +496,7 @@ public:
     void segregateCollided(TRoboticPositionerList1& Collided,
                            TRoboticPositionerList1& NotCollided) const;
 
-    /*        //segrega los posicionadores seleccionados en una lista
-        void SegregateSelected(TRoboticPositionerList1&) const;
-*/
+    //------------------------------------------------------------------
     //METHODS FOR STACKING POSITION ANGLES:
 
     //apila las posiciones de cada posicionador de la lista
@@ -556,55 +547,45 @@ public:
     //------------------------------------------------------------------
     //METHODS FOR DETERMINE COLLISION STATUS:
 
-    //levanta las banderas indicadoras de determinación de colisión
-    //pendiente de todos los posicionadores de la lista
+    //levanta las banderas indicadoras de determinación de colisión pendiente
+    //de todos los RPs de la lista
     void enablePending(void);
 
-    //determina si algún brazo de algún posicionador
-    //colisiona con el brazo de algún posicionador adyacente
+    //determina si algún actuador de algún RP colisiona con
+    //algún actuador o barrera de algún RP o EA adyacente
     bool thereIsCollision(void);
-    //busca los posicionadores de la lista cuyo brazo colisiona con
-    //el brazo de algún otro posicionador adyacente
+    //busca los RPs de la lista cuyo actuador colisiona con
+    //algún actuador o barrera de algún RP o EA adyacente
     void searchCollinding(TVector<int> &indices);
-    //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-    void getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
+/*    //obtiene los conjuntos de RPs en colisión (Collision Cluster List)
+    void getCollisionClusterList(
+            TPointersList<TItemsList<TRoboticPositioner*> > &CCL);
+*/
+    //------------------------------------------------------------------
+    //METHODS FOR RANDOMIZE ROTORS:
 
-    //METHODS FOR RANDOMIZE AXES:
-
-    //lleva los ejes de los posicionadores a posiciones aleatorias
+    //lleva los rotores de los RPs a posiciones aleatorias
     //con distribución uniforme en sus dominios
     void randomize(void);
-    /*        //lleva los ejes de los posicionadores seleccionados a
-        //posiciones aleatorias con distribución uniforme en sus dominios
-        int RandomizeSelected(void);*/
 
-    //lleva los ejes de los posicionadores a posiciones aleatorias
+    //lleva los rotores de los RPs a posiciones aleatorias
     //con distribución uniforme en sus dominios
-    //en las que no colisionan entre si
+    //en las que no colisionan
     void randomizeWithoutCollision(void);
-    /*        //lleva los ejes de los posicionadores seleccionados a
-        //posiciones aleatorias con distribución uniforme en
-        //sus dominios en las que no colisionan entre si
-        int RandomizeWithoutCollisionSelected(void);*/
 
+    //------------------------------------------------------------------
     //METHODS FOR RANDOMIZE P3:
 
-    //lleva el punto P3 de los posicionadores a posiciones aleatorias
+    //lleva el punto P3 de los RPs a posiciones aleatorias
     //con distribución uniforme en su dominio
     void randomizeP3(void);
-    /*        //lleva el punto P3 de los posicionadores seleccionados a
-        //posiciones aleatorias con distribución uniforme en su dominio
-        int RandomizeP3Selected(void);*/
 
-    //lleva el punto P3 de los posicionadores a posiciones aleatorias
+    //lleva el punto P3 de los RPs a posiciones aleatorias
     //con distribución uniforme en su dominio
-    //en las que no colisionan entre si
+    //en las que no colisionan
     void randomizeP3WithoutCollision(void);
-    /*        //lleva el punto P3 de los posicionadores seleccioandos a
-        //posiciones aleatorias con distribución uniforme en su dominio
-        //en las que no colisionan entre si
-        int RandomizeP3WithoutCollisionSelected(void);*/
 
+    //------------------------------------------------------------------
     //METHODS RELATED WITH THE MP:
 
     //search the RP with the minimun Dsec

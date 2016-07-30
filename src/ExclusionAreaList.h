@@ -17,305 +17,194 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: ExclusionAreaList.h
-//Contenido: lista de áreas de exclusión
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: ExclusionAreaList.h
+//Content: EA list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef EXCLUSIONAREALIST_H
 #define EXCLUSIONAREALIST_H
 
-#include "RoboticPositionerList3.h"
+//#include "RoboticPositionerList3.h"
 #include "PointersList.h"
 #include "ExclusionArea.h"
 
-//---------------------------------------------------------------------------
-
 using namespace Lists;
+
+//---------------------------------------------------------------------------
 
 //espacio de nombres de modelos
 namespace Models {
 
-//###########################################################################
+//---------------------------------------------------------------------------
 //TExclusionAreaList
-//###########################################################################
+//---------------------------------------------------------------------------
 
-//clase lista de áreas de exclusión
+//clase lista de EAs
 class TExclusionAreaList : public TItemsList<TExclusionArea*> {
 protected:
-        //PROPIEDADES DE LOCALIZACIÓN:
+    //PROPIEDADES DE LOCALIZACIÓN:
 
-        TDoublePoint p_O;
+    TDoublePoint p_O;
 
-        double p_rmax;
+    double p_rmax;
 
-        double p_xmin;
-        double p_xmax;
-        double p_ymin;
-        double p_ymax;
-
+/*    double p_xmin;
+    double p_xmax;
+    double p_ymin;
+    double p_ymax;
+*/
 public:
-        //PROPIEDADES COMPUESTAS:
+    //PROPIEDADES DE LOCALIZACIÓN:
 
-        //TPointersSlideArray<TExclusionArea> Items
+    //posición del origen del sistema S0
+    //valor por defecto: {0, 0}
+    TDoublePoint getO(void) const {return p_O;}
 
-        //PROPIEDADES DE LOCALIZACIÓN:
+    //radio del círculo mínimo que contiene
+    //el dominio de todas las EAs
+    double getrmax(void) const {return p_rmax;}
 
-        //posición del origen del sistema S0
-        //valor constante: (0, 0)
-        TDoublePoint getO(void) const {return p_O;}
+/*    //intervalo cartesiano que contiene todas las EAs
+    double getxmin(void) const {return p_xmin;}
+    double getxmax(void) const {return p_xmax;}
+    double getymin(void) const {return p_ymin;}
+    double getymax(void) const {return p_ymax;}
+*/
+    //-------------------------------------------------------------------
+    //PROPIEDADES EN FORMATO TEXTO
 
-        //radio del círculo mínimo que contiene
-        //el dominio de todaslasáreas de exlusión
-        double getrmax(void) const {return p_rmax;}
+    //dirección en memoria de la lista de EAs
+    AnsiString getItemsAddressText(void) const {
+        return IntToHex(intptr_t(&Items));}
 
-/*        //límite abcisa inferior del cuadrado que contiene
-        //todas las áreas de exclusión
-        double getxmin(void) const {return p_xmin;}
-        //límite abcisa superior del cuadrado que contiene
-        //todas las áreas de exclusión
-        double getxmax(void) const {return p_xmax;}
+    //PROPIEDADES DE LOCALIZACIÓN EN FORMATO TEXTO:
 
-        //límite ordenada inferior del cuadrado que contiene
-        //todas las áreas de exclusión
-        double getymin(void) const {return p_ymin;}
-        //límite ordenada superior del cuadrado que contiene
-        //todas las áreas de exclusión
-        double getymax(void) const {return p_ymax;}
-  */
-        //PROPIEDADES GRÁFICAS:
+    AnsiString getOText(void) const;
 
-        //color del límite del dominio conjunto
-        //valor por defecto: clGray
-        //#QColor LimitDomainColor;
+    AnsiString getrmaxText(void) const;
 
-        //indica si debe dibujar las áreas de exclusión
-        //valor por defecto: true
-        bool PaintExclusionAreas_;
-        //interruptor de dibujo del límite del dominio
-        //circular conjunto de los posicionadores
-        //valor por defecto: false
-        bool PaintLimitDomain_;
+/*    AnsiString getxminText(void) const;
+    AnsiString getxmaxText(void) const;
+    AnsiString getyminText(void) const;
+    AnsiString getymaxText(void) const;
+*/
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-        //###################################################################
-        //PROPIEDADES EN FORMATO TEXTO
-        //###################################################################
+    //tabla de orígenes de coordenadas:
+    //    Id      x0      y0      thetaO1
+    AnsiString getOriginsTableText(void) const;
+    void setOriginsTableText(const AnsiString&);
 
-        //PROPIEDADES COMPUESTAS EN FORMATO TEXTO:
+    //conjunto de propiedades de localización
+    //en formato asignaciones
+    AnsiString getLocationText(void) const;
 
-        //dirección en memoria de la lista de posicionadores
-        AnsiString getItemsAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&Items), 8);}
+    //conjunto de todas las propiedades
+    //en formato de asignaciones
+    AnsiString getAllText(void) const;
 
-        //PROPIEDADES DE LOCALIZACIÓN EN FORMATO TEXTO:
+    //-------------------------------------------------------------------
+    //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN
 
-        AnsiString getOText(void) const;
+    //construye una lista de EAs
+    TExclusionAreaList(void);
 
-        AnsiString getrmaxText(void) const;
+    //copia las propiedades de localización
+    //    (O)//, rmax, xmin, xmax, ymin, ymax)
+    void copyLocation(const TExclusionAreaList*);
 
-/*        AnsiString getxminText(void) const;
-        AnsiString getxmaxText(void) const;
-        AnsiString getyminText(void) const;
-        AnsiString getymaxText(void) const;
-  */
-        //PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
+    //clona una lista de EAs
+    void Clone(const TExclusionAreaList*);
 
-        AnsiString getLimitDomainColorText(void) const;
-        void setLimitDomainColorText(const AnsiString&);
+    //construye un clon de una lista de EAs
+    TExclusionAreaList(const TExclusionAreaList*);
 
-        AnsiString getPaintExclusionAreas_Text(void) const;
-        void setPaintExclusionAreas_Text(const AnsiString&);
-        AnsiString getPaintLimitDomain_Text(void) const;
-        void setPaintLimitDomain_Text(const AnsiString&);
+    //ADVERTENCIA: si al método de clonación, en vez de pasarle un puntero
+    //se le pasa una lista de áreas de exclusión, el compilador puede no indicar
+    //ni advertencia ni error, pero no se invocará al método correctamente.
 
-        //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+    //ADVERTENCIA: la destrucción de la lista de EAs no causará
+    //la destrucción de las EAs de la lista. Si lo que desea
+    //es destruir las EAs, debería hacerlo mediante el método:
+    //    EAL.Destroy();
+    //Este método será invocado en el método destroy de TFiberMOSModel.
 
-        //tabla de orígenes de coordenadas:
-        //      Id      x0      y0      thetaO1
-        AnsiString getOriginsTableText(void) const;
-        void setOriginsTableText(const AnsiString&);
+    //AÑADIR Y BORAR EAs:
 
-        //conjunto de propiedades de loaalización
-        //en formato asignaciones
-        AnsiString getLocationText(void) const;
-        //conjunto de propiedades de gráficas
-        //en formato asignaciones
-        AnsiString getGraphicsText(void) const;
+    //Añadir un EA a la lista:
+    //    Add(RP);
+    //Borrar un EA de la lista
+    //    Delete(i);
+    //    DeleteWithoutDestroy(i);
 
-        //conjunto de todas las propiedades
-        //en formato de asignaciones
-        AnsiString getAllText(void) const;
-        //instancia de la lista de posicionadores
-        //en formato de asignaciones
-        AnsiString getInstanceText(void) const;
-        void setInstanceText(const AnsiString&);
+    //MÉTODOS DE DESTRUCCION DE EAs:
 
-        //-------------------------------------------------------------------
-        //MÉTODOS ESTÁTICOS:
+    //detruye el EA indicada de la lista
+    void Destroy(int i);
+    //destruye todas las EAs de la lista
+    void Destroy(void);
 
-        //lee una instancia en una cadena
-        static void  readInstance(TExclusionAreaList* &RPL,
-                const AnsiString& S, int &i);
+    //MÉTODOS DE BÚSQUEDA DE EAs:
 
-        //-------------------------------------------------------------------
-        //MÉTODOS DE CONTRUCCIÓN, COPIA Y CLONACIÓN
+    //busca el primer puntero a EA
+    //con la dirección en memoria indicada
+    int search(TExclusionArea *EA) const;
+    //busca el primer índice a EA
+    //con el identificador indicado
+    int searchId(int Id) const;
+    //busca el primer puntero a EA
+    //con el identificador indicado
+    const TExclusionArea *searchIdPointer(int Id) const;
 
-        //construye una lista de áreas de exclusión
-        TExclusionAreaList(void);
+    //MÉTODOS DE ASIMILACIÓN:
 
-        //copia las propiedades de localización
-        //      (O, rmax)
-        void copyLocation(const TExclusionAreaList*);
-        //copia las propiedades gráficas
-        //      (LimitDomainColor, PaintEclusionAreas_, PaintLimitDomain_)
-        void copyGraphics(const TExclusionAreaList*);
+    //calcula el SPM de todas las EAs
+    void calculateSPM(void);
 
-        //clona una lista de áreas de exclusión
-        void Clone(const TExclusionAreaList*);
+    //El método CalculateSPM() y los sucesivos
+    //deberán ser invocados toda vez que los márgenes de seguridad
+    //sean modificados.
 
-        //WARNING: inherited methods must be redefined withidentical name
-        //for avoid errors.
+    //Los métodos de asimilación:
+    //  - Deben ser aplicados despues de contruir, destruir EAs
+    //    o modificar la geometría de alguna de ellas.
+    //  - Son computacionalmente costosos, de modo que no serán invocados
+    //    automáticamente al ajustar cada parámetro independiente,
+    //    si no que deben ser invocados manualmente una sola vez
+    //    despues de ajustar todos los parámetros.
 
-        //construye un clon de una lista de áreas de exclusión
-        TExclusionAreaList(const TExclusionAreaList*);
+    //calcula las propiedades de localización:
+    //    (rmax)//, xmin, xmax, ymin, ymax)
+    void calculateLocationParameters(void);
 
-        //ADVERTENCIA: la destrucción de la lista de áreasde exclusión causará
-        //la destrucción de las áreas de exclusión de la lista. Si lo que desea
-        //es destruir la lista de áreas de exclusión sin destruirlas,
-        //deberá vaciarla antes con el método: ClearWithoutDestroy.
+    //asimila la configurración de posicionadores dada ejecutando:
+    //    calculateSPM();
+    //    calculateLocationParameters();
+    void assimilate(void);
 
-        //AÑADIR Y BORAR ÁREAS DE EXCLUSIÓN:
+    //MÉTODOS DE DOMINIO CONJUNTO:
 
-        //Añadir un área de exclusión a la lista:
-        //      Add(RP);
-        //Destruye y borra un área de exclusión de la lista
-        //      Delete(i);
-        //Borra un área de exclusión de la lista sin destruirlo
-        //      DeleteWithoutDestroy(i);
+/*    //determina el intervalo cartesiano que contiene
+    //el conjunto de todas las EAs
+    //si el número de EAs de la lista es menor que uno:
+    //    lanza una excepcion EImproperCall
+    void getDomain(double &xmin, double &xmax,
+                   double &ymin, double &ymax);
+*/
+    //determina si un punto se encuentra dentro del círculo
+    //que contiene el dominio conjunto de las EAs
+    bool isInCircle(const TDoublePoint&);
+/*    //determina si un punto se encuentra dentro del intervalo carteasiano
+    //que contiene el dominio conjunto de las EAs
+    bool isInRectangle(const TDoublePoint&);*/
 
-        //MÉTODOS DE DESTRUCCION DE ÁREAS DE EXCLUSIÓN:
+    //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
 
-        //detruye el área de exclusión indicada de la lista
-        void Destroy(int i);
-        //destruye todas las áreas de exclusión de la lista
-        void Destroy(void);
-
-        //WARNING: inherited methods must be redefined withidentical name
-        //for avoid errors.
-
-        //MÉTODOS DE BÚSQUEDA DE ÁREAS DE EXCLUSIÓN:
-
-        //busca un área de exclusión en la lista
-        int search(TExclusionArea *EA) const;
-        //busca la primera área de exclusión con el identificador indicado
-        int searchId(int Id) const;
-        //devuelve el puntero a la primera área de exclusión
-        //con el identificador indicado
-        const TExclusionArea *searchIdPointer(int Id) const;
-
-        //MÉTODOS DE ASIMILACIÓN:
-
-        //calcula el SPM de todoas las áreas de exclusión
-        void calculateSPM(void);
-
-        //El método CalculateSPMComponents() y los sucesivos
-        //deberán ser invocados toda vez que los márgenes de seguridad
-        //sean modificados.
-
-        //determina los posicionadores que están lo bastante cerca
-        //de cada área de seguridad como para invadir su SPM
-        void determineAdjacents(const TRoboticPositionerList&);
-        //ordena las listas de posicionadores adyacentes en
-        //sentido levógiro empezando por el más próximo a 0
-        void sortAdjacents(void);
-
-        //El método DetermineAdjacents() y los sucesivos
-        //deberán ser invocados toda vez que se añadan o borren áreas de exclusión,
-        //o se modifique algún parámetro de posicionamiento o dimensionamiento,
-        //que pudiera afectar a la adyacencia de algún posicionador.
-
-        //Los métodos de asimilación:
-        //      Deben ser aplicados despues de contruir, destruir áreas de exclusión
-        //      o modificar la geometría de alguna de ellas.
-        //
-        //      Son computacionalmente costosos, de modo que no serán invocados
-        //      automáticamente al ajustar cada parámetro independiente,
-        //      si no que deben ser invocados manualmente una sola vez
-        //      despues de ajustar todos los parámetros.
-
-        //calcula las propiedades de localización:
-        //      (rmax)//, xmin, xmax, ymin, ymax)
-        void calculateLocationParameters(void);
-
-        //invoca a todos los métodos de asimilación de
-        //los parámetros de dimensionamiento y localización:
-        //      determineAdjacents
-        //      sortAdjacents
-        void assimilateSizingAndLocation(const TRoboticPositionerList&);
-
-        //asimila la configurración de posicionadores dada ejecutando:
-        //      calculateSPMComponents();
-        //      assimilateSizingAnsLocation();
-        void assimilate(const TRoboticPositionerList&);
-
-        //MÉTODOS DE DOMINIO CONJUNTO:
-
-/*        //determina el intervalo cartesiano que contiene
-        //el conjunto de todas las áreas de exclusión
-        //si el número de áreas de exclusión de la lista es menor que uno
-        //lanza una excepcion EImproperCall
-        void getDomain(double &xmin, double &xmax,
-                double &ymin, double &ymax);
-  */
-        //determina si un punto se encuentra dentro del círculo
-        //que contiene el dominio conjunto de lasáreas de exclusión
-        bool isInCircle(const TDoublePoint&);
-/*        //determina si un punto se encuentra dentro del cuadrado
-        //que contiene el dominio conjunto de lasáreas de exclusión
-        bool isInSquare(const TDoublePoint&);*/
-
-        //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
-
-        //levanta las banderas indicadoras de determinación de colisión
-        //pendiente de todos los posicionadores de la lista
-        void enablePending(void);
-        //determina si algún área de exclusión
-        //colisiona con el brazo de algún posicionador adyacente
-        bool thereIsCollision(void);
-/*        //busca las áreas de exclusión de la lista cuya barrera colisiona con
-        //el brazo de algún posicionador adyacente
-        void searchCollinding(TVector<int> &indices);
-        //obtiene los conjuntos de posicionadores en colisión en la exposición indicada
-        void getCollisionClusterList(TPointersList<TItemsList<TRoboticPositioner*> > &CCL);*/
+    //levanta las banderas indicadoras de determinación de colisión
+    //pendiente de todos los posicionadores de la lista
+    void enablePending(void);
 };
-/*
-//lista de áreas de exclusión en formato texto
-class TExclusionAreaListText {
-public:
-        //tabla de orígenes de coordenadas
-        AnsiString OriginsTableText;
-
-        //lista de pares de cadenas de texto para coneter
-        //las siguientes cadenas por cada posicionador:
-        //      Barrier->Contour_ColumnText
-        //      InstanceText
-        TTPointersList<ClusterSS> ItemsText;
-
-        //consturye una lista de áreas de exclusión en formato texto
-        TExclusionAreaListText(void);
-
-        //vacia la lista de áreas de exclusión en formato texto
-        void Clear(void);
-
-        //indica si el objeto no contiene una instancia
-        bool IsEmpty(void);
-
-        //aplica la instancia a una lista de posicionadores
-        void GetInstance(TRoboticPositionerList& RPL) const;
-        //obtiene la instancia de una lista de posicionadores
-        void SetInstance(TRoboticPositionerList& RPL);
-};*/
 
 //---------------------------------------------------------------------------
 

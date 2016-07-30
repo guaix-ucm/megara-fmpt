@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: ProjectionPoint.cpp
-//Content: projection point
-//Last update: 06/05/2014
+//Content:  projection point list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -74,7 +73,7 @@ AnsiString TProjectionPoint::getIdText(void) const
 void TProjectionPoint::setIdText(const AnsiString &S)
 {
     try {
-        setId(StrToInt_(S));
+        setId(StrToInt(S));
     } catch(...) {
         throw;
     }
@@ -87,7 +86,7 @@ void TProjectionPoint::setIdText(const AnsiString &S)
 void TProjectionPoint::setxText(const AnsiString& S)
 {
         try {
-                x = StrToFloat_(S);
+                x = StrToFloat(S);
         }catch(...) {
                 throw;
         }
@@ -99,7 +98,7 @@ AnsiString TProjectionPoint::getyText(void) const
 void TProjectionPoint::setyText(const AnsiString& S)
 {
         try {
-                y = StrToFloat_(S);
+                y = StrToFloat(S);
         }catch(...) {
                 throw;
         }
@@ -179,7 +178,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
     //deben ser clones de las variables que se pretenden modificar.
 
-    //NOTA: adviertase que las propiedades enteras son leidas como
+    //NOTA: adviertase que las propiedades enteras son leídas como
     //valores en punto flotante para detectar errores en los cuales
     //sea especificado un valor en punto flotante en vez de un valor entero.
 

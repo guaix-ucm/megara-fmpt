@@ -1,9 +1,15 @@
-xmin = -102.055
-xmax = 102.055
-ymin = -98.640553
-ymax = 98.640553
-I = 49
-J = 50
+#A matrix to transform each point (x, y) given in Cartesian coordinates in S0,
+#in a list of identifiers of RPs {Id} in whose observing domain could be the point (x, y):
+
+xmin = -102.055                # lower limit in x-axis of the matrix of cells (in mm)
+xmax = 102.055                 # upper limit in x-axis of the matrix of cells (in mm)
+ymin = -98.640553              # lower limit in y-axis of the matrix of cells (in mm)
+ymax = 98.640553               # upper limit in y-axis of the matrix of cells (in mm)
+
+I = 49                         # number of rows of the cell matrix
+J = 50                         # number of columns of the cell matrix
+
+#Cells[i][j]: list of RPs whose observing domain is in the square cell (i, j)
 Cells[0][0] = {}
 Cells[0][1] = {}
 Cells[0][2] = {}

@@ -1,3 +1,9 @@
+#A table for indicate the position and orientation of each RP (Robotic Positioner):
+#    Id: identifier of the RP (a nonnegative integer number)
+#    x0: abscissa of the point P0 of the RP in S0 (in mm)
+#    y0: ordinate of the point P0 of the RP in S0 (in mm)
+#    thetaO1: orientation of S1 in S0 (in rad)
+
 Id	x0	y0	thetaO1
 2	-60.3	87.035553	0
 4	-40.2	87.035553	0

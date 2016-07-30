@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: RoboticPositionerList3.h
-//Content: RP list with programming and execution functins
-//Last update: 13/02/2015
+//Content: RP list with programming and execution functions
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -148,7 +147,8 @@ public:
         //------------------------------------------------------------------
         //METHODS FOR CHECK PRECONDITIONS:
 
-        //determines if there is some pointer to NULL RP
+        //determines if there is some null pointer
+        //either AdjacentEAs or AdjacentRPs
         bool thereIsSomeNullPointer(void) const;
 
         //determines if there is some repeated pointer
@@ -159,6 +159,9 @@ public:
 
         //determines if there is some RP out of origin
         bool thereIsSomeOutOrigin(void) const;
+
+        //determines if there is some enabled RP with the quantifiers disabled
+        bool thereIsSomeEnabledRPsWithDisabledQuantifiers() const;
 
         //determina si todos los posicionadores operativos en
         //posiciones de inseguridad están en la lista Abatibles

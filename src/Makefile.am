@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libfmtp.la
-libfmtp_la_SOURCES = vclemu.cpp \
+libfmtp_la_SOURCES = VCLemu.cpp \
     Exceptions.cpp \
     Vectors.cpp \
     Constants.cpp \
@@ -33,9 +33,8 @@ libfmtp_la_SOURCES = vclemu.cpp \
     RoboticPositionerList2.cpp \
     RoboticPositionerList3.cpp \
     ExclusionAreaList.cpp \
+    FiberMOSModel.cpp \
     FiberConnectionModel.cpp \
-    FiberMOSModel1.cpp \
-    FiberMOSModel2.cpp \
     FileMethods.cpp \
     MessageInstruction.cpp \
     SkyPoint.cpp \
@@ -49,8 +48,8 @@ libfmtp_la_SOURCES = vclemu.cpp \
     AllocationList.cpp \
     MotionProgramValidator.cpp \
     MotionProgramGenerator.cpp \
-    outputs.cpp \
-    vclemu.h \
+    Outputs.cpp \
+    VCLemu.h \
     Exceptions.h \
     Vectors.h \
     Constants.h \
@@ -85,9 +84,8 @@ libfmtp_la_SOURCES = vclemu.cpp \
     RoboticPositionerList2.h \
     RoboticPositionerList3.h \
     ExclusionAreaList.h \
+    FiberMOSModel.h \
     FiberConnectionModel.h \
-    FiberMOSModel1.h \
-    FiberMOSModel2.h \
     FileMethods.h \
     MessageInstruction.h \
     SkyPoint.h \
@@ -101,7 +99,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
     AllocationList.h \
     MotionProgramValidator.h \
     MotionProgramGenerator.h \
-    outputs.h
+    Outputs.h
 
 ## Version info is in current : revision : age form
 ## A library supports interfaces from current downto current - age
@@ -111,7 +109,7 @@ libfmtp_la_SOURCES = vclemu.cpp \
 
 libfmtp_la_LDFLAGS = -version-info 0:0:0
 
-pkginclude_HEADERS = vclemu.h \
+pkginclude_HEADERS = VCLemu.h \
     Exceptions.h \
     Vectors.h \
     Constants.h \
@@ -146,15 +144,14 @@ pkginclude_HEADERS = vclemu.h \
     RoboticPositionerList2.h \
     RoboticPositionerList3.h \
     ExclusionAreaList.h \
+    FiberMOSModel.h \
     FiberConnectionModel.h \
-    FiberMOSModel1.h \
-    FiberMOSModel2.h \
     FileMethods.h \
     MessageInstruction.h \
     SkyPoint.h \
     ProjectionPoint.h \
     FMOSATable.h \
-    PositionerCenter.cpp \
+    PositionerCenter.h \
     Tile.h \
     TelescopeProjectionModel.h \
     MotionProgram.h \
@@ -162,7 +159,7 @@ pkginclude_HEADERS = vclemu.h \
     AllocationList.h \
     MotionProgramValidator.h \
     MotionProgramGenerator.h \
-    outputs.h
+    Outputs.h
 
 bin_PROGRAMS = fmpt_saa
 fmpt_saa_SOURCES = main.cpp

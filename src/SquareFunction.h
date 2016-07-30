@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: SquareFunction.h
-//Contenido: función de movimiento cuadrada
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: SquareFunction.h
+//Content: square motion function without acceleration and deceleration ramps
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef SQUAREFUNCTION_H

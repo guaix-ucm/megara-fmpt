@@ -17,12 +17,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Tile.cpp
-//Contenido: azulejo
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Tile.cpp
+//Content: tile list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
-//
 
 #include "Tile.h"
 #include "TextFile.h"
@@ -86,7 +84,7 @@ AnsiString TTile::getIdText(void) const
 void TTile::setIdText(const AnsiString &S)
 {
     try {
-        setId(StrToInt_(S));
+        setId(StrToInt(S));
     } catch(...) {
         throw;
     }
@@ -98,7 +96,7 @@ AnsiString TTile::getRAText(void) const
 void TTile::setRAText(const AnsiString &S)
 {
     try {
-        RA = StrToFloat_(S);
+        RA = StrToFloat(S);
     } catch(...) {
         throw;
     }
@@ -110,7 +108,7 @@ AnsiString TTile::getDECText(void) const
 void TTile::setDECText(const AnsiString &S)
 {
     try {
-        setDEC(StrToFloat_(S));
+        setDEC(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -122,7 +120,7 @@ AnsiString TTile::getR_Text(void) const
 void TTile::setR_Text(const AnsiString &S)
 {
     try {
-        setR_(StrToFloat_(S));
+        setR_(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -601,8 +599,8 @@ void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
 
 //construye un alista de azulejos
 TTile::TTile(void) :
-    p_Id(0), RA(0), p_DEC(0), p_R_(2.9088902912790199E-3),
-    SkyPointList()
+    p_Id(0), p_DEC(0), p_R_(2.9088902912790199E-3),
+    RA(0), SkyPointList()
 {
 }
 

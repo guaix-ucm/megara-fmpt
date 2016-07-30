@@ -18,16 +18,16 @@
 
 //---------------------------------------------------------------------------
 //File: ExclusionArea.h
-//Content: class exclusion area
+//Content: exclusion area (EA) model
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef EXCLUSIONAREA_H
 #define EXCLUSIONAREA_H
 
-#include "RoboticPositioner.h"
-#include "vclemu.h"
-#include "ItemsList.h"
+//#include "RoboticPositioner.h"
+//#include "VCLemu.h"
+//#include "ItemsList.h"
 #include "Barrier.h"
 
 //Para determinar el estado de colisión de un EA con un RP adyacente,
@@ -57,6 +57,7 @@ class TExclusionArea {
     int p_Id;
 
 public:
+    //------------------------------------------------------------------
     //PROPIEDADES ESTÁTICAS:
 
     //lista de objetos construidos
@@ -75,6 +76,7 @@ public:
     //Si se insertase en este archivo o en su correspondiente .cpp,
     //sería invocado después de llamar al constructor.
 
+    //------------------------------------------------------------------
     //PROPIEDADES DEL ÁREA DE EXCLUSIÓN:
 
     //barrera del área de exclusión
@@ -91,13 +93,6 @@ public:
     //debe ser mayor que cero
     //valor por defecto: 0
     int getId(void) const {return p_Id;} void setId(int);
-    //lista de posicionadores de RPs lo bastante cerca
-    //para que puedan colisionar con la barrera
-    //valor por defecto:
-    //      Adjacents.Capacity = 6;
-    //      Adjacents.Compare = TRoboticPositioner::CompareIds;
-    //      Adjacents.Print = TRoboticPositioner::PrintId;
-    TItemsList<TRoboticPositioner*> Adjacents;
 
     //indica si la barrera del EA será tenida en cuenta
     //en la determinación de distancias y colisiones
@@ -115,7 +110,7 @@ public:
     //dirección en memoria de la barrera
     //en formato texto
     AnsiString getBarrierAddressText(void) const {
-        return IntToHex(reinterpret_cast<intptr_t>(&Barrier), 8);}
+        return IntToHex(intptr_t(&Barrier));}
 
     AnsiString getEoText(void) const; void setEoText(const AnsiString&);
     AnsiString getEpText(void) const; void setEpText(const AnsiString&);
@@ -130,9 +125,13 @@ public:
 
     //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-    //conjunto de todas las propiedades
+    //conjuntos de propiedades de seguridad
+    //en formato asignaciones de texto
+    AnsiString getSecurityText(void) const;
+
+    //conjunto de propiedades de tolerancia
     //en formato de asignaciones
-    AnsiString getAllText(void) const;
+    AnsiString getToleranceText(void) const;
 
     //instancia del posicionador
     //en formato de asignaciones
@@ -143,10 +142,6 @@ public:
     //en formato línea de texto
     //en formato asignaciones de texto
     AnsiString getOriginsText(void) const;
-
-    //###################################################################
-    //MÉTODOS PÚBLICOS:
-    //###################################################################
 
     //-------------------------------------------------------------------
     //MÉTODOS ESTÁTICOS:
@@ -186,11 +181,11 @@ public:
     //lee una instancia del EA
     //desde la posición indicada de una cadena de texto
     //en formato de asignaciones
-    static void  readInstance(TExclusionArea* &B,
+    static void  readInstance(TExclusionArea *EA,
                               const AnsiString& S, int &i);
 
     //-------------------------------------------------------------------
-    //MÉTODOS DE CONSTRUCCIÓN,COPIA Y CLONACIÓN:
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
     //contruye un área de exclusión
     //con los valores por defecto
@@ -235,55 +230,29 @@ public:
     //      Ep: margen de error de posición en mm.
     double SPMsta(void) const;
 
+    //------------------------------------------------------------------
+    //MÉTODOS DE ASIMILACIÓN:
+
+    //A partir de:
+    //      (Eo, Ep)
+    //      Barrier.r_max
+    //Determina:
+    //      Barrier.SPM
+    void calculateSPM(void);
+
     //-------------------------------------------------------------------
     //MÉTODOS DE ASIGNACIÓN CONJUNTA:
 
     //asigna las propiedades de origen
     void setOrigins(int Id, double x0, double y0, double thetaO1);
 
-    //asigna conjuntamente las tolerancias
+    //asigna conjuntamente las tolerancias y las asimila
     //      (Eo, Ep)
     void setTolerances(double Eo, double Ep);
-
-    //------------------------------------------------------------------
-    //MÉTODOS DE ASIMILACIÓN:
-
-    //A partir de:
-    //      (Eo, Ep)
-    //      r_max
-    //Determina:
-    //      (Barrier.SPM)
-    void calculateSPM(void);
-
-    //-------------------------------------------------------------------
-    //MÉTODOS DE COLISIÓN:
-
-    //determina los RPs adyacentes que pueden colisionar con la barrera
-    void determineAdjacents(const TItemsList<TRoboticPositioner*>&);
-    //determina los RPs adyacentes en estado de colisión con la barrera
-    void searchCollinding(TItemsList<TRoboticPositioner*>&);
-
-    //------------------------------------------------------------------
-    //MÉTODOS PARA DETERMINAR LAS COLISIONES CON RPs ADYACENTES:
-
-    //determines if there is collision with an actuator
-    bool thereIsCollision(const TActuator*);
-/*    //determina si hay colisión con un actuador adyacente
-    bool thereIsCollisionWithAdjacent(void);
-    //Busca los posicionadores adyacentes cuyo
-    //brazo colisiona con la barrera de este área de exclusión.
-    void searchCollindingAdjacent(
-            TItemsList<TActuator*> &Collindings);
-*/
-    //determines if there is collision with an adjacent RP
-    //with pending collision determination
-    bool thereIsCollisionWithPendingAdjacent(void);
-    /*    //Busca los posicionadores adyacentes
-    //con evalauación de colisión pendiente
-    //cuyo brazo colisiona con la barrera de este área de exlusión.
-    void searchCollindingPendingAdjacent(
-            TItemsList<TActuator*> &Collindings);*/
 };
+
+//determina si dos areas de exclusión difieren entre si
+bool areUnequals(const TExclusionArea*, const TExclusionArea*);
 
 //---------------------------------------------------------------------------
 

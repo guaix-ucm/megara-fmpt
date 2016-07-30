@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: PointersSlideArray.cpp
-//Contenido: array deslizante de punteros
-//Última actualización: 09/03/2011
-//Autor: Isaac Morales Durán
+//File: PointersSlideArray.cpp
+//Content: template for pointers slide array
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "PointersSlideArray.h"

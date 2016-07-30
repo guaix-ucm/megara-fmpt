@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: MotionFunction.cpp
-//Contenido: función de movimiento
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: MotionFunction.cpp
+//Content: motion function
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MotionFunction.h"
@@ -56,7 +55,7 @@ AnsiString TMotionFunction::getvmaxabsText(void) const
 void TMotionFunction::setvmaxabsText(const AnsiString& S)
 {
         try {
-                setvmaxabs(StrToFloat_(S));
+                setvmaxabs(StrToFloat(S));
         } catch(...) {
                 throw;
         }
@@ -68,7 +67,7 @@ AnsiString TMotionFunction::getpstaText(void) const
 void TMotionFunction::setpstaText(const AnsiString& S)
 {
         try {
-                setpsta(StrToFloat_(S));
+                setpsta(StrToFloat(S));
         } catch(...) {
                 throw;
         }
@@ -80,7 +79,7 @@ AnsiString TMotionFunction::getpfinText(void) const
 void TMotionFunction::setpfinText(const AnsiString& S)
 {
         try {
-                setpfin(StrToFloat_(S));
+                setpfin(StrToFloat(S));
         } catch(...) {
                 throw;
         }
@@ -102,7 +101,7 @@ AnsiString TMotionFunction::getDText(void) const
 void TMotionFunction::setDText(const AnsiString& S)
 {
         try {
-                setDText(StrToFloat_(S));
+                setDText(StrToFloat(S));
         } catch(...) {
                 throw;
         }
@@ -114,7 +113,7 @@ AnsiString TMotionFunction::getTText(void) const
 void TMotionFunction::setTText(const AnsiString& S)
 {
         try {
-                setTText(StrToFloat_(S));
+                setTText(StrToFloat(S));
         } catch(...) {
                 throw;
         }
@@ -140,7 +139,7 @@ AnsiString TMotionFunction::getvcText(void) const
 void TMotionFunction::setvcText(const AnsiString& S)
 {
         try {
-                setvc(StrToFloat_(S));
+                setvc(StrToFloat(S));
         } catch(...) {
                 throw;
         }

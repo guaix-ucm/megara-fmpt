@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Strings.cpp
-//Contenido: funciones con cadenas de texto
-//Última actualización: 12/06/2013
-//Autor: Isaac Morales Durán
+//File: Strings.cpp
+//Content: functions for text strings
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Strings.h"
@@ -47,7 +46,7 @@ bool islatinprint(unsigned char c)
 }
 
 //determina si la cadena contiene un separador de los usualmente escritos
-bool StrIsUsualSeparator(AnsiString &S)
+bool StrIsUsualSeparator(const AnsiString &S)
 {
     if(S==AnsiString(char(9)) || S==AnsiString(char(32)) || S=="\r\n")
         return true;
@@ -80,7 +79,7 @@ int StrNextChar(const AnsiString &S, int i)
 }
 //busca en S, a partir de i, el caracter previo imprimible distinto de espacio
 //si no lo encuentra devuelve la preprimera posición
-int StrPreviusChar(const AnsiString &S, int i)
+int StrPreviousChar(const AnsiString &S, int i)
 {
     //el índice i debería indicar un caracter en la cadena S
     if(i<1 || S.Length()<i)
@@ -139,9 +138,9 @@ int strNextChar(const string &str, int i)
 
     return i;
 }
-//busca en str, a partir de i, el caracter previo imprimible distnto de espacio
+//busca en str, a partir de i, el caracter previo imprimible distinto de espacio
 //si no lo encuentrsa devuelve la preprimera posición
-int strPreviusChar(const string &str, int i)
+int strPreviousChar(const string &str, int i)
 {
     //el índice i debería indicar un caracter en la cadena S
     if(i<0 || int(str.length())<=i)
@@ -206,7 +205,7 @@ bool StrIsPrintable(const AnsiString &S)
                 return false; //indica que no es imprimible
         }
         //si no es '\r' ni imprimible ni separador usual
-        else if(!isprint(c) && !islatinprint(c) && c!=' ' && c!=' ')
+        else if(!bool(isprint(c)) && !islatinprint(c) && c!='\t' && c!=' ')
             //indica que no es imprimible
             return false;
 
@@ -266,7 +265,7 @@ AnsiString& StrTighten(AnsiString &S)
         int i1 = StrNextChar(S, 1);
 
     //busca el último caracter imprimible distinto de espacio
-        int i2 = StrPreviusChar(S, S.Length());
+        int i2 = StrPreviousChar(S, S.Length());
 
         if(i1>i2)
                 S = "";
@@ -315,7 +314,7 @@ bool StrIsntString(const AnsiString &S)
         return true; //indica que no es una cadena
 
     //busca el último caracter imprimible distinto de espacio
-    int i2 = StrPreviusChar(S, S.Length());
+    int i2 = StrPreviousChar(S, S.Length());
     //si el último caracter no es una comilla simple
     if(S[i2] != '\'')
         return true; //indica que no es una cadena
@@ -326,7 +325,7 @@ bool StrIsntString(const AnsiString &S)
 
     return false; //indica que si es una cadena
 }
-//Segrega en Value la subcadena que precede al primer '=' en S
+//Segrega en Ident la subcadena que precede al primer '=' en S
 //y en Value la subcadena que le sucede; si tiene éxito devuelve true
 //y si S no contiene un caracter '=' devuelve false
 bool StrSplitAssign(AnsiString &Ident, AnsiString &Value, const AnsiString &S)
@@ -359,6 +358,7 @@ bool StrSplitAssign(AnsiString &Ident, AnsiString &Value, const AnsiString &S)
 }
 //separa la última extensión de un nombre de archivo
 //si no tiene extensión devuelve la cadena vacía
+//la extensión incluye el punto separador
 AnsiString StrExtension(const AnsiString &filename)
 {
     AnsiString ext; //cadena para copiar la extensión
@@ -388,7 +388,7 @@ AnsiString StrExtension(const AnsiString &filename)
     for(; i<=j; i++)
         ext[k++] = filename[i];
 
-    //indica que encontró la extensiónd e almenos un caracter
+    //indica que encontró la extensión de almenos un caracter
     return ext;
 }
 //copia el intervalo [i1, i2], de la cadena origen en la cadena destino
@@ -436,8 +436,8 @@ void StrReplace(AnsiString& S, const AnsiString& S_to_replace,
     strreplace(S.str, S_to_replace.str, S_substitute.str);
 }
 //cuenta las líneas de texto contenidas en una cadena de texto imprimible
-//si la cadena String no es imprimible lanza una excepción EImproperArgument
-int StrCountLines(const AnsiString &String)
+//si la cadena no es imprimible lanza una excepción EImproperArgument
+int StrCountLines(const AnsiString &S)
 {
     //status:
     //      0: leyendo línea y esperando '\r'
@@ -452,9 +452,9 @@ int StrCountLines(const AnsiString &String)
     count = 1;
 
     //por cada caracter de la cadena
-    while(i <= String.Length()) {
+    while(i <= S.Length()) {
         //asigna el caracter indicado para facilitar su acceso
-        c = String[i];
+        c = S[i];
 
         switch(status) {
         case 0: //leyendo línea y esperando '\r'
@@ -476,6 +476,35 @@ int StrCountLines(const AnsiString &String)
 
     return count;
 }
+//determine the coordinates (row, col) from the position i of a string
+void strPositionToCoordinates(unsigned int& row, unsigned int& col, string str, unsigned int i)
+{
+    //check the preconditions
+    if(str.length() < i)
+        throw EImproperArgument("index i should inficate to one position in the string str");
+
+    //initialize the outputs
+    row = 1;
+    col = 0;
+
+    //foer each char in the interval [0, i]
+    for(unsigned int j=0; j<=i; j++) {
+        //get the indicated char
+        char c = str[j];
+
+        //count the column or the row, if any
+        if(c != '\n')
+            col++;
+        else {
+            if(j <= 0 || str[j - 1] != '\r')
+                col++;
+            else {
+                row++;
+                col = 0;
+            }
+        }
+    }
+}
 //determines if there is the substring "\r\n" in the position i of a string
 bool thereIsntEndline(const string& str, unsigned int i)
 {
@@ -492,181 +521,109 @@ bool thereIsntEndline(const string& str, unsigned int i)
 //divide una cadena por cada "\r\n" que encuentre
 void StrDivideInLines(TStrings *Lines, const AnsiString &S)
 {
+    //check the preconditions
     if(Lines == NULL)
-        throw EImproperArgument("pointerLines shouldpoint to build string list");
+        throw EImproperArgument("pointer Strings shall point to built string list");
 
     //initialize the output
     Lines->Clear();
 
-    //initialize index to positions of the string
+    //initialize the index to the first position of the string
     int i = 1;
 
     //solve the trivial basic case
-    if(i > S.Length())
+    if(i > S.Length()) {
+        Lines->Add(S);
         return;
-
-    do {
-        //actualize index to the first position of the next substring
-        int ifirst = i;
-
-        //advances i to the post-last position of the string, or find "\r\n"
-        while(i<=S.Length() && thereIsntEndline(S.str, i-1))
-            i++;
-
-        //if has reached the post-last position of the string,
-        //get the substring in the interval [ifirst, i-1]
-        //only if it is not empty
-        if(i >= S.Length()) {
-            int count = i - ifirst;
-            if(count > 0) {
-                AnsiString SubString;
-                SubString = S.SubString(ifirst, count);
-                Lines->Add(SubString);
-            }
-        }
-
-        //if has found the endline,
-        //get the substring in the interval [ifirst, i-1]
-        else {
-            int count = i - ifirst;
-            AnsiString SubString;
-            SubString = S.SubString(ifirst, count);
-            Lines->Add(SubString);
-
-            //Note that substring [ifirst, i-1] could be empty.
-
-            //advances index i to the first position of the next substring
-            //or the post-last position of the string
-            i += 2;
-        }
-
-    //while there is a remaining position in the string
-    } while(i <= S.Length());
-
-    /*    //pointer Lines shall point to built string list
-    if(Lines == NULL)
-        throw EImproperArgument("pointer Strings shall point to built string list");
-
-    char c;
-    char status = 0;
-
-    //status:
-    //      0: leyendo línea y esperando '\r'
-    //      1: '\r' encontrado y esperando '\n'
-
-    AnsiString S; //cadena tampón
-    Lines->Clear(); //reinicializa Lines
-    int i = 1; //inicializa el índice a la primera posición de la cadena
-
-    //por cada caracter de la cadena
-    while(i <= String.Length()) {
-        //asigna el caracter indicado para facilitar su acceso
-        c = String[i];
-
-        switch(status) {
-        case 0: //leyendo línea y esperando '\r'
-            //concatena todo, incluso si es '\r'
-            S += c;
-            //concatenar '\r' es necesario por si
-            //no va seguido de '\n'
-
-            if(c == '\r') //si encuentra '\r'
-                status = 1; //pasa a estado 1
-            break;
-        case 1: //'\r' encontrado y esperando '\n'
-            if(c != '\n') { //si el que sigue no es '\n'
-                S += c; //lo concatena
-                status = 0; //vuelve a estado 0
-            }
-            else { //si el que sigue es '\n'
-                //descarta el '\r' final
-                S.SetLength(S.Length() - 1);
-                Lines->Add(S); //añade la línea
-                S.SetLength(0); //reinicia S
-                status = 0; //vuelve al estado 0
-            }
-            break;
-        }
-        i++; //indica al próximo caracter
     }
 
-    //añade la última línea
-    Lines->Add(S);*/
+    //initialize the status:
+    //  0: reading line and waiting '\r'
+    //  1: '\r' found and waiting '\n'
+    char status = 0;
+
+    string str; //tampon string
+
+    //for each char of the string
+    while(i <= S.Length()) {
+        //get the indicated char
+        char c = S[i];
+
+        //reacts acording the status and the char
+        switch(status) {
+        case 0: //reading line and waiting '\r'
+            if(c != '\r') {
+                str += c;
+            } else //c == '\r'
+                status++;
+            break;
+        case 1: //'\r' found and waiting '\n'
+            if(c != '\n') {
+                str += '\r';
+                str += c;
+            } else { //c == '\n'
+                Lines->Add(str);
+                str = "";
+            }
+            status--;
+            break;
+        }
+
+        i++; //index to the next char
+    }
+    //add the last line, if any
+    Lines->Add(str);
 }
 void StrDivideInLines(TStrings& Lines, const AnsiString &S)
 {
     //initialize the output
     Lines.Clear();
 
-    //initialize index to positions of the string
+    //initialize the index to the first position of the string
     int i = 1;
 
     //solve the trivial basic case
-    if(i > S.Length())
+    if(i > S.Length()) {
+        Lines.Add(S);
         return;
+    }
 
-    do {
-        //actualize index to the first position of the next substring
-        int ifirst = i;
+    //initialize the status:
+    //  0: reading line and waiting '\r'
+    //  1: '\r' found and waiting '\n'
+    char status = 0;
 
-        //advances i to the post-last position of the string, or find "\r\n"
-        while(i<=S.Length() && thereIsntEndline(S.str, i-1))
-            i++;
+    string str; //tampon string
 
-        //if has reached the post-last position of the string,
-        //get the substring in the interval [ifirst, i-1]
-        //only if it is not empty
-        if(i >= S.Length()) {
-            int count = i - ifirst;
-            if(count > 0) {
-                AnsiString SubString;
-                SubString = S.SubString(ifirst, count);
-                Lines.Add(SubString);
+    //for each char of the string
+    while(i <= S.Length()) {
+        //get the indicated char
+        char c = S[i];
+
+        //reacts acording the status and the char
+        switch(status) {
+        case 0: //reading line and waiting '\r'
+            if(c != '\r') {
+                str += c;
+            } else //c == '\r'
+                status++;
+            break;
+        case 1: //'\r' found and waiting '\n'
+            if(c != '\n') {
+                str += '\r';
+                str += c;
+            } else { //c == '\n'
+                Lines.Add(str);
+                str = "";
             }
+            status--;
+            break;
         }
 
-        //if has found the end line,
-        //get the substring in the interval [ifirst, i-1]
-        else {
-            int count = i - ifirst;
-            AnsiString SubString;
-            SubString = S.SubString(ifirst, count);
-            Lines.Add(SubString);
-
-            //Note that substring [ifirst, i-1] could be empty.
-
-            //advances index i to the first position of the next substring
-            //or the post-last position of the string
-            i += 2;
-        }
-
-/*        //search the pos-position of the actual line
-        while(i<=S.Length() && S[i]!='\r')
-            i++;
-        i++;
-        if(i <= S.Length()) {
-            if(S[i] != '\n')
-                throw EImproperArgument("char '\r' should be followed by char '\n'");
-            else
-                i++;
-        }
-
-        //if previously i there isn't "\r\n"
-        int count;
-        if((i < ifirst+2) || S[i-1]!='\n' || S[i-2]!='\r')
-            //add substring [ifirst, i-1]
-            count = i - ifirst;
-        //else, if previously i there is "\r\n"
-        else
-            //add substring [ifirst, i-3]
-            count = i - ifirst - 2;
-        if(count > 0)
-            Lines.Add(S.SubString(ifirst, count));
-        else
-            Lines.Add(AnsiString(""));
-*/
-    //while there is a remaining position in the string
-    } while(i <= S.Length());
+        i++; //index to the next char
+    }
+    //add the last line, if any
+    Lines.Add(str);
 }
 //divide una cadena en palabras
 //obtiene cada palabra hasta cada secuencia de espacios o tabuladores
@@ -712,7 +669,7 @@ void StrDivideInWords(TStrings *Words, const AnsiString &String)
         i++;
     }
 
-    //añade la última palabra leida
+    //añade la última palabra leída
     if(word.Length() > 0)
         Words->Add(word);
 }
@@ -759,7 +716,7 @@ void StrSplit(TStrings& Strings, const AnsiString& S, char c)
 
 //elimina los espacios y caracteres de control marginales de una cadena
 //la cadena de destino D puede ser la misma cadena fuente S
-void StrTrim(AnsiString &D, const AnsiString &S)
+void StrTrim(AnsiString& D, const AnsiString& S)
 {
     //initialize the output
     D.SetLength(0);
@@ -769,7 +726,7 @@ void StrTrim(AnsiString &D, const AnsiString &S)
         return; //no hace nada
 
     //busca el último caracter imprimible distinto de espacio
-    int i2 = StrPreviusChar(S, S.Length());
+    int i2 = StrPreviousChar(S, S.Length());
 
     //busca el primer caracter imprimible distinto de espacio
     int i1 = StrNextChar(S, 1);
@@ -788,7 +745,7 @@ void StrTrim(AnsiString &D, const AnsiString &S)
     }
 }
 //elimina los espacios y caracteres de control marginales de una cadena
-AnsiString StrTrim(const AnsiString &S)
+AnsiString StrTrim(const AnsiString& S)
 {
     //initialize the output
     AnsiString D;
@@ -798,7 +755,7 @@ AnsiString StrTrim(const AnsiString &S)
         return D; //no hace nada
 
     //busca el último caracter imprimible distinto de espacio
-    int i2 = StrPreviusChar(S, S.Length());
+    int i2 = StrPreviousChar(S, S.Length());
 
     //busca el primer caracter imprimible distinto de espacio
     int i1 = StrNextChar(S, 1);
@@ -820,7 +777,7 @@ AnsiString StrTrim(const AnsiString &S)
 
 //elimina los espacios y caracteres de control marginales de una cadena
 //la cadena de destino dest puede ser la misma cadena fuente src
-void strTrim(string &des, const string &src)
+void strTrim(string& des, const string& src)
 {
     //initialize the output
     des.resize(0);
@@ -830,7 +787,7 @@ void strTrim(string &des, const string &src)
         return; //no hace nada
 
     //busca el último caracter imprimible distinto de espacio
-    int i2 = strPreviusChar(src, src.length()-1);
+    int i2 = strPreviousChar(src, src.length()-1);
 
     //busca el primer caracter imprimible distinto de espacio
     int i1 = strNextChar(src, 0);
@@ -849,7 +806,7 @@ void strTrim(string &des, const string &src)
     }
 }
 //elimina los espacios y caracteres de control marginales de una cadena
-AnsiString strTrim(const string &src)
+string strTrim(const string& src)
 {
     //initialize the output
     string des;
@@ -859,7 +816,7 @@ AnsiString strTrim(const string &src)
         return des; //no hace nada
 
     //busca el último caracter imprimible distinto de espacio
-    int i2 = strPreviusChar(src, src.length()-1);
+    int i2 = strPreviousChar(src, src.length()-1);
 
     //busca el primer caracter imprimible distinto de espacio
     int i1 = strNextChar(src, 0);
@@ -882,7 +839,7 @@ AnsiString strTrim(const string &src)
 //Si la longitud de la cadena es mayor que el número de caracteres indicado,
 //sustituye la parte sobrante de la cadena por "...".
 //La cadena de destino D, puede ser la misma que la cadena fuente S.
-void StrFirstChars(AnsiString &D, const AnsiString &S, int LengthMax)
+void StrFirstChars(AnsiString& D, const AnsiString& S, int LengthMax)
 {
     //el número de caracteres máximo de la cadena resultante debe ser mayor que 3
     if(LengthMax <= 3)

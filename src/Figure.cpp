@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Figure.cpp
-//Contenido: clases de figuras geométricas
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Figure.cpp
+//Content: geometric figures
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Figure.h"
@@ -45,52 +44,14 @@ namespace Models {
 //inicializa las propiedades estáticas
 AnsiString TFigure::ColorLabel = "Color";
 
-//PROPIEDADES GRÁFICAS EN FORMATO TEXTO:
-/*#
-AnsiString TFigure::getColorText(void) const
-{
-    return ColorToString(Color);
-}
-void TFigure::setColorText(const AnsiString& S)
-{
-    try {
-        Color = StringToColor(S);
-    } catch(...) {
-        throw;
-    }
-}
-
-//MÉTODOS ESTÁTICOS DE COMPARACIÓN:
-
-//compara el color de dos figuras
-//      si F1->Color < F2->Color entonces CompareColor = -1
-//      si F1->Color > F2->Color entonces CompareColor = 1
-//      si F1->Color == F2->Color entonces CompareColor = 0
-int  TFigure::compareColor(const TFigure *F1, const TFigure *F2)
-{
-    //el puntero F1 debería apuntar a una figura contruida
-    if(F1 == NULL)
-        throw EImproperArgument("pointer F1 should point to built figure");
-
-    //el puntero F2 debería apuntar a una figura contruida
-    if(F2 == NULL)
-        throw EImproperArgument("pointer F2 should point to built figure");
-
-    if(F1->Color.rgba() < F2->Color.rgba())
-        return -1;
-    if(F1->Color.rgba() > F2->Color.rgba())
-        return 1;
-    return 0;
-}
-*/
 //MÉTODOS ESTÁTICOS DE IMPRESIÓN Y LECTURA:
 
 //imprime las propiedades de un objeto en una cadena
 //en formato texto entre paréntesis
 void  TFigure::figurePrint(AnsiString& S,
-                                     TFigure *F)
+                           TFigure *F)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -100,9 +61,9 @@ void  TFigure::figurePrint(AnsiString& S,
 //imprime las propiedades de un objeto en una cadena
 //en formato fila de texto
 void  TFigure::figurePrintRow(AnsiString& S,
-                                        TFigure *F)
+                              TFigure *F)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -114,107 +75,119 @@ void  TFigure::figurePrintRow(AnsiString& S,
 //en formato texto entre paréntesis
 void  TFigure::figureRead(TFigure* &F, const AnsiString& S, int& i)
 {
-    //el índice i debe indicar una posición de la cadena S
-    if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in string S");
-
-    //guarda la posición inicial de lectura
-    int i_ = i;
-
-    TCircunference *Circunference;
     try {
-        //intenta leer una circunferencia
-        Circunference = new TCircunference();
-        TCircunference::Read(Circunference, S, i);
-        F = Circunference;
-        return;
-    } catch(EImproperArgument& E) { //si no puede leerlo
-        //vuelve al estado inicial
-        delete Circunference;
-        i = i_;
-    }
+        //comprueba las precondiciones
+        if(i<1 || S.Length()<i)
+            throw EImproperArgument("index i should indicate a char of the string S");
 
-    TSegment *Segment;
-    try {
-        //intenta leer un segmento
-        Segment = new TSegment();
-        TSegment::Read(Segment, S, i);
-        F = Segment;
-        return;
-    } catch(EImproperArgument& E) { //si no puede leerlo
-        //vuelve al estado inicial
-        delete Segment;
-        i = i_;
-    }
+        //guarda la posición inicial de lectura
+        int i_ = i;
 
-    TArc *Arc;
-    try {
-        //intenta leer un arco
-        Arc = new TArc();
-        TArc::Read(Arc, S, i);
-        F = Arc;
-        return;
-    } catch(EImproperArgument& E) { //si no puede leerlo
-        //vuelve al estado inicial
-        delete Arc;
-        i = i_;
-    }
+        TCircunference *Circunference;
+        try {
+            //intenta leer una circunferencia
+            Circunference = new TCircunference();
+            TCircunference::Read(Circunference, S, i);
+            F = Circunference;
+            return;
+        } catch(EImproperArgument& E) { //si no puede leerlo
+            //vuelve al estado inicial
+            delete Circunference;
+            i = i_;
+        }
 
-    //indica que no hay ninguna figura geométrica en la posición i de la cadena S
-    throw EImproperArgument(AnsiString("there isn't a figure in position ")+IntToStr(i)+AnsiString(" of string S"));
+        TSegment *Segment;
+        try {
+            //intenta leer un segmento
+            Segment = new TSegment();
+            TSegment::Read(Segment, S, i);
+            F = Segment;
+            return;
+        } catch(EImproperArgument& E) { //si no puede leerlo
+            //vuelve al estado inicial
+            delete Segment;
+            i = i_;
+        }
+
+        TArc *Arc;
+        try {
+            //intenta leer un arco
+            Arc = new TArc();
+            TArc::Read(Arc, S, i);
+            F = Arc;
+            return;
+        } catch(EImproperArgument& E) { //si no puede leerlo
+            //vuelve al estado inicial
+            delete Arc;
+            i = i_;
+        }
+
+        //indica que no hay ninguna figura geométrica en la posición i de la cadena S
+        throw EImproperArgument(AnsiString("there isn't a figure in position ")+IntToStr(i)+AnsiString(" of string S"));
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading figure in text format: ");
+        throw;
+    }
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato fila de texto
 void  TFigure::figureReadRow(TFigure* &F, const AnsiString& S, int& i)
 {
-    //el índice i debe indicar una posición de la cadena S
-    if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in string S");
-
-    //guarda la posición inicial de lectura
-    int i_ = i;
-
-    TCircunference *Circunference;
     try {
-        //intenta leer una cirunferencia
-        Circunference = new TCircunference();
-        TCircunference::ReadRow(Circunference, S, i);
-        F = Circunference;
-        return;
-    } catch(EImproperArgument& E) { //si no puede leerlo
-        //vuelve al estado inicial
-        delete Circunference;
-        i = i_;
-    }
+        //comprueba las precondiciones
+        if(i<1 || S.Length()<i)
+            throw EImproperArgument("index i should indicate a char of the string S");
 
-    TSegment *Segment;
-    try {
-        //intenta leer un segmento
-        Segment = new TSegment();
-        TSegment::ReadRow(Segment, S, i);
-        F = Segment;
-        return;
-    } catch(EImproperArgument& E) { //si no puede leerlo
-        //vuelve al estado inicial
-        delete Segment;
-        i = i_;
-    }
+        //guarda la posición inicial de lectura
+        int i_ = i;
 
-    TArc *Arc;
-    try {
-        //intenta leer un arco
-        Arc = new TArc();
-        TArc::ReadRow(Arc, S, i);
-        F = Arc;
-        return;
-    } catch(EImproperArgument& E) { //si no puede leerlo
-        //vuelve al estado inicial
-        delete Arc;
-        i = i_;
-    }
+        TCircunference *Circunference;
+        try {
+            //intenta leer una cirunferencia
+            Circunference = new TCircunference();
+            TCircunference::ReadRow(Circunference, S, i);
+            F = Circunference;
+            return;
+        } catch(EImproperArgument& E) { //si no puede leerlo
+            //vuelve al estado inicial
+            delete Circunference;
+            i = i_;
+        }
 
-    //indica que no hay ninguna figura geométrica en la posición i de la cadena S
-    throw EImproperArgument(AnsiString("there isn't a figure in position ")+IntToStr(i)+AnsiString(" of string S"));
+        TSegment *Segment;
+        try {
+            //intenta leer un segmento
+            Segment = new TSegment();
+            TSegment::ReadRow(Segment, S, i);
+            F = Segment;
+            return;
+        } catch(EImproperArgument& E) { //si no puede leerlo
+            //vuelve al estado inicial
+            delete Segment;
+            i = i_;
+        }
+
+        TArc *Arc;
+        try {
+            //intenta leer un arco
+            Arc = new TArc();
+            TArc::ReadRow(Arc, S, i);
+            F = Arc;
+            return;
+        } catch(EImproperArgument& E) { //si no puede leerlo
+            //vuelve al estado inicial
+            delete Arc;
+            i = i_;
+        }
+
+        //indica que no hay ninguna figura geométrica en la posición i de la cadena S
+        throw EImproperArgument(AnsiString("there isn't a figure in position ")+IntToStr(i)+AnsiString(" of string S"));
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading figure in row text format: ");
+        throw;
+    }
 }
 
 //destruye una figura
@@ -235,7 +208,7 @@ AnsiString TCircle::RLabel = "R";
 
 void TCircle::setR(double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -252,8 +225,9 @@ AnsiString TCircle::getRText(void) const
 void TCircle::setRText(const AnsiString& S)
 {
     try {
-        setR(StrToFloat_(S));
-    } catch(...) {
+        setR(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to R in text format: ");
         throw;
     }
 }
@@ -267,14 +241,21 @@ AnsiString TCircle::getText(void) const
 void TCircle::setText(const AnsiString& S)
 {
     try {
+        //lee el valor en una variable tampón
+        TCircle C;
         int i = 1;
-        Read(this, S, i);
+        Read(&C, S, i);
 
+        //busca texto inesperado
         StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
             throw EImproperArgument("string S shouldcontain a single circle only");
 
-    } catch(...) {
+        //asigna la variable tampón
+        this->Copy(&C);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting value to circle in text format: ");
         throw;
     }
 }
@@ -285,27 +266,33 @@ AnsiString TCircle::getRowText(void) const
 void TCircle::setRowText(const AnsiString& S)
 {
     try {
+        //lee el valor en una variable tampón
+        TCircle C;
         int i = 1;
         ReadRow(this, S, i);
-        StrTravelToEnd(S, i);
 
+        //busca texto inesperado
         StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
             throw EImproperArgument("string S shouldcontain a single circle only");
 
-    } catch(...) {
+        //asigna la variable tampón
+        this->Copy(&C);
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to circle in row text format: ");
         throw;
     }
 }
 AnsiString TCircle::getAssignsText(void) const
 {
-    AnsiString S;
+    AnsiString str;
 
-    S = AnsiString("x = ")+P.getxText()+AnsiString("\r\n");
-    S += AnsiString("y = ")+P.getyText()+AnsiString("\r\n");
-    S += AnsiString("R = ")+getRText()+AnsiString("\r\n");
+    str = "x = "+P.getxText().str+"\r\n";
+    str += "y = "+P.getyText().str+"\r\n";
+    str += "R = "+getRText().str+"\r\n";
 
-    return S;
+    return AnsiString(str);
 }
 
 //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
@@ -327,16 +314,15 @@ AnsiString TCircle::GetRowLabels(void)
 //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
 int  TCircle::comparex(const TCircle *C1,
-                                 const TCircle *C2)
+                       const TCircle *C2)
 {
-    //el puntero C1 debería apuntar a un círculo contruido
+    //comprueba las precondiciones
     if(C1 == NULL)
         throw EImproperArgument("pointer C1 should point to built circle");
-
-    //el puntero C2 debería apuntar a un círculo contruido
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
+    //compara la propiedad
     if(C1->P.x < C2->P.x)
         return -1;
     if(C1->P.x > C2->P.x)
@@ -344,16 +330,15 @@ int  TCircle::comparex(const TCircle *C1,
     return 0;
 }
 int  TCircle::comparey(const TCircle *C1,
-                                 const TCircle *C2)
+                       const TCircle *C2)
 {
-    //el puntero C1 debería apuntar a un círculo contruido
+    //comprueba las precondiciones
     if(C1 == NULL)
         throw EImproperArgument("pointer C1 should point to built circle");
-
-    //el puntero C2 debería apuntar a un círculo contruido
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
+    //compara la propiedad
     if(C1->P.y < C2->P.y)
         return -1;
     if(C1->P.y > C2->P.y)
@@ -361,16 +346,15 @@ int  TCircle::comparey(const TCircle *C1,
     return 0;
 }
 int  TCircle::compareR(const TCircle *C1,
-                                 const TCircle *C2)
+                       const TCircle *C2)
 {
-    //el puntero C1 debería apuntar a un círculo contruido
+    //comprueba las precondiciones
     if(C1 == NULL)
         throw EImproperArgument("pointer C1 should point to built circle");
-
-    //el puntero C2 debería apuntar a un círculo contruido
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
+    //compara la propiedad
     if(C1->getR() < C2->getR())
         return -1;
     if(C1->getR() > C2->getR())
@@ -382,7 +366,7 @@ int  TCircle::compareR(const TCircle *C1,
 
 void  TCircle::Print(AnsiString& S, const TCircle *C)
 {
-    //el puntero C debería apuntar a un círculo
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -390,7 +374,7 @@ void  TCircle::Print(AnsiString& S, const TCircle *C)
 }
 void  TCircle::PrintRow(AnsiString& S, const TCircle *C)
 {
-    //el puntero C debería apuntar a un círculo
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -398,7 +382,7 @@ void  TCircle::PrintRow(AnsiString& S, const TCircle *C)
 }
 void  TCircle::PrintAssigns(AnsiString& S, const TCircle *C)
 {
-    //el puntero C debería apuntar a un círculo
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -408,178 +392,64 @@ void  TCircle::PrintAssigns(AnsiString& S, const TCircle *C)
 //MÉTODOS ESTÁTICOS DE LECTURA:
 
 void  TCircle::Read(TCircle *C,
-                              const AnsiString& S, int& i)
+                    const AnsiString& S, int& i)
 {
-    //el puntero C debería apuntar a un círculo construido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
-        throw EImproperArgument("circle values not founds");
+        throw EImproperArgument("circle value not founds");
 
-    //estado de lectura:
-    //      0: esperando separador o '('
-    //      1: esperando separador o TDoublePoint P
-    //      2: esperando separador o ','
-    //      3: esperando separador o double R
-    //      4: esperando separador o ')'
-    //      5: conjunto leido con éxito
-    int status = 0;
+    try {
+        //lee las propiedades en una variable tampón
+        TCircle t_C;
+        StrTravelLabel("(", S,i);
+        TDoublePoint P;
+        StrReadDPoint(&P, S, i);
+        t_C.P = P;
+        StrTravelLabel(",", S,i);
+        double R;
+        StrReadFloat(R, S, i);
+        t_C.setR(R);
+        StrTravelLabel(")", S,i);
 
-    //variables tampón en formato conveniente
-    TCircle t_C;
-
-    do {
-        //reacciona según el estado
-        switch(status) {
-        case 0: //esperando separador o '('
-            try {
-            StrTravelLabel("(", S,i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador o TDoublePoint P
-            try {
-            TDoublePoint aux;
-            StrReadDPoint(&aux, S, i);
-            t_C.P = aux;
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando separador o ','
-            try {
-            StrTravelLabel(",", S,i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador o double R
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.setR(aux);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando separador o ')'
-            try {
-            StrTravelLabel(")", S,i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientrasel conjunto no se haya leido con éxito
-    } while(status < 5);
-
-    //asigna la variable tampón
-    *C = t_C;
+        //asigna la variable tampón
+        *C = t_C;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to circle in text format: ");
+        throw;
+    }
 }
 void  TCircle::ReadRow(TCircle *C,
-                                 const AnsiString& S, int& i)
+                       const AnsiString& S, int& i)
 {
-    //el puntero C debería apuntar a un círculo construido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("circle values not founds");
 
-    //estado de lectura
-    //      0: esperando valor para x
-    //      1: esperando separador
-    //      2: esperando valor para y
-    //      3: esperando separador
-    //      4: esperando valor para R
-    //      5: conjunto leido con éxito
-    int status = 0;
+    try {
+        //lee el valor en una variable tampón
+        TCircle t_C; //variable tampón
+        double aux;
+        StrReadFloat(aux, S, i);
+        t_C.P.x = aux;
+        StrTravelSeparators(S, i);
+        StrReadFloat(aux, S, i);
+        t_C.P.y = aux;
+        StrTravelSeparators(S, i);
+        StrReadFloat(aux, S, i);
+        t_C.setR(aux);
 
-    //variables auxiliares
-    TCircle t_C(C); //variable tampón
-    AnsiString Ident; //identificador de propiedad
-    AnsiString Value; //valor de propiedad
-
-    //ADVERTENCIA: las variables tampón con propiedades interdependientes
-    //deben ser clones de las variables que se pretenden modificar.
-
-    //NOTA: adviertase que las propiedades enteras son leidas como
-    //valores en punto flotante para detectar errores en los cuales
-    //sea especificado un valor en punto flotante en vez de un valor entero.
-
-    do {
-        switch(status) {
-        case 0: //esperando valor para x
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.P.x = aux;
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando valor para y
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.P.y = aux;
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando valor para R
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.setR(aux);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras el conjunto no se haya leido con éxito
-    } while(status < 5);
-
-    //asigna la variable tampón
-    *C = t_C;
+        //asigna la variable tampón
+        *C = t_C;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to circle in row text format: ");
+        throw;
+    }
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
@@ -593,7 +463,7 @@ TCircle::TCircle(void) : TFigure(),
 }
 TCircle::TCircle(double x, double y, double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -605,7 +475,7 @@ TCircle::TCircle(double x, double y, double R)
 }
 TCircle::TCircle(TDoublePoint P, double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -618,21 +488,19 @@ TCircle::TCircle(TDoublePoint P, double R)
 //copia las propiedades de un objeto
 void TCircle::Copy(TCircle *C)
 {
-    //el puntero C debería apuntar a un círculo construido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built proyection point");
 
     //asigna las propiedades
     P = C->P;
     p_R = C->p_R;
-    //#Color = C->Color;
 }
 TCircle& TCircle::operator=(const TCircle &C)
 {
     //asigna las propiedades
     P = C.P;
     p_R = C.p_R;
-    //#Color = C.Color;
 
     return *this;
 }
@@ -640,11 +508,7 @@ TCircle& TCircle::operator=(const TCircle &C)
 //contruye un clon de un objeto
 TCircle::TCircle(TCircle *PP)
 {
-    try {
-        Copy(PP);
-    } catch(...) {
-        throw;
-    }
+    Copy(PP);
 }
 
 //MÉTODOS DE CONFIGURACIÓN:
@@ -652,7 +516,7 @@ TCircle::TCircle(TCircle *PP)
 //asigna conjuntamente los valores de las propiedades de definición
 void TCircle::SetValues(TDoublePoint P, double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -682,7 +546,7 @@ double TCircle::distancePointMax(TDoublePoint Q)
 //calcula la distancia mínima entre la figura y una circulo
 double TCircle::distanceCircle(TCircle *C)
 {
-    //el puntero C debería apuntar a un círculio contruido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -691,7 +555,7 @@ double TCircle::distanceCircle(TCircle *C)
 //calcula la distancia mínima entre la figura y una circunferencia
 double TCircle::distanceCircunference(TCircunference *C)
 {
-    //el puntero C debería apuntar a una circunferencia contruida
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
@@ -701,7 +565,7 @@ double TCircle::distanceCircunference(TCircunference *C)
 //calcula la distancia mínima entre la figura y un segmento
 double TCircle::distanceSegment(TSegment *S)
 {
-    //el puntero S debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
@@ -710,7 +574,7 @@ double TCircle::distanceSegment(TSegment *S)
 //calcula la distancia mínima entre la figura y un arco
 double TCircle::distanceArc(TArc *A)
 {
-    //el puntero A debería apuntar a un punto contruido
+    //comprueba las precondiciones
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
@@ -720,7 +584,7 @@ double TCircle::distanceArc(TArc *A)
 //calcula la distancia mínima entre la figura y otra figura
 double TCircle::distance(TFigure *F)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -751,7 +615,7 @@ double TCircle::distance(TFigure *F)
 //Figure debe contener una figura geométrica del mismo tipo
 void TCircle::getRotated(TFigure *F, double theta)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -778,22 +642,6 @@ void TCircle::translate(TDoublePoint V)
     P.y += V.y;
 }
 
-//MÉTODOS GRÁFICOS:
-/*#
-//dibuja el círculo
-//en un trazador de formas
-void TCircle::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazador de formas construido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-    //configura el color de la pluma
-    PS->setPenColor(Color);
-    //pinta un circulito en el lugar del objeto
-    PS->Circle(P, p_R);
-}
-*/
 //--------------------------------------------------------------------------
 //TCircunference
 //--------------------------------------------------------------------------
@@ -807,7 +655,7 @@ AnsiString TCircunference::RLabel = "R";
 
 void TCircunference::setR(double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -824,8 +672,9 @@ AnsiString TCircunference::getRText(void) const
 void TCircunference::setRText(const AnsiString& S)
 {
     try {
-        setR(StrToFloat_(S));
-    } catch(...) {
+        setR(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to R in text format");
         throw;
     }
 }
@@ -845,8 +694,9 @@ void TCircunference::setText(const AnsiString& S)
         StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
             throw EImproperArgument("string S shouldcontain a single circle only");
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting value to circunference in text format: ");
         throw;
     }
 }
@@ -864,20 +714,21 @@ void TCircunference::setRowText(const AnsiString& S)
         StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
             throw EImproperArgument("string S shouldcontain a single circle only");
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting value to circunference in text format: ");
         throw;
     }
 }
 AnsiString TCircunference::getAssignsText(void) const
 {
-    AnsiString S;
+    string str;
 
-    S = AnsiString("x = ")+P.getxText()+AnsiString("\r\n");
-    S += AnsiString("y = ")+P.getyText()+AnsiString("\r\n");
-    S += AnsiString("R = ")+getRText()+AnsiString("\r\n");
+    str = "x = "+P.getxText().str+"\r\n";
+    str += "y = "+P.getyText().str+"\r\n";
+    str += "R = "+getRText().str+"\r\n";
 
-    return S;
+    return AnsiString(str);
 }
 
 //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
@@ -899,16 +750,15 @@ AnsiString TCircunference::GetRowLabels(void)
 //MÉTODOS ESTÁTICOS DE COMPARACIÓN:
 
 int  TCircunference::comparex(const TCircunference *C1,
-                                        const TCircunference *C2)
+                              const TCircunference *C2)
 {
-    //el puntero C1 debería apuntar a un círculo contruido
+    //comrpueba las precondiciones
     if(C1 == NULL)
         throw EImproperArgument("pointer C1 should point to built circle");
-
-    //el puntero C2 debería apuntar a un círculo contruido
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
+    //compara la propiedad
     if(C1->P.x < C2->P.x)
         return -1;
     if(C1->P.x > C2->P.x)
@@ -916,16 +766,15 @@ int  TCircunference::comparex(const TCircunference *C1,
     return 0;
 }
 int  TCircunference::comparey(const TCircunference *C1,
-                                        const TCircunference *C2)
+                              const TCircunference *C2)
 {
-    //el puntero C1 debería apuntar a un círculo contruido
+    //comrpueba las precondiciones
     if(C1 == NULL)
         throw EImproperArgument("pointer C1 should point to built circle");
-
-    //el puntero C2 debería apuntar a un círculo contruido
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
+    //compara la propiedad
     if(C1->P.y < C2->P.y)
         return -1;
     if(C1->P.y > C2->P.y)
@@ -933,16 +782,15 @@ int  TCircunference::comparey(const TCircunference *C1,
     return 0;
 }
 int  TCircunference::compareR(const TCircunference *C1,
-                                        const TCircunference *C2)
+                              const TCircunference *C2)
 {
-    //el puntero C1 debería apuntar a un círculo contruido
+    //comrpueba las precondiciones
     if(C1 == NULL)
         throw EImproperArgument("pointer C1 should point to built circle");
-
-    //el puntero C2 debería apuntar a un círculo contruido
     if(C2 == NULL)
         throw EImproperArgument("pointer C2 should point to built circle");
 
+    //compara la propiedad
     if(C1->p_R < C2->p_R)
         return -1;
     if(C1->p_R > C2->p_R)
@@ -954,7 +802,7 @@ int  TCircunference::compareR(const TCircunference *C1,
 
 void  TCircunference::Print(AnsiString& S, const TCircunference *C)
 {
-    //el puntero C debería apuntar a un círculo
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -962,7 +810,7 @@ void  TCircunference::Print(AnsiString& S, const TCircunference *C)
 }
 void  TCircunference::PrintRow(AnsiString& S, const TCircunference *C)
 {
-    //el puntero C debería apuntar a un círculo
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -970,7 +818,7 @@ void  TCircunference::PrintRow(AnsiString& S, const TCircunference *C)
 }
 void  TCircunference::PrintAssigns(AnsiString& S, const TCircunference *C)
 {
-    //el puntero C debería apuntar a un círculo
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -980,178 +828,64 @@ void  TCircunference::PrintAssigns(AnsiString& S, const TCircunference *C)
 //MÉTODOS ESTÁTICOS DE LECTURA:
 
 void  TCircunference::Read(TCircunference *C,
-                                     const AnsiString& S, int& i)
+                           const AnsiString& S, int& i)
 {
-    //el puntero C debería apuntar a un círculo construido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("circle values not founds");
 
-    //estado de lectura:
-    //      0: esperando separador o '('
-    //      1: esperando separador o TDoublePoint P
-    //      2: esperando separador o ','
-    //      3: esperando separador o double R
-    //      4: esperando separador o ')'
-    //      5: conjunto leido con éxito
-    int status = 0;
+    try {
+        //lee el valor en una variable tampón
+        TCircunference t_C;
+        StrTravelLabel("(", S,i);
+        TDoublePoint P;
+        StrReadDPoint(&P, S, i);
+        t_C.P = P;
+        StrTravelLabel(",", S,i);
+        double R;
+        StrReadFloat(R, S, i);
+        t_C.setR(R);
+        StrTravelLabel(")", S,i);
 
-    //variables tampón en formato conveniente
-    TCircunference t_C;
-
-    do {
-        //reacciona según el estado
-        switch(status) {
-        case 0: //esperando separador o '('
-            try {
-            StrTravelLabel("(", S,i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador o TDoublePoint P
-            try {
-            TDoublePoint aux;
-            StrReadDPoint(&aux, S, i);
-            t_C.P = aux;
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando separador o ','
-            try {
-            StrTravelLabel(",", S,i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador o double R
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.setR(aux);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando separador o ')'
-            try {
-            StrTravelLabel(")", S,i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientrasel conjunto no se haya leido con éxito
-    } while(status < 5);
-
-    //asigna la variable tampón
-    *C = t_C;
+        //asigna la variable tampón
+        *C = t_C;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to circunference in text format: ");
+        throw;
+    }
 }
 void  TCircunference::ReadRow(TCircunference *C,
-                                        const AnsiString& S, int& i)
+                              const AnsiString& S, int& i)
 {
-    //el puntero C debería apuntar a un círculo construido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("circle values not founds");
 
-    //estado de lectura
-    //      0: esperando valor para x
-    //      1: esperando separador
-    //      2: esperando valor para y
-    //      3: esperando separador
-    //      4: esperando valor para R
-    //      5: conjunto leido con éxito
-    int status = 0;
+    try {
+        //lee el valor en una variable tampón
+        TCircunference t_C;
+        double aux;
+        StrReadFloat(aux, S, i);
+        t_C.P.x = aux;
+        StrTravelSeparators(S, i);
+        StrReadFloat(aux, S, i);
+        t_C.P.y = aux;
+        StrTravelSeparators(S, i);
+        StrReadFloat(aux, S, i);
+        t_C.setR(aux);
 
-    //variables auxiliares
-    TCircunference t_C(C); //variable tampón
-    AnsiString Ident; //identificador de propiedad
-    AnsiString Value; //valor de propiedad
-
-    //ADVERTENCIA: las variables tampón con propiedades interdependientes
-    //deben ser clones de las variables que se pretenden modificar.
-
-    //NOTA: adviertase que las propiedades enteras son leidas como
-    //valores en punto flotante para detectar errores en los cuales
-    //sea especificado un valor en punto flotante en vez de un valor entero.
-
-    do {
-        switch(status) {
-        case 0: //esperando valor para x
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.P.x = aux;
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando valor para y
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.P.y = aux;
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando valor para R
-            try {
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_C.setR(aux);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras el conjunto no se haya leido con éxito
-    } while(status < 5);
-
-    //asigna la variable tampón
-    *C = t_C;
+        //asigna la variable tampón
+        *C = t_C;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to circunference in row text format: ");
+        throw;
+    }
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
@@ -1165,7 +899,7 @@ TCircunference::TCircunference(void) : TFigure(),
 }
 TCircunference::TCircunference(double x, double y, double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -1177,7 +911,7 @@ TCircunference::TCircunference(double x, double y, double R)
 }
 TCircunference::TCircunference(TDoublePoint P, double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -1190,33 +924,27 @@ TCircunference::TCircunference(TDoublePoint P, double R)
 //copia las propiedades de un objeto
 void TCircunference::Copy(TCircunference *C)
 {
-    //el puntero C debería apuntar a un círculo construido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built proyection point");
 
     //asigna las propiedades
     P = C->P;
     p_R = C->p_R;
-    //#Color = C->Color;
 }
 TCircunference& TCircunference::operator=(const TCircunference &C)
 {
     //asigna las propiedades
     P = C.P;
     p_R = C.p_R;
-    //#Color = C.Color;
 
     return *this;
 }
 
 //contruye un clon de un objeto
-TCircunference::TCircunference(TCircunference *PP)
+TCircunference::TCircunference(TCircunference *C)
 {
-    try {
-        Copy(PP);
-    } catch(...) {
-        throw;
-    }
+    Copy(C);
 }
 
 //MÉTODOS DE CONFIGURACIÓN:
@@ -1224,7 +952,7 @@ TCircunference::TCircunference(TCircunference *PP)
 //asigna conjuntamente los valores de las propiedades de definición
 void TCircunference::SetValues(TDoublePoint P, double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
 
@@ -1255,7 +983,7 @@ double TCircunference::distancePointMax(TDoublePoint Q)
 //calcula la distancia mínima entre la figura y una circulo
 double TCircunference::distanceCircle(TCircle *C)
 {
-    //el puntero C debería apuntar a un círculo contruido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -1264,7 +992,7 @@ double TCircunference::distanceCircle(TCircle *C)
 //calcula la distancia mínima entre la figura y una circunferencia
 double TCircunference::distanceCircunference(TCircunference *C)
 {
-    //el puntero C debería apuntar a una circunferencia contruida
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
@@ -1274,7 +1002,7 @@ double TCircunference::distanceCircunference(TCircunference *C)
 //calcula la distancia mínima entre la figura y un segmento
 double TCircunference::distanceSegment(TSegment *S)
 {
-    //el puntero S debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
@@ -1283,7 +1011,7 @@ double TCircunference::distanceSegment(TSegment *S)
 //calcula la distancia mínima entre la figura y un arco
 double TCircunference::distanceArc(TArc *A)
 {
-    //el puntero A debería apuntar a un punto contruido
+    //comprueba las precondiciones
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
@@ -1294,7 +1022,7 @@ double TCircunference::distanceArc(TArc *A)
 //calcula la distancia mínima entre la figura y otra figura
 double TCircunference::distance(TFigure *F)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -1325,11 +1053,9 @@ double TCircunference::distance(TFigure *F)
 //Figure debe contener una figura geométrica del mismo tipo
 void TCircunference::getRotated(TFigure *F, double theta)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
-
-    //el puntero F debería apauntar a una figura del tipo TCircunference
     if(typeid(*F) != typeid(TCircunference))
         throw EImproperArgument("pointer F should point to figure type TCircunference");
 
@@ -1352,22 +1078,6 @@ void TCircunference::translate(TDoublePoint V)
     P.y += V.y;
 }
 
-//MÉTODOS GRÁFICOS:
-/*#
-//dibuja la circunferencia
-//en un trazador de formas
-void TCircunference::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazador de formas construido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-    //configura el color de la pluma
-    PS->setPenColor(Color);
-    //pinta un circulito en el lugar del objeto
-    PS->Circunference(P, p_R);
-}
-*/
 //--------------------------------------------------------------------------
 //TContourFigure
 //--------------------------------------------------------------------------
@@ -1377,18 +1087,19 @@ void TCircunference::Paint(TPloterShapes *PS)
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
 void  TContourFigure::ContourFigurePrint(AnsiString& S,
-                                                   TContourFigure *F)
+                                         TContourFigure *F)
 {
     TFigure::figurePrint(S, (TFigure*)F);
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
 void  TContourFigure::ContourFigureRead(TContourFigure* &F,
-                                                  const AnsiString& S, int& i)
+                                        const AnsiString& S, int& i)
 {
     try {
         TFigure::figureRead((TFigure*&)F, S, i);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "reading contour figure: ");
         throw;
     }
 }
@@ -1436,9 +1147,21 @@ AnsiString TSegment::getText(void) const
 void TSegment::setText(const AnsiString& S)
 {
     try {
+        //read the value in a tanpon variable
+        TSegment Segment;
         int i = 1;
-        Read(this, S, i);
-    } catch(...) {
+        Read(&Segment, S, i);
+
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //asigna la variable tampón
+        this->Copy(&Segment);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting segment in text format: ");
         throw;
     }
 }
@@ -1449,9 +1172,21 @@ AnsiString TSegment::getRowText(void) const
 void TSegment::setRowText(const AnsiString& S)
 {
     try {
+        //read the value in a tanpon variable
+        TSegment Segment;
         int i = 1;
-        ReadRow(this, S, i);
-    } catch(...) {
+        ReadRow(&Segment, S, i);
+
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //asigna la variable tampón
+        this->Copy(&Segment);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading segment in row text format: ");
         throw;
     }
 }
@@ -1462,7 +1197,7 @@ void TSegment::setRowText(const AnsiString& S)
 //en formato texto entre paréntesis
 void  TSegment::Print(AnsiString& S, TContourFigure *O)
 {
-    //el puntero O debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
 
@@ -1472,7 +1207,7 @@ void  TSegment::Print(AnsiString& S, TContourFigure *O)
 //en formato línea de texto
 void  TSegment::PrintRow(AnsiString& S, TContourFigure *O)
 {
-    //el puntero O debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
 
@@ -1482,154 +1217,60 @@ void  TSegment::PrintRow(AnsiString& S, TContourFigure *O)
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
 void  TSegment::Read(TContourFigure *O_,
-                               const AnsiString& S, int& i)
+                     const AnsiString& S, int& i)
 {
-    //convierte a tipo concreto
+    //convierte el puntero a tipo concreto
     TSegment *O = (TSegment*)O_;
 
-    //el puntero O debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("segment values not founds");
 
-    //estado de lectura:
-    //      0: esperando separador o '('
-    //      1: esperando separador o valor para Pa
-    //      2: esperando separador o ','
-    //      3: esperando separador o valor para Pb
-    //      4: esperando separador o ')'
-    //      5: conjunto leido con éxito
-    int status = 0;
-
-    //variable tampón en formato conveniente
-    TDoublePoint Pa, Pb;
-
-    do {
-        //reacciona según el estado
-        switch(status) {
-        case 0: //esperando separador o '('
-            try {
-            StrTravelLabel("(", S,i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador o valor para Pa
-            try {
-            StrReadDPoint(&Pa, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando separador o ','
-            try {
-            StrTravelLabel(",", S,i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador o TDoublePoint Pb
-            try {
-            StrReadDPoint(&Pb, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando separador o ')'
-            try {
-            StrTravelLabel(")", S,i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras el conjunto no se haya leido con éxito
-    } while(status < 5);
-
-    //asigna la variable tampón
     try {
+        //lee el valor envariables tampón
+        TDoublePoint Pa, Pb;
+        StrTravelLabel("(", S,i);
+        StrReadDPoint(&Pa, S, i);
+        StrTravelLabel(",", S,i);
+        StrReadDPoint(&Pb, S, i);
+        StrTravelLabel(")", S,i);
+
+        //asigna la variable tampón
         O->SetValues(Pa, Pb);
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to segment in text format: ");
         throw;
     }
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato línea de texto
 void  TSegment::ReadRow(TContourFigure *O_,
-                                  const AnsiString& S, int& i)
+                        const AnsiString& S, int& i)
 {
     //convierte a tipo concreto
     TSegment *O = (TSegment*)O_;
 
-    //el puntero O debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("segment values not founds");
 
-    //estado de lectura:
-    //      0: esperando separador o valor para Pa
-    //      1: esperando separador
-    //      2: esperando separador o valor para Pb
-    //      3: conjunto leido con éxito
-    int status = 0;
-
-    //variable tampón en formato conveniente
-    TDoublePoint Pa, Pb;
-
-    do {
-        //reacciona según el estado
-        switch(status) {
-        case 0: //esperando separador o valor para Pa
-            try {
-            StrReadDPoint(&Pa, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador
-            try {
-            StrTravelSeparators(S,i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando separador o TDoublePoint Pb
-            try {
-            StrReadDPoint(&Pb, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras el conjunto no se haya leido con éxito
-    } while(status < 3);
-
-    //asigna la variable tampón
     try {
+        //lee el valor envariables tampón
+        TDoublePoint Pa, Pb;
+        StrReadDPoint(&Pa, S, i);
+        StrTravelSeparators(S,i);
+        StrReadDPoint(&Pb, S, i);
+
+        //asigna la variable tampón
         O->SetValues(Pa, Pb);
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to segment in row text format: ");
         throw;
     }
 }
@@ -1660,7 +1301,7 @@ TSegment::TSegment(TDoublePoint Pa, TDoublePoint Pb) : TContourFigure()
 //copia las propiedades de un objeto
 void TSegment::Copy(TSegment *O)
 {
-    //el puntero O debería apuntar a un segmento construido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
 
@@ -1682,11 +1323,7 @@ TSegment& TSegment::operator=(const TSegment &O)
 //contruye un clon de un objeto
 TSegment::TSegment(TSegment *O)
 {
-    try {
-        Copy(O);
-    } catch(...) {
-        throw;
-    }
+    Copy(O);
 }
 
 //MÉTODOS DE CONFIGURACIÓN:
@@ -1715,7 +1352,7 @@ double TSegment::distancePointMax(TDoublePoint Q)
 //calcula la distancia mínima entre la figura y una circulo
 double TSegment::distanceCircle(TCircle *C)
 {
-    //el puntero C debería apuntar a un círculio contruido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -1724,7 +1361,7 @@ double TSegment::distanceCircle(TCircle *C)
 //calcula la distancia mínima entre la figura y una circunferencia
 double TSegment::distanceCircunference(TCircunference *C)
 {
-    //el puntero C debería apuntar a una circunferencia contruida
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
@@ -1734,7 +1371,7 @@ double TSegment::distanceCircunference(TCircunference *C)
 //calcula la distancia mínima entre la figura y un segmento
 double TSegment::distanceSegment(TSegment *S)
 {
-    //el puntero S debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(S == NULL)
         throw EImproperArgument("pointer S should point to built segment");
 
@@ -1743,7 +1380,7 @@ double TSegment::distanceSegment(TSegment *S)
 //calcula la distancia mínima entre la figura y un arco
 double TSegment::distanceArc(TArc *A)
 {
-    //el puntero A debería apuntar a un punto contruido
+    //comprueba las precondiciones
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
@@ -1754,7 +1391,7 @@ double TSegment::distanceArc(TArc *A)
 //calcula la distancia mínima entre la figura y otra figura
 double TSegment::distance(TFigure *F)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -1777,7 +1414,7 @@ double TSegment::distance(TFigure *F)
         return distanceArc((TArc*)F);
     else
         throw EImpossibleError(AnsiString("unknown type: ")+
-                              AnsiString(typeid(*F).name()));
+                               AnsiString(typeid(*F).name()));
 }
 
 //MÉTODOS DE ROTACIÓN Y TRASLACIÓN
@@ -1786,7 +1423,7 @@ double TSegment::distance(TFigure *F)
 //Figure debe contener una figura geométrica del mismo tipo
 void TSegment::getRotated(TFigure *F, double theta)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -1817,22 +1454,6 @@ void TSegment::translate(TDoublePoint V)
     p_Pb.y += V.y;
 }
 
-//MÉTODOS GRÁFICOS:
-/*#
-//dibuja el segmento
-//en un trazador de formas
-void TSegment::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazador de formas construido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-    //configura el color de la pluma
-    PS->setPenColor(Color);
-    //pinta un circulito en el lugar del objeto
-    PS->Segment(p_Pa, p_Pb);
-}
-*/
 //--------------------------------------------------------------------------
 //TArc
 //--------------------------------------------------------------------------
@@ -1841,11 +1462,9 @@ void TSegment::Paint(TPloterShapes *PS)
 
 void TArc::setPa(TDoublePoint Pa)
 {
-    //el vértice Pa no debe coincidir con el centro Pc
+    //comprueba las precondiciones
     if(Pa == p_Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
-
-    //el punto Pa debe estar en el entorno del arco
     if(!IsInRangeArc(Pa))
         throw EImproperArgument("point Pa should be in range of arc");
 
@@ -1854,7 +1473,7 @@ void TArc::setPa(TDoublePoint Pa)
 }
 void TArc::setPb(TDoublePoint Pb)
 {
-    //el vértice Pb no debe coincidir con el centro Pc
+    //comprueba las precondiciones
     if(Pb == p_Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
 
@@ -1867,14 +1486,11 @@ void TArc::setPb(TDoublePoint Pb)
 }
 void TArc::setPc(TDoublePoint Pc)
 {
-    //el centro Pc no debe coincidir con el vértice Pa
+    //comprueba las precondiciones
     if(Pc == p_Pa)
         throw EImproperArgument("center Pc should not be equal vertex Pa");
-    //el centro Pc no debe coincidir con el vértice Pb
     if(Pc == p_Pb)
         throw EImproperArgument("center Pc should not be equal vertex Pb");
-
-    //el punto Pc debe estar en el entorno del centro del arco
     if(Abs(Mod(p_Pa - Pc) - p_R)>ERR_NUM || Abs(Mod(p_Pb - Pc) - p_R)>ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
 
@@ -1883,11 +1499,9 @@ void TArc::setPc(TDoublePoint Pc)
 }
 void TArc::setR(double R)
 {
-    //el radio debe ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
         throw EImproperArgument("radio R should be upper zero");
-
-    //el radio R debe ser tal que Pa y Pb estén en el entorno del arco
     if(Abs(Mod(p_Pa - p_Pc) - R)>ERR_NUM || Abs(Mod(p_Pb - p_Pc) - R)>ERR_NUM)
         throw EImproperArgument("radio R should be such that Pa and Pb are in range arc");
 
@@ -1905,7 +1519,8 @@ void TArc::setPaText(const AnsiString& S)
 {
     try {
         setPa(StrToDPoint(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to Pa of an arc in text format: ");
         throw;
     }
 }
@@ -1917,7 +1532,8 @@ void TArc::setPbText(const AnsiString& S)
 {
     try {
         setPb(StrToDPoint(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to Pb of an arc in text format: ");
         throw;
     }
 }
@@ -1929,7 +1545,8 @@ void TArc::setPcText(const AnsiString& S)
 {
     try {
         setPc(StrToDPoint(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to Pc of an arc in text format: ");
         throw;
     }
 }
@@ -1941,7 +1558,8 @@ void TArc::setRText(const AnsiString& S)
 {
     try {
         setR(StrToFloat(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting value to R of an arc in text format: ");
         throw;
     }
 }
@@ -1955,9 +1573,21 @@ AnsiString TArc::getText(void) const
 void TArc::setText(const AnsiString& S)
 {
     try {
+        //read the value in a tanpon variable
+        TArc A;
         int i = 1;
-        Read(this, S, i);
-    } catch(...) {
+        Read(&A, S, i);
+
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //asigna la variable tampón
+        this->Copy(&A);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting value to an arc in text format: ");
         throw;
     }
 }
@@ -1970,9 +1600,21 @@ AnsiString TArc::getRowText(void) const
 void TArc::setRowText(const AnsiString& S)
 {
     try {
+        //read the value in a tanpon variable
+        TArc A;
         int i = 1;
-        ReadRow(this, S, i);
-    } catch(...) {
+        ReadRow(&A, S, i);
+
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //asigna la variable tampón
+        this->Copy(&A);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting value to an arc in row text format: ");
         throw;
     }
 }
@@ -1982,9 +1624,9 @@ void TArc::setRowText(const AnsiString& S)
 //imprime las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
 void  TArc::Print(AnsiString& S,
-                            TContourFigure *O)
+                  TContourFigure *O)
 {
-    //el puntero O debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
 
@@ -1994,7 +1636,7 @@ void  TArc::Print(AnsiString& S,
 //en formato línea de texto
 void  TArc::PrintRow(AnsiString& S, TContourFigure *O)
 {
-    //el puntero O debería apuntar a un segmento contruido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
 
@@ -2004,242 +1646,83 @@ void  TArc::PrintRow(AnsiString& S, TContourFigure *O)
 //lee las propiedades de un objeto en una cadena de texto
 //en formato texto entre paréntesis
 void  TArc::Read(TContourFigure *_O,
-                           const AnsiString& S, int& i)
+                 const AnsiString& S, int& i)
 {
     //convierte a tipo concreto
     TArc *O = (TArc*)_O;
 
-    //el puntero O debería apuntar a un segmento contruido
+    //comrpueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("arc values not founds");
 
-    //estado de lectura:
-    //      0: esperando separador o '('
-    //      1: esperando separador o TDoublePoint para Pa
-    //      2: esperando separador o ','
-    //      3: esperando separador o TDoublePoint para Pb
-    //      4: esperando separador o ','
-    //      5: esperando separador o TDoublePoint para Pc
-    //      6: esperando separador o ','
-    //      7: esperando separador o double para R
-    //      8: esperando separador o ')'
-    //      9: grupo leido con éxito
-    int status = 0;
-
-    //variables tampón en formato conveniente
-    TDoublePoint Pa; //punto central
-    TDoublePoint Pb; //punto incial (en sentido dextrógiro)
-    TDoublePoint Pc; //punto final (en sentido dextrógiro)
-    double R; //radio
-
-    do {
-        //reacciona según el estado
-        switch(status) {
-        case 0: //esperando separador o '('
-            try {
-            StrTravelLabel("(", S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador o TDoublePoint Pa
-            try {
-            StrReadDPoint(&Pa, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando separador o ','
-            try {
-            StrTravelLabel(",", S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador o TDoublePoint Pb
-            try {
-            StrReadDPoint(&Pb, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando separador o ','
-            try {
-            StrTravelLabel(",", S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 5: //esperando separador o TDoublePoint Pc
-            try {
-            StrReadDPoint(&Pc, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 6: //esperando separador o ','
-            try {
-            StrTravelLabel(",", S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 7: //esperando separador o TDoublePoint R
-            try {
-            StrReadFloat(R, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 8: //esperando separador o ')'
-            try {
-            StrTravelLabel(")", S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido el grupo con éxito
-    } while(status < 9);
-
-    //asigna las variables tampón
     try {
+        //lee el valor en variables tampón
+        StrTravelLabel("(", S, i);
+        TDoublePoint Pa; //punto central
+        StrReadDPoint(&Pa, S, i);
+        StrTravelLabel(",", S, i);
+        TDoublePoint Pb; //punto incial (en sentido dextrógiro)
+        StrReadDPoint(&Pb, S, i);
+        StrTravelLabel(",", S, i);
+        TDoublePoint Pc; //punto final (en sentido dextrógiro)
+        StrReadDPoint(&Pc, S, i);
+        StrTravelLabel(",", S, i);
+        double R; //radio
+        StrReadFloat(R, S, i);
+        StrTravelLabel(")", S, i);
+
+        //asigna las variables tampón
         O->SetValues(Pa, Pb, Pc, R);
-    } catch(...) {
+TDoublePoint Pa_;
+int aux;
+if(i > 346) {
+    Pa_ = O->getPa();
+    aux = 0;
+}
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to an arc in text format: ");
         throw;
     }
 }
 //lee las propiedades de un objeto en una cadena de texto
 //en formato línea de texto
 void  TArc::ReadRow(TContourFigure *_O,
-                              const AnsiString& S, int& i)
+                    const AnsiString& S, int& i)
 {
     //convierte a tipo concreto
     TArc *O = (TArc*)_O;
 
-    //el puntero O debería apuntar a un segmento contruido
+    //coprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se han encontrado los valores del círculo
         throw EImproperArgument("arc values not founds");
 
-    //estado de lectura:
-    //      0: esperando separador o TDoublePoint para Pa
-    //      1: esperando separador
-    //      2: esperando separador o TDoublePoint para Pb
-    //      3: esperando separador
-    //      4: esperando separador o TDoublePoint para Pc
-    //      5: esperando separador
-    //      6: esperando separador o double para R
-    //      7: grupo leido con éxito
-    int status = 0;
-
-    //variables tampón en formato conveniente
-    TDoublePoint Pa; //punto central
-    TDoublePoint Pb; //punto incial (en sentido dextrógiro)
-    TDoublePoint Pc; //punto final (en sentido dextrógiro)
-    double R; //radio
-
-    do {
-        //reacciona según el estado
-        switch(status) {
-        case 0: //esperando separador o TDoublePoint Pa
-            try {
-            StrReadDPoint(&Pa, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 1: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 2: //esperando separador o TDoublePoint Pb
-            try {
-            StrReadDPoint(&Pb, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 3: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 4: //esperando separador o TDoublePoint Pc
-            try {
-            StrReadDPoint(&Pc, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 5: //esperando separador
-            try {
-            StrTravelSeparators(S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-
-        case 6: //esperando separador o TDoublePoint R
-            try {
-            StrReadFloat(R, S, i);
-        } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido el grupo con éxito
-    } while(status < 7);
-
-    //asigna las variables tampón
     try {
+        //lee el valor en variables tampón
+        TDoublePoint Pa; //punto central
+        StrReadDPoint(&Pa, S, i);
+        StrTravelSeparators(S, i);
+        TDoublePoint Pb; //punto incial (en sentido dextrógiro)
+        StrReadDPoint(&Pb, S, i);
+        StrTravelSeparators(S, i);
+        TDoublePoint Pc; //punto final (en sentido dextrógiro)
+        StrReadDPoint(&Pc, S, i);
+        StrTravelSeparators(S, i);
+        double R; //radio
+        StrReadFloat(R, S, i);
+
+        //asigna las variables tampón
         O->SetValues(Pa, Pb, Pc, R);
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading value to an arc in row text format: ");
         throw;
     }
+
 }
 
 //MÉTODOS DE CONTRUCCIÓN,COPIA Y CLONACIÓN:
@@ -2267,23 +1750,15 @@ TArc::TArc(double ax, double ay, double bx, double by, double cx, double cy,
     TDoublePoint Pb; Pb.x = bx; Pb.y = by;
     TDoublePoint Pc; Pc.x = cx; Pc.y = cy;
 
-    //el vértice Pa no debe coincidir con el centro Pc
+    //comprueba las precondiciones
     if(Pa == Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
-
-    //el vértice Pb no debe coincidir con el centro Pc
     if(Pb == Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
-
-    //el radio R debería ser no negativo
     if(R < 0)
         throw EImproperArgument("radio R should be nonnegative");
-
-    //el punto Pa debe estar en el entorno de un punto del arco
     if(Abs(Mod(Pa - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
-
-    //el punto Pb debe estar en el entorno de un punto del arco
     if(Abs(Mod(Pb - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pb should be in range of a point in the arc");
 
@@ -2301,23 +1776,15 @@ TArc::TArc(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
     //dicha función no indica la causa de que (Pa, Pb, Pc, R)
     //no sea un arco.
 
-    //el vértice Pa no debe coincidir con el centro Pc
+    //comprueba las precondiciones
     if(Pa == Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
-
-    //el vértice Pb no debe coincidir con el centro Pc
     if(Pb == Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
-
-    //el radio R debería ser no negativo
     if(R < 0)
         throw EImproperArgument("radio R should be nonnegative");
-
-    //el punto Pa debe estar en el entorno de un punto del arco
     if(Abs(Mod(Pa - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pa should be in range of a point in the arc");
-
-    //el punto Pb debe estar en el entorno de un punto del arco
     if(Abs(Mod(Pb - Pc) - R) > ERR_NUM)
         throw EImproperArgument("point Pb should be in range of a point in the arc");
 
@@ -2331,7 +1798,7 @@ TArc::TArc(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc,
 //copia las propiedades de un objeto
 void TArc::Copy(TArc *O)
 {
-    //el puntero O debería apuntar a un segmento construido
+    //comprueba las precondiciones
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
 
@@ -2340,7 +1807,6 @@ void TArc::Copy(TArc *O)
     p_Pb = O->p_Pb;
     p_Pc = O->p_Pc;
     p_R = O->p_R;
-    //#Color = O->Color;
 }
 TArc& TArc::operator=(const TArc &O)
 {
@@ -2349,7 +1815,6 @@ TArc& TArc::operator=(const TArc &O)
     p_Pb = O.p_Pb;
     p_Pc = O.p_Pc;
     p_R = O.p_R;
-    //#Color = O.Color;
 
     return *this;
 }
@@ -2357,11 +1822,7 @@ TArc& TArc::operator=(const TArc &O)
 //contruye un clon de un objeto
 TArc::TArc(TArc *O)
 {
-    try {
-        Copy(O);
-    } catch(...) {
-        throw;
-    }
+    Copy(O);
 }
 
 //MÉTODOS DE CONFIGURACIÓN:
@@ -2388,30 +1849,45 @@ void TArc::SetValues(TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R
     //dicha función no indica la causa de que (Pa, Pb, Pc, R)
     //no sea un arco.
 
-    //el vértice Pa no debe coincidir con el centro Pc
+    //comprueba las precondiciones
     if(Pa == Pc)
         throw EImproperArgument("vertex Pa should not be equal center Pc");
-
-    //el vértice Pb no debe coincidir con el centro Pc
     if(Pb == Pc)
         throw EImproperArgument("vertex Pb should not be equal center Pc");
-
-    //el radio R debería ser no negativo
     if(R < 0)
         throw EImproperArgument("radio R should be nonnegative");
 
     //el punto Pa debe estar en el entorno de un punto del arco
-    if(Abs(Mod(Pa - Pc) - R) > ERR_NUM)
-        throw EImproperArgument("point Pa should be in range of a point in the arc");
+    //    double aux = Abs(Mod(Pa - Pc) - R);
+    //    if(aux > ERR_NUM)
+    //      throw EImproperArgument("point Pa should be in range of a point in the arc");
 
     //el punto Pb debe estar en el entorno de un punto del arco
-    double aux = Abs(Mod(Pb - Pc) - R);
-    if(aux > ERR_NUM)
-        throw EImproperArgument("point Pb should be in range of a point in the arc");
+    //    aux = Abs(Mod(Pb - Pc) - R);
+    //    if(aux > ERR_NUM)
+    //      throw EImproperArgument("point Pb should be in range of a point in the arc");
+
+    //corriege el exceso de error numérico introducido por el usuario en Pa
+    TDoublePoint Pa_;
+    double aux = Abs(Mod(Pa - Pc) - R);
+    if(aux > ERR_NUM) {
+        TDoublePoint v1 = Pa - Pc;
+        Pa_ = Pc + v1/Mod(v1)*R;
+    } else
+        Pa_ = Pa;
+
+    //corriege el exceso de error numérico introducido por el usuario en Pb
+    TDoublePoint Pb_;
+    aux = Abs(Mod(Pb - Pc) - R);
+    if(aux > ERR_NUM) {
+        TDoublePoint v1 = Pb - Pc;
+        Pb_ = Pc + v1/Mod(v1)*R;
+    } else
+        Pb_ = Pb;
 
     //asigna los nuevos valores
-    p_Pa = Pa;
-    p_Pb = Pb;
+    p_Pa = Pa_;
+    p_Pb = Pb_;
     p_Pc = Pc;
     p_R = R;
 }
@@ -2432,7 +1908,7 @@ double TArc::distancePointMax(TDoublePoint Q)
 //calcula la distancia mínima entre la figura y una circunferencia
 double TArc::distanceCircunference(TCircunference *C)
 {
-    //el puntero C debería apuntar a una circunferencia contruida
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circunference");
 
@@ -2441,7 +1917,7 @@ double TArc::distanceCircunference(TCircunference *C)
 //calcula la distancia mínima entre la figura y una circulo
 double TArc::distanceCircle(TCircle *C)
 {
-    //el puntero C debería apuntar a un círculio contruido
+    //comprueba las precondiciones
     if(C == NULL)
         throw EImproperArgument("pointer C should point to built circle");
 
@@ -2449,18 +1925,18 @@ double TArc::distanceCircle(TCircle *C)
 }
 
 //calcula la distancia mínima entre la figura y un segmento
-double TArc::distanceSegment(TSegment *S)
+double TArc::distanceSegment(TSegment *A)
 {
-    //el puntero S debería apuntar a un segmento contruido
-    if(S == NULL)
-        throw EImproperArgument("pointer S should point to built segment");
+    //comprueba las precondiciones
+    if(A == NULL)
+        throw EImproperArgument("pointer A should point to built arc");
 
-    return distanceArcSegment(p_Pa, p_Pb, p_Pc, p_R, S->getPa(), S->getPb());
+    return distanceArcSegment(p_Pa, p_Pb, p_Pc, p_R, A->getPa(), A->getPb());
 }
 //calcula la distancia mínima entre la figura y un arco
 double TArc::distanceArc(TArc *A)
 {
-    //el puntero A debería apuntar a un punto contruido
+    //comprueba las precondiciones
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built arc");
 
@@ -2471,7 +1947,7 @@ double TArc::distanceArc(TArc *A)
 //calcula la distancia mínima entre la figura y otra figura
 double TArc::distance(TFigure *F)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -2502,11 +1978,9 @@ double TArc::distance(TFigure *F)
 //Figure debe contener una figura geométrica del mismo tipo
 void TArc::getRotated(TFigure *F, double theta)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
-
-    //el puntero F debería apauntar a una figura del tipo TArc
     if(typeid(*F) != typeid(TArc))
         throw EImproperArgument("pointer F should point to figure type TArc");
 
@@ -2537,22 +2011,6 @@ void TArc::translate(TDoublePoint V)
     p_Pc.y += V.y;
 }
 
-//MÉTODOS GRÁFICOS:
-/*#
-//dibuja el arco
-//en un trazador de formas
-void TArc::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazador de formas construido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-    //configura el color de la pluma
-    PS->setPenColor(Color);
-    //pinta un circulito en el lugar del objeto
-    PS->Arc(p_Pa, p_Pb, p_Pc, p_R);
-}
-*/
 //--------------------------------------------------------------------------
 //FUNCIONES RELACIONADAS:
 
@@ -2560,7 +2018,7 @@ void TArc::Paint(TPloterShapes *PS)
 //y su vértice final en torno de un punto P
 double rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
 {
-    //el puntero F debería apuntar a una figura contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built figure");
 
@@ -2604,6 +2062,36 @@ double rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P)
 
     //indica que el puntero F debería apuntar a un segmento o un arco
     throw EImpossibleError("pointer F should point to a segment or an arc");
+}
+
+//determina si dos figuras son diferentes
+bool areUnequals(const TFigure *F1, const TFigure *F2)
+{
+    if(typeid(F1) != typeid(F2))
+        return true;
+
+    if(typeid(*F1) == typeid(TCircle)) {
+        TCircle *C1 = (TCircle*)F1;
+        TCircle *C2 = (TCircle*)F2;
+        if(C1->P != C2->P || C1->getR() != C2->getR())
+            return true;
+    } else if(typeid(*F1) == typeid(TCircunference)) {
+        TCircle *C1 = (TCircle*)F1;
+        TCircle *C2 = (TCircle*)F2;
+        if(C1->P != C2->P || C1->getR() != C2->getR())
+            return true;
+    } else if(typeid(*F1) == typeid(TSegment)) {
+        TSegment *S1 = (TSegment*)F1;
+        TSegment *S2 = (TSegment*)F2;
+        if(S1->getPa() != S2->getPa() || S1->getPb() != S2->getPb())
+            return true;
+    } else if(typeid(*F1) == typeid(TArc)) {
+        TArc *A1 = (TArc*)F1;
+        TArc *A2 = (TArc*)F2;
+        if(A1->getPa() != A2->getPa() || A1->getPb() != A2->getPb() || A1->getPc() != A2->getPc())
+            return true;
+    }
+    return false;
 }
 
 //---------------------------------------------------------------------------

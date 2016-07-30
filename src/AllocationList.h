@@ -17,8 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TAllocationList.h
-//Content: class allocation list
+//File: AllocationList.h
+//Content: allocation list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -36,6 +36,8 @@ using namespace Models;
 namespace Positioning {
 
 //---------------------------------------------------------------------------
+//TAllocationList
+//---------------------------------------------------------------------------
 
 //class allocation list
 class TAllocationList : public TItemsList<TAllocation*> {
@@ -50,8 +52,8 @@ public:
         //PROPERTIES IN TEXT FORMAT:
 
         //allocation list in text format
-        AnsiString geTAllocationsText(void);
-        void seTAllocationsText(AnsiString&);
+        AnsiString getAllocationsText(void);
+        void setAllocationsText(AnsiString&);
 
         //BUILDING AND DESTROYING METHODS:
 
@@ -68,73 +70,30 @@ public:
         //search the allocation attached to an identified RP
         int searchAllocation(int Id) const;
 
-        //OBJETOS INDICADOS:
+        //LISTED ITEMS:
 
-        //añade un punto objetivo para el posicionador indicado de la lista
+        //añade una asignación para el posicionador indicado de la lista
         void AddAllocation(int i);
-        //borra el punto objetivo indicada de la lista
+        //borra la asignación indicada de la lista
         void DeleteAllocation(int i);
 
-/*        //OBJETOS SELECCIONADOS DE LA LISTA:
+        //ALL ITEMS:
 
-        //añade puntos objetivo con la posición del punto P3
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        int AddP3Selected(void);
-        //destruye los puntos objetivo
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        int DeleteSelected(void);
-
-        //asigna el punto P3o a los puntos objetivo
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        int SetP3oSelected(void);
-        //asigna el punto P3 a los puntos objetivo
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        int SetP3Selected(void);
-
-        //randomiza los puntos objetivo con distribución uniforme
-        //en el dominio del punto P3 de sus posicionadores adscrito
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        int RandomizeSelected(void);
-        //randomiza los puntos objetivo con distribución uniforme
-        //en el dominio del punto P3 de sus posicionadores adscritos
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        int RandomizeWithoutCollisionSelected(void);
-
-        //asigna los puntos objetivo
-        //al punto P3 de sus posicionadores adscritos
-        //de los posicionadores seleccionados de la lista
-        //e indica el número de posicionadores seleccionados
-        //si algún punto objetivo no está en el dominio de
-        //su posicionador adscrito lanza EImproperCall
-        int MoveToTargetP3Selected(void);
-
-        //NOTA: cunado un punto es asignado al punto P3 de un posicionador
-        //cuya cuantificación está activada, el posicionador se moverá
-        //a la posición estable máspróxima.
-*/
-        //TODOS LOS OBJETOS DE LA LISTA:
-
-        //añade puntos objetivo con la posición del punto P3
+        //añade asignaciones con la posición del punto P3
         //de todos los posicionadores de la lista
         void AddP3(void);
-        //destruye los puntos objetivo
+        //destruye las asignaciones
         //de todos los posicionadores de la lista
         void Delete_(void);
 
         //El método:
-        //      void Delete(int i);
+        //  void Delete(int i);
         //Parece enmascarado por el método:
-        //      void Delete(void);
+        //  void Delete(void);
 
-        //asigna el punto PO3 a los puntos objetivo
+        //asigna el punto P3o a los puntos objetivo
         //de todos los posicionadores de la lista
-        void SetPO3(void);
+        void SetP3o(void);
         //asigna el punto P3 a los puntos objetivo
         //de todos los posicionadores de la lista
         void SetP3(void);
@@ -159,7 +118,7 @@ public:
         //cuya cuantificación está activada, el posicionador se moverá
         //a la posición estable máspróxima.
 
-        //VALIDACIÓN:
+        //VALIDATION:
 
         //Los siguientes métodos deben ser invocados antes de
         //desplazar los posicionadores a sus puntos objetivo:
@@ -172,35 +131,33 @@ public:
         void SearchMissingRPs(TVector<int> &indices);
 
         //El método SearchMissigRPs es necesario
-        //porque la lista de puntos objetivo adscrita (RoboticPositionerList)
+        //porque la lista de posicionadores adscrita (RoboticPositionerList)
         //puede ser manipulada.
 
         //busca los puntos objetivo que están fuera del dominio
         //de sus posicionadores adscritos
         void SearchOutDomineTAllocations(TVector<int> &indices);
 
-        //Determina la invalidez de una lista de puntos objetivo
+        //Determina la invalidez de una lista de asignaciones
         //para ser programada.
         //Valores de retorno:
-        //      0: lista de puntos objetivo válida;
-        //      1: posicionadores adscritos de los puntos objetivo indicados
-        //         ausentes;
-        //      2: puntos objetivo indicados fuera del dominio de
-        //         sus posicionadores adscritos.
+        //  0: lista de asignaciones válida;
+        //  1: puntos objetivo adscritos a posicionadores ausentes;
+        //  2: puntos objetivo fuera del dominio de sus posicionadores adscritos.
         int Invalid(TVector<int> &indices);
 
-        //SEGREGACIÓN:
+        //SEGREGATION:
 
-        //segrega los posicionadores de los puntos objetivo en dos listas:
-        //      internos: con el brazo dentro del área de seguridad;
-        //      externos: con el brazo fuera del área de seguridad;
+        //segrega los posicionadores de las asignaciones en dos listas:
+        //  internos: con el brazo dentro del área de seguridad;
+        //  externos: con el brazo fuera del área de seguridad;
         //si algún punto objetivo está fuera del dominio de
         //su posicionador adscrito:
         //      lanza EImproperCall
         void SegregateInOut(TRoboticPositionerList &Inners,
                 TRoboticPositionerList &Outsiders);
 
-        //ALMACENAMIENTO Y RECUPERACIÓN DE POSICIONES:
+        //STACKING AND RETRIEVAL OF POSITIONS:
 
         //apila las posiciones de los posicionadores adscritos
         void PushPositions(void);
@@ -211,16 +168,16 @@ public:
         //restaura y desempila las posiciones de los posicionadores adscritos
         void RestoreAndPopPositions(void);
 
-        //COLISIÓN:
+        //COLlISION:
 
         //levanta las banderas indicadoras de determinación de colisión
-        //pendiente de todos los posicionadores adscritos a los puntos objetivo
+        //pendiente de todos los posicionadores adscritos a las asignaciones
         void EnablePendingCollisionDetermineTAllocations(void);
 
         //El siguiente método debe invocarse una vez desplazados
-        //los posicionadores a los puntos objetivo:
+        //los posicionadores a sus puntos objetivo:
 
-        //busca los puntos objetivo que colisionan con otros puntos objetivo
+        //busca las asignaciones que colisionan con otras asignaciones
         void SearchCollindingTAllocations(TVector<int> &indices);
 
         //ADVERTENCIA: cuando la cuantificación de alguno de los ejes
@@ -232,9 +189,9 @@ public:
 
         //COUNT OF ALLOCATION TYPES:
 
-        //count the number of reference sources in the SPPP list
+        //count the number of reference sources in the allocation list
         unsigned int countNR(void) const;
-        //count the number of blanks in the SPPP list
+        //count the number of blanks in the allocation list
         unsigned int countNB(void) const;
 
         //------------------------------------------------------------------
@@ -244,7 +201,7 @@ public:
         //se debe partir de una posición inicial sin colisiones.
         //      RoboticPositionerList->SearchCollinding(indices)
         //
-        //Comprueba la validez de la lista de puntos objetivo:
+        //Comprueba la validez de la lista de asignaciones
         //      Invalid(indices)
         //
         //Segrega los posicionadores internos de los externos:

@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: ProjectionPoint.h
-//Content: projection point
-//Last update: 06/05/2014
+//Content:  projection point list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

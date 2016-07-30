@@ -17,9 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TextFile.h
-//Content: generic text file
-//Last update: 25/04/2013
+//File: TextFile.cpp
+//Content: classes and functions for generic text file
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -273,6 +272,64 @@ void ReadDir(TStringList *StringList, const AnsiString& Dir)
         throw Exception(AnsiString("can't close the directory ")+Dir);
 }
 
+//erase from the first '#' to the end of the line
+void strClearComments(string& str)
+{
+    unsigned int i = 0; //initialize the index to the first char of the string
+
+    //reading status;
+    //  0: waiting '#' or another char
+    //  1: erasing chars (because has found '#'), and waiting '\r' or another char
+    //  2: '\r' found and waiting '\n' or another char
+    //  3: found end of string
+    char status = 0;
+
+    //while i indicate a char of the string str
+    while(i < str.length()) {
+        //get the indicated char
+        char c = str[i];
+
+        //processate the char
+        switch(status) {
+        case 0: //waiting '#' or another char
+            if(c == '#') {
+                str.erase(i, 1);
+                status++;
+            } else
+                i++;
+            break;
+        case 1: //erasing chars (because has found '#'), and waiting '\r' or another char
+            if(c == '\r') {
+                i++;
+                status++;
+            } else {
+                str.erase(i, 1);
+            }
+            break;
+        case 2: //'\r' found and waiting '\n' or another char
+            if(c == '\n')
+                status = 0;
+            else {
+                i--;
+                str.erase(i, 2);
+                status--;
+            }
+            break;
+        }
+    }
+}
+//imprime texto y un comentario en una cadena
+//indenta el comentario en la posición i
+string commentedLine(const string& text, const string& comment, unsigned int i)
+{
+    string str = text;
+    while(str.length() < i)
+        str += ' ';
+    str += "# ";
+    str += comment;
+    return str;
+}
+
 //read a text string from a file
 void strReadFromFile(string& str, const string& filename)
 {
@@ -286,6 +343,8 @@ void strReadFromFile(string& str, const string& filename)
         TF.Read(str);
         //reemplaza las cadenas "\r\r\n" por cadenas "\r\n"
         strreplace(str, "\r\r\n", "\r\n");
+        //borra los comentarios
+        strClearComments(str);
 
         //cierra el archivo
         TF.Close();

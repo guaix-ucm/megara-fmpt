@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Vector.h
-//Contenido: vector de tipos numéricos
-//Última actualización: 12/06/2013
-//Autor: Isaac Morales Durán
+//File: Vector.h
+//Content: template for vector of numerical types
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef VECTOR_H
@@ -174,7 +173,7 @@ template <class T> double  TVector<T>::FEvaluate(T item)
 //asigna un valor a un elemento
 template <class T> void  TVector<T>::FAssign(T &item, double value)
 {
-    item = value;
+    item = (T)value;
 }
 
 //imprime un elemento

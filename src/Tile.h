@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Tile.h
-//Contenido: axulejo
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Tile.h
+//Content: tile list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TILE_H

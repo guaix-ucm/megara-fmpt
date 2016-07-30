@@ -1,0 +1,4 @@
+DPvalid: True
+PPvalid: True
+Collided: {}
+Obstructed: {}

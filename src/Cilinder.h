@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Cilinder.h
-//Content: class cilinder of an actuator of a RP
+//Content: cilinder model of an actuator of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -26,10 +26,11 @@
 #define CILINDER_H
 
 #include <stdint.h>
+#include <math.h>
 
+#include "Arm.h"
 #include "Constants.h"
 #include "Quantificator.h"
-#include "Arm.h"
 #include "Barrier.h"
 
 //---------------------------------------------------------------------------
@@ -84,10 +85,6 @@ protected:
 
     TArm *p_Arm;
     TBarrier *p_Barrier;
-
-    //##################################################################
-    //PRIVATE METHODS:
-    //##################################################################
 
     //------------------------------------------------------------------
     //ASSIMILATION METHODS:
@@ -228,12 +225,10 @@ public:
 
     //first position angle of rotor 1 in rad
     //  theta_1first = max(0, theta_1min)
-    double gettheta_1first(void) const {
-        return max(0., gettheta_1min());}
+    double gettheta_1first(void) const;
     //last position angle of rotor 1 in rad
     //  theta_1last = min(M_2PI, theta_1max)
-    double gettheta_1last(void) const {
-        return min(M_2PI, gettheta_1max());}
+    double gettheta_1last(void) const;
 
     //orientation of the coordinate system S3 respect S0:
     //  thetaO3 = thetaO1 - theta_1 - theta_O3
@@ -336,13 +331,13 @@ public:
     //un centroide (o posición estable), p_1 puede ser calculado con
     //un error numérico que lo desplace por encima de dicho centroide
     //entonces se debe saber que Q.Qmin es calculado del siguiente modo:
-    //      p_1min = F(theta_1min);
-    //      Q.Qmin = ceil(p_1min/Q.q); (donde Q.q == 1);
+    //  p_1min = F(theta_1min);
+    //  Q.Qmin = (int)ceil(p_1min/Q.q); (donde Q.q == 1);
     //de modo que puede haber una posición estable para p_1, que esté
     //por debajo de Qmin.
     //
     //Si embargo es poco probable que eso suponga un inconveniente, ya que:
-    //      Qtheta_1(theta_1) utiliza la función Q, de modo que no
+    //  Qtheta_1(theta_1) utiliza la función Q, de modo que no
     //devolverá una posición estable que haga que p_1 se salga de
     //[Q.Qmin, Q.Qmax], y cuando asigna un valor a theta_1, este se irá
     //a la posición estable más próxim adevuelta por Qtheta_1(theta_1).
@@ -353,17 +348,17 @@ public:
     //lower limit for p_1
     //nust be in the domain of F
     //getting:
-    //      p_1min = F(theta_1min)
+    //  p_1min = F(theta_1min)
     //setting:
-    //      p_tehta_1min = G(p_1min)
+    //  p_tehta_1min = G(p_1min)
     //default value: F(MEGARA_theta_1min) steps
     double getp_1min(void) const; void setp_1min(double);
     //upper limit for p_1
     //nust be in the domain of F
     //getting:
-    //      p_1max = F(theta_1max)
+    //  p_1max = F(theta_1max)
     //setting:
-    //      p_tehta_1max = G(p_1max)
+    //  p_tehta_1max = G(p_1max)
     double getp_1max(void) const; void setp_1max(double);
 
     //angular position of P1 in S1 in steps
@@ -405,17 +400,6 @@ public:
     //Arm->P2 is the position of the center of the armp's head respect S0
     //Arm->P3 is the position of the fiber respect S0
 
-    /*        //coordenadas polar radial de P0 en el momento de
-        //construirse el posicionador
-        //debe ser no negativo
-        double getL0(void) const; void setL0(double L0);
-        //coordenadas polar angular de P0 en el momento de
-        //construirse el posicionador
-        double gettheta0(void) const; void settheta0(double theta0);
-
-        //NOTA: (L0, heta0) es guardado en el posicionador
-        //para ser utilizado en el bastidor.
-*/
     //LOCATION PROPERTIES R:
 
     //distancia máxima entre un punto del brazo del posicionador
@@ -477,7 +461,7 @@ public:
     //      TDoublePoint S1toS0(double x_, double y_)
     //ya que calcular cada coordenada por separado sería redundante.
 
-    //punto origen o posición de P3 en S0 cuando los ejes están retraidos
+    //punto origen o posición de P3 en S0 cuando los rotores están retraidos
     TDoublePoint getP3o(void) const;
 
     //------------------------------------------------------------------
@@ -490,10 +474,6 @@ public:
 
     //ADVERTENCIA: el brazo y la barrera encapsulan todas las propiedades
     //debidas a sus disposiciones sobre el cilindro.
-
-    //##################################################################
-    //PROPERTIES IN TEXT FORMAT:
-    //##################################################################
 
     //------------------------------------------------------------------
     //SIZING PROPERTIES R/W
@@ -560,7 +540,7 @@ public:
     AnsiString getGAddressText(void) const;
 
     //La siguiente propiedad representa a todo Q:
-    //      Q.AssignsText
+    //  Q.AssignsText
     //y como tiene un número acotado de líneas
     //es preferible mostrarlas en vez de
     //la dirección en memoria de Q.
@@ -612,10 +592,10 @@ public:
 
     //dirección en memoria del brazo
     AnsiString getArmAddressText(void) const {
-        return IntToHex(reinterpret_cast<intptr_t>(getArm()), 8);}
+        return IntToHex(intptr_t(getArm()));}
     //dirección en memoria de la barrera
     AnsiString getBarrierAddressText(void) const {
-        return IntToHex(reinterpret_cast<intptr_t>(getBarrier()), 8);}
+        return IntToHex(intptr_t(getBarrier()));}
 
     //------------------------------------------------------------------
     //SETOFPROPERTIES IN TEXT FORMAT:
@@ -651,10 +631,6 @@ public:
     //      Barrier->Contour_.Text
     //      Barrier->Contour.Text;
 
-    //##################################################################
-    //PUBLIC METHODS:
-    //##################################################################
-
     //------------------------------------------------------------------
     //BUILDING, COPYING, CLONATION AND DESTROYING METHODS:
 
@@ -675,6 +651,7 @@ public:
     //libera la memoria dinámica del posicionador de fibra
     ~TCilinder();
 
+    //------------------------------------------------------------------
     //METHODS FOR TRANSFORM COORDINATES:
 
     //transforma un ángulo en radianes
@@ -694,7 +671,7 @@ public:
     TDoublePoint S1recToS0rec(double x_, double y_) const;
 
     //Se advierte que la trasnformación entre S0 y S1 es simétrica
-    //a causa de la inversión de uno de los ejes.
+    //a causa de la inversión de uno de los rotores.
 
     //La transformación de coordenadas cartesianas en S1
     //a coordenadas polares en S1, debe hacerse mediante las funciones:
@@ -705,6 +682,7 @@ public:
     //en coordenadas cartesianas en S1
     TDoublePoint S2recToS1rec(double x__, double y__) const;
 
+    //------------------------------------------------------------------
     //METHODS FOR DETERMINE BELONGING TO DOMINES:
 
     //determina si un ángulo en radianes
@@ -727,6 +705,7 @@ public:
     //Los métodos IsInDomain... utilizan los métodos IsntInDomain...
     //negándolos.
 
+    //------------------------------------------------------------------
     //QUANTIFICATION METHODS:
 
     //devuelve el valor de cuantificación en radianes
@@ -741,11 +720,12 @@ public:
     void setTemplate(double L01=MEGARA_L, double L12=MEGARA_L, double L13=MEGARA_L,
                      double theta___3=0, double R3=0.75);
 
-    //desactiva la cuantificación de los ejes del posicionador
+    //desactiva la cuantificación de los rotores del posicionador
     void disableQuantification(void);
-    //activa la cuantificación de los ejes del posicionador
+    //activa la cuantificación de los rotores del posicionador
     void enableQuantification(void);
 
+    //------------------------------------------------------------------
     //METHODS FOR STACK AND RESTORE POSITIONS:
 
     //apila theta_1 en la pila LIFO theta_1s
@@ -768,6 +748,7 @@ public:
     //cuando está la cuantificación activada, dará lugar
     //al desplazamiento a la posición estable más próxima.
 
+    //------------------------------------------------------------------
     //METHODS FOR STACK AND RESTORE QUANTIFICATION STATUS:
 
     //apila Quantify_ en la pila LIFO Quantify_s
@@ -786,6 +767,7 @@ public:
     //si no hay una posición apilada lanza EImproperCall
     void restoreAndPopQuantify_(void);
 
+    //------------------------------------------------------------------
     //METHODS FOR SET POSITION ANGLES:
 
     //cambia la posición y orientación
@@ -797,7 +779,7 @@ public:
     //asigna conjuntamente p_1 y p___3
     void setAnglesSteps(double p_1, double p___3);
 
-    //mueve los ejes hasta el origen de coordenadas
+    //mueve los rotores hasta el origen de coordenadas
     void setAnglesZeroSteps(void);
 
     //añade conjuntamente 'at_1' y 'at___3' a 'theta_1' y 'theta___3'
@@ -806,10 +788,10 @@ public:
     void addAnglesSteps(double ap_1, double ap___3);
 
     //genera un valor aleatorio con distribución uniforme en:
-    //      [Max(0, p_1min), Min(floor(SB1), p_1max)]
+    //      [max(0, p_1min), min(floor(SB1), p_1max)]
     double randomp_1(void);
     //asigna a p_1 un valor aleatorio con distribución uniforme en:
-    //      [Max(0, p_1min), Min(floor(SB1), p_1max)]
+    //      [max(0, p_1min), min(floor(SB1), p_1max)]
     void randomizep_1(void);
 
     //------------------------------------------------------------------
@@ -819,14 +801,14 @@ public:
     //calcula (theta_1, theta___3) para que P3 vaya a él;
     //si el punto no está dentro del dominio devuelve falso.
     //Aunque el punto sea inalcanzable, este método devolverá
-    //las posiciones límite a la que los ejes pueden ir.
+    //las posiciones límite a la que los rotores pueden ir.
     bool anglesToGoP_3(double &_theta_1, double &_theta___3,
                        double r_3, double theta_3) const;
     //Dado el punto (x3, y3) (en S0)
     //calcula (theta_1, theta___3) para que P3 vaya a él;
     //si el punto no está dentro del dominio devuelve falso.
     //Aunque el punto sea inalcanzable, este método devolverá
-    //las posiciones límite a la que los ejes pueden ir.
+    //las posiciones límite a la que los rotores pueden ir.
     bool anglesToGoP3(double &_theta_1, double &_theta___3,
                       double x3, double y3) const;
 
@@ -839,17 +821,17 @@ public:
 
     //determina las posiciones angulares estables que hacen que
     //la fibra de este posicionador se ubique lo más cerca posible
-    //del punto correspondiente a unas posiciones angulares de los ejes
+    //del punto correspondiente a unas posiciones angulares de los rotores
     //devuelve la distancia al punto hallado
     double getNearestStablePosition(double &p_1nsp, double &p___3nsp,
                                     double theta_1, double theta___3);
 
     //Este método tiene los parámetros de entrada en coordenadas angulares
-    //de los ejes en radianes, en congruencia con los valores devueltos por
+    //de los rotores en radianes, en congruencia con los valores devueltos por
     //el método:
-    //      bool AnglesToGoP_3(double& theta_1, double& theta___3,
-    //          double r_3, double theta_3);
-    //Es preferible introducir coordenadas angulares de los ejes,
+    //  bool AnglesToGoP_3(double& theta_1, double& theta___3,
+    //      double r_3, double theta_3);
+    //Es preferible introducir coordenadas angulares de los rotores,
     //para reconstruir el punto por el mismo método con el cual
     //se van a generar los puntos estables, de modo que se evite
     //el error numérico.
@@ -857,33 +839,33 @@ public:
     //Este método devuelve valores en pasos, porque los métodos de
     //generación de programas de movimiento van a trabajar en pasos.
     //Se ha elegido que dichos métodos trabajen en pasos por varias razones:
-    //    - Existen tres posibilidades:
-    //      1. Trabajar en radianes y no cuantificar.
-    //      2. Trabajar en radianes y cuantificar.
-    //      3. Trabajar en pasos y cuantificar.
-    //      Trabajar en pasos constituye el método de cuantificación por
-    //      antonomasia, de modo que no tiene sentido trabajar en radianes
-    //      y cuantificar al mismo tiempo.
-    //    - Si se trabaja en radianes hay que inroducir en el SPM una
-    //      componente para absorber el error de cuantificación de los
-    //      programas de movimiento.
-    //    - La cuantificación de los programas de movimiento no es trivial,
-    //      ya que las posiciones finales pueden diferir en más de un paso
-    //      en la posición final de algún eje.
-    //    - La componente de SPM a introducir dependería además del tamaño
-    //      de los escalones de cuantificación más grandes (en posicones
-    //      de inseguridad), de modo que si por defecto mecánico, hubiera
-    //      algún escalon incrementado, la componente del SPM se vería
-    //      también incrementada.
-    //    - Se haría obligatorio introducir el conceptos de distancia de
-    //      seguridad.
-    //    - Habría que definir en la documentación el concepto de
-    //      instrucción de movimiento no cuantificada (en radianes).
-    //    - La única ventaja de trabajar en radianes es tener programas
-    //      válidos para cualquier número de pasos. Sin embargo, si cambiase
-    //      el número de pasos cambiaríán otros parámetros del modelo,
-    //      de modo que la adaptación de un programa no tiene sentido,
-    //      debiendo generarse un nuevo programa.
+    //  - Existen tres posibilidades:
+    //    1. Trabajar en radianes y no cuantificar.
+    //    2. Trabajar en radianes y cuantificar.
+    //    3. Trabajar en pasos y cuantificar.
+    //    Trabajar en pasos constituye el método de cuantificación por
+    //    antonomasia, de modo que no tiene sentido trabajar en radianes
+    //    y cuantificar al mismo tiempo.
+    //  - Si se trabaja en radianes hay que inroducir en el SPM una
+    //    componente para absorber el error de cuantificación de los
+    //    programas de movimiento.
+    //  - La cuantificación de los programas de movimiento no es trivial,
+    //    ya que las posiciones finales pueden diferir en más de un paso
+    //    en la posición final de algún rotor.
+    //  - La componente de SPM a introducir dependería además del tamaño
+    //    de los escalones de cuantificación más grandes (en posicones
+    //    de inseguridad), de modo que si por defecto mecánico, hubiera
+    //    algún escalon incrementado, la componente del SPM se vería
+    //    también incrementada.
+    //  - Se haría obligatorio introducir el conceptos de distancia de
+    //    seguridad.
+    //  - Habría que definir en la documentación el concepto de
+    //    instrucción de movimiento no cuantificada (en radianes).
+    //  - La única ventaja de trabajar en radianes es tener programas
+    //    válidos para cualquier número de pasos. Sin embargo, si cambiase
+    //    el número de pasos cambiaríán otros parámetros del modelo,
+    //    de modo que la adaptación de un programa no tiene sentido,
+    //    debiendo generarse un nuevo programa.
     //A la vista de estas razones se concluye que el motivo principal de
     //trabajar en pasos es la simplificación de los algoritmos;
     //en particular la cuantificación de los programas y el cálculo de
@@ -892,6 +874,7 @@ public:
     //espacio, pudiendo volverse crítico cualquiera de los dos factores
     //en un momento dado.
 
+    //------------------------------------------------------------------
     //METHODS FOR DETERMINE BELONGING TO DOMAIN OF P3:
 
     //determina si el punto P_ está dentro del dominio de P_3
@@ -906,33 +889,33 @@ public:
     //determina si el punto (x, y) está fuera del dominio de P3
     bool pointIsOutDomainP3(double x, double y);
 
-    //determina el arco descrito por P3 al girar el eje 1
-    //en el intervalo [Max(0., theta_1min), Min(2_MPI, theta_imax)]
+    //determina el arco descrito por P3 al girar el rotor 1
+    //en el intervalo [max(0., theta_1min), min(2_MPI, theta_imax)]
     //con el brazo totalmente extendido
     //si el arco contiene un error numérico significativo hace Pfin = Pini
     void getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pa,
                 double &R);
     //determina el arco descrito por P3 al plegar el brazo
-    //con el eje 1 en el ángulo theta_
+    //con el rotor 1 en el ángulo theta_
     void getArc(TDoublePoint &Pini, TDoublePoint &Pfin, TDoublePoint &Pa,
                 double &R, double theta_);
 
     //Determina si un segmento interseca al arco descrito por P3
-    //al girar el eje 1 con el brazo totalemnte extendido.
+    //al girar el rotor 1 con el brazo totalemnte extendido.
     bool intersectionSegmentArc1(TDoublePoint Pa, TDoublePoint Pb);
     //Determina si un segmento interseca al arco descrito por P3
-    //al plegar el brazo cuando theta_1 = Max(0, theta_1min).
+    //al plegar el brazo cuando theta_1 = max(0, theta_1min).
     bool intersectionSegmentArc2(TDoublePoint Pa, TDoublePoint Pb);
     //Determina si un segmento interseca al arco descrito por P3
-    //al plegar el brazo cuando theta_1 = Min(M_2PI, theta_1max).
+    //al plegar el brazo cuando theta_1 = min(M_2PI, theta_1max).
     bool intersectionSegmentArc3(TDoublePoint Pa, TDoublePoint Pb);
 
     //Determina si un segmento invade el dominio de P3
-    //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+    //teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
     bool segmentInvadeDomainP3(TDoublePoint Pa, TDoublePoint Pb);
     //Determina si un segmento no puede ser recorrido
     //totalmente mediante un movimeinto continuo del punto P3,
-    //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+    //teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
     bool segmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb);
 
     //Un polisegmento puede estar en una de las cuatro situaciones
@@ -943,11 +926,11 @@ public:
     // 4. Totalmente en el exterior.
 
     //Determina si un polisegmento invade el dominio de P3,
-    //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+    //teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
     bool polysegmentInvadeDomainP3(TItemsList<TDoublePoint> &Polysegment);
     //Determina si un polisegmento no puede ser recorrido
     //totalmente mediante un movimeinto continuo del punto P3,
-    //teniendo en cuenta los arcos descritos por P3 al girar el eje 1.
+    //teniendo en cuenta los arcos descritos por P3 al girar el rotor 1.
     bool polysegmentCantBeFollowedByP3(TItemsList<TDoublePoint> &Polysegment);
 
     //ERROR: Los métodos:
@@ -974,23 +957,24 @@ public:
     //      r_3 = Mod(P_.x, P_.y); //obtiene la coordenada radial
     //      theta_3 = ArgPos(P_.x, P_.y); //obtiene la coordenada angular
 
-    //ahora ya puede determinar las posiciones de los ejes
+    //ahora ya puede determinar las posiciones de los rotores
     //y si el punto está en el dominio:
     //      isindomine = PositionToGoP_3(theta_1, theta___3, r_3, theta_3);
 
     //para obtener las posiciones en pasos deben traducirse
     //las posiciones de radianes a pasos mediante:
-    //      p_1 = F(theta_1); //posición del eje 1 en pasos
-    //      p__3 = Arm->F(theta___3); //posición del eje 2 en pasos
+    //      p_1 = F(theta_1); //posición del rotor 1 en pasos
+    //      p__3 = Arm->F(theta___3); //posición del rotor 2 en pasos
     //
     //Para determinar si un punto está dentro del dominio
     //de un punto del posicionador, implica calcular
-    //las posiciones de los ejes para ver si estas están
+    //las posiciones de los rotores para ver si estas están
     //dentro de sus respectivos dominios. Por eso
     //tal determinación deberá realizarse invocando a los métodos
     //de determinación de posiciones
     //-------------------------------------------------------------------
 
+    //------------------------------------------------------------------
     //METHODS FOR SET POSITIONS:
 
     //asigna coordenadas polares a P_3

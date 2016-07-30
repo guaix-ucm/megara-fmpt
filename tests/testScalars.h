@@ -34,17 +34,33 @@ class TestScalars: public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE(TestScalars);
 
     //add test methods
-    CPPUNIT_TEST(testFactorial);
-    CPPUNIT_TEST(testBinomial);
-    CPPUNIT_TEST(testLog);
-    CPPUNIT_TEST(testLog2);
-    CPPUNIT_TEST(testSign);
-    CPPUNIT_TEST(testAbs);
-
-    CPPUNIT_TEST(testMin);
-    CPPUNIT_TEST(testMax);
-
-//    CPPUNIT_TEST(test_frexp10);
+    CPPUNIT_TEST(test_ceil);
+    CPPUNIT_TEST(test_floor);
+    //----------------------
+    CPPUNIT_TEST(test_Factorial);
+    CPPUNIT_TEST(test_Binomial);
+    CPPUNIT_TEST(test_Log);
+    CPPUNIT_TEST(test_Log2);
+    CPPUNIT_TEST(test_Sign);
+    CPPUNIT_TEST(test_Abs);
+    //----------------------
+    CPPUNIT_TEST(test_min);
+    CPPUNIT_TEST(test_max);
+    //----------------------
+    CPPUNIT_TEST(test_LimitDomain);
+    //----------------------
+    CPPUNIT_TEST(test_Round);
+    CPPUNIT_TEST(test_Near);
+    CPPUNIT_TEST(test_Far);
+    //----------------------
+    CPPUNIT_TEST(test_RandomReal);
+    CPPUNIT_TEST(test_RandomUniformDouble);
+    CPPUNIT_TEST(test_RandomUniformInteger);
+    CPPUNIT_TEST(test_ArgPos);
+    //----------------------
+    CPPUNIT_TEST(test_Numerical);
+    CPPUNIT_TEST(test_FloatingPoint);
+    //----------------------
     CPPUNIT_TEST(test_incmin);
 
     //finish the process
@@ -56,32 +72,34 @@ public:
     //overide tearDown(), free allocated memory, etc
     void tearDown();
 
-protected:
-    void testFactorial();
-    void testBinomial();
-    void testLog();
-    void testLog2();
-    void testSign();
-    void testAbs();
-
-    void testMin();
-    void testMax();
-
-    void testLimitDomain();
-
-    void testRound();
-    void testNear();
-    void testFar();
-
-    void testRandomReal();
-    void testRandomUniformDouble();
-    void testRandomUniformInteger();
-    void testArgPos();
-
-    void testNumerical();
-    void testFloatingPoint();
-
-//    void test_frexp10();
+    //test methods
+    void test_ceil();
+    void test_floor();
+    //----------------------
+    void test_Factorial();
+    void test_Binomial();
+    void test_Log();
+    void test_Log2();
+    void test_Sign();
+    void test_Abs();
+    //----------------------
+    void test_min();
+    void test_max();
+    //----------------------
+    void test_LimitDomain();
+    //----------------------
+    void test_Round();
+    void test_Near();
+    void test_Far();
+    //----------------------
+    void test_RandomReal();
+    void test_RandomUniformDouble();
+    void test_RandomUniformInteger();
+    void test_ArgPos();
+    //----------------------
+    void test_Numerical();
+    void test_FloatingPoint();
+    //----------------------
     void test_incmin();
 };
 

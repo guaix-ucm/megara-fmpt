@@ -19,11 +19,11 @@
 //---------------------------------------------------------------------------
 //File: PloterShapes.h
 //Content: class TPloterShapes
-//Autor: Isaac Morales Durán and Pique
+//Autor: Isaac Morales Durán and José Enrique Ruíz
 //---------------------------------------------------------------------------
 
 #include "PloterShapes.h"
-//#include "../src/vclemu.h"
+//#include "../src/VCLemu.h"
 #include "../src/Scalars.h"
 //#include "../src/StrSimbolic.h"
 #include "../src/Exceptions.h"
@@ -437,8 +437,9 @@ void TPloterShapes::Circunference(TDoublePoint C, double R, QPainter& painter)
         painter.drawArc(X1, Y1, X2-X1, Y2-Y1, a, alen);
         //pinta el último punto
 //        painter.drawPoint(x4, y4);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "plotting circunference: ");
         throw;
     }
 }

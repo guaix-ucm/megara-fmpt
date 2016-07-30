@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: Actuator.cpp
-//Content: class actuator of a RP
+//Content: actuator model of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -26,17 +26,19 @@
 #include "RoboticPositioner.h"
 #include "Strings.h"
 #include "Geometry.h"
+#include "RoboticPositioner.h"
+#include "TextFile.h"
 
-#include <limits> //std::numeric_limits
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
 //espacio de nombres de modelos
 namespace Models {
 
-//###########################################################################
+//---------------------------------------------------------------------------
 //TKnowledgeDegree
-//###########################################################################
+//---------------------------------------------------------------------------
 
 void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
 {
@@ -104,7 +106,7 @@ void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
         }
     }
 
-    throw EImproperArgument("there is a value of type TKnowledgeValue as from position i in string text S");
+    throw EImproperArgument("there is a value of type TKnowledgeValue as from position i in string S");
 }
 AnsiString KnowledgeDegreeToStr(TKnowledgeDegree kd)
 {
@@ -155,12 +157,11 @@ TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S)
             return kdUnk;
     }
 
-    throw EImproperArgument("there is a value of type TKnowledgeValue as from position i in string text S");
+    throw EImproperArgument("there is a value of type TKnowledgeValue as from position i in string S");
 }
 
-//###########################################################################
+//---------------------------------------------------------------------------
 //TPurpose
-//###########################################################################
 
 void  strPrintPurpose(string& str, TPurpose p)
 {
@@ -181,7 +182,7 @@ void  strReadPurpose(TPurpose& value, const string& str, unsigned int &i)
 
     //check the precondition
     if(str.length() < i)
-        throw EImproperArgument("index i should indicate a position in the string str");
+        throw EImproperArgument("index i should indicate a char of the string str");
 
     //Length of the known possible values of the string:
     //  strlen("All"): 3
@@ -254,7 +255,7 @@ void  strReadPurpose(TPurpose& value, const string& str, unsigned int &i)
         return;
     }
 
-    throw EImproperArgument("there isn't' a value of type TPurpose from position i in string text str");
+    throw EImproperArgument("there isn't' a value of type TPurpose from position i in string str");
 }
 string purposeToStr(TPurpose value)
 {
@@ -323,18 +324,147 @@ TPurpose strToPurpose(const string& str)
     if(label_found)
         return pExe;
 
-    throw EImproperArgument("there isn't' a value of type TPurpose from position i in string text str");
+    throw EImproperArgument("there isn't' a value of type TPurpose from position i in string str");
 }
 
-//###########################################################################
+//---------------------------------------------------------------------------
+//TPairEADmin
+//---------------------------------------------------------------------------
+
+//pointer to EA attached to Dmin
+void TPairEADmin::setEA(TExclusionArea *EA)
+{
+    //comprueba las precondiciones
+    if(EA == NULL)
+        throw EImproperArgument("pointer EA should point to built EA");
+
+    p_EA = EA; //assign the new value
+}
+
+//minimun distance with the actuator of the attached EA
+void TPairEADmin::setDmin(double Dmin)
+{
+    //comprueba las precondiciones
+    if(Dmin < 0)
+        throw EImproperArgument("minimun distance Dmin should be nonnegative");
+
+    p_Dmin = Dmin; //assign the new value
+}
+
+//get the item in text format
+AnsiString TPairEADmin::getText(void) const
+{
+    string str = "(EA"+getEA()->getIdText().str+", "+floattostr(getDmin())+")";
+    return AnsiString(str);
+}
+
+//STATIC METHODS FOR LISTS:
+
+//asigna un valor a un elemento
+void  TPairEADmin::assign(TPairEADmin& item, double Dmin)
+{
+    try {
+        item.setDmin(Dmin);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "assign value to pair (EA, Dmin): ");
+        throw;
+    }
+}
+//print the item in a string
+void  TPairEADmin::print(AnsiString &S, TPairEADmin item)
+{
+    S += item.getText();
+}
+
+//CONTRUCTOR:
+
+//build an item of the class
+TPairEADmin::TPairEADmin(TExclusionArea *EA, double Dmin)
+{
+    //comprueba las precondiciones
+    if(EA == NULL)
+        throw EImproperArgument("pointer EA should point to built EA");
+
+    //comprueba las precondiciones
+    if(Dmin < 0)
+        throw EImproperArgument("minimun distance Dmin should be nonnegative");
+
+    p_EA = EA; //assign the new value
+    p_Dmin = Dmin; //assign the new value
+}
+
+//---------------------------------------------------------------------------
+//TPairRPDmin
+//---------------------------------------------------------------------------
+
+//pointer to RP attached to Dmin
+void TPairRPDmin::setRP(TRoboticPositioner *RP)
+{
+    //comprueba las precondiciones
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built RP");
+
+    p_RP = RP; //assign the new value
+}
+
+//minimun distance with the actuator of the attached RP
+void TPairRPDmin::setDmin(double Dmin)
+{
+    //comprueba las precondiciones
+    if(Dmin < 0)
+        throw EImproperArgument("minimun distance Dmin should be nonnegative");
+
+    p_Dmin = Dmin; //assign the new value
+}
+
+//get the item in text format
+AnsiString TPairRPDmin::getText(void) const
+{
+    string str = "(RP"+getRP()->getActuator()->getIdText().str+", "+floattostr(getDmin())+")";
+    return AnsiString(str);
+}
+
+//STATIC METHODS FOR LISTS:
+
+//asigna un valor a un elemento
+void  TPairRPDmin::assign(TPairRPDmin& item, double Dmin)
+{
+    try {
+        item.setDmin(Dmin);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "assign value to pair (RP, Dmin): ");
+        throw;
+    }
+}
+//print the item in a string
+void  TPairRPDmin::print(AnsiString &S, TPairRPDmin item)
+{
+    S += item.getText();
+}
+
+//CONTRUCTOR:
+
+//build an item of the class
+TPairRPDmin::TPairRPDmin(TRoboticPositioner *RP, double Dmin)
+{
+    //comprueba las precondiciones
+    if(RP == NULL)
+        throw EImproperArgument("pointer RP should point to built RP");
+
+    //comprueba las precondiciones
+    if(Dmin < 0)
+        throw EImproperArgument("minimun distance Dmin should be nonnegative");
+
+    p_RP = RP; //assign the new value
+    p_Dmin = Dmin; //assign the new value
+}
+
+//---------------------------------------------------------------------------
 //TActuator
-//###########################################################################
+//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 //PROPIEDADES ESTÁTICAS:
-
-//inicializa el color con que son contruidos los posicionadores
-//#QColor TActuator::DefaultColor = Qt::gray;
 
 //--------------------------------------------------------------------------
 //PROPIEDADES DE SEGURIDAD:
@@ -500,7 +630,7 @@ void TActuator::setPAkd(TKnowledgeDegree PAkd)
 }
 void TActuator::setPurpose(TPurpose Purpose)
 {
-    //siel nuevo valor difiere del actual
+    //si el nuevo valor difiere del actual
     if(Purpose != getPurpose()) {
         //asigna el nuevo valor
         p_Purpose = Purpose;
@@ -526,17 +656,13 @@ void TActuator::setId(int Id)
 
 void TActuator::setr_3maxnom(double r_3maxnom)
 {
-    //el radio nominal del dominio de P3 r_3maxnom debe ser mayor que cero
+    //comprueba las precondiciones
     if(r_3maxnom <= 0)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be upper zero");
-
-    //el radio nominal del dominio de P3 r_3maxnom debe ser menor que infinito
-    if(std::numeric_limits<double>::max() <= r_3maxnom)
+    if(DBL_MAX <= r_3maxnom)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be less infinite");
-
-    //el número de posicionadores adyacentes Adjacents.Count debería estar en [0, 6]
-    if(Adjacents.getCount()<0 || 6<Adjacents.getCount())
-        throw EImproperArgument("adjacent ositioner number Adjacents.Count should be in [0, 6]");
+    if(AdjacentRPs.getCount()<0 || 6<AdjacentRPs.getCount())
+        throw EImproperArgument("adjacent ositioner number AdjacentRPs.Count should be in [0, 6]");
 
     p_r_3maxnom = r_3maxnom; //asigna el nuevo valor
 
@@ -570,20 +696,16 @@ void TActuator::setr_3maxnom(double r_3maxnom)
     //calcula el ratio entre área exclusiva y el área participativa
     p_Re = getSe()/getSp();
 
-    //calcula el número de posicionadores no adyacentes
-    aux = double(6 - Adjacents.getCount());
+    //calcula el número de RPs no adyacentes
+    aux = double(6 - AdjacentRPs.getCount());
 
     //calcula el área participativa total
-    p_Spt = aux*getSw() + Adjacents.getCount()*getSp(); //r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
+    p_Spt = aux*getSw() + AdjacentRPs.getCount()*getSp(); //r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
     //calcula el área exclusiva total
-    p_Set = aux*getSw() + Adjacents.getCount()*getSe(); //r*r*(sqrt(0.75) - M_PI/6);
+    p_Set = aux*getSw() + AdjacentRPs.getCount()*getSe(); //r*r*(sqrt(0.75) - M_PI/6);
     //calcula el ratio entre Set y Spt
     p_Ret = getSet()/getSpt(); //2 - M_PI/(3*sqrt(0.75))
 }
-
-//##########################################################################
-//PROPIEDADES EN FORMATO TEXTO:
-//##########################################################################
 
 //--------------------------------------------------------------------------
 //PROPIEDADES DE SEGURIDAD EN FORMATO TEXTO:
@@ -597,8 +719,9 @@ AnsiString TActuator::getSPMrecText(void) const
 void TActuator::setSPMrecText(const AnsiString &S)
 {
     try {
-        setSPMrec(StrToFloat_(S));
-    } catch(...) {
+        setSPMrec(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPMrec in text format: ");
         throw;
     }
 }
@@ -609,8 +732,9 @@ AnsiString TActuator::getSPMstaText(void) const
 void TActuator::setSPMstaText(const AnsiString &S)
 {
     try {
-        setSPMsta(StrToFloat_(S));
-    } catch(...) {
+        setSPMsta(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPMsta in text format: ");
         throw;
     }
 }
@@ -621,8 +745,9 @@ AnsiString TActuator::getSPMdynText(void) const
 void TActuator::setSPMdynText(const AnsiString &S)
 {
     try {
-        setSPMdyn(StrToFloat_(S));
-    } catch(...) {
+        setSPMdyn(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPMdyn in text format: ");
         throw;
     }
 }
@@ -633,8 +758,9 @@ AnsiString TActuator::getSPMminText(void) const
 void TActuator::setSPMminText(const AnsiString &S)
 {
     try {
-        setSPMmin(StrToFloat_(S));
-    } catch(...) {
+        setSPMmin(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPMmin in text format: ");
         throw;
     }
 }
@@ -645,8 +771,9 @@ AnsiString TActuator::getSPMsimText(void) const
 void TActuator::setSPMsimText(const AnsiString &S)
 {
     try {
-        setSPMsim(StrToFloat_(S));
-    } catch(...) {
+        setSPMsim(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPMsim in text format: ");
         throw;
     }
 }
@@ -657,8 +784,9 @@ AnsiString TActuator::getSPMoffText(void) const
 void TActuator::setSPMoffText(const AnsiString &S)
 {
     try {
-        setSPMoff(StrToFloat_(S));
-    } catch(...) {
+        setSPMoff(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting SPMoff in text format: ");
         throw;
     }
 }
@@ -734,7 +862,8 @@ void TActuator::setPAkdText(const AnsiString &S)
 {
     try {
         setPAkd(StrToKnowledgeDegree(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting PAkd in text format: ");
         throw;
     }
 }
@@ -746,7 +875,8 @@ void TActuator::setPurposeText(const AnsiString &S)
 {
     try {
         setPurpose(strToPurpose(S.str));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Purpose in text format: ");
         throw;
     }
 }
@@ -758,8 +888,9 @@ AnsiString TActuator::getIdText(void) const
 void TActuator::setIdText(const AnsiString &S)
 {
     try {
-        setId(StrToInt_(S));
-    } catch(...) {
+        setId(StrToInt(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Id in text format: ");
         throw;
     }
 }
@@ -772,7 +903,8 @@ void TActuator::setPendingText(const AnsiString &S)
 {
     try {
         Pending = StrToBool(S);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Pending in text format: ");
         throw;
     }
 }
@@ -818,7 +950,8 @@ void TActuator::setr_3maxnomText(AnsiString &S)
 {
     try {
         setr_3maxnom(StrToFloat(S));
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting r_3maxnom in text format: ");
         throw;
     }
 }
@@ -870,7 +1003,7 @@ AnsiString TActuator::getSecurityText(void) const
 
     //PROPIEDADES DE SEGURIDAD:
 
-    S = "SPMComponents R/W:\r\n";
+    S = "SPM components:\r\n";
 
     S += AnsiString("    SPMrec = ")+getSPMrecText()+AnsiString("\r\n");
 
@@ -880,7 +1013,7 @@ AnsiString TActuator::getSecurityText(void) const
     S += AnsiString("    SPMsim = ")+getSPMsimText()+AnsiString("\r\n");
     S += AnsiString("    SPMoff = ")+getSPMoffText()+AnsiString("\r\n");
 
-    S += "SPMSpecific R:\r\n";
+    S += "SPMS values when PAkd = Pre:\r\n";
 
     S += AnsiString("    SPMexe_p: ")+getSPMexe_pText()+AnsiString("\r\n");
     S += AnsiString("    SPMvalParPro_p: ")+getSPMvalParPro_pText()+AnsiString("\r\n");
@@ -889,6 +1022,8 @@ AnsiString TActuator::getSecurityText(void) const
     S += AnsiString("    SPMvalDP_p: ")+getSPMvalDP_pText()+AnsiString("\r\n");
     S += AnsiString("    SPMgenPairPPDP_p: ")+getSPMgenPairPPDP_pText()+AnsiString("\r\n");
     S += AnsiString("    SPMall_p: ")+getSPMall_pText()+AnsiString("\r\n");
+
+    S += "SPMS values when PAkd = Apr:\r\n";
 
     S += AnsiString("    SPMexe_a: ")+getSPMexe_aText()+AnsiString("\r\n");
     S += AnsiString("    SPMvalParPro_a: ")+getSPMvalParPro_aText()+AnsiString("\r\n");
@@ -912,7 +1047,10 @@ AnsiString TActuator::getStatusText(void) const
     S += AnsiString("    Purpose = ")+getPurposeText()+AnsiString("\r\n");
 
     S += AnsiString("    Id = ")+IntToStr(getId())+AnsiString("\r\n");
-    S += AnsiString("    Adjacents = ")+Adjacents.getText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentEAs = ")+AdjacentEAs.getText()+AnsiString("\r\n");
+    S += AnsiString("    DminEAs = ")+DminEAs.getText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentRPs = ")+AdjacentRPs.getText()+AnsiString("\r\n");
+    S += AnsiString("    DminRPs = ")+DminRPs.getText()+AnsiString("\r\n");
     S += AnsiString("    Pending = ")+getPendingText();
 
     return S;
@@ -979,53 +1117,54 @@ AnsiString TActuator::getAllText(void) const
 
 AnsiString TActuator::getInstanceText(void) const
 {
-    AnsiString S;
+    string str;
 
     //Sizing:
-    S += AnsiString("L01 = ")+getL01Text()+AnsiString("\r\n");
+    str = commentedLine("L01 = "+getL01Text().str, "distance between P0 and P1 (in mm)");
 
     //OrientationRadians:
-    S += AnsiString("theta_1min = ")+gettheta_1minText()+AnsiString("\r\n");
-    S += AnsiString("theta_1max = ")+gettheta_1maxText()+AnsiString("\r\n");
-    S += AnsiString("theta_1 = ")+gettheta_1Text()+AnsiString("\r\n");
-    S += AnsiString("theta_O3o = ")+gettheta_O3oText()+AnsiString("\r\n");
+    str += "\r\n"+commentedLine("theta_1min = "+gettheta_1minText().str, "position angle’s lower limit of the axis 0-1 respect S1 (in rad)");
+    str += "\r\n"+commentedLine("theta_1max = "+gettheta_1maxText().str, "position angle’s upper limit of the axis 0-1 respect S1 (in rad)");
+    str += "\r\n"+commentedLine("theta_1 = "+gettheta_1Text().str, "position angle of axis 0-1 respect S1 (in rad)");
+    str += "\r\n"+commentedLine("theta_O3o = "+gettheta_O3oText().str, "orientation of S3 respect S1 when theta_1 = 0 (in rad)");
 
     //Quantification:
-    S += AnsiString("SB1 = ")+getSB1Text()+AnsiString("\r\n");
+    str += "\r\n"+commentedLine("SB1 = "+getSB1Text().str, "number of steps by lap of rotor 1 (in steps)");
 
     //Arm:
-    S += AnsiString("ArmInstance:\r\n")+StrIndent(getArm()->getInstanceText())+AnsiString("\r\n");
+    str += "\r\n";
+    str += "\r\n"+commentedLine("ArmInstance:", "Instance properties of the RP.Actuator.Arm (sizing, orientation and quantification):");
+    str += "\r\n"+StrIndent(getArm()->getInstanceText()).str;
 
-    S += AnsiString("SPMmin = ")+getSPMminText()+AnsiString("\r\n");
-    S += AnsiString("SPMsim = ")+getSPMsimText()+AnsiString("\r\n");
-    S += AnsiString("PAkd = ")+getPAkdText();
+    //Others:
+    str += "\r\n";
+    str += "\r\n"+commentedLine("SPMmin = "+getSPMminText().str, "SPM minimum: is the SPM due to the minimum jump during generation (in mm)");
+    str += "\r\n"+commentedLine("SPMsim = "+getSPMsimText().str, "SPM of simulation: is the maximum deviation in the radial trajectory (in mm)");
+    str += "\r\n"+commentedLine("PAkd = "+getPAkdText().str, "position angles knowledge degree [Pre | Apr | Unk]");
 
-    //Nótese que una instancia de TWall se limita a Barrier->Countour_.Text.
-    //la cual deberáser escrite a travñes de Barrier->Contour_Text.
-
-    return S;
+    return AnsiString(str);
 }
 void TActuator::setInstanceText(const AnsiString& S)
 {
+    //inicializa el indice al primer caracter de la cadena
+    int i = 1;
+
     try {
-        //contruye una variable tampón
+        //lee la instancia en una variable tampón
         TActuator aux(this);
         TActuator *A = &aux;
-        //lee la instancia y la asigna a la variable tampón
-        int i = 1;
         readInstance((TActuator*&)A, S, i);
 
-        //avanza el índice i hasta la próxima posición que no contenga un separador
+        //busca un texto inesperado
         StrTravelSeparatorsIfAny(S, i);
-        //si el índice i indica a algún caracter de la cadena S
         if(i <= S.Length())
-            //indica que la cadena S solo debería contener el valor para una instancia
             throw EImproperArgument("string S should contain the instance value only");
 
         //asigna la variable tampón
         clone(A);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting  in text format: ");
         throw;
     }
 }
@@ -1046,10 +1185,6 @@ AnsiString TActuator::getPositionPAPRowText(void) const
 {
     return getIdText()+AnsiString("\t")+getp_1Text()+AnsiString("\t")+getArm()->getp___3Text();
 }
-
-//##########################################################################
-//MÉTODOS PRIVADOS:
-//##########################################################################
 
 //------------------------------------------------------------------
 //MÉTODOS DE ASIMILACIÓN:
@@ -1088,6 +1223,50 @@ void TActuator::AssignSPM(void)
 }
 
 //------------------------------------------------------------------
+//MÉTODOS PRIVADOS PARA EL CÁLCULO DE DISTANCIAS CON BARRERAS:
+
+//determina la distancia mínima con una barrera
+double TActuator::distanceMin(const TBarrier *Barrier) const
+{
+    //comprueba las precondiciones
+    if(Barrier == NULL)
+        throw EImproperArgument("pointer Barrier should point to built barrier");
+
+    double distanceMin;
+
+    //si la posición angular de ambos rotores de este actuador es conocida
+    if(getPAkd() != kdUnk)
+        //calcula la distancia brazo-barrera
+        distanceMin = getArm()->distanceMin(Barrier);
+    //si la posición angular de algún rotor de este actuador es desconocida
+    else
+        //calcula la distancia barrera-barrera
+        distanceMin = getBarrier()->distanceMin(Barrier);
+
+    return distanceMin;
+}
+
+//determina si hay colisión con una barrera
+bool TActuator::thereIsCollision(const TBarrier *Barrier) const
+{
+    //comprueba las precondiciones
+    if(Barrier == NULL)
+        throw EImproperArgument("pointer Barrier should point to built barrier");
+
+    //si la posición angular de ambos rotores de este actuador es conocida
+    if(getPAkd() != kdUnk)
+        //determina el estado de colisión brazo-barrera
+        return getArm()->collides(Barrier);
+    //si la posición angular de algún rotor de este actuador es desconocida (barrera-barrera)
+    else
+        //determina el estado de colisión barrera-barrera
+        return getBarrier()->collides(Barrier);
+
+    //indica que no ha encontrado colisión
+    return false;
+}
+
+//------------------------------------------------------------------
 //MÉTODOS ESTÁTICOS:
 
 //compara los identificadores de dos actuadores
@@ -1119,184 +1298,99 @@ void  TActuator::PrintId(AnsiString &S, TActuator *A)
 }
 
 //lee una instancia de actuador en una cadena
-void  TActuator::readInstance(TActuator* &A,
+void  TActuator::readInstance(TActuator *A,
                               const AnsiString& S, int &i)
 {
-    //el puntero A debe apuntar a un actuador construido
+    //comprueba las precondiciones
     if(A == NULL)
         throw EImproperArgument("pointer A shouldpoint to built actuator");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
-
-    //estado de la máquina de estados de lectura
-    //      0: esperando asignación a L01
-    //      1: esperando asignación a theta_1min
-    //      2: esperando asignación a theta_1max
-    //      3: esperando asignación a theta_1
-    //      4: esperando asignación a theta_O3
-    //      5: esperando asignación a SB1
-    //      6: esperando etiqueta "ArmInstance:"
-    //      7: esperando instancia de Arm
-    //      8: esperando asignación a SPMmin
-    //      9: esperando asignación a SPMsim
-    //      10: esperando asignación a PAkd
-    //      11: instancia de actuador leida con éxito
-    int status = 0;
-
-    //variables tampón
-    double theta_1min, theta_1max, theta_1, theta_O3o;
-    TActuator t_A(A);
-
-    do {
-        switch(status) {
-        case 0: //esperando asignación a L01
-            try {
-            StrTravelLabel("L01", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_A.setL01(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando asignación a theta_1min
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta_1min", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta_1min, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando asignación a theta_1max
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta_1max", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta_1max, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando asignación a theta_1
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta_1", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta_1, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 4: //esperando asignación a theta_O3
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("theta_O3o", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadFloat(theta_O3o, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 5: //esperando asignación a SB1
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SB1", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_A.setQuantification(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 6: //esperando la etiqueta "ArmInstance:"
-            try {
-            StrTravelLabel("ArmInstance:", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 7: //esperando instancia de Arm
-            try {
-            TArm *aux = t_A.getArm();
-            TArm::readInstance(aux, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 8: //esperando asignación a SPMmin
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SPMmin", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_A.setSPMmin(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 9: //esperando asignación a SPMsim
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("SPMsim", S, i);
-            StrTravelLabel("=", S, i);
-            double aux;
-            StrReadFloat(aux, S, i);
-            t_A.setSPMsim(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 10: //esperando asignación a PAkd
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("PAkd", S, i);
-            StrTravelLabel("=", S, i);
-            TKnowledgeDegree aux;
-            StrReadKnowledgeDegree(aux, S, i);
-            t_A.setPAkd(aux);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido la instancia con éxito
-    } while(status < 11);
-
-    //asigna las variables tampón
     try {
-        //aisgna los conjuntos atómicos de valores a la variable tampón
-        t_A.setOrientationRadians(theta_1min, theta_1max, theta_1, theta_O3o);
+        //variables tampón
+        TActuator t_A(A);
 
-    }catch(...) {
+        StrTravelSeparatorsIfAny(S, i);
+        StrTravelLabel("L01", S, i);
+        StrTravelLabel("=", S, i);
+        double aux;
+        StrReadFloat(aux, S, i);
+        t_A.setL01(aux);
+
+        //-------------------------------------
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta_1min", S, i);
+        StrTravelLabel("=", S, i);
+        double theta_1min;
+        StrReadFloat(theta_1min, S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta_1max", S, i);
+        StrTravelLabel("=", S, i);
+        double theta_1max;
+        StrReadFloat(theta_1max, S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta_1", S, i);
+        StrTravelLabel("=", S, i);
+        double theta_1;
+        StrReadFloat(theta_1, S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("theta_O3o", S, i);
+        StrTravelLabel("=", S, i);
+        double theta_O3o;
+        StrReadFloat(theta_O3o, S, i);
+
+        //-------------------------------------
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SB1", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_A.setQuantification(aux);
+
+        StrTravelLabel("ArmInstance:", S, i);
+        TArm *aux_A = t_A.getArm();
+        TArm::readInstance(aux_A, S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SPMmin", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_A.setSPMmin(aux);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("SPMsim", S, i);
+        StrTravelLabel("=", S, i);
+        StrReadFloat(aux, S, i);
+        t_A.setSPMsim(aux);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("PAkd", S, i);
+        StrTravelLabel("=", S, i);
+        TKnowledgeDegree aux_kd;
+        StrReadKnowledgeDegree(aux_kd, S, i);
+        t_A.setPAkd(aux_kd);
+
+        //asigna las variables auxiliares a la variable tampón
+        t_A.setOrientationRadians(theta_1min, theta_1max, theta_1, theta_O3o);
+        //asigna la variable tampón
+        A->clone(&t_A);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading actuator instance: ");
         throw;
     }
-    //asigna la variable tampón
-    A->clone(&t_A);
 }
 
-//obtiene las etiquetas de las propiedades de origen de un posicionador
+//obtiene las etiquetas de las propiedades de origen de un actuador
 //("Id", "x0", "y0", "thetaO1") al final de una cadena de texto
 //en formato fila de texto
 AnsiString TActuator::getOriginsLabelsRow(void)
@@ -1308,99 +1402,65 @@ AnsiString TActuator::getOriginsLabelsRow(void)
 //en formato fila de texto
 void  TActuator::travelOriginsLabelsRow(const AnsiString& S, int& i)
 {
+    //check the precondtion
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
+    try {
+        StrTravelLabel("Id", S, i);
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando etiqueta "Id"
-    //      1: esperando separador y etiqueta "x0"
-    //      2: esperando separador y etiqueta "y0"
-    //      3: esperando separador y etiqueta "thetaO1"
-    //      4: etiquetas de las propiedades de origen atravesadas con éxito
-    int status = 0;
+        StrTravelSeparators(S, i);
+        StrTravelLabel("x0", S, i);
 
-    do {
-        switch(status) {
-        case 0: //esperando etiqueta "Id"
-            try {
-            StrTravelLabel("Id", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando separador y etiqueta "x0"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("x0", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando separador y etiqueta "y0"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("y0", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando separador y etiqueta "thetaO1"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("thetaO1", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se hayan atravesado lasetiquetas de las propiedades de origen con éxito
-    } while(status < 4);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("y0", S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("thetaO1", S, i);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "traveling RP origin labels row: ");
+        throw;
+    }
 }
 
-//imprime los valores de las propiedades de orien de un posicionador
+//imprime los valores de las propiedades de orien de un actuador
 //(Id, x0, y0, thetaO1) al final de una cadena de texto
 //en formato fila de texto
 void  TActuator::printOriginsRow(AnsiString& S, TActuator *A)
 {
-    //el puntero A debe apuntar a un actuador construido
+    //check the precondtion
     if(A == NULL)
         throw EImproperArgument("pointer A should bepoint to built actuator");
 
     S += A->getOriginsRowText();
 }
-//lee los valores de las propiedades de orien de un posicionador
+//lee los valores de las propiedades de orien de un actuador
 //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
 void  TActuator::readOriginsRow(TActuator* &A,
                                 const AnsiString& S, int &i)
 {
+    //comprueba las precondiciones
+    if(A == NULL)
+        throw EImproperArgument("pointer A should point to built actuator");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el puntero A debería apauntar a un actuador de fibra construido
-    if(A == NULL)
-        throw EImproperArgument("pointer A should point to built actuator");
-
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
-
-    //tampon variables
-    int Id;
-    double x0, y0;
-    double thetaO1;
-
     try {
+        //tampon variables
+        int Id;
+        double x0, y0;
+        double thetaO1;
+
         //read the values and the separators
         StrReadInt(Id, S, i);
         StrTravelSeparators(S, i);
@@ -1413,26 +1473,28 @@ void  TActuator::readOriginsRow(TActuator* &A,
         //set the tampon variable
         A->setOrigins(Id, x0, y0, thetaO1);
 
-    }catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading origins values in row text format: ");
         throw;
     }
 }
 
-//obtiene las etiquetas de las propiedades de posición de un posicionador
+//obtiene las etiquetas de las propiedades de posición de un actuador
 //("Id", "x3", "y3") al final de una cadena de texto
 //en formato fila de texto
 AnsiString TActuator::getPositionP3LabelsRow(void)
 {
     return "Id\tx3\ty3";
 }
-//obtiene las etiquetas de las propiedades de posición de un posicionador
+//obtiene las etiquetas de las propiedades de posición de un actuador
 //("Id", "x_3", "y_3") al final de una cadena de texto
 //en formato fila de texto
 AnsiString TActuator::getPositionP_3LabelsRow(void)
 {
     return "Id\tx_3\ty_3";
 }
-//obtiene las etiquetas de las propiedades de posición de un posicionador
+//obtiene las etiquetas de las propiedades de posición de un actuador
 //("Id", "p_1", "p___3") al final de una cadena de texto
 //en formato fila de texto
 AnsiString TActuator::getPositionPPALabelsRow(void)
@@ -1444,55 +1506,30 @@ AnsiString TActuator::getPositionPPALabelsRow(void)
 //en formato fila de texto
 void  TActuator::travelPositionP3LabelsRow(const AnsiString& S, int& i)
 {
+    //comprueba las precondiciones
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
+    try {
+        StrTravelLabel("Id", S, i);
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando etiqueta "Id"
-    //      1: esperando separador y etiqueta "x3"
-    //      2: esperando separador y etiqueta "y3"
-    //      3: etiquetas de las propiedades de origen atravesadas con éxito
-    int status = 0;
+        StrTravelSeparators(S, i);
+        StrTravelLabel("x3", S, i);
 
-    do {
-        switch(status) {
-        case 0: //esperando etiqueta "Id"
-            try {
-            StrTravelLabel("Id", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando separador y etiqueta "x3"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("x3", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando separador y etiqueta "y3"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("y3", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se hayan atravesado las etiquetas de las propiedades de origen con éxito
-    } while(status < 3);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("y3", S, i);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "traveling P3 position labels in row text format: ");
+        throw;
+    }
 }
 
-//imprime los valores de las propiedades de posición de un posicionador
+//imprime los valores de las propiedades de posición de un actuador
 //(Id, x3, y3) al final de una cadena de texto
 //en formato fila de texto
 void  TActuator::printPositionP3Row(AnsiString& S, TActuator *A)
@@ -1503,29 +1540,27 @@ void  TActuator::printPositionP3Row(AnsiString& S, TActuator *A)
 
     S += A->getPositionP3RowText();
 }
-//lee los valores de las propiedades de posición de un posicionador
+//lee los valores de las propiedades de posición de un actuador
 //(Id, x3, y3) desde la posición indicada de una cadena
 //de texto, en formato fila de texto
 void  TActuator::readPositionP3Row(TActuator* &A,
                                    const AnsiString& S, int &i)
 {
+    //comprueba las precondiciones
+    if(A == NULL)
+        throw EImproperArgument("pointer A should point to built actuator");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el puntero A debería apuntar a un actuador construido
-    if(A == NULL)
-        throw EImproperArgument("pointer A should point to built actuator");
-
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
-
-    //tampon variables
-    int Id;
-    double x3, y3;
-
     try {
+        //tampon variables
+        int Id;
+        double x3, y3;
+
         //read the values and the separators
         StrReadInt(Id, S, i);
         StrTravelSeparators(S, i);
@@ -1536,7 +1571,9 @@ void  TActuator::readPositionP3Row(TActuator* &A,
         //set thetampon variables
         A->setPositionP3(Id, x3, y3);
 
-    }catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading position P3 in row text format: ");
         throw;
     }
 
@@ -1544,18 +1581,18 @@ void  TActuator::readPositionP3Row(TActuator* &A,
     //y no comprobar que coincide, ya que la lectura de una lista puede
     //tener desordenados los elementos.
 }
-//imprime los valores de las propiedades de posición de un posicionador
+//imprime los valores de las propiedades de posición de un actuador
 //(Id, x_3, y_3) al final de una cadena de texto
 //en formato fila de texto
 void  TActuator::printPositionP_3Row(AnsiString& S, TActuator *A)
 {
-    //el puntero A debe apuntar a un actuador construido
+    //comprueba las precondiciones
     if(A == NULL)
         throw EImproperArgument("pointer A should bepoint to built actuator");
 
     S += A->getPositionP_3RowText();
 }
-//imprime los valores de las propiedades de posición de un posicionador
+//imprime los valores de las propiedades de posición de un actuador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
 void  TActuator::printPositionPPARow(AnsiString& S, TActuator *A)
@@ -1577,7 +1614,10 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     TCilinder(P0, thetao_),
     //inicializa las propiedades de estado
     p_PAkd(kdPre), p_Purpose(pGenPairPPDP),
-    Adjacents(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
+    AdjacentEAs(1, TExclusionArea::compareIds, NULL, NULL, TExclusionArea::printId, NULL),
+    DminEAs(1, NULL, NULL, TPairEADmin::assign, TPairEADmin::print),
+    AdjacentRPs(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
+    DminRPs(6, NULL, NULL, TPairRPDmin::assign, TPairRPDmin::print),
     Pending(true), Collision(false)
 {
     //el número de identificación Id debe ser no negativo
@@ -1612,7 +1652,7 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     p_r_2saf = getL02max();
     p_theta___2saf = M_PI;
     p_theta___3saf = M_PI;
-    p_theta_2rad = Max(0., gettheta_1min()) + M_PI/2;
+    p_theta_2rad = max(0., gettheta_1min()) + M_PI/2;
 
     //----------------------------------------
     //inicializa las propiedades de área
@@ -1646,7 +1686,10 @@ void TActuator::copyStatus(const TActuator *A)
     p_Purpose = A->p_Purpose;
 
     p_Id = A->p_Id;
-    Adjacents.Clone(A->Adjacents);
+    AdjacentEAs.Clone(A->AdjacentEAs);
+    DminEAs.Clone(A->DminEAs);
+    AdjacentRPs.Clone(A->AdjacentRPs);
+    DminRPs.Clone(A->DminRPs);
     Pending = A->Pending;
     Collision = A->Collision;
 }
@@ -1730,8 +1773,8 @@ TActuator::~TActuator()
 //      {r_min, r_saf, r_2saf, theta___2saf, theta___3saf, theta_2rad}
 void TActuator::calculateSafeParameters(void)
 {
-    //si hay posicionadores adyacentes
-    if(Adjacents.getCount() > 0) {
+    //si hay actuadores adyacentes
+    if(AdjacentRPs.getCount() > 0) {
         //contruye un clon del actuador para realizar las simulaciones
         TActuator A(this);
 
@@ -1740,13 +1783,13 @@ void TActuator::calculateSafeParameters(void)
 
         //Nótese que los parámetros de seguridad serán válidos
         //para la programación del movimiento, incluso cuando
-        //las posiciones de los ejes sean conocidas de manera
+        //las posiciones de los rotores sean conocidas de manera
         //aproximada; pero no serán válidos durante las asignaciones,
         //cuando el SPMall que corresponda supere al SPMgen_a.
 
-        //activa la cuantificación de los ejes
+        //activa la cuantificación de los rotores
         A.enableQuantification();
-        //mueve los ejes a sus posiciones de origen
+        //mueve los rotores a sus posiciones de origen
         A.setp_1(0);
         A.getArm()->setp___3(0);
         //deteremina r_min
@@ -1754,10 +1797,10 @@ void TActuator::calculateSafeParameters(void)
 
         TActuator *AA;
         double r_saf;
-        //por cada posicionador adyacente
-        for(int i=0; i<Adjacents.getCount(); i++) {
+        //por cada actuador adyacente
+        for(int i=0; i<AdjacentRPs.getCount(); i++) {
             //apunta el actuador indicado para facilitar su acceso
-            AA = Adjacents[i]->getActuator();
+            AA = AdjacentRPs[i]->getActuator();
 
             //calcula la distancia de seguridad
             double aux = Mod(AA->getP0() - A.getP0());
@@ -1774,7 +1817,7 @@ void TActuator::calculateSafeParameters(void)
             //Nótese que r_saf podría salir negativo.
         }
 
-        //Busca la posición del eje 2 a partir de la cual
+        //Busca la posición del rotor 2 a partir de la cual
         //el contorno no invade el espacio más allá de r_saf:
 
         //como la evaluación es computacionalmente costosa
@@ -1784,8 +1827,8 @@ void TActuator::calculateSafeParameters(void)
         A.disableQuantification();
 
         //determina los límites del intervalo de búsqueda
-        double theta___2min = M_PI - A.gettheta_O3o() + Max(0., A.getArm()->gettheta___2min());
-        double theta___2max = M_PI - A.gettheta_O3o() + Min(M_PI, A.getArm()->gettheta___2max());
+        double theta___2min = M_PI - A.gettheta_O3o() + max(0., A.getArm()->gettheta___2min());
+        double theta___2max = M_PI - A.gettheta_O3o() + min(M_PI, A.getArm()->gettheta___2max());
 
         //Nótese que aunque las coordenadas angulares se refieren a P2,
         //están dadas en S3, razón por la cual, debe sumarse M_PI - theta_O3o,
@@ -1793,7 +1836,7 @@ void TActuator::calculateSafeParameters(void)
 
         //calcula el punto medio del intervalo de búsqueda
         double theta___2 = (theta___2max + theta___2min)/2;
-        //mueve el eje 2 al punto medio del intervalo de búsqueda
+        //mueve el rotor 2 al punto medio del intervalo de búsqueda
         A.getArm()->settheta___2(theta___2);
         //calcula el radio de la envolvente descrita por el contorno del brazo
         double r_max = A.getArm()->getContour().distanceMax(A.getP0());
@@ -1812,7 +1855,7 @@ void TActuator::calculateSafeParameters(void)
             if(fabs(r_max-getr_saf()) > ERR_NUM) {
                 //calcula el punto medio del intervalo de búsqueda
                 theta___2 = (theta___2max + theta___2min)/2;
-                //mueve el eje 2 al punto medio del intervalo de búsqueda
+                //mueve el rotor 2 al punto medio del intervalo de búsqueda
                 A.getArm()->settheta___2(theta___2);
                 //calcula la distancia máxima
                 r_max = A.getArm()->getContour().distanceMax(A.getP0());
@@ -1830,7 +1873,7 @@ void TActuator::calculateSafeParameters(void)
         p_theta___3saf = p_theta___2saf = A.getArm()->gettheta___2();
     }
 
-    //si no hay posicionadores adyacentes
+    //si no hay actuadores adyacentes
     else {
         //restaura el valor por defecto de los parámetros de seguridad
         p_r_min = getr_max();
@@ -1839,7 +1882,7 @@ void TActuator::calculateSafeParameters(void)
         p_theta___2saf = M_PI;
         p_theta___3saf = M_PI;
     }
-    p_theta_2rad = Max(0., gettheta_1min()) + M_PI/2;
+    p_theta_2rad = max(0., gettheta_1min()) + M_PI/2;
 }
 
 //-------------------------------------------------------------------
@@ -1936,19 +1979,12 @@ void TActuator::setOrigins(int Id, double x0, double y0, double thetaO1)
     p_P0.y = y0;
     p_thetaO1 = thetaO1;
 
-    //desplazar el posicionador cambiará la ubicación del brazo
+    //desplazar el actuador cambiará la ubicación del brazo
     //pero no su orientación
 
     //cambiar la orientación del posicinador
     //modifica la posición y orientación del origen de coordenadas del brazo
 
-    /*        //asimila P0:
-        p_L0 = P0.Mod();
-        if(L0 != 0)
-                p_theta0 = P0.Arg();
-        else
-                p_theta0 = 0;
-  */
     //asimila (P0, thetaO1)
     getArm()->set(newP1(), getthetaO3());
     getBarrier()->set(getP0(), getthetaO1());
@@ -1971,7 +2007,7 @@ void TActuator::setPositionP3(double x3, double y3)
     else
         theta_3 = this->gettheta_3();
 
-    //el punto a asignar debería estar en el dominio del posicionador
+    //el punto a asignar debería estar en el dominio del actuador
     if(!anglesToGoP_3(theta_1, theta___3, r_3, theta_3))
         throw EImproperFileLoadedValue("point to assign should be in the domine of the fiber positioner");
 
@@ -2030,7 +2066,7 @@ void TActuator::setPositionP3(int Id, double x3, double y3)
     else
         theta_3 = this->gettheta_3();
 
-    //el punto a asignar debería estar en el dominio del posicionador
+    //comprueba la precondicion
     if(!anglesToGoP_3(theta_1, theta___3, r_3, theta_3))
         throw EImproperFileLoadedValue(AnsiString("point to assign should be in the domine of the RP ")+IntToStr(Id));
 
@@ -2226,7 +2262,7 @@ void TActuator::restoreAndPopQuantifys(void)
 //--------------------------------------------------------------------------
 //METHODS TO DETERMINE THE RELATIVE POSITION OF THE ACTUATOR:
 
-//determina si un ángulo del eje 2 en radianes
+//determina si un ángulo del rotor 2 en radianes
 //está fuera del área de seguridad
 bool TActuator::theta___3IsOutSafeArea(double theta___3) const
 {
@@ -2235,7 +2271,7 @@ bool TActuator::theta___3IsOutSafeArea(double theta___3) const
 
     return false;
 }
-//determina si un ángulo del eje 2 en radianes
+//determina si un ángulo del rotor 2 en radianes
 //está dentro del área de seguridad
 bool TActuator::theta___3IsInSafeArea(double theta___3) const
 {
@@ -2245,7 +2281,7 @@ bool TActuator::theta___3IsInSafeArea(double theta___3) const
     return false;
 }
 
-//determina si un ángulo del eje 2 en pasos
+//determina si un ángulo del rotor 2 en pasos
 //está fuera del área de seguridad
 bool TActuator::p___3IsOutSafeArea(double p___3) const
 {
@@ -2254,7 +2290,7 @@ bool TActuator::p___3IsOutSafeArea(double p___3) const
 
     return false;
 }
-//determina si un ángulo del eje 2 en pasos
+//determina si un ángulo del rotor 2 en pasos
 //está dentro del área de seguridad
 bool TActuator::p___3IsInSafeArea(double p___3) const
 {
@@ -2308,8 +2344,8 @@ bool TActuator::ArmIsInSafeArea(void) const
 bool TActuator::isOutTheOrigin(void) const
 {
     //determines the origin of each rotor
-    double p_1origin = Max(0., ceil(getp_1min()));
-    double p___3origin = Max(0., ceil(getArm()->getp___3min()));
+    double p_1origin = max(0., ceil(getp_1min()));
+    double p___3origin = max(0., ceil(getArm()->getp___3min()));
 
     //if the rotor 1 is out the origin, indicates that the actuator is oit the origin
     if(round(getp_1()) != p_1origin)
@@ -2322,24 +2358,24 @@ bool TActuator::isOutTheOrigin(void) const
     return false;
 }
 
-//PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL EJE 1:
+//PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL ROTOR 1:
 
 //Coordenada radial del punto de inflexión para la pose dada en S1.
 //Pi es el punto de la trayectoria radial de P2 en que:
-//      theta_1 == Max{theta_1min, 0}.
+//      theta_1 == max(theta_1min, 0).
 double TActuator::getr_i(double &theta_1, double theta_2)
 {
     //la distancia L01 debe ser igual a la distancia L12
     if(getL01() != getArm()->getL12())
         throw EImproperCall("distance L01 should be equal distance Arm->L12");
 
-    //el ángulo theta_2 debe estar en [Max(0, theta_1min), Min(M_2PI, theta_1max)+M_PI/2]
-    if(theta_2<Max(0., gettheta_1min()) || Min(M_2PI, gettheta_1max())+M_PI/2<theta_2)
-        throw EImproperArgument("angle theta_2 should be in [Max(0, theta_1min), Min(M_2PI, theta_1max)+M_PI/2]");
+    //el ángulo theta_2 debe estar en [max(0, theta_1min), min(M_2PI, theta_1max)+M_PI/2]
+    if(theta_2<max(0., gettheta_1min()) || min(M_2PI, gettheta_1max())+M_PI/2<theta_2)
+        throw EImproperArgument("angle theta_2 should be in [max(0, theta_1min), min(M_2PI, theta_1max)+M_PI/2]");
 
     //si el punto de inflexión está fuera de la zona segura
     if(theta_2 < gettheta_2rad()) {
-        //el eje 1 se retraerá hasta cero
+        //el rotor 1 se retraerá hasta cero
         theta_1 = 0;
 
         //calcula el radicando de la solución simplificada
@@ -2360,14 +2396,14 @@ double TActuator::getr_i(double &theta_1, double theta_2)
         //devuelve r_i
         return r_i;
     } else { //si el punto de inflexión está en la zona segura
-        //el eje 1 se retraerá hasta la dirección noramal a la radial
+        //el rotor 1 se retraerá hasta la dirección noramal a la radial
         theta_1 = theta_2 - M_PI/2;
 
         //devuelve r_i
         return fabs(getL01() - getArm()->getL12());
     }
 }
-//ángulo del eje 2 respecto de S2 en radianes
+//ángulo del rotor 2 respecto de S2 en radianes
 //para el punto de inflexión de la pose dada
 double TActuator::gettheta___2i(double theta_2, double r_i)
 {
@@ -2375,9 +2411,9 @@ double TActuator::gettheta___2i(double theta_2, double r_i)
     if(r_i < 0)
         throw EImproperArgument("distance r_i should be nonnegative");
 
-    //el ángulo theta_2 debe estar en [Max(0, theta_1min), Min(M_2PI, theta_1max)+M_PI/2]
-    if(theta_2<Max(0., gettheta_1min()) || Min(M_2PI, gettheta_1max())+M_PI/2<theta_2)
-        throw EImproperArgument("angle theta_2 should be in [Max(0, theta_1min), Min(M_2PI, theta_1max)+M_PI/2]");
+    //el ángulo theta_2 debe estar en [max(0, theta_1min), min(M_2PI, theta_1max)+M_PI/2]
+    if(theta_2<max(0., gettheta_1min()) || min(M_2PI, gettheta_1max())+M_PI/2<theta_2)
+        throw EImproperArgument("angle theta_2 should be in [max(0, theta_1min), min(M_2PI, theta_1max)+M_PI/2]");
 
     //calcula el argumento de la función coseno
     double arg = (getL01()*getL01() + getArm()->getL12()*getArm()->getL12() - r_i*r_i)/(2*getL01()*getArm()->getL12());
@@ -2419,16 +2455,16 @@ double TActuator::distance(TActuator *AA)
     double D1; //distancia de este al adyacente
     double D2; //distancia del adyacente a este
 
-    //si la posición angular de ambos ejes de este posicionador es conocida
+    //si la posición angular de ambos rotores de este actuador es conocida
     if(getPAkd() != kdUnk) {
-        //si la posición angular de ambos ejes del posicionador adyacente es conocida
+        //si la posición angular de ambos rotores del actuador adyacente es conocida
         if(AA->getPAkd() != kdUnk) {
             //calcula la distancia entre contornos
             //this->Arm -> AA->Arm
             D1 = getArm()->getContour().distanceMin(AA->getArm()->getContour());
             D2 = AA->getArm()->getContour().distanceMin(getArm()->getContour());
         }
-        //si la posición angular de algún eje del posicionador adyacente es desconocida
+        //si la posición angular de algún eje del actuador adyacente es desconocida
         else {
             //calcula la distancia entre contornos
             //this->Arm -> AA->Barrier
@@ -2436,16 +2472,16 @@ double TActuator::distance(TActuator *AA)
             D2 = AA->getBarrier()->getContour().distanceMin(getArm()->getContour());
         }
     }
-    //si la posición angular de algún eje de este posicionador es desconocida
+    //si la posición angular de algún eje de este actuador es desconocida
     else {
-        //si la posición angular de ambos ejes del posicionador adyacente es conocida
+        //si la posición angular de ambos rotores del actuador adyacente es conocida
         if(AA->getPAkd() != kdUnk) {
             //calcula la distancia entre contornos
             //this->Barrier -> AA->Arm
             D1 = getBarrier()->getContour().distanceMin(AA->getArm()->getContour());
             D2 = AA->getArm()->getContour().distanceMin(getBarrier()->getContour());
         }
-        //si la posición angular de algún eje del posicionador adyacente es desconocida
+        //si la posición angular de algún eje del actuador adyacente es desconocida
         else {
             //calcula ladistancia entre contornos
             //this->Barrier -> AA->Barrier
@@ -2454,7 +2490,32 @@ double TActuator::distance(TActuator *AA)
         }
     }
 
-    return Min(D1, D2); //devuelve la distancia mínima
+    return min(D1, D2); //devuelve la distancia mínima
+
+    //tomar la distancia mínima constituye una corrección del error numérico
+}
+//determine the distance with a point
+double TActuator::distance(TDoublePoint P)
+{
+    //calcula la distancia entre el contorno del obstáculo
+    //de este actuador y el del actuador adyacente:
+
+    double D; //distancia de este al punto
+
+    //si la posición angular de ambos rotores de este actuador es conocida
+    if(getPAkd() != kdUnk) {
+        //calcula la distancia entre contornos
+        //this->Arm -> AA->Arm
+        D = getArm()->getContour().distanceMin(P);
+    }
+    //si la posición angular de algún eje de este actuador es desconocida
+    else {
+        //calcula la distancia entre contornos
+        //this->Barrier -> AA->Arm
+        D = getBarrier()->getContour().distanceMin(P);
+    }
+
+    return D; //devuelve la distancia
 
     //tomar la distancia mínima constituye una corrección del error numérico
 }
@@ -2476,55 +2537,61 @@ double TActuator::distanceFree(TActuator *A)
     return Df; //devuelve la distancia libre
 }
 
-//determina la distancia mínima entre el brazo del posicionador
-//y los brazos de los posicionadores adyacentes
+//determina la distancia mínima entre el brazo del actuador
+//y los brazos de los actuadores adyacentes
 double TActuator::distanceWithAdjacent(void)
 {
-    TActuator *AA;
-    double dmin = std::numeric_limits<double>::max();
-    double d;
+    double dmin = DBL_MAX;
 
-    //si hay algún adyacente
-    if(Adjacents.getCount() > 0)
-        //por cada posicionador adyacente
-        for(int i=0; i<Adjacents.getCount(); i++) {
-            //apunta el posicioandor indicado para facilitar su acceso
-            AA = Adjacents[i]->getActuator();
-            //determina la distancia entre brazos
-            d = getArm()->getContour().distanceMin(AA->getArm()->getContour());
-            //si la distancia es menor que la mínima
-            if(d < dmin)
-                dmin = d; //actualiza la distancia mínima
-        }
+    //por cada EA adyacente
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta el EA indicado para facilitar su acceso
+        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        //determina la distancia entre el brazo y la barrera
+        double d = getArm()->getContour().distanceMin(AB->getContour());
+        //si la distancia es menor que la mínima
+        if(d < dmin)
+            dmin = d; //actualiza la distancia mínima
+    }
+
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el RP indicado para facilitar su acceso
+        TActuator *AA = AdjacentRPs[i]->getActuator();
+        //determina la distancia entre brazos
+        double d = getArm()->getContour().distanceMin(AA->getArm()->getContour());
+        //si la distancia es menor que la mínima
+        if(d < dmin)
+            dmin = d; //actualiza la distancia mínima
+    }
 
     return dmin;
 }
-//determina la distancia mínima entre el punto P3 del posicionador
-//y los puntos P3 de los posicionadores adyacentes
+//determina la distancia mínima entre el punto P3 del actuador
+//y los puntos P3 de los actuadores adyacentes
 double TActuator::distanceP3WithAdjacent(void)
 {
     TActuator *AA;
-    double dmin = std::numeric_limits<double>::max();
+    double dmin = DBL_MAX;
     double d;
 
-    //si hay algún adyacente
-    if(Adjacents.getCount() > 0)
-        for(int i=0; i<Adjacents.getCount(); i++) {
-            //apunta el posicionador indicado para facilitar su acceso
-            AA = Adjacents[i]->getActuator();
-            //determina la distancia entre puntos P3
-            d = Mod(AA->getArm()->getP3() - getArm()->getP3());
-            //si la distancia es menor que la mínima
-            if(d < dmin)
-                dmin = d; //actualiza la distancia mínima
-        }
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador indicado para facilitar su acceso
+        AA = AdjacentRPs[i]->getActuator();
+        //determina la distancia entre puntos P3
+        d = Mod(AA->getArm()->getP3() - getArm()->getP3());
+        //si la distancia es menor que la mínima
+        if(d < dmin)
+            dmin = d; //actualiza la distancia mínima
+    }
 
     return dmin;
 }
 
 //DETERMINACIÓN DE POSICIÓN RELATIVA:
 
-//determines ifapoint is in the security area
+//determines if a point is in the security area
 bool TActuator::pointIsInSecurityArea(TDoublePoint P)
 {
 
@@ -2566,27 +2633,24 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
     bool Quantify_bak = getQuantify_();
     bool Quantify___bak = getArm()->getQuantify___();
 
-    //desactiva la cuantificación de los ejes
+    //desactiva la cuantificación de los rotores
     setQuantify_(false);
     getArm()->setQuantify___(false);
 
     //mueve el brazo al punto
     setCartesianP_3(P_.x, P_.y);
 
-    TActuator *AA;
-    double d;
+    //por cada EA adyacente
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta la barrera indicada para facilitar su acceso
+        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
 
-    //por cada posicionador adyacente
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el posicioandor indicado para facilitar su acceso
-        AA = Adjacents[i]->getActuator();
+        //determina la distancia mínima entre el brazo y
+        //la barrera adyacente
+        double d = getArm()->getContour().distanceMin(AB->getContour());
 
-        //determina la distancia mínimaentre el brazo y
-        //el centro del posicionador adyacente
-        d = getArm()->getContour().distanceMin(AA->getP0());
-
-        //si la distancia es menor que el SPM+AA->SPM+AA->r_max
-        if(d < getArm()->getSPM()+AA->getArm()->getSPM()+AA->getr_max()) {
+        //si la distancia es menor que el SPM + AB->SPM
+        if(d < getArm()->getSPM() + AB->getSPM()) {
             //restaura la configuración original
             setQuantify_(Quantify_bak);
             getArm()->setQuantify___(Quantify___bak);
@@ -2597,11 +2661,35 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
             return true;
         }
     }
+
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador indicado para facilitar su acceso
+        TActuator *AA = AdjacentRPs[i]->getActuator();
+
+        //determina la distancia mínima entre el brazo y
+        //el centro del actuador adyacente
+        double d = getArm()->getContour().distanceMin(AA->getP0());
+
+        //si la distancia es menor que el SPM + AA->SPM + AA->r_max
+        if(d < getArm()->getSPM() + AA->getArm()->getSPM() + AA->getr_max()) {
+            //restaura la configuración original
+            setQuantify_(Quantify_bak);
+            getArm()->setQuantify___(Quantify___bak);
+            setp_1(p_1bak);
+            getArm()->setp___3(p___3bak);
+
+            //indica que el punto está fuera del área no invasiva
+            return true;
+        }
+    }
+
     //restaura la configuración original
     setQuantify_(Quantify_bak);
     getArm()->setQuantify___(Quantify___bak);
     setp_1(p_1bak);
     getArm()->setp___3(p___3bak);
+
     //indica que el punto no está fuera del área no invasiva
     return false;
 }
@@ -2613,7 +2701,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
 
     //si el punto está fuera del dominio
     if(pointIsOutDomainP_3(P_))
-        //indica que el punto no está dentro del área no invasiba
+        //indica que el punto está fuera del área no invasiva
         return false;
 
     //guarda la configuración original
@@ -2622,43 +2710,64 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
     bool Quantify_bak = getQuantify_();
     bool Quantify___bak = getArm()->getQuantify___();
 
-    //desactiva la cuantificación de los ejes
+    //desactiva la cuantificación de los rotores
     setQuantify_(false);
     getArm()->setQuantify___(false);
 
     //mueve el brazo al punto
     setCartesianP_3(P_.x, P_.y);
 
-    TActuator *AA;
-    double d;
+    //por cada EA adyacente
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta la barrera indicada para facilitar su acceso
+        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
 
-    //por cada posicionador adyacente
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el posicioandor indicado para facilitar su acceso
-        AA = Adjacents[i]->getActuator();
+        //determina la distancia mínima entre el brazo y
+        //la barrera adyacente
+        double d = getArm()->getContour().distanceMin(AB->getContour());
 
-        //determina la distancia mínimaentre el brazo y
-        //el centro del posicionador adyacente
-        d = getArm()->getContour().distanceMin(AA->getP0());
-
-        //si la distancia es menor que SPM+AA->SPM+AA->r_max
-        if(d < getArm()->getSPM()+AA->getArm()->getSPM()+AA->getr_max()) {
+        //si la distancia es menor que el SPM + AB->SPM
+        if(d < getArm()->getSPM() + AB->getSPM()) {
             //restaura la configuración original
             setQuantify_(Quantify_bak);
             getArm()->setQuantify___(Quantify___bak);
             setp_1(p_1bak);
             getArm()->setp___3(p___3bak);
 
-            //indica que el punto no está dentro del área no invasiva
+            //indica que el punto está fuera del área no invasiva
             return false;
         }
     }
+
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador indicado para facilitar su acceso
+        TActuator *AA = AdjacentRPs[i]->getActuator();
+
+        //determina la distancia mínima entre el brazo y
+        //el centro del actuador adyacente
+        double d = getArm()->getContour().distanceMin(AA->getP0());
+
+        //si la distancia es menor que el SPM + AA->SPM + AA->r_max
+        if(d < getArm()->getSPM() + AA->getArm()->getSPM() + AA->getr_max()) {
+            //restaura la configuración original
+            setQuantify_(Quantify_bak);
+            getArm()->setQuantify___(Quantify___bak);
+            setp_1(p_1bak);
+            getArm()->setp___3(p___3bak);
+
+            //indica que el punto está fuera del área no invasiva
+            return false;
+        }
+    }
+
     //restaura la configuración original
     setQuantify_(Quantify_bak);
     getArm()->setQuantify___(Quantify___bak);
     setp_1(p_1bak);
     getArm()->setp___3(p___3bak);
-    //indica que el punto está dentro del área no invasiva
+
+    //indica que el punto no está fuera del área no invasiva
     return true;
 }
 
@@ -2667,7 +2776,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
 bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
 {
     if(A == NULL)
-        throw EImproperArgument("pinter A shouldpointto built actuator");
+        throw EImproperArgument("pointer A shouldpointto built actuator");
 
     double D; //distance netween conturs
     double Dfree; //freedistance between contours
@@ -2725,97 +2834,135 @@ bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
 
 //--------------------------------------------------------------------------
 //MÉTODOS PARA DETERMINAR LAS COLISIONES
-//CON POSICIONADORES ADYACENTES:
+//CON ACTUADORES ADYACENTES:
 
-//determina si hay colisión con un actuador
-bool TActuator::thereIsCollision(const TActuator* AA)
+//determina la distancia mínima con una EA
+double TActuator::distanceMin(const TExclusionArea *EA)
 {
-    //si la posición angular de ambos ejes de este posicionador es conocida
-    if(getPAkd() != kdUnk) {
-        //si la posición angular de ambos ejes del posicionador adyacente es conocida
-        if(AA->getPAkd() != kdUnk) {
-            //calcula la distancia a partir de la cual los brazos de los actuadores
-            //están demasiado alejados para que sus brazos puedan colisionar
-            double Dmax = getArm()->getL1V() + getArm()->getSPM() + AA->getArm()->getL1V() + AA->getArm()->getSPM();
-            //si los brazos de los actuadores no pueden colisionar
-            if(Mod(AA->getArm()->getP1() - getArm()->getP1()) >= Dmax)
-                //indica que no hay colisión
-                return false;
+    //comprueba las precondiciones
+    if(EA == NULL)
+        throw EImproperArgument("pointer EA should point to built exclusion area");
 
-            //calcula el SPM conjunto
-            double SPM = getArm()->getSPM() + AA->getArm()->getSPM();
-            //si los contornos están a una distancia menor que la suma de SPMs
-            if(getArm()->getContour().distanceMin(AA->getArm()->getContour())<SPM || AA->getArm()->getContour().distanceMin(getArm()->getContour())<SPM)
-                //indica que se ha encontrado colisión
-                return true;
-        }
-        //si la posición angular de algún eje del posicionador adyacente es desconocida
-        else {
-            //calcula la distancia a partir de la cual los brazos de los actuadores
-            //están demasiado alejados para que sus brazos puedan colisionar
-            double Dmax = getArm()->getL1V() + getArm()->getSPM() + AA->getBarrier()->getr_max() + AA->getBarrier()->getSPM();
-            //si los brazos de los actuadores no pueden colisionar
-            if(Mod(AA->getBarrier()->getP0() - getArm()->getP1()) >= Dmax)
-                //indica que no hay colisión
-                return false;
+    //busca el EA en la lista de pares (Ea, Dmin)
+    int i = 0;
+    while(i<DminEAs.getCount() && EA!=DminEAs[i].getEA())
+        i++;
 
-            //calcula el SPM conjunto
-            double SPM = getArm()->getSPM() + AA->getBarrier()->getSPM();
-            //si los contornos están a una distancia menor que la suma de SPMs
-            if(getArm()->getContour().distanceMin(AA->getBarrier()->getContour())<SPM || AA->getBarrier()->getContour().distanceMin(getArm()->getContour())<SPM)
-                //indica que se ha encontrado colisión
-                return true;
-        }
+    //comprueba las precondiciones
+    if(i >= DminEAs.getCount())
+        throw EImproperArgument("pointer EA should be an adjacent exclusion area");
+
+    //calcula la distancia con la barrera del EA
+    double dm = distanceMin(&(EA->Barrier));
+
+    //actualiza la distancia mínima
+    if(i >= DminEAs.getCount())
+        throw EImpossibleError("lateral effect");
+    if(dm < DminEAs[i].getDmin())
+        DminEAs[i].setDmin(dm);
+
+    return dm;
+}
+//determina la distancia mínima con un actuador
+double TActuator::distanceMin(const TActuator *Actuator)
+{
+    //comprueba las precondiciones
+    if(Actuator == NULL)
+        throw EImproperArgument("pointer Actuator should point to built barrier");
+
+    //busca el RP en la lista de pares (RP, Dmin)
+    int i = 0;
+    while(i<DminRPs.getCount() && Actuator!=DminRPs[i].getRP()->getActuator())
+        i++;
+
+    //comprueba las precondiciones
+    if(i >= DminRPs.getCount())
+        throw EImproperArgument("pointer RP should be an adjacent robotic positioner");
+
+    //calcula la distancia mínima
+    double dm;
+
+    //si la posición angular de ambos rotores del actuador adyacente es conocida
+    if(Actuator->getPAkd() != kdUnk) {
+        //si la posición angular de ambos rotores de este actuador es conocida
+        if(getPAkd() != kdUnk)
+            //calcula la distancia brazo-brazo
+            dm = getArm()->distanceMin(Actuator->getArm());
+        //si la posición angular de algún eje de este actuador es desconocida
+        else
+            //calcula la distancia barrera-brazo
+            dm = getBarrier()->distanceMin(Actuator->getArm());
     }
-    //si la posición angular de algún eje de este posicionador es desconocida
-    else {
-        //si la posición angular de ambos ejes del posicionador adyacente es conocida
-        if(AA->getPAkd() != kdUnk) {
-            //calcula la distancia a partir de la cual los brazos de los actuadores
-            //están demasiado alejados para que sus brazos puedan colisionar
-            double Dmax = getBarrier()->getr_max() + getBarrier()->getSPM() + AA->getArm()->getL1V() + AA->getArm()->getSPM();
-            //si los brazos de los actuadores no pueden colisionar
-            if(Mod(AA->getArm()->getP1() - getBarrier()->getP0()) >= Dmax)
-                //indica que no hay colisión
-                return false;
+    //si la posición angular de algún rotor del actuador adyacente es desconocida
+    else
+        //determina si hay colisión con la barrera del posicionador adyacente
+        dm = distanceMin(Actuator->getBarrier());
 
-            //calcula el SPM conjunto
-            double SPM = getBarrier()->getSPM() + AA->getArm()->getSPM();
-            //si los contornos están a una distancia menor que la suma de SPMs
-            if(getBarrier()->getContour().distanceMin(AA->getArm()->getContour())<SPM || AA->getArm()->getContour().distanceMin(getBarrier()->getContour())<SPM)
-                //indica que se ha encontrado colisión
-                return true;
-        }
-        //si la posición angular de algún eje del posicionador adyacente es desconocida
-        else {
-            //calcula la distancia a partir de la cual los brazos de los actuadores
-            //están demasiado alejados para que sus brazos puedan colisionar
-            double Dmax = getBarrier()->getr_max() + getBarrier()->getSPM() + AA->getBarrier()->getr_max() + AA->getBarrier()->getSPM();
-            //si los brazos de los actuadores no pueden colisionar
-            if(Mod(AA->getBarrier()->getP0() - getBarrier()->getP0()) >= Dmax)
-                //indica que no hay colisión
-                return false;
+    //actualiza la distancia mínima
+    if(i >= DminRPs.getCount())
+        throw EImpossibleError("lateral effect");
+    if(dm < DminRPs[i].getDmin())
+        DminRPs[i].setDmin(dm);
 
-            //calcula el SPM conjunto
-            double SPM = getBarrier()->getSPM() + AA->getBarrier()->getSPM();
-            //si los contornos están a una distancia menor que la suma de SPMs
-            if(getBarrier()->getContour().distanceMin(AA->getBarrier()->getContour())<SPM ||
-                    AA->getBarrier()->getContour().distanceMin(getBarrier()->getContour())<SPM)
-                //indica que se ha encontrado colisión
-                return true;
-        }
+    return dm;
+}
+
+//determina si hay colisión con una EA
+bool TActuator::thereIsCollision(const TExclusionArea *EA)
+{
+    //comprueba las precondiciones
+    if(EA == NULL)
+        throw EImproperArgument("pointer EA should point to built exclusion area");
+
+    //determina si hay colisión con la barrera del EA
+    bool tic = thereIsCollision(&(EA->Barrier));
+
+    return tic;
+}
+//determina si hay colisión con un actuador
+bool TActuator::thereIsCollision(const TActuator *Actuator)
+{
+    //comprueba las precondiciones
+    if(Actuator == NULL)
+        throw EImproperArgument("pointer Actuator should point to built barrier");
+
+    //si la posición angular de ambos rotores del actuador adyacente es conocida
+    if(Actuator->getPAkd() != kdUnk) {
+        //si la posición angular de ambos rotores de este actuador es conocida
+        if(getPAkd() != kdUnk)
+            //determina el estado de colisión brazo-brazo
+            return getArm()->collides(Actuator->getArm());
+        //si la posición angular de algún eje de este actuador es desconocida
+        else
+            //determina el estado de colisión barrera-brazo
+            return getBarrier()->collides(Actuator->getArm());
     }
+    //si la posición angular de algún rotor del actuador adyacente es desconocida
+    else
+        //determina si hay colisión con la barrera del posicionador adyacente
+        return thereIsCollision(Actuator->getBarrier());
 
     //indica que no ha encontrado colisión
     return false;
 }
-//determina si hay colisión con un actuador adyacente
+
+//determina si hay colisión con una barrera o un actuador adyacente
 bool TActuator::thereIsCollisionWithAdjacent(void)
 {
-    //por cada posicionador adyacente
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el actuador de fibra indicado para facilitar su acceso
-        TActuator *AA = Adjacents[i]->getActuator();
+    //por cada EA adyacente
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta la barrera indicada para facilitar su acceso
+        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        //si hay colisión
+        if(thereIsCollision(AB))
+            //indica que si hay colisión
+            return true;
+    }
+
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador indicado para facilitar su acceso
+        TActuator *AA = AdjacentRPs[i]->getActuator();
         //si hay colisión
         if(thereIsCollision(AA))
             //indica que si hay colisión
@@ -2825,13 +2972,23 @@ bool TActuator::thereIsCollisionWithAdjacent(void)
     //indica que no no hay colisión
     return false;
 }
-//determina si no hay colisión con un actuador adyacente
+//determina si no hay colisión con una barrera o un actuador adyacente
 bool TActuator::thereIsntCollisionWithAdjacent(void)
 {
-    //por cada posicionador adyacente
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el actuador de fibra indicado para facilitar su acceso
-        TActuator *AA = Adjacents[i]->getActuator();
+    //por cada EA adyacente
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta la barrera indicada para facilitar su acceso
+        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        //si hay colisión
+        if(thereIsCollision(AB))
+            //indica que si hay colisión
+            return false;
+    }
+
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador indicado para facilitar su acceso
+        TActuator *AA = AdjacentRPs[i]->getActuator();
         //si hay colisión
         if(thereIsCollision(AA))
             //indica que si hay colisión
@@ -2841,45 +2998,39 @@ bool TActuator::thereIsntCollisionWithAdjacent(void)
     //indica que no no hay colisión
     return true;
 }
-//Busca los posicionadores adyacentes cuyo
-//brazo colisiona con el de este posicionador.
-/*void TActuator::SearchCollindingAdjacent(TVector<int> &Ids)
-{
-        TActuator *FP;
 
-        //inicializa la lista de identificadores en congruencia
-        //con la situación de partida
-        Ids.Clear();
-
-        //busca la invasión con alguno de sus adyacentes
-        for(int i=0; i<Adjacents.Count; i++) {
-                //apunta el posicionador adyacente indicado para facilitar su acceso
-                FP = Adjacents[i];
-                //si el posicionador adyacente
-                //      colisiona con el posicionador indicado
-                if(Arm->Collides(FP->Arm))
-                        //añade el índice al posicionador adyacente
-                        Ids.Add(FP->Id);
-        }
-}*/
-//Busca los posicionadores adyacentes cuyo
-//brazo colisiona con el de este posicionador.
-void TActuator::searchCollindingAdjacent(TItemsList<TRoboticPositioner*> &Collindings)
+//Busca los EAs adyacentes cuya
+//barrera colisiona con este actuador
+void TActuator::searchCollindingAdjacent(TItemsList<TExclusionArea*>& Collindings)
 {
-    //vacia la lista de los que colisionan en congruencia con el estado inicial
+    //inicializa la lista de los que colisionan
     Collindings.Clear();
 
-    TRoboticPositioner *FPA;
+    //determina las barreras adyacentes con las que hay colisión
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta el actuador adyacente indicado para facilitar su acceso
+        TExclusionArea *EAA = AdjacentEAs[i];
+        //si el actuador adyacente colisiona con este actuador
+        if(thereIsCollision(&(EAA->Barrier)))
+            //añade el EA a la lista de los que colisionan
+            Collindings.Add(EAA);
+    }
+}
+//Busca los RPs adyacentes cuyo
+//actuador colisiona con este actuador
+void TActuator::searchCollindingAdjacent(TItemsList<TRoboticPositioner*>& Collindings)
+{
+    //inicializa la lista de los que colisionan
+    Collindings.Clear();
 
-    //busca la invasión con alguno de sus adyacentes
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el posicionador adyacente indicado para facilitar su acceso
-        FPA = Adjacents[i];
-        //si el posicionador adyacente
-        //      colisiona con el posicionador indicado
-        if(thereIsCollision(FPA->getActuator()))
-            //añade el índice al posicionador adyacente
-            Collindings.Add(FPA);
+    //determina los actuadores adyacentes con los que hay colisión
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador adyacente indicado para facilitar su acceso
+        TRoboticPositioner *RPA = AdjacentRPs[i];
+        //si el actuador adyacente colisiona con este actuador
+        if(thereIsCollision(RPA->getActuator()))
+            //añade el RP a la lista de los que colisionan
+            Collindings.Add(RPA);
     }
 }
 
@@ -2887,14 +3038,23 @@ void TActuator::searchCollindingAdjacent(TItemsList<TRoboticPositioner*> &Collin
 //con evaluación de colisión pendiente.
 bool TActuator::thereIsCollisionWithPendingAdjacent(void)
 {
-    TActuator *AA;
+    //por cada EA adyacente
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apuntala barrera del EA indicada para facilitar su acceso
+        TExclusionArea *EAA = AdjacentEAs[i];
+        //si alguno tiene pendiente la determinación de colisión,
+        //y hay colisión
+        if((Pending || EAA->Pending) && thereIsCollision(&(EAA->Barrier)))
+            //indica que se ha encontrado colisión
+            return true;
+    }
 
-    //por cada posicionador adyacente
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el posicionador indicado para facilitar su acceso
-        AA = Adjacents[i]->getActuator();
-        //si alguno de los posicionadores tiene pendiente la determinación de colisión,
-        //y el posicionador adyacente colisiona con el posicionador indicado
+    //por cada RP adyacente
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el actuador del RP indicado para facilitar su acceso
+        TActuator *AA = AdjacentRPs[i]->getActuator();
+        //si alguno de los actuadores tiene pendiente la determinación de colisión,
+        //y hay colisión
         if((Pending || AA->Pending) && thereIsCollision(AA))
             //indica que se ha encontrado colisión
             return true;
@@ -2907,244 +3067,45 @@ bool TActuator::thereIsCollisionWithPendingAdjacent(void)
     return false;
 }
 
-//Busca los posicionadores adyacentes
+//Busca los EAs adyacentes
 //con evaluación de colisión pendiente
-//cuyo actuador colisiona con el de este posicionador.
-void TActuator::searchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*> &Collindings)
+//cuya barrera colisiona con este actuador.
+void TActuator::searchCollindingPendingAdjacent(TItemsList<TExclusionArea*>& Collindings)
 {
-    //vacia la lista de los que colisionan en congruencia con el estado inicial
+    //inicializa la lista de los que colisionan
     Collindings.Clear();
 
-    TRoboticPositioner *FPA;
+    //determina las barreras adyacentes con los que hay colisión
+    for(int i=0; i<AdjacentEAs.getCount(); i++) {
+        //apunta el RP adyacente indicado para facilitar su acceso
+        TExclusionArea *EAA = AdjacentEAs[i];
+        //si alguna de las barreras tiene pendiente la determinación de colisión,
+        //y colisiona con este actuador
+        if((Pending || EAA->Pending) && thereIsCollision(&(EAA->Barrier)))
+            //añade el RP a la lista de los que colisionan
+            Collindings.Add(EAA);
+    }
+}
+//Busca los RPs adyacentes
+//con evaluación de colisión pendiente
+//cuyo actuador colisiona con este actuador.
+void TActuator::searchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*>& Collindings)
+{
+    //inicializa la lista de los que colisionan
+    Collindings.Clear();
 
-    //busca la invasión con alguno de sus adyacentes
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el posicionador adyacente indicado para facilitar su acceso
-        FPA = Adjacents[i];
-        //si alguno de los posicionadores tiene pendiente la determinación de colisión,
-        //y el posicionador adyacente colisiona con el posicionador indicado
-        if((Pending || FPA->getActuator()->Pending) && thereIsCollision(FPA->getActuator()))
-            //añade el índice al posicionador adyacente
-            Collindings.Add(FPA);
+    //determina los actuadores adyacentes con los que hay colisión
+    for(int i=0; i<AdjacentRPs.getCount(); i++) {
+        //apunta el RP adyacente indicado para facilitar su acceso
+        TRoboticPositioner *RPA = AdjacentRPs[i];
+        //si alguno de los actuadores tiene pendiente la determinación de colisión,
+        //y colisiona con este actuador
+        if((Pending || RPA->getActuator()->Pending) && thereIsCollision(RPA->getActuator()))
+            //añade el RP a la lista de los que colisionan
+            Collindings.Add(RPA);
     }
 }
 
-/*
-//MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO:
-
-//determina los ángulos hay que rotar este posicinador, para que su brazo
-//quede adyacente al segmento indicado
-void TActuator::turnSegment(TVector<double> &dts,
-        TDoublePoint Pa, TDoublePoint Pb)
-{
-        Arm->TurnSegment(dts, Pa, Pb, P0);
-}
-
-//determina los ángulos hay que rotar este posicinador, para que su brazo
-//quede adyacente al arco indicado
-void TActuator::turnArc(TVector<double> &dts,
-TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R)
-{
-        Arm->TurnArc(dts, Pa, Pb, Pc, R, P0);
-}
-
-//determina los ángulos hay que rotar este posicinador, para que su brazo
-//quede adyacente al brazo indicado
-void TActuator::TurnArm(TVector<double> &dts, TArmAbstract *Arm_)
-{
-        Arm->TurnArm(dts, Arm_, P0);
-}
-  */
-/*#
-//---------------------------------------------------------------------------
-//MÉTODOS GRÁFICOS:
-
-//indica que parte del posicinador puede ser agarrado en el punto indicado
-//      3: botón (P2, R2)
-//      2: brazo (PA...)
-//      1: cilindro (P0, L01)
-//      0: niguna;
-int TActuator::grab(TDoublePoint P)
-{
-    //si está en el botón pero no en su centro
-    if(IntersectionPointCircle(P, getArm()->getP3(), getArm()->getR3()))
-        return 3; //agarra el botón
-
-    //si no, si está en el brazo pero no en su eje
-    if(getArm()->Covers(P) && P!=getArm()->getP1())
-        return 2; //agarra el brazo
-
-    //si no, si está en el posicinador pero no en su eje
-    if(IntersectionPointCircle(P, getP0(), getL01()) && P!=getP0())
-        return 1; //agarra el posicinador
-
-    return 0;
-}
-//asigna un color al posicionador
-void TActuator::SetAllColors(QColor Color)
-{
-    ColorCilinder = Color;
-    ColorArm = Color;
-    ColorLimitDomainP3 = Color;
-    ColorLimitDomainManeuvering = Color;
-}
-
-//resalta un color si el posicionador está seleccionado
-QColor TActuator::HighlightIfSelected(QColor Color)
-{
-    if(Selected)
-        return HighlightColor(Color);
-    else
-        return Color;
-}
-
-//traza el posicinador con los colores indicados
-//en un trazador de formas
-void TActuator::paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazdor de formas contruido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to builts ploter shapes");
-
-    //si el posicionador está seleccionado
-    if(Selected) {
-        //configura el color de la pluma
-        if(double(Luminance(PS->getBackColor())) < 255.*1.5) {
-            PS->setPenColor(Qt::white);
-            PS->setFontColor(Qt::white);
-        } else {
-            PS->setPenColor(Qt::black);
-            PS->setFontColor(Qt::black);
-        }
-
-        //si tiene que dibujar el cuerpo del posicionador
-        if(PaintBody) {
-            //dibuja el cilindro resaltado
-            PS->Circunference(getP0(), getL01());
-            PS->Print(getP0(), getIdText());
-            //dibuja el brazo resaltado
-            if(Collision)
-                getArm()->Paint(PS, ColorCollision);
-            else
-                getArm()->Paint(PS, PS->getPenColor());
-        }
-
-        //si tiene que pintar el límite del dominio de P3
-        if(PaintLimitDomainP3) {
-            //dibuja el límite del dominio de P3 resaltado
-            PS->Circunference(getP0(), getr_3min());
-            PS->Circunference(getP0(), getr_3max());
-        }
-
-        //si tiene que pintar el límite del dominio de maniobra
-        if(PaintLimitDomainManeuvering)
-            //dibuja el límtie del dominio de maniobra resaltado
-            PS->Circunference(getP0(), getr_max());
-    }
-    //si el posiciondor no está seleccionado
-    else {
-        //si tiene que dibujar el cuerpo del posicionador
-        if(PaintBody) {
-            //dibuja el cilindro con su color correspondiente
-            PS->setPenColor(ColorCilinder);
-            PS->setFontColor(ColorCilinder);
-            PS->Circunference(getP0(), getL01());
-            PS->Print(getP0(), getIdText());
-            //dibuja el brazo con su color correspondiente
-            if(Collision)
-                getArm()->Paint(PS, ColorCollision);
-            else
-                getArm()->Paint(PS, ColorArm);
-        }
-
-        //si tiene que dibujar el límite del dominio de P3
-        if(PaintLimitDomainP3) {
-            //dibuja el límite del dominio de P3 con su color correspondiente
-            PS->setPenColor(ColorLimitDomainP3);
-            PS->Circunference(getP0(), getr_3min());
-            PS->Circunference(getP0(), getr_3max());
-        }
-
-        //si tiene que dibujar el límite del dominio de maniobra
-        if(PaintLimitDomainManeuvering) {
-            //dibuja el límite del dominio de maniobra con su color correspondiente
-            PS->setPenColor(ColorLimitDomainManeuvering);
-            PS->Circunference(getP0(), getr_max());
-        }
-    }
-}
-//traza el posicinador con los colores indicados
-//en un trazador de formas
-//en el modelo simplificado (dos segmentos de P0 a P1 y de P1 a P2)
-void TActuator::paintSimplified(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazdor de formas contruido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to builts ploter shapes");
-
-    //si el posicionador está seleccionado
-    if(Selected) {
-        //configura el color de la pluma
-        if(double(Luminance(PS->getBackColor())) < 255.*1.5)
-            PS->setPenColor(Qt::white);
-        else
-            PS->setPenColor(Qt::black);
-
-        //si tiene que dibujar el cuerpo del posicionador
-        if(PaintBody) {
-            //dibuja el cilindro resaltado
-            PS->Segment(getP0(), getArm()->getP1());
-            //dibuja el brazo resaltado
-            if(Collision)
-                getArm()
-                        ->PaintSimplified(PS, ColorCollision);
-            else
-                getArm()->PaintSimplified(PS, PS->getPenColor());
-        }
-
-        //si tiene que pintar el límite del dominio de P3
-        if(PaintLimitDomainP3) {
-            //dibuja el límite del dominio de P3 resaltado
-            PS->Circunference(getP0(), getr_3min());
-            PS->Circunference(getP0(), getr_3max());
-        }
-
-        //si tiene que pintar el límite del dominio de maniobra
-        if(PaintLimitDomainManeuvering)
-            //dibuja el límite del dominio de maniobra resaltado
-            PS->Circunference(getP0(), getr_max());
-    }
-    //si el posiciondor no está seleccionado
-    else {
-        //si tiene que dibujar el cuerpo del posicionador
-        if(PaintBody) {
-            //dibuja el cilindro con su color correspondiente
-            PS->setPenColor(ColorCilinder);
-            PS->Segment(getP0(), getArm()->getP1());
-            //dibuja el brazo con su color correspondiente
-            if(Collision)
-                getArm()->PaintSimplified(PS, ColorCollision);
-            else
-                getArm()->PaintSimplified(PS, ColorArm);
-        }
-
-        //si tiene que dibujar el límite del dominio de P3
-        if(PaintLimitDomainP3) {
-            //dibuja el límite del dominio de P3 con su color correspondiente
-            PS->setPenColor(ColorLimitDomainP3);
-            PS->Circunference(getP0(), getr_3min());
-            PS->Circunference(getP0(), getr_3max());
-        }
-
-        //si tiene que dibujar el límite del dominio de maniobra
-        if(PaintLimitDomainManeuvering) {
-            //dibuja el límite del dominio de maniobra con su color correspondiente
-            PS->setPenColor(ColorLimitDomainManeuvering);
-            PS->Circunference(getP0(), getr_max());
-        }
-    }
-}
-*/
 //---------------------------------------------------------------------------
 
 } //namespace Models

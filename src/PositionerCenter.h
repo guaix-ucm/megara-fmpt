@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: PositionersCenters.h
-//Content: structure containing triplets (Id, x0, y0)
-//Last update: 06/02/2015
+//Content: positioner center list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -28,7 +27,7 @@
 
 //#include "MotionProgramValidator.h"
 //#include "TargetPointList.h"
-//#include "FiberMOSModel2.h"
+//#include "FiberMOSModel.h"
 //#include "MotionProgram.h"
 #include "PointersList.h"
 
@@ -40,8 +39,10 @@ using namespace Lists;
 namespace Models {
 
 //---------------------------------------------------------------------------
-//class TPositionerCenter:
+//TPositionerCenter:
+//---------------------------------------------------------------------------
 
+//class centro de posicionador
 class TPositionerCenter {
 public:
     //SP properties:
@@ -69,9 +70,6 @@ class TPositionerCenterList : public TPointersList<TPositionerCenter> {
 public:
     //set the PCL in text format
     void setTableText(const string& S);
-
-    //get the TPL
-//    void getPCL(TTargetPointList& TPL);
 
     //build a PositionerCenterList by default
     TPositionerCenterList(void);

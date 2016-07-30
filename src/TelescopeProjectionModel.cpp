@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: TelescopeProjectionModel.h
-//Contenido: modelo de proyección del telescopio
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: TelescopeProjectionModel.cpp
+//Content: telescope projection model
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "TelescopeProjectionModel.h"
@@ -37,107 +36,85 @@ namespace Models {
 //TProjectionCircle
 //---------------------------------------------------------------------------
 
-//PROPIEDADES ESTÁTICAS:
-
-//inicializa el color con que son contruidos los círculos de proyección
-//#QColor TProjectionCircle::DefaultColor = Qt::white;
-
 //MÉTODOS PÚBLICOS:
 
-//contruye un círculo de proyección
-TProjectionCircle::TProjectionCircle(void) : TCircle()
+void TProjectionCircle::setR(double R)
 {
-    //inicializa las constantes
-    p_O.x = 0;
-    p_O.y = 0;
+    //comprueba la precondición
+    if(R < 0)
+        throw EImproperArgument("radious R should be nonnegative");
 
-    //inicializa las propiedades heredadas
+    p_R = R; //set the value
+}
+
+//contruye un círculo de proyección
+TProjectionCircle::TProjectionCircle(void)
+{
+    //inicializa las propiedades
+    O.x = 0;
+    O.y = 0;
     p_R = 0;
-    //#Color = DefaultColor;
 }
-TProjectionCircle::TProjectionCircle(TDoublePoint P, double R) : TCircle(P, R)
+TProjectionCircle::TProjectionCircle(TDoublePoint _O, double R)
 {
-    //inicializa las propiedades heredadas
-    //#Color = DefaultColor;
+    O = _O;
+    try {
+        setR(R);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "building a projection circle: ");
+        throw;
+    }
 }
-//clona un círculo de proyección
-TProjectionCircle::TProjectionCircle(TProjectionCircle *PC) : TCircle(PC)
+//construye un clon de un círculo de proyección
+TProjectionCircle::TProjectionCircle(TProjectionCircle *PC)
 {
-    //el puntero PC debería apuntar a un punto d eprotyección contruido
+    //comprueba la precondición
     if(PC == NULL)
         throw EImproperArgument("pointer PC should point to built projection circle");
 
-    //copia las propiedades no heredadas
-    p_O = PC->p_O;
-    //#Color = PC->Color;
+    //copia las propiedades
+    O = PC->O;
+    p_R = PC->p_R;
 }
 
 //determina si un punto está en el dominio del círculo de proyección
 bool TProjectionCircle::PointIsInDomain(const TDoublePoint Q)
 {
-    //si el punto está a una distancia del origen
-    //mayor que el radio del cñirculo
-    if(Mod(Q - P) <= getR())
-        return true; //indica que está en el dominio
+    if(Mod(Q - O) <= getR())
+        return true;
 
-    return false; //indica que no está en el dominio
+    return false;
 }
 //determina si un punto no está en el dominio del círculo de proyección
 bool TProjectionCircle::PointIsntInDomain(const TDoublePoint Q)
 {
-    //si el punto está a una distancia del origen
     //mayor que el radio del círculo
-    if(Mod(Q - P) > getR())
-        return true; //indica que no está en el dominio
+    if(Mod(Q - O) > getR())
+        return true;
 
-    return false; //indica que si está en el dominio
+    return false;
 }
 
 TDoublePoint TProjectionCircle::RandomPoint(void)
 {
-    TDoublePoint P;
+    TDoublePoint Q;
+
+    //determina el intervalo cartesiano que contiene todo el círculo
+    double xmin = O.x - getR();
+    double xmax = O.x + getR();
+    double ymin = O.y - getR();
+    double ymax = O.y + getR();
 
     do {
         //randomiza el punto en el intervalo cartesiano
-        P.x = RandomUniform(-getR(), getR());
-        P.y = RandomUniform(-getR(), getR());
+        Q.x = RandomUniform(xmin, xmax);
+        Q.y = RandomUniform(ymin, ymax);
         //mientras no esté dentro del dominio
-    } while(PointIsntInDomain(P));
+    } while(PointIsntInDomain(Q));
 
-    return P;
+    return Q;
 }
-/*#
-//dibuja un círculo de proyección en un trazador de formas
-void TProjectionCircle::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazador de formas contruido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
 
-    //establece el color de la pluma
-    PS->setPenColor(Color);
-
-    //dibuja el perímetro del círculo de proyección
-    PS->Circunference(P, getR());
-}
-*/
-/*//---------------------------------------------------------------------------
-//TProjectionCircleList
-//---------------------------------------------------------------------------
-
-//dibuja los círculos de proyección en un trazador de formas
-void TProjectionCircleList::Paint(TPloterShapes *PS)
-{
-        //el puntero PS debería apuntar a un trazador de formas contruido
-        if(PS == NULL)
-                throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-        //por cada círculo de rpoyección de la lista
-        for(int i=0; i<Count; i++)
-                //dibuja el perímetro del círculo de proyección indicado
-                Items[i]->Paint(PS);
-}
-  */
 //---------------------------------------------------------------------------
 //TFocalPlane
 //---------------------------------------------------------------------------
@@ -146,12 +123,11 @@ void TProjectionCircleList::Paint(TPloterShapes *PS)
 
 void TFocalPlane::setR(double R)
 {
-    //el radio del plano focal R debería ser mayor que cero
+    //comprueba las precondiciones
     if(R <= 0)
-        throw EImproperArgument(AnsiString("focal plane radio '")+FloatToStr(R)+AnsiString("' should be upper zero"));
+        throw EImproperArgument("radious R should be upper zero");
 
-    //asigna el nuevo valor
-    p_R = R;
+    p_R = R; //asigna el valor
 }
 
 //MÉTODOS PÚBLICOS:
@@ -164,40 +140,46 @@ TFocalPlane::TFocalPlane(void) :
     p_R(GTC_R),
     p_ProjectionCircle(NULL),
     ProjectionPointList(),
-    ListInnerProjectionPoints(),
-    //#Color(Qt::yellow),
-    PaintCircunference(false),
-    PaintProjectionCircle(true)
+    InnerProjectionPointList()
 {
-    try {
-        //inicializa el punto origen de coordenadas
-        p_O.x = 0;
-        p_O.y = 0;
-    } catch(...) {
-        throw;
-    }
+    //inicializa el punto origen de coordenadas
+    p_O.x = 0;
+    p_O.y = 0;
 }
 
 //copia las propiedades de un plano focal
 void TFocalPlane::CopyFocalPlane(TFocalPlane *FP)
 {
-    //el puntero FP debería apuntar a un trazador de formas construído
+    //comprueba las precondiciones
     if(FP == NULL)
         throw EImproperArgument("pointer FP should point to built focal plane");
 
+    //copy simple properties
+    p_O = FP->p_O;
     p_R = FP->p_R;
-    //#Color = FP->Color;
-    PaintCircunference = FP->PaintCircunference;
-    PaintProjectionCircle = FP->PaintProjectionCircle;
-    ProjectionPointList = FP->ProjectionPointList;
+
+    //clone the projection circle, if any
     if(FP->getProjectionCircle() != NULL)
         p_ProjectionCircle = new TProjectionCircle(FP->getProjectionCircle());
     else
-        p_ProjectionCircle = NULL;
+        p_ProjectionCircle = FP->getProjectionCircle();
 
-    ListInnerProjectionPoints.Clear();
-    for(int i=0; i<ProjectionPointList.getCount(); i++)
-        ListInnerProjectionPoints.Add(ProjectionPointList.GetPointer(i));
+    //copy the projection point list
+    ProjectionPointList = FP->ProjectionPointList;
+
+    //Remember that:
+    // class TProjectionPointList : public TPointersList<TProjectionPoint>
+
+    //get the corresponding ListInnerProjectionPoint
+    InnerProjectionPointList.Clear();
+    for(int i=0; i<FP->InnerProjectionPointList.getCount(); i++) {
+        TProjectionPoint *PP = FP->InnerProjectionPointList[i];
+        int j = FP->ProjectionPointList.SearchPointer(PP);
+        if(j < FP->ProjectionPointList.getCount())
+            InnerProjectionPointList.Add(ProjectionPointList.GetPointer(j));
+        else
+            InnerProjectionPointList.Add(PP);
+    }
 }
 
 //determina si un punto se encuentra dentro del plano focal
@@ -212,35 +194,13 @@ bool TFocalPlane::PointIsInFocalPlane(const TDoublePoint P)
 void TFocalPlane::Clear(void)
 {
     ProjectionPointList.Clear();
-    ListInnerProjectionPoints.Clear();
+    InnerProjectionPointList.Clear();
     if(p_ProjectionCircle != NULL) {
         delete p_ProjectionCircle;
         p_ProjectionCircle = NULL;
     }
 }
-/*#
-//dibuja el plano focal en un trazador de formas
-void TFocalPlane::PaintFocalPlane(TPloterShapes *PS)
-{
-    //el puntero PS debería apuntar a un trazador de formas contruido
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
 
-    //establece el color de la pluma
-    PS->setPenColor(Color);
-
-    //dibuja el perímetro del plano focal
-    if(PaintCircunference)
-        PS->Circunference(getO(), getR());
-
-    //dibuja los círculos de proyección
-    if(getProjectionCircle()!=NULL && PaintProjectionCircle)
-        getProjectionCircle()->Paint(PS);
-
-    //dibuja los puntos de proyección
-    ProjectionPointList.Paint(PS);
-}
-*/
 //---------------------------------------------------------------------------
 //TTelescopeProjectionModel
 //---------------------------------------------------------------------------
@@ -315,7 +275,7 @@ AnsiString TTelescopeProjectionModel::getRAText(void) const
 void TTelescopeProjectionModel::setRAText(const AnsiString &S)
 {
     try {
-        setRA(StrToFloat_(S));
+        setRA(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -327,7 +287,7 @@ AnsiString TTelescopeProjectionModel::getDECText(void) const
 void TTelescopeProjectionModel::setDECText(const AnsiString &S)
 {
     try {
-        setDEC(StrToFloat_(S));
+        setDEC(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -339,7 +299,7 @@ AnsiString TTelescopeProjectionModel::getPAText(void) const
 void TTelescopeProjectionModel::setPAText(const AnsiString &S)
 {
     try {
-        setPA(StrToFloat_(S));
+        setPA(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -352,7 +312,7 @@ AnsiString TTelescopeProjectionModel::getRText(void) const
 void TTelescopeProjectionModel::setRText(const AnsiString &S)
 {
     try {
-        setR(StrToFloat_(S));
+        setR(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -364,7 +324,7 @@ AnsiString TTelescopeProjectionModel::getangviewText(void) const
 void TTelescopeProjectionModel::setangviewText(const AnsiString &S)
 {
     try {
-        setangview(StrToFloat_(S));
+        setangview(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -464,7 +424,7 @@ void TTelescopeProjectionModel::DeterminePlanes(void)
 //imprime las propiedades de configuración en una cadena de texto
 //en formato de asignaciones
 void  TTelescopeProjectionModel::PrintAssigns(AnsiString &S,
-                                                        const TTelescopeProjectionModel *TPM)
+                                              const TTelescopeProjectionModel *TPM)
 {
     //el puntero TPM debería apauntar a un Telescope Projection Model construído
     if(TPM == NULL)
@@ -476,7 +436,7 @@ void  TTelescopeProjectionModel::PrintAssigns(AnsiString &S,
 //lee las propiedades de configuración en una cadena de texto
 //en formato de asignaciones
 void  TTelescopeProjectionModel::ReadAssigns(TTelescopeProjectionModel *TPM,
-                                                       const AnsiString &S, int &i)
+                                             const AnsiString &S, int &i)
 {
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -496,7 +456,7 @@ void  TTelescopeProjectionModel::ReadAssigns(TTelescopeProjectionModel *TPM,
     //      2: esperando asignación a PA
     //      3: esperando asignación a R
     //      4: esperando asignación a angview
-    //      5: instancia leida con éxito
+    //      5: instancia leída con éxito
     int status = 0;
 
     //variables tampón
@@ -586,23 +546,14 @@ void  TTelescopeProjectionModel::ReadAssigns(TTelescopeProjectionModel *TPM,
 
 //contruye un telescopio
 TTelescopeProjectionModel::TTelescopeProjectionModel(void) : TFocalPlane(),
-    //inicializa las propiedades definitorias
+    //inicializa las propiedades
+    p_Tile(NULL),
     p_RA(0), p_DEC(0), p_PA(0),
     p_R(850), p_angview(1031.305)
 {
     //asimila la configuración
     DeterminePlanes();
 }
-//clona un telescopio
-TTelescopeProjectionModel::TTelescopeProjectionModel(TTelescopeProjectionModel *T)
-{
-    try {
-        Copy(T);
-    } catch(...) {
-        throw;
-    }
-}
-
 //copia las proopiedades de un telescopio
 void TTelescopeProjectionModel::Copy(TTelescopeProjectionModel *T)
 {
@@ -622,6 +573,15 @@ void TTelescopeProjectionModel::Copy(TTelescopeProjectionModel *T)
     p_angview_rad = T->p_angview_rad;
     p_scale = T->p_scale;
     p_scaleinv = T->p_scaleinv;
+}
+//clona un telescopio
+TTelescopeProjectionModel::TTelescopeProjectionModel(TTelescopeProjectionModel *T)
+{
+    try {
+        Copy(T);
+    } catch(...) {
+        throw;
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -695,7 +655,7 @@ void TTelescopeProjectionModel::Project(TDoublePoint &P, double RA, double DEC)
     //Cuando el versor del punto P_ es paralelo al plano X,
     //el denominador del coeficiente de incremento será cero.
 
-    //el denominador del coeficiente de incremento no debe ser cero
+    //comprueba las precondiciones
     if(aux == 0)
         throw EImproperArgument("the denominator of increment coeficient should not be zero");
 
@@ -764,7 +724,7 @@ void TTelescopeProjectionModel::Deproject(double &RA, double &DEC, TDoublePoint 
 //apunta el telescopio al centro
 void TTelescopeProjectionModel::Point(TTile *Tile)
 {
-    //el puntero Tile debería apuntar a un azulejo contruido
+    //comprueba las precondiciones
     if(Tile == NULL)
         throw EImproperArgument("pointer Tile should point to built tile");
 
@@ -783,7 +743,7 @@ void TTelescopeProjectionModel::Point(TTile *Tile)
 //apunta el telescopio al centro del azulejo adscrito
 void TTelescopeProjectionModel::Repoint(void)
 {
-    //debería haber un azulejo adscrito
+    //comprueba las precondiciones
     if(getTile() == NULL)
         throw EImproperCall("should have an attached tile");
 
@@ -797,17 +757,14 @@ void TTelescopeProjectionModel::Project(TSkyPointList& SPL)
 {
     //inicializa las listas de puntos de proyección
     ProjectionPointList.Clear();
-    ListInnerProjectionPoints.Clear();
-
-    TProjectionPoint *PP;
-    TSkyPoint *SP;
+    InnerProjectionPointList.Clear();
 
     //por cada punto de cielo de la lista
     for(int i=0; i<SPL.getCount(); i++) {
         //apunta el punto de cielo para facilitar su acceso
-        SP = SPL[i];
+        TSkyPoint *SP = SPL[i];
         //contruye el punto de proyección adscrito
-        PP = new TProjectionPoint(SP);
+        TProjectionPoint *PP = new TProjectionPoint(SP);
         //proyecta la ubicación del punto de cielo
         Project(*PP, SP->getRA(), SP->getDEC());
         //añade el punto de proyección a la lista
@@ -815,42 +772,16 @@ void TTelescopeProjectionModel::Project(TSkyPointList& SPL)
         //si el punto de proyección está dentro del plano focal
         if(PointIsInFocalPlane(*PP))
             //añade el punto de proyección a la lista de internos
-            ListInnerProjectionPoints.Add(PP);
+            InnerProjectionPointList.Add(PP);
     }
 }
 
 //proyecta el azulejo y los puntos de proyección del azulejo adscrito
 void TTelescopeProjectionModel::Project(void)
 {
-    //debería haber un azulejo adscrito
+    //comprueba las precondiciones
     if(getTile() == NULL)
         throw EImproperCall("should have an attached tile");
-
-    /*        TProjectionPoint *PP;
-        TSkyPoint *SP;
-
-        //inicializa las listas de puntos de proyección
-        ProjectionPointList.Clear();
-        ListInnerProjectionPoints.Clear();
-
-        //por cada punto de cielo del azulejo
-        for(int i=0; i<Tile->SkyPointList.Count; i++) {
-                //apunta el punto de cielo para facilitar su acceso
-                SP = Tile->SkyPointList[i];
-                //contruye el punto de proyección adscrito
-                PP = new TProjectionPoint(SP);
-                //proyecta la ubicación del punto de cielo
-                Project(PP->P, SP->RA, SP->DEC);
-                //añade el punto de proyección a la lista
-                ProjectionPointList.Add(PP);
-                //si el punto de proyección está dentro del plano focal
-                if(PointIsInFocalPlane(PP->P))
-                        //añade el punto de proyección a la lista de internos
-                        ListInnerProjectionPoints.Add(PP);
-        }*/
-
-    //proyecta la lilsta de puntos de cielo del azulejo
-    Project(getTile()->SkyPointList);
 
     //si no hay un círculo de proyección
     if(getProjectionCircle() == NULL)
@@ -859,38 +790,44 @@ void TTelescopeProjectionModel::Project(void)
 
     //proyecta el centro del azulejo sobre el plano focal
     //y lo asigna al centro del círculo de proyección
-    Project(getProjectionCircle()->P, getTile()->RA, getTile()->getDEC());
+    Project(getProjectionCircle()->O, getTile()->RA, getTile()->getDEC());
     //calcula el radio del círculo de proyección
-    //y los asigna al radio del círculo de proyección
-    getProjectionCircle()->setR(fabs(D1*tan(getTile()->getR_())));
+    //y lo asigna al radio del círculo de proyección
+    double R = fabs(D1*tan(getTile()->getR_()));
+    getProjectionCircle()->setR(R);
 
     //NOTA: aquí podría orientar el círculo de proyección en la dirección
     //por defecto del azulejo proyectado, pero en principio
     //no tiene mucho sentido hacerlo
     //ProjectionCircle->gamma = Tile->PA - PA;
+
+    //proyecta la lista de puntos de cielo del azulejo
+    Project(getTile()->SkyPointList);
 }
 
-/*//randomiza los puntos de proyección con
+//randomiza los puntos de proyección con
 //distribución uniforme sobre el círculo de proyección
 void TTelescopeProjectionModel::RandomizeProjectionPoints(void)
 {
-        TProjectionPoint *PP;
+    TProjectionPoint *PP;
 
-        //inciializa la lista de puntos de proyección internos
-        ListInnerProjectionPoints.Clear();
+    //inciializa la lista de puntos de proyección internos
+    InnerProjectionPointList.Clear();
 
-        //por cada punto de proyección de la lista
-        for(int i=0; i<ProjectionPointList.Count; i++) {
-                //apunta el punto de proyección indicado para facilitar su acceso
-                PP = ProjectionPointList.GetPointer(i);
-                //asigna un punto aleatorio del dominio del círculo de proyección
-                PP->P = ProjectionCircle.RandomPoint();
-                //si el punto de proyección está dentro del plano focal
-                if(PointIsInFocalPlane(PP->P))
-                        //añade el punto de proyección a la lista de internos
-                        ListInnerProjectionPoints.Add(PP);
-        }
-}       */
+    //por cada punto de proyección de la lista
+    for(int i=0; i<ProjectionPointList.getCount(); i++) {
+        //apunta el punto de proyección indicado para facilitar su acceso
+        PP = ProjectionPointList.GetPointer(i);
+        //asigna un punto aleatorio del dominio del círculo de proyección
+        TDoublePoint aux = getProjectionCircle()->RandomPoint();
+        PP->x = aux.x;
+        PP->y = aux.y;
+        //si el punto de proyección está dentro del plano focal
+        if(PointIsInFocalPlane(TDoublePoint(*PP)))
+            //añade el punto de proyección a la lista de internos
+            InnerProjectionPointList.Add(PP);
+    }
+}
 
 //deproyecta los puntos de proyección del plano focal
 //sobre los puntos de cielo de la lista externa adscrita
@@ -921,23 +858,6 @@ void TTelescopeProjectionModel::DeprojectProjectionPoints(void)
     //sus puntos de proyección correspondientes.
 }
 
-//---------------------------------------------------------------------------
-//MÉTODOS DE INTERFAZ:
-/*#
-//dibuja en el lienzo de la fotografía de un trazador de formas:
-//      los puntos de proyección
-//      el círculo de proyección
-//      el plano focal
-void TTelescopeProjectionModel::Paint(TPloterShapes *PS)
-{
-    //el puntero PS debería apauntar a un trazador de formas construído
-    if(PS == NULL)
-        throw EImproperArgument("pointer PS should point to built ploter shapes");
-
-    //dibuja el plano focal
-    PaintFocalPlane(PS);
-}
-*/
 //---------------------------------------------------------------------------
 
 } //namespace Models

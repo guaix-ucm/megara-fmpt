@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: RoboticPositionerList3.cpp
-//Content: RP list with programming and execution functins
-//Last update: 13/02/2015
+//Content: RP list with programming and execution functions
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -81,19 +80,19 @@ AnsiString TRoboticPositionerList::getTitText(void) const
 void TRoboticPositionerList::setTitText(const AnsiString &S)
 {
         try {
-                t = StrToFloat_(S);
+                t = StrToFloat(S);
         } catch(...) {
                 throw;
         }
 }
 /*AnsiString TRoboticPositionerList::getTimerEnabledText(void) const
 {
-        return BoolToStr_(getTimer()->isActive());
+        return BoolToStr(getTimer()->isActive());
 }
 void TRoboticPositionerList::setTimerEnabledText(const AnsiString &S)
 {
         try {
-                t = StrToFloat_(S);
+                t = StrToFloat(S);
         } catch(...) {
                 throw;
         }
@@ -105,7 +104,7 @@ AnsiString TRoboticPositionerList::getTimerIntervalText(void) const
 void TRoboticPositionerList::setTimerIntervalText(const AnsiString &S)
 {
         try {
-                t = StrToFloat_(S);
+                t = StrToFloat(S);
         } catch(...) {
                 throw;
         }
@@ -117,7 +116,7 @@ AnsiString TRoboticPositionerList::gettText(void) const
 void TRoboticPositionerList::settText(const AnsiString &S)
 {
         try {
-                t = StrToFloat_(S);
+                t = StrToFloat(S);
         } catch(...) {
                 throw;
         }
@@ -201,10 +200,10 @@ void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
 
         //el índice i debería indicar una posición de la cadena de texto S
         if(i<1 || S.Length()<i)
-                throw EImproperArgument("index i should indicate a position in the string text S");
+                throw EImproperArgument("index i should indicate a character of the string S");
 
         //estado de lectura
-        //      0: intancia leida con éxito
+        //      0: intancia leída con éxito
         int status = 0;
 
         //variables tampón
@@ -213,7 +212,7 @@ void  TRoboticPositionerList::ReadInstance(TRoboticPositionerList *RPL,
         //ADVERTENCIA: las variables tampón con propiedades interdependientes
         //deben ser clones de las variables que se pretenden modificar.
 
-        //NOTA: adviertase que las propiedades enteras son leidas como
+        //NOTA: adviertase que las propiedades enteras son leídas como
         //valores en punto flotante para detectar errores en los cuales
         //sea especificado un valor en punto flotante en vez de un valor entero.
 
@@ -496,7 +495,8 @@ void TRoboticPositionerList::setCollisions(bool Collision)
 //---------------------------------------------------------------------------
 //METHODS FOR CHECK PRECONDITIONS:
 
-//determines if there is some pointer to NULL RP
+//determines if there is some null pointer
+//either AdjacentEAs or AdjacentRPs
 bool TRoboticPositionerList::thereIsSomeNullPointer(void) const
 {
     for(int i=0; i<getCount(); i++) {
@@ -505,8 +505,15 @@ bool TRoboticPositionerList::thereIsSomeNullPointer(void) const
         if(RP == NULL)
             return true;
 
-        for(int j=0; j<RP->getActuator()->Adjacents.getCount(); j++) {
-            TRoboticPositioner *RPA = RP->getActuator()->Adjacents[j];
+        for(int j=0; j<RP->getActuator()->AdjacentEAs.getCount(); j++) {
+            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[j];
+
+            if(EAA == NULL)
+                return true;
+        }
+
+        for(int j=0; j<RP->getActuator()->AdjacentRPs.getCount(); j++) {
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[j];
 
             if(RPA == NULL)
                 return true;
@@ -547,6 +554,17 @@ bool TRoboticPositionerList::thereIsSomeOutOrigin(void) const
     for(int i=0; i<getCount(); i++) {
         TRoboticPositioner *RP = Items[i];
         if(RP->getActuator()->getp_1()!=0 || RP->getActuator()->getArm()->getp___3()!=0)
+            return true;
+    }
+    return false;
+}
+
+//determines if there is some enabled RP with the quantifiers disabled
+bool TRoboticPositionerList::thereIsSomeEnabledRPsWithDisabledQuantifiers() const
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
             return true;
     }
     return false;

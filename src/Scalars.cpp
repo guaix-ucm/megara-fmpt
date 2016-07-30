@@ -17,18 +17,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Scalars.cpp
-//Contenido: scalar functions
-//Autor: Isaac Morales Durán
+//File: Scalars.cpp
+//Content: scalar functions
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Constants.h"
 #include "Scalars.h"
 #include "StrPR.h" //StrTravelLabel
 
-#include <math.h> //funciones matemáticas variadas
+#include <math.h>
 #include <stdlib.h> //rand
-#include <limits> //std::numeric_limits
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -98,13 +98,13 @@ double Log(double a, double x)
     //RECUERDE: el logaritmo en base real de un número negativo
     //es un número complejo y el logarimo de cero es menos infinito.
 
-    //la base del logaritmo debe ser mayor que cero
+    //comprueba las precondiciones
     if(a <= 0)
-        throw EImproperArgument("the algorithm base should be upper zero");
-
-    //el argumento de la función logaritmo debe ser mayor que cero
+        throw EImproperArgument("the algorithm base should be upper 0");
+    if(a == 1)
+        throw EImproperArgument("the algorithm base unequal 1");
     if(x <= 0)
-        throw EImproperArgument("the argument of the function logarithm should be upper zero");
+        throw EImproperArgument("the argument of the function logarithm should be upper 0");
 
     //calcula y devuelve el logaritmo en base a de x
     return log(x)/log(a);
@@ -123,13 +123,14 @@ double Log2(double x)
     return log(x)/log(2.);
 }
 
-//Devuelve el entero e más próximo tq [e-0.5<x<e+0.5)
-int Round(float x)
+//determina el entero n más próximo a x, tq [n - 0.5 <= x < n + 0.5)
+int Round(double x)
 {
-    if(x-floor(x) <= 0.5)
-        return floor(x);
+    double low = floor(x);
+    if(x - low <= 0.5)
+        return (int)low;
     else
-        return ceil(x);
+        return (int)ceil(x);
 }
 //devuelve el entero más próximo al origen de coordenadas
 //a una distancia inferior a la unidad del valor indicado
@@ -233,7 +234,7 @@ double incmin(double x)
     //      1/pow(2, 54) = 5.55111512312578E-17
 
     //calcula el incremento mínimo de x
-    return pow(2, double(xexp))/pow(2, double(std::numeric_limits<double>::digits+1));
+    return pow(2, double(xexp))/pow(2, double(DBL_MANT_DIG+1));
 }
 
 //---------------------------------------------------------------------------
@@ -333,8 +334,8 @@ QColor HighlightColor(QColor Color)
     ColorToRGB(R, G, B, Color);
 
     //determina la componente máxima
-    unsigned char max = Max(R, G);
-    max = Max(max, B);
+    unsigned char max = max(R, G);
+    max = max(max, B);
 
     //determina el factor de escala
     double f = double(255)/double(max);
@@ -404,7 +405,7 @@ AnsiString TIdDouble::getIdText(void) const
 void TIdDouble::setIdText(const AnsiString& S)
 {
     try {
-        p_Id = StrToInt_(S);
+        p_Id = StrToInt(S);
     } catch(...) {
         throw;
     }
@@ -416,7 +417,7 @@ AnsiString TIdDouble::getValueText(void) const
 void TIdDouble::setValueText(const AnsiString& S)
 {
     try {
-        Value = StrToFloat_(S);
+        Value = StrToFloat(S);
     } catch(...) {
         throw;
     }
@@ -631,10 +632,10 @@ int  TIdDouble::Compare(const TIdDouble *ID1, const TIdDouble *ID2)
 {
     //el puntero ID1 debería apuntar a un double identificado construido
     if(ID1 == NULL)
-        throw EImproperArgument("pinter ID1 should point to built identified double");
+        throw EImproperArgument("pointer ID1 should point to built identified double");
     //el puntero ID2 debería apuntar a un double identificado construido
     if(ID2 == NULL)
-        throw EImproperArgument("pinter ID2 should point to built identified double");
+        throw EImproperArgument("pointer ID2 should point to built identified double");
 
     if(ID1->Value < ID2->Value)
         return -1;
@@ -648,7 +649,7 @@ double  TIdDouble::Evaluate(const TIdDouble *ID)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
-        throw EImproperArgument("pinter ID should point to built identified double");
+        throw EImproperArgument("pointer ID should point to built identified double");
 
     return ID->Value;
 }
@@ -658,7 +659,7 @@ void  TIdDouble::Assign(TIdDouble *ID, double Value)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
-        throw EImproperArgument("pinter ID should point to built identified double");
+        throw EImproperArgument("pointer ID should point to built identified double");
 
     ID->Value = Value;
 }
@@ -668,7 +669,7 @@ void  TIdDouble::Print(AnsiString &S, const TIdDouble *ID)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
-        throw EImproperArgument("pinter ID should point to built identified double");
+        throw EImproperArgument("pointer ID should point to built identified double");
 
     S += AnsiString("(")+IntToStr(ID->getId())+AnsiString(": ")+FloatToStr(ID->Value)+AnsiString(")");
 }
@@ -678,7 +679,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
 {
     //el puntero ID debería apuntar a un double identificado construido
     if(ID == NULL)
-        throw EImproperArgument("pinter ID should point to built identified double");
+        throw EImproperArgument("pointer ID should point to built identified double");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
@@ -1109,7 +1110,7 @@ AnsiString TPairIntegers::GetxText(void) const
 void TPairIntegers::SetxText(const AnsiString &S)
 {
         try {
-                x = StrToInt_(S);
+                x = StrToInt(S);
         } catch(...) {
                 throw;
         }
@@ -1121,7 +1122,7 @@ AnsiString TPairIntegers::GetyText(void) const
 void TPairIntegers::SetyText(const AnsiString &S)
 {
         try {
-                y = StrToInt_(S);
+                y = StrToInt(S);
         } catch(...) {
                 throw;
         }
@@ -1440,7 +1441,7 @@ void TPairIB::SetxText(const AnsiString &S)
 {
         try {
                 //traduce y asigna el nuevo valor
-                x = StrToInt_(S);
+                x = StrToInt(S);
 
         } catch(...) {
                 throw;
@@ -1448,13 +1449,13 @@ void TPairIB::SetxText(const AnsiString &S)
 }
 AnsiString TPairIB::GetyText(void) const
 {
-        return BoolToStr_(y, true);
+        return BoolToStr(y, true);
 }
 void TPairIB::SetyText(const AnsiString &S)
 {
         try {
                 //traduce y asigna el nuevo valor
-                y = StrToBool_(S);
+                y = StrToBool(S);
 
         } catch(...) {
                 throw;
@@ -1772,7 +1773,7 @@ void  TPairIB::TravelRowLabels(const AnsiString &S,
 
         //el índice i debería indicar a una posición de la cadena de texto S
         if(i<1 || S.Length()<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+                throw EImproperArgument("index i should indicate a character of the string S");
 
         //estado de lectura:
         //      0: esperando xLabel
@@ -1860,7 +1861,7 @@ void TPairID::SetxText(const AnsiString &S)
 {
         try {
                 //traduce y asigna el nuevo valor
-                x = StrToInt_(S);
+                x = StrToInt(S);
 
         } catch(...) {
                 throw;
@@ -1874,7 +1875,7 @@ void TPairID::SetyText(const AnsiString &S)
 {
         try {
                 //traduce y asigna el nuevo valor
-                y = StrToFloat_(S);
+                y = StrToFloat(S);
 
         } catch(...) {
                 throw;
@@ -2192,7 +2193,7 @@ void  TPairID::TravelRowLabels(const AnsiString &S,
 
         //el índice i debería indicar a una posición de la cadena de texto S
         if(i<1 || S.Length()<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+                throw EImproperArgument("index i should indicate a character of the string S");
 
         //estado de lectura:
         //      0: esperando xLabel
@@ -2280,7 +2281,7 @@ void TPairIS::SetxText(const AnsiString &S)
 {
         try {
                 //traduce y asigna el nuevo valor
-                x = StrToInt_(S);
+                x = StrToInt(S);
 
         } catch(...) {
                 throw;
@@ -2526,7 +2527,7 @@ void  TPairIS::TravelRowLabels(const AnsiString &S,
 
         //el índice i debería indicar a una posición de la cadena de texto S
         if(i<1 || S.Length()<i)
-                throw EImproperArgument("index i should indicate a position in the string S");
+                throw EImproperArgument("index i should indicate a character of the string S");
 
         //estado de lectura:
         //      0: esperando xLabel
@@ -2689,7 +2690,7 @@ AnsiString TTernIntegers::getxText(void) const
 void TTernIntegers::setxText(const AnsiString &S)
 {
     try {
-        x = StrToInt_(S);
+        x = StrToInt(S);
     } catch(...) {
         throw;
     }
@@ -2701,7 +2702,7 @@ AnsiString TTernIntegers::getyText(void) const
 void TTernIntegers::setyText(const AnsiString &S)
 {
     try {
-        y = StrToInt_(S);
+        y = StrToInt(S);
     } catch(...) {
         throw;
     }
@@ -2713,7 +2714,7 @@ AnsiString TTernIntegers::getzText(void) const
 void TTernIntegers::setzText(const AnsiString &S)
 {
     try {
-        z = StrToInt_(S);
+        z = StrToInt(S);
     } catch(...) {
         throw;
     }

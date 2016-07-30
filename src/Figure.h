@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Figure.h
-//Contenido: clases de figuras geométricas
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: Figure.h
+//Content: geometric figures
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FIGURE_H
@@ -28,9 +27,7 @@
 
 //##include "..\5_Graphics\PloterShapes.h"
 #include "Vectors.h"
-#include "vclemu.h"
-
-//##include <QColor>
+#include "VCLemu.h"
 
 //---------------------------------------------------------------------------
 
@@ -788,6 +785,9 @@ public:
 //determina el ángulo entre el vértice inicial de una figura de contorno
 //y su vértice final en torno de un punto P
 double rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P);
+
+//determina si dos figuras son diferentes
+bool areUnequals(const TFigure*, const TFigure*);
 
 //---------------------------------------------------------------------------
 

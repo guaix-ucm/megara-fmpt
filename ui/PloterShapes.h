@@ -19,7 +19,7 @@
 //---------------------------------------------------------------------------
 //File: PloterShapes.cpp
 //Content: class TPloterShapes
-//Autor: Isaac Morales Durán and Pique
+//Autor: Isaac Morales Durán and José Enrique Ruíz
 //---------------------------------------------------------------------------
 
 #ifndef PLOTERSHAPES_H

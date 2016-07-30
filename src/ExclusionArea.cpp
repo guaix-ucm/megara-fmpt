@@ -18,14 +18,16 @@
 
 //---------------------------------------------------------------------------
 //File: ExclusionArea.cpp
-//Content: class exclusion area
+//Content: exclusion area (EA) model
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 //#include <values.h>
 
 #include "ExclusionArea.h"
+#include "FiberMOSModelConstants.h"
 #include "Strings.h" //StrIndent
+#include "TextFile.h"
 
 //---------------------------------------------------------------------------
 
@@ -34,9 +36,8 @@ using namespace Strings;
 //espacio de nombres de modelos
 namespace Models {
 
-//###########################################################################
-//TExclusionArea
-//###########################################################################
+//---------------------------------------------------------------------------
+//clase area de exclusion:
 
 //---------------------------------------------------------------------------
 //PROPIEDADES ESTÁTICAS:
@@ -53,10 +54,8 @@ void TExclusionArea::setEo(double Eo)
     if(Eo < 0)
         throw EImproperArgument("Eo value should be nonnegative");
 
-    p_Eo = Eo; //asignaelnuevo valor
-
-    //asimila Eo
-    calculateSPM();
+    p_Eo = Eo; //asigna el nuevo valor
+    calculateSPM(); //asimila el nuevo valor
 }
 void TExclusionArea::setEp(double Ep)
 {
@@ -64,10 +63,8 @@ void TExclusionArea::setEp(double Ep)
     if(Ep < 0)
         throw EImproperArgument("Ep value should be nonnegative");
 
-    p_Ep = Ep; //asignaelnuevo valor
-
-    //asimila Ep
-    calculateSPM();
+    p_Ep = Ep; //asigna el nuevo valor
+    calculateSPM(); //asimila el nuevo valor
 }
 
 void TExclusionArea::setId(int Id)
@@ -88,8 +85,9 @@ AnsiString TExclusionArea::getEoText(void) const
 void TExclusionArea::setEoText(const AnsiString &S)
 {
     try {
-        setEo(StrToFloat_(S));
-    } catch(...) {
+        setEo(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Eo in text format: ");
         throw;
     }
 }
@@ -100,8 +98,9 @@ AnsiString TExclusionArea::getEpText(void) const
 void TExclusionArea::setEpText(const AnsiString &S)
 {
     try {
-        setEp(StrToFloat_(S));
-    } catch(...) {
+        setEp(StrToFloat(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Ep in text format: ");
         throw;
     }
 }
@@ -113,8 +112,9 @@ AnsiString TExclusionArea::getIdText(void) const
 void TExclusionArea::setIdText(const AnsiString& S)
 {
     try {
-        setId(StrToInt_(S));
-    } catch(...) {
+        setId(StrToInt(S));
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Id in text format: ");
         throw;
     }
 }
@@ -127,57 +127,73 @@ void TExclusionArea::setPendingText(const AnsiString &S)
 {
     try {
         Pending = StrToBool(S);
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Pending in text format: ");
         throw;
     }
 }
 
 //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
-AnsiString TExclusionArea::getAllText(void) const
+//conjuntos de propiedades de seguridad
+//en formato asignaciones de texto
+AnsiString TExclusionArea::getSecurityText(void) const
 {
-    AnsiString S;
+    //PROPIEDADES DE SEGURIDAD:
 
-    S += AnsiString("BarrierAddress: ")+getBarrierAddressText()+AnsiString("\r\n");
-    S += AnsiString("Eo = ")+getEoText()+AnsiString("\r\n");
-    S += AnsiString("Ep = ")+getEpText()+AnsiString("\r\n");
-    S += AnsiString("Id = ")+getIdText()+AnsiString("\r\n");
-    S += AnsiString("Adjacents: ")+Adjacents.getText()+AnsiString("\r\n");
-    S += AnsiString("Pending = ")+getPendingText();
+    string str = "SPM components:";
+    str += "\r\n    SPMsta = "+Barrier.getSPMText().str;
 
-    return S;
+    return AnsiString(str);
 }
+
+//conjunto de propiedades de tolerancia
+//en formato de asignaciones
+AnsiString TExclusionArea::getToleranceText(void) const
+{
+    string str;
+
+    str = commentedLine("Eo = "+getEoText().str, "error margin in theta_ orientation (in rad)");
+    str += "\r\n"+commentedLine("Ep = "+getEpText().str, "error margin in P0 position (in mm)");
+
+    return AnsiString(str);
+}
+
+//instancia del posicionador
+//en formato de asignaciones
 AnsiString TExclusionArea::getInstanceText(void) const
 {
-    AnsiString S;
+    string str;
 
-    S += AnsiString("BarrierInstance:\r\n")+StrIndent(Barrier.getInstanceText())+AnsiString("\r\n");
-    S += AnsiString("Eo = ")+getEoText()+AnsiString("\r\n");
-    S += AnsiString("Ep = ")+getEpText();
+    str = commentedLine("BarrierInstance:", "Instance properties of the EA.Barrier (position and orientation):");
+    str += "\r\n"+StrIndent(Barrier.getInstanceText()).str;
 
-    return S;
+    str += "\r\n";
+    str += "\r\n"+commentedLine("Tolerances:", "Tolerance properties of the EA:");
+    str += "\r\n"+StrIndent(getToleranceText()).str;
+
+    return AnsiString(str);
 }
 void TExclusionArea::setInstanceText(const AnsiString &S)
 {
+    int i = 1; //index to first char of the string
     try {
-        //contruye una variable tampón
-        TExclusionArea aux(this);
-        TExclusionArea *EA = &aux;
-        //lee la instancia y la asigna a la variable tampón
-        int i = 1;
-        readInstance((TExclusionArea*&)EA, S, i);
+        //lee la instancia en una variable tampón
+        TExclusionArea EA(this);
+        readInstance(&EA, S, i);
 
-        //avanza el índice i hasta la próxima posición que no contenga un separador
+        //busca texto inesperado
         StrTravelSeparatorsIfAny(S, i);
-        //si el índice i indica a algún caracter de la cadena S
         if(i <= S.Length())
-            //indica que la cadena S solo debería contener el valor para una instancia
-            throw EImproperArgument("string S should contain the instance value only");
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
 
         //asigna la variable tampón
-        copy(EA);
+        copy(&EA);
 
-    } catch(...) {
+    } catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting instance in text format in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }
@@ -238,54 +254,19 @@ void  TExclusionArea::travelOriginsLabelsRow(const AnsiString& S, int& i)
     if(i<1 || S.Length()+1<i)
         throw EImproperArgument("index i should indicate a position in the string S");
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando etiqueta "Id"
-    //      1: esperando separador y etiqueta "x0"
-    //      2: esperando separador y etiqueta "y0"
-    //      3: esperando separador y etiqueta "thetaO1"
-    //      4: etiquetas de las propiedades de origen atravesadas con éxito
-    int status = 0;
+    try {
+        StrTravelLabel("Id", S, i);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("x0", S, i);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("y0", S, i);
+        StrTravelSeparators(S, i);
+        StrTravelLabel("thetaO1", S, i);
 
-    do {
-        switch(status) {
-        case 0: //esperando etiqueta "Id"
-            try {
-            StrTravelLabel("Id", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando separador y etiqueta "x0"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("x0", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando separador y etiqueta "y0"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("y0", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando separador y etiqueta "thetaO1"
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("thetaO1", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se hayan atravesado lasetiquetas de las propiedades de origen con éxito
-    } while(status < 4);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "traveling origins labels row: ");
+        throw;
+    }
 }
 
 //imprime los valores de las propiedades de orien de un EA
@@ -306,159 +287,90 @@ void  TExclusionArea::printOriginsRow(AnsiString& S,
 void  TExclusionArea::readOriginsRow(TExclusionArea *EA,
                                      const AnsiString& S, int &i)
 {
+    //comprueba las precondiciones
+    if(EA == NULL)
+        throw EImproperArgument("pointer C should bepoint to built exclusion area");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
+
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el puntero EA debe apuntar a un área de exclusión construida
-    if(EA == NULL)
-        throw EImproperArgument("pointer C should bepoint to built exclusion area");
-
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
-
-    //estado de la máquina de estados de lectura
-    //      0: esperando valor para Id
-    //      1: esperando separador y valor para x0
-    //      2: esperando separador y valor para y0
-    //      3: esperando separador y valor para thetaO1
-    //      4: conjunto devalores leido con éxito
-    int status = 0;
-
-    //variables tampón
-    int Id;
-    double x0, y0;
-    double thetaO1;
-
-    do {
-        switch(status) {
-        case 0: //esperando valor para Id
-            try {
-            StrReadInt(Id, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando separador y valor para x0
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(x0, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando separador y valor para y0
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(y0, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando separador y valor para thetaO1
-            try {
-            StrTravelSeparators(S, i);
-            StrReadFloat(thetaO1, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido el conjunto de valores con éxito
-    } while(status < 4);
-
-    //asigna las variables tampón
     try {
+        //variables tampón
+        int Id;
+        double x0, y0;
+        double thetaO1;
+
+        //lee los valores en variables tampón
+        StrReadInt(Id, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(x0, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(y0, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(thetaO1, S, i);
+
+        //asigna la variable tampón
         EA->setOrigins(Id, x0, y0, thetaO1);
-    }catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading origins row: ");
         throw;
     }
 }
 //lee una instancia del EA
 //desde la posición indicada de una cadena de texto
 //en formato de asignaciones
-void  TExclusionArea::readInstance(TExclusionArea* &EA,
+void  TExclusionArea::readInstance(TExclusionArea *EA,
                                    const AnsiString& S, int &i)
 {
-    //el puntero EA debe apuntar a una barrera construido
+    //comprueba las precondiciones
     if(EA == NULL)
         throw EImproperArgument("pointer EA shouldpoint to built exclusion area");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el índice i debería indicar a una posición de la cadena de texto S
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
+    try {
+        TExclusionArea t_EA(EA); //variables tampón
 
-    //estado de la máquina de estados de lectura
-    //      0: esperando etiqueta "BarrierInstance:"
-    //      1: esperando instancia de Barrier
-    //      2: esperando asignación a Eo
-    //      3: esperando asignación a Ep
-    //      4: instancia leida con éxito
-    int status = 0;
+        //-----------------------------------------------
 
-    //variables tampón
-    TExclusionArea t_EA(EA);
+        StrTravelLabel("BarrierInstance:", S, i);
+        TBarrier::readInstance(&t_EA.Barrier, S, i);
 
-    do {
-        switch(status) {
-        case 0: //esperando la etiqueta "BarrierInstance:"
-            try {
-            StrTravelLabel("BarrierInstance:", S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 1: //esperando instancia de Barrier
-            try {
-            TBarrier *aux = &t_EA.Barrier;
-            TBarrier::readInstance((TBarrier*&)aux, S, i);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 2: //esperando asignación a Eo
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Eo", S, i);
-            StrTravelLabel("=", S, i);
-            double Eo;
-            StrReadFloat(Eo, S, i);
-            t_EA.setEo(Eo);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        case 3: //esperando asignación a Ep
-            try {
-            StrTravelSeparators(S, i);
-            StrTravelLabel("Ep", S, i);
-            StrTravelLabel("=", S, i);
-            double Ep;
-            StrReadFloat(Ep, S, i);
-            t_EA.setEp(Ep);
-        }catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-        //mientras no se haya leido la instancia con éxito
-    } while(status < 4);
+        //-----------------------------------------------
 
-    //asigna la variable tampón
-    EA->copy(&t_EA);
+        StrTravelLabel("Tolerances:", S, i);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Eo", S, i);
+        StrTravelLabel("=", S, i);
+        double Eo;
+        StrReadFloat(Eo, S, i);
+        t_EA.setEo(Eo);
+
+        StrTravelSeparators(S, i);
+        StrTravelLabel("Ep", S, i);
+        StrTravelLabel("=", S, i);
+        double Ep;
+        StrReadFloat(Ep, S, i);
+        t_EA.setEp(Ep);
+
+        //-----------------------------------------------
+
+        //asigna la variable tampón
+        EA->copy(&t_EA);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance: ");
+        throw;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -469,8 +381,7 @@ void  TExclusionArea::readInstance(TExclusionArea* &EA,
 TExclusionArea::TExclusionArea(void) :
     p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
     p_Id(0),
-    Barrier(0, 0, 0),
-    Adjacents(64, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
+    Barrier(TDoublePoint(0, 0), 0),
     Pending(true)
 {
     //asimilalas propiedades de inicialización
@@ -485,18 +396,14 @@ TExclusionArea::TExclusionArea(void) :
 //      lanza una execepción EImproperArgument
 TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
     p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
-    Barrier(P0.x, P0.y, thetaO1),
-    Adjacents(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
+    Barrier(P0, thetaO1),
     Pending(true)
 {
-    //el número de identificación Id debe ser mayor que cero
-    if(Id < 1)
-        throw EImproperArgument("identification number Id should be upper zero");
-
     //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
 
     //inicializa las propiedades
-    p_Id = Id;
+    setId(Id);
+    Barrier.setContour_Text(MEGARA_LIFU_Contour_Text);
 
     //asimilalas propiedades de inicialización
     calculateSPM();
@@ -512,11 +419,10 @@ void TExclusionArea::copy(const TExclusionArea *EA)
     if(EA == NULL)
         throw EImproperArgument("pointer EA ahould point to built exclusion area");
 
-    Barrier.copy(&EA->Barrier);
     p_Eo = EA->p_Eo;
     p_Ep = EA->p_Ep;
     p_Id = EA->p_Id;
-    Adjacents.Clone(EA->Adjacents);
+    Barrier.copy(&EA->Barrier);
     Pending = EA->Pending;
 }
 
@@ -552,7 +458,7 @@ TExclusionArea::~TExclusionArea()
     //si no ha encontrado el objeto
     if(i >= Builts.getCount())
         //indica que está intentando destruir un objeto no contruido
-        throw EImproperCall(AnsiString("destruction attempt of non built object: ")+IntToHex(reinterpret_cast<intptr_t>(this), 8));
+        throw EImproperCall("destruction attempt of non built object: "+IntToHex(intptr_t(this)).str);
 
     //borra el puntero de la lista de construídos
     Builts.Delete(i);
@@ -575,7 +481,21 @@ TExclusionArea::~TExclusionArea()
 //      Ep: margen de error de posición en mm.
 double TExclusionArea::SPMsta(void) const
 {
-    return getEo()*Barrier.getr_max() + getEp(); //calcula y devuelve el valor
+    //calcula y devuelve el valor
+    return getEo()*Barrier.getr_max() + getEp();
+}
+
+//---------------------------------------------------------------------------
+//MÉTODOS DE ASIMILACIÓN:
+
+//A partir de:
+//      (Eo, Ep)
+//      Barrier.r_max
+//Determina:
+//      Barrier.SPM
+void TExclusionArea::calculateSPM(void)
+{
+    Barrier.setSPM(SPMsta());
 }
 
 //---------------------------------------------------------------------------
@@ -590,206 +510,53 @@ void TExclusionArea::setOrigins(int Id, double x0, double y0, double thetaO1)
 
     //asigna los nuevos valores
     p_Id = Id;
-
-    //asimila (P0, thetaO1)
     Barrier.set(TDoublePoint(x0, y0), thetaO1);
+
+    //estos valores no necesitan asimilación
 }
 
-//asigna conjuntamente las tolerancias
+//asigna conjuntamente las tolerancias y las asimila
 //      (Eo, Ep)
 void TExclusionArea::setTolerances(double Eo, double Ep)
 {
-    //el valor de Eo debe ser no negativo
+    //comprueba las precondiciones
     if(Eo < 0)
         throw EImproperArgument("Eo value should be nonnegative");
-
-    //el valor de Ep debe ser no negativo
     if(Ep < 0)
         throw EImproperArgument("Ep value should be nonnegative");
 
-    p_Eo = Eo; //asignaelnuevo valor
-    p_Ep = Ep; //asignaelnuevo valor
+    //asigna los nuevos valores
+    p_Eo = Eo;
+    p_Ep = Ep;
 
-    //asimila (Eo, Ep)
-    calculateSPM();
+    calculateSPM(); //asimila los nuevos valores
 }
 
-//---------------------------------------------------------------------------
-//MÉTODOS DE ASIMILACIÓN:
-
-//A partir de:
-//      (Eo, Ep)
-//      r_max
-//Determina:
-//      (Barrier.SPM)
-void TExclusionArea::calculateSPM(void)
+//determina si dos areas de exclusión difieren entre si
+bool areUnequals(const TExclusionArea *EA1, const TExclusionArea *EA2)
 {
-    //CALULA LAS COMPONENTES DE SPM:
+    //comprueba las precondiciones
+    if(EA1 == NULL)
+        throw EImproperArgument("pointer EA1 should point to built exclusion area");
+    if(EA2 == NULL)
+        throw EImproperArgument("pointer EA2 should point to built exclusion area");
 
-    Barrier.setSPM(SPMsta());
-}
+    if(EA1->Barrier != EA2->Barrier)
+        return true;
 
-//---------------------------------------------------------------------------
-//MÉTODOS DE COLISIÓN:
+    if(EA1->getEo() != EA2->getEo())
+        return true;
+    if(EA1->getEp() != EA2->getEp())
+        return true;
 
-//determina los RPs adyacentes que pueden colisionar con la barrera
-void TExclusionArea::determineAdjacents(const TItemsList<TRoboticPositioner*>& RPL)
-{
-    TRoboticPositioner *RP;
-    TActuator *A;
+    if(EA1->getId() != EA2->getId())
+        return true;
+    if(EA1->Pending != EA2->Pending)
+        return true;
 
-    //por cada posicioandor de la lista de posicioandores
-    for(int i=0; i<RPL.getCount(); i++) {
-        //apunta el posicionador indicado para facilitar su acceso
-        RP = RPL[i];
-        //apunta el actuador del posicionador para facilitar su acceso
-        A = RP->getActuator();
-        //si el posicionador está lo bastante cerca como para colisionar con la barrera
-        if(Barrier.getContour().distanceMin(A->getP0()) < Barrier.getSPM() + A->getr_max() + A->getArm()->getSPM())
-            //apunta el posicionador en la lista de adyacentes
-            Adjacents.Add(RP);
-    }
-}
-//determina los RPs adyacentes en estado de colisión con la barrera
-void TExclusionArea::searchCollinding(TItemsList<TRoboticPositioner*>& RPL)
-{
-    //inicializa la lista de punteros a actuadores
-    RPL.Clear();
-
-    TRoboticPositioner *RP;
-    TActuator *A;
-
-    //por cada actuador de la lista de adyacentes
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        //apunta el posicionador para facilitar su acceso
-        RP = Adjacents[i];
-        //apunta el actuador del posicionador para facilitar su acceso
-        A = RP->getActuator();
-        //si el posicionador está lo bastante cerca como para colisionar con la barrera
-        if(Barrier.getContour().collides(A->getArm()->getContour(), Barrier.getSPM() + A->getArm()->getSPM()))
-            RPL.Add(RP); //apunta el posicionador en la lista de actuadores
-    }
-}
-
-//--------------------------------------------------------------------------
-//MÉTODOS PARA DETERMINAR LAS COLISIONES
-//CON POSICIONADORES ADYACENTES:
-
-//determines if there is collision with an actuator
-bool TExclusionArea::thereIsCollision(const TActuator* A)
-{
-    //check the precondition
-    if(A == NULL)
-        throw EImproperArgument("pointer A should point to built actuator");
-
-        //if the angular position of the rotors of the actuator is knoledge
-        if(A->getPAkd() != kdUnk) {
-            //calculates the distance from which the barrier and the arm of the actuator
-            //are too far for can collide
-            double Dmax = Barrier.getr_max() + Barrier.getSPM() + A->getArm()->getL1V() + A->getArm()->getSPM();
-            //if the barrier and the arm are too far
-            if(Mod(Barrier.getP0() - A->getArm()->getP1()) >= Dmax)
-                //indicates that there isn't collision
-                return false;
-            //if the contour of the barrier and the contour of the arm are more closer than the sum of their SPMs
-            if(Barrier.getContour().distanceMin(A->getArm()->getContour()) < Barrier.getSPM() + A->getArm()->getSPM())
-                //indicates that there is collision
-                return true;
-        }
-        //if the angular position of any rotor of the actuator is unknoledge
-        else {
-            //calculates the distance from which the barrier and the barrier of the actuator
-            //are too far for can collide
-            double Dmax = Barrier.getr_max() + Barrier.getSPM() + A->getBarrier()->getr_max() + A->getBarrier()->getSPM();
-            //if the barriers are too far
-            if(Mod(Barrier.getP0() - A->getBarrier()->getP0()) >= Dmax)
-                //indicates that there isn't collision
-                return false;
-            //if the contour of the barriers are more closer than the sum of their SPMs
-            if(Barrier.getContour().distanceMin(A->getBarrier()->getContour()) < Barrier.getSPM() + A->getBarrier()->getSPM())
-                //indicates that there is collision
-                return true;
-        }
-
-    //indica que no ha encontrado colisión
     return false;
 }
-/*//determina si hay colisión con un actuador adyacente
-bool TExclusionArea::thereIsCollisionWithAdjacent(void)
-{
-        TExclusionArea *AA;
 
-        //por cada posicionador adyacente
-        for(int i=0; i<Adjacents.Count; i++)
-                //si hay colisión
-                if(ThereIsCollision(Adjacents[i]->Actuator))
-                        //indica que se está invadiendo el espacio de seguridad de algún adyacente
-                        return true;
-
-        //indica que no se invade el espacio de seguridad de ningún adyacente
-        return false;
-}
-
-//Busca los posicionadores adyacentes cuyo
-//brazo colisiona con la barrera de este área de exclusión.
-void TExclusionArea::searchCollindingAdjacent(TItemsList<TActuator*> &Collindings)
-{
-        //vacia la lista de los que colisionan en congruencia con el estado inicial
-        Collindings.Clear();
-
-        TExclusionArea *AA;
-
-        //busca la invasión con alguno de sus adyacentes
-        for(int i=0; i<Adjacents.Count; i++) {
-                //apunta el posicionador adyacente indicado para facilitar su acceso
-                AA = (TExclusionArea*)Adjacents[i];
-                //si el posicionador adyacente
-                //      colisiona con el posicionador indicado
-                if(ThereIsCollision(AA))
-                        //añade el índice al posicionador adyacente
-                        Collindings.Add(AA);
-        }
-}
-*/
-//determines if there is collision with an adjacent RP
-//with pending collision determination
-bool TExclusionArea::thereIsCollisionWithPendingAdjacent(void)
-{
-    //searchs a collision with adjacents RPs wich are pending
-    for(int i=0; i<Adjacents.getCount(); i++) {
-        TRoboticPositioner *RP = Adjacents[i];
-
-        if(RP->getActuator()->Pending && thereIsCollision(RP->getActuator()))
-            return true;
-    }
-
-    //indicates that has not found a collision
-    return false;
-}
-/*
-//Busca los posicionadores adyacentes
-//con evalauación de colisión pendiente
-//cuyo brazo colisiona con la barrera de este área de exlusión.
-void TExclusionArea::searchCollindingPendingAdjacent(TItemsList<TActuator*> &Collindings)
-{
-        //vacia la lista de los que colisionan en congruencia con el estado inicial
-        Collindings.Clear();
-
-        TExclusionArea *AA;
-
-        //busca la invasión con alguno de sus adyacentes
-        for(int i=0; i<Adjacents.Count; i++) {
-                //apunta el posicionador adyacente indicado para facilitar su acceso
-                AA = (TExclusionArea*)Adjacents[i];
-                //si el posicionador adyacente
-                //      tiene pendiente la determinación de colisión,
-                //      y colisiona con el posicionador indicado
-                if(AA->Pending && ThereIsCollision(AA))
-                        //añade el índice al posicionador adyacente
-                        Collindings.Add(AA);
-        }
-}
-*/
 //---------------------------------------------------------------------------
 
 } //namespace Models

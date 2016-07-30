@@ -17,16 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Vectors.cpp
-//Contenido: clases y funciones vectoriales
-//Última actualización: 17/04/2014
-//Autor: Isaac Morales Durán
+//File: Vectors.cpp
+//Content: classes and functions for vectors
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Constants.h" //M_2PI
 #include "Scalars.h" //Scalars::RandomUniform
 #include "Vectors.h"
-#include "StrPR.h" //StrToFloat_
+#include "StrPR.h" //StrToFloat
 
 //---------------------------------------------------------------------------
 
@@ -53,8 +52,9 @@ AnsiString TDoublePoint::getxText(void) const
 void TDoublePoint::setxText(const AnsiString& S)
 {
     try {
-        x = StrToFloat_(S);
-    }catch(...) {
+        x = StrToFloat(S);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting x in text format: ");
         throw;
     }
 }
@@ -65,8 +65,9 @@ AnsiString TDoublePoint::getyText(void) const
 void TDoublePoint::setyText(const AnsiString& S)
 {
     try {
-        y = StrToFloat_(S);
-    }catch(...) {
+        y = StrToFloat(S);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting y in text format: ");
         throw;
     }
 }
@@ -79,7 +80,8 @@ void TDoublePoint::setText(const AnsiString& S)
 {
     try {
         *this = StrToDPoint(S);
-    }catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting double point in text format: ");
         throw;
     }
 }
@@ -92,6 +94,13 @@ AnsiString TDoublePoint::getRowText(void) const
 //---------------------------------------------------------------------------
 //FUNCIONES ESTÁTICAS PARA OBTENER LAS ETIQUETAS
 //DE LAS PROPIEDADES EN FORMATO TEXTO:
+
+//print the properties of an double point in a string
+//in row format
+void  TDoublePoint::PrintRow(AnsiString& S, const TDoublePoint P)
+{
+    S += P.getRowText();
+}
 
 //obtiene las etiquetas de las propiedades de definición
 //en formato texto entre paréntesis
@@ -194,7 +203,7 @@ AnsiString TDoubleRect::getLeftText(void) const
 void TDoubleRect::setLeftText(const AnsiString& S)
 {
     try {
-        Left = StrToFloat_(S);
+        Left = StrToFloat(S);
     }catch(...) {
         throw;
     }
@@ -206,7 +215,7 @@ AnsiString TDoubleRect::getBottomText(void) const
 void TDoubleRect::setBottomText(const AnsiString& S)
 {
     try {
-        Bottom = StrToFloat_(S);
+        Bottom = StrToFloat(S);
     }catch(...) {
         throw;
     }
@@ -218,7 +227,7 @@ AnsiString TDoubleRect::getRightText(void) const
 void TDoubleRect::setRightText(const AnsiString& S)
 {
     try {
-        Right = StrToFloat_(S);
+        Right = StrToFloat(S);
     }catch(...) {
         throw;
     }
@@ -230,7 +239,7 @@ AnsiString TDoubleRect::getTopText(void) const
 void TDoubleRect::setTopText(const AnsiString& S)
 {
     try {
-        Top = StrToFloat_(S);
+        Top = StrToFloat(S);
     }catch(...) {
         throw;
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac MoralesDurán. All rights reserved.
+// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -18,42 +18,40 @@
 
 //---------------------------------------------------------------------------
 //File: Actuator.h
-//Content: class actuator of a RP
+//Content: actuator model of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ACTUATOR_H
 #define ACTUATOR_H
 
-#include "Constants.h"
 #include "Cilinder.h"
-
-//##include <QColor>
+#include "Constants.h"
 
 //---------------------------------------------------------------------------
 
 //espacio de nombres de modelos
 namespace Models {
 
-//###########################################################################
+//---------------------------------------------------------------------------
 //TKnowledgeDegree
-//###########################################################################
+//---------------------------------------------------------------------------
 
-//grado de conocimiento de las posiciones angulares de los ejes
-//      kdPre: se conocen de forma precisa
-//      kdApp: se conocen de forma aproximada
-//      kdUnk: se desconoce la posición de algún eje
+//grado de conocimiento de las posiciones angulares de los rotores
+//  kdPre: se conocen de forma precisa
+//  kdApp: se conocen de forma aproximada
+//  kdUnk: se desconoce la posición de algún eje
 enum TKnowledgeDegree {kdPre, kdApp, kdUnk};
 
 void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd);
 void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
-                                       const AnsiString &S, int &i);
+                             const AnsiString &S, int &i);
 AnsiString KnowledgeDetgreeToStr(TKnowledgeDegree kd);
 TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S);
 
-//###########################################################################
+//---------------------------------------------------------------------------
 //TPurpose
-//###########################################################################
+//---------------------------------------------------------------------------
 
 //Purpose of the SPM:
 //  pAll: allocate RPs to projection points;
@@ -71,17 +69,91 @@ void  strReadPurpose(TPurpose& value, const string &str, unsigned int &i);
 string purposeToStr(TPurpose value);
 TPurpose strToPurpose(const string& str);
 
-//###########################################################################
-//TActuator
-//###########################################################################
+//---------------------------------------------------------------------------
+//TPairEADmin
+//---------------------------------------------------------------------------
 
-//predeclara la clase TRoboticPositioner para poder definir la lista de punteros
-//a posicionadores adyacentes. Conviene definir la lista de posicionadores
-//adyacentes y no de actuadores para facilitar el acceso a los posicionadores
-//y no solo a los actuadores.
+//predeclares classes to avoid loops
+class TExclusionArea;
+
+class TPairEADmin {
+    TExclusionArea *p_EA;
+    double p_Dmin;
+
+public:
+    //pointer to EA attached to Dmin
+    TExclusionArea *getEA(void) const {return p_EA;}
+    void setEA(TExclusionArea*);
+
+    //minimun distance with the actuator of the attached EA
+    double getDmin(void) const {return p_Dmin;}
+    void setDmin(double);
+
+    //get the item in text format
+    AnsiString getText(void) const;
+
+    //STATIC METHODS FOR LISTS:
+
+    //asigna un valor a un elemento
+    static void  assign(TPairEADmin& item, double Dmin);
+    //print the item in a string
+    static void  print(AnsiString &S, TPairEADmin item);
+
+    //CONTRUCTOR:
+
+    //build an item by default
+    TPairEADmin(void) : p_EA(NULL), p_Dmin(DBL_MAX) {;}
+    //build an item with the specified values
+    TPairEADmin(TExclusionArea *EA, double Dmin);
+
+    //The default consturctor is necessary for can define a ItemsList.
+};
+
+//---------------------------------------------------------------------------
+//TPairRPDmin
+//---------------------------------------------------------------------------
+
+//predeclares classes to avoid loops
 class TRoboticPositioner;
 
-//clase actuador de posicionador
+class TPairRPDmin {
+    TRoboticPositioner *p_RP;
+    double p_Dmin;
+
+public:
+    //pointer to RP attached to Dmin
+    TRoboticPositioner *getRP(void) const {return p_RP;}
+    void setRP(TRoboticPositioner*);
+
+    //minimun distance with the actuator of the attached RP
+    double getDmin(void) const {return p_Dmin;}
+    void setDmin(double);
+
+    //get the item in text format
+    AnsiString getText(void) const;
+
+    //STATIC METHODS FOR LISTS:
+
+    //asigna un valor a un elemento
+    static void  assign(TPairRPDmin& item, double Dmin);
+    //print the item in a string
+    static void  print(AnsiString &S, TPairRPDmin RD);
+
+    //CONTRUCTOR:
+
+    //build an item by default
+    TPairRPDmin(void) : p_RP(NULL), p_Dmin(DBL_MAX) {;}
+    //build an item with the specified values
+    TPairRPDmin(TRoboticPositioner *RP, double Dmin);
+
+    //The default consturctor is necessary for can define a ItemsList.
+};
+
+//---------------------------------------------------------------------------
+//TActuator
+//---------------------------------------------------------------------------
+
+//clase actuador de un RP
 class TActuator : public TCilinder {
 protected:
     //COMPONENTES DE SPM:
@@ -132,11 +204,15 @@ protected:
     //asigna el SPM adecuado para (PAkd, Purpose)
     void AssignSPM(void);
 
-public:
-    //##################################################################
-    //PROPIEDADES PÚBLICAS:
-    //##################################################################
+    //------------------------------------------------------------------
+    //MÉTODOS PRIVADOS PARA EL CÁLCULO DE DISTANCIAS CON BARRERAS:
 
+    //determina la distancia mínima con una barrera
+    double distanceMin(const TBarrier*) const;
+    //determina si hay colisión con una barrera
+    bool thereIsCollision(const TBarrier*) const;
+
+public:
     //------------------------------------------------------------------
     //PROPIEDADES DE SEGURIDAD:
 
@@ -156,7 +232,7 @@ public:
     //  MEGARA_Eo*r_max + MEGARA_Ep
     double getSPMsta(void) const {return p_SPMsta;}
     void setSPMsta(double);
-    //SPM para absorber el desfase temporal de los posicionadores
+    //SPM para absorber el desfase temporal de los RPs
     //y  las variaciones de velocidad debidas a los motores paso a paso
     //debe ser no negativo
     //defeult value:
@@ -196,49 +272,49 @@ public:
     //  SPMoff = PAem*Actuator->rmax + Pem;
 
     //Where are employed the following properties of a RP:
-    //      CMF.vmaxabs1: velócidad máxima absoluta del eje 1 en pasos/s.
-    //      rbs: radianes por paso del eje 1.
-    //      r_max: radio apical del actuador.
-    //      CMF.vmaxabs1: velócidad máxima absoluta del eje 2 en pasos/s.
-    //      Arm->rbs: radianes por paso del eje 2.
-    //      Arm->L1V: radio apical del brazo.
-    //      rmax: coordenada radial máxima de P3 en S0.
+    //  CMF.vmaxabs1: velócidad máxima absoluta del rotor 1 en pasos/s.
+    //  rbs: radianes por paso del rotor 1.
+    //  r_max: radio apical del actuador.
+    //  CMF.vmaxabs1: velócidad máxima absoluta del rotor 2 en pasos/s.
+    //  Arm->rbs: radianes por paso del rotor 2.
+    //  Arm->L1V: radio apical del brazo.
+    //  rmax: coordenada radial máxima de P3 en S0.
 
     //Donde se emplean las siguientes propiedades, cuyos valores deben ser
     //proporcionados por el fabricante:
-    //      Tstop: tiempo máximo entre el último almacenamiento
-    //              de la posición y la detención de ambos ejes.
-    //              Valor por defecto para MEGARA: 1 ms.
-    //      Eo: margen de error de orientación por mecanizado.
-    //              Valor por defecto para MEGARA: 0.001 rad.
-    //      Ep: margen de error de posición por mecanizado.
-    //              Valor por defecto para MEGARA: 0.01 mm.
-    //      Tshif: desfase temporal entre posicionadores en movimeinto.
-    //              Valor por defecto para MEGARA: 1 ms.
-    //      PAem: margen de error de orientación de S0.
-    //              Valor por defecto para MEGARA: 0.001 rad.
-    //      Pem: margen de error de apuntado de S0.
-    //              Valor por defecto para MEGARA: 0.1 mm.
+    //  Tstop: tiempo máximo entre el último almacenamiento
+    //      de la posición y la detención de ambos rotores.
+    //      Valor por defecto para MEGARA: 1 ms.
+    //  Eo: margen de error de orientación por mecanizado.
+    //      Valor por defecto para MEGARA: 0.001 rad.
+    //  Ep: margen de error de posición por mecanizado.
+    //      Valor por defecto para MEGARA: 0.01 mm.
+    //  Tshif: desfase temporal entre RPs en movimiento.
+    //      Valor por defecto para MEGARA: 1 ms.
+    //  PAem: margen de error de orientación de S0.
+    //      Valor por defecto para MEGARA: 0.001 rad.
+    //  Pem: margen de error de apuntado de S0.
+    //      Valor por defecto para MEGARA: 0.1 mm.
 
     //Nótese que CMF.vmaxabs1*rbs*r_max es la máxima velocidad
-    //lineal del ápice del brazo debido a la rotación del eje 1.
+    //lineal del ápice del brazo debido a la rotación del rotor 1.
 
     //Nótese que CMF.vmaxabs2*Arm->rbs*Arm->Ra es la máxima velocidad
-    //lineal del ápice del brazo debido a la rotación del eje 2.
+    //lineal del ápice del brazo debido a la rotación del rotor 2.
 
     //Nótese que SPMoff tiene dos componentes:
-    //    * PAem*rmax: es el offset máximo producido por
-    //      error de orientación de S0.
-    //    * Pem:offset máximo producido por error de apuntado de S0.
-    //La primera componente depende de la ubicación del posicionador
+    //  * PAem*rmax: es el offset máximo producido por
+    //    error de orientación de S0.
+    //  * Pem:offset máximo producido por error de apuntado de S0.
+    //La primera componente depende de la ubicación del actuador
     //en el Fiber MOS. No se debe confundir P0Vcon POV.
     //Como no hay valor por defecto para POVmax, se asigna MEGARA_P0Vmax,
-    //como si hbiera un único posicionador centrado en el origen.
+    //como si hubiera un único actuador centrado en el origen.
 
     //VALORES DE SPM PARA CADA OCASIÓN:
 
-    //Valores de SPM de precisión para el brazo del posicionador,
-    //cuando la posición de ambos ejes se conoce con precisión
+    //Valores de SPM de precisión para el brazo del actuador,
+    //cuando la posición de ambos rotores se conoce con precisión
     //(PAkd == kdPre):
 
     //SPM for execution:
@@ -263,8 +339,8 @@ public:
     //  SPMgenPairPPDP_p + SPMoff
     double getSPMall_p(void) const;
 
-    //Valores de SPM de aproximación para el brazo del posicionador,
-    //cuando la posición de ambos ejes se conoce de forma aproximada
+    //Valores de SPM de aproximación para el brazo del actuador,
+    //cuando la posición de ambos rotores se conoce de forma aproximada
     //(PAkd == kdApp):
 
     //SPM for execution:
@@ -289,25 +365,25 @@ public:
     //  SPMgenPairPPDP_a + SPMoff
     double getSPMall_a(void) const;
 
-    //Valores de SPM de aproximación para el muro del posicionador,
+    //Valores de SPM de aproximación para la barrera del actuador,
     //cuando la posición de algún eje es desconocida
     //(PAkd == kdUnk):
 
     //SPM para todos los casos:
-    //      SPMsta
+    //  SPMsta
 
     //------------------------------------------------------------------
     //PROPIEDADES DE ESTADO:
 
-    //grado de conocimiento de las posiciones de los ejes
+    //grado de conocimiento de las posiciones de los rotores
     //debe ser uno de los siguientes valores:
-    //      kdPre: se conocen de forma precisa
-    //      kdApp: se conocen de forma aproximada
-    //      kdUnk: se desconoce la posición de algún eje
+    //  kdPre: se conocen de forma precisa
+    //  kdApp: se conocen de forma aproximada
+    //  kdUnk: se desconoce la posición de algún eje
     //valor por defecto_ kdPrecise
     TKnowledgeDegree getPAkd(void) const {return p_PAkd;}
     void setPAkd(TKnowledgeDegree);
-    //propósito con el que se va a usar el posicionador
+    //propósito con el que se va a usar el actuador
     //debe ser uno de los siguientes valores:
     //  pAll: allocate RPs to projection points;
     //  pGenPairPPDP: generate a pair (PP, DP);
@@ -321,27 +397,27 @@ public:
     void setPurpose(TPurpose);
 
     //si PAkd == kdPre,
-    //      si Porporse == pAll
-    //              Arm->SPM = SPMall_p
-    //      si Porporse == pPro
-    //              Arm->SPM = SPMgen_p
-    //      si Porporse == pVal
-    //              Arm->SPM = SPMval_p
-    //      si Porporse == pExe
-    //              Arm->SPM = SPMexe_p
+    //  si Porporse == pAll
+    //      Arm->SPM = SPMall_p
+    //  si Porporse == pPro
+    //      Arm->SPM = SPMgen_p
+    //  si Porporse == pVal
+    //      Arm->SPM = SPMval_p
+    //  si Porporse == pExe
+    //      Arm->SPM = SPMexe_p
     //si PAkd == kdApp,
-    //      si Porporse == pAll
-    //              Arm->SPM = SPMall_a
-    //      si Porporse == pPro
-    //              Arm->SPM = SPMgen_a
-    //      si Porporse == pVal
-    //              Arm->SPM = SPMval_a
-    //      si Porporse == pExe
-    //              Arm->SPM = SPMexe_a
+    //  si Porporse == pAll
+    //      Arm->SPM = SPMall_a
+    //  si Porporse == pPro
+    //      Arm->SPM = SPMgen_a
+    //  si Porporse == pVal
+    //      Arm->SPM = SPMval_a
+    //  si Porporse == pExe
+    //      Arm->SPM = SPMexe_a
     //si PAkd == kdUnk,
-    //      Barrier->SPM = SPMsta
+    //  Barrier->SPM = SPMsta
 
-    //identificador del posicionador
+    //identificador del actuador
     //debe ser no negativo
     //el número 0 indica indefinición
     int getId(void) const {return p_Id;}
@@ -350,16 +426,36 @@ public:
     //El número de identificación debe ser una propiedad del actuador
     //para que los actuadores adyacentes puedan ser identificados.
 
-    //lista de posicionadores de RPs lo bastante cerca
+    //lista de punteros a EAs lo bastante cerca
     //para que puedan colisionar con el brazo
     //valor por defecto:
-    //      Adjacents.Capacity = 6;
-    //      Adjacents.Compare = TRoboticPositioner::CompareIds;
-    //      Adjacents.Print = TRoboticPositioner::PrintId;
-    TItemsList<TRoboticPositioner*> Adjacents;
+    //  AdjacentEAs.Capacity = 1;
+    //  AdjacentEAs.Compare = TExclusionArea::CompareIds;
+    //  AdjacentEAs.Print = TExclusionArea::PrintId;
+    TItemsList<TExclusionArea*> AdjacentEAs;
+    //vector de distancias mínmas con los EAs adyacentes
+    //valor por defecto:
+    //  DminEAs.Count = 0;
+    //  DminEAs.Capacity = 1.
+    TItemsList<TPairEADmin> DminEAs;
+    //lista de punteros a RPs lo bastante cerca
+    //para que puedan colisionar con el brazo
+    //valor por defecto:
+    //  AdjacentRPs.Count = 0;
+    //  AdjacentRPs.Capacity = 6;
+    //  AdjacentRPs.Compare = TRoboticPositioner::CompareIds;
+    //  AdjacentRPs.Print = TRoboticPositioner::PrintId;
+    TItemsList<TRoboticPositioner*> AdjacentRPs;
+    //vector de distancias mínmas con los RPs adyacentes
+    //valor por defecto:
+    //  DminRPs.Count = 0;
+    //  DminPRs.Capacity = 6.
+    TItemsList<TPairRPDmin> DminRPs;
 
-    //los actuadores adyacentes serán determinados mediante
-    //el método TLisTRoboticPositioners::DetermineAdyacents()
+    //Las EAs adyacentes y los RPs adyacentes serán determinados mediante
+    //el método TRoboticPositionerList::determineAdyacents().
+
+    //Lasdistancias mínimas serán determinadas durante la ejecución de validateMP.
 
     //indica si el brazo del actuador será tenido en cuenta
     //en la determinación de distancias y colisiones
@@ -367,17 +463,17 @@ public:
     bool Pending;
 
     //La propiedad Pending será usada en los métodos:
-    //      thereIsCollisionWithPendingAdjacent
-    //      searchCollindingPendingAdjacent
+    //  thereIsCollisionWithPendingAdjacent
+    //  searchCollindingPendingAdjacent
     //con objeto de evitar aplicar el método de determinación de colisión
-    //más de una vez entre cada par de actuadores.
+    //más de una vez entre cada par de elementos.
     //Deberá determinarse el estado de colisión mediante el método:
-    //      TActuator::thereIsCollision
+    //  TActuator::thereIsCollision
     //cuando:
-    //    - la bandera de determinación de colisión pendiente (Pending)
-    //      sea true.
+    //- la bandera de determinación de colisión pendiente (Pending)
+    //  sea true.
 
-    //estado de colisión del actuador con alguno de sus adyacentes
+    //estado de colisión del actuador con alguno de sus adyacentes (EAs o RPs)
     //valor por defecto: false
     bool Collision;
 
@@ -390,14 +486,14 @@ public:
     double getr_min(void) const {return p_r_min;}
     //Radio de la frontera segura.
     //Radio de la circunferencia descrita por el punto de Arm->Contour
-    //más alejado del centro del posicionador cuando
+    //más alejado del centro del actuador cuando
     //el brazo está retraido en el linde de la zona segura.
     //      r_saf = Min{D[i] - r_max[i] - SPM[i]} - SPM;
     //donde:
     //  D[i] es la distancia al adyacente i;
     //  r_max[i] es el radio del contorno del adyacente i;
     //  SPM[i] es el margen de seguridad del adyacente i.
-    //  SPM es el margen de seguridad de este posicionador.
+    //  SPM es el margen de seguridad de este actuador.
     //valor por defecto: el mismo que r_max
     //donde Arm->SPM es el SPM de generación dado por defecto.
     double getr_saf(void) const {return p_r_saf;}
@@ -419,14 +515,14 @@ public:
     //Posición angular de P2 respecto de S1 en radianes
     //a partir de la cual el brazo puede ser retraido
     //linealmente hasta la zona segura sin que theta_1
-    //llegue a ser menor que Max(0, theta_1min).
-    //Valor por defecto: Max(0, theta_1min) + M_PI/2 rad
+    //llegue a ser menor que max(0, theta_1min).
+    //Valor por defecto: max(0, theta_1min) + M_PI/2 rad
     double gettheta_2rad(void) const {return p_theta_2rad;}
 
     //ADVERTENCIA: el controlador puede estar concebido para
     //trabajar solamente con valores no negativos de p_1,
     //de modo que theta_2rad es calculado pensando en que theta_1
-    //no podrá rebasar Max(0, theta_1min).
+    //no podrá rebasar max(0, theta_1min).
 
     //------------------------------------------------------------------
     //PROPIEDADES DE ÁREA:
@@ -441,114 +537,72 @@ public:
     //para el caso ideal, deberían tomarse los valores nominales
     //para el cálculo de las mismas. Como las propiedades de las que
     //dependen las propiedades de área son solamente:
-    //      r = r_3maxnom y
-    //      N = Adjacents.Count.
+    //  r = r_3maxnom y
+    //  N = AdjacentRPs.Count.
     //el único valor nominal que debe darse es el de r_3max.
 
     //Los parámetros Sp, Se y Re son calculados analíticamente
-    //para el caso en que los posicionadores adyacentes cumplen:
-    //       radio del dominio igual;
-    //       equidistantes 4*L*cos(M_PI/6).
+    //para el caso en que los actuadores adyacentes cumplen:
+    //  radio del dominio igual;
+    //  equidistantes 4*L*cos(M_PI/6).
 
     //En el caso real, es posible que:
-    //       - la distancia entre posicionadores no es exactamente
-    //       4*L*cos(PI/6);
-    //       - el área de seguridad y el área no invasiva se vean ligeramente
-    //       reducidas a causa del SPM.
+    //  - la distancia entre actuadores no es exactamente
+    //    4*L*cos(PI/6);
+    //  - el área de seguridad y el área no invasiva se vean ligeramente
+    //    reducidas a causa del SPM.
 
     //Para facilitar la notación se sustituirá:
-    //       N = Adjacents.Count;
-    //       r = r_3maxnom.
+    //  N = AdjacentRPs.Count;
+    //  r = r_3maxnom.
 
     //área del círculo de radio r
     //       Sc = M_PI*r*r
     double getSc(void) const {return p_Sc;}
     //área de una porción de seis del círculo de radio r
-    //       Sw = Sc/6
+    //  Sw = Sc/6
     double getSw(void) const {return p_Sw;}
 
     //área participativa de una porción triangular
     //del exágono cinrcunscrito en la circunferencia de radio r
-    //       Sp = r*r*aux/2
+    //  Sp = r*r*aux/2
     double getSp(void) const {return p_Sp;}
     //área de uno de los segmentos de circunferencia
     //en las inmediaciones del exágono circunscrito
     //en la circunferencia de radio r
-    //      Ss = Sw - Sp
+    // Ss = Sw - Sp
     double getSs(void) const {return p_Ss;}
     //área exclusiva de una porción exagonal
     //del círculode radio r
-    //      Se = Sp - Ss
+    //  Se = Sp - Ss
     double getSe(void) const {return p_Se;}
     //ratio entre área exclusiva y el área participativa
-    //      Re = Se/Sp
+    //  Re = Se/Sp
     double getRe(void) const {return p_Re;}
 
     //calcula el área participativa total
-    //      p_Spt = (6 - N)*Sw + N*Sp;
-    //            = r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
+    //  p_Spt = (6 - N)*Sw + N*Sp;
+    //        = r*r*(M_PI + N*(sqrt(0.75) - M_PI/3)/2);
     double getSpt(void) const {return p_Spt;}
     //calcula el área exclusiva total
-    //      p_Set = (6 - N)*Sw + N*Se;
-    //            = r*r*(sqrt(0.75) - M_PI/6);
+    //  p_Set = (6 - N)*Sw + N*Se;
+    //        = r*r*(sqrt(0.75) - M_PI/6);
     double getSet(void) const {return p_Set;}
     //calcula el ratio entre Set y Spt
-    //      p_Ret = Set/Spt;
-    //            = 2 - M_PI/(3*sqrt(0.75))
+    //  p_Ret = Set/Spt;
+    //        = 2 - M_PI/(3*sqrt(0.75))
     double getRet(void) const {return p_Ret;}
 
-    //ADVERTENCIA: cuando cambia el radio del dominio del posicionador
+    //ADVERTENCIA: cuando cambia el radio del dominio del actuador
     //o de alguno de los adyacentes, o la distancia entre posicioandores
     //no es igual a 4*L*cos(M_PI/6), las propiedades de área pueden no
     //corresponderse con la realidad.
 
     //ADVERTENCIA: cuando r_3min!=0 se tiene que parte del área excusiva
-    //no forma parte del dominio del posicionador, con lo que habría que
+    //no forma parte del dominio del actuador, con lo que habría que
     //distinguir dos tipos de áreas exclusivas:
-    //      área exclusiva total;
-    //      área exclusiva accesible.
-
-    //------------------------------------------------------------------
-    //PROPIEDADES GRÁFICAS:
-/*#
-    //color con que son contruidos los posicionadores
-    //valor por defecto: clGray
-    static QColor DefaultColor;
-
-    //color del cilindro del posicionador
-    //valor por defecto: DefaultColor
-    QColor ColorCilinder;
-    //color del brazo del posicionador
-    //valor por defecto: DefaultColor
-    QColor ColorArm;
-    //color del límite del dominio del punto P3
-    //valor por defecto: DefaultColor
-    QColor ColorLimitDomainP3;
-    //color del límite del dominio de maniobra
-    //valor por defecto: DefaultColor
-    QColor ColorLimitDomainManeuvering;
-
-    //color delas barreras en colisión
-    //valor por defecto: clRed
-    QColor ColorCollision;
-
-    //indica si debe dibujarse el cuerpo del posicionador
-    //valor por defecto: true
-    bool PaintBody;
-    //indica si debe dibujarse el límite del dominio del punto P3
-    //valor por defecto: false
-    bool PaintLimitDomainP3;
-    //indica si debe dibujarse el límite del dominio de maniobra
-    //valor por defecto: false
-    bool PaintLimitDomainManeuvering;
-
-    //indica si el posicionador está seleccionado
-    //valor por defecto: false
-    bool Selected;
-*/
-    //##################################################################
-    //PROPIEDADES EN FORMATO TEXTO:
-    //##################################################################
+    //  área exclusiva total;
+    //  área exclusiva accesible.
 
     //------------------------------------------------------------------
     //PROPIEDADES DE SEGURIDAD EN FORMATO TEXTO:
@@ -596,7 +650,8 @@ public:
 
     AnsiString getIdText(void) const; void setIdText(const AnsiString&);
 
-    //Adjacents.Text
+    //AdjacentRPs.Text
+    //AdjacentEAs.Text
 
     AnsiString getPendingText(void) const;
     void setPendingText(const AnsiString&);
@@ -665,10 +720,6 @@ public:
     //en formato línea de texto
     AnsiString getPositionPAPRowText(void) const;
 
-    //##################################################################
-    //MÉTODOS PÚBLICOS:
-    //##################################################################
-
     //------------------------------------------------------------------
     //MÉTODOS ESTÁTICOS:
 
@@ -679,15 +730,15 @@ public:
     static void  PrintId(AnsiString &S, TActuator *A);
 
     //Los métodos estáticos:
-    //      CompareIds
-    //      PrintId
-    //serán apuntados en la lista de posicionadores adyacentes
+    //  CompareIds
+    //  PrintId
+    //serán apuntados en la lista de RPs adyacentes
     //para permitir su ordenacíon en función de los identificadores
     //y la impresión de los mismos.
 
     //lee una instancia actuador en una cadena
-    static void  readInstance(TActuator* &A,
-                                        const AnsiString& S, int &i);
+    static void  readInstance(TActuator *A,
+                              const AnsiString& S, int &i);
 
     //obtiene las etiquetas de las propiedades de origen
     //("Id", "x0", "y0", "thetaO1") al final de una cadena de texto
@@ -698,11 +749,11 @@ public:
     //en formato fila de texto
     static void  travelOriginsLabelsRow(const AnsiString&, int&);
 
-    //imprime los valores de las propiedades de orien de un posicionador
+    //imprime los valores de las propiedades de orien de un actuador
     //(Id, x0, y0, thetaO1) al final de una cadena de texto
     //en formato fila de texto
     static void  printOriginsRow(AnsiString&, TActuator*);
-    //lee los valores de las propiedades de orien de un posicionador
+    //lee los valores de las propiedades de orien de un actuador
     //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
     static void  readOriginsRow(TActuator* &FP,
@@ -725,21 +776,21 @@ public:
     //en formato fila de texto
     static void  travelPositionP3LabelsRow(const AnsiString&, int&);
 
-    //imprime los valores de las propiedades de posición de un posicionador
+    //imprime los valores de las propiedades de posición de un actuador
     //(Id, x3, y3) al final de una cadena de texto
     //en formato fila de texto
     static void  printPositionP3Row(AnsiString&, TActuator*);
-    //lee los valores de las propiedades de posición de un posicionador
+    //lee los valores de las propiedades de posición de un actuador
     //(Id, x3, y3) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
     static void  readPositionP3Row(TActuator* &FP,
                                              const AnsiString& S, int &i);
-    //imprime los valores de las propiedades de posición de un posicionador
+    //imprime los valores de las propiedades de posición de un actuador
     //(Id, x_3, y_3) al final de una cadena de texto
     //en formato fila de texto
     static void  printPositionP_3Row(AnsiString&, TActuator*);
 
-    //imprime los valores de las propiedades de posición de un posicionador
+    //imprime los valores de las propiedades de posición de un actuador
     //(Id, p_1, p___3) al final de una cadena de texto
     //en formato fila de texto
     static void  printPositionPPARow(AnsiString&, TActuator*);
@@ -755,8 +806,8 @@ public:
     //la duplicidad de números de identificación está permitida.
     //El control de duplicidad de identificadores debe llevarse
     //en todo caso mediante métodos. Al fin y al cabo en el mundo real
-    //será posible configurar dos posicionadores para que tengan la misma
-    //dirección.
+    //será posible configurar dos RPs para que tengan el mismo
+    //identificador.
 
     //copia las propiedades de seguridad de un actuador
     void copySecurity(const TActuator*);
@@ -870,17 +921,17 @@ public:
     //------------------------------------------------------------------
     //METHODS TO DETERMINE THE RELATIVE POSITION OF THE ACTUATOR:
 
-    //determina si un ángulo del eje 2 en radianes
+    //determina si un ángulo del rotor 2 en radianes
     //está fuera del área de seguridad
     bool theta___3IsOutSafeArea(double theta___3) const;
-    //determina si un ángulo del eje 2 en radianes
+    //determina si un ángulo del rotor 2 en radianes
     //está dentro del área de seguridad
     bool theta___3IsInSafeArea(double theta___3) const;
 
-    //determina si un ángulo del eje 2 en pasos
+    //determina si un ángulo del rotor 2 en pasos
     //está fuera del área de seguridad
     bool p___3IsOutSafeArea(double p___3) const;
-    //determina si un ángulo del eje 2 en pasos
+    //determina si un ángulo del rotor 2 en pasos
     //está dentro del área de seguridad
     bool p___3IsInSafeArea(double p___3) const;
 
@@ -897,7 +948,7 @@ public:
     //determines if any rotor of the actuator is out the origin
     bool isOutTheOrigin(void) const;
 
-    //MÉTODOS PARA DETERMINAR EL PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL EJE 1:
+    //MÉTODOS PARA DETERMINAR EL PUNTO DE INFLEXIÓN PARA UN ÁNGULO DEL ROTOR 1:
 
     //Punto de inflexión de la trayectoria radial es
     //aquel en el que theta_1 == Max{theta_1min, 0}.
@@ -910,7 +961,7 @@ public:
     //      theta_1 == Max{theta_1min, 0}.
     //si L01 != Arm->L12 lanza una excepción EImproperCall
     double getr_i(double &theta_1, double theta_2);
-    //ángulo del eje 2 respecto de S3 en radianes
+    //ángulo del rotor 2 respecto de S3 en radianes
     //para el punto de inflexión de la pose dada
     //si L01 != Arm->L12 lanza una excepción EImproperCall
     double gettheta___2i(double theta_2, double r_i);
@@ -922,10 +973,12 @@ public:
 
     //------------------------------------------------------------------
     //MÉTODOS PARA CALCULAR DISTANCIAS
-    //CON BRAZOS DE POSICIONADORES ADYACENTES:
+    //CON BRAZOS DE ACTUADORES ADYACENTES:
 
     //determina la distancia con otro actuador
     double distance(TActuator*);
+    //determine the distance with a point
+    double distance(TDoublePoint);
     //determina la distancia libre con otro actuador
     //      Df = D - SPM1 - SPM2
     //donde:
@@ -934,11 +987,11 @@ public:
     //      SPM2: SPM del otro actuador (según PAkd)
     double distanceFree(TActuator*);
 
-    //determina la distancia mínima entre el brazo del posicionador
-    //y los brazos de los posicionadores adyacentes
+    //determina la distancia mínima entre el brazo del actuador
+    //y los brazos de los actuadores adyacentes
     double distanceWithAdjacent(void);
-    //determina la distancia mínima entre el punto P3 del posicionador
-    //y los puntos P3 de los posicionadores adyacentes
+    //determina la distancia mínima entre el punto P3 del actuador
+    //y los puntos P3 de los actuadores adyacentes
     double distanceP3WithAdjacent(void);
 
     //MÉTODOS PARA DETERMINAR EN QUE ÁREA SE ENCUENTRA UN PUNTO:
@@ -957,72 +1010,42 @@ public:
 
     //------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR LAS COLISIONES
-    //CON POSICIONADORES ADYACENTES:
+    //CON ACTUADORES ADYACENTES:
 
-    //determina si hay colisión con un actuador adyacente
+    //determina la distancia mínima con un EA
+    double distanceMin(const TExclusionArea*);
+    //determina la distancia mínima con un actuador
+    double distanceMin(const TActuator*);
+
+    //determina si hay colisión con un EA
+    bool thereIsCollision(const TExclusionArea*);
+    //determina si hay colisión con un actuador
     bool thereIsCollision(const TActuator*);
-    //determina si hay colisión con un actuador adyacente
-    bool thereIsCollisionWithAdjacent(void);
-    //determina si no hay colisión con un actuador adyacente
-    bool thereIsntCollisionWithAdjacent(void);
-    //Busca los posicionadores adyacentes cuyo
-    //brazo colisiona con el de este posicionador.
-    //        void SearchCollindingAdjacent(TVector<int> &Ids);
-    //Busca los posicionadores adyacentes cuyo
-    //brazo colisiona con el de este posicionador.
-    void searchCollindingAdjacent(
-            TItemsList<TRoboticPositioner*> &Collindings);
 
-    //Determina si hay colisión con un actuador adyacente
+    //determina si hay colisión con una barrera o un actuador adyacente
+    bool thereIsCollisionWithAdjacent(void);
+    //determina si no hay colisión con una barrera o un actuador adyacente
+    bool thereIsntCollisionWithAdjacent(void);
+
+    //Busca los EAs adyacentes cuya
+    //barrera colisiona con este actuador
+    void searchCollindingAdjacent(TItemsList<TExclusionArea*>&);
+    //Busca los RPs adyacentes cuyo
+    //actuador colisiona con este actuador
+    void searchCollindingAdjacent(TItemsList<TRoboticPositioner*>&);
+
+    //Determina si hay colisión con una barrera o un actuador adyacente
     //con evaluación de colisión pendiente.
     bool thereIsCollisionWithPendingAdjacent(void);
-    //Busca los posicionadores adyacentes
+
+    //Busca los EAs adyacentes
     //con evaluación de colisión pendiente
-    //cuyo actuador colisiona con el de este posicionador.
-    void searchCollindingPendingAdjacent(
-            TItemsList<TRoboticPositioner*> &Collindings);
-
-    /*        //MÉTODOS PARA EL CÁLCULO DE ÁNGULOS DE GIRO PARA RESOLVER COLISIONES:
-
-        //determina los ángulos hay que rotar este posicionador,
-        //para que su brazo quede adyacente al segmento indicado
-        void turnSegment(TVector<double> &dts,
-                TDoublePoint Pa, TDoublePoint Pb);
-
-        //determina los ángulos hay que rotar este posicionador,
-        //para que su brazo quede adyacente al arco indicado
-        void turnArc(TVector<double> &dts,
-                TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R);
-
-        //determina los ángulos hay que rotar este posicionador,
-        //para que su brazo quede adyacente al brazo indicado
-        void turnArm(TVector<double> &dts, TArmAbstract *Arm_);
-*/
-/*#
-    //-------------------------------------------------------------------
-    //MÉTODOS GRÁFICOS:
-
-    //indica que parte del posicionador puede ser agarrado
-    //en el punto indicado:
-    //      3: botón (P2, R2)
-    //      2: brazo (PA...)
-    //      1: cilindro (P0, L01)
-    //      0: niguna;
-    int grab(TDoublePoint P);
-
-    //resalta un color si el posicionador está seleccionado
-    QColor highlightIfSelected(QColor);
-
-    //asigna un color al posicionador
-    void setAllColors(QColor Color);
-
-    //traza el posicionador con los colores indicados
-    //en un trazador de formas
-    //#void paint(TPloterShapes*);
-    //traza el posicionador con los colores indicados
-    //en un trazador de formas
-    //en el modelo simplificado (dos segmentos de P0 a P1 y de P1 a P2)
-    //#void paintSimplified(TPloterShapes*);*/
+    //cuya barrera colisiona con este actuador.
+    void searchCollindingPendingAdjacent(TItemsList<TExclusionArea*>&);
+    //Busca los RPs adyacentes
+    //con evaluación de colisión pendiente
+    //cuyo actuador colisiona con este actuador.
+    void searchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*>&);
 };
 
 //---------------------------------------------------------------------------

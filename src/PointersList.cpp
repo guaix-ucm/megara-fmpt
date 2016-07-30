@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: PointersList.cpp
-//Contenido: lista de punteros a elementos genéricos
-//Última actualización: 17/08/2011
-//Autor: Isaac Morales Durán
+//File: PointersList.cpp
+//Content: template for pointer list
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "PointersList.h"

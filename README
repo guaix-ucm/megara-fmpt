@@ -11,6 +11,7 @@ Table of Contents
 *Requirements
 *Installation
 *Using MEGARA FMPT
+*Generating a new release
 
 Brief overview
 -----------------------------------
@@ -40,8 +41,8 @@ Installation
 
 The process to install this S/W can be found in the file INSTALL. The summarized process is explained below:
 
-1. Decompress tar file 'megara-fmpt-3.0.8.tar.gz' (or .xz).
-2. Change to directory './megara-fmpt-3.0.8'.
+1. Decompress tar file 'megara-fmpt-3.3.0.tar.gz' (or .xz).
+2. Change to directory './megara-fmpt-3.3.0'.
 3. Execute './configure; make;' to configure and build this package.
 4. Grant superuser privileges to have access to '/usr/local/...'.
 5. Execute 'make install' (as superuser) to install the library and the application. 
@@ -68,9 +69,26 @@ $ fmpt_saa /usr/local/share/megara-fmpt/Samples/megara-cb1.txt
 
 These locations can vary depending on the operating system and distribution where this package is installed.
 
+Generating a new release
+---------------------------------
+
+1. Decompress file 'megara-fmpt-<n>.tar.gz' (or .xz). Where <n> is the number of version.
+2. Perform the changes in the code, if any.
+3. Update version number in the following files:
+     'megara-fmpt-<n>/src/main.cpp'
+     'megara-fmpt-<n>/configure.ac'
+     'megara-fmpt-<n>/README'
+     'megara-fmpt-<n>/TEC_MEG_171.doc'
+4. Change to directory './megara-fmpt-<n>'.
+5. Execute './configure; make [-j];' to configure and build this package.
+6. Execute 'make distcheck [-j]' to build the new release.
+   During generation are executed the tests, and for pass the tests are used the RP model and the Fiber MOS Model instance stored in:
+    'data/Models/MEGARA_RP_Instance'
+    'data/Models/MEGARA_FiberMOSModel_Instance'
+
 Known issues
 ============
-If you dont use ldconfig for update the linkage to the libraries of the system, when you execute the fmpt_saa application, will be printed the following error message:
+If you dont use ldconfig for update the linkage to the libraries of the system, when you execute the fmpt_saa application, would be printed the following error message:
 	fmpt_saa. error while loading shared libraries: libfmp.so: can not open shared object file: No such file or directory.
 
 One alternative to the use of ldconfig is add the path '/usr/local/lib' to the environmen variable LD_LIBRARY_PATH.

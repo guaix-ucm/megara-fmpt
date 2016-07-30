@@ -18,16 +18,15 @@
 
 //---------------------------------------------------------------------------
 //File: RoboticPositioner.h
-//Content: robotic positioner model
-//Last update: 06/05/2014
+//Content: robotic positioner (RP) model
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONER_H
 #define ROBOTICPOSITIONER_H
 
-#include "Instruction.h"
 #include "Actuator.h"
+#include "Instruction.h"
 #include "ComposedMotionFunction.h"
 #include "ItemsList.h"
 #include "MotionProgram.h"
@@ -39,9 +38,8 @@ using namespace MotionFunctions;
 //namespace for models
 namespace Models {
 
-//##########################################################################
+//---------------------------------------------------------------------------
 //TControlMode
-//##########################################################################
 
 //Functioning mode of the controller:
 //      cmSinc: programmed gestures will be inmediately executed;
@@ -56,9 +54,8 @@ void  StrReadControlMode(TControlMode& cm,
 AnsiString ControlModeToStr(TControlMode cm);
 TControlMode StrToControlMode(const AnsiString& S);
 
-//##########################################################################
+//---------------------------------------------------------------------------
 //TFaultType
-//##########################################################################
 
 //Fault type of the RP
 //      ftUnk: unknowledge;
@@ -73,9 +70,8 @@ void  StrReadFaultType(TFaultType& ft,
 AnsiString FaultTypeToStr(TFaultType ft);
 TFaultType StrToFaultType(const AnsiString& S);
 
-//##########################################################################
+//---------------------------------------------------------------------------
 //TRoboticPositioner
-//##########################################################################
 
 //Class TRoboticPositioner; description:
 //
@@ -276,9 +272,9 @@ public:
         double getDsec(void) const {return p_Dsec;}
         void setDsec(double);
 
-        //minimun free distance of the RP with their adjacents
-        //default value: std::numeric_limits<double>::max()
-        double Dfmin;
+        //minimun real distance of the RP with their adjacents
+        //default value: DBL_MAX
+        double Dmin;
 
         //------------------------------------------------------------------
         //PROPERTIES IN TEXT FORMAT:
@@ -287,13 +283,13 @@ public:
 
         //address in memory of property Actuator
         AnsiString getActuatorAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(getActuator()), 8);}
+                return IntToHex(intptr_t(getActuator()));}
 
         //CONTROL PROPERTIES IN TEXT FORMAT:
 
         //address in memory of property CMF
         AnsiString getCMFAddressText(void) const {
-                return IntToHex(reinterpret_cast<intptr_t>(&CMF), 8);}
+                return IntToHex(intptr_t(&CMF));}
 
         //TOLERANCES IN TEXT FORMAT:
 
@@ -325,21 +321,24 @@ public:
 
         //SETS OF PROPERTIES IN TEXT FORMAT:
 
-        //set of all security properties
+        //set of R/W security properties
         //in assign text format
         AnsiString getToleranceText(void) const;
-        //set ofall status properties
+        //set of R/W status properties
         //in assign text format
         AnsiString getStatusText(void) const;
 
         //set of all properties
         //in assign text format
-        AnsiString getAllText(void) const;
+        //AnsiString getAllText(void) const;
 
         //set of properties of the instance of the RP
         //in assign text format
         AnsiString getInstanceText(void) const;
         void setInstanceText(const AnsiString&);
+
+        //set of minimun distances in text format
+        AnsiString getDminsText(void) const;
 
         //------------------------------------------------------------------
         //STATIC METHODS:
@@ -689,7 +688,7 @@ public:
         //determina una cota superior para la distancia máxima recorrida
         //por un punto del brazo del posicionador, al moverse ambos rotores
         //durante un intervalo de tiempo T
-        //      dMaxAbs = Max(d_MaxAbs(T), d___MaxAbs(T))
+        //      dMaxAbs = max(d_MaxAbs(T), d___MaxAbs(T))
         double dMaxAbs(double T);
 
         //determine a upper top for longitudinal velocity

@@ -19,12 +19,12 @@
 //---------------------------------------------------------------------------
 //File: RoboticPositionerList2.cpp
 //Content: RP list with hash table
-//Last update: 13/02/2015
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "RoboticPositionerList2.h"
 #include "Scalars.h"
+#include "TextFile.h"
 
 //---------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ void TRoboticPositionerList2::setI(int I)
         throw EImproperArgument("cells matrix's number rows I should be upper zero");
 
     //capture the original value
-    double iini = getI();
+    int iini = getI();
 
     //assign the new value
     p_Cells.setCount(I);
@@ -117,7 +117,7 @@ void TRoboticPositionerList2::setJ(int J)
         throw EImproperArgument("cells matrix's number columns J should be upper zero");
 
     //capture the original value
-    double jini = getJ();
+    int jini = getJ();
 
     //assign the new value
     p_J = J;
@@ -142,7 +142,7 @@ AnsiString TRoboticPositionerList2::getxminText(void) const
 void TRoboticPositionerList2::setxminText(const AnsiString &S)
 {
     try {
-        setxmin(StrToFloat_(S));
+        setxmin(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -154,7 +154,7 @@ AnsiString TRoboticPositionerList2::getxmaxText(void) const
 void TRoboticPositionerList2::setxmaxText(const AnsiString &S)
 {
     try {
-        setxmax(StrToFloat_(S));
+        setxmax(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -166,7 +166,7 @@ AnsiString TRoboticPositionerList2::getyminText(void) const
 void TRoboticPositionerList2::setyminText(const AnsiString &S)
 {
     try {
-        setymin(StrToFloat_(S));
+        setymin(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -178,7 +178,7 @@ AnsiString TRoboticPositionerList2::getymaxText(void) const
 void TRoboticPositionerList2::setymaxText(const AnsiString &S)
 {
     try {
-        setymax(StrToFloat_(S));
+        setymax(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -191,7 +191,7 @@ AnsiString TRoboticPositionerList2::getIText(void) const
 void TRoboticPositionerList2::setIText(const AnsiString &S)
 {
     try {
-        setI(StrToInt_(S));
+        setI(StrToInt(S));
     } catch(...) {
         throw;
     }
@@ -203,7 +203,7 @@ AnsiString TRoboticPositionerList2::getJText(void) const
 void TRoboticPositionerList2::setJText(const AnsiString &S)
 {
     try {
-        setJ(StrToInt_(S));
+        setJ(StrToInt(S));
     } catch(...) {
         throw;
     }
@@ -222,14 +222,14 @@ AnsiString TRoboticPositionerList2::getqyText(void) const
 
 AnsiString TRoboticPositionerList2::getIntervalText(void) const
 {
-    AnsiString S;
+    string str;
 
-    S = AnsiString("xmin = ")+getxminText()+AnsiString("\r\n");
-    S += AnsiString("xmax = ")+getxmaxText()+AnsiString("\r\n");
-    S += AnsiString("ymin = ")+getyminText()+AnsiString("\r\n");
-    S += AnsiString("ymax = ")+getymaxText();
+    str = commentedLine("xmin = "+getxminText().str, "lower limit in x-axis of the matrix of cells (in mm)");
+    str += "\r\n"+commentedLine("xmax = "+getxmaxText().str, "upper limit in x-axis of the matrix of cells (in mm)");
+    str += "\r\n"+commentedLine("ymin = "+getyminText().str, "lower limit in y-axis of the matrix of cells (in mm)");
+    str += "\r\n"+commentedLine("ymax = "+getymaxText().str, "upper limit in y-axis of the matrix of cells (in mm)");
 
-    return S;
+    return AnsiString(str);
 }
 void TRoboticPositionerList2::setIntervalText(const AnsiString &S)
 {
@@ -248,8 +248,9 @@ void TRoboticPositionerList2::setIntervalText(const AnsiString &S)
 
         //set the tampon variable
         Copy(&RPL);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting interval in text format: ");
         throw;
     }
 }
@@ -262,18 +263,20 @@ AnsiString TRoboticPositionerList2::getCellsText(void) const
             if(p_Cells[i][j].Print == NULL)
                 throw EImpossibleError("lateral effect");
 
-    AnsiString S;
+    string str;
 
     //print the dimensions of the cell matrix
-    S = AnsiString("I = ")+getIText()+AnsiString("\r\n");
-    S += AnsiString("J = ")+getJText()+AnsiString("\r\n");
+    str = commentedLine("I = "+getIText().str, "number of rows of the cell matrix");
+    str += "\r\n"+commentedLine("J = "+getJText().str, "number of columns of the cell matrix");
 
     //print the cells of the matrix
+    str += "\r\n\r\n#Cells[i][j]: list of RPs whose observing domain is in the square cell (i, j)";
+    str += "\r\n";
     for(int i=0; i<getI(); i++)
         for(int j=0; j<getJ(); j++)
-            S += AnsiString("Cells[")+IntToStr(i)+AnsiString("][")+IntToStr(j)+AnsiString("] = ")+p_Cells[i][j].getText()+AnsiString("\r\n");
+            str += "Cells["+inttostr(i)+"]["+inttostr(j)+"] = "+p_Cells[i][j].getText().str+"\r\n";
 
-    return S;
+    return AnsiString(str);
 }
 void TRoboticPositionerList2::setCellsText(const AnsiString &S)
 {
@@ -299,7 +302,7 @@ void TRoboticPositionerList2::setCellsText(const AnsiString &S)
         throw;
     }
 }
-/*+++*/
+
 AnsiString TRoboticPositionerList2::getSizeText(void)
 {
     AnsiString S;
@@ -312,15 +315,15 @@ AnsiString TRoboticPositionerList2::getSizeText(void)
 
 AnsiString TRoboticPositionerList2::getInstanceMapText(void) const
 {
-    AnsiString S;
+    string str;
 
     //imprime los límites del intervalo
-    S += getIntervalText()+AnsiString("\r\n");
+    str = getIntervalText().str;
 
     //imprime la matriz de listas de posicionadores
-    S += getCellsText();
+    str += "\r\n\r\n"+getCellsText().str;
 
-    return S; //devuelve la cadena
+    return AnsiString(str);
 }
 
 //-------------------------------------------------------------------
@@ -337,7 +340,7 @@ void  TRoboticPositionerList2::readxminText(double &xmin, const AnsiString &S,
         StrReadLabel(Ident, "xmin", S, i);
         StrTravelLabel("=", S, i);
         StrReadWord(Value, S, i);
-        xmin = StrToFloat_(Value);
+        xmin = StrToFloat(Value);
 
     } catch(EImproperArgument &E) {
         throw EImproperArgument(E.Message+AnsiString(" for property xmin"));
@@ -356,7 +359,7 @@ void  TRoboticPositionerList2::readxmaxText(double &xmax, const AnsiString &S,
         StrReadLabel(Ident, "xmax", S, i);
         StrTravelLabel("=", S, i);
         StrReadWord(Value, S, i);
-        xmax = StrToFloat_(Value);
+        xmax = StrToFloat(Value);
 
     } catch(EImproperArgument &E) {
         throw EImproperArgument(E.Message+AnsiString(" for property xmax"));
@@ -375,7 +378,7 @@ void  TRoboticPositionerList2::readyminText(double &ymin, const AnsiString &S,
         StrReadLabel(Ident, "ymin", S, i);
         StrTravelLabel("=", S, i);
         StrReadWord(Value, S, i);
-        ymin = StrToFloat_(Value);
+        ymin = StrToFloat(Value);
 
     } catch(EImproperArgument &E) {
         throw EImproperArgument(E.Message+AnsiString(" for property ymin"));
@@ -394,7 +397,7 @@ void  TRoboticPositionerList2::readymaxText(double &ymax, const AnsiString &S,
         StrReadLabel(Ident, "ymax", S, i);
         StrTravelLabel("=", S, i);
         StrReadWord(Value, S, i);
-        ymax = StrToFloat_(Value);
+        ymax = StrToFloat(Value);
 
     } catch(EImproperArgument &E) {
         throw EImproperArgument(E.Message+AnsiString(" for property ymax"));
@@ -414,7 +417,7 @@ void  TRoboticPositionerList2::readIText(int &I,
         StrReadLabel(Ident, "I", S, i);
         StrTravelLabel("=", S, i);
         StrReadWord(Value, S, i);
-        I = StrToInt_(Value);
+        I = StrToInt(Value);
 
     } catch(EImproperArgument &E) {
         throw EImproperArgument(E.Message+AnsiString(" for property I"));
@@ -433,7 +436,7 @@ void  TRoboticPositionerList2::readJText(int &J,
         StrReadLabel(Ident, "J", S, i);
         StrTravelLabel("=", S, i);
         StrReadWord(Value, S, i);
-        J = StrToInt_(Value);
+        J = StrToInt(Value);
 
     } catch(EImproperArgument &E) {
         throw EImproperArgument(E.Message+AnsiString(" for property J"));
@@ -470,7 +473,7 @@ void  TRoboticPositionerList2::readInterval(TRoboticPositionerList2 *RPL,
 
     //el índice i debería indicar una posición de la cadena de texto S
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in the string text S");
+        throw EImproperArgument("index i should indicate a character of the string S");
 
     //estado de lectura
     //      0: esperando asignación para xmin
@@ -486,7 +489,7 @@ void  TRoboticPositionerList2::readInterval(TRoboticPositionerList2 *RPL,
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
     //deben ser clones de las variables que se pretenden modificar.
 
-    //NOTA: adviertase que las propiedades enteras son leidas como
+    //NOTA: adviertase que las propiedades enteras son leídas como
     //valores en punto flotante para detectar errores en los cuales
     //sea especificado un valor en punto flotante en vez de un valor entero.
 
@@ -639,9 +642,9 @@ TRoboticPositionerList2::TRoboticPositionerList2(void) :
     //áreas comunes de tres posicionadores.
 
     //calcula el número de filas
-    int I_ = ceil((getymax() - getymin())/qmax);
+    int I_ = (int)ceil((getymax() - getymin())/qmax);
     //calcula el número de columnas
-    int J_ = ceil((getxmax() - getxmin())/qmax);
+    int J_ = (int)ceil((getxmax() - getxmin())/qmax);
 
     //redimensiona la matriz de celdas
     setMapDimensions(I_, J_);
@@ -801,8 +804,8 @@ void TRoboticPositionerList2::setMapDimensions(int I, int J)
         throw EImproperArgument("cells matrix's number columns J should be upper zero");
 
     //guarda las dimensiones inciales
-    double iini = getI();
-    double jini = getJ();
+    int iini = getI();
+    int jini = getJ();
 
     //asigna el nuevo número de columnas
     p_J = J;
@@ -984,8 +987,8 @@ void TRoboticPositionerList2::generateMap(void)
 
     //caculates the dimensions of the cell matrix
     int I_, J_;
-    I_ = ceil((y3max - y3min)/qmax);
-    J_ = ceil((x3max - x3min)/qmax);
+    I_ = (int)ceil((y3max - y3min)/qmax);
+    J_ = (int)ceil((x3max - x3min)/qmax);
 
     //redimensiona la matriz de celdas
     setMapDimensions(I_, J_);
@@ -1002,18 +1005,18 @@ void TRoboticPositionerList2::generateMap(void)
 
 //assimilates the configuration of RPs executing:
 //      CalculateSPMComponents();
-//      AssimilateSizing();
+//      AssimilateSizing(EAL);
 //      GenerateMap();
-void TRoboticPositionerList2::assimilate(void)
+void TRoboticPositionerList2::assimilate(const TExclusionAreaList& EAL)
 {
 
     calculateSPMcomponents();
-    assimilateSizing();
+    assimilateSizing(EAL);
     generateMap();
 }
 
 //assimilates all RPs of the RPL to a given RP
-void TRoboticPositionerList2::apply(const TRoboticPositioner *RP)
+void TRoboticPositionerList2::apply(const TRoboticPositioner *RP, const TExclusionAreaList& EAL)
 {
     //check the precondition
     if(RP == NULL)
@@ -1023,7 +1026,7 @@ void TRoboticPositionerList2::apply(const TRoboticPositioner *RP)
     for(int i=0; i<getCount(); i++)
         Items[i]->apply(RP);
 
-    assimilate();
+    assimilate(EAL);
 }
 
 //transform x in j by default
@@ -1034,7 +1037,7 @@ int TRoboticPositionerList2::jfloor(double x)
     if(x<getxmin() || getxmax()<x)
         throw EImproperArgument("abcise x should be in [xmin, xmax]");
 
-    return floor((x - getxmin())/getqx());
+    return (int)floor((x - getxmin())/getqx());
 }
 //transform y in i by default
 //      y = floor((y - ymin)/qy)
@@ -1044,7 +1047,7 @@ int TRoboticPositionerList2::ifloor(double y)
     if(y<getymin() || getymax()<y)
         throw EImproperArgument("ordinate y should be in [ymin, ymax]");
 
-    return floor((y - getymin())/getqy());
+    return (int)floor((y - getymin())/getqy());
 }
 //transform x in j by excess
 //      x = ceil((x - xmin)/qx)
@@ -1054,7 +1057,7 @@ int TRoboticPositionerList2::jceil(double x)
     if(x<getxmin() || getxmax()<x)
         throw EImproperArgument("abcise x should be in [xmin, xmax]");
 
-    return ceil((x - getxmin())/getqx());
+    return (int)ceil((x - getxmin())/getqx());
 }
 //transform y in i by excess
 //      y = ceil((y - ymin)/qy)
@@ -1064,7 +1067,7 @@ int TRoboticPositionerList2::iceil(double y)
     if(y<getymin() || getymax()<y)
         throw EImproperArgument("ordinate y should be in [ymin, ymax]");
 
-    return ceil((y - getymin())/getqy());
+    return (int)ceil((y - getymin())/getqy());
 }
 
 //access to the RP list of the cell which contains a point

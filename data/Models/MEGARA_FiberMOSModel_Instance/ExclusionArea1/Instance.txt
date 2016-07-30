@@ -1,6 +1,9 @@
-BarrierInstance:
-    thetaO1 = 0
-    P0 = {0, 0}
-    SPM = 0.0385439626640142
-Eo = 0.000872665
-Ep = 0.017
+#Instance properties of the EA (Exclusion Area):
+
+BarrierInstance:               # Instance properties of the EA.Barrier (position and orientation):
+    P0 = {0, 0}                    # position of S1 respect S0 (in mm)
+    thetaO1 = 0                    # orientation of S1 respect S0 (in rad)
+
+Tolerances:                    # Tolerance properties of the EA:
+    Eo = 0                         # error margin in theta_ orientation (in rad)
+    Ep = 0.25                      # error margin in P0 position (in mm)

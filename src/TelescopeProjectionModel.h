@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: TelescopeProjectionModel.h
-//Contenido: modelo de proyección del telescopio
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: TelescopeProjectionModel.h
+//Content: telescope projection model
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TELESCOPEPROJECTIONMODEL_H
@@ -44,25 +43,22 @@ namespace Models {
 //---------------------------------------------------------------------------
 
 //círculo de proyección
-class TProjectionCircle : public TCircle {
-    TDoublePoint p_O;
+class TProjectionCircle {
+    double p_R;
 
 public:
-    //punto origen de coordenadas
-    TDoublePoint getO(void) const {return p_O;}
-
-    //color con que son contruidos los círculos de proyección
-    //valor por defecto: clWhite
-    //#static QColor DefaultColor;
-
-    //color del círculo de proyección
-    //valor por defecto: DefaultColor
-    //#QColor Color;
+    //centro del círculo origen de coordenadas
+    //valor por defecto: (0, 0)
+    TDoublePoint O;
+    //radio del círculo de proyección
+    //debe ser mayor que cero
+    //valor por defecto: 0
+    double getR(void) const {return p_R;} void setR(double);
 
     //contruye un círculo de proyección
     TProjectionCircle(void);
-    TProjectionCircle(TDoublePoint P, double R);
-    //clona un círculo de proyección
+    TProjectionCircle(TDoublePoint O, double R);
+    //construye un clon de un círculo de proyección
     TProjectionCircle(TProjectionCircle *);
 
     //determina si un punto está en el dominio del círculo de proyección
@@ -71,18 +67,8 @@ public:
     bool PointIsntInDomain(const TDoublePoint Q);
     //genera un punto aleatorio en el cominio del círculo
     TDoublePoint RandomPoint(void);
-
-    //dibuja un círculo de proyección en un trazador de formas
-    //#void Paint(TPloterShapes *PS);
 };
 
-/*//lista de círculos de proyección
-class TProjectionCircleList : public TPointersList<TProjectionCircle> {
-public:
-        //dibuja los círculos de proyección en un trazador de formas
-        void Paint(TPloterShapes *PS);
-};
-  */
 //plano focal
 class TFocalPlane {
 protected:
@@ -91,12 +77,9 @@ protected:
     TProjectionCircle *p_ProjectionCircle;
 
 public:
-    //PROPIEDADES CONSTANTES:
-
     //punto origen de coordenadas
+    //valor por defecto: (0, 0)
     TDoublePoint getO(void) const {return p_O;}
-
-    //PROPIEDADES:
 
     //radio del plano focal
     //debe ser un valor mayor que cero
@@ -106,31 +89,20 @@ public:
     //CONSEJO: para obtener parámetros estadísticos se aconseja mantener
     //el radio del plano focal igual al radio del dominio del instrumento.
 
-    //lista de puntos de proyección de los puntos de cielo del azulejo
-    TProjectionPointList ProjectionPointList;
     //círculo de proyección del azulejo adscrito
     //valor por defecto: NULL
     TProjectionCircle *getProjectionCircle(void) const {
         return p_ProjectionCircle;}
 
     //es conceptualmente más correcto que ProjectionCircle sea un puntero
-    //porque una circunferencia de radio nulo puede ser entendida como
+    //porque una circunferencia de radio nulo puede ser entendido como
     //un punto.
 
-    //lista de puntos de proyección de los puntos de cielo del azulejo
+    //lista de puntos de proyección de los puntos de cielo del azulejo adscrito
+    TProjectionPointList ProjectionPointList;
+    //lista de puntos de proyección de los puntos de cielo del azulejo adscrito
     //dentro del plano focal
-    TItemsList<TProjectionPoint*> ListInnerProjectionPoints;
-
-    //color del borde del plano focal
-    //valor por defecto: clYellow
-    //#QColor Color;
-
-    //indica si debe dibujar el límite del plano focal
-    //valor por defecto: false
-    bool PaintCircunference;
-    //indica si debe dibujar el círculo de proyección
-    //valor por defecto: true
-    bool PaintProjectionCircle;
+    TItemsList<TProjectionPoint*> InnerProjectionPointList;
 
     //MÉTODOS PÚBLICOS:
 
@@ -148,9 +120,6 @@ public:
 
     //borra los puntos de proyección y el círculo de proyección
     void Clear(void);
-
-    //dibuja el plano focal en un trazador de formas
-    //#void PaintFocalPlane(TPloterShapes*);
 };
 
 //clase modelo de proyección del telescopio
@@ -224,21 +193,17 @@ public:
     //valor por defecto: NULL
     TTile *getTile(void) const {return p_Tile;}
 
-    //función de dibujo externa adscrita
-    //para actualizar la caja de pintura del plano focal
-    //valor por defecto: NULL
-    void ( *PaintAll)(void);
-
     //PROPIDADES DE CONFIGURACIÓN:
 
     //ascensión recta del punto de apuntado del telescopio
-    //valor por defecto: 0
+    //valor por defecto: 0 rad
     double getRA(void) const {return p_RA;} void setRA(double);
     //declinación del punto de apuntado del telescopio
     //debe estar en [-pi/2, pi/2]
-    //valor por defecto: 0
+    //valor por defecto: 0 rad
     double getDEC(void) const {return p_DEC;} void setDEC(double);
     //ángulo de orientación del plano focal del telescopio
+    //valor por defecto: 0 rad
     double getPA(void) const {return p_PA;} void setPA(double);
 
     //radio del plano focal
@@ -252,35 +217,35 @@ public:
     void setangview(double);
 
     //En este modelo la escala viene determinada por:
-    //      D1 = -d = -R/tan(angview_rad);
+    //  D1 = -d = -R/tan(angview_rad);
     //de modo que las sigueintes propiedades no son utilizadas
     //para proyectar o deproyectar puntos, siendo proporcionadas
-    //por si resultasen útiles al uauario.
+    //por si resultasen útiles al usuario.
 
     //ángulo de visión en radianes
-    //      angview_rad = angview*M_PI/double(180*3600)
+    //  angview_rad = angview*M_PI/double(180*3600)
     //valor por defecto: 0.0049999077339667 rad
     double getangview_rad(void) const {return p_angview_rad;}
     //factor de escala o aumento del telescopio
-    //      scale = R/angview
+    //  scale = R/angview
     //valor por defecto: ? mm/arcsec
     double getscale(void) const {return p_scale;}
     //factor de escala inversa o aumento del telescopio
-    //      scale = angview/R
+    //  scale = angview/R
     //valor por defecto: 1.2133 arcsec/mm
     double getscaleinv(void) const {return p_scaleinv;}
 
     //En MEGARA-GTC:
-    //      R = 850 mm
-    //      angview = 1031.305 arcsec = 17.188416666667 arcmin
-    //              = 0.28647361111111111 deg
+    //  R = 850 mm
+    //  angview = 1031.305 arcsec = 17.188416666667 arcmin
+    //          = 0.28647361111111111 deg
     //
-    //      angview_rad = 0.0049999077339667 rad
-    //      scale = 0.824198466990851 mm/arcsec
-    //      scaleinv = 1.2133 arcsec/mm
+    //  angview_rad = 0.0049999077339667 rad
+    //  scale = 0.824198466990851 mm/arcsec
+    //  scaleinv = 1.2133 arcsec/mm
     //
-    //      tan(angview) = 0.00499994939874339 mm/mm
-    //      D1 = -d = -r/tan(angview) = 170001.720460136 mm
+    //  tan(angview) = 0.00499994939874339 mm/mm
+    //  D1 = -d = -r/tan(angview) = 170001.720460136 mm
     //
     //La escala de GTC es 1.2133 arcsec/mm a 8ºC.
     //El margen de error es de 1/1000 en el el borde del plano focal.
@@ -305,7 +270,7 @@ public:
 
     //CONJUNTO DE PROPIEDADES DEFINITORIAS EN FORMATO TEXTO:
 
-    //cluster de propiedades deinitorias en formato de asignaciones
+    //cluster de propiedades definitorias en formato de asignaciones
     AnsiString getAssignsText(void) const;
     void setAssignsText(const AnsiString&);
 
@@ -326,11 +291,10 @@ public:
 
     //contruye un telescopio
     TTelescopeProjectionModel(void);
-    //clona un telescopio
-    TTelescopeProjectionModel(TTelescopeProjectionModel*);
-
     //copia las proopiedades de un telescopio
     void Copy(TTelescopeProjectionModel*);
+    //clona un telescopio
+    TTelescopeProjectionModel(TTelescopeProjectionModel*);
 
     //------------------------------------------------------------------
 
@@ -383,20 +347,11 @@ public:
 
     //randomiza los puntos de proyección con
     //distribución uniforme sobre el círculo de proyección
-    //        void RandomizeProjectionPoints(void);
+    void RandomizeProjectionPoints(void);
 
     //deproyecta los puntos de proyección del plano focal
     //sobre los puntos de cielo del azulejo externo adscrito
     void DeprojectProjectionPoints(void);
-
-    //------------------------------------------------------------------
-    //MÉTODOS DE INTERFAZ:
-
-    //dibuja en el lienzo de la fotografía de un trazador de formas:
-    //      los puntos de proyección
-    //      el círculo de proyección
-    //      el plano focal
-    //#void Paint(TPloterShapes *PS);
 };
 
 //---------------------------------------------------------------------------

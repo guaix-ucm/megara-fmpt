@@ -1,3 +1,6 @@
+#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc) for describe
+#the template of RP.Actuator.Arm.Contour____ in S4 (in mm):
+
 ({0.807111, 2.35}, {5.807111, 2.35})
 ({5.807111, 2.35}, {5.807111, -2.35}, {5.807111, 0}, 2.35)
 ({5.807111, -2.35}, {0.807111, -2.35})

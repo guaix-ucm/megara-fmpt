@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: ItemsList.h
-//Content: lista de elementos genéricos
+//Content: template for item list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -26,6 +26,7 @@
 #define ITEMSLIST_H
 
 #include "SlideArray.h" //SlideArray
+#include "Strings.h" //namespace Strings
 #include "StrPR.h" //namespace Strings
 #include "Scalars.h" //RandomUniform
 
@@ -418,26 +419,25 @@ template <class T> void  TItemsList<T>::PrintColumn(AnsiString &S,
 //lee una lista de una cadena de texto
 //en formato de fila de texto
 template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
-                                                                const AnsiString &S, int &i)
+                                                      const AnsiString &S, int &i)
 {
+    //comprueba las precondiciones
     if(L == NULL)
         throw EImproperArgument("pointer L should point to built based pointer list");
+    if(L->Read == NULL)
+        throw EImproperCall("pointer Read should point to reading function");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
 
-    //el puntero Read debería apuntar a una función de lectura
-    if(L->Read == NULL)
-        throw EImproperCall("pointer Read should point to reading function");
-
     //el índice i debería indicar a alguna posición de la cadena de texto S
     if(i<0 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a posicion in the string text S");
+        throw EImproperArgument("index i should indicate a posicion in the string S");
 
     //estado de la máquina de estados
     //      0: esperando próximo elemento o fin de cadena
-    //      1: fin de cadena encontrada y lista de elementos leida con éxito
+    //      1: fin de cadena encontrada y lista de elementos leída con éxito
     int status = 0;
 
     //variables tampón
@@ -456,8 +456,9 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
             //añade el elemento a la lista tampón
             Items.AddLast(Item);
             //avanza el índice hasta el próximo caracter no separador
-            StrTravelSeparators(S, i);
-        } catch(...) {
+            StrTravelSeparatorsIfAny(S, i);
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading separated item list in text format: ");
             throw;
         }
         else //si ha llegado al final de la cadena
@@ -487,7 +488,7 @@ template <class T> void  TItemsList<T>::ReadSeparatedForBuiltItems(TItemsList<T>
 
     //el índice i debería indicar a alguna posición de la cadena de texto S
     if(i<0 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a posicion in the string text S");
+        throw EImproperArgument("index i should indicate a posicion in the string S");
 
     //si la lista no contiene elementos
     if(L->getCount() < 1)
@@ -507,8 +508,8 @@ template <class T> void  TItemsList<T>::ReadSeparatedForBuiltItems(TItemsList<T>
         for(int j=0; j<Items.getCount(); j++)
             //aplica la función de lectura al elemento
             L->Read(Items[j], S, i);
-
-    } catch(...) {
+    }
+    catch(...) {
         throw;
     }
 
@@ -559,7 +560,7 @@ template <class T> void  TItemsList<T>::ReadList(TItemsList<T> *L,
 
     //el índice i debería indicar a una posición de la adena de texto S
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in string S");
+        throw EImproperArgument("index i should indicate a character of the string S");
 
     //COMPRUEBA EL FORMATO DE LA LISTA:
 
@@ -723,7 +724,7 @@ template <class T> void  TItemsList<T>::ReadListForBuiltItems(TItemsList<T> *L,
 
     //el índice i debería indicar a una posición de la adena de texto S
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("index i should indicate a position in string S");
+        throw EImproperArgument("index i should indicate a character of the string S");
 
     //si la lista no contiene elementos
     if(L->getCount() < 1)
@@ -813,7 +814,9 @@ template <class T> void TItemsList<T>::setCapacity(int Capacity)
         //redimensiona la capacidad del array deslizante
         if(Capacity != getCapacity())
             Items.setCapacity(Capacity);
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting Capacity: ");
         throw;
     }
 }
@@ -827,7 +830,9 @@ template <class T> void TItemsList<T>::setCount(int Count)
             Items.DelLast(getCount() - Count);
         else if(Count > getCount())
             Items.NewLast(Count - getCount());
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting Count: ");
         throw;
     }
 }
@@ -1040,7 +1045,7 @@ template <class T> AnsiString TItemsList<T>::getCapacityText(void) const
 template <class T> void TItemsList<T>::setCapacityText(const AnsiString& S)
 {
     try {
-        int aux = StrToInt_(S);
+        int aux = StrToInt(S);
         setCapacity(aux);
 
     } catch(...) {
@@ -1054,7 +1059,7 @@ template <class T> AnsiString TItemsList<T>::getCountText(void) const
 template <class T> void TItemsList<T>::setCountText(const AnsiString &S)
 {
     try {
-        getCount() = StrToInt_(S);
+        getCount() = StrToInt(S);
 
     } catch(...) {
         throw;
@@ -1236,9 +1241,10 @@ template <class T> AnsiString TItemsList<T>::getColumnText(void) const
 //traduce de formato texto a lista
 template <class T> void TItemsList<T>::setColumnText(const AnsiString &S)
 {
+    int i = 1; //initialize the index to the first char of string S
+
     try {
         //lee los elementos de la lista separados por separadores
-        int i = 1;
         ReadSeparated(this, S, i);
 
         //avanza el índice i hasta la próxima posición que no contenga un separador
@@ -1248,7 +1254,10 @@ template <class T> void TItemsList<T>::setColumnText(const AnsiString &S)
             //indica que la cadena S solo debería contener la lista de elmentos
             throw EImproperArgument("string S should contain the item list only");
 
-    } catch(...) {
+    } catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting column text in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }

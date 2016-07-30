@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: ComposedMotionFunction.h
-//Content: class composed motion funtion of a RP
+//Content: composed motion funtion (CMF) model of a RP
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ enum TSquareSynchronismMode {
     ssmFree, //no cambia los tiempos de desplazamiento
 
     ssmTmin, //MF1->T = MF1->Tmin; MF2->T = MF2->Tmin;
-    ssmMaxTmin, //MF2->T = MF1->T = Max(MF1->Tmin, MF2->Tmin);
+    ssmMaxTmin, //MF2->T = MF1->T = max(MF1->Tmin, MF2->Tmin);
     ssmDouTmin //MF1->T = MF1->Tmin; MF2->T = 2*MF2->Tmin;
 };
 
@@ -108,11 +108,11 @@ enum TRampSynchronismMode {
     rsmFree, //no cambia los tiempos de desplazamiento
 
     rsmTmin, //MF1->T = MF1->Tmin; MF2->T = MF2->Tmin;
-    rsmMaxTmin, //MF2->T = MF1->T = Max(MF1->Tmin, MF2->Tmin);
+    rsmMaxTmin, //MF2->T = MF1->T = max(MF1->Tmin, MF2->Tmin);
     rsmDouTmin, //MF1->T = MF1->Tmin; MF2->T = 2*MF2->Tmin;
 
     rsmTv, //MF1->T = MF1->Tv; MF2->T = MF2->Tv;
-    rsmMaxTv, //MF2->T = MF1->T = Max(MF1->Tv, MF2->Tv);
+    rsmMaxTv, //MF2->T = MF1->T = max(MF1->Tv, MF2->Tv);
     rsmDouTv //MF1->T = MF1->Tv; MF2->T = 2*MF2->Tv;
 };
 
@@ -195,7 +195,7 @@ public:
     //valores posibles:
     //      ssmFree: no cambia los tiempos de desplazamiento
     //      ssmTmin: SF1->T = SF1->Tmin; SF2->T = SF2->Tmin;
-    //      ssmMaxTmin: SF2->T = SF1->T = Max(SF1->Tmin, SF2->Tmin);
+    //      ssmMaxTmin: SF2->T = SF1->T = max(SF1->Tmin, SF2->Tmin);
     //      ssmDouTmin: SF1->T = SF1->Tmin*2; SF2->T = SF2->Tmin;
     //valor por defecto ssfFree
     TSquareSynchronismMode getSSM(void) const {return p_SSM;}
@@ -205,10 +205,10 @@ public:
     //valores posibles:
     //      rsmFree: no cambia los tiempos de desplazamiento
     //      rsmTmin: RF1->T = RF1->Tmin; RF2->T = RF2->Tmin;
-    //      rsmMaxTmin: RF2->T = RF1->T = Max(RF1->Tmin, RF2->Tmin);
+    //      rsmMaxTmin: RF2->T = RF1->T = max(RF1->Tmin, RF2->Tmin);
     //      rsmDouTmin: RF1->T = RF1->Tmin*2; RF2->T = RF2->Tmin;
     //      rsmTv: RF1->T = RF1->Tv; RF2->T = RF2->Tv;
-    //      rsmMaxTv: RF2->T = RF1->T = Max(RF1->Tv, RF2->Tv);
+    //      rsmMaxTv: RF2->T = RF1->T = max(RF1->Tv, RF2->Tv);
     //      rsmDouTv: RF1->T = RF1->Tv*2; RF2->T = RF2->Tv;
     //valor por defecto: rsmFree
     TRampSynchronismMode getRSM(void) const {return p_RSM;}
@@ -234,7 +234,7 @@ public:
     //      MF1!=NULL && MF2!=NULL: gira ambos ejes
 
     //periodo de desplazamiento del gesto
-    //      T = Max(tend1, tend2)
+    //      T = max(tend1, tend2)
     //cuando T es cambiado,
     //los periodos de los rotores mantienen la proporción
     //valor mínimo: t.q. MF1->T==MF1->Tmin && MF2->T>=MF2->Tmin ||
@@ -271,10 +271,10 @@ public:
     double gettend2(void) const;
 
     //instante de inicio del desplazamiento
-    //      tstamin = Min(tsta1, tsta2)
+    //      tstamin = min(tsta1, tsta2)
     double gettstamin(void) const;
     //instante de fin del desplazamiento
-    //      tendmax = Max(tend1, tend2)
+    //      tendmax = max(tend1, tend2)
     double gettendmax(void) const;
 
     //determina el valor absoluto de la velocidad máxima del eje 1
@@ -344,15 +344,11 @@ public:
     AnsiString getInstanceText(void) const;
     void setInstanceText(const AnsiString&);
 
-    //##################################################################
-    //MÉTODOS PÚBLICOS:
-    //##################################################################
-
     //-------------------------------------------------------------------
     //MÉTODOS ESTÁTICOS:
 
     //lee una instancia de función de movimiento compuesta en una cadena
-    static void  ReadInstance(TComposedMotionFunction* &CMF,
+    static void  ReadInstance(TComposedMotionFunction *CMF,
                               const AnsiString& S, int &i);
 
     //-------------------------------------------------------------------

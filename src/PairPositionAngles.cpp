@@ -19,7 +19,6 @@
 //---------------------------------------------------------------------------
 //File: PairPositionAngles.cpp
 //Content: pair of projection angles
-//Last update: 30/12/2014
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -58,16 +57,8 @@ AnsiString TPairPositionAngles::p___3Label = "p___3";
 //shall be nonnegative
 int TPairPositionAngles::getId(void) const
 {
-    return getRoboticPositioner()->getActuator()->getId();
+    return getRP()->getActuator()->getId();
 }
-/*void TPairPositionAngles::setId(int Id)
-{
-    try {
-        getRoboticPositioner()->getActuator()->setId(Id);
-    } catch(...) {
-        throw;
-    }
-}*/
 
 //PROPERTIES IN TEXT FORMAT:
 
@@ -75,35 +66,29 @@ AnsiString TPairPositionAngles::getIdText(void) const
 {
     return IntToStr(getId());
 }
-/*void TPairPositionAngles::setIdText(const AnsiString &S)
-{
-    try {
-        setId(StrToInt_(S));
-    } catch(...) {
-        throw;
-    }
-}*/
 AnsiString TPairPositionAngles::getp_1Text(void) const
 {
-    return IntToStr(p_1);
+    return FloatToStr(p_1);
 }
 void TPairPositionAngles::setp_1Text(const AnsiString &S)
 {
     try {
-        p_1 = StrToInt_(S);
-    } catch(...) {
+        p_1 = StrToFloat(S);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p_1 in text format: ");
         throw;
     }
 }
 AnsiString TPairPositionAngles::getp___3Text(void) const
 {
-    return IntToStr(p___3);
+    return FloatToStr(p___3);
 }
 void TPairPositionAngles::setp___3Text(const AnsiString &S)
 {
     try {
-        p___3 = StrToInt_(S);
-    } catch(...) {
+        p___3 = StrToFloat(S);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting p___3 in text format: ");
         throw;
     }
 }
@@ -120,18 +105,25 @@ AnsiString TPairPositionAngles::getRowText(void) const
 }
 void TPairPositionAngles::setRowText(const AnsiString &S)
 {
+    //initialize the index to the first char of the string
+    int i = 1;
+
     try {
-        TPairPositionAngles PPA; //tampon object
-        int i = 1;        
-        ReadRow(&PPA, S, i);
+        //read the PPA in row text format to a tanpon variable
+        TPairPositionAngles PPA;
+        readRow(&PPA, S, i);
+
+        //search another text
         StrTravelToEnd(S, i);
-
         if(i <= S.Length())
-            throw EImproperArgument("string S should contains only a PPA");
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
 
-        Copy(&PPA); //clonethe tampon object
+        clone(&PPA); //clonethe tampon object
 
-    } catch(...) {
+    } catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting PPA in row text format in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }
@@ -139,7 +131,7 @@ void TPairPositionAngles::setRowText(const AnsiString &S)
 //STATIC METHODS:
 
 //labels of all properties in a row:
-//      IdLabel+"\t"p_1Label+"\t"p___3Label
+//  IdLabel+"\t"+p_1Label+"\t"+p___3Label
 AnsiString TPairPositionAngles::getLabelsRow(void)
 {
     return IdLabel+AnsiString("\t")+p_1Label+AnsiString("\t")+p___3Label;
@@ -148,28 +140,30 @@ AnsiString TPairPositionAngles::getLabelsRow(void)
 //in row text format
 void TPairPositionAngles::travelLabelsRow(const AnsiString& S, int& i)
 {
-    //index i should indicates a position in the string S
+    //check the precondition
     if(i<0 || S.Length()<i)
-        throw EImproperArgument("index i shall indicates a position in the string S");
+        throw EImproperArgument("index i shall indicates a character of the string S");
 
     try {
+        StrTravelSeparatorsIfAny(S,i);
         StrTravelLabel(IdLabel, S, i);
         StrTravelSeparators(S,i);
         StrTravelLabel(p_1Label, S, i);
         StrTravelSeparators(S,i);
         StrTravelLabel(p___3Label, S, i);
 
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "traveling labels in row format: ");
         throw;
     }
 }
 
 //print the properties of a pair of position angles in a string
 //in row format
-void  TPairPositionAngles::PrintRow(AnsiString &S,
-                                const TPairPositionAngles *PPA)
+void  TPairPositionAngles::printRow(AnsiString &S,
+                                    const TPairPositionAngles *PPA)
 {
-    //pointer PPA should point to built pair of position angles
+    //check the precondition
     if(PPA == NULL)
         throw EImproperArgument("pointer PPA should point to built pair of position angles");
 
@@ -179,135 +173,116 @@ void  TPairPositionAngles::PrintRow(AnsiString &S,
 
 //read the properties of a pair of position angles in a string
 //in row format
-void  TPairPositionAngles::ReadRow(TPairPositionAngles *PPA,
+void  TPairPositionAngles::readRow(TPairPositionAngles *PPA,
                                    const AnsiString &S, int &i)
 {
-    //pointer PPA shoult point to built pair of position angles
+    //check the preconditions
     if(PPA == NULL)
         throw EImproperArgument("pointer PPA shoult point to built pair of position angles");
-
-    //if index i not indicate a position in the string
     if(i<1 || S.Length()<i)
-        //indicates that not has been found the values to PPA
-        throw EImproperArgument("values to PPAnot found");
+        throw EImproperArgument("index i should indicate to char of string S");
 
-    //reading status
-    //      0: waiting value for Id
-    //      1: waiting value for p_1
-    //      2: waiting value for p___3
-    //      3: PPA readed successfully
-    int status = 0;
+    try {
+        //tanpon variables
+        int Id;
+        double p_1, p___3;
+        TPairPositionAngles t_PPA(PPA);
 
-    //variables auxiliares
-    TPairPositionAngles t_PPA(PPA); //tampon variable
-    AnsiString Value; //tampon string
+        //ADVERTENCIA: las variables tampón con propiedades interdependientes
+        //deben ser clones de las variables que se pretenden modificar.
 
-    //ADVERTENCIA: las variables tampón con propiedades interdependientes
-    //deben ser clones de las variables que se pretenden modificar.
+        //read the property Id
+        StrTravelSeparatorsIfAny(S, i);
 
-    //NOTA: adviertase que las propiedades enteras son leidas como
-    //valores en punto flotante para detectar errores en los cuales
-    //sea especificado un valor en punto flotante en vez de un valor entero.
+        //compare the Id value
+        if(Id != t_PPA.getId())
+            throw EImproperArgument("the Id of the PPA not match");
 
-    do {
-        switch(status) {
-        case 0: //waiting value for Id
-            try {
-                StrReadWord(Value, S, i);
-//                t_PPA.setIdText(Value);
-            } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
-            } catch(...) {
-                throw;
-            }
-            if(i > S.Length())
-                throw EImproperArgument("valueto p_1 not found");
-            status++;
-            break;
+        //read the position angles properties
+        StrReadInt(Id, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(p_1, S, i);
+        StrTravelSeparators(S, i);
+        StrReadFloat(p___3, S, i);
 
-        case 1: //waiting value for p_1
-            try {
-                StrReadWord(Value, S, i);
-                t_PPA.setp_1Text(Value);
-            } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property p_1"));
-            } catch(...) {
-                throw;
-            }
-            if(i > S.Length())
-                throw EImproperArgument("valueto p___3 not found");
-            status++;
-            break;
+        //set the PPA
+        t_PPA.setPPA(p_1, p___3);
 
-        case 2: //waiting valuefor p___3
-            try {
-                StrReadWord(Value, S, i);
-                t_PPA.setp___3Text(Value);
-            } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property p___3"));
-            } catch(...) {
-                throw;
-            }
-            status++;
-            break;
-        }
-    //while the PPA it isn't readed successfully
-    } while(status < 3);
-
-    //assign the tampon variable
-    PPA->Copy(&t_PPA);
+        //set the tanpon variable
+        PPA->clone(&t_PPA);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading a PPA in text format: ");
+        throw;
+    }
 }
 
 //PUBLIC METHODS:
 
-//builds a PPA
+//build a PPA attached to a RP
+//pointer RP can be null
 TPairPositionAngles::TPairPositionAngles(TRoboticPositioner *RP)
 {
-    //Pointer RP can be null.
+    //Note that pointer RP can be null.
 
     //point the extern objects
-    p_RoboticPositioner = RP;
+    p_RP = RP;
 
     //initialize the properties
     p_1 = 0;
     p___3 = 0;
 }
-//clone a PPA
-TPairPositionAngles::TPairPositionAngles(TPairPositionAngles *PPA)
-{
-    try {
-        Copy(PPA);
-    } catch(...) {
-        throw;
-    }
-}
 
 //copy all properties of a PPA
-void TPairPositionAngles::Copy(TPairPositionAngles *PPA)
+void TPairPositionAngles::clone(TPairPositionAngles *PPA)
 {
-    //pointer PPA should point to built pair of position angles
+    //check the precondition
     if(PPA == NULL)
         throw EImproperArgument("pointer PPA should point to built pair of position angles");
 
     //assign the properties
-    p_RoboticPositioner = PPA->p_RoboticPositioner;
-    p_ProjectionPoint = PPA->p_ProjectionPoint;
+    p_RP = PPA->p_RP;
+    p_PP = PPA->p_PP;
     p_1 = PPA->p_1;
     p___3 = PPA->p___3;
 }
 TPairPositionAngles &TPairPositionAngles::operator=(const TPairPositionAngles &PPA)
 {
     //assign the properties
-    p_RoboticPositioner = PPA.p_RoboticPositioner;
-    p_ProjectionPoint = PPA.p_ProjectionPoint;
+    p_RP = PPA.p_RP;
+    p_PP = PPA.p_PP;
     p_1 = PPA.p_1;
     p___3 = PPA.p___3;
 
     return *this;
 }
 
+//build a clon of a PPA
+TPairPositionAngles::TPairPositionAngles(TPairPositionAngles *PPA)
+{
+    try {
+        clone(PPA);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "cloning a PPA: ");
+        throw;
+    }
+}
+
+//set the PPA
+void TPairPositionAngles::setPPA(double t_p_1, double t_p___3)
+{
+    //check the precondition
+    if(getRP()->getActuator()->isntInDomainp_1(t_p_1))
+        throw EImproperArgument("angle p_1 should be in [thata_1min, thata_1max]");
+    if(getRP()->getActuator()->getArm()->isntInDomainp___3(t_p___3))
+        throw EImproperArgument("angle p___3 should be in [p___3min, p___3max]");
+
+    p_1 = t_p_1;
+    p___3 = t_p___3;
+}
+
 //rabdomize the PPA
-void TPairPositionAngles::Randomize(double p_1min, double p_1max,
+void TPairPositionAngles::randomize(double p_1min, double p_1max,
                                     double p___3min, double p___3max)
 {
     p_1 = RandomUniform(p_1min, p_1max);
@@ -369,8 +344,8 @@ void TPairPositionAnglesList::setText(const AnsiString &S)
 TPairPositionAnglesList::TPairPositionAnglesList(void) :
         TPointersList<TPairPositionAngles>()
 {
-    Print = TPairPositionAngles::PrintRow;
-    Read = TPairPositionAngles::ReadRow;
+    Print = TPairPositionAngles::printRow;
+    Read = TPairPositionAngles::readRow;
 }
 
 //copy a list of PPAs
@@ -416,7 +391,7 @@ void TPairPositionAnglesList::Randomize(double p_1min, double p_1max,
 {
     try {
         for(int i=0; i<getCount(); i++)
-            Items[i]->Randomize(p_1min, p_1max, p___3min, p___3max);
+            Items[i]->randomize(p_1min, p_1max, p___3min, p___3max);
     } catch(...) {
         throw;
     }

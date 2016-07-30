@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Vector.cpp
-//Contenido: vector de tipos numéricos
-//Última actualización: 20-09-2011
-//Autor: Isaac Morales Durán
+//File: Vector.cpp
+//Content: template for vector of numerical types
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Vector.h"
@@ -45,7 +44,7 @@ void  StrReadTable(TVector<double> &X, TVector<double> &Y,
         //      3: esperando número en punto flotante para y;
         //      4: esperando separador, salto de linea
         //         u otro caracter diferente;
-        //      5: tabla leida con éxito;
+        //      5: tabla leída con éxito;
         int status = 0;
 
         //variables tampón

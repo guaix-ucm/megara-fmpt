@@ -18,8 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: PositionersCenters.cpp
-//Content: structure containing triplets (Id, x0, y0)
-//Last update: 06/02/2015
+//Content: positioner center list
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -49,9 +48,9 @@ void TPositionerCenter::setText(const string& str)
     try {
         //translate the values and assign to a tampon variable
         TPositionerCenter PC;
-        PC.Id = StrToInt_(Strings[0]);
-        PC.x0 = StrToFloat_(Strings[1]);
-        PC.y0 = StrToFloat_(Strings[2]);
+        PC.Id = StrToInt(Strings[0]);
+        PC.x0 = StrToFloat(Strings[1]);
+        PC.y0 = StrToFloat(Strings[2]);
 
         //assign the tampon variable
         *this = PC;
@@ -65,7 +64,7 @@ void TPositionerCenter::setText(const string& str)
 void TPositionerCenter::PrintRow(AnsiString& S, const TPositionerCenter *PC)
 {
     if(PC == NULL)
-        throw EImproperArgument("pinter PC should point to built positioner center");
+        throw EImproperArgument("pointer PC should point to built positioner center");
 
     S += IntToStr(PC->Id)+AnsiString("\t")+FloatToStr(PC->x0)+AnsiString("\t")+FloatToStr(PC->y0);
 }
@@ -95,14 +94,24 @@ void TPositionerCenterList::setTableText(const string& str)
     TStrings Strings;
     StrDivideInLines(Strings, str);
 
-    //read all lines (using a tampon variable) until the close label @@EOS@
+    //read all rows (using a tampon variable) until exhaustin the list
     try {
         TPositionerCenterList PCL;
 
-        for(int i=0; i<Strings.getCount(); i++) {
-            TPositionerCenter *PC = new TPositionerCenter();
-            PCL.Add(PC);
-            PC->setText(Strings[i].str);
+        int i = 0;
+        while(i < Strings.getCount()) {
+            //discard the coments and empty lines
+            while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i].str).Length()<=0))
+                i++;
+
+            //if there is a row
+            if(i < Strings.getCount()) {
+                //add a structure in the tampon variable
+                TPositionerCenter *PC = new TPositionerCenter();
+                PCL.Add(PC);
+                //try set the row in the structure
+                PC->setText(Strings[i++].str);
+            }
         }
 
         *this = PCL;
@@ -111,35 +120,6 @@ void TPositionerCenterList::setTableText(const string& str)
         throw;
     }
 }
-/*
-//get the TPL
-void TSPPPList::getTPL(TTargetPointList& TPL)
-{
-    //initialize the TPL
-    TPL.Cleat();
-
-    //add the TPLs corresponding to the SPPP which accomplish the two following conditions:
-    //  SPPP->Bid.length() > 0
-    //  SPPP->Enabled
-    for(int i=0; i<getCount(); i++) {
-        TSPPP *SPPP = Items[i];
-        if(SPPP->Bid.length() > 0) { //if the SPPP correspond to an PP
-            if(SPPP->Enabled) { //if the point is allocated
-                //extract the Id from the SPPP
-                int Id = StrToInt_(SPPP->Pid);
-                //search the RP in the RPL attached to the TPL
-                int j = TPL.getRoboticPositionerList()->SearchId(Id);
-                //if has found the RP, build and attach a TP
-                if(j < TPL.getRoboticPositionerList()->getCount()) {
-                    //copy the properties in a TP nd add the TP to the MPG
-                    TTargetPoint *TP = new TTargetPoint(TPL.getRoboticPositionerList()->Get(j), SPPP->X, SPPP->Y);
-                    //add the TP to the TPL
-                    TPL.Add(TP);
-                }
-            }
-        }
-    }
-}*/
 
 //build a PositionerCenterList by default
 TPositionerCenterList::TPositionerCenterList(void) : TPointersList<TPositionerCenter>()

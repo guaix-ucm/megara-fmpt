@@ -17,17 +17,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Exceptions.h
-//Contenido: class of exceptions
-//Autor: Isaac Morales Durán
+//File: Exceptions.h
+//Content: classes of exceptions
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 
-#include "vclemu.h" //AnsiString
+#include "VCLemu.h" //AnsiString
 
-#include <exception>
+//#include <exception>
 #include <time.h> //time
 
 //---------------------------------------------------------------------------

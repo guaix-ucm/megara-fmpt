@@ -1,0 +1,144 @@
+Copyright (c) 2012-2016 Isaac MoralesDurán. All rights reserved.
+Institute of Astrophysics of Andalusia, IAA-CSIC
+
+This file is part of FMPT (Fiber MOS Positioning Tools)
+
+FMPT is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+CALCULUS OF SPM IN A EA (Exclusion Area)
+----------------------------------------
+
+Definition:
+    SPMsta: static SPM component for absorb the errors due to:
+            - the discrepancy between the instance and reality;
+            - the orientation error due to anchorage in the Fiber MOS;
+            - the position error due to anchorage in the Fiber MOS;
+            - the numerical errors due to the calculus of the model.
+            All these errors must be included in the tolerances (Eo, Ep).
+
+Parameters got from '/MEGARA_FiberMOSModel/EsclusionArea<Id>/Instance.txt':
+    Eo = 0.000872665               # error margin in theta_ orientation (in rad)
+    Ep = 0.017                     # error margin in P0 position (in mm)
+
+Parameters got from '/MEGARA_FiberMOSModel/EsclusionArea<Id>/Contour_.txt':
+    Barrier.Contour_: the contour of the EA.Barrier.
+
+Derivated parameters:
+    r_max = the maximun distance from EA.P0 to EA.Barrier.Countour_.
+
+SPM components:
+    SPMsta = Eo*Barrier.r_max + Ep;
+
+Assignation of SPM values according to the case:
+    Barrier.SPM = SPMsta; (in all cases)
+            
+
+CALCULUS OF SPM IN A RP (Robotic Positioner)
+--------------------------------------------
+
+Definitions:
+    SPMrec: recovery SPM components for absorb the maximun displacement from 
+            the power supply is down to the motors are stopped (Tstop).
+    SPMdyn: dynamic SPM component for absorb the maximun deviation from
+            the theoretical position due to asynchronism of the motion (Tshiff)
+            and other previsible location errors (SPMadd).
+    SPMoff: offset SPM compoennts for absorb the maximun displacement due to
+            the little changes in the arm orientations due to offset correction
+            (PAam, Pem).
+
+Parameters got from '/MEGARA_FiberMOSModel/RoboticPositioner<Id>/Instance.txt':
+    SB1 = 194953.8462              # number of steps by lap of rotor 1 (in steps)
+    SB2 = 30720                    # number of steps by lap of rotor 2
+    SPMmin = 0.005                 # SPM minimum: is the SPM due to the minimum jump during generation (in mm)
+    SPMsim = 0.072                 # SPM of simulation: is the maximum deviation in the radial trayectory (in mm)
+    PAkd = Pre                     # position angles knowledge degree [Pre | Apr | Unk]
+    SF1.vmaxabs = 3                # absolute maximum velocity of rot 1 when MFT = mftSquare (in step/ms)
+    SF2.vmaxabs = 0.945            # absolute maximum velocity of rot 2 when MFT = mftSquare (in step/ms)
+    RF1.vmaxabs = 3                # absolute maximum velocity of rot 1 when MFT = mftRamp (in step/ms)
+    RF2.vmaxabs = 0.945            # absolute maximum velocity of rot 2 when MFT = mftRamp (in step/ms)
+    RF1.amaxabs = 4294.967295      # absolute maximum acceleration of rot 1 when MFT = mftRamp (in step/ms^2)
+    RF2.amaxabs = 4294.967295      # absolute maximum acceleration of rot 2 when MFT = mftRamp (in step/ms^2)
+    MFM = Square                   # motion function type [Square | Ramp]
+    SSM = Free                     # square synchronous mode [Free, Tmin, MaxTmin]
+    RSM = Free                     # ramp synchronous mode [Free | Tmin | MaxTmin | Tv | MaxTv]
+    Eo = 0.000872665               # error margin in theta_ orientation (in rad)
+    Ep = 0.1                       # error margin in P0 position (in mm)
+    Tstop = 0                      # margin time from last position stored in memory, to stopping rotors (in ms)
+    Tshiff = 1                     # margin time to shift of all rotors of RPs in Fiber MOS (in ms)
+    SPMadd = 0.2                   # SPM additional: is a component of SPM added once (in mm)
+
+Parameters got from '/MEGARA_FiberMOSModel/RoboticPositioner<Id>/Contour____.txt':
+    Contour____: the contour of RP.Actuator.Arm in S4;
+
+Parameters got from '/MEGARA_FiberMOSModel/Instance.txt':
+    PAem = 0                       # orientation error margin of the system S0 (in rad)
+    Pem = 0                        # pointing error margin of the system S0 (in mm)
+
+Derivated parameters:
+    if MFM = Square:
+        CMF.vmaxabs1 = SF1.vmaxabs1;
+        CMF.vmaxabs2 = SF1.vmaxabs2;
+    if MFM = Ramp:
+        CMF.vmaxabs1 = RF1.vmaxabs1;
+        CMF.vmaxabs2 = RF1.vmaxabs2;
+    Actuator.rbs = SB1/(2*PI)
+    Actuator.Arm.rbs = SB2/(2*PI)
+    Actuator.Arm.L1V = maximun distance from P1 (R2) to Actuator.Arm.Contour____;
+    Actuator.r_max = L01 + Actuator.Arm.L1V;
+    rmax = radial coordinate of P0 in S0.
+
+SPM components:
+    SPMrec = CMF.vmaxabs1*Actuator.rbs*Actuator.r_max + CMF.vmaxabs2*Actuator.Arm.rbs*Actuator.Arm.L1V)*Tstop;
+    SPMsta = Eo*Actuator.Actuator.r_max + Ep;
+    SPMdyn = CMF.vmaxabs1*Actuator.rbs*Actuator.r_max + CMF.vmaxabs2*Actuator.Arm.rbs*Actuator.Arm.L1V)*Tshiff + SPMadd;
+    SPMoff = PAem*Actuator.rmax + Pem
+
+Values for Arm.SPM when PAkd = Pre:
+    SPMexe_p =         SPMsta + SPMdyn;
+    SPMvalParPro_p =   SPMexe_p + SPMmin;
+    SPMgenParPro_p =   SPMvalParPro_p + SPMmin + SPMsim;
+    SPMvalPP_p =       SPMgenParPro_p + SPMmin;
+    SPMvalDP_p =       SPMvalPP_p + SPMmin;
+    SPMgenPairPPDP_p = SPMvalDP_p + SPMmin + SPMsim;
+    SPMall_p =         SPMgenPairPPDP_p + SPMoff;
+
+Values for Arm.SPM when PAkd = Apr:
+    SPMexe_a =         SPMexe_p + SPMrec
+    SPMvalParPro_a =   SPMexe_a + SPMmin + SPMsim;
+    SPMgenParPro_a =   SPMvalParPro_a + SPMmin + SPMsim;
+    SPMvalPP_a =       SPMgenParPro_a + SPMmin + SPMsim;
+    SPMvalDP_a =       SPMvalPP_a + SPMmin + SPMsim;
+    SPMgenPairPPDP_a = SPMvalDP_a + SPMmin + SPMsim;
+    SPMall_a =         SPMgenPairPPDP_a + SPMoff;
+
+Assignation of SPM values according to (PAkd, Purpose):
+    PAkd = Pre:
+        Purpose = All:         Arm.SPM = SPMall_p;
+        Purpose = GenPairPPDP: Arm.SPM = SPMgenPairPPDP_p;
+        Purpose = ValDP:       Arm.SPM = SPMvalDP_p;
+        Purpose = ValPP:       Arm.SPM = SPMvalPP_p;
+        Purpose = GenParPro:   Arm.SPM = SPMgenParPro_p;
+        Purpose = ValParPro:   Arm.SPM = SPMvalParPro_p;
+        Purpose = exe:         Arm.SPM = SPMexe_p;
+    PAkd = Apr:
+        Purpose = All:         Arm.SPM = SPMall_a;
+        Purpose = GenPairPPDP: Arm.SPM = SPMgenPairPPDP_a;
+        Purpose = ValDP:       Arm.SPM = SPMvalDP_a;
+        Purpose = ValPP:       Arm.SPM = SPMvalPP_a;
+        Purpose = GenParPro:   Arm.SPM = SPMgenParPro_a;
+        Purpose = ValParPro:   Arm.SPM = SPMvalParPro_a;
+        Purpose = exe:         Arm.SPM = SPMexe_a;
+    PAkd = Unk:
+                           Barrier.SPM = SPMsta;
+

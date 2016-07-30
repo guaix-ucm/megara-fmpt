@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Quantificator.h
-//Contenido: operador de cuantificación
-//Última actualización: 15/06/2013
-//Autor: Isaac Morales Durán
+//File: Quantificator.h
+//Content: quantifier operator
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef QUANTIFICATOR_H

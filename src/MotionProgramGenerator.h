@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: MotionProgramGenerator.h
-//Content: class generator of motion programs
+//Content: motion program generator
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@
 #include "MotionProgramValidator.h"
 #include "AllocationList.h"
 #include "FMOSATable.h"
-#include "FiberMOSModel2.h"
+#include "FiberMOSModel.h"
 #include "MotionProgram.h"
 
 using namespace Models;
@@ -129,7 +129,7 @@ protected:
     //      when the pair is congruent
     //  motionProgramsAreIncongruent: flag indicating if
     //      the pair is incongruent
-    bool motionProgramsAreIncongruent(TRoboticPositioner *RP,
+    bool motionProgramsAreIncongruent(TRoboticPositioner* &RP,
                                 const TMotionProgram& MPturn,
                                 const TMotionProgram& MPretraction) const;
 
@@ -176,19 +176,19 @@ protected:
     //  All RPs of the Fiber MOS Model:
     //      shall be configurated for MP generation.
     //  The pointer RP:
-    //      shall shall point to built robotic positioner.
+    //      shall point to built robotic positioner.
     //  The RP:
     //      shall be in the Fiber MOS  Model;
     //      shall be in unsecurity position;
     //      shall has enabled the quantifiers of their rotors;
     //      shall not has dynamic collisions;
-    //      shall has stacked the actual positionsof their rotors.
+    //      shall has stacked the actual positions of their rotors.
     //  The length of the searching interval dt1max shall be upper zero.
     //Postconditions:
     //  The RP will be in their initial status.
     //  If searchSolutionInNegativeSense == false
     //      solution p_1new will be nearest to
-    //      Max(RP->Actuator->theta_1first, theta_1 - dt1max).
+    //      max(RP->Actuator->theta_1first, theta_1 - dt1max).
     bool searchSolutionInNegativeSense(double& p_1new,TRoboticPositioner *RP,
                                        double dt1max);
     //Search in positive sense, the individual MP (composed by MPturn and
@@ -209,19 +209,19 @@ protected:
     //  All RPs of the Fiber MOS Model:
     //      shall be configurated for MP generation.
     //  The pointer RP:
-    //      shall shall point to built robotic positioner.
+    //      shall point to built robotic positioner.
     //  The RP:
     //      shall be in the Fiber MOS  Model;
     //      shall be in unsecurity position;
     //      shall has enabled the quantifiers of their rotors;
     //      shall not has dynamic collisions;
-    //      shall has stacked the actual positionsof their rotors.
+    //      shall has stacked the actual positions of their rotors.
     //  The length of the searching interval dt1max shall be upper zero.
     //Postconditions:
     //  The RP will be in their initial status.
     //  If searchSolutionInPositiveSense == false
     //      solution p_1new will be nearest to
-    //      Min(RP->Actuator->theta_1last, theta_1 + dt1max).
+    //      min(RP->Actuator->theta_1last, theta_1 + dt1max).
     bool searchSolutionInPositiveSense(double& p_1new, TRoboticPositioner *RP,
                                        double dt1max);
     //Search the best recoveery program for a individual RP.
@@ -235,7 +235,7 @@ protected:
     //      to be executed in second place.
     //  RP->Dsec: security distance additional to SPM during retraction
     //Preconditions:
-    //  The pointer RP shall shall point to built robotic positioner.
+    //  The pointer RP shall point to built robotic positioner.
     //  All RPs of the Fiber MOS Model:
     //      shall be configurated for MP generation.
     //  The RP:
@@ -243,7 +243,7 @@ protected:
     //      shall be in unsecurity position;
     //      shall be enabled the quantifiers of their rotors;
     //      shall not have dynamic collisions;
-    //      shall have stacked the actual positionsof their rotors.
+    //      shall have stacked the actual positions of their rotors.
     //Postconditions:
     //  The RP will be in their initial status, except their properties
     //  (MPturn, MPretraction, Dmin) which will contains the last proposal.
@@ -263,7 +263,7 @@ protected:
     //      shall be in unsecurity position;
     //      shall be enabled the quantifiers of their rotors;
     //      shall not have dynamic collisions;
-    //      shall have stacked the actual positionsof their rotors.
+    //      shall have stacked the actual positions of their rotors.
     //Postconditions:
     //  RecoverablesDDS will contains the RPs which can be recovered,
     //  programmedwith the necessary instruction for their recovery.
@@ -341,7 +341,7 @@ public:
     //BUILDING AND DESTROYING METHODS:
 
     //build a motion program generator
-    //attached to a robotic positionerlist
+    //attached to a robotic positioner list
     TMotionProgramGenerator(TFiberMOSModel *FiberMOSModel);
     //destroy the targetpoints and destroy the MPG
     ~TMotionProgramGenerator(void);
@@ -552,7 +552,7 @@ public:
     //Inputs:
     //  RP: the RP to be replaced.
     //Outputs:(
-    //  RPRs: list of replacement RPs.
+    //  RRPs: list of replacement RPs.
     //Preconditions of the FMM:
     //  All pointer of the Fiber MOS Model must point to built RPs.
     //  All pointer of the fiber MOS Model must point to different RPs.
@@ -565,10 +565,10 @@ public:
     //  All PPs included in the TPL must be in the scope of their allocated RP.
     //  The RP must be included in the TPL.
     //Postconditions:
-    //  If the list RPRs is not empty, the RP is a simple case,
+    //  If the list RRPs is not empty, the RP is a simple case,
     //  and can be replaced by any of the replacement RPs.
     //  In other case the RP is not a simple case.
-    void searchReplacementRPs(TRoboticPositionerList& RPRs,
+    void searchReplacementRPs(TRoboticPositionerList& RRPs,
                               const TRoboticPositioner *RP) const;
 
     //A PP is the type must when occur some of the following circunstances:
@@ -582,7 +582,7 @@ public:
     //  4. Not has been allocated in other CB.
     //  5. Has been indicated that the point must be allocated in all CBs.
 
-    //The SPPP list contains the following data by each point:
+    //The FMOSA table contains the following data by each observing source:
     //
     //SP properties:
     //string Name;        //name ("")                 (can be empty)

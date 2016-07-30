@@ -17,21 +17,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: MessageInstruction.h
-//Contenido: mensaje de instrucción
-//Última actualización: 06/05/2014
-//Autor: Isaac Morales Durán
+//File: MessageInstruction.h
+//Content: message of instruction
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MESSAGEINSTRUCTION_H
 #define MESSAGEINSTRUCTION_H
 
+//---------------------------------------------------------------------------
+
 #include "Vector.h"
 #include "Instruction.h"
 
-//---------------------------------------------------------------------------
-
 using namespace Lists;
+
+//---------------------------------------------------------------------------
 
 //namespace for models
 namespace Models {
@@ -70,7 +71,7 @@ public:
         void setComment1(const string&);
 
         //comment 2
-        //for anotate Dfmin value when the instruction is executed
+        //for anotate Dmin value when the instruction is executed
         //default value: ""
         string getComment2(void) const{return p_Comment2;}
         void setComment2(const string&);

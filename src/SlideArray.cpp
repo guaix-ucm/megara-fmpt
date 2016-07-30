@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: SlideArray.cpp
-//Contenido: lista de elementos genéricos
-//Última actualización: 09/03/2011
-//Autor: Isaac Morales Durán
+//File: SlideArray.cpp
+//Content: template for slide array
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "SlideArray.h"

@@ -17,8 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TAllocation.cpp
-//Content: class allocation of a RP to a projection point
+//File: Allocation.cpp
+//Content: RP to projection point allocation
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -55,8 +55,8 @@ void TAllocation::setPPText(const AnsiString &S)
 {
     try {
         PP = StrToDPoint(S);
-
-    } catch(...) {
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting projection point in text format: ");
         throw;
     }
 }
@@ -91,7 +91,7 @@ AnsiString TAllocation::getRowText(void) const
 //---------------------------------------------------------------------------
 //STATIC METHODS:
 
-//compare the identifiers of the RPs attached to two target points
+//compare the identifiers of the RPs attached to two allocations
 int  TAllocation::CompareIds(TAllocation *TPA1, TAllocation *TPA2)
 {
     //el puntero TPA1 no debe ser nulo
@@ -122,6 +122,10 @@ AnsiString TAllocation::GetIdPPLabelsRow(void)
 //in a text string from the position i
 void  TAllocation::TravelLabels(const AnsiString& S, int& i)
 {
+    //coprueba la precondición
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("index i should indicate a char of the string S:");
+
     try {
         //atraviesa los separadores hasta el próximo caracter no separador
         StrTravelSeparatorsIfAny(S, i);
@@ -135,8 +139,9 @@ void  TAllocation::TravelLabels(const AnsiString& S, int& i)
         StrTravelSeparators(S, i);
         //lee la etiqueta de la propiedad y
         StrTravelLabel(StrTrim(TDoublePoint::yLabel), S, i);
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "traveling allocation labels: ");
         throw;
     }
 }
@@ -146,64 +151,35 @@ void  TAllocation::TravelLabels(const AnsiString& S, int& i)
 void  TAllocation::ReadSeparated(int& Id, double& x, double& y,
                                  const AnsiString& S, int& i)
 {
-    //estado de lectura:
-    //      0: esperando valor para Id
-    //      1: esperando separador y valor para x
-    //      2: esperando separador y valor para y
-    //      3: punto objetivo leido con éxito
-    int status = 0;
+    //comprueba las precondiciones
+    if(i<1 || S.Length()<i)
+        throw EImproperArgument("index i should indictae a char of the string S");
 
-    //variables tampón en formato conveniente
-    int t_Id;
-    double t_x, t_y;
+    try {
+        //lee el valor para Id
+        StrTravelSeparatorsIfAny(S, i);
+        int t_Id;
+        StrReadInt(t_Id, S, i);
 
-    do {
-        //reacciona según el estado y al caracter
-        switch(status) {
-        case 0: //esperando valor para Id
-            try {
-            //avanza el índice hasta el próximo caracter no separador
-            StrTravelSeparatorsIfAny(S, i);
-            //lee el valor para Id
-            StrReadInt(t_Id, S, i);
-            //pasa a leer el valor para x
-            status++;
-        } catch(...) {
-            throw;
-        }
-            break;
-        case 1: //esperando separador y valor para x
-            try {
-            //atraviesa el separador obligatorio
-            StrTravelSeparators(S, i);
-            //lee el valor para x
-            StrReadFloat(t_x, S, i);
-            //pasa a leer el valor para y
-            status++;
-        } catch(...) {
-            throw;
-        }
-            break;
-        case 2: //esperando separador y valor para y
-            try {
-            //atraviesa el separador obligatorio
-            StrTravelSeparators(S, i);
-            //lee el valor para y
-            StrReadFloat(t_y, S, i);
-            //pasa a asignar la variable tampón
-            status++;
-        } catch(...) {
-            throw;
-        }
-            break;
-        }
-        //mientras nos e haya leido el punto objetivo con éxito
-    } while(status < 3);
+        //lee el valor para x
+        StrTravelSeparators(S, i);
+        double t_x;
+        StrReadFloat(t_x, S, i);
 
-    //asigna las propiedades
-    Id = t_Id;
-    x = t_x;
-    y = t_y;
+        //lee el valor para y
+        StrTravelSeparators(S, i);
+        double t_y;
+        StrReadFloat(t_y, S, i);
+
+        //asigna las propiedades
+        Id = t_Id;
+        x = t_x;
+        y = t_y;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading allocation values in row text format: ");
+        throw;
+    }
 }
 
 //print the properties of an allocation in a string
@@ -226,16 +202,12 @@ void  TAllocation::PrintRow(AnsiString &S, TAllocation *A)
 //  throw an exception EImproperArgument
 TAllocation::TAllocation(TRoboticPositioner *RP, double x, double y)
 {
-    //CHECK THE PRECONDITIONS:
-
+    //check the preconditions
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
-
     for(int i=0; i<Builts.getCount(); i++)
         if(RP == Builts[i]->getRP())
             throw EImproperArgument("robotic positioner RP should not be allocated to an previously built allocation");
-
-    //MAKE ACTIONS:
 
     //assigns the inicialization values
     p_RP = RP;
@@ -247,16 +219,12 @@ TAllocation::TAllocation(TRoboticPositioner *RP, double x, double y)
 }
 TAllocation::TAllocation(TRoboticPositioner *RP, TDoublePoint t_PP)
 {
-    //CHECK THE PRECONDITIONS:
-
+    //check the preconditions
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
-
     for(int i=0; i<Builts.getCount(); i++)
         if(RP == Builts[i]->getRP())
             throw EImproperArgument("robotic positioner RP should not be allocated to an previously built allocation");
-
-    //MAKE ACTIONS:
 
     //assigns the inicialization values
     p_RP = RP;
@@ -266,13 +234,13 @@ TAllocation::TAllocation(TRoboticPositioner *RP, TDoublePoint t_PP)
     Builts.Add(this);
 }
 //destroy a TAllocation
-//if thereisn't a built target point
+//if thereisn't a built allocation
 //  throw an exception EImproperCall
 TAllocation::~TAllocation()
 {
     //debe haber algún punto objetivo construido
     if(Builts.getCount() < 1)
-        throw EImproperCall("should be some constructed target point");
+        throw EImproperCall("should be some allocation built");
 
     //busca el posicionador que se va a destruir en la lista de construidos
     int i = 0;
@@ -282,7 +250,7 @@ TAllocation::~TAllocation()
     //si no lo encuentra
     if(i >= Builts.getCount())
         //indica que no se encuentra un punto objetivo previamente contruido
-        throw EImpossibleError("dont find a previously built target point");
+        throw EImpossibleError("dont find a previously allocation built");
 
     //borra el puntero de la lista
     Builts.Delete(i);
@@ -292,7 +260,7 @@ TAllocation::~TAllocation()
 //CHECKING METHODS:
 
 //determines if the target point is out of the domain
-//of thepoint P3 of the attached RP
+//of the point P3 of the attached RP
 bool TAllocation::IsOutDomainP3(void)
 {
     if(getRP()->getActuator()->pointIsOutDomainP3(PP))
@@ -301,7 +269,7 @@ bool TAllocation::IsOutDomainP3(void)
     return false;
 }
 //determines if the target point is in the secure area
-//of thepoint P3 of the attached RP
+//of the point P3 of the attached RP
 bool TAllocation::IsInSafeAreaP3(void)
 {
     //determina si el punto objetivo está en el dominio del posicionador
@@ -327,30 +295,30 @@ void TAllocation::RandomizePP(void)
     PP = getRP()->getActuator()->randomP3();
 }
 
-//assign the point PP to the point P3 of its attached RP
-//and return the distance from the stable position to the target point
-//if the the point PP isn't on the domain of its attached RP:
+//assign the target point to the point P3 of its attached RP
+//and return the distance from the target point to the projection point
+//if the the projection point isn't on the domain of its attached RP:
 //  throw an exception EImpropercall
 double TAllocation::MoveToPP(void)
 {
-    //determines if the target point is in the domain of the attached RP
+    //determines if the projection point is in the domain of the attached RP
     //and calculates the position angles of the rotors
     double theta_1, theta___3;
     bool isindomain = getRP()->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
-    //target point PP should be in the point P3 domain of his allocated RP
+    //check the precondition
     if(!isindomain)
-        throw EImproperCall("target point PP should be in the point P3 domain of his allocated RP");
+        throw EImproperCall("projection point should be in the point P3 domain of his allocated RP");
 
-    //determines the stable position more closer to the target point
-    //and determines the distance fromthe stable position to the target point
+    //determines the stable position more closer to the projection point
+    //and determines the distance from the stable position to the projection point
     double p_1nsp, p___3nsp;
     double d = getRP()->getActuator()->getNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
 
     //assign the positions to the rotors
     getRP()->getActuator()->setAnglesSteps(p_1nsp, p___3nsp);
 
-    //returns the distance fromthe stable position to the target point
+    //returns the distance from the target point to the projection point
     return d;
 }
 

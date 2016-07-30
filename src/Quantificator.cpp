@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Quantificator.cpp
-//Contenido: operador de cuantificación
-//Última actualización: 21-03-2011
-//Autor: Isaac Morales Durán
+//File: Quantificator.cpp
+//Content: quantifier operator
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Quantificator.h"
@@ -76,7 +75,7 @@ void TQuantificator::setxmax(double xmax)
 void TQuantificator::setqText(AnsiString &S)
 {
     try {
-        setq(StrToFloat_(S));
+        setq(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -84,7 +83,7 @@ void TQuantificator::setqText(AnsiString &S)
 void TQuantificator::setxminText(AnsiString &S)
 {
     try {
-        setxmin(StrToFloat_(S));
+        setxmin(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -92,7 +91,7 @@ void TQuantificator::setxminText(AnsiString &S)
 void TQuantificator::setxmaxText(AnsiString &S)
 {
     try {
-        setxmax(StrToFloat_(S));
+        setxmax(StrToFloat(S));
     } catch(...) {
         throw;
     }
@@ -157,8 +156,8 @@ void TQuantificator::setAssignsText(const AnsiString &S)
 //      (q, xmin, xmax)
 void TQuantificator::CalculateImageDomain(void)
 {
-    p_Qmin = ceil(p_xmin/fabs(p_q));
-    p_Qmax = floor(p_xmax/fabs(p_q));
+    p_Qmin = (int)ceil(p_xmin/fabs(p_q));
+    p_Qmax = (int)floor(p_xmax/fabs(p_q));
 }
 
 //---------------------------------------------------------------------------
@@ -361,7 +360,7 @@ void  TQuantificator::ReadAssigns(TQuantificator *Q,
     //ADVERTENCIA: las variables tampón con propiedades interdependientes
     //deben ser clones de las variables que se pretenden modificar.
 
-    //ADVERTENCIA: las propiedades enteras deben ser leidas como
+    //ADVERTENCIA: las propiedades enteras deben ser leídas como
     //valores en punto flotante para detectar errores en los cuales
     //sea especificado un valor en punto flotante en vez de un valor entero.
 
@@ -372,7 +371,7 @@ void  TQuantificator::ReadAssigns(TQuantificator *Q,
             StrReadLabel(Ident, "q", S, i);
             StrTravelLabel("=", S, i);
             StrReadFloatStr(Value, S, i);
-            q = StrToFloat_(Value);
+            q = StrToFloat(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property q"));
             } catch(...) {
@@ -387,7 +386,7 @@ void  TQuantificator::ReadAssigns(TQuantificator *Q,
             StrReadLabel(Ident, "xmin", S, i);
             StrTravelLabel("=", S, i);
             StrReadFloatStr(Value, S, i);
-            xmin = StrToFloat_(Value);
+            xmin = StrToFloat(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property xmin"));
             } catch(...) {
@@ -402,7 +401,7 @@ void  TQuantificator::ReadAssigns(TQuantificator *Q,
             StrReadLabel(Ident, "xmax", S, i);
             StrTravelLabel("=", S, i);
             StrReadFloatStr(Value, S, i);
-            xmax = StrToFloat_(Value);
+            xmax = StrToFloat(Value);
         } catch(EImproperArgument &E) {
                 throw EImproperArgument(E.Message+AnsiString(" for property xmax"));
             } catch(...) {

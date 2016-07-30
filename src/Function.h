@@ -17,10 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Function.h
-//Contenido: función continua de tiempo continuo definida en puntos de muestreo
-//Última actualización: 24/06/2013
-//Autor: Isaac Morales Durán
+//File: Function.h
+//Content: contonuous function of continuous time defined in sample points
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FUNCTION_H
@@ -229,13 +228,15 @@ public:
 
     //OPERACIONES CON LA FUNCIÓN:
 
+    //determina si la función tiene inversa
+    bool haventInverse(void) const;
     //asigna la función inversa de F
     void Inverse(const TFunction &F);
     //asigna la función normalizada de F
     void Normalized(const TFunction &F);
 
     //actualiza las ordenadas
-    //      Y[i] = Min(Y[i], F.Y[i])
+    //      Y[i] = min(Y[i], F.Y[i])
     //las abcisas debén coincidir
     void OrdinatesMin(TFunction &F);
     //actualiza las ordenadas
@@ -243,7 +244,7 @@ public:
     //las abcisas debén coincidir
     void OrdinatesAve(TFunction &F, int n);
     //actualiza las ordenadas
-    //      Y[i] = Max(Y[i], F.Y[i])
+    //      Y[i] = max(Y[i], F.Y[i])
     //las abcisas debén coincidir
     void OrdinatesMax(TFunction &F);
 };

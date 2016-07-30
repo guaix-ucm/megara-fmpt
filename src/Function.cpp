@@ -17,17 +17,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Function.cpp
-//Contenido: función continua de tiempo continuo definida en puntos de muestreo
-//Última actualización: 24/06/2013
-//Autor: Isaac Morales Durán
+//File: Function.cpp
+//Content: contonuous function of continuous time defined in sample points
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Function.h"
 #include "PointersList.h"
 #include "TextFile.h"
 
-#include <limits> //std::numeric_limits
+#include <algorithm> //std::min, std::max
 
 //---------------------------------------------------------------------------
 
@@ -76,15 +75,11 @@ void TFunction::setT(double T)
 //asigna los vectores de abcisas y ordenadas
 void TFunction::Set(const TVector<double>& X, const TVector<double>& Y)
 {
-    //el número de abcisas debe ser igual al número de ordenadas
+    //comprueba las precondiciones
     if(X.getCount() != Y.getCount())
         throw EImproperArgument("number of abcises should be equalto thenumber of ordinates");
-
-    //las abcisas deben estar ordenadas de menor a mayor
     if(!X.getIncreasing())
         throw EImproperArgument("the abcises should besorted increasing");
-
-    //no debe haber dos abcisas iguales
     for(int i=1; i<X.getCount(); i++)
         if(X[i] == X[i-1])
             throw EImproperArgument("should not be two abcises equals");
@@ -104,7 +99,7 @@ double TFunction::getX(int i) const
             throw EImproperCall("empty function");
 
         //transplanta i al ciclo principal
-        int ncycles = floor(double(i)/p_Count);
+        int ncycles = (int)floor(double(i)/p_Count);
         i -= ncycles*p_Count;
 
         //devuelve la abcisa del punto (virtual) indicado
@@ -122,9 +117,10 @@ double TFunction::getX(int i) const
 void TFunction::setX(int i, double x)
 {
     //para tener sentido descriptivo, la abcisa debe ser finita
-    if(x<=-std::numeric_limits<double>::max() || std::numeric_limits<double>::max()<=x)
+    if(x<=-DBL_MAX || DBL_MAX<=x)
         throw EImproperArgument("x should be finite");
 
+    //si la función es periódica
     if(p_Periodic) {
         //la función periódica debe contener
         //almenos un punto fundamental
@@ -137,10 +133,12 @@ void TFunction::setX(int i, double x)
             throw EImproperArgument("improper value x");
 
         //transplanta la abcisa al ciclo principal
-        int ncycles = floor(double(i)/p_Count);
+        int ncycles = (int)floor(double(i)/p_Count);
         i -= ncycles*p_Count; //transplanta i al ciclo principal
         x -= p_T*ncycles; //transplanta x al ciclo principal
-    } else { //si es aperiódica
+    }
+    //si la función es aperiódica
+    else {
         //debe indicar un punto fundamental existente
         if(i<0 || p_Count<=i)
             throw EImproperArgument("index i out bounds");
@@ -167,6 +165,7 @@ void TFunction::setX(int i, double x)
 
 double TFunction::getY(int i) const
 {
+    //si la función es periódica
     if(p_Periodic) {
         //la función periódica debe contener
         //almenos un punto fundamental
@@ -174,9 +173,11 @@ double TFunction::getY(int i) const
             throw EImproperCall("empty function");
 
         //transplanta i al ciclo principal
-        int ncycles = floor(double(i)/p_Count);
+        int ncycles = (int)floor(double(i)/p_Count);
         i -= ncycles*p_Count;
-    } else { //si es aperiódica
+    }
+    //si la función es periódica
+    else {
         //debe indicar un punto fundamental existente
         if(i<0 || p_Count<=i)
             throw EImproperArgument("index i out bounds");
@@ -187,6 +188,7 @@ double TFunction::getY(int i) const
 
 void TFunction::setY(int i, double y)
 {
+    //si la función es periódica
     if(p_Periodic) {
         //la función periódica debe contener
         //almenos un punto fundamental
@@ -194,9 +196,11 @@ void TFunction::setY(int i, double y)
             throw EImproperCall("empty function");
 
         //transplanta i al ciclo principal
-        int ncycles = floor(double(i)/p_Count);
+        int ncycles = (int)floor(double(i)/p_Count);
         i -= ncycles*p_Count;
-    } else { //si es aperiódica
+    }
+    //si la función es periódica
+    else {
         //debe indicar un punto fundamental existente
         if(i<0 || p_Count<=i)
             throw EImproperArgument("index i out bounds");
@@ -211,7 +215,7 @@ TDoublePoint TFunction::getP(int i) const
     //si lafunción es periódica
     if(p_Periodic) {
         //determina elnúmero de ciclos
-        int ncycles = floor(double(i)/p_Count);
+        int ncycles = (int)floor(double(i)/p_Count);
         //transplanta i alciclo principal
         i -= ncycles*p_Count;
         //obtiene los valores en el ciclo correspondiente
@@ -220,7 +224,9 @@ TDoublePoint TFunction::getP(int i) const
         //devuelvelos valores
         return p;
 
-    } else { //si es aperiódica
+    }
+    //si la función es periódica
+    else {
         //debe indicar un punto fundamental existente
         if(i<0 || p_Count<=i)
             throw EImproperArgument("index i out bounds");
@@ -233,6 +239,7 @@ TDoublePoint TFunction::getP(int i) const
 
 void TFunction::setP(int i, TDoublePoint p)
 {
+    //si la función es periódica
     if(p_Periodic) {
         //X[i] debe estar entre X[i-1] y X[i+1]
         if(p.x<=p_X[i-1] || p_X[i+1]<=p.x)
@@ -240,10 +247,12 @@ void TFunction::setP(int i, TDoublePoint p)
                     "X[i] should be in (X[i-1], X[i+1])");
 
         //transplanta la abcisa al ciclo principal
-        int ncycles = floor(double(i)/p_Count);
+        int ncycles = (int)floor(double(i)/p_Count);
         i -= ncycles*p_Count; //transplanta i al ciclo principal
         p.x -= p_T*ncycles; //transplanta x al ciclo principal
-    } else { //si es aperiódica
+    }
+    //si la función es periódica
+    else {
         //debe indicar un punto de muestreo existente
         if(i<0 || p_Count<=i)
             throw EImproperArgument("index i out bounds");
@@ -292,10 +301,23 @@ AnsiString TFunction::getPointsText(void) const
 
 void TFunction::setPointsText(const AnsiString &S)
 {
+    int i = 1; //initialize the index to the first position of the string
+
     try {
-        int i = 1;
-        ReadPoints(this, S, i);
-    } catch(...) {
+        //read the point in a tampon variable
+        TFunction F(this);
+        ReadPoints(&F, S, i);
+
+        //look for unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //clone the tampon variable
+        Clone(F);
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting point in text format: ");
         throw;
     }
 }
@@ -333,10 +355,24 @@ AnsiString TFunction::getTableText(void) const
 }
 void TFunction::setTableText(const AnsiString &S)
 {
+    int i = 1; //initialize the index to the first char of the string
     try {
-        int i = 1;
-        ReadTable(this, S, i);
-    } catch(...) {
+        //read the table in a tampon variable
+        TFunction F(this);
+        ReadTable(&F, S, i);
+
+        //look for unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+
+        //set the tanpon variable
+        Copy(&F);
+    }
+    catch(Exception& E) {
+        unsigned int row, col;
+        strPositionToCoordinates(row, col, S.str, i-1);
+        E.Message.Insert(1, "setting table to function in row "+inttostr(row)+" and column "+inttostr(col)+": ");
         throw;
     }
 }
@@ -347,7 +383,7 @@ void TFunction::setTableText(const AnsiString &S)
 //imprime los puntos de una función en una cadena
 void  TFunction::PrintPoints(AnsiString &S, const TFunction *F)
 {
-    //el puntero F deberí apauntar a una función contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built function");
 
@@ -356,7 +392,7 @@ void  TFunction::PrintPoints(AnsiString &S, const TFunction *F)
 //lee una cadena en busca de los puntos de un afunción
 void  TFunction::ReadPoints(TFunction *F, const AnsiString &S,int &i)
 {
-    //el puntero F deberí apauntar a una función contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built function");
 
@@ -394,27 +430,22 @@ void  TFunction::PrintTable(AnsiString &S, const TFunction *F)
 void  TFunction::ReadTable(TFunction *F, const AnsiString &S,
                            int &i)
 {
-    //el puntero F debería apauntar a una función contruida
+    //comprueba las precondiciones
     if(F == NULL)
         throw EImproperArgument("pointer F should point to built function");
-
-    //el índice i deberí indicar a una caracter de la cadena S
     if(i<0 || S.Length()<i)
         throw EImproperArgument("index i should indicate an character in the string S");
 
     try {
-        //variables tampón
+        //lee la tabla en variables tampón
         TVector<double> X, Y;
-
-        //intenta leer la tabla
         StrReadTable(X, Y, S, i);
         //Nótese que las abcisas no tienen por que estar ordenadas.
 
-        //el vector de abcisas no debe tener valores repetidos
+        //comprueba las precondiciones
         for(int i=0; i<X.getCount(); i++)
             for(int j=i+1; j<X.getCount(); j++)
                 if(X[i] == X[j])
-                    //indica que la abcisa X[i] no debería ser igual a la abcisa X[j]
                     throw EImproperArgument(AnsiString("abcissa X[")+IntToStr(i)+AnsiString("] should not be equal to abcissa X[")+IntToStr(j)+AnsiString("]"));
 
         //asigna los nuevos valores
@@ -433,7 +464,7 @@ TFunction::TFunction(int Capacity) :
     /*p_Periodic(false), p_T(0),*/
     p_Count(0), p_X(1), p_Y(1)
 {
-    //Debe especificar capacidad para uno o más puntos
+    //comprueba las precondiciones
     if(Capacity < 1)
         throw EImproperArgument("Capacity should be upper zero");
 
@@ -544,7 +575,7 @@ int TFunction::Add(double x, double y)
         //Transplanta x al ciclo principal [0, T)
         if(x<0 || p_T<=x) {
             //transplanta x al ciclo principal
-            ncycles = floor(x/p_T);
+            ncycles = (int)floor(x/p_T);
             x -= p_T*ncycles;
         }
 
@@ -585,8 +616,7 @@ void TFunction::PushLast(double x, double y)
     if(p_Count) {
         //debe estar más allá del último punto
         if(x <= p_X.getLast())
-            throw EImproperArgument(
-                    "point (x, y) should be posterior");
+            throw EImproperArgument("point (x, y) should be posterior");
 
         p_X.PushLast(x);
         p_Y.PushLast(y);
@@ -598,10 +628,9 @@ void TFunction::PushLast(double x, double y)
 //libera los priemros puntos
 void TFunction::DelFirst(int n)
 {
-    //debe liberar puntos reservados
+    //comprueba las precondiciones
     if(n<1 || p_Count<n)
-        throw EImproperArgument(
-                "number items n should be in [1, Count]");
+        throw EImproperArgument("number items n should be in [1, Count]");
 
     p_X.DelFirst(n);
     p_Y.DelFirst(n);
@@ -615,7 +644,7 @@ void TFunction::Delete(int i)
     int ncycles;
     if(p_Periodic) { //si es periódica
         //transplanta i al ciclo principal [0, Count-1]
-        ncycles = floor(double(i)/p_Count);
+        ncycles = (int)floor(double(i)/p_Count);
         i -= p_Count*ncycles;
     } else
         //si es aperiódica el dominio se restringe a [0, Count-1]
@@ -781,7 +810,7 @@ bool TFunction::Find(double x, int &i) const
     if(p_Periodic) //si es periódica...
         if(x<0 || p_T<=x) { //...y no está en el ciclo principal
             //Transplanta x al ciclo principal [0, T)
-            ncycles = floor(x/p_T);
+            ncycles = (int)floor(x/p_T);
             x -= p_T*ncycles;
         }
 
@@ -804,7 +833,7 @@ bool TFunction::Find(double x, int &i) const
 //si la función está vacía lanza una excepción EImproperCall
 int TFunction::Monotony(void) const
 {
-    //la función no debe estar vacía
+    //comprueba las precondiciones
     if(p_Count == 0)
         throw EImproperArgument("funtion should not be empty");
 
@@ -850,10 +879,10 @@ bool TFunction::InnerSegments(double x1, double x2, int& i1, int& i2) const
     //si es periódica
     if(p_Periodic) {
         //lleva x1 al ciclo principàl
-        n1 = floor(x1/p_T);
+        n1 = (int)floor(x1/p_T);
         x1 -= n1*p_T;
         //lleva x2 al ciclo principal
-        n2 = floor(x2/p_T);
+        n2 = (int)floor(x2/p_T);
         x2 -= n2*p_T;
     }
 
@@ -893,10 +922,10 @@ bool TFunction::IntrusiveSegments(double x1, double x2, int& i1, int& i2) const
     //si es periódica
     if(p_Periodic) {
         //lleva x1 al ciclo principàl
-        n1 = floor(x1/p_T);
+        n1 = (int)floor(x1/p_T);
         x1 -= n1*p_T;
         //lleva x2 al ciclo principal
-        n2 = floor(x2/p_T);
+        n2 = (int)floor(x2/p_T);
         x2 -= n2*p_T;
     }
 
@@ -919,8 +948,8 @@ bool TFunction::IntrusiveSegments(double x1, double x2, int& i1, int& i2) const
         i1 = j1 + n1*p_Count - 1; //y se apunta al punto previo
         i2 = j2 + n2*p_Count + 1; //t se apunta al punto posterior
     } else { //si es aperiódica puediera no haber punto previo/post. a j1/j2
-        i1 = Max(0, j1 - 1); //apunta al pto previo en caso de haberlo
-        i2 = Min(p_X.getCount() - 1, j2 + 1); //apunta al pto post. si lo hay
+        i1 = max(0, j1 - 1); //apunta al pto previo en caso de haberlo
+        i2 = min(p_X.getCount() - 1, j2 + 1); //apunta al pto post. si lo hay
     }
 
     return true;
@@ -938,10 +967,10 @@ bool TFunction::AdjacentSegments(double x1, double x2, int& i1, int& i2) const
     //si es periódica
     if(p_Periodic) {
         //lleva x1 al ciclo principàl
-        n1 = floor(x1/p_T);
+        n1 = (int)floor(x1/p_T);
         x1 -= n1*p_T;
         //lleva x2 al ciclo principal
-        n2 = floor(x2/p_T);
+        n2 = (int)floor(x2/p_T);
         x2 -= n2*p_T;
     }
 
@@ -963,8 +992,8 @@ bool TFunction::AdjacentSegments(double x1, double x2, int& i1, int& i2) const
         i1 = j1 + n1*p_Count - 1; //y se apunta al punto previo
         i2 = j2 + n2*p_Count + 1; //y se aputna al punto posterior
     } else { //si es aperiódica puediera no haber punto previo/post. a j1/j2
-        i1 = Max(0, j1 - 1); //apunta al pto previo en caso de haberlo
-        i2 = Min(p_X.getCount()-1, j2+1); //apunta al pto post. si lo hay
+        i1 = max(0, j1 - 1); //apunta al pto previo en caso de haberlo
+        i2 = min(p_X.getCount()-1, j2+1); //apunta al pto post. si lo hay
     }
 
     return true;
@@ -1039,17 +1068,32 @@ void TFunction::InflexPoints(double x1, double x2, TVector<double> &V) const
 //--------------------------------------------------------------------------
 //OPERACIONES CON LA FUNCIÓN:
 
+//determina si la función tiene inversa
+bool TFunction::haventInverse(void) const
+{
+    //determina el tipo de monotonía
+    int monotony = Monotony();
+
+    //if function F contain most one sample, should not be constant
+    if(p_Count > 1 && monotony==0)
+        return true;
+
+    //function F should not be not monotone
+    if(monotony<-1 || 1<monotony)
+        return true;
+
+    //indicates that the function have inverse
+    return false;
+}
 //asigna la función inversa de F
 void TFunction::Inverse(const TFunction &F)
 {
     //determina el tipo de monotonía
     int monotony = F.Monotony();
 
-    //si la función F contiene más de una muestra no debe ser constante
+    //comprueba las precondiciones
     if(F.p_Count > 1 && monotony==0)
         throw EImproperArgument("if function F contain most one sample, should not be constant");
-
-    //la función F no debe ser no monótona
     if(monotony<-1 || 1<monotony)
         throw EImproperArgument("function F should not be not monotone");
 
@@ -1097,11 +1141,11 @@ void TFunction::Normalized(const TFunction &F)
 }
 
 //actualiza las ordenadas
-//      Y[i] = Min(Y[i], F.Y[i])
+//      Y[i] = min(Y[i], F.Y[i])
 //las abcisas debén coincidir
 void TFunction::OrdinatesMin(TFunction &F)
 {
-    //el número de puntos F.Count debería ser igual al ´número de puntos Count
+    //comprueba las precondiciones
     if(F.p_Count != p_Count)
         throw EImproperArgument("point number F.Count should be equal to point number Count");
 
@@ -1114,14 +1158,14 @@ void TFunction::OrdinatesMin(TFunction &F)
     //por cada punto de la función
     for(int i=0; i<p_Count; i++)
         //asigna la ordenada mínima
-        p_Y[i] = Min(p_Y[i], F.p_Y[i]);
+        p_Y[i] = min(p_Y[i], F.p_Y[i]);
 }
 //actualiza las ordenadas
 //      Y[i] = Y[i]*((n-1)/n) + F.Y[i]/n
 //las abcisas debén coincidir
 void TFunction::OrdinatesAve(TFunction &F, int n)
 {
-    //el número de puntos F.Count debería ser igual al ´número de puntos Count
+    //comprueba las precondiciones
     if(F.p_Count != p_Count)
         throw EImproperArgument("point number F.Count should be equal to point number Count");
 
@@ -1141,11 +1185,11 @@ void TFunction::OrdinatesAve(TFunction &F, int n)
         p_Y[i] = p_Y[i]*((n-1)/n) + F.p_Y[i]/n;
 }
 //actualiza las ordenadas
-//      Y[i] = Max(Y[i], F.Y[i])
+//      Y[i] = max(Y[i], F.Y[i])
 //las abcisas debén coincidir
 void TFunction::OrdinatesMax(TFunction &F)
 {
-    //el número de puntos F.Count debería ser igual al ´número de puntos Count
+    //comprueba las precondiciones
     if(F.p_Count != p_Count)
         throw EImproperArgument("point number F.Count should be equal to point number Count");
 
@@ -1158,7 +1202,7 @@ void TFunction::OrdinatesMax(TFunction &F)
     //por cada punto de la función
     for(int i=0; i<p_Count; i++)
         //asigna la ordenada máxima
-        p_Y[i] = Max(p_Y[i], F.p_Y[i]);
+        p_Y[i] = max(p_Y[i], F.p_Y[i]);
 }
 
 //---------------------------------------------------------------------------

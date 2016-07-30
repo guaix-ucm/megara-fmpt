@@ -40,10 +40,10 @@ class TestFileMethods: public CppUnit::TestFixture
 
     //add test methods
     CPPUNIT_TEST(test_readInstanceFromDir_RP);
-    CPPUNIT_TEST(test_writeInstanceToDir_RPL);
-    CPPUNIT_TEST(test_readInstanceFromDir_RPL);
     CPPUNIT_TEST(test_writeInstanceToDir_EAL);
     CPPUNIT_TEST(test_readInstanceFromDir_EAL);
+    CPPUNIT_TEST(test_writeInstanceToDir_RPL);
+    CPPUNIT_TEST(test_readInstanceFromDir_RPL);
     CPPUNIT_TEST(test_writeInstanceToDir_FMM);
     CPPUNIT_TEST(test_readInstanceFromDir_FMM);
 
@@ -55,9 +55,14 @@ class TestFileMethods: public CppUnit::TestFixture
 
 public:
     //REMEMBER:
+    //During execution of tests the release is not installed, but is built
+    //a directory './megara-fmpt-3.3.0'.
+
     //When you execute 'make distcheck', test are executed in the path:
-    //  .../megarafmpt/megara-fmpt-3.0.7/_build/tests
-    //During execution of tests the release is not installed.
+    //  './megara-fmpt-3.3.0/_build/tests'
+    //So the data are can be found in the temporal directory:
+    //  '../../data'
+
     //For get a perfect match of regenerated values and loaded values,
     //the floating point values of the instance must be expressed rounded
     //with 14 decimals or less.
@@ -68,23 +73,14 @@ public:
     //overide tearDown(), free allocated memory, etc
     void tearDown();
 
-protected:
-
-    //test methods for functions of the FileMethods:
-
+    //test methods
     void test_readInstanceFromDir_RP();
-
-    void test_writeInstanceToDir_RPL();
-    void test_readInstanceFromDir_RPL();
-
     void test_writeInstanceToDir_EAL();
     void test_readInstanceFromDir_EAL();
-
+    void test_writeInstanceToDir_RPL();
+    void test_readInstanceFromDir_RPL();
     void test_writeInstanceToDir_FMM();
     void test_readInstanceFromDir_FMM();
-/*
-    void test_writeInstanceToDir_FCM();
-    void test_readInstanceFromDir_FCM();*/
 };
 
 #endif // FMPT_TESTFILEMETHODS_H

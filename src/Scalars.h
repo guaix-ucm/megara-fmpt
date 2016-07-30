@@ -17,15 +17,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//Archivo: Scalars.h
-//Contenido: scalar functions
-//Autor: Isaac Morales Durán
+//File: Scalars.h
+//Content: scalar functions
+//Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef SCALARS_H
 #define SCALARS_H
 
-#include "vclemu.h"
+//#include "VCLemu.h"
 #include "Exceptions.h"
 
 #include <typeinfo> //namespace std
@@ -62,10 +62,14 @@ double Log2(double x); //Logaritmo en base dos
 template <class T> T Sign(T x); //Función signo
 template <class T> T Abs(T x); //Valor absoluto de un tipo numérico desconocido
 
+//Log(1, 2) = INFINITY
+//Los(1, 1) devuelve NAN; (+/-)NAN==(+/-)NAN devuelve falso; (+/-)NAN!=(+/-)NAN devuelve true;
+//Tanto (+/-)NAN como (+/-)INFINITY pueden ser asignados a un double.
+
 //determina el mínimo de dos argumentos
-template <class T> T Min(T x1, T x2);
+//template <class T> T Min(T x1, T x2);
 //determina el máximo de dos argumentos
-template <class T> T Max(T x1, T x2);
+//template <class T> T Max(T x1, T x2);
 
 //ADVERTENCIAS:
 //      Si se define una plantilla con un número indefinido de
@@ -88,8 +92,8 @@ template <class T> T Max(T x1, T x2);
 //perteneciente al dominio [xmin, xmax]
 template <class T> T LimitDomain(T x, T xmin, T xmax);
 
-//determina el entero n más próximo tq [n-0.5 <= x < n+0.5)
-int Round(float x);
+//determina el entero n más próximo a x, tq [n - 0.5 <= x < n + 0.5)
+int Round(double x);
 //determina el entero más próximo al origen de coordenadas
 //a una distancia inferior a la unidad del valor indicado
 //      Near(x) = Floor(Abs(x))*Sign(x)
@@ -98,6 +102,13 @@ double Near(double x);
 //a una distancia inferior a la unidad del valor indicado
 //      Far(x) = Ceil(Abs(x))*Sign(x)
 double Far(double x);
+
+//Function Round is different function round:
+// x        round(x)    Round(x)
+// -0.501   -1          -1
+// -0.5     -1          -1
+// 0.499     0          0
+// 0.5       1          0
 
 //genera un número real aleatorio con distribución uniforme en [0, 1]
 double RandomReal(void);
@@ -152,31 +163,6 @@ template <class T> T Abs(T x)
         return T(-1*x);
 
     return x;
-}
-
-//determina el mínimo de dos argumentos
-template <class T> T Min(T x1, T x2)
-{
-    //los argumentos deben ser de tipo numérico
-    if(!Numerical(typeid(T)))
-        throw EImproperArgument("arguments should be of a numerical type");
-
-    if(x1 <= x2)
-        return x1;
-
-    return x2;
-}
-//determina el máximo de dos argumentos
-template <class T> T Max(T x1, T x2)
-{
-    //los argumentos deben ser de tipo numérico
-    if(!Numerical(typeid(T)))
-        throw EImproperArgument("arguments should be of a numerical type");
-
-    if(x1 >= x2)
-        return x1;
-
-    return x2;
 }
 
 //determina el nº más próximo más próximo a x

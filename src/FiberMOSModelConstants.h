@@ -18,13 +18,16 @@
 
 //---------------------------------------------------------------------------
 //File: FiberMOSModelConstants.h
-//Content: formulario acerca de, de MEGARA
-//Last update: 26/07/2013
+//Content: constants for build a Fiber MOS model by default
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FIBERMOSMODELCONSTANTS_H
 #define FIBERMOSMODELCONSTANTS_H
+
+//--------------------------------------------------------------------------
+//CONSTANTS OF THE Fiber MOS Model
+//--------------------------------------------------------------------------
 
 //ADVERTENCIA: si se nombrara una constante como L a secas, habría conflicto
 //con el parámetro L definido en los métodos de las clases de listas.
@@ -34,34 +37,30 @@
 //utilizar nombres de contantes más específicos y evitar los nombres genéricos
 //como L.
 
-//--------------------------------------------------------------------------
-//CONSTANTS OF Fiber MOS Model:
-//--------------------------------------------------------------------------
-
 //DEFAULT VALUES FOR TOLERANCES:
 
 //default value for
 //orientation error margin of a RP in S1 due to mechanized
-#define MEGARA_Eo 0.001 //rad
+#define MEGARA_Eo 0.000872665 //rad
 //default value for
 //position error margin of a RP in S1 due to mechanized
-#define MEGARA_Ep 0.01 //mm
+#define MEGARA_Ep 0.1 //mm
 
 //default value for
 //past time between last storage of positions
 //and detention of the rotors
-#define MEGARA_Tstop 1 //ms
+#define MEGARA_Tstop 0 //ms
 //default value for
 //maximun temporal shiff between rotors
 #define MEGARA_Tshiff 1 //ms
 
 //default value for
 //additional component of SPMdyn
-#define MEGARA_SPMadd 0.1 //mm
+#define MEGARA_SPMadd 0.2 //mm
 //SPM of minimun jump, consumed when validation process is applied
 #define MEGARA_SPMmin 0.005 //mm
 //SPM of simulation, consumed when simulation process is applied
-#define MEGARA_SPMsim 0.005 //mm
+#define MEGARA_SPMsim 0.052 //mm
 
 //default value for
 //position angle error margin of the FiberMOS in S0
@@ -74,35 +73,36 @@
 
 //length of the arm
 //must be upper zero
-#define MEGARA_L 5.80237021 //mm
+#define MEGARA_L 5.8025 //mm
 //contour of the temlate of the arm (in mm)
 //#define MEGARA_Contour____Text "{({2.77263413, 2.25}, {2.64034656, 2.3}, {2.77263413, 2.45}, 0.2), ({2.77263413, 2.25}, {5.80237021, 2.25}), ({5.80237021, 2.25}, {5.80237021, -2.25}, {5.80237021, 0}, 2.250), ({5.80237021, -2.25}, {2.77263413, -2.25}), ({2.64034656, -2.3}, {2.77263413, -2.25}, {2.77263413, -2.45}, 0.2), ({2.64034656, -2.3}, {1.80711062, -2.3}), ({1.80711062, -2.3}, {1.80711062, 2.3}), ({1.80711062, 2.3}, {2.64034656, 2.3})}"
-#define MEGARA_Contour____Text "{({0.802, 2.35}, {5.802, 2.35}), ({5.802, 2.35}, {5.802, -2.35}, {5.802, 0}, 2.35), ({5.802, -2.35}, {0.802, -2.35}), ({0.802, -2.35}, {0.802, 2.35})}"
+//#define MEGARA_Contour____Text "{({0.802, 2.35}, {5.802, 2.35}), ({5.802, 2.35}, {5.802, -2.35}, {5.802, 0}, 2.35), ({5.802, -2.35}, {0.802, -2.35}), ({0.802, -2.35}, {0.802, 2.35})}"
+#define MEGARA_Contour____Text "{({0.807111, 2.35}, {5.807111, 2.35}), ({5.807111, 2.35}, {5.807111, -2.35}, {5.807111, 0}, 2.35), ({5.807111, -2.35}, {0.807111, -2.35}), ({0.807111, -2.35}, {0.807111, 2.35})}"
 //steps back of rotor 1 (mumber of steps by whole lap)
-#define MEGARA_SB1 8123.07692 //steps
+#define MEGARA_SB1 194953.8462 //steps
 
 //orientation of S1 respect S0
 #define MEGARA_thetaO1 0 //rad
 //lower limit of theta_1
-#define MEGARA_theta_1min -0.043633231299858194 //rad
+#define MEGARA_theta_1min -0.043633231 //rad
 //upper limit of theta_1
-#define MEGARA_theta_1max 6.326818538479438194 //rad
+#define MEGARA_theta_1max 6.326818538 //rad
 
 //steps back of rotor 2 (mumber of steps by whole lap)
-#define MEGARA_SB2 10000 //steps
+#define MEGARA_SB2 30720 //steps
 
 //lower limit of theta___3
-#define MEGARA_theta___3min -0.043633231299858194 //rad
+#define MEGARA_theta___3min -0.043633231 //rad
 //upper limit of theta___3
-#define MEGARA_theta___3max 3.185225884889648194 //rad
+#define MEGARA_theta___3max 3.185225885 //rad
 
 //SPM value for generation with precise knolege degree
 //this is the value to initialize the SPM of each arm
 #define MEGARA_SPMgenPairPPDP_p 0.195723055049871 //mm
 
 //contour of the barrier of a RP corresponding to the maneuvering space of the arm (in mm)
-//#define MEGARA_Contour_ "{({13.940281559018, 0}, {-13.940281559018, 0}, {0, 0}, 13.940281559018), ({-13.940281559018, 0}, {13.940281559018, 0}, {0, 0}, 13.940281559018)}"
-#define MEGARA_Contour_ "{({13.954, 0}, {-13.954, 0}, {0, 0}, 13.954), ({-13.954, 0}, {13.954, 0}, {0, 0}, 13.954)}"
+//#define MEGARA_Contour_Text "{({13.940281559018, 0}, {-13.940281559018, 0}, {0, 0}, 13.940281559018), ({-13.940281559018, 0}, {13.940281559018, 0}, {0, 0}, 13.940281559018)}"
+#define MEGARA_Contour_Text "{({13.955, 0}, {-13.955, 0}, {0, 0}, 13.955), ({-13.955, 0}, {13.955, 0}, {0, 0}, 13.955)}"
 
 //distance between RPs
 #define MEGARA_D 20.1 //mm
@@ -112,14 +112,17 @@
 //CONSTANTS FOR THE EXCLUSION AREA:
 
 //contour of the barrier of a EA corresponding to the LIFU (in mm)
-#define MEGARA_LIFU_Conatour_Text "{({-15, -15}, {-15, 15}), ({-15, 15}, {15, 15}), ({15, 15}, {15, -15}), ({15, -15}, {-15, -15})}"
+//#define MEGARA_LIFU_Conatour_Text "{({-15, -15}, {-15, 15}), ({-15, 15}, {15, 15}), ({15, 15}, {15, -15}), ({15, -15}, {-15, -15})}"
+#define MEGARA_LIFU_Contour_Text "{({-9, -9.95}, {-14.2, -4.75}, {-9, -4.75}, 5.2), ({-14.2, -4.75}, {-14.2, 6.721909}), ({-14.2, 6.721909}, {-13.0999999516436, 8.62716491624432}, {-12, 6.721909}, 2.2), ({-13.0999999516436, 8.62716491624432}, {-10.6000001182939, 10.070541204891}), ({-9.7, 11.629387}, {-10.6000001182939, 10.070541204891}, {-11.5, 11.629387}, 1.8), ({-9.7, 11.629387}, {-9.7, 21.2}), ({-9.7, 21.2}, {-7.5, 23.4}, {-7.5, 21.2}, 2.2), ({-7.5, 23.4}, {7.5, 23.4}), ({7.5, 23.4}, {9.7, 21.2}, {7.5, 21.2}, 2.2), ({9.7, 21.2}, {9.7, 11.629387}), ({10.6000001182939, 10.070541204891}, {9.7, 11.629387}, {11.5, 11.629387}, 1.8), ({10.6000001182939, 10.070541204891}, {13.0999999516436, 8.62716491624432}), ({13.0999999516436, 8.62716491624432}, {14.2, 6.721909}, {12, 6.721909}, 2.2), ({14.2, 6.721909}, {14.2, -4.75}), ({14.2, -4.75}, {9, -9.95}, {9, -4.75}, 5.2), ({9, -9.95}, {-9, -9.95})}"
 
 //CONSTANTS OF THE MOTION FUNCTIONS:
 
-#define MEGARA_VMAXABS1 1 //steps/ms
-#define MEGARA_AMAXABS1 0.0007 //steps/ms^2
-#define MEGARA_VMAXABS2 2*MEGARA_SB2/MEGARA_SB1*MEGARA_VMAXABS1 //steps/ms
-#define MEGARA_AMAXABS2 2*MEGARA_SB2/MEGARA_SB1*MEGARA_AMAXABS1 //steps/ms^2
+#define MEGARA_VMAXABS1 3 //steps/ms
+#define MEGARA_AMAXABS1 4294.967295 //steps/ms^2
+//#define MEGARA_VMAXABS2 2*MEGARA_SB2/MEGARA_SB1*MEGARA_VMAXABS1 //steps/ms
+#define MEGARA_VMAXABS2 0.945 //steps/ms
+//#define MEGARA_AMAXABS2 2*MEGARA_SB2/MEGARA_SB1*MEGARA_AMAXABS1 //steps/ms^2
+#define MEGARA_AMAXABS2 4294.967295 //steps/ms^2
 
 //---------------------------------------------------------------------------
 //CONSTANTS OF Telescope Projection Model
