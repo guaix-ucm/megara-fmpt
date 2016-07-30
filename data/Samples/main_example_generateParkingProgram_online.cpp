@@ -24,7 +24,7 @@
 
 //###########################################################################
 //This file contains an example to ilustrate the use of the FMPT library
-//for generate a pair (PP, DP) using the online function.
+//for generate a parking program using the online function.
 //If you want compile and execute this example perform the following actions:
 //
 //    1. Decompress the release 'megara-fmpt-3.3.0.tar.gz (or xz)
@@ -37,10 +37,10 @@
 //           fmpt_saa_LDADD = libfmtp.la
 //           fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
 //       By:
-//           bin_PROGRAMS = fmpt_example_generatePairPPDP_online
-//           fmpt_example_generatePairPPDP_online_SOURCES = main_example_generatePairPPDP_online.cpp
-//           fmpt_example_generatePairPPDP_online_LDADD = libfmtp.la
-//           fmpt_example_generatePairPPDP_online_CPPFLAGS = $(AM_CPPFLAGS)
+//           bin_PROGRAMS = fmpt_example_generateParkingProgram_online
+//           fmpt_example_generateParkingProgram_online_SOURCES = main_example_generateParkingProgram_online.cpp
+//           fmpt_example_generateParkingProgram_online_LDADD = libfmtp.la
+//           fmpt_example_generateParkingProgram_online_CPPFLAGS = $(AM_CPPFLAGS)
 //
 //    4. Install and execute the example in a separated directory:
 //           $ make build
@@ -51,13 +51,13 @@
 //    Then the executable will be written in '/usr/local/bin' (or similar).
 //    If you have installed previously the FMPT SAA, the directory will look:
 //        fmpt_saa
-//        fmpt_example_generatePairPPDP_online
+//        fmpt_example_generateParkingProgram_online
 //
 //    If you don't have installed the FMPT SAA previously, maybe you need
 //    execute $ ldcondig for assimilate the FMPT library in the system.
 //
-//    Now you may execute the example with the comand:
-//        $ fmpt_example_generatePairPPDP_online.
+//    Now you may execute the example with the command:
+//        $ fmpt_example_generateParkingProgram_online.
 //    The output files will be written in the directory where you execute it.
 //###########################################################################
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 
     try {
         //initalize the log file
-        log_filename = "fmpt_testGeneratePairPPDP_online.log";
+        log_filename = "fmpt_testGenerateParkingProgram_online.log";
         char mode[] = "w";
         TTextFile TF(log_filename.c_str(), mode);
         TF.Close();
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
         //LOAD THE FIBER MOS MODEL INSTANCE FROM A DIR:
 
         //indicates that the program is running
-        append("FMPT example generatePairPPDP_online is running...", log_filename.c_str());
+        append("FMPT example generateParkingProgram_online is running...", log_filename.c_str());
 
         //built the paths where search the Fiber MOS Model
         string dir_FMM1 = DATADIR;
@@ -257,13 +257,13 @@ int main(int argc, char *argv[])
         //DECLARE AND BUILD ALL VARIABLES:
 
         //make the folder to put the outputss
-        string output_dir = "example_generatePairPPDP_online";
+        string output_dir = "example_generateParkingProgram_online";
         ForceDirectories(AnsiString(output_dir));
 
         //print the tittle
         unsigned int Bid = 0; //block identifier
-        append("\r\nOnline generation example of a pair (PP, DP) for a CB"+inttostr(Bid)+":", log_filename.c_str());
-        append("=======================================================", log_filename.c_str());
+        append("\r\nOnline generation example of a parking program for a CB"+inttostr(Bid)+":", log_filename.c_str());
+        append("=========================================================", log_filename.c_str());
 
         //build the filename of reference (including the Bid)
         string filename = "example-"+inttostr(Bid)+".txt";
@@ -276,59 +276,57 @@ int main(int argc, char *argv[])
         // 2. Randomize the allocations without collisions.
 
         //-------------------------------------------------------------------
-        //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
+        //WAY 2: GETTING A SET OF ALLOCATIONS RANDOMIZING THEM WITHOUT COLLISIONS:
 
-        //load the Outputs structure from a file
-        string input_path = "/usr/local/share/megara-fmpt/Samples/megara-cb0.txt";
-        Outputs outputs;
-        string str; //string to be written to file each time
-        try {
-            strReadFromFile(str, input_path);
-            outputs.FMOSAT.setTableText(Bid, str);
-
-        } catch(Exception& E) {
-            E.Message.Insert(1, "reading FMOSA file: ");
-            throw;
-        }
-        append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
-
-        //get the allocation from the FMOSA table
+        //add to the MPG an allocation for each RP of the FMM
         TMotionProgramGenerator MPG(&FMM);
-        outputs.FMOSAT.getAllocations(MPG);
-        append("Allocations got from the FMOSA table in MPG.", log_filename.c_str());
+        for(int i=0; i<FMM.RPL.getCount(); i++)
+            MPG.AddAllocation(i);
+
+        //When you reuse the MPG, you need to do:
+        //  Destroy(MPG);
+
+        //randomize the projection points in the domain of their attached RPs
+        FMM.RPL.setPurpose(pGenParPro);
+            append("FMM configured for generate a parking program. (Purpose = GenParPro).", log_filename.c_str());
+        MPG.RandomizeWithoutCollision();
+        append("Starting points randomized avoinding collisions.", log_filename.c_str());
+
+        //Note that before randomize the allocations withoud collisions,
+        //must be configured the FMM for generate a parking program.
 
         //save the allocation table
-        str = TAllocation::GetIdPPLabelsRow().str;
+        string str = TAllocation::GetIdPPLabelsRow().str;
         str += "\r\n"+MPG.getColumnText().str;
         string output_filename = output_dir+"/AL-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
 
-        //FOR UNCOMMENT THE GETTING OF THE OUTPUTS FILE GO TO LABEL:
+        //FOR COMMENT THE GETTING OF THE OUTPUTS FILE GO TO LABEL:
         //  "//get the output file".
 
         //###################################################################
 
         //-------------------------------------------------------------------
-        //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) ONLINE:
+        //TEST THE FUNCTION FOR GENERATE PARKING PROGRAM ONLINE:
 
         //move the RPs to the more closer stable point to the projection points
         MPG.MoveToTargetP3();
-        append("RPs moved to observing positions.", log_filename.c_str());
+        append("RPs moved to starting positions.", log_filename.c_str());
 
         //A PPA list shall be stored how a table (Id, p_1, p___3).
 
-        //captures the observing positions of the RPs in a PPA list
-        TPairPositionAnglesList OPL;
-        FMM.RPL.getPositions(OPL);
+        //captures the starting positions of the RPs in a PPA list
+        TPairPositionAnglesList SPL;
+        FMM.RPL.getPositions(SPL);
         str = TActuator::getPositionPPALabelsRow().str;
-        str += "\r\n"+OPL.getColumnText().str;
+        str += "\r\n"+SPL.getColumnText().str;
         ForceDirectories(AnsiString(output_dir));
-        output_filename = output_dir+"/OPL-from-"+filename;
+        output_filename = output_dir+"/SPL-from-"+filename;
         strWriteToFile(output_filename, str);
-        append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+        append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
 
-        //Other whay to obtain the observing position list directly in text format:
+        //Other whay to obtain the starting position list directly in text format:
         //  FMM.RPL.getPositionsPPATableText()
 
         //copy the position angles in the input parameters
@@ -358,30 +356,29 @@ int main(int argc, char *argv[])
         //of the real Fiber MOS.
 
         //call the function to test
-        TMotionProgram PP, DP;
-        append("Calling function generatePairPPDP_online...", log_filename.c_str());
-        append("----------------------------------------------------------------", log_filename.c_str());
-        append("PairPPDPvalid = generatePairPPDP_online(PP, DP,", log_filename.c_str());
-        append("                                        FMM, p_1s, p___3s, Ids);", log_filename.c_str());
-        bool PairPPDPvalid = generatePairPPDP_online(PP, DP,
-                                                     FMM, p_1s, p___3s, Ids);
-        append("----------------------------------------------------------------", log_filename.c_str());
-        append("Returned from function generatePairPPDP_online.", log_filename.c_str());
+        TMotionProgram ParkingProgram;
+        append("Calling function generateParkingProgram_online...", log_filename.c_str());
+        append("----------------------------------------------------------------------------", log_filename.c_str());
+        append("ParkingProgramValid = generateParkingProgram_online(PP, DP,", log_filename.c_str());
+        append("                                                    FMM, p_1s, p___3s, Ids);", log_filename.c_str());
+        bool ParkingProgramValid = generateParkingProgram_online(ParkingProgram,
+                                                           FMM, p_1s, p___3s, Ids);
+        append("----------------------------------------------------------------------------", log_filename.c_str());
+        append("Returned from function generateParkingProgram_online.", log_filename.c_str());
 
-        //When you reuse the MPs, you need to do:
-        //  PP.clear();
-        //  DP.clear();
+        //When you reuse the MP, you need to do:
+        //  ParkingProgram.clear();
         //before call the generation function.
 
-        //WARNING: function generatePairPPDP_online not return the lists Collided and Obstructed.
+        //WARNING: function generateParkingProgram_online not return the lists Collided and Obstructed.
         //So it is possible that the function return true, but there are RPs collided or obstructed.
-        //in these case, these RPs will not be included in the pair (PP, DP).
-        //Inputs and outputs parameters of the function generatePairPPDP_online,
+        //in these case, these RPs will not be included in the parking program.
+        //Inputs and outputs parameters of the function generateParkingProgram_online,
         //was stablished by the programmer of the MCS, which was warned about this circunstance.
 
-        //determine the list of RPs included in the pair (PP, DP)
+        //determine the list of RPs excluded in the parking program
         TRoboticPositionerList Included;
-        getRPsIncludedInMPs(Included, PP, DP, &FMM);
+        getRPsIncludedInMP(Included, ParkingProgram, &FMM);
         TVector<int> Excluded;
         for(int i=0; i<FMM.RPL.getCount(); i++) {
             TRoboticPositioner *RP = FMM.RPL[i];
@@ -411,82 +408,48 @@ int main(int argc, char *argv[])
         //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
         //if generation function was successfully generated
-        if(PairPPDPvalid) {
+        if(ParkingProgramValid) {
             //indicates the result of the generation
-            append("Generated pair (PP, DP) is valid.", log_filename.c_str());
+            append("Generated parking program is valid.", log_filename.c_str());
 
-            //save the DP in the format of the FMPT
-            str = DP.getText().str;
-            output_filename = output_dir+"/DP-FMPT-from-"+filename;
+            //save the ParkingProgram in the format of the FMPT
+            str = ParkingProgram.getText().str;
+            output_filename = output_dir+"/ParkingProgram-FMPT-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Depositioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Parking program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
-            //save the PP in the format of the FMPT
-            str = PP.getText().str;
-            output_filename = output_dir+"/PP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Positioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //Given that here the generated pair (PP, DP) is valid,
+            //Given that here the generated parking program is valid,
             //all operative outsider RPs which aren't obstructed, should be:
-            //- in the origin positions.
-            //Because function TMotionProgramGenerator::generatePairPPDP,
-            //test first the DP and after the PP, but at the end
-            //move all RPs to their initial positions.
+            //- in the final positions.
 
-            //captures the initial positions of the RPs in a PPA list
-            TPairPositionAnglesList IPL;
-            FMM.RPL.getPositions(IPL);
+            //captures the final positions of the RPs in a PPA list
+            TPairPositionAnglesList FPL;
+            FMM.RPL.getPositions(FPL);
             string str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+IPL.getColumnText().str;
-            string output_filename = output_dir+"/IPL-from-"+filename;
+            str += "\r\n"+FPL.getColumnText().str;
+            string output_filename = output_dir+"/FPL-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
 
-            //Other whay to obtain the initial position table directly in text format:
+            //Other whay to obtain the final position table directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
 
-            //translates the depositioning program to the format of the interface MCS-FMPT
+            //translates the parking program to the format of the interface MCS-FMPT
             //and save it in a file
-            DP.getInterfaceText(str, "depos", Bid, OPL);
-            append("Depositiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/DP-from-"+filename;
+            ParkingProgram.getInterfaceText(str, "depos", Bid, SPL);
+            append("Parking program translated to the MCS format.", log_filename.c_str());
+            output_filename = output_dir+"/ParkingProgram-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Depositioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //translates the positioning program to the format of the interface MCS-FMPT
-            //and save it in a file
-            PP.getInterfaceText(str, "pos", Bid, IPL);
-            append("Positiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/PP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Positioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //###############################################################
-            //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
-
-            //If you use the way 2, you must comment this instructions,
-            //because the outputs file only can be obtained when the allocations
-            //has been loaded from a FMOSA file, because it contains
-            //the FMOSA table in addition to the pair(PP, DP).
-
-            //get the outputs file
-            outputs.PP = PP;
-            outputs.DP = DP;
-            outputs.getText(str, Bid, OPL, IPL);
-            output_filename = output_dir+"/outputs-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Pair (PP, DP) saved in '"+output_filename+"'.", log_filename.c_str());
-            //###############################################################
+            append("Parking program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
         }
         else {
-            //Given that here the generated pair (PP, DP) is invalid,
+            //Given that here the generated parking program is invalid,
             //all operative outsider RPs which aren't obstructed, should be:
             //- in the first position where the collision was detected.
-            //During the test of DP or the test of PP.
+            //During the test of ParkingProgram.
 
             //print the result of generation of the PP
-            append("Generated pair (PP, DP) is not valid, because either PP nor DP is invalid.", log_filename.c_str());
+            append("Generated parking program is invalid.", log_filename.c_str());
         }
 
         //Below alll instruction about Obstructed or Collided has been comented:
@@ -498,14 +461,12 @@ int main(int argc, char *argv[])
         //    append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
 
         //print the other outputs in the corresponding file
-        str = "PairPPDPvalid: "+BoolToStr(PairPPDPvalid,true).str;
+        str = "ParkingProgramValid: "+BoolToStr(ParkingProgramValid,true).str;
         //str += "\r\nCollided: "+Collided.getText().str;                         //not returned by the function online
         //str += "\r\nObstructed: "+Obstructed.getText().str;                     //not returned by the function online
         str += "\r\nExcluded: "+Excluded.getText().str;
-        if(DP.thereIsSomeComment1())
-            str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
-        if(PP.thereIsSomeComment1())
-            str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
+        if(ParkingProgram.thereIsSomeComment1())
+            str += "\r\nParkingProgram comments:\r\n"+ParkingProgram.getComment1sColumnText();
         output_filename = output_dir+"/other-outputs-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
@@ -516,8 +477,8 @@ int main(int argc, char *argv[])
         //but they are discarted in the function of generation online.
 
         //indicates that the generating example has finished
-        append("\r\nFinished online generation example of a pair (PP, DP) for CB"+inttostr(Bid)+"!", log_filename.c_str());
-        append("PairPPDPvalid: "+BoolToStr(PairPPDPvalid, true).str, log_filename.c_str());
+        append("\r\nFinished online generation example of a parking program for CB"+inttostr(Bid)+"!", log_filename.c_str());
+        append("ParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str, log_filename.c_str());
         //append("Collided: "+Collided.gettText().str, log_filename.c_str());     //not returned by the function online
         //append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str()); //not returned by the function online
         append("Excluded: "+Excluded.getText().str, log_filename.c_str());

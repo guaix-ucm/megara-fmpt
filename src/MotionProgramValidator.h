@@ -39,7 +39,7 @@ namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-//Get the list of RPs includes in a MP.
+//Get the list of RPs included in a MP.
 //Precondition:
 //  All message of instruction in the MP shall be addressed
 //  to an existent RP of the Fiber MOS Model.

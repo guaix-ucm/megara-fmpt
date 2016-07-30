@@ -33,7 +33,7 @@ namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-//Get the list of RPs includes in a MP.
+//Get the list of RPs included in a MP.
 //Precondition:
 //  All message of instruction in the MP shall be addressed
 //  to an existent RP of the Fiber MOS Model.
@@ -46,7 +46,7 @@ void getRPsIncludedInMP(TRoboticPositionerList& RPL,
     if(FMM == NULL)
         throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
 
-    //chack if all message of instruction in the MP are addressed to an existent RP of the Fiber MOS Model
+    //check if all message of instruction in the MP are addressed to an existent RP of the Fiber MOS Model
     for(int i=0; i<MP.getCount(); i++) {
         const TMessageList *ML = MP.GetPointer(i);
         for(int j=0; j<ML->getCount(); j++) {
