@@ -41,10 +41,10 @@ g++ main_testTile.cpp testTile.cpp -I include -L lib -lcppunit -o main_testTile
 g++ main_testTelescopeProjectionModel.cpp testTelescopeProjectionModel.cpp -I include -L lib -lcppunit -o main_testTelescopeProjectionModel
 g++ main_testAllocation.cpp testAllocation.cpp -I include -L lib -lcppunit -o main_testAllocation
 g++ main_testAllocationList.cpp testAllocationList.cpp -I include -L lib -lcppunit -o main_testAllocationList
-#g++ main_testMotionProgramValidator.cpp testMotionProgramValidator.cpp -I include -L lib -lcppunit -o main_testMotionProgramValidator
+g++ main_testMotionProgramValidator.cpp testMotionProgramValidator.cpp -I include -L lib -lcppunit -o main_testMotionProgramValidator
 g++ main_testMotionProgramGenerator.cpp testMotionProgramGenerator.cpp -I include -L lib -lcppunit -o main_testMotionProgramGenerator
-#g++ main_testPositionerCenter.cpp testPositionerCenter.cpp -I include -L lib -lcppunit -o main_testPositionerCenter
-#g++ main_testFileMethods.cpp testFileMethods.cpp -I include -L lib -lcppunit -o main_testFileMethods
+g++ main_testPositionerCenter.cpp testPositionerCenter.cpp -I include -L lib -lcppunit -o main_testPositionerCenter
+g++ main_testFileMethods.cpp testFileMethods.cpp -I include -L lib -lcppunit -o main_testFileMethods
 g++ main_testFMOSATable.cpp testFMOSATable.cpp -I include -L lib -lcppunit -o main_testFMOSATable
 g++ main_testOutputs.cpp testOutputs.cpp -I include -L lib -lcppunit -o main_testOutputs
 

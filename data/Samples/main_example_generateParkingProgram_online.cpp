@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 
     try {
         //-------------------------------------------------------------------
-        //CONFIGURATES THE SYSTEM:
+        //CONFIGURATE THE SYSTEM:
 
         //REMEMBER: exceptions in runtime can be due to that
         //the system is not configurated.
@@ -236,15 +236,19 @@ int main(int argc, char *argv[])
 
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
+        string dir_FMM;
+
         try {
-            append("Loading FMM instance from: '"+dir_FMM1+"'.", log_filename.c_str());
+            append("\r\nLoading FMM instance from: '"+dir_FMM1+"'.", log_filename.c_str());
             readInstanceFromDir(FMM, dir_FMM1);
+            dir_FMM = dir_FMM1;
         }
         catch(Exception& E) {
-            append("FMM instance can't be loaded: '"+E.Message.str, log_filename.c_str());
+            append("FMM instance can't be loaded: "+E.Message.str, log_filename.c_str());
             try {
                 append("Loading FMM instance from: '"+dir_FMM2+"'.", log_filename.c_str());
                 readInstanceFromDir(FMM, dir_FMM2);
+                dir_FMM = dir_FMM2;
             }
             catch(Exception& E) {
                 E.Message.Insert(1, "loading instance: ");
@@ -409,6 +413,31 @@ int main(int argc, char *argv[])
 
         //if generation function was successfully generated
         if(ParkingProgramValid) {
+            //access to each instruction of the ParkingProgram
+            for(int i=0; i<ParkingProgram.getCount(); i++) {
+                TMessageList *ML = ParkingProgram.GetPointer(i);
+                for(int j=0; j<ML->getCount(); j++) {
+                    //point the indicated message instruction
+                    TMessageInstruction *MI = ML->GetPointer(j);
+
+                    //get the information from the message instruction
+                    int Id = MI->getId();
+                    TInstruction I = MI->Instruction;
+                    string name = I.getName().str;
+                    if(name == "M1") {
+                        double p_1 = I.Args[0];
+                    } else if(name == "M2") {
+                        double p___3 = I.Args[0];
+                    } else if(name == "MM") {
+                        double p_1 = I.Args[0];
+                        double p___3 = I.Args[1];
+                    } else
+                        throw EImpossibleError("lateral effect");
+
+                    //here is possible use the properties (Id, p_1, p___3) of the message instruction (i, j)
+                }
+            }
+
             //indicates the result of the generation
             append("Generated parking program is valid.", log_filename.c_str());
 

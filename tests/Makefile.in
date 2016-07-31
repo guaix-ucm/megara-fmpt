@@ -121,7 +121,10 @@ host_triplet = @host@
 @TESTS_ENABLED_TRUE@	main_testTelescopeProjectionModel$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testAllocation$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testAllocationList$(EXEEXT) \
+@TESTS_ENABLED_TRUE@	main_testMotionProgramValidator$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testMotionProgramGenerator$(EXEEXT) \
+@TESTS_ENABLED_TRUE@	main_testPositionerCenter$(EXEEXT) \
+@TESTS_ENABLED_TRUE@	main_testFileMethods$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testFMOSATable$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testOutputs$(EXEEXT)
 @TESTS_ENABLED_TRUE@check_PROGRAMS = main_testVCLemu$(EXEEXT) \
@@ -167,7 +170,10 @@ host_triplet = @host@
 @TESTS_ENABLED_TRUE@	main_testTelescopeProjectionModel$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testAllocation$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testAllocationList$(EXEEXT) \
+@TESTS_ENABLED_TRUE@	main_testMotionProgramValidator$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testMotionProgramGenerator$(EXEEXT) \
+@TESTS_ENABLED_TRUE@	main_testPositionerCenter$(EXEEXT) \
+@TESTS_ENABLED_TRUE@	main_testFileMethods$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testFMOSATable$(EXEEXT) \
 @TESTS_ENABLED_TRUE@	main_testOutputs$(EXEEXT)
 subdir = tests
@@ -348,6 +354,16 @@ main_testFigure_LDADD = $(LDADD)
 @TESTS_ENABLED_TRUE@main_testFigure_DEPENDENCIES =  \
 @TESTS_ENABLED_TRUE@	$(top_builddir)/src/libfmtp.la \
 @TESTS_ENABLED_TRUE@	$(am__DEPENDENCIES_1)
+am__main_testFileMethods_SOURCES_DIST = main_testFileMethods.cpp \
+	testFileMethods.h testFileMethods.cpp
+@TESTS_ENABLED_TRUE@am_main_testFileMethods_OBJECTS =  \
+@TESTS_ENABLED_TRUE@	main_testFileMethods.$(OBJEXT) \
+@TESTS_ENABLED_TRUE@	testFileMethods.$(OBJEXT)
+main_testFileMethods_OBJECTS = $(am_main_testFileMethods_OBJECTS)
+main_testFileMethods_LDADD = $(LDADD)
+@TESTS_ENABLED_TRUE@main_testFileMethods_DEPENDENCIES =  \
+@TESTS_ENABLED_TRUE@	$(top_builddir)/src/libfmtp.la \
+@TESTS_ENABLED_TRUE@	$(am__DEPENDENCIES_1)
 am__main_testFunction_SOURCES_DIST = main_testFunction.cpp \
 	testFunction.h testFunction.cpp
 @TESTS_ENABLED_TRUE@am_main_testFunction_OBJECTS =  \
@@ -434,6 +450,18 @@ main_testMotionProgramGenerator_LDADD = $(LDADD)
 @TESTS_ENABLED_TRUE@main_testMotionProgramGenerator_DEPENDENCIES =  \
 @TESTS_ENABLED_TRUE@	$(top_builddir)/src/libfmtp.la \
 @TESTS_ENABLED_TRUE@	$(am__DEPENDENCIES_1)
+am__main_testMotionProgramValidator_SOURCES_DIST =  \
+	main_testMotionProgramValidator.cpp \
+	testMotionProgramValidator.h testMotionProgramValidator.cpp
+@TESTS_ENABLED_TRUE@am_main_testMotionProgramValidator_OBJECTS =  \
+@TESTS_ENABLED_TRUE@	main_testMotionProgramValidator.$(OBJEXT) \
+@TESTS_ENABLED_TRUE@	testMotionProgramValidator.$(OBJEXT)
+main_testMotionProgramValidator_OBJECTS =  \
+	$(am_main_testMotionProgramValidator_OBJECTS)
+main_testMotionProgramValidator_LDADD = $(LDADD)
+@TESTS_ENABLED_TRUE@main_testMotionProgramValidator_DEPENDENCIES =  \
+@TESTS_ENABLED_TRUE@	$(top_builddir)/src/libfmtp.la \
+@TESTS_ENABLED_TRUE@	$(am__DEPENDENCIES_1)
 am__main_testOutputs_SOURCES_DIST = main_testOutputs.cpp testOutputs.h \
 	testOutputs.cpp
 @TESTS_ENABLED_TRUE@am_main_testOutputs_OBJECTS =  \
@@ -476,6 +504,18 @@ main_testPointersSlideArray_OBJECTS =  \
 	$(am_main_testPointersSlideArray_OBJECTS)
 main_testPointersSlideArray_LDADD = $(LDADD)
 @TESTS_ENABLED_TRUE@main_testPointersSlideArray_DEPENDENCIES =  \
+@TESTS_ENABLED_TRUE@	$(top_builddir)/src/libfmtp.la \
+@TESTS_ENABLED_TRUE@	$(am__DEPENDENCIES_1)
+am__main_testPositionerCenter_SOURCES_DIST =  \
+	main_testPositionerCenter.cpp testPositionerCenter.h \
+	testPositionerCenter.cpp
+@TESTS_ENABLED_TRUE@am_main_testPositionerCenter_OBJECTS =  \
+@TESTS_ENABLED_TRUE@	main_testPositionerCenter.$(OBJEXT) \
+@TESTS_ENABLED_TRUE@	testPositionerCenter.$(OBJEXT)
+main_testPositionerCenter_OBJECTS =  \
+	$(am_main_testPositionerCenter_OBJECTS)
+main_testPositionerCenter_LDADD = $(LDADD)
+@TESTS_ENABLED_TRUE@main_testPositionerCenter_DEPENDENCIES =  \
 @TESTS_ENABLED_TRUE@	$(top_builddir)/src/libfmtp.la \
 @TESTS_ENABLED_TRUE@	$(am__DEPENDENCIES_1)
 am__main_testProjectionPoint_SOURCES_DIST =  \
@@ -745,16 +785,19 @@ SOURCES = $(main_testActuator_SOURCES) $(main_testAllocation_SOURCES) \
 	$(main_testFMOSATable_SOURCES) \
 	$(main_testFiberConnectionModel_SOURCES) \
 	$(main_testFiberMOSModel_SOURCES) $(main_testFigure_SOURCES) \
-	$(main_testFunction_SOURCES) $(main_testGeometry_SOURCES) \
-	$(main_testInstruction_SOURCES) $(main_testItemsList_SOURCES) \
+	$(main_testFileMethods_SOURCES) $(main_testFunction_SOURCES) \
+	$(main_testGeometry_SOURCES) $(main_testInstruction_SOURCES) \
+	$(main_testItemsList_SOURCES) \
 	$(main_testMessageInstruction_SOURCES) \
 	$(main_testMotionFunction_SOURCES) \
 	$(main_testMotionProgram_SOURCES) \
 	$(main_testMotionProgramGenerator_SOURCES) \
+	$(main_testMotionProgramValidator_SOURCES) \
 	$(main_testOutputs_SOURCES) \
 	$(main_testPairPositionAngles_SOURCES) \
 	$(main_testPointersList_SOURCES) \
 	$(main_testPointersSlideArray_SOURCES) \
+	$(main_testPositionerCenter_SOURCES) \
 	$(main_testProjectionPoint_SOURCES) \
 	$(main_testQuantificator_SOURCES) \
 	$(main_testRampFunction_SOURCES) \
@@ -785,6 +828,7 @@ DIST_SOURCES = $(am__main_testActuator_SOURCES_DIST) \
 	$(am__main_testFiberConnectionModel_SOURCES_DIST) \
 	$(am__main_testFiberMOSModel_SOURCES_DIST) \
 	$(am__main_testFigure_SOURCES_DIST) \
+	$(am__main_testFileMethods_SOURCES_DIST) \
 	$(am__main_testFunction_SOURCES_DIST) \
 	$(am__main_testGeometry_SOURCES_DIST) \
 	$(am__main_testInstruction_SOURCES_DIST) \
@@ -793,10 +837,12 @@ DIST_SOURCES = $(am__main_testActuator_SOURCES_DIST) \
 	$(am__main_testMotionFunction_SOURCES_DIST) \
 	$(am__main_testMotionProgram_SOURCES_DIST) \
 	$(am__main_testMotionProgramGenerator_SOURCES_DIST) \
+	$(am__main_testMotionProgramValidator_SOURCES_DIST) \
 	$(am__main_testOutputs_SOURCES_DIST) \
 	$(am__main_testPairPositionAngles_SOURCES_DIST) \
 	$(am__main_testPointersList_SOURCES_DIST) \
 	$(am__main_testPointersSlideArray_SOURCES_DIST) \
+	$(am__main_testPositionerCenter_SOURCES_DIST) \
 	$(am__main_testProjectionPoint_SOURCES_DIST) \
 	$(am__main_testQuantificator_SOURCES_DIST) \
 	$(am__main_testRampFunction_SOURCES_DIST) \
@@ -1212,10 +1258,10 @@ top_srcdir = @top_srcdir@
 @TESTS_ENABLED_TRUE@main_testTelescopeProjectionModel_SOURCES = main_testTelescopeProjectionModel.cpp testTelescopeProjectionModel.h testTelescopeProjectionModel.cpp
 @TESTS_ENABLED_TRUE@main_testAllocation_SOURCES = main_testAllocation.cpp testAllocation.h testAllocation.cpp
 @TESTS_ENABLED_TRUE@main_testAllocationList_SOURCES = main_testAllocationList.cpp testAllocationList.h testAllocationList.cpp
-#main_testMotionProgramValidator_SOURCES = main_testMotionProgramValidator.cpp testMotionProgramValidator.h testMotionProgramValidator.cpp
+@TESTS_ENABLED_TRUE@main_testMotionProgramValidator_SOURCES = main_testMotionProgramValidator.cpp testMotionProgramValidator.h testMotionProgramValidator.cpp
 @TESTS_ENABLED_TRUE@main_testMotionProgramGenerator_SOURCES = main_testMotionProgramGenerator.cpp testMotionProgramGenerator.h testMotionProgramGenerator.cpp
-#main_testPositionerCenter_SOURCES = main_testPositionerCenter.cpp testPositionerCenter.h testPositionerCenter.cpp
-#main_testFileMethods_SOURCES = main_testFileMethods.cpp testFileMethods.h testFileMethods.cpp
+@TESTS_ENABLED_TRUE@main_testPositionerCenter_SOURCES = main_testPositionerCenter.cpp testPositionerCenter.h testPositionerCenter.cpp
+@TESTS_ENABLED_TRUE@main_testFileMethods_SOURCES = main_testFileMethods.cpp testFileMethods.h testFileMethods.cpp
 @TESTS_ENABLED_TRUE@main_testFMOSATable_SOURCES = main_testFMOSATable.cpp testFMOSATable.h testFMOSATable.cpp
 @TESTS_ENABLED_TRUE@main_testOutputs_SOURCES = main_testOutputs.cpp testOutputs.h testOutputs.cpp
 @TESTS_ENABLED_TRUE@AM_CPPFLAGS = -I$(top_srcdir) -I$(CPPUNIT_CFLAGS)
@@ -1326,6 +1372,10 @@ main_testFigure$(EXEEXT): $(main_testFigure_OBJECTS) $(main_testFigure_DEPENDENC
 	@rm -f main_testFigure$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(main_testFigure_OBJECTS) $(main_testFigure_LDADD) $(LIBS)
 
+main_testFileMethods$(EXEEXT): $(main_testFileMethods_OBJECTS) $(main_testFileMethods_DEPENDENCIES) $(EXTRA_main_testFileMethods_DEPENDENCIES) 
+	@rm -f main_testFileMethods$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(main_testFileMethods_OBJECTS) $(main_testFileMethods_LDADD) $(LIBS)
+
 main_testFunction$(EXEEXT): $(main_testFunction_OBJECTS) $(main_testFunction_DEPENDENCIES) $(EXTRA_main_testFunction_DEPENDENCIES) 
 	@rm -f main_testFunction$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(main_testFunction_OBJECTS) $(main_testFunction_LDADD) $(LIBS)
@@ -1358,6 +1408,10 @@ main_testMotionProgramGenerator$(EXEEXT): $(main_testMotionProgramGenerator_OBJE
 	@rm -f main_testMotionProgramGenerator$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(main_testMotionProgramGenerator_OBJECTS) $(main_testMotionProgramGenerator_LDADD) $(LIBS)
 
+main_testMotionProgramValidator$(EXEEXT): $(main_testMotionProgramValidator_OBJECTS) $(main_testMotionProgramValidator_DEPENDENCIES) $(EXTRA_main_testMotionProgramValidator_DEPENDENCIES) 
+	@rm -f main_testMotionProgramValidator$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(main_testMotionProgramValidator_OBJECTS) $(main_testMotionProgramValidator_LDADD) $(LIBS)
+
 main_testOutputs$(EXEEXT): $(main_testOutputs_OBJECTS) $(main_testOutputs_DEPENDENCIES) $(EXTRA_main_testOutputs_DEPENDENCIES) 
 	@rm -f main_testOutputs$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(main_testOutputs_OBJECTS) $(main_testOutputs_LDADD) $(LIBS)
@@ -1373,6 +1427,10 @@ main_testPointersList$(EXEEXT): $(main_testPointersList_OBJECTS) $(main_testPoin
 main_testPointersSlideArray$(EXEEXT): $(main_testPointersSlideArray_OBJECTS) $(main_testPointersSlideArray_DEPENDENCIES) $(EXTRA_main_testPointersSlideArray_DEPENDENCIES) 
 	@rm -f main_testPointersSlideArray$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(main_testPointersSlideArray_OBJECTS) $(main_testPointersSlideArray_LDADD) $(LIBS)
+
+main_testPositionerCenter$(EXEEXT): $(main_testPositionerCenter_OBJECTS) $(main_testPositionerCenter_DEPENDENCIES) $(EXTRA_main_testPositionerCenter_DEPENDENCIES) 
+	@rm -f main_testPositionerCenter$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(main_testPositionerCenter_OBJECTS) $(main_testPositionerCenter_LDADD) $(LIBS)
 
 main_testProjectionPoint$(EXEEXT): $(main_testProjectionPoint_OBJECTS) $(main_testProjectionPoint_DEPENDENCIES) $(EXTRA_main_testProjectionPoint_DEPENDENCIES) 
 	@rm -f main_testProjectionPoint$(EXEEXT)
@@ -1471,6 +1529,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testFiberConnectionModel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testFiberMOSModel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testFigure.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testFileMethods.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testGeometry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testInstruction.Po@am__quote@
@@ -1479,10 +1538,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testMotionFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testMotionProgram.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testMotionProgramGenerator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testMotionProgramValidator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testOutputs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testPairPositionAngles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testPointersList.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testPointersSlideArray.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testPositionerCenter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testProjectionPoint.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testQuantificator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_testRampFunction.Po@am__quote@
@@ -1517,6 +1578,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testFiberConnectionModel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testFiberMOSModel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testFigure.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testFileMethods.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testGeometry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testInstruction.Po@am__quote@
@@ -1525,10 +1587,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testMotionFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testMotionProgram.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testMotionProgramGenerator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testMotionProgramValidator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testOutputs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testPairPositionAngles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testPointersList.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testPointersSlideArray.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testPositionerCenter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testProjectionPoint.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testQuantificator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testRampFunction.Po@am__quote@
@@ -2077,9 +2141,30 @@ main_testAllocationList.log: main_testAllocationList$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+main_testMotionProgramValidator.log: main_testMotionProgramValidator$(EXEEXT)
+	@p='main_testMotionProgramValidator$(EXEEXT)'; \
+	b='main_testMotionProgramValidator'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 main_testMotionProgramGenerator.log: main_testMotionProgramGenerator$(EXEEXT)
 	@p='main_testMotionProgramGenerator$(EXEEXT)'; \
 	b='main_testMotionProgramGenerator'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+main_testPositionerCenter.log: main_testPositionerCenter$(EXEEXT)
+	@p='main_testPositionerCenter$(EXEEXT)'; \
+	b='main_testPositionerCenter'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+main_testFileMethods.log: main_testFileMethods$(EXEEXT)
+	@p='main_testFileMethods$(EXEEXT)'; \
+	b='main_testFileMethods'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

@@ -167,7 +167,7 @@ void TestFileMethods::test_writeInstanceToDir_EAL()
 
     //write the instance of the EAL in a temporal directory
     //with the function to test
-    string dir_ = "../../MEGARA_FiberMOSModel_Instance_temporal";
+    string dir_ = "../MEGARA_FiberMOSModel_Instance_temporal";
     //string dir_ = "../megarafmpt/MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, EAL);
@@ -217,13 +217,6 @@ void TestFileMethods::test_writeInstanceToDir_EAL()
         strReadFromFile(str_regenerated, filename_);
         strClearComments(str_regenerated);
 
-string str1 = strTrim(str_loaded);
-string str2 = strTrim(str_regenerated);
-int count1 = str1.length();
-int count2 = str2.length();
-string sub1 = str1.substr(300, 100);
-string sub2 = str2.substr(300, 100);
-
         //determine if the values dont match
         if(strTrim(str_loaded) != strTrim(str_regenerated)) {
             CPPUNIT_ASSERT(false);
@@ -262,8 +255,8 @@ void TestFileMethods::test_readInstanceFromDir_EAL()
     //read an original instance of a EAL from a directory
     //using the function to test
     TExclusionAreaList EAL;
-    //string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
-    string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     readInstanceFromDir(EAL, dir);
 
     //--------------------------------------------------------------
@@ -273,7 +266,7 @@ void TestFileMethods::test_readInstanceFromDir_EAL()
     strReadFromFile(str_loaded, dir+"/ExclusionAreaOriginsTable.txt");
 
     //regenerate the EA origins table
-    string str_regenerated = TActuator::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str;
+    string str_regenerated = TExclusionArea::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str;
     strClearComments(str_regenerated);
 
     //determine if the values dont match
@@ -336,15 +329,15 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
 {
     //read an original instance of a RPL from a directory
     TRoboticPositionerList RPL;
-    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     TExclusionAreaList EAL;
     readInstanceFromDir(RPL, dir, EAL);
 
     //write the instance of the RPL in a temporal directory
     //with te function to test
-    string dir_ = "../../MEGARA_FiberMOSModel_Instance_temporal";
-    //string dir_ = "../../MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
+    string dir_ = "../MEGARA_FiberMOSModel_Instance_temporal";
+    //string dir_ = "../megarafmpt/MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, RPL);
 
@@ -623,7 +616,7 @@ return;
 
     //write the instance of the FMM in a temporal directory
     //using the function to test
-    string dir_ = "../../MEGARA_FiberMOSModel_Instance_temporal";
+    string dir_ = "../MEGARA_FiberMOSModel_Instance_temporal";
     //string dir_ = "../megarafmpt/MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, FMM);
@@ -957,7 +950,7 @@ void TestFileMethods::test_readInstanceFromDir_FMM()
     strReadFromFile(str_loaded, dir+"/ExclusionAreaOriginsTable.txt");
 
     //regenerate the EA origins table
-    str_regenerated = TActuator::getOriginsLabelsRow().str+"\r\n"+FMM.EAL.getOriginsTableText().str;
+    str_regenerated = TExclusionArea::getOriginsLabelsRow().str+"\r\n"+FMM.EAL.getOriginsTableText().str;
     strClearComments(str_regenerated);
 
     //determine if the values dont match

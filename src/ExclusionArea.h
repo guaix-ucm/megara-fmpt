@@ -140,8 +140,7 @@ public:
 
     //conjunto de propiedades de origen (Id, x0, y0, thetaO1)
     //en formato línea de texto
-    //en formato asignaciones de texto
-    AnsiString getOriginsText(void) const;
+    AnsiString getOriginsRowText(void) const;
 
     //-------------------------------------------------------------------
     //MÉTODOS ESTÁTICOS:

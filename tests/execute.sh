@@ -41,10 +41,10 @@
 ./main_testTelescopeProjectionModel.h;
 ./main_testAllocation.h;
 ./main_testAllocationList.h;
-#./main_testMotionProgramValidator.h;
+./main_testMotionProgramValidator.h;
 ./main_testMotionProgramGenerator.h;
-#./main_testPositionerCenter.h;
-#./main_testFileMethods.h;
+./main_testPositionerCenter.h;
+./main_testFileMethods.h;
 ./main_testFMOSATable.h;
 ./main_testOutputs.h;
 

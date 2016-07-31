@@ -35,8 +35,6 @@
 //#include "../ui/GenerateFrames.h"
 //#include "../ui/mainwindow.h"
 
-//#include <QCoreApplication> //Qt only
-//#include <QApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout, ios::fixed
 
@@ -160,12 +158,12 @@ string help_engineering(void)
     str += "\r\n    Apply a RP instance to the Fiber MOS Model instance.";
 
     str += "\r\n";
-    str += "\r\n$ fmpt_saa testGeneratePairPPDP_offline";
+    str += "\r\n$ fmpt_saa test_generatePairPPDP_offline";
     str += "\r\n    Test the function generatePairPPDP_offline:";
     str += "\r\n        generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,";
     str += "\r\n                                 FMM, input_path, output_dir, log_filename);";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa testGeneratePairPPDP_online";
+    str += "\r\n$ fmpt_saa test_generatePairPPDP_online";
     str += "\r\n    Test the function generatePairPPDP_online:";
     str += "\r\n        PairPPDPvalid = generatePairPPDP_online(PP, DP,";
     str += "\r\n                                                FMM, p_1s, p___3s, Ids);";
@@ -193,13 +191,13 @@ string help_engineering(void)
     str += "\r\n    The instance of the Fiber MOS Model will not be written.";
 
     str += "\r\n";
-    str += "\r\n$ fmpt_saa testGenerateParkingProgram_offline";
+    str += "\r\n$ fmpt_saa test_generateParkingProgram_offline";
     str += "\r\n    Test the function generateParkingProgram_offline:";
     str += "\r\n        generateParkingProgram_offline(ParkingProgramValid, ";
     str += "\r\n                                       Collided, Obstructed, ParkingProgram,";
     str += "\r\n                                       FMM, input_path, output_dir, log_filename);";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa testGenerateParkingProgram_online";
+    str += "\r\n$ fmpt_saa test_generateParkingProgram_online";
     str += "\r\n    Test the function generateParkingProgram_online:";
     str += "\r\n        ParkingProgramValid = generateParkingProgram_online(ParkingProgram,";
     str += "\r\n                                                            FMM, p_1s, p___3s,";
@@ -846,7 +844,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
 }
 
 //Test the function generatePairPPDP_offline.
-void testGeneratePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
+void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
 {
     try {
 
@@ -882,7 +880,7 @@ void testGeneratePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
         string str; //string to writo to file each time
 
         //initialize the output directory
-        output_dir = "testsGeneratePairPPDP_offline";
+        output_dir = "test_generatePairPPDP_offline";
         ForceDirectories(AnsiString(output_dir));
 
         do {
@@ -999,7 +997,7 @@ void testGeneratePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
 }
 
 //Test the function generatePairPPDP_online.
-void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
+void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
 {
     try {
 
@@ -1034,7 +1032,7 @@ void testGeneratePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
         string output_filename; //output filename each time
         string str; //string to write to file each time
 
-        output_dir = "testsGeneratePairPPDP_online";
+        output_dir = "test_generatePairPPDP_online";
         ForceDirectories(AnsiString(output_dir));
 
         do {
@@ -1851,7 +1849,7 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
 }
 
 //Test the function generateParkingProgram_offline.
-void testGenerateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filename)
+void test_generateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filename)
 {
     try {
 
@@ -1883,7 +1881,7 @@ void testGenerateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filenam
         string output_filename; //output filename each time
         string str; //string to writo to file each time
 
-        output_dir = "testsGenerateParkingProgram_offline";
+        output_dir = "test_generateParkingProgram_offline";
         ForceDirectories(AnsiString(output_dir));
 
         do {
@@ -2000,7 +1998,7 @@ void testGenerateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filenam
 }
 
 //Test the function generateParkingProgram_online.
-void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename)
+void test_generateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename)
 {
     try {
 
@@ -2035,7 +2033,7 @@ void testGenerateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename
         string output_filename; //output filename each time
         string str; //string to writo to file each time
 
-        output_dir = "testsGenerateParkingProgram_online";
+        output_dir = "test_generateParkingProgram_online";
         ForceDirectories(AnsiString(output_dir));
 
         do {
@@ -2396,7 +2394,7 @@ int main(int argc, char *argv[])
     //###################################################################
 
     //-------------------------------------------------------------------
-    //CONFIGURATES THE SYSTEM:
+    //CONFIGURATE THE SYSTEM:
 
     //REMEMBER: exceptions in runtime can be due to that
     //the system is not configurated.
@@ -2451,14 +2449,14 @@ int main(int argc, char *argv[])
                 command != "applyPC" &&
                 command != "applyRP" &&
                 command != "generatePairPPDP_offline" &&
-                command != "testGeneratePairPPDP_offline" &&
-                command != "testGeneratePairPPDP_online" &&
+                command != "test_generatePairPPDP_offline" &&
+                command != "test_generatePairPPDP_online" &&
                 command != "checkPairPPDP" &&
                 command != "validatePairPPDP" &&
                 command != "regeneratePairPPDP" &&
                 command != "generateParkingProgram_offline" &&
-                command != "testGenerateParkingProgram_offline" &&
-                command != "testGenerateParkingProgram_online" &&
+                command != "test_generateParkingProgram_offline" &&
+                command != "test_generateParkingProgram_online" &&
                 command != "visualizePPDP") {
             //indicates that happened
             cout << "Unknoledge command." << endl;
@@ -2664,21 +2662,21 @@ int main(int argc, char *argv[])
             generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,
                                      FMM, path_FMOSA, ".", log_filename);
         }
-        else if(command == "testGeneratePairPPDP_offline") {
+        else if(command == "test_generatePairPPDP_offline") {
             //check the precondition
             if(argc != 2)
-                throw EImproperArgument("command testGeneratePairPPDP_offline should have 0 arguments");
+                throw EImproperArgument("command test_generatePairPPDP_offline should have 0 arguments");
 
             //execute the test
-            testGeneratePairPPDP_offline(FMM, log_filename);
+            test_generatePairPPDP_offline(FMM, log_filename);
         }
-        else if(command == "testGeneratePairPPDP_online") {
+        else if(command == "test_generatePairPPDP_online") {
             //check the precondition
             if(argc != 2)
-                throw EImproperArgument("command testGeneratePairPPDP_online should have 0 arguments");
+                throw EImproperArgument("command test_generatePairPPDP_online should have 0 arguments");
 
             //execute the test
-            testGeneratePairPPDP_online(FMM, log_filename);
+            test_generatePairPPDP_online(FMM, log_filename);
         }
         //-------------------------------------------------------------------
         else if(command == "checkPairPPDP") {
@@ -2829,23 +2827,23 @@ int main(int argc, char *argv[])
             generateParkingProgram_offline(ParkingProgramValid, Collided, Obstructed, ParkingProgram,
                                            FMM, path_FMOSA, ".", log_filename);
         }
-        else if(command == "testGenerateParkingProgram_offline") {
+        else if(command == "test_generateParkingProgram_offline") {
             //check the precondition
             if(argc != 2)
-                throw EImproperArgument("command testGenerateParkingProgram_offline should have 0 arguments");
+                throw EImproperArgument("command test_generateParkingProgram_offline should have 0 arguments");
 
             //execute the test
-            testGenerateParkingProgram_offline(FMM, log_filename);
+            test_generateParkingProgram_offline(FMM, log_filename);
         }
-        else if(command == "testGenerateParkingProgram_online") {
+        else if(command == "test_generateParkingProgram_online") {
             //check the precondition
             if(argc != 2)
-                throw EImproperArgument("command testGenerateParkingProgram_online should have 0 arguments");
+                throw EImproperArgument("command test_generateParkingProgram_online should have 0 arguments");
 
             //execute the test
-            testGenerateParkingProgram_online(FMM, log_filename);
+            test_generateParkingProgram_online(FMM, log_filename);
         }
-        /*//-------------------------------------------------------------------
+/*        //-------------------------------------------------------------------
         else if(command == "visualizePPDP") {
             //check the precondition
             if(argc != 4)
@@ -2888,7 +2886,6 @@ int main(int argc, char *argv[])
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
-    //    return a.exec(); //Qt only
     return 0;
 }
 

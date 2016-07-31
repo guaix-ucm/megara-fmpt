@@ -198,7 +198,7 @@ void TExclusionArea::setInstanceText(const AnsiString &S)
     }
 }
 
-AnsiString TExclusionArea::getOriginsText(void) const
+AnsiString TExclusionArea::getOriginsRowText(void) const
 {
     return getIdText()+AnsiString("\t")+Barrier.getP0().getRowText()+AnsiString("\t")+Barrier.getthetaO1Text();
 }
@@ -279,7 +279,7 @@ void  TExclusionArea::printOriginsRow(AnsiString& S,
     if(EA == NULL)
         throw EImproperArgument("pointer C should bepoint to built exclusion area");
 
-    S += EA->getOriginsText();
+    S += EA->getOriginsRowText();
 }
 //lee los valores de las propiedades de orien para un EA
 //desde la posición indicada de una cadena de texto

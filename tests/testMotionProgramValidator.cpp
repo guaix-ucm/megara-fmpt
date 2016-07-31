@@ -49,8 +49,8 @@ TestMotionProgramValidator::TestMotionProgramValidator(void) :
 void TestMotionProgramValidator::setUp() {
     try {
         //load a PP from a sample file
-        string path_PP = "../data/Samples/test-1/PP-FMPT-from-FMOSA-for-test-1.txt";
-        //string path_PP = "../megarafmpt/data/Samples/test-1/PP-FMPT-from-FMOSA-for-test-1.txt"; //Qt only
+        string path_PP = "../../data/Samples/example_generatePairPPDP_offline/PP-FMPT-from-megara-cb0.txt";
+        //string path_PP = "../megarafmpt/data/Samples/example_generatePairPPDP_offline/PP-FMPT-from-megara-cb0.txt"; //Qt only
         string str;
         strReadFromFile(str, path_PP);
         TMotionProgram PP;
@@ -63,8 +63,8 @@ void TestMotionProgramValidator::setUp() {
 
     try {
         //load a DP from a sample file
-        string path_DP = "../data/Samples/test-1/DP-FMPT-from-FMOSA-for-test-1.txt";
-        //string path_DP = "../megarafmpt/data/Samples/test-1/DP-FMPT-from-FMOSA-for-test-1.txt"; //Qt only
+        string path_DP = "../../data/Samples/example_generatePairPPDP_offline/DP-FMPT-from-megara-cb0.txt";
+        //string path_DP = "../megarafmpt/data/Samples/example_generatePairPPDP_offline/DP-FMPT-from-megara-cb0.txt"; //Qt only
         string str;
         strReadFromFile(str, path_DP);
         TMotionProgram DP;
@@ -76,7 +76,7 @@ void TestMotionProgramValidator::setUp() {
     }
 
     try {
-        string dir_FMM = "../data/Models/MEGARA_FiberMOSModel_Instance";
+        string dir_FMM = "../../data/Models/MEGARA_FiberMOSModel_Instance";
         //string dir_FMM = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
         readInstanceFromDir(FMM, dir_FMM);
     }
