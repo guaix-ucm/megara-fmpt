@@ -55,23 +55,6 @@ class TestStrings : public CppUnit::TestFixture
     CPPUNIT_TEST(test_strPositionToCoordinates);
     CPPUNIT_TEST(test_thereIsntEndline);
     CPPUNIT_TEST(test_StrDivideInLines);
-/*    CPPUNIT_TEST(test_StrDivideInWords);
-    CPPUNIT_TEST(test_StrSplit);
-    CPPUNIT_TEST(test_StrTrim);
-    CPPUNIT_TEST(test_StrTrim);
-    CPPUNIT_TEST(test_strTrim);
-    CPPUNIT_TEST(test_strTrim);
-    CPPUNIT_TEST(test_StrFirstChars);
-    CPPUNIT_TEST(test_StrFirstChars);
-    CPPUNIT_TEST(test_StrSearchFirstNonseparatorChar);
-    CPPUNIT_TEST(test_strFirstNonseparatorChar);
-    CPPUNIT_TEST(test_StrFill);
-    CPPUNIT_TEST(test_strInsertChar);
-    CPPUNIT_TEST(test_StrNotHasSameWords);
-    CPPUNIT_TEST(test_StrMultiIndent);
-    CPPUNIT_TEST(test_StrIndent);
-    CPPUNIT_TEST(test_StrFormat);
-    CPPUNIT_TEST(test_StrCutDecimals);*/
 
     //finish the process
     CPPUNIT_TEST_SUITE_END();
@@ -181,84 +164,6 @@ public:
     void test_thereIsntEndline();
     //divide una cadena por cada "\r\n" que encuentre
     void test_StrDivideInLines();
-/*    //divide una cadena en palabras
-    //obtiene cada palabra hasta cada secuencia de espacios o tabuladores
-    void test_StrDivideInWords();
-    void test_StrDivideInWords();
-
-    //un párrafo puede dividirse en líneas mediante TStrings::SetText(String)
-    //este método es heredado por la clase hija TStringList
-    //como es lógico es preferible el uso de dicho método a la función
-    //StrDivideInLines(Lines, String)
-
-    //separate the words between chars
-    void test_StrSplit();
-
-    //elimina los espacios y caracteres de control marginales de una cadena
-    //la cadena de destino D puede ser la misma cadena fuente S
-    void test_StrTrim();
-    //elimina los espacios y caracteres de control marginales de una cadena
-    void test_StrTrim();
-
-    //la función Trim(const AnsiString &) elimina los espacios marginales
-    //de una cadena y quizás también algunos caracteres de control
-    //sin embargo no elimina al menos el caracter '\n'
-    //por eso se define la función StrTrim(AnsiString&) que
-    //si elimina todos los caracteres de control marginales
-
-    //elimina los espacios y caracteres de control marginales de una cadena
-    //la cadena de destino dest puede ser la misma cadena fuente src
-    void test_strTrim();
-    //elimina los espacios y caracteres de control marginales de una cadena
-    void test_strTrim();
-
-    //Si la longitud de la cadena es mayor que el número de caracteres indicado,
-    //sustituye la parte sobrante de la cadena por "...".
-    //La cadena de destino D, puede ser la misma que la cadena fuente S.
-    void test_StrFirstChars();
-    void test_StrFirstChars();
-
-    //search and return the index to first non separator char in a text string
-    void test_StrSearchFirstNonseparatorChar();
-    //search and return the first non separator char in a text string
-    void test_strFirstNonseparatorChar();
-
-    //rellena una cadena con caracteres hasta que alcance la longitud indicada
-    void test_StrFill();
-    //insert a char in the indicated position of a text string
-    //to get the intended length
-    void test_strInsertChar();
-
-    //ERROR: usar en StrFill la 'L' como nombre de variable provoca el error:
-    //      Undefined symbol 'AnsiString'
-
-    //determina si dos cadenas contienen las mismas palabras
-    void test_StrNotHasSameWords();
-
-    //añade la cadena que se indique al comienzo de cada línea de texto
-    void test_StrMultiIndent();
-    //añade la cadena que se indique al comienzo de cada línea de texto
-    void test_StrIndent();
-
-    //Las siguientes funciones representan con un punto decimal (no una coma)
-    //los números reales en formato cadena.
-    //Conviene usar un punto y no una coma para poder representar
-    //números reales separados por comas.
-    //Para usar estas funciones debe configurarse el sistema realizando
-    //la siguiente asignación:
-    //      DecimalSeparator = '.'
-    //En Windows XP el valor por defecto de DecimalSeparator es una coma.
-
-    //reconoce formatos numéricos en una cadena:
-    //      'r'->real; 'b': binario; 'z'->entero; 'o'->otro
-    //Devuelve:
-    //	'r': si el número tiene un punto decimal, aunque se encuentre al final.
-    //	'b': si no hay punto y todas las cifras se encuentran en [0, 1].
-    //	'z': si no hay punto y hay alguna cifra mayor que 1.
-    //	'o': niguna de las anteriores.
-    void test_StrFormat();
-    //Limita a n el número de decimales de una cadena que rerpesenta un nº real
-    void test_StrCutDecimals();*/
 };
 
 #endif // FMPT_TESTStrings_H
