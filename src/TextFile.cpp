@@ -331,6 +331,34 @@ string commentedLine(const string& text, const string& comment, unsigned int i)
 }
 
 //read a text string from a file
+//without clear the comments
+void strReadFromFileWithComments(string& str, const string& filename)
+{
+    TTextFile TF;
+
+    try {
+        //abre el archivo para lectura
+        TF.Open(filename.c_str(), (char*)"r");
+
+        //lee el archivo en la cadena
+        TF.Read(str);
+        //reemplaza las cadenas "\r\r\n" por cadenas "\r\n"
+        strreplace(str, "\r\r\n", "\r\n");
+
+        //cierra el archivo
+        TF.Close();
+    }
+    catch(...) { //si falla
+        //asegura el cierre del archivo para evitar la pérdida de datos
+        if(TF.getIsOpen())
+            TF.Close();
+
+        //relanza la excepción que deberá ser
+        //capturada en la secuencia de guardado
+        throw;
+    }
+}
+//read a text string from a file
 void strReadFromFile(string& str, const string& filename)
 {
     TTextFile TF;

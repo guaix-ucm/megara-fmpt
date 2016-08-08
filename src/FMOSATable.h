@@ -121,6 +121,11 @@ class TFMOSATable : public TPointersList<TObservingSource> {
                     const string& str);
 
 public:
+    //last valid setted FMOSA table in text format including comments
+    //default value: ""
+    string str_original;
+
+    //OB properties
     unsigned int Id;     //the block identification
     double Ra;  //the rect ascension of the block
     double Dec; //the declination of the block

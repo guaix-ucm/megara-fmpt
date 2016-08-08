@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     //  The input data:
     //      path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb0.txt";
     //
     //Using Qt over Windows:
     //-------------------------------------------------------------------
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
     //  The input data:
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb0.txt";
     //
     //###################################################################
 
@@ -307,9 +307,6 @@ int main(int argc, char *argv[])
         string output_filename = output_dir+"/AL-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
-
-        //FOR UNCOMMENT THE GETTING OF THE OUTPUTS FILE GO TO LABEL:
-        //  "//get the output file".
 
         //###################################################################
 

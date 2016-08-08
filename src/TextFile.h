@@ -133,6 +133,9 @@ void strClearComments(string&);
 string commentedLine(const string& text, const string& comment, unsigned int i=31);
 
 //read a text string from a file
+//without clear the comments
+void strReadFromFileWithComments(string& str, const string& fileName);
+//read a text string from a file
 void strReadFromFile(string& str, const string& fileName);
 //write a text string in a file
 void strWriteToFile(const string& fileName, const string& str);

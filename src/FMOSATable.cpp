@@ -455,12 +455,12 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
         if(i >= Strings.getCount())
             throw EImproperArgument("OB parameters not found: <Id> | <Ra> | <Dec> | <Pos>");
 
-        //read the OB section
-        int _Id;
-        double _Ra;
-        double _Dec;
-        double _Pos;
-        readOBText(_Id, _Ra, _Dec, _Pos, Strings[i].str);
+        //read the OB section in tampon variables
+        int t_Id;
+        double t_Ra;
+        double t_Dec;
+        double t_Pos;
+        readOBText(t_Id, t_Ra, t_Dec, t_Pos, Strings[i].str);
 
         //contabilize the readed line
         i++;
@@ -510,30 +510,22 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
             throw EImproperArgument("OS parameters not found: \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Enabled> | <Comment>\"");
 
         //read all lines (using a tampon variable) until the close label @@EOS@
+        TFMOSATable t_FMOSAT;
         try {
-            TFMOSATable FMOSAT;
-
             while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
                 TObservingSource *OS = new TObservingSource();
-                FMOSAT.Add(OS);
+                t_FMOSAT.Add(OS);
                 OS->setText(Strings[i].str);
 
                 //check the precondition
                 if(OS->Type != ptUNKNOWN)
-                    if(OS->Bid != _Id)
+                    if(OS->Bid != (unsigned int)t_Id)
                         throw EImproperArgument("all Bid should be equal to Id");
 
                 i++;
             }
-
-            //set the tampons variables
-            *this = FMOSAT;
-            Id = (unsigned int)_Id;
-            Ra = _Ra;
-            Dec = _Dec;
-            Pos = _Pos;
-
-        } catch(Exception& E) {
+        }
+        catch(Exception& E) {
             E.Message.Insert(1, "setting OS section: ");
             throw;
         }
@@ -563,6 +555,16 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 
         //--------------------------------------------------------------
 
+        //set the tampons variables
+        Id = (unsigned int)t_Id;
+        Ra = t_Ra;
+        Dec = t_Dec;
+        Pos = t_Pos;
+        *this = t_FMOSAT;
+
+        //set the last valid setted string
+        str_original = str;
+
         //return the Bid value
         Bid = Id;
     }
@@ -575,15 +577,22 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 //get the FMOSA table in text format
 void TFMOSATable::getTableText(string& str) const
 {
-    str = "# Id| Ra| Dec| Pos";
-    str += "\r\n@@SOB@@";
-    str += "\r\n"+inttostr(Id)+"| "+floattostr_fixed(Ra, 6)+"| "+floattostr_fixed(Dec, 6)+"| "+floattostr_fixed(Pos, 6);
-    str += "\r\n@@EOB@@";
+    if(str_original.length() > 0)
+        str = str_original;
+    else {
+        str = "#Id     |Ra        |Dec       |Pos";
+        str += "\r\n@@SOB@@";
+        string aux = inttostr(Id);
+        while(aux.length() < 7)
+            aux += ' ';
+        str += "\r\n"+aux+" |"+floattostr_fixed(Ra, 6)+" |"+floattostr_fixed(Dec, 6)+" |"+floattostr_fixed(Pos, 6);
+        str += "\r\n@@EOB@@";
 
-    str += "\r\n#      Name             RA         Dec    Mag        Type         Pr  Bid Pid   X(mm)     Y(mm)  Enabled      Comment";
-    str += "\r\n@@SOS@@";
-    str += "\r\n"+getColumnText().str;
-    str += "\r\n@@EOS@@";
+        str += "\r\n#Name               |RA       |Dec      |Mag  |Type            |Pr|Bid|Pid|X(mm)     |Y(mm)     |Enabled|Comment";
+        str += "\r\n@@SOS@@";
+        str += "\r\n"+getColumnText().str;
+        str += "\r\n@@EOS@@";
+    }
 }
 
 //get the Pids of the allocations which accomplish:
@@ -650,6 +659,7 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
 
 //build a FMOSA table by default
 TFMOSATable::TFMOSATable(void) : TPointersList<TObservingSource>(),
+    str_original(""),
     Id(0), Ra(0), Dec(0), Pos(0)
 {
     Print = TObservingSource::printRow;
@@ -658,15 +668,19 @@ TFMOSATable::TFMOSATable(void) : TPointersList<TObservingSource>(),
 //clone a FMOSA table
 void TFMOSATable::Clone(TFMOSATable& FMOSAT)
 {
+    //clone the original setted string
+    str_original = FMOSAT.str_original;
+
+    //clone OB properties
     Id = FMOSAT.Id;
     Ra = FMOSAT.Ra;
     Dec = FMOSAT.Dec;
     Pos = FMOSAT.Pos;
 
-    //clona el array deslizante
+    //clone OSs
     Items.Clone(FMOSAT.Items);
 
-    //apunta a las mismas funciones externas
+    //point the same external functions
     Compare = FMOSAT.Compare;
     Evaluate = FMOSAT.Evaluate;
     Assign = FMOSAT.Assign;

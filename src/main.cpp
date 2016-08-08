@@ -557,12 +557,12 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
 
         //LOAD SETTINGS FROM FILES:
 
-        //load the Outputs structure from a file
+        //load the FMOSA table from the file input_path
         string str;
         Outputs outputs;
         unsigned int Bid;
         try {
-            strReadFromFile(str, input_path);
+            strReadFromFileWithComments(str, input_path);
             outputs.FMOSAT.setTableText(Bid, str);
 
         } catch(Exception& E) {
@@ -1579,10 +1579,10 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         if(DP_Bid != PP_Bid)
             throw EImproperArgument("DP Bid should be equal to PP Bid");
 
-        //load the FMOSA table from a file
+        //load the FMOSA table from the file path_FMOSA
         TFMOSATable FMOSA;
         unsigned int FMOSA_Bid;
-        strReadFromFile(str, path_FMOSA);
+        strReadFromFileWithComments(str, path_FMOSA);
         FMOSA.setTableText(FMOSA_Bid, str);
         append("FMOSA table loaded from '"+path_FMOSA+"'.", log_filename.c_str());
 
@@ -1690,11 +1690,11 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
 
         //LOAD SETTINGS FROM FILES:
 
-        //load the FMOSA table from a file
+        //load the FMOSA table from the file input_path
         TFMOSATable FMOSA;
         unsigned int Bid;
         string str;
-        strReadFromFile(str, input_path);
+        strReadFromFileWithComments(str, input_path);
         FMOSA.setTableText(Bid, str);
         append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
 
