@@ -46,7 +46,7 @@ The process to install this S/W can be found in the file INSTALL. The summarized
 3. Execute './configure; make;' to configure and build this package.
 4. Grant superuser privileges to have access to '/usr/local/...'.
 5. Execute 'make install' (as superuser) to install the library and the application. 
-6. Execute 'ldconfig' (as superuser) for update the linkage with the libraries of the system.
+6. If yout operative system is Linux, maybe you need execute 'ldconfig' (as superuser) for update the linkage with the libraries of the system.
 
 This process will install the libraries (static and dynamic) FMPT, and the FMPT SAA application, in the usual directories of the user distribution of the user operative system. For example:
 - the libraries (estatic and dynamic) will be installed in '/usr/local/lib';

@@ -6,4 +6,4 @@ BarrierInstance:               # Instance properties of the EA.Barrier (position
 
 Tolerances:                    # Tolerance properties of the EA:
     Eo = 0                         # error margin in theta_ orientation (in rad)
-    Ep = 0.2495                    # error margin in P0 position (in mm)
+    Ep = 0.25                      # error margin in P0 position (in mm)

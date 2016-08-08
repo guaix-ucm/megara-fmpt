@@ -520,7 +520,7 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
 
                 //check the precondition
                 if(OS->Type != ptUNKNOWN)
-                    if(OS->Bid != Id)
+                    if(OS->Bid != _Id)
                         throw EImproperArgument("all Bid should be equal to Id");
 
                 i++;
