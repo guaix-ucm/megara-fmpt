@@ -35,6 +35,8 @@
 //#include "../ui/GenerateFrames.h"
 //#include "../ui/mainwindow.h"
 
+//#include <QCoreApplication> //Qt only
+//#include <QApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout, ios::fixed
 
@@ -605,31 +607,31 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
         //captures the observing positions of the RPs in a PPA list
         TPairPositionAnglesList OPL;
         FMM.RPL.getPositions(OPL);
-        str = TActuator::getPositionPPALabelsRow().str;
-        str += "\r\n"+OPL.getColumnText().str;
-        ForceDirectories(AnsiString(output_dir));
-        string output_filename = output_dir+"/OPL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+//        str = TActuator::getPositionPPALabelsRow().str;
+//        str += "\r\n"+OPL.getColumnText().str;
+//        ForceDirectories(AnsiString(output_dir));
+//        string output_filename = output_dir+"/OPL-from-"+filename;
+//        strWriteToFile(output_filename, str);
+//        append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the observing position table directly in text format:
         //  FMM.RPL.getPositionsPPATableText()
 
         //captures the observing positions of the RPs in cartesian coordinates respect S0
-        str = TActuator::getPositionP3LabelsRow().str;
-        str += "\r\n";
-        str += FMM.RPL.getPositionsP3TableText().str;
-        output_filename = output_dir+"/OPL_S0-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Observing position list (in cartesian coordinates respect S0) saved in '"+output_filename+"'.", log_filename.c_str());
+//        str = TActuator::getPositionP3LabelsRow().str;
+//        str += "\r\n";
+//        str += FMM.RPL.getPositionsP3TableText().str;
+//        output_filename = output_dir+"/OPL_S0-from-"+filename;
+//        strWriteToFile(output_filename, str);
+//        append("Observing position list (in cartesian coordinates respect S0) saved in '"+output_filename+"'.", log_filename.c_str());
 
         //captures the observing positions of the RPs in cartesian coordinates respect S1
-        str = TActuator::getPositionP_3LabelsRow().str;
-        str += "\r\n";
-        str += FMM.RPL.getPositionsP_3TableText().str;
-        output_filename = output_dir+"/OPL_S1-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Observing position list (in cartesian coordinates respect S1) saved in '"+output_filename+"'.", log_filename.c_str());
+//        str = TActuator::getPositionP_3LabelsRow().str;
+//        str += "\r\n";
+//        str += FMM.RPL.getPositionsP_3TableText().str;
+//        output_filename = output_dir+"/OPL_S1-from-"+filename;
+//        strWriteToFile(output_filename, str);
+//        append("Observing position list (in cartesian coordinates respect S1) saved in '"+output_filename+"'.", log_filename.c_str());
 
         //captures the corner of arms in the observing positions in cartesian coordinates
         TItemsList<TDoublePoint> OPL_Corners1;
@@ -688,16 +690,16 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             append("Generated pair (PP, DP) is valid.", log_filename.c_str());
 
             //save the PP in the format of the FMPT
-            str = PP.getText().str;
-            output_filename = output_dir+"/PP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("PP in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
+//            str = PP.getText().str;
+//            output_filename = output_dir+"/PP-FMPT-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("PP in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save the DP in the format of the FMPT
-            str = DP.getText().str;
-            output_filename = output_dir+"/DP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("DP in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
+//            str = DP.getText().str;
+//            output_filename = output_dir+"/DP-FMPT-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("DP in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated pair (PP, DP) is valid,
             //all operative outsider RPs which aren't obstructed, can be:
@@ -706,11 +708,11 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             //captures the initial positions of the RPs in a PPA list
             TPairPositionAnglesList IPL;
             FMM.RPL.getPositions(IPL);
-            string str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+IPL.getColumnText().str;
-            output_filename = output_dir+"/IPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+//            string str = TActuator::getPositionPPALabelsRow().str;
+//            str += "\r\n"+IPL.getColumnText().str;
+//            output_filename = output_dir+"/IPL-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Other whay to obtain the initial position list directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
@@ -736,66 +738,66 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             //save the displacements in text format
             //            Disp_Corners1.Print = TDoublePoint::PrintRow;
             //          str = Disp_Corners1.getText().str;
-            str = "Id\tdx\tdy";
-            for(int i=0; i<FMM.RPL.getCount(); i++) {
-                str += "\r\n";
-                TRoboticPositioner *RP = FMM.RPL[i];
-                str += RP->getActuator()->getIdText().str;
-                str += "\t";
-                str += Disp_Corners1[i].getRowText().str;
-            }
-            output_filename = output_dir+"/Disp_Corners1-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Displacement corners 1 saved in '"+output_filename+"'.", log_filename.c_str());
+//            str = "Id\tdx\tdy";
+//            for(int i=0; i<FMM.RPL.getCount(); i++) {
+//                str += "\r\n";
+//                TRoboticPositioner *RP = FMM.RPL[i];
+//                str += RP->getActuator()->getIdText().str;
+//                str += "\t";
+//                str += Disp_Corners1[i].getRowText().str;
+//            }
+//            output_filename = output_dir+"/Disp_Corners1-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("Displacement corners 1 saved in '"+output_filename+"'.", log_filename.c_str());
             //            Disp_Corners2.Print = TDoublePoint::PrintRow;
             //          str = Disp_Corners2.getText().str;
-            str = "Id\tdx\tdy";
-            for(int i=0; i<FMM.RPL.getCount(); i++) {
-                str += "\r\n";
-                TRoboticPositioner *RP = FMM.RPL[i];
-                str += RP->getActuator()->getIdText().str;
-                str += "\t";
-                str += Disp_Corners2[i].getRowText().str;
-            }
-            output_filename = output_dir+"/Disp_Corners2-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Displacement corners 2 saved in '"+output_filename+"'.", log_filename.c_str());
+//            str = "Id\tdx\tdy";
+//            for(int i=0; i<FMM.RPL.getCount(); i++) {
+//                str += "\r\n";
+//                TRoboticPositioner *RP = FMM.RPL[i];
+//                str += RP->getActuator()->getIdText().str;
+//                str += "\t";
+//                str += Disp_Corners2[i].getRowText().str;
+//            }
+//            output_filename = output_dir+"/Disp_Corners2-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("Displacement corners 2 saved in '"+output_filename+"'.", log_filename.c_str());
 
             //translates the PP to the format of the MCS
             //and save it in a file
-            PP.getInterfaceText(str, "pos", Bid, IPL);
-            append("Positiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/PP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("PP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+//            PP.getInterfaceText(str, "pos", Bid, IPL);
+//            append("Positiong program translated to the MCS format.", log_filename.c_str());
+//            output_filename = output_dir+"/PP-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("PP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //translates the DP to the format of the MCS
             //and save it in a file
-            DP.getInterfaceText(str, "depos", Bid, OPL);
-            append("Depositiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/DP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("DP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+//            DP.getInterfaceText(str, "depos", Bid, OPL);
+//            append("Depositiong program translated to the MCS format.", log_filename.c_str());
+//            output_filename = output_dir+"/DP-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("DP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //get the outputs file
             outputs.PP = PP;
             outputs.DP = DP;
             outputs.getText(str, Bid, OPL, IPL);
-            output_filename = output_dir+"/outputs-from-"+filename;
+            string output_filename = output_dir+"/outputs-from-"+filename;
             strWriteToFile(output_filename, str);
             append("Pair (PP, DP) saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save PP-Dmin in a file
-            PP.getDminInterfaceText(str, "pos", Bid);
-            output_filename = output_dir+"/PP-Dmin-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("PP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
+//            PP.getDminInterfaceText(str, "pos", Bid);
+//            output_filename = output_dir+"/PP-Dmin-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("PP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save DP-Dmin in a file
-            DP.getDminInterfaceText(str, "depos", Bid);
-            output_filename = output_dir+"/DP-Dmin-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("DP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
+//            DP.getDminInterfaceText(str, "depos", Bid);
+//            output_filename = output_dir+"/DP-Dmin-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("DP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
         }
         else {
             //Given that here the generated pair (PP, DP) is invalid,
@@ -830,7 +832,7 @@ void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
             str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
         if(PP.thereIsSomeComment1())
             str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
-        output_filename = output_dir+"/other_outputs-from-"+filename;
+        string output_filename = output_dir+"/other_outputs-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
     }
@@ -1730,12 +1732,12 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
         //captures the starting positions of the RPs in a PPA list
         TPairPositionAnglesList SPL;
         FMM.RPL.getPositions(SPL);
-        str = TActuator::getPositionPPALabelsRow().str;
-        str += "\r\n"+SPL.getColumnText().str;
-        ForceDirectories(AnsiString(output_dir));
-        string output_filename = output_dir+"/SPL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
+//        str = TActuator::getPositionPPALabelsRow().str;
+//        str += "\r\n"+SPL.getColumnText().str;
+//        ForceDirectories(AnsiString(output_dir));
+//        string output_filename = output_dir+"/SPL-from-"+filename;
+//        strWriteToFile(output_filename, str);
+//        append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //Other whay to obtain the starting position table directly in text format:
         //  FMM.RPL.getPositionsPPATableText()
@@ -1786,10 +1788,10 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
             append("Generated parking program is valid.", log_filename.c_str());
 
             //save the parking program in the format of the FMPT
-            str = ParkingProgram.getText().str;
-            output_filename = output_dir+"/ParkingProgram-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Parking program in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
+//            str = ParkingProgram.getText().str;
+//            output_filename = output_dir+"/ParkingProgram-FMPT-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("Parking program in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated parking program is valid,
             //all operative outsider RPs which aren't obstructed are in the origin positions,
@@ -1799,15 +1801,15 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
             //and save it in a file
             ParkingProgram.getInterfaceText(str, "depos", Bid, SPL);
             append("Parking program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/ParkingProgram-from-"+filename;
+            string output_filename = output_dir+"/ParkingProgram-from-"+filename;
             strWriteToFile(output_filename, str);
             append("Parking program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save ParkingProgram-Dmin in a file
-            ParkingProgram.getDminInterfaceText(str, "depos", Bid);
-            output_filename = output_dir+"/ParkingProgram-Dmin-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("ParkingProgram-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
+//            ParkingProgram.getDminInterfaceText(str, "depos", Bid);
+//            output_filename = output_dir+"/ParkingProgram-Dmin-from-"+filename;
+//            strWriteToFile(output_filename, str);
+//            append("ParkingProgram-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
         }
 
         //Given that here the generated parking program can be valid or invalid,
@@ -1826,11 +1828,11 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
         //get and save the positions where the collision was detected
         TPairPositionAnglesList FPL;
         FMM.RPL.getPositions(FPL);
-        str = TActuator::getPositionPPALabelsRow().str;
-        str += "\r\n"+FPL.getColumnText().str;
-        output_filename = output_dir+"/FPL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
+//        str = TActuator::getPositionPPALabelsRow().str;
+//        str += "\r\n"+FPL.getColumnText().str;
+//        output_filename = output_dir+"/FPL-from-"+filename;
+//        strWriteToFile(output_filename, str);
+//        append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
 
         //print the other outputs in the corresponding file
         str = "\r\ngParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str;
@@ -1838,7 +1840,7 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
         str += "\r\nObstructed: "+Obstructed.getText().str;
         if(ParkingProgram.thereIsSomeComment1())
             str += "\r\nMP comments:\r\n"+ParkingProgram.getComment1sColumnText();
-        output_filename = output_dir+"/other_outputs-from-"+filename;
+        string output_filename = output_dir+"/other_outputs-from-"+filename;
         strWriteToFile(output_filename, str);
         append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
     }
