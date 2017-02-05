@@ -32,11 +32,6 @@
 #include "Outputs.h" //Outputs
 #include "TextFile.h"
 
-//#include "../ui/GenerateFrames.h"
-//#include "../ui/mainwindow.h"
-
-//#include <QCoreApplication> //Qt only
-//#include <QApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout, ios::fixed
 
@@ -224,10 +219,10 @@ string aboutOf(void)
 {
     string str;
 
-    str += "Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.\r\n";
+    str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
-    str += "This file is part of FMPT (Fiber MOS Positioning Tools)\r\n";
+    str += "This application is the Fiber MOS Positioning Tools (FMPT 3.3.3).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2229,93 +2224,6 @@ void test_generateParkingProgram_online(TFiberMOSModel& FMM, string& log_filenam
     }
 }
 
-/*//Generate one animation with the pair (PP, DP).
-int visualizePPDP(int argc, char *argv[], TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& log_filename)
-{
-    try {
-
-        //load the PP from a file
-        TMotionProgram PP;
-        string PP_label;
-        unsigned int PP_Bid;
-        string str;
-        strReadFromFile(str, path_PP);
-        PP.setInterfaceText(PP_label, PP_Bid, str);
-        append("PP loaded from '"+path_PP+"'.", log_filename.c_str());
-
-        //check the precondition
-        if(PP_label != "pos")
-            throw EImproperArgument("PP label should be \"pos\"");
-
-        //load the DP from a file
-        TMotionProgram DP;
-        string DP_label;
-        unsigned int DP_Bid;
-        strReadFromFile(str, path_DP);
-        DP.setInterfaceText(DP_label, DP_Bid, str);
-        append("DP loaded from '"+path_DP+"'.", log_filename.c_str());
-
-        //check the precondition
-        if(DP_label != "depos")
-            throw EImproperArgument("DP label should be \"depos\"");
-        if(DP_Bid != PP_Bid)
-            throw EImproperArgument("DP Bid should be equal to PP Bid");
-
-        //TODO
-        //set path_frames according to nomenclature based on configuration block and/or number of sources
-        //
-        //
-        //
-        //
-        string path_frames = "/home/user/MEGARA/megarafmpt/data/Samples/frames/builder10/";
-        //        string path_frames = "/home/user/pruebas_choque/magin_3p50/frames/builder10";
-        QString pathSequence = QString(path_frames.c_str());
-
-        //check if folder exists
-        if (!QDir(pathSequence).exists()){
-            QDir().mkdir(pathSequence);
-        }
-
-        //check if sequence is already stored in disk
-        if(QDir(pathSequence).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() == 0)
-        {
-
-            //generate Frames
-            GenerateFrames FrameBuilder;
-            FrameBuilder.pathSequence = pathSequence;
-            FrameBuilder.FMM = &FMM;
-            FrameBuilder.PP = &PP;
-            FrameBuilder.DP = &DP;
-
-            append("Generating PP frames in '"+path_frames+"'.", log_filename.c_str());
-            FrameBuilder.generatePPFrames();
-
-            append("Generating DP frames in '"+path_frames+"'.", log_filename.c_str());
-            FrameBuilder.generateDPFrames();
-        }
-
-
-        //executes Qt GUI app
-        QApplication a(argc, argv);
-        MainWindow w;
-
-        //set pathSequence dir
-        //..
-        //QString appPath = QDir().currentPath();
-        //QDir dir(appPath+"/../megarafmpt/data/Samples/frames/eclipse/");
-        //..
-        QDir dir(pathSequence);
-        w.setFramesDir(dir);
-
-        w.show();          // visualize PP/DP sequence
-        return a.exec();
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "visualizing motion progress: ");
-        throw;
-    }
-}
-*/
 //main function
 int main(int argc, char *argv[])
 {
@@ -2392,6 +2300,18 @@ int main(int argc, char *argv[])
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
     //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //
+    //WARNING:
+    //-------------------------------------------------------------------
+    //
+    //Changes could happen using more actually versions of qmake.
+    //The following change has been found:
+    //  getCurrentDir(): could return personal folder '/home/user'
+    //  instead the current path.
+    //This error can't be solved changing the following value:
+    //  Tools -> Options... -> Build & Run -> Projects Directory:
+    //      - Current Directory
+    //      - Directory
     //
     //###################################################################
 
@@ -2488,7 +2408,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.3.0 is running...", log_filename.c_str());
+        append("FMPT SAA 3.3.3 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
@@ -2845,29 +2765,6 @@ int main(int argc, char *argv[])
             //execute the test
             test_generateParkingProgram_online(FMM, log_filename);
         }
-/*        //-------------------------------------------------------------------
-        else if(command == "visualizePPDP") {
-            //check the precondition
-            if(argc != 4)
-                throw EImproperArgument("command visualizePPDP should have 2 arguments");
-
-            //built a path from arg 1
-            string path_PP(argv[2]);
-            //built a path from arg 2
-            string path_DP(argv[3]);
-
-            //make a rutinary check
-            if(path_PP.length()<=0 || path_DP.length()<=0)
-                throw EImpossibleError("lateral effect");
-
-            //complete the relative path, if any
-            if(path_PP[0] != '/')
-                path_PP.insert(0, getCurrentDir()+"/");
-            if(path_DP[0] != '/')
-                path_DP.insert(0, getCurrentDir()+"/");
-
-            visualizePPDP(argc, argv, FMM, path_PP, path_DP, log_filename);
-        }*/
         //-------------------------------------------------------------------
         else {
             throw EImpossibleError("lateral effect");
@@ -2890,4 +2787,3 @@ int main(int argc, char *argv[])
     //indicates that the program has been executed without error
     return 0;
 }
-

@@ -461,7 +461,11 @@ public:
     //      TDoublePoint S1toS0(double x_, double y_)
     //ya que calcular cada coordenada por separado sería redundante.
 
-    //punto origen o posición de P3 en S0 cuando los rotores están retraidos
+    //punto origen o posición de P3 en S1
+    //cuando los rotores están en el origen
+    TDoublePoint getP_3o(void) const;
+    //punto origen o posición de P3 en S0
+    //cuando los rotores están en el origen
     TDoublePoint getP3o(void) const;
 
     //------------------------------------------------------------------
@@ -812,17 +816,29 @@ public:
     bool anglesToGoP3(double &_theta_1, double &_theta___3,
                       double x3, double y3) const;
 
-    //Dado el ángulo theta_3 (en S1) calcula theta___3 para que P3 vaya a él;
-    //si el ángulo no está dentro del dominio devuelve falso.
+    //dada la posición actual de theta_1,
+    //calcula theta___3 para que P3 vaya a theta_3
+    //si theta_3 no está al alcance devuelve falso
     bool theta___3ToGotheta_3(double &_theta___3, double theta_3);
-    //Dado el radio r_3 (en S1) calcula theta___3 para que P3 vaya a él;
-    //si el radio no está dentro del dominio devuelve falso.
+    //calcula theta___3 a partir de r_3
+    //si r_3 no está al alcance devuelve falso
     bool theta___3ToGor_3(double &_theta___3, double r_3);
+    //dada la posición actual de theta___3,
+    //calcula theta_1 para que P3 vaya a theta_3
+    //si theta_3 no está al alcance devuelve falso
+    bool theta_1ToGotheta_3(double& theta_1, double theta_3);
 
-    //determina las posiciones angulares estables que hacen que
-    //la fibra de este posicionador se ubique lo más cerca posible
-    //del punto correspondiente a unas posiciones angulares de los rotores
-    //devuelve la distancia al punto hallado
+    //busca la posición estable que hace que el punto P3 quede lo más próximo a P
+    //en el intervalo [p_1min, p_1max]x[p___3min, p___3max]
+    //devuelve la distancia de P a P3
+    double searchNearestStablePosition(double& p_1nsp, double& p___3nsp,
+                                       TDoublePoint P,
+                                       double p_1min, double p_1max,
+                                       double p___3min, double p___3max);
+
+    //determina las posiciones angulares estables que hacen que  el punto P3
+    //se ubique lo más cerca posible del punto correspondiente a unas posiciones
+    //angulares de los rotores devuelve la distancia al punto hallado
     double getNearestStablePosition(double &p_1nsp, double &p___3nsp,
                                     double theta_1, double theta___3);
 

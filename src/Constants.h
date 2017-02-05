@@ -44,7 +44,7 @@
 //              return sizeof(arr)/sizeof(arr[0]);}
 
 //upper bound for the final numercal error
-#define ERR_NUM 0.00000001
+#define ERR_NUM 0.0000001
 
 //---------------------------------------------------------------------------
 

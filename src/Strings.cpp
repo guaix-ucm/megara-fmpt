@@ -718,12 +718,11 @@ void StrSplit(TStrings& Strings, const AnsiString& S, char c)
 //la cadena de destino D puede ser la misma cadena fuente S
 void StrTrim(AnsiString& D, const AnsiString& S)
 {
-    //initialize the output
-    D.SetLength(0);
-
     //si la cadena está vacía
-    if(S.Length() < 1)
-        return; //no hace nada
+    if(S.Length() < 1) {
+            D.SetLength(0); //inicializa la salida
+            return; //no hace nada más
+    }
 
     //busca el último caracter imprimible distinto de espacio
     int i2 = StrPreviousChar(S, S.Length());
@@ -731,18 +730,29 @@ void StrTrim(AnsiString& D, const AnsiString& S)
     //busca el primer caracter imprimible distinto de espacio
     int i1 = StrNextChar(S, 1);
 
-    if(i1 <= i2) {
-        //inicializa la cadena de destino
-        D.SetLength(i2-i1+1);
-
-        //inicializa el índice de la cadena de destino
-        int j = 1;
-
-        //copia la cadena fuente en la cadena de destino
-        //la cadena de destino
-        for(int i=i1; i<=i2; i++, j++)
-            D[j] = S[i];
+    //si la cadena solo contiene separadores
+    if(i1 > i2) {
+            D.SetLength(0); //inicializa la salida
+            return; //no hace nada más
     }
+
+    //determina el número de caracteres a copiar
+    int count = i2 - i1 + 1;
+
+    //prepara la cadena de destino
+    if(D.Length() < count)
+            D.SetLength(count);
+
+    //inicializa el índice de la cadena de destino
+    int j = 1;
+
+    //copia la cadena fuente en la cadena de destino
+    //la cadena de destino
+    for(int i=i1; i<=i2; i++, j++)
+            D[j] = S[i];
+
+    //reajusta la cadena de destino
+    D.SetLength(count);
 }
 //elimina los espacios y caracteres de control marginales de una cadena
 AnsiString StrTrim(const AnsiString& S)
@@ -779,31 +789,41 @@ AnsiString StrTrim(const AnsiString& S)
 //la cadena de destino dest puede ser la misma cadena fuente src
 void strTrim(string& des, const string& src)
 {
-    //initialize the output
-    des.resize(0);
-
     //si la cadena está vacía
-    if(src.length() < 1)
-        return; //no hace nada
+    if(src.length() < 1) {
+            des.resize(0); //inicializa la salida
+            return; //no hace nada más
+    }
 
     //busca el último caracter imprimible distinto de espacio
-    int i2 = strPreviousChar(src, src.length()-1);
+    int i2 = strPreviousChar(src, src.length() - 1);
 
     //busca el primer caracter imprimible distinto de espacio
     int i1 = strNextChar(src, 0);
 
-    if(i1 <= i2) {
-        //inicializa la cadena de destino
-        des.resize(i2-i1+1);
-
-        //inicializa el índice de la cadena de destino
-        int j = 0;
-
-        //copia la cadena fuente en la cadena de destino
-        //la cadena de destino
-        for(int i=i1; i<=i2; i++, j++)
-            des[j] = src[i];
+    //si la cadena solo contiene separadores
+    if(i1 > i2) {
+            des.resize(0); //inicializa la salida
+            return; //no hace nada más
     }
+
+    //determina el número de caracteres a copiar
+    int count = i2 - i1 + 1;
+
+    //prepara la cadena de destino
+    if(des.length() < count)
+            des.resize(count);
+
+    //inicializa el índice de la cadena de destino
+    int j = 0;
+
+    //copia la cadena fuente en la cadena de destino
+    //la cadena de destino
+    for(int i=i1; i<=i2; i++, j++)
+            des[j] = src[i];
+
+    //reajusta la cadena de destino
+    des.resize(count);
 }
 //elimina los espacios y caracteres de control marginales de una cadena
 string strTrim(const string& src)

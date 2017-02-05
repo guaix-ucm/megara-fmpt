@@ -63,7 +63,7 @@ void TestFileMethods::test_readInstanceFromDir_RP()
     //read an original instance of a RP from a directory
     //using the function to test
     TRoboticPositioner RP;
-    string dir = "../../data/Models/MEGARA_RP_Instance";
+    string dir = "../../../data/Models/MEGARA_RP_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_RP_Instance"; //Qt only
     readInstanceFromDir(RP, dir);
 
@@ -161,13 +161,13 @@ void TestFileMethods::test_writeInstanceToDir_EAL()
 {
     //read an original instance of a EAL from a directory
     TExclusionAreaList EAL;
-    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     readInstanceFromDir(EAL, dir);
 
     //write the instance of the EAL in a temporal directory
     //with the function to test
-    string dir_ = "../MEGARA_FiberMOSModel_Instance_temporal";
+    string dir_ = "../data/MEGARA_FiberMOSModel_Instance_temporal";
     //string dir_ = "../megarafmpt/MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, EAL);
@@ -255,7 +255,7 @@ void TestFileMethods::test_readInstanceFromDir_EAL()
     //read an original instance of a EAL from a directory
     //using the function to test
     TExclusionAreaList EAL;
-    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     readInstanceFromDir(EAL, dir);
 
@@ -329,14 +329,14 @@ void TestFileMethods::test_writeInstanceToDir_RPL()
 {
     //read an original instance of a RPL from a directory
     TRoboticPositionerList RPL;
-    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     TExclusionAreaList EAL;
     readInstanceFromDir(RPL, dir, EAL);
 
     //write the instance of the RPL in a temporal directory
     //with te function to test
-    string dir_ = "../MEGARA_FiberMOSModel_Instance_temporal";
+    string dir_ = "../data/MEGARA_FiberMOSModel_Instance_temporal";
     //string dir_ = "../megarafmpt/MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, RPL);
@@ -481,7 +481,7 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
     //read an original instance of a RPL from a directory
     //with the function to test
     TRoboticPositionerList RPL;
-    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     TExclusionAreaList EAL;
     readInstanceFromDir(RPL, dir, EAL);
@@ -605,18 +605,15 @@ void TestFileMethods::test_readInstanceFromDir_RPL()
 
 void TestFileMethods::test_writeInstanceToDir_FMM()
 {
-CPPUNIT_ASSERT(true);
-return;
-//falla este
     //read an original instance of a FMM from a directory
     TFiberMOSModel FMM;
-    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     readInstanceFromDir(FMM, dir);
 
     //write the instance of the FMM in a temporal directory
     //using the function to test
-    string dir_ = "../MEGARA_FiberMOSModel_Instance_temporal";
+    string dir_ = "../data/MEGARA_FiberMOSModel_Instance_temporal";
     //string dir_ = "../megarafmpt/MEGARA_FiberMOSModel_Instance_temporal"; //Qt only
     ForceDirectories(dir_);
     writeInstanceToDir(dir_, FMM);
@@ -828,7 +825,7 @@ void TestFileMethods::test_readInstanceFromDir_FMM()
     //read an original instance of a FMM from a directory
     //using the function to test
     TFiberMOSModel FMM;
-    string dir = "../../data/Models/MEGARA_FiberMOSModel_Instance";
+    string dir = "../../../data/Models/MEGARA_FiberMOSModel_Instance";
     //string dir = "../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"; //Qt only
     readInstanceFromDir(FMM, dir);
 

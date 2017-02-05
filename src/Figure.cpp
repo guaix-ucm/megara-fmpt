@@ -1675,12 +1675,6 @@ void  TArc::Read(TContourFigure *_O,
 
         //asigna las variables tampón
         O->SetValues(Pa, Pb, Pc, R);
-TDoublePoint Pa_;
-int aux;
-if(i > 346) {
-    Pa_ = O->getPa();
-    aux = 0;
-}
     }
     catch(Exception& E) {
         E.Message.Insert(1, "reading value to an arc in text format: ");

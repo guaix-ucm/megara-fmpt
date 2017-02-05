@@ -303,7 +303,7 @@ string floattostr(double value)
 
     //convert to string
     ss.precision(DBL_DIG);
-    bool ok = (ss << value);
+    bool ok = bool(ss << value);
     if(!ok)
         throw EImproperArgument(AnsiString("can't convert double to string"));
     return ss.str();
@@ -355,7 +355,7 @@ string floattostr_fixed(double value, int precision)
 string inttostr(int value)
 {
     stringstream ss;
-    bool ok = (ss << value);
+    bool ok = bool(ss << value);
     if(!ok)
         throw EImproperArgument(AnsiString("can't convert int to string"));
     return ss.str();
@@ -370,7 +370,7 @@ string uinttostr(unsigned int value)
 {
     //convert to string
     stringstream ss;
-    bool ok = (ss << value);
+    bool ok = bool(ss << value);
     if(!ok)
         throw EImproperArgument(AnsiString("can't convert int to string"));
     return ss.str();

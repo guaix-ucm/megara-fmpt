@@ -29,6 +29,7 @@
 #include "Geometry.h"
 
 #include <algorithm> //std::min, std::max
+#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
@@ -455,38 +456,34 @@ TDoublePoint TCilinder::getP_3(void) const
     return TDoublePoint(getx_3(), gety_3());
 }
 
-TDoublePoint TCilinder::getP3o(void) const
+//punto origen o posición de P3 en S1
+//cuando los rotores están en el origen
+TDoublePoint TCilinder::getP_3o(void) const
 {
-    //Calcula P3 en S1 cuando theta___3 == 0, por el mismo procedimiento
-    //empeado cuando theta___3 no es necesariamente 0, y traduce
-    //las coordenadas de S1 a S0:
-
+    //calcula P3 en S1 en coordenadas radiales
     double r_3 = sqrt(getL01()*getL01() + getArm()->getL13()*getArm()->getL13() -
                       2*getL01()*getArm()->getL13()*cos(M_PI - gettheta_O3o()));
     double theta_3 = gettheta_1() + gettheta_13();
-    double x_3o = r_3*cos(theta_3);
-    double y_3o = r_3*sin(theta_3);
 
-    /*
-        //en caso de igualdad devuelve directamente P0 para evitar
-        //introducir errores numéricos
-        if(theta_O3==M_PI && Arm->L13==L01)
-                return P0;
+    //traduce a coordenadas cartesianas
+    TDoublePoint P_3o;
+    P_3o.x = r_3*cos(theta_3);
+    P_3o.y = r_3*sin(theta_3);
 
-        //determina la coordenada angular del punto P3o en S1:
-        double theta_3o;
-        if(Arm->L13 < L01)
-                theta_3o = 0;
-        else //Arm->L13 > L01
-                theta_3o = -M_PI;
-        //la coordenada radial viene dada por r_3min
+    //El procedimiento es el mismo empleado cuando theta___3
+    //no es necesariamente igual a 0.
 
-        //traduce el punto a coordenadas cartesianas
-        double x_3o = r_3min*cos(S0thetaToS1theta(theta_3o));
-        double y_3o = r_3min*sin(S0thetaToS1theta(theta_3o));
-*/
-    //traduce a S0
-    TDoublePoint P3o = S1recToS0rec(x_3o, y_3o);
+    return P_3o;
+}
+//punto origen o posición de P3 en S0
+//cuando los rotores están en el origen
+TDoublePoint TCilinder::getP3o(void) const
+{
+    //traduce P_3o a S0
+    TDoublePoint P3o = S1recToS0rec(getP_3o().x, getP_3o().y);
+
+    //El procedimiento es el mismo empleado cuando theta___3
+    //no es necesariamente igual a 0.
 
     return P3o; //devuelve el punto en S0
 }
@@ -1656,10 +1653,15 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
     else { //si el denominador es mayor que cero
         //calcula la proyección del ángulo 1
         double x_ = (getL01()*getL01() + r_3*r_3 - getArm()->getL13()*getArm()->getL13())/(den);
-        //corrige el error numérico
+        //corrige el error numérico por exceso
         if(x_ < -1)
             x_ = -1;
         else if(x_ > 1)
+            x_ = 1;
+        //corrige el error numérico por defecto
+        if(x_ < -0.99999999999999)
+            x_ = -1;
+        else if(x_ > 0.99999999999999)
             x_ = 1;
         //obtiene la posición del rotor 1
         theta_1 = theta_3 - acos(x_);
@@ -1714,29 +1716,44 @@ bool TCilinder::anglesToGoP3(double &theta_1, double &theta___3,
     //traduce a coordenadas relativas a S1
     TDoublePoint P_ = S0recToS1rec(x3, y3);
 
+    //Nótese que cuando se mueven los rotores desde la posición original,
+    //el punto P3 se desplaza en la dirección radial M_PI/2. Por eso
+    //una coordenada radial igual a (0, M_PI/2), debe corresponder a
+    //las posiciones angulares (0, 0).
+
+    //Por otra parte cuando la orientación de S1 respecto de S0 no es igual cero,
+    //la función S0rectToS1rect puede introducir un error numérico, que debería
+    //ser tenido en cuenta a la hora de traducir la posición original a
+    //coordenadas relativas a S1.
+
     //traduce a coordenadas polares relativas a S1
     double r_;
     double theta_;
-    if(P_.x!=0 || P_.y!=0) {
-        r_ = Mod(P_);
-        theta_ = ArgPos(P_);
-
-    } else {
+    if(Mod(P_) <= ERR_NUM) {
         r_ = 0;
         theta_ = M_PI/2;
     }
+    else if(Mod(P_ - getP_3o()) <= ERR_NUM) {
+        r_ = abs(getL01() - getArm()->getL13()); //asignando Mod(P_) el error numérico sería un orden de magnitud mayor
+        theta_ = 0;
+    }
+    else {
+        r_ = Mod(P_);
+        theta_ = ArgPos(P_);
+    }
 
-    //determina los ángulos para que P3 se posiciones en (r_, theta_)
+    //determina los ángulos para que P3 se posicione en (r_, theta_)
     return anglesToGoP_3(theta_1, theta___3, r_, theta_);
 }
 
-//Dado el ángulo theta_3 (en S1) calcula theta___3 para que P3 vaya a él;
-//si el ángulo no está dentro del dominio devuelve falso.
+//dada la posición actual de theta_1,
+//calcula theta___3 para que P3 vaya a theta_3
+//si theta_3 no está al alcance devuelve falso
 bool TCilinder::theta___3ToGotheta_3(double &theta___3, double theta_3)
 {
     //si el brazo tiene que retorcerse
     if(theta_3 < gettheta_1())
-        return false; //el punto es inalcanzable
+        return false; //indica que la posición es inalcanzable
 
     //en esta caso no hace falta calcular el argumento principal de theta_3
     //ya que solo se usa en cos(_theta_3 - theta_1)
@@ -1749,9 +1766,9 @@ bool TCilinder::theta___3ToGotheta_3(double &theta___3, double theta_3)
     double rad = aux*aux - getL01()*getL01() +
             getArm()->getL13()*getArm()->getL13();
 
-    //si el radicando es negativo, el punto es inalcanzable
+    //si el radicando es negativo
     if(rad < 0)
-        return false;
+        return false; //indica que la posición es inalcanzable
 
     double r_3 = aux + sqrt(rad);
 
@@ -1770,15 +1787,15 @@ bool TCilinder::theta___3ToGotheta_3(double &theta___3, double theta_3)
     theta___3 = acos(x_3); //obtiene la solución
     return true; //indica que la posición es alcanzable
 }
-//Dado el radio r_3 (en S1) calcula theta___3 para que P3 vaya a él;
-//si el radio no está dentro del dominio devuelve falso.
+//calcula theta___3 a partir de r_3
+//si r_3 no está al alcance devuelve falso
 bool TCilinder::theta___3ToGor_3(double &theta___3, double r_3)
 {
-    //el punto debe estar en el intervalo radial
+    //comprueba la precondición
     if(r_3<getr_3min() || getr_3max()<r_3)
-        return false; //indica que el radio no está en el dominio
+        return false; //indica que la posición es inalcanzable
 
-    if(r_3 == 0) { //si quiere ir al origen
+    if(r_3 == getr_3min()) { //si quiere ir al origen
         theta___3 = 0;
     }
     else { //si no quiere ir al origen
@@ -1811,13 +1828,119 @@ bool TCilinder::theta___3ToGor_3(double &theta___3, double r_3)
         theta___3 = gettheta_O3o() - M_PI + acos(x___3);
     }
 
-    return true; //indica que el radio si está en el dominio
+    //comprueba que la solución está dentro del dominio
+    if(getArm()->isntInDomaintheta___3(theta___3))
+        return false; //indica que la posición es inalcanzable
+
+    return true; //indica que la posición es alcanzable
 }
 
-//determina las posiciones angulares estables que hacen que
-//la fibra de este posicionador se ubique lo más cerca posible
-//del punto correspondiente a unas posiciones angulares de los rotores
-//devuelve la distancia al punto hallado
+//dada la posición actual de theta___3,
+//calcula theta_1 para que P3 vaya a theta_3
+//si theta_3 no está al alcance devuelve falso
+bool TCilinder::theta_1ToGotheta_3(double& theta_1, double theta_3)
+{
+    double theta___3 = getArm()->gettheta___3();
+    double L03 = sqrt(getL01()*getL01() + getArm()->getL13()*getArm()->getL13() - 2*getL01()*getArm()->getL13()*cos(theta___3));
+    double theta_31 = asin(L03/(getArm()->getL13()*sin(theta___3)));
+    theta_1 = theta_3 + theta_31;
+
+    //comprueba que theta_1 está en el dominio del rotor 1
+    if(isntInDomaintheta_1(theta_1))
+        return false; //indica que la posición es inalcanzable
+
+    return true; //indica que la posición es alcanzable
+}
+
+//busca la posición estable que hace que el punto P3 quede lo más próximo a P
+//en el intervalo [p_1min, p_1max]x[p___3min, p___3max]
+//devuelve la distancia de P a P3
+double TCilinder::searchNearestStablePosition(double& p_1nsp, double& p___3nsp,
+                                            TDoublePoint P,
+                                            double p_1min, double p_1max,
+                                            double p___3min, double p___3max)
+{
+    //comprueba las precondiciones
+    if(isntInDomainp_1(p_1min) || isntInDomainp_1(p_1max))
+        throw EImproperArgument("searching interval [p_1min, p_1max] should be in the domain of rotor 1");
+    if(getArm()->isntInDomainp___3(p___3min) || getArm()->isntInDomainp___3(p___3max))
+        throw EImproperArgument("searching interval [p___3min, p___3max] should be in the domain of rotor 2");
+
+    //GUARDA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
+
+    //guarda el estado de habilitación de los cuantificadores de los rotores
+    pushQuantify_();
+    getArm()->pushQuantify___();
+    //guarda las posiciones angulares de los rotores
+    pushtheta_1();
+    getArm()->pushtheta___3();
+
+    //REALIZA LA BÚSQUEDA:
+
+    //activa los cuantificadores de los rotores
+    setQuantify_(true);
+    getArm()->setQuantify___(true);
+
+    //inicializa la distancia de P a P3 a infinito
+    double R = std::numeric_limits<double>::max();
+
+    //por cada punto estable del intervalo de búsqueda
+    for(double p_1=ceil(p_1min); p_1<=floor(p_1max); p_1++) {
+        for(double p___3=ceil(p___3min); p___3<=floor(p___3max); p___3++) {
+            //asigna las posiciones angulares en pasos
+            setAnglesSteps(p_1, p___3);
+
+            //ADVERTECNIA: la cuentificación de los rotores debe estar habilitada.
+
+            //calcula la distancia al punto dado
+            double new_R = Mod(getArm()->getP3() - P);
+
+            //si el punto P3 coincide exactamente con el punto dado
+            if(new_R == 0) {
+                //actualiza la solución
+                p_1nsp = p_1;
+                p___3nsp = p___3;
+
+                //RESTAURA Y DESCARTA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
+
+                //restaura y descarta las posiciones angulares de los rotores
+                getArm()->restoreAndPoptheta___3();
+                restoreAndPoptheta_1();
+                //restaura y desempila el estado de habilitación de
+                //los cuantificadores de los rotores
+                getArm()->restoreAndPopQuantify___();
+                restoreAndPopQuantify_();
+
+                //termina la búsqueda indicando la distancia al punto hallado
+                return new_R;
+            }
+
+            //actualiza la solución
+            if(new_R < R) {
+                p_1nsp = p_1;
+                p___3nsp = p___3;
+                R = new_R;
+            }
+        }
+    }
+
+    //RESTAURA Y DESCARTA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
+
+    //restaura y descarta las posiciones angulares de los rotores
+    getArm()->restoreAndPoptheta___3();
+    restoreAndPoptheta_1();
+    //restaura y desempila el estado de habilitación de
+    //los cuantificadores de los rotores
+    getArm()->restoreAndPopQuantify___();
+    restoreAndPopQuantify_();
+
+    //termina la búsqueda indicando la distancia al punto hallado
+    return R;
+}
+
+//determina las posiciones angulares estables que hacen que  el punto P3
+//se ubique lo más cerca posible del punto correspondiente a unas posiciones
+//angulares de los rotores devuelve la distancia al punto hallado
 double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
                                            double theta_1, double theta___3)
 {
@@ -1839,221 +1962,145 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     //mueve los rotores a las posiciones indicadas
     setAnglesRadians(theta_1, theta___3);
 
-    //guarda P
+    //guarda el punto dado (P)
     TDoublePoint P = getArm()->getP3();
 
     //ADVERTENCIA: las coordenadas de P3 vienen dadas en S0.
 
-    //BUSCA EL PUNTO MÁS PRÓMIMO AL PUNTO P ENTRE LOS
+    //BUSCA EL PUNTO MÁS PRÓXIMO AL PUNTO P ENTRE LOS
     //CORRESPONDIENTES A LAS POSICIONES ANGULARES ADYACENTES:
 
     //calcula los límites del intervalo de búsqueda
-    double p_1min = floor(getp_1());
-    double p_1max = ceil(getp_1());
-    double p___3min = floor(getArm()->getp___3());
-    double p___3max = ceil(getArm()->getp___3());
+    //añadiendo un incremento extra en cada dirección
+    //para corregir el error numérico
+    double p_1min = floor(getp_1() - ERR_NUM);
+    double p_1max = ceil(getp_1() + ERR_NUM);
+    double p___3min = floor(getArm()->getp___3() - ERR_NUM);
+    double p___3max = ceil(getArm()->getp___3() + ERR_NUM);
 
-    //activa los cuantificadores de los rotores
-    setQuantify_(true);
-    getArm()->setQuantify___(true);
+    //restringe el intervalo de búsqueda al dominio de los rotores
+    p_1min = max(p_1min, getp_1min());
+    p_1max = min(p_1max, getp_1max());
+    p___3min = max(p___3min, getArm()->getp___3min());
+    p___3max = min(p___3max, getArm()->getp___3max());
 
-    //mueve los rotores al punto (min, min)
-    setAnglesSteps(p_1min, p___3min);
-    //guarda la solución
-    p_1nsp = p_1min;
-    p___3nsp = p___3min;
-    //calcula la distancia entre puntos
-    double R = Mod(getArm()->getP3() - P);
+    //restringe el intervalo de búsqueda al intervalo de uso de los rotores
+    p_1min = max(p_1min, 0.);
+    p_1max = min(p_1max, floor(getSB1()));
+    p___3min = max(p___3min, 0.);
+    p___3max = min(p___3max, floor(getArm()->getSB2()));
 
-    //si el punto (min, min) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
+    //busca el par (p1_nsp, p___3nsp) que hace que P3 esté lo más próximo posible a P
+    //obteniendo la distancia correspondiente
+    double R = searchNearestStablePosition(p_1nsp, p___3nsp,
+                                           P, p_1min, p_1max, p___3min, p___3max);
 
-    //mueve los rotores al punto (max, min)
-    setAnglesSteps(p_1max, p___3min);
-    //calcula la distancia entre puntos
-    double r = Mod(getArm()->getP3() - P);
-
-    //si la distancia es menor que la anterior
-    if(r < R) {
-        //guarda la solución
-        p_1nsp = p_1max;
-        p___3nsp = p___3min;
-        //actualiza la distancia
-        R = r;
-    }
-    //si el punto (max, min) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
-
-    //mueve los rotores al punto (max, max)
-    setAnglesSteps(p_1max, p___3max);
-    //calcula la distancia entre puntos
-    r = Mod(getArm()->getP3() - P);
-
-    //si la distancia es menor que la anterior
-    if(r < R) {
-        //guarda la solución
-        p_1nsp = p_1max;
-        p___3nsp = p___3max;
-        //actualiza la distancia
-        R = r;
-    }
-    //si el punto (max, max) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
-
-    //mueve los rotores al punto (min, max)
-    setAnglesSteps(p_1min, p___3max);
-    //calcula la distancia entre puntos
-    r = Mod(getArm()->getP3() - P);
-
-    //si la distancia es menor que la anterior
-    if(r < R) {
-        //guarda la solución
-        p_1nsp = p_1min;
-        p___3nsp = p___3max;
-        //actualiza la distancia
-        R = r;
-    }
-    //si el punto (min, max) coincide exactamente con el punto P
-    if(getArm()->getP3() == P)
-        return 0; //termina la búsqueda indicando distancia igual a cero
+    //si la distancia es cero no necesita refinar la búsqueda
+    if(R <= 0)
+        return 0;
 
     //------------------------------------------------------------------
-    //CALCULA LOS LÍMITES DEL INTERVALO DE BÚSQUEDA
-    //(theta_1min, theta_1max)x(theta___3min, theta___3max):
-
-    //calcula los límites del intervalo para theta___3:
+    //CALCULA LOS LÍMITES DEL INTERVALO DE BÚSQUEDA [p___3min, p___3max]:
 
     //calcula la distancia de P0 a P
-    r = Mod(P - getP0());
+    double r = Mod(P - getP0());
 
     //calcula theta___3min
     double r_3 = r - R;
-    r_3 = max(r_3, getr_3min());
+    r_3 = max(r_3, getr_3min()); //acota inferiormente r_3
     double theta___3min;
     bool exist = theta___3ToGor_3(theta___3min, r_3);
 
     //realiza un control rutinario
     if(!exist)
-        throw EImpossibleError("possible malfunction of Max or theta___3ToGor_3");
+        throw EImpossibleError("possible malfunction of theta___3ToGor_3");
 
     //calcula theta___3max
     r_3 = r + R;
-    r_3 = min(r_3, getr_3max());
+    r_3 = min(r_3, getr_3max()); //acota superiormente r_3
     double theta___3max;
     exist = theta___3ToGor_3(theta___3max, r_3);
 
     //realiza un control rutinario
     if(!exist)
-        throw EImpossibleError("possible malfunction of Min or theta___3ToGor_3");
-
-    //calcula los límites del intervalo para theta_1:
-
-    //determina los puntos que se encuentran a una distancia
-    //L01 de P0 y Arm->L13-R de P
-    TDoublePoint P1, P2;
-    int type = intersectionCircumCircum(P1, P2,
-                                        P, getArm()->getL13()-R, getP0(), getL01());
-
-    //El punto P1 corresponde al punto superior cuando
-    //(P, L13-R) esta a la izquierda y (P0, L01) está a la derecha.
-
-    //The circunferences shall be secant, extern-secant or extern:
-    //      0: extern
-    //      1: coincident
-    //      2: intern-concentric
-    //      3: extern-excentric
-    //      4: interior-tangent
-    //      5: exterior-tangent
-    //      6: secant
-
-    //calculates the lower limit theta_1min
-    double theta_1min;
-    //if thecircunferences are secants
-    if(type == 6)
-        //calculates the positive argument of the vector from P0 to P2
-        theta_1min = ArgPos(P2 - getP0());
-    //else if, the circunferences are exterior-tangent or exterior
-    else if(type == 5 || type == 0)
-        //calculates the positive argument of the vector from P0 to P
-        theta_1min = ArgPos(P - getP0());
-    //else (if the circunferences not are secants, exterior-secant or exterior)
-    else
-        //indicates improper values for circunferences (P0, L01) and (P, Arm->L13-R)
-        throw EImpossibleError("improper values for circunferences (P0, L01) and (P, Arm->L13-R)");
-
-    //determina los puntos que se encuentran a una distancia
-    //L01 de P0 y Arm->L13+R de P
-    type = intersectionCircumCircum(P1, P2,
-                                    P, getArm()->getL13()+R, getP0(), getL01());
-
-    //The circunferences shall be secant
-    //      0: extern
-    //      1: coincident
-    //      2: intern-concentric
-    //      3: extern-excentric
-    //      4: interior-tangent
-    //      5: exterior-tangent
-    //      6: secant
-    if(type != 6)
-        throw EImpossibleError("improper values for circunferences (P0, L01) and (P, Arm->L13-R)");
-
-    //El punto P1 corresponde al punto superior cuando
-    //(P, L13+R) esta a la izquierda y (P0, L01) está a la derecha.
-
-    //calcula el argumento positivo del vector de P0 a P2
-    double theta_1max = ArgPos(P2 - getP0());
-
-    //------------------------------------------------------------------
-    //BUSCA EL PUNTO MÁS CERCANO EN EL INTERVALO ABIERTO
-    //(p_1min, p_1max)x(p___3min, p___3max):
+        throw EImpossibleError("possible malfunction of theta___3ToGor_3");
 
     //traduce los límites del intervalo a pasos
-    p_1min = getF().Image(theta_1min);
-    p_1max = getF().Image(theta_1max);
-    p___3min = getArm()->getF().Image(theta___3min);
-    p___3max = getArm()->getF().Image(theta___3max);
+    p___3min = ceil(getArm()->getF().Image(theta___3min));
+    p___3max = floor(getArm()->getF().Image(theta___3max));
 
-    //por cada punto estable de las trayectorias que atraviesan el círculo (P, R)
-    for(int i=(int)ceil(p_1min); i<p_1max; i++) {
-        for(int j=(int)ceil(p___3min); j<p___3max; j++) {
-            //transforma los ángulos de los rotores a double
-            double p_1 = double(i);
-            double p___3 = double(j);
+    //restringe el intervalo de búsqueda al dominio del rotor 2
+    p___3min = max(p___3min, ceil(getArm()->getp___3min()));
+    p___3max = min(p___3max, floor(getArm()->getp___3max()));
 
-            //asigna las coordenadas correspondientes en pasos
-            setAnglesSteps(p_1, p___3);
-            //ADVERTECNIA: como la cuentificación de los rotores está
-            //habilitada el error numérico es corregido
+    //restringe el intervalo de búsqueda al intervalo de uso del rotor 2
+    p___3min = max(p___3min, 0.);
+    p___3max = min(p___3max, floor(getArm()->getSB2()));
 
-            //si el punto P3 coincide exactamente con el punto dado
-            if(getArm()->getP3() == P) {
-                //actualiza las posiciones angulares estables
-                p_1nsp = p_1;
-                p___3nsp = p___3;
-                //termina la búsqueda indicando distancia igual a cero
-                return 0;
-            }
+    //------------------------------------------------------------------
+    //BUSCA EL PUNTO MÁS CERCANO EN EL INTERVALO CERRADO [p___3min, p___3max]:
 
-            //calcula la distancia al punto dado
-            r = Mod(getArm()->getP3() - P);
+    //Recué que la cuantificación de los rotores sigue desactivada.
 
-            //si el punto P3 está más próximo al punto dado
-            if(r < R) {
-                //actualiza las posiciones angulares estables
-                p_1nsp = p_1;
-                p___3nsp = p___3;
-                //actualiza el radio del espacio de búsqueda
-                R = r;
+    //calcula el argumento positivo del punto objetivo P
+    double theta_ = ArgPos(P);
 
-                //aquí cabría la posibilidad de indicar que
-                //debe reiniciarse el proceso, para que se
-                //determine un nuevo intervalo de búsqueda,
-                //pero se considera que el núnero de puntos
-                //no debe ser tan grande como para justificarlo.
-            }
+    //busca la mejor solución para cada p___3
+    for(double p___3 = p___3min; p___3 <= p___3max; p___3++) {
+        //asigna el p___3 indicado
+        getArm()->setp___3(p___3);
+
+        //calcula el valor de theta_1 para que P3 quede lo más cerca posible de P
+        double theta_1;
+        theta_1ToGotheta_3(theta_1, theta_);
+
+        //El valor de theta_1 debe hacer que P3 esté en la dirección radial de P.
+
+        //calcula [p_1min, p_1max] incluyendo un incremento adicional
+        //en cada dirección para corregir el error numérico
+        settheta_1(theta_1);
+        double p_1min = max(floor(getp_1()) - ERR_NUM, getp_1min());
+        double p_1max = min(ceil(getp_1()) + ERR_NUM, getp_1max());
+
+        //restringe el íntervalo de búsqueda al dominio del rotor 1
+        p_1min = max(p_1min, getp_1min());
+        p_1max = min(p_1max, getp_1max());
+
+        //restringe el íntervalo de búsqueda al dominio de uso del rotor 1
+        p_1min = max(p_1min, 0.);
+        p_1max = min(p_1max, floor(getSB1()));
+
+        //busca el par (p1_nsp, p___3nsp) que hace que P3 esté lo más próximo posible a P
+        //obteniendo la distancia correspondiente
+        double new_p_1nsp, new_p___3nsp;
+        double new_R = searchNearestStablePosition(new_p_1nsp, new_p___3nsp,
+                                                   P, p_1min, p_1max, p___3, p___3);
+
+        //resuelve el caso trivial
+        if(new_R == 0) {
+            //actualiza la solución
+            p_1nsp = new_p_1nsp;
+            p___3nsp = new_p___3nsp;
+
+            //RESTAURA Y DESCARTA LA CONFIGURACIÓN ORIGINAL DEL ACTUADOR:
+
+            //restaura y descarta las posiciones angulares de los rotores
+            getArm()->restoreAndPoptheta___3();
+            restoreAndPoptheta_1();
+            //restaura y desempila el estado de habilitación de
+            //los cuantificadores de los rotores
+            getArm()->restoreAndPopQuantify___();
+            restoreAndPopQuantify_();
+
+            //termina la búsqueda indicando la distancia al punto hallado
+            return new_R;
+        }
+
+        //actualiza la solución
+        if(new_R < R) {
+            p_1nsp = new_p_1nsp;
+            p___3nsp = new_p___3nsp;
+            R = new_R;
         }
     }
 
@@ -2068,7 +2115,7 @@ double TCilinder::getNearestStablePosition(double &p_1nsp, double &p___3nsp,
     getArm()->restoreAndPopQuantify___();
     restoreAndPopQuantify_();
 
-    //devuelve la distancia al punto hallado
+    //termina la búsqueda indicando la distancia al punto hallado
     return R;
 }
 

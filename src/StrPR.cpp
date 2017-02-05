@@ -1054,7 +1054,7 @@ int strToInt(const string& str)
         //convert to double
         istringstream ss(dst);
         int value;
-        bool ok = (ss >> value);
+        bool ok = bool(ss >> value);
         if(!ok) {
             throw EImproperArgument(AnsiString("can't convert string to int"));
         }
@@ -1468,7 +1468,7 @@ double strToFloat(const string& str)
         stringstream ss(dst);
         ss.precision(DBL_DIG);
         double value;
-        bool ok = (ss >> value);
+        bool ok = bool(ss >> value);
         if(!ok) {
             throw EImproperArgument(AnsiString("can't convert string to double"));
         }

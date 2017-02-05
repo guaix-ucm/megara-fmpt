@@ -1,4 +1,5 @@
 #Instance properties of the FMM (Fiber MOS Model):
+#WARNING: for pass testFileMethods, dont write not significant figures equal to zero.
 
 Tolerances:                    # Tolerances of the Fiber MOS:
     PAem = 0                       # orientation error margin of the system S0 (in rad)

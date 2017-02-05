@@ -1,5 +1,6 @@
 #A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc) for describe
 #the template of RP.Actuator.Arm.Contour____ in S4 (in mm):
+#WARNING: for pass testFileMethods, dont write not significant figures equal to zero.
 
 ({0.807111, 2.35}, {5.807111, 2.35})
 ({5.807111, 2.35}, {5.807111, -2.35}, {5.807111, 0}, 2.35)

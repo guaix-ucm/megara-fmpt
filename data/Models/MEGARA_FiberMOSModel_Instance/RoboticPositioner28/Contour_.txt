@@ -1,5 +1,6 @@
 #A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe
 #the template of the RP.Barrier.Contour_, in S1 (in mm):
+#WARNING: for pass testFileMethods, dont write not significant figures equal to zero.
 
 ({13.955, 0}, {-13.955, 0}, {0, 0}, 13.955)
 ({-13.955, 0}, {13.955, 0}, {0, 0}, 13.955)

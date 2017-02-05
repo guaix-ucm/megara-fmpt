@@ -1,4 +1,5 @@
 #Instance properties of the RP (Robotic Positioner):
+#WARNING: for pass testFileMethods, dont write not significant figures equal to zero.
 
 ActuatorInstance:              # Instance properties of the RP.Actuator (sizing, orientation and others):
     L01 = 5.8025                   # distance between P0 and P1 (in mm)
@@ -13,7 +14,7 @@ ActuatorInstance:              # Instance properties of the RP.Actuator (sizing,
         L13 = 5.8025                   # distance between P1 and P3 (in mm)
         theta__O3 = 0                  # orientation of S3 respect S2 (in rad)
         R3 = 0.75                      # radio of representative circle of the microlens (in mm)
-        thetaO3 = -3.14159265358979    # orientation of S3 respect S2 (in rad)
+        thetaO3 = -3.14159265358979    # orientation of S3 respect S0 (in rad)
         theta___3min = -0.043633231    # position angle’s lower limit of axis 1-3 respect S3 (in rad)
         theta___3max = 3.185225885     # position angle’s upper limit of axis 1-3 respect S3 (in rad)
         theta___3 = 0                  # position angle of axis 1-3 respect S3 (in rad)
