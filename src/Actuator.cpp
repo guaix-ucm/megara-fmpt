@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -1128,9 +1128,6 @@ AnsiString TActuator::getInstanceText(void) const
     str += "\r\n"+commentedLine("theta_1 = "+gettheta_1Text().str, "position angle of axis 0-1 respect S1 (in rad)");
     str += "\r\n"+commentedLine("theta_O3o = "+gettheta_O3oText().str, "orientation of S3 respect S1 when theta_1 = 0 (in rad)");
 
-    //Quantification:
-    str += "\r\n"+commentedLine("SB1 = "+getSB1Text().str, "number of steps by lap of rotor 1 (in steps)");
-
     //Arm:
     str += "\r\n";
     str += "\r\n"+commentedLine("ArmInstance:", "Instance properties of the RP.Actuator.Arm (sizing, orientation and quantification):");
@@ -1349,12 +1346,6 @@ void  TActuator::readInstance(TActuator *A,
         StrReadFloat(theta_O3o, S, i);
 
         //-------------------------------------
-
-        StrTravelSeparators(S, i);
-        StrTravelLabel("SB1", S, i);
-        StrTravelLabel("=", S, i);
-        StrReadFloat(aux, S, i);
-        t_A.setQuantification(aux);
 
         StrTravelLabel("ArmInstance:", S, i);
         TArm *aux_A = t_A.getArm();

@@ -3,7 +3,6 @@
 #    x0: abscissa of the point P0 of the EA in S0 (in mm)
 #    y0: ordinate of the point P0 of the EA in S0 (in mm)
 #    thetaO1: orientation of S1 in S0 (in rad)
-#WARNING: for pass testFileMethods, dont write not significant figures equal to zero.
 
 Id	x0	y0	thetaO1
 1	0	0	0

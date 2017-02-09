@@ -1,6 +1,5 @@
 #A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe
 #the template of EA.Barrier.Contour_, in S1 (in mm):
-#WARNING: for pass testFileMethods, dont write not significant figures equal to zero.
 
 ({-14, -9.75}, {-14, 7.877})
 ({-14, 7.877}, {-9.5, 11.629})

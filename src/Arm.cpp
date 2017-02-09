@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -1394,12 +1394,10 @@ AnsiString TArm::getInstanceText(void) const
     str += "\r\n"+commentedLine("theta__O3 = "+gettheta__O3Text().str, "orientation of S3 respect S2 (in rad)");
     str += "\r\n"+commentedLine("R3 = "+getR3Text().str, "radio of representative circle of the microlens (in mm)");
 
-    str += "\r\n"+commentedLine("thetaO3 = "+getthetaO3Text().str, "orientation of S3 respect S2 (in rad)");
+    str += "\r\n"+commentedLine("thetaO3 = "+getthetaO3Text().str, "orientation of S3 respect S0 (in rad)");
     str += "\r\n"+commentedLine("theta___3min = "+gettheta___3minText().str, "position angle’s lower limit of axis 1-3 respect S3 (in rad)");
     str += "\r\n"+commentedLine("theta___3max = "+gettheta___3maxText().str, "position angle’s upper limit of axis 1-3 respect S3 (in rad)");
     str += "\r\n"+commentedLine("theta___3 = "+gettheta___3Text().str, "position angle of axis 1-3 respect S3 (in rad)");
-
-    str += "\r\n"+commentedLine("SB2 = "+getSB2Text().str, "number of steps by lap of rotor 2");
 
     return AnsiString(str);
 }
@@ -1490,15 +1488,9 @@ void  TArm::readInstance(TArm *A, const AnsiString& S, int &i)
         StrTravelLabel("=", S, i);
         StrReadFloat(theta___3, S, i);
 
-        StrTravelSeparators(S, i);
-        StrTravelLabel("SB2", S, i);
-        StrTravelLabel("=", S, i);
-        StrReadFloat(SB2, S, i);
-
         //asigna las variables tampón
         A->setTemplate(L12, L13, theta__O3, R3);
         A->setOrientationRadians(thetaO3, theta___3min, theta___3max, theta___3);
-        A->setQuantification(SB2);
 
     }catch(Exception& E) {
         E.Message.Insert(1, "reading instance of arm: ");

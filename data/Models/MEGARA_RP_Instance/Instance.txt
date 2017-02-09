@@ -6,18 +6,16 @@ ActuatorInstance:              # Instance properties of the RP.Actuator (sizing,
     theta_1max = 6.326818538       # position angle’s upper limit of the axis 0-1 respect S1 (in rad)
     theta_1 = 0                    # position angle of axis 0-1 respect S1 (in rad)
     theta_O3o = 3.14159265358979   # orientation of S3 respect S1 when theta_1 = 0 (in rad)
-    SB1 = 194953.8462              # number of steps by lap of rotor 1 (in steps)
     
     ArmInstance:                   # Instance properties of the RP.Actuator.Arm (sizing, orientation and quantification):
         L12 = 5.8025                   # distance between P1 and P2 (in mm)
         L13 = 5.8025                   # distance between P1 and P3 (in mm)
         theta__O3 = 0                  # orientation of S3 respect S2 (in rad)
         R3 = 0.75                      # radio of representative circle of the microlens (in mm)
-        thetaO3 = -3.14159265358979    # orientation of S3 respect S2 (in rad)
+        thetaO3 = -3.14159265358979    # orientation of S3 respect S0 (in rad)
         theta___3min = -0.043633231    # position angle’s lower limit of axis 1-3 respect S3 (in rad)
         theta___3max = 3.185225885     # position angle’s upper limit of axis 1-3 respect S3 (in rad)
         theta___3 = 0                  # position angle of axis 1-3 respect S3 (in rad)
-        SB2 = 30720                    # number of steps by lap of rotor 2
     
     SPMmin = 0.005                 # SPM minimum: is the SPM due to the minimum jump during generation (in mm)
     SPMsim = 0.00893643794946      # SPM of simulation: is the maximum deviation in the radial trajectory (in mm)
