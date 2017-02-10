@@ -66,6 +66,36 @@ void Outputs::getText(string& str, const int Bid,
 }
 
 //get the outputs in text format
+//with rotor 2 negative
+void Outputs::getNegativeText(string& str, const int Bid,
+                      const TPairPositionAnglesList& OPL,
+                      const TPairPositionAnglesList& IPL) const
+{
+    string aux;
+
+    PP.getInterfaceNegativeText(aux, "pos", Bid, IPL);
+    str = "#Positioning program";
+    str += "\r\n@@SPP@@";
+    str += "\r\n"+aux;
+    str += "\r\n@@EPP@@";
+
+    DP.getInterfaceNegativeText(aux, "depos", Bid, OPL);
+    str += "\r\n#Depositioning program";
+    str += "\r\n@@SDP@@";
+    str += "\r\n"+aux;
+    str += "\r\n@@EDP@@";
+
+    //str += "#RP lists";
+    //str += "\r\n@@SRPL@@";
+    //str += "\r\nCollided: "+Collided.getText().str;
+    //str += "\r\nObstructed: "+Obstructed.getText().str;
+    //str += "\r\n@@ERPL@@";
+
+    FMOSAT.getTableText(aux);
+    str += "\r\n"+aux;
+}
+
+//get the outputs in text format
 void Outputs::setText(unsigned int& Bid, const string& str)
 {
     try {

@@ -113,6 +113,18 @@ public:
     void getInterfaceText(string& str, const string& label, unsigned int Bid,
                           const TPairPositionAnglesList& SPL) const;
 
+    //Get a motion progam in the interface format of the MCS.
+    //With rotor 2 negative.
+    //Inputs:
+    //  label: string labeling all the MP.
+    //  Bid: univoque identifier of the CB.
+    //  SPL: starting position list for all RPs of the Fiber MOS.
+    //Preconditions:
+    //  All PPAs of the SPL must be addresed to different RPs.
+    //  All RPs included in the MP, must be in included in the SPL.
+    void getInterfaceNegativeText(string& str, const string& label, unsigned int Bid,
+                          const TPairPositionAnglesList& SPL) const;
+
     //Values for label:
     //  "obs depos" for depositioning programs
     //  "obs pos" for positioning programs

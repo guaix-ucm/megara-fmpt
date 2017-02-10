@@ -1,5 +1,5 @@
 
-AC_INIT([megara-fmpt],[3.3.4])
+AC_INIT([megara-fmpt],[3.5.0])
 AM_INIT_AUTOMAKE([foreign dist-xz])
 LT_INIT
 

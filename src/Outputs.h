@@ -52,6 +52,12 @@ public:
                  const TPairPositionAnglesList& OPL,
                  const TPairPositionAnglesList& IPL) const;
 
+    //get the outputs in text format
+    //with rotor 2 negative
+    void getNegativeText(string& str, const int Bid,
+                 const TPairPositionAnglesList& OPL,
+                 const TPairPositionAnglesList& IPL) const;
+
     //set the outputs in text format
     void setText(unsigned int& Bid, const string& str);
 
