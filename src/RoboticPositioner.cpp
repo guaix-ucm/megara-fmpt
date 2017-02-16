@@ -602,15 +602,49 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
 //set of minimun distances in text format
 AnsiString TRoboticPositioner::getDminsText(void) const
 {
-    //comprueba las precondiciones
-    if(getActuator()->DminEAs.getCount() != getActuator()->AdjacentEAs.getCount())
-        throw EImproperCall("DminEAs.Count should be equal to AdjacentEAs.Count");
+    //determine Dmin
+    double Dmin = DBL_MAX;
+    for(int i=0; i<getActuator()->AdjacentEAs.getCount(); i++) {
+        double D = getActuator()->AdjacentEAs[i].Dmin;
+        if(D < Dmin)
+            Dmin = D;
+    }
+    for(int i=0; i<getActuator()->AdjacentRPs.getCount(); i++) {
+        double D = getActuator()->AdjacentRPs[i].Dmin;
+        if(D < Dmin)
+            Dmin = D;
+    }
 
     //print the Dmins in a string
     string str;
     str = "min: "+floattostr(Dmin);
-    str += "; with EAs: "+getActuator()->DminEAs.getText().str;
-    str += "; with RPs: "+getActuator()->DminRPs.getText().str;
+    str += "; with EAs: "+getActuator()->AdjacentEAs.getDminText();
+    str += "; with RPs: "+getActuator()->AdjacentRPs.getDminText();
+
+    //return the string
+    return AnsiString(str);
+}
+//set of final distances in text format
+AnsiString TRoboticPositioner::getDendsText(void) const
+{
+    //determine Dend
+    double Dend = DBL_MAX;
+    for(int i=0; i<getActuator()->AdjacentEAs.getCount(); i++) {
+        double D = getActuator()->AdjacentEAs[i].Dend;
+        if(D < Dend)
+            Dend = D;
+    }
+    for(int i=0; i<getActuator()->AdjacentRPs.getCount(); i++) {
+        double D = getActuator()->AdjacentRPs[i].Dend;
+        if(D < Dend)
+            Dend = D;
+    }
+
+    //print the Dends in a string
+    string str;
+    str = "min: "+floattostr(Dend);
+    str += "; with EAs: "+getActuator()->AdjacentEAs.getDendText();
+    str += "; with RPs: "+getActuator()->AdjacentRPs.getDendText();
 
     //return the string
     return AnsiString(str);
@@ -803,8 +837,8 @@ TRoboticPositioner::TRoboticPositioner(void) :
     CMF(),
     //inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
-    ControlMode(cmSinc), MPturn(), MPretraction(),
-    Dmin(DBL_MAX)
+    ControlMode(cmSinc), MPturn(), MPretraction()
+///    Dmin(DBL_MAX), Dend(DBL_MAX)
 {
     //contruye el actuador del posicionador
     //con el identificador 0
@@ -831,8 +865,8 @@ TRoboticPositioner::TRoboticPositioner(int Id, TDoublePoint P0,
     CMF(),
     //construye e inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
-    ControlMode(cmSinc), MPturn(), MPretraction(),
-    Dmin(DBL_MAX)
+    ControlMode(cmSinc), MPturn(), MPretraction()
+///    Dmin(DBL_MAX), Dend(DBL_MAX)
 {
     //el número de identificación Id debe ser mayor que cero
     if(Id < 1)
@@ -879,7 +913,8 @@ void TRoboticPositioner::copyStatus(const TRoboticPositioner *RP)
     MPretraction.Clone(RP->MPretraction);
     p_DsecMax = RP->p_DsecMax;
     p_Dsec = RP->p_Dsec;
-    Dmin = RP->Dmin;
+///    Dmin = RP->Dmin;
+///    Dend = RP->Dend;
 }
 
 //copy all properties of a RP
@@ -1627,8 +1662,13 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
     //calculates the necessary displacement of rotor 1 in radians
     double dt1 = dt2/2;
 
+    //For minimice the deviation of radial trajectory, the displacement of the rotor 1
+    //must be kept almos the same time that the displacement of the rotor 2. But
+    //the calculus of the desplacement time could be dificult, so making the calculus
+    //with the distance it is a good approximation.
+
     //get the initial position of the rotors 1 in radians
-    double theta_1ini = getActuator()->gettheta_1();
+    double theta_1ini = getActuator()->gettheta_1(); //<---------------------------DIFERENT!
 
     //determines the final position of the rotors 1 in radians
     double theta_1fin;
@@ -1645,12 +1685,12 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
 
     //calculates the final positions according the space available for the rotor 1
     double p___3fin;
-    //if the rotor 1 has enpough space for execue the retraction
+    //if the rotor 1 has enough space for execue the retraction
     if(rot1_has_enough)
         //determines the final position of rot 2 in steps
         p___3fin = p___3saf;
 
-    //if the rotor 1 not has enpough space for execue the retraction
+    //if the rotor 1 not has enough space for execue the retraction
     else {
         //determines the final position of rot 1 in steps
         p_1fin = getActuator()->getp_1first();
@@ -1668,20 +1708,23 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
 
     //BUILD AND ADD THE INSTRUCTION FOR RADIAL RETRACTION:
 
-    //build a message instruction and set it
-    TMessageInstruction *MI = new TMessageInstruction();
-    MI->setId(getActuator()->getId());
-    MI->Instruction.setName("MM");
-    MI->Instruction.Args.setCount(2);
-    MI->Instruction.Args[0] = p_1fin;
-    MI->Instruction.Args[1] = p___3fin;
-    if(getDsec() < getDsecMax())
-        MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
+    //if the trajectory radial is more long that zero
+    if(p_1fin != getActuator()->getp_1() || p___3fin != getActuator()->getArm()->getp___3()) {
+        //build a message instruction and set it
+        TMessageInstruction *MI = new TMessageInstruction();
+        MI->setId(getActuator()->getId());
+        MI->Instruction.setName("MM");
+        MI->Instruction.Args.setCount(2);
+        MI->Instruction.Args[0] = p_1fin;
+        MI->Instruction.Args[1] = p___3fin;
+        if(getDsec() < getDsecMax())
+            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
 
-    //add the message instruction to the MP
-    Positioning::TMessageList *ML = new Positioning::TMessageList();
-    ML->Add(MI);
-    MPretraction.Add(ML);
+        //add the message instruction to the MP
+        Positioning::TMessageList *ML = new Positioning::TMessageList();
+        ML->Add(MI);
+        MPretraction.Add(ML);
+    }
 
     //ADD INSTRUCTION FOR ABATEMENT OF THE ARM IF NECESARY:
 
@@ -1730,8 +1773,8 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
     if(getActuator()->ArmIsInSafeArea())
         throw EImproperArgument("the rotor 2 shall be in unsecurity position");
 
-    if(getActuator()->isntInDomainp_1(p_1new))
-        throw EImproperArgument("the new rotor 1 position p_1new should be in the rotor 1 domain");
+    if(p_1new < getActuator()->getp_1first() || getActuator()->getp_1last()  < p_1new)
+        throw EImproperArgument("the new rotor 1 position p_1new should be in the domain of use of rotor 1");
 
     //MAKE ACTIONS:
 
@@ -1751,14 +1794,14 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
     ML->Add(MI);
     MPturn.Add(ML);
 
-    //CALCULATES DE FINAL POSITIONS OF THE ROTORS (p_1fin, p___3fin, p___3saf):
+    //CALCULATES p___3saf AND THE FINAL POSITIONS OF THE ROTORS (p_1fin, p___3fin):
 
     //determines the first stable security position of rot 2 in steps
     double theta___3saf = getActuator()->gettheta___3saf();
     double p___3saf = getActuator()->getArm()->getF().Image(theta___3saf);
     p___3saf = floor(p___3saf);
 
-    //perform a rutinary check
+    //make a rutinary check
     if(p___3saf < 0)
         throw EImpossibleError("rotor 2 position p___3saf should be nonnegative");
 
@@ -1772,6 +1815,11 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
 
     //calculates the necessary displacement of rotor 1 in radians
     double dt1 = dt2/2;
+
+    //For minimice the deviation of radial trajectory, the displacement of the rotor 1
+    //must be kept almos the same time that the displacement of the rotor 2. But
+    //the calculus of the desplacement time could be dificult, so making the calculus
+    //with the distance it is a good approximation.
 
     //get the initial position of the rotors 1 in radians
     double theta_1ini = getActuator()->getG().Image(p_1new); //<-------------------DIFERENT!
@@ -1791,12 +1839,12 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
 
     //calculates the final positions according the space available for the rotor 1
     double p___3fin;
-    //if the rotor 1 has enpough space for execue the retraction
+    //if the rotor 1 has enough space for execue the retraction
     if(rot1_has_enough)
         //determines the final position of rot 2 in steps
         p___3fin = p___3saf;
 
-    //if the rotor 1 not has enpough space for execue the retraction
+    //if the rotor 1 not has enough space for execue the retraction
     else {
         //determines the final position of rot 1 in steps
         p_1fin = getActuator()->getp_1first();
@@ -1814,20 +1862,23 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
 
     //BUILD AND ADD THE INSTRUCTION FOR RADIAL RETRACTION:
 
-    //build a message instruction and set it
-    MI = new TMessageInstruction();
-    MI->setId(getActuator()->getId());
-    MI->Instruction.setName("MM");
-    MI->Instruction.Args.setCount(2);
-    MI->Instruction.Args[0] = p_1fin;
-    MI->Instruction.Args[1] = p___3fin;
-    if(getDsec() < getDsecMax())
-        MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
+    //if the trajectory radial is more long that zero
+    if(p_1fin != getActuator()->getp_1() || p___3fin != getActuator()->getArm()->getp___3()) {
+        //build a message instruction and set it
+        MI = new TMessageInstruction();
+        MI->setId(getActuator()->getId());
+        MI->Instruction.setName("MM");
+        MI->Instruction.Args.setCount(2);
+        MI->Instruction.Args[0] = p_1fin;
+        MI->Instruction.Args[1] = p___3fin;
+        if(getDsec() < getDsecMax())
+            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
 
-    //add the message instruction to the MP
-    ML = new Positioning::TMessageList();
-    ML->Add(MI);
-    MPretraction.Add(ML);
+        //add the message instruction to the MP
+        ML = new Positioning::TMessageList();
+        ML->Add(MI);
+        MPretraction.Add(ML);
+    }
 
     //ADD INSTRUCTION FOR ABATEMENT OF THE ARM IF NECESARY:
 

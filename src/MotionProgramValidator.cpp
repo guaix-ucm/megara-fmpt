@@ -193,10 +193,13 @@ double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
     //El calculo de la distancia entre contornos,
     //actualizará el vector de distancias mínimas.
 
-    //actualize the minimun free distance of the RP
+/*    //actualize the minimun free distance of the RP
     if(D < RP->Dmin)
         RP->Dmin = D;
-
+    //actualize the minimun free end distance of the RP
+    if(D < RP->Dend)
+        RP->Dend = D;
+*/
     //Para que el método de vlaidación de MPs funciones, el tiempo libre debe poder ser negativo.
     //Por eso aquí no debe hacerse:
     //  //si los brazos colisionan entre si
@@ -238,10 +241,13 @@ double TMotionProgramValidator::calculateTf(TRoboticPositioner *RP,
     //El calculo de la distancia entre contornos,
     //actualizará el vector de distancias mínimas.
 
-    //actualize the minimun free distance of the RP
+/*    //actualize the minimun free distance of the RP
     if(D < RP->Dmin)
         RP->Dmin = D;
-
+    //actualize the minimun free end distance of the RP
+    if(D < RP->Dend)
+        RP->Dend = D;
+*/
     //Para que el método de vlaidación de MPs funciones, el tiempo libre debe poder ser negativo.
     //Por eso aquí no debe hacerse:
     //  //si los brazos colisionan entre si
@@ -328,13 +334,13 @@ double TMotionProgramValidator::calculateTfmin(TRoboticPositioner *RP) const
     //determines the Tf between each adjacent RP and select the minimun
     double Tfmin = DBL_MAX;
     for(int i=0; i<RP->getActuator()->AdjacentEAs.getCount(); i++) {
-        TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[i];
+        TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[i].EA;
         double Tf = calculateTf(RP, EAA);
         if(Tf < Tfmin)
             Tfmin = Tf;
     }
     for(int i=0; i<RP->getActuator()->AdjacentRPs.getCount(); i++) {
-        TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[i];
+        TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[i].RP;
         double Tf = calculateTf(RP, RPA);
         if(Tf < Tfmin)
             Tfmin = Tf;
@@ -353,13 +359,13 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositioner *RP) c
     //determines the Tmin between each adjacent RP and select the minimun
     double Tminmin = DBL_MAX;
     for(int i=0; i<RP->getActuator()->AdjacentEAs.getCount(); i++) {
-        TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[i];
+        TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[i].EA;
         double Tmin = calculateTmin(RP, EAA);
         if(Tmin < Tminmin)
             Tminmin = Tmin;
     }
     for(int i=0; i<RP->getActuator()->AdjacentRPs.getCount(); i++) {
-        TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[i];
+        TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[i].RP;
         double Tmin = calculateTmin(RP, RPA);
         if(Tmin < Tminmin)
             Tminmin = Tmin;
@@ -386,7 +392,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
         int k = 0;
         while(k<RP->getActuator()->AdjacentEAs.getCount() && notcollision) {
             //point the indicated adjacent RP to facilitateits access
-            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[k];
+            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[k].EA;
 
             //calculates the free time between the RP and its adjacent
             double Tf = calculateTf(RP, EAA);
@@ -411,7 +417,7 @@ double TMotionProgramValidator::calculateTfmin(const TRoboticPositionerList& RPL
         k = 0;
         while(k<RP->getActuator()->AdjacentRPs.getCount() && notcollision) {
             //point the indicated adjacent RP to facilitateits access
-            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[k];
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[k].RP;
 
             //calculates the free time between the RP and its adjacent
             double Tf = calculateTf(RP, RPA);
@@ -458,7 +464,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
         int k = 0;
         while(k<RP->getActuator()->AdjacentEAs.getCount() && notcollision) {
             //point the indicated adjacent RP to facilitateits access
-            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[k];
+            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[k].EA;
 
             //calculates the free time between the RP and its indicated adjacent
             double Tmin = calculateTmin(RP, EAA);
@@ -483,7 +489,7 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
         k = 0;
         while(k<RP->getActuator()->AdjacentRPs.getCount() && notcollision) {
             //point the indicated adjacent RP to facilitateits access
-            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[k];
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[k].RP;
 
             //calculates the free time between the RP and its indicated adjacent
             double Tmin = calculateTmin(RP, RPA);
@@ -606,9 +612,12 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
         //reset the parameter Dmin of all RPs of the FMM
         for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
             TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
-            RP->Dmin = DBL_MAX  ;
-            RP->getActuator()->DminEAs.SetAll(DBL_MAX);
-            RP->getActuator()->DminRPs.SetAll(DBL_MAX);
+///            RP->Dmin = DBL_MAX  ;
+///            RP->Dend = DBL_MAX  ;
+            RP->getActuator()->AdjacentEAs.setAllDmins(DBL_MAX);
+            RP->getActuator()->AdjacentEAs.setAllDends(DBL_MAX);
+            RP->getActuator()->AdjacentRPs.setAllDmins(DBL_MAX);
+            RP->getActuator()->AdjacentRPs.setAllDends(DBL_MAX);
         }
 
         //The parameter Dmin of the RPs included in the MP,
@@ -637,7 +646,7 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
             //calculates the minimun free time of the RPL
             Tfmin = calculateTfmin(RPL);
 
-            //Calculus of Tfmin pruduces update of Dmin of the RPs of the RPL.
+            //Calculus of Tfmin pruduces update of (Dmin, Dend) of the RPs of the RPL.
 
             //if there is collision
             if(Tfmin < 0) {
@@ -649,8 +658,10 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
                     if(j >= RPL.getCount())
                         throw EImpossibleError("lateral effect");
                     TRoboticPositioner *RP = RPL[j];
-//                    MI->setComment2("Dmin = "+floattostr(RP->Dmin));
                     MI->setComment2(RP->getDminsText().str);
+
+                    //For a single value, you can write:
+                    //  MI->setComment2("Dmin = "+floattostr(RP->Dmin));
                 }
                 //indicates that the motion program not avoid dynamic collision
                 return false;
@@ -679,9 +690,9 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
         //calculates the minimun free time
         Tfmin = calculateTfmin(RPL);
 
-        //Calculus of Tfmin pruduces update of Dmin of the RPs of the RPL.
+        //Calculus of Tfmin pruduces update of (Dmin, Dend) of the RPs of the RPL.
 
-        //transcript the Dmin of the RPs to corresponding MIs
+        //transcript the (Dmin, Dend) of the RPs to corresponding MIs
         //and reset them
         for(int i=0; i<ML->getCount(); i++) {
             TMessageInstruction *MI = ML->GetPointer(i);
@@ -689,8 +700,12 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
             if(j >= RPL.getCount())
                 throw EImpossibleError("lateral effect");
             TRoboticPositioner *RP = RPL[j];
-//            MI->setComment2("Dmin = "+floattostr(RP->Dmin));
             MI->setComment2(RP->getDminsText().str);
+            MI->setComment3(RP->getDendsText().str);
+
+            //For a single value, you can write:
+            //  MI->setComment2("Dmin = "+floattostr(RP->Dmin));
+            //  MI->setComment3("Dend = "+floattostr(RP->Dend));
         }
 
         //if there is collision

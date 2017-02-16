@@ -70,11 +70,110 @@ string purposeToStr(TPurpose value);
 TPurpose strToPurpose(const string& str);
 
 //---------------------------------------------------------------------------
-//TPairEADmin
+//TAdjacentEA
 //---------------------------------------------------------------------------
 
 //predeclares classes to avoid loops
 class TExclusionArea;
+
+//class cluster (EAQ, Dmin, Dend)
+class TAdjacentEA {
+public:
+    TExclusionArea *EA; //attached-extern EA
+    double Dmin; //minimun distance during motion
+    double Dend; //distance in the final posicion
+
+    //build an item with the indicated values
+    TAdjacentEA(TExclusionArea *t_EA=NULL,
+                double t_Dmin=DBL_MAX, double t_Dend=DBL_MAX);
+    //clone an item
+    void Clone(TAdjacentEA&);
+    //build a clon of an item
+    TAdjacentEA(TAdjacentEA*&);
+
+    //compare the Id of the EA of two adjacent EAs
+    static int compareIds(const TAdjacentEA *AEA1, const TAdjacentEA *AEA2);
+    //print the Id of the EA of an adjacent EA
+    static void printId(AnsiString &S, const TAdjacentEA *AEA);
+};
+
+//---------------------------------------------------------------------------
+//TAdjacentEAList
+//---------------------------------------------------------------------------
+
+//cluss list of adjacent EAs
+class TAdjacentEAList : public TPointersList<TAdjacentEA> {
+public:
+    //build a list by default
+    TAdjacentEAList(void);
+    //build a clon of a list
+    TAdjacentEAList(const TAdjacentEAList&);
+
+    //get partial lists in text format
+    string getIdText(void) const;
+    string getDminText(void) const;
+    string getDendText(void) const;
+
+    //set a same value to all Dmins
+    void setAllDmins(double Dmin);
+    //set a same value to all Dends
+    void setAllDends(double Dend);
+};
+
+//---------------------------------------------------------------------------
+//TAdjacentRP
+//---------------------------------------------------------------------------
+
+//predeclares classes to avoid loops
+class TRoboticPositioner;
+
+//class cluster (RPQ, Dmin, Dend)
+class TAdjacentRP {
+public:
+    TRoboticPositioner *RP; //attached-extern RP
+    double Dmin; //minimun distance during motion
+    double Dend; //distance in the final posicion
+
+    //build an item with the indicated values
+    TAdjacentRP(TRoboticPositioner *t_RP=NULL,
+                double t_Dmin=DBL_MAX, double t_Dend=DBL_MAX);
+    //clone an item
+    void Clone(TAdjacentRP&);
+    //build a clon of an item
+    TAdjacentRP(TAdjacentRP*&);
+
+    //compare the Id of the RP of two adjacent RPs
+    static int compareIds(const TAdjacentRP *ARP1, const TAdjacentRP *ARP2);
+    //print the Id of the RP of an adjacent RP
+    static void printId(AnsiString &S, const TAdjacentRP *ARP);
+};
+
+//---------------------------------------------------------------------------
+//TAdjacentRPList
+//---------------------------------------------------------------------------
+
+//cluss list of adjacent RPs
+class TAdjacentRPList : public TPointersList<TAdjacentRP> {
+public:
+    //build a list by default
+    TAdjacentRPList(void);
+    //build a clon of a list
+    TAdjacentRPList(const TAdjacentRPList&);
+
+    //get partial lists in text format
+    string getIdText(void) const;
+    string getDminText(void) const;
+    string getDendText(void) const;
+
+    //set a same value to all Dmins
+    void setAllDmins(double Dmin);
+    //set a same value to all Dends
+    void setAllDends(double Dend);
+};
+
+//---------------------------------------------------------------------------
+//TPairEADmin
+//---------------------------------------------------------------------------
 
 class TPairEADmin {
     TExclusionArea *p_EA;
@@ -112,9 +211,6 @@ public:
 //---------------------------------------------------------------------------
 //TPairRPDmin
 //---------------------------------------------------------------------------
-
-//predeclares classes to avoid loops
-class TRoboticPositioner;
 
 class TPairRPDmin {
     TRoboticPositioner *p_RP;
@@ -426,31 +522,22 @@ public:
     //El número de identificación debe ser una propiedad del actuador
     //para que los actuadores adyacentes puedan ser identificados.
 
-    //lista de punteros a EAs lo bastante cerca
-    //para que puedan colisionar con el brazo
+    //lista de clusters (EA, Dmin, Dend) cuyo EA está lo bastante cerca
+    //para que pueda colisionar con el brazo
     //valor por defecto:
+    //  AdjacentEAs.Count = 0;
     //  AdjacentEAs.Capacity = 1;
-    //  AdjacentEAs.Compare = TExclusionArea::CompareIds;
-    //  AdjacentEAs.Print = TExclusionArea::PrintId;
-    TItemsList<TExclusionArea*> AdjacentEAs;
-    //vector de distancias mínmas con los EAs adyacentes
-    //valor por defecto:
-    //  DminEAs.Count = 0;
-    //  DminEAs.Capacity = 1.
-    TItemsList<TPairEADmin> DminEAs;
-    //lista de punteros a RPs lo bastante cerca
-    //para que puedan colisionar con el brazo
+    //  AdjacentEAs.Compare = TAdjacentEA::CompareIds;
+    //  AdjacentEAs.Print = TAdjacentEA::PrintId;
+    TAdjacentEAList AdjacentEAs;
+    //lista de clusters (RP, Dmin, Dend) cuyo RP está lo bastante cerca
+    //para que pueda colisionar con el brazo
     //valor por defecto:
     //  AdjacentRPs.Count = 0;
-    //  AdjacentRPs.Capacity = 6;
-    //  AdjacentRPs.Compare = TRoboticPositioner::CompareIds;
-    //  AdjacentRPs.Print = TRoboticPositioner::PrintId;
-    TItemsList<TRoboticPositioner*> AdjacentRPs;
-    //vector de distancias mínmas con los RPs adyacentes
-    //valor por defecto:
-    //  DminRPs.Count = 0;
-    //  DminPRs.Capacity = 6.
-    TItemsList<TPairRPDmin> DminRPs;
+    //  AdjacentRPs.Capacity = 1;
+    //  AdjacentRPs.Compare = TAdjacentRP::CompareIds;
+    //  AdjacentRPs.Print = TAdjacentRP::PrintId;
+    TAdjacentRPList AdjacentRPs;
 
     //Las EAs adyacentes y los RPs adyacentes serán determinados mediante
     //el método TRoboticPositionerList::determineAdyacents().

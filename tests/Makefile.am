@@ -54,7 +54,7 @@ main_testFMOSATable_SOURCES = main_testFMOSATable.cpp testFMOSATable.h testFMOSA
 main_testOutputs_SOURCES = main_testOutputs.cpp testOutputs.h testOutputs.cpp
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(CPPUNIT_CFLAGS)
-LDADD = $(top_builddir)/src/libfmtp.la $(CPPUNIT_LIBS)
+LDADD = $(top_builddir)/src/libfmpt.la $(CPPUNIT_LIBS)
 else
 TESTS = no_tests.sh
 XFAIL_TESTS = no_tests.sh

@@ -200,13 +200,14 @@ void TMotionProgram::excludeRP(int Id)
 //Get a motion progam in the interface format of the MCS.
 //Inputs:
 //  label: string labeling all the MP.
-//  CBId: univoque identifier of the CB.
+//  Bid: univoque identifier of the CB.
 //  SPL: starting position list for all RPs of the Fiber MOS.
+//  r2_negative: indicates if the rotor 2 coordinates must be negative.
 //Preconditions:
 //  All PPAs of the SPL must be addresed to different RPs.
 //  All RPs included in the MP, must be in included in the SPL.
 void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned int Bid,
-    const TPairPositionAnglesList& SPL) const
+    const TPairPositionAnglesList& SPL, bool r2_negative) const
 {
     //VERIFIES THE PRECONDITIONS:
 
@@ -269,7 +270,10 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
-                str += " "+floattostr(r2_final_position);
+                if(r2_negative)
+                    str += " "+floattostr(-r2_final_position);
+                else
+                    str += " "+floattostr(r2_final_position);
 
                 //print the instruction in the interface format
                 //inserting zeros on the left:
@@ -290,7 +294,10 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
-                str += " "+floattostr(r2_final_position);
+                if(r2_negative)
+                    str += " "+floattostr(-r2_final_position);
+                else
+                    str += " "+floattostr(r2_final_position);
 
                 //print the instruction in the interface format
                 //inserting zeros on the left:
@@ -311,146 +318,10 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
-                str += " "+floattostr(r2_final_position);
-
-                //print the instruction in the interface format
-                //inserting zeros on the left:
-                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
-                //str += " "+floattostr(r1_final_position);
-                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
-                //str += " "+floattostr(r2_final_position);
-
-                //actualice the actual position
-                PPA->p_1 = r1_final_position;
-                PPA->p___3 = r2_final_position;
-
-            } else
-                throw EImpossibleError("lateral effect");
-        }
-
-        //print the end delimiter of the indicated group
-        str += "\r\n\t}";
-    }
-    //print the end delimiter of motion program
-    str += "\r\n}";
-}
-
-//Get a motion progam in the interface format of the MCS.
-//With rotor 2 negative
-//Inputs:
-//  label: string labeling all the MP.
-//  CBId: univoque identifier of the CB.
-//  SPL: starting position list for all RPs of the Fiber MOS.
-//Preconditions:
-//  All PPAs of the SPL must be addresed to different RPs.
-//  All RPs included in the MP, must be in included in the SPL.
-void TMotionProgram::getInterfaceNegativeText(string& str, const string& label, unsigned int Bid,
-    const TPairPositionAnglesList& SPL) const
-{
-    //VERIFIES THE PRECONDITIONS:
-
-    if(label!="pos" && label!="depos")
-        throw EImproperArgument("MP label should be \"pos\" or \"depos\"");
-
-    if(int(Bid) < 0)
-        throw EImproperArgument("block identifier Bid should be less maximun integer value");
-
-    if(SPL.notAllPPAsAreAddresedToDifferentRPs())
-        throw EImproperArgument("all PPAs of the SPL must be addresed to different RPs");
-
-    TVector<int> Ids;
-    getAllIncludedIds(Ids);
-    if(SPL.notAllIdsAreFound(Ids))
-        throw EImproperArgument("all RPs included in the MP, must be in included in the SPL");
-
-    //PRINT THE MOTION PROGRAM:
-
-    //actualize the actual position list
-    TPairPositionAnglesList APL = SPL;
-
-    //print the label of the motion program and their start delimiter
-    str = label+"_"+inttostr(int(Bid))+" {";
-
-    //for each list of message of instructions of the motion program
-    //  print a group
-    for(int i=0; i<getCount(); i++) {
-        //points the indicated message list to facilitate its access
-        const TMessageList *ML = Items[i];
-
-        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
-
-        //print the label of the indicated group and their start delimiter
-        str += "\r\n\tgroup_"+IntToStr(i+1).str+" {";
-
-        //print the label of the indicated group and their start delimiter
-        //inserting zeros on the left:
-        //str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
-
-        //for each MI of the list, prints the corresponding instruction in the str, and actualice the APL
-        for(int j=0; j<ML->getCount(); j++) {
-            //point the indicated MI to facilitate its access
-            const TMessageInstruction *MI = ML->GetPointer(j);
-
-            //search and point the corresponding PPA
-            int Id = MI->getId();
-            int k = APL.SearchId(Id);
-            if(k >= APL.getCount())
-                throw EImpossibleError("lateral effect");
-            TPairPositionAngles *PPA = APL.GetPointer(k);
-
-            //print the corresponding instruction in the interface format
-            if(MI->Instruction.getName() == "M1") {
-                //print the final position of the rotors
-                double r1_final_position = MI->Instruction.Args[0];
-                double r2_final_position = PPA->p___3;
-
-                //print the instruction in the interface format
-                str += "\r\n\trp"+MI->getIdText().str+" r1";
-                str += " "+floattostr(r1_final_position);
-                str += "\r\n\trp"+MI->getIdText().str+" r2";
-                str += " "+floattostr(-r2_final_position);
-
-                //print the instruction in the interface format
-                //inserting zeros on the left:
-                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
-                //str += " "+floattostr(r1_final_position);
-                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
-                //str += " "+floattostr(r2_final_position);
-
-                //actualice the actual position
-                PPA->p_1 = r1_final_position;
-
-            } else if(MI->Instruction.getName() == "M2") {
-                //print the final position of the rotors
-                double r1_final_position = PPA->p_1;
-                double r2_final_position = MI->Instruction.Args[0];
-
-                //print the instruction in the interface format
-                str += "\r\n\trp"+MI->getIdText().str+" r1";
-                str += " "+floattostr(r1_final_position);
-                str += "\r\n\trp"+MI->getIdText().str+" r2";
-                str += " "+floattostr(-r2_final_position);
-
-                //print the instruction in the interface format
-                //inserting zeros on the left:
-                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
-                //str += " "+floattostr(r1_final_position);
-                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
-                //str += " "+floattostr(r2_final_position);
-
-                //actualice the actual position
-                PPA->p___3 = r2_final_position;
-
-            } else if(MI->Instruction.getName() == "MM") {
-                //print the final position of the rotors
-                double r1_final_position = MI->Instruction.Args[0];
-                double r2_final_position = MI->Instruction.Args[1];
-
-                //print the instruction in the interface format
-                str += "\r\n\trp"+MI->getIdText().str+" r1";
-                str += " "+floattostr(r1_final_position);
-                str += "\r\n\trp"+MI->getIdText().str+" r2";
-                str += " "+floattostr(-r2_final_position);
+                if(r2_negative)
+                    str += " "+floattostr(-r2_final_position);
+                else
+                    str += " "+floattostr(r2_final_position);
 
                 //print the instruction in the interface format
                 //inserting zeros on the left:
@@ -708,6 +579,80 @@ void TMotionProgram::getDminInterfaceText(string& str, const string& label,
             } else if(MI->Instruction.getName() == "MM") {
                 //print the comment with the Dmin
                 str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+
+            } else
+                throw EImpossibleError("lateral effect");
+        }
+
+        //print the end delimiter of the indicated group
+        str += "\r\n\t}";
+    }
+    //print the end delimiter of motion program
+    str += "\r\n}";
+}
+//Get MP-Dends in the interface format of the MCS.
+//Inputs:
+//  label: string labeling all the MP-Dend.
+//  Bid: univoque identifier of the CB.
+void TMotionProgram::getDendInterfaceText(string& str, const string& label,
+                                           unsigned int Bid) const
+{
+    //CHECK THE PRECONDITIONS:
+
+    for(int i=0; i<getCount(); i++) {
+        const TMessageList *ML = Items[i];
+        for(int j=0; j<ML->getCount(); j++) {
+            const TMessageInstruction *MI = ML->GetPointer(j);
+            if(MI->Instruction.getName()!="M1" &&
+                    MI->Instruction.getName()!="M2" &&
+                    MI->Instruction.getName()!="MM")
+                throw EImproperCall("all instruction should be motion instructions");
+        }
+    }
+
+    if(label!="pos" && label!="depos")
+        throw EImproperArgument("MP label should be \"pos\" or \"depos\"");
+
+    if(int(Bid) < 0)
+        throw EImproperArgument("block identifier Bid should be less maximun integer value");
+
+    //PRINT THE MP-Dend:
+
+    //print the label of the motion program and their start delimiter
+    str = label+"_"+inttostr(int(Bid))+" {";
+
+    //for each list of message of instructions of the motion program
+    //  print a group
+    for(int i=0; i<getCount(); i++) {
+        //points the indicated message list to facilitate its access
+        const TMessageList *ML = Items[i];
+
+        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
+
+        //print the label of the indicated group and their start delimiter
+        str += "\r\n\tgroup_"+IntToStr(i+1).str+" {";
+
+        //print the label of the indicated group and their start delimiter
+        //inserting zeros on the left:
+        //str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
+
+        //for each MI of the list, prints the corresponding instruction in the str, and actualice the APL
+        for(int j=0; j<ML->getCount(); j++) {
+            //point the indicated MI to facilitate its access
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //print the corresponding instruction in the interface format
+            if(MI->Instruction.getName() == "M1") {
+                //print the comment with the Dend
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment3();
+
+            } else if(MI->Instruction.getName() == "M2") {
+                //print the comment with the Dend
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment3();
+
+            } else if(MI->Instruction.getName() == "MM") {
+                //print the comment with the Dend
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment3();
 
             } else
                 throw EImpossibleError("lateral effect");

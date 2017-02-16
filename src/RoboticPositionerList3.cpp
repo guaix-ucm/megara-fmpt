@@ -506,14 +506,14 @@ bool TRoboticPositionerList::thereIsSomeNullPointer(void) const
             return true;
 
         for(int j=0; j<RP->getActuator()->AdjacentEAs.getCount(); j++) {
-            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[j];
+            TExclusionArea *EAA = RP->getActuator()->AdjacentEAs[j].EA;
 
             if(EAA == NULL)
                 return true;
         }
 
         for(int j=0; j<RP->getActuator()->AdjacentRPs.getCount(); j++) {
-            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[j];
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[j].RP;
 
             if(RPA == NULL)
                 return true;

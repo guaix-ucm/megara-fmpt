@@ -112,7 +112,7 @@ void TestOutputs::test_()
 
         //get the reconstructed outputs in text format
         string str1;
-        outputs->getText(str1, Bid, OPL, IPL);
+        outputs->getOutputsText(str1, Bid, OPL, IPL, false);
 
         //check the reconstructed string
         if(str1 != str) {

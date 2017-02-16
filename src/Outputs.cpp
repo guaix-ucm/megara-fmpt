@@ -36,20 +36,21 @@ namespace Positioning {
 //class Outputs:
 //---------------------------------------------------------------------------
 
-//get the outputs in text format
-void Outputs::getText(string& str, const int Bid,
+//get the pair (PP, DP) in text format
+//with comments and with FMOSAT
+void Outputs::getOutputsText(string& str, const int Bid,
                       const TPairPositionAnglesList& OPL,
-                      const TPairPositionAnglesList& IPL) const
+                      const TPairPositionAnglesList& IPL, bool r2_negative) const
 {
     string aux;
 
-    PP.getInterfaceText(aux, "pos", Bid, IPL);
+    PP.getInterfaceText(aux, "pos", Bid, IPL, r2_negative);
     str = "#Positioning program";
     str += "\r\n@@SPP@@";
     str += "\r\n"+aux;
     str += "\r\n@@EPP@@";
 
-    DP.getInterfaceText(aux, "depos", Bid, OPL);
+    DP.getInterfaceText(aux, "depos", Bid, OPL, r2_negative);
     str += "\r\n#Depositioning program";
     str += "\r\n@@SDP@@";
     str += "\r\n"+aux;
@@ -65,37 +66,20 @@ void Outputs::getText(string& str, const int Bid,
     str += "\r\n"+aux;
 }
 
-//get the outputs in text format
-//with rotor 2 negative
-void Outputs::getNegativeText(string& str, const int Bid,
-                      const TPairPositionAnglesList& OPL,
-                      const TPairPositionAnglesList& IPL) const
+//get the pair (PP, DP) in text format
+//without comments and without the FMOSAT
+void Outputs::getFiberMOSText(string& str, const int Bid,
+             const TPairPositionAnglesList& OPL,
+             const TPairPositionAnglesList& IPL, bool r2_negative) const
 {
+
+    PP.getInterfaceText(str, "pos", Bid, IPL, r2_negative);
     string aux;
-
-    PP.getInterfaceNegativeText(aux, "pos", Bid, IPL);
-    str = "#Positioning program";
-    str += "\r\n@@SPP@@";
-    str += "\r\n"+aux;
-    str += "\r\n@@EPP@@";
-
-    DP.getInterfaceNegativeText(aux, "depos", Bid, OPL);
-    str += "\r\n#Depositioning program";
-    str += "\r\n@@SDP@@";
-    str += "\r\n"+aux;
-    str += "\r\n@@EDP@@";
-
-    //str += "#RP lists";
-    //str += "\r\n@@SRPL@@";
-    //str += "\r\nCollided: "+Collided.getText().str;
-    //str += "\r\nObstructed: "+Obstructed.getText().str;
-    //str += "\r\n@@ERPL@@";
-
-    FMOSAT.getTableText(aux);
+    DP.getInterfaceText(aux, "depos", Bid, OPL, r2_negative);
     str += "\r\n"+aux;
 }
 
-//get the outputs in text format
+//set the outputs in text format
 void Outputs::setText(unsigned int& Bid, const string& str)
 {
     try {

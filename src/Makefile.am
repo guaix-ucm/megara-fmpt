@@ -1,5 +1,5 @@
-lib_LTLIBRARIES = libfmtp.la
-libfmtp_la_SOURCES = VCLemu.cpp \
+lib_LTLIBRARIES = libfmpt.la
+libfmpt_la_SOURCES = VCLemu.cpp \
     Exceptions.cpp \
     Vectors.cpp \
     Constants.cpp \
@@ -107,7 +107,7 @@ libfmtp_la_SOURCES = VCLemu.cpp \
 
 ## If the source code has changed, rev += 1
 
-libfmtp_la_LDFLAGS = -version-info 0:0:0
+libfmpt_la_LDFLAGS = -version-info 0:0:0
 
 pkginclude_HEADERS = VCLemu.h \
     Exceptions.h \
@@ -163,7 +163,7 @@ pkginclude_HEADERS = VCLemu.h \
 
 bin_PROGRAMS = fmpt_saa
 fmpt_saa_SOURCES = main.cpp
-fmpt_saa_LDADD = libfmtp.la
+fmpt_saa_LDADD = libfmpt.la
 fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
 
 AM_CPPFLAGS = -I$(top_srcdir) -DDATADIR=\"$(pkgdatadir)\"

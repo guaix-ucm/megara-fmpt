@@ -209,7 +209,7 @@ main_testActuator_OBJECTS = $(am_main_testActuator_OBJECTS)
 main_testActuator_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
 main_testActuator_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -223,7 +223,7 @@ am_main_testAllocation_OBJECTS =  \
 main_testAllocation_OBJECTS = $(am_main_testAllocation_OBJECTS)
 main_testAllocation_LDADD = $(LDADD)
 main_testAllocation_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testAllocationList_SOURCES_DIST =  \
 	main_testAllocationList.cpp testAllocationList.h \
@@ -235,7 +235,7 @@ main_testAllocationList_OBJECTS =  \
 	$(am_main_testAllocationList_OBJECTS)
 main_testAllocationList_LDADD = $(LDADD)
 main_testAllocationList_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testArm_SOURCES_DIST = main_testArm.cpp testArm.h testArm.cpp
 am_main_testArm_OBJECTS = main_testArm.$(OBJEXT) \
@@ -243,7 +243,7 @@ am_main_testArm_OBJECTS = main_testArm.$(OBJEXT) \
 main_testArm_OBJECTS = $(am_main_testArm_OBJECTS)
 main_testArm_LDADD = $(LDADD)
 main_testArm_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testBarrier_SOURCES_DIST = main_testBarrier.cpp testBarrier.h \
 	testBarrier.cpp
@@ -253,7 +253,7 @@ am_main_testBarrier_OBJECTS =  \
 main_testBarrier_OBJECTS = $(am_main_testBarrier_OBJECTS)
 main_testBarrier_LDADD = $(LDADD)
 main_testBarrier_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testCilinder_SOURCES_DIST = main_testCilinder.cpp \
 	testCilinder.h testCilinder.cpp
@@ -263,7 +263,7 @@ am_main_testCilinder_OBJECTS =  \
 main_testCilinder_OBJECTS = $(am_main_testCilinder_OBJECTS)
 main_testCilinder_LDADD = $(LDADD)
 main_testCilinder_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testComposedMotionFunction_SOURCES_DIST =  \
 	main_testComposedMotionFunction.cpp \
@@ -275,7 +275,7 @@ main_testComposedMotionFunction_OBJECTS =  \
 	$(am_main_testComposedMotionFunction_OBJECTS)
 main_testComposedMotionFunction_LDADD = $(LDADD)
 main_testComposedMotionFunction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testContourFigureList_SOURCES_DIST =  \
 	main_testContourFigureList.cpp testContourFigureList.h \
@@ -287,7 +287,7 @@ main_testContourFigureList_OBJECTS =  \
 	$(am_main_testContourFigureList_OBJECTS)
 main_testContourFigureList_LDADD = $(LDADD)
 main_testContourFigureList_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testExceptions_SOURCES_DIST = main_testExceptions.cpp \
 	testExceptions.h testExceptions.cpp
@@ -297,7 +297,7 @@ am_main_testExceptions_OBJECTS =  \
 main_testExceptions_OBJECTS = $(am_main_testExceptions_OBJECTS)
 main_testExceptions_LDADD = $(LDADD)
 main_testExceptions_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testExclusionArea_SOURCES_DIST = main_testExclusionArea.cpp \
 	testExclusionArea.h testExclusionArea.cpp
@@ -307,7 +307,7 @@ am_main_testExclusionArea_OBJECTS =  \
 main_testExclusionArea_OBJECTS = $(am_main_testExclusionArea_OBJECTS)
 main_testExclusionArea_LDADD = $(LDADD)
 main_testExclusionArea_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testExclusionAreaList_SOURCES_DIST =  \
 	main_testExclusionAreaList.cpp testExclusionAreaList.h \
@@ -319,7 +319,7 @@ main_testExclusionAreaList_OBJECTS =  \
 	$(am_main_testExclusionAreaList_OBJECTS)
 main_testExclusionAreaList_LDADD = $(LDADD)
 main_testExclusionAreaList_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testFMOSATable_SOURCES_DIST = main_testFMOSATable.cpp \
 	testFMOSATable.h testFMOSATable.cpp
@@ -329,7 +329,7 @@ am_main_testFMOSATable_OBJECTS =  \
 main_testFMOSATable_OBJECTS = $(am_main_testFMOSATable_OBJECTS)
 main_testFMOSATable_LDADD = $(LDADD)
 main_testFMOSATable_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testFiberConnectionModel_SOURCES_DIST =  \
 	main_testFiberConnectionModel.cpp testFiberConnectionModel.h \
@@ -341,7 +341,7 @@ main_testFiberConnectionModel_OBJECTS =  \
 	$(am_main_testFiberConnectionModel_OBJECTS)
 main_testFiberConnectionModel_LDADD = $(LDADD)
 main_testFiberConnectionModel_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testFiberMOSModel_SOURCES_DIST = main_testFiberMOSModel.cpp \
 	testFiberMOSModel.h testFiberMOSModel.cpp
@@ -351,7 +351,7 @@ am_main_testFiberMOSModel_OBJECTS =  \
 main_testFiberMOSModel_OBJECTS = $(am_main_testFiberMOSModel_OBJECTS)
 main_testFiberMOSModel_LDADD = $(LDADD)
 main_testFiberMOSModel_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testFigure_SOURCES_DIST = main_testFigure.cpp testFigure.h \
 	testFigure.cpp
@@ -361,7 +361,7 @@ am_main_testFigure_OBJECTS =  \
 main_testFigure_OBJECTS = $(am_main_testFigure_OBJECTS)
 main_testFigure_LDADD = $(LDADD)
 main_testFigure_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testFileMethods_SOURCES_DIST = main_testFileMethods.cpp \
 	testFileMethods.h testFileMethods.cpp
@@ -371,7 +371,7 @@ am_main_testFileMethods_OBJECTS =  \
 main_testFileMethods_OBJECTS = $(am_main_testFileMethods_OBJECTS)
 main_testFileMethods_LDADD = $(LDADD)
 main_testFileMethods_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testFunction_SOURCES_DIST = main_testFunction.cpp \
 	testFunction.h testFunction.cpp
@@ -381,7 +381,7 @@ am_main_testFunction_OBJECTS =  \
 main_testFunction_OBJECTS = $(am_main_testFunction_OBJECTS)
 main_testFunction_LDADD = $(LDADD)
 main_testFunction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testGeometry_SOURCES_DIST = main_testGeometry.cpp \
 	testGeometry.h testGeometry.cpp
@@ -391,7 +391,7 @@ am_main_testGeometry_OBJECTS =  \
 main_testGeometry_OBJECTS = $(am_main_testGeometry_OBJECTS)
 main_testGeometry_LDADD = $(LDADD)
 main_testGeometry_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testInstruction_SOURCES_DIST = main_testInstruction.cpp \
 	testInstruction.h testInstruction.cpp
@@ -401,7 +401,7 @@ am_main_testInstruction_OBJECTS =  \
 main_testInstruction_OBJECTS = $(am_main_testInstruction_OBJECTS)
 main_testInstruction_LDADD = $(LDADD)
 main_testInstruction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testItemsList_SOURCES_DIST = main_testItemsList.cpp \
 	testItemsList.h testItemsList.cpp
@@ -411,7 +411,7 @@ am_main_testItemsList_OBJECTS =  \
 main_testItemsList_OBJECTS = $(am_main_testItemsList_OBJECTS)
 main_testItemsList_LDADD = $(LDADD)
 main_testItemsList_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testMessageInstruction_SOURCES_DIST =  \
 	main_testMessageInstruction.cpp testMessageInstruction.h \
@@ -423,7 +423,7 @@ main_testMessageInstruction_OBJECTS =  \
 	$(am_main_testMessageInstruction_OBJECTS)
 main_testMessageInstruction_LDADD = $(LDADD)
 main_testMessageInstruction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testMotionFunction_SOURCES_DIST =  \
 	main_testMotionFunction.cpp testMotionFunction.h \
@@ -435,7 +435,7 @@ main_testMotionFunction_OBJECTS =  \
 	$(am_main_testMotionFunction_OBJECTS)
 main_testMotionFunction_LDADD = $(LDADD)
 main_testMotionFunction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testMotionProgram_SOURCES_DIST = main_testMotionProgram.cpp \
 	testMotionProgram.h testMotionProgram.cpp
@@ -445,7 +445,7 @@ am_main_testMotionProgram_OBJECTS =  \
 main_testMotionProgram_OBJECTS = $(am_main_testMotionProgram_OBJECTS)
 main_testMotionProgram_LDADD = $(LDADD)
 main_testMotionProgram_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testMotionProgramGenerator_SOURCES_DIST =  \
 	main_testMotionProgramGenerator.cpp \
@@ -457,7 +457,7 @@ main_testMotionProgramGenerator_OBJECTS =  \
 	$(am_main_testMotionProgramGenerator_OBJECTS)
 main_testMotionProgramGenerator_LDADD = $(LDADD)
 main_testMotionProgramGenerator_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testMotionProgramValidator_SOURCES_DIST =  \
 	main_testMotionProgramValidator.cpp \
@@ -469,7 +469,7 @@ main_testMotionProgramValidator_OBJECTS =  \
 	$(am_main_testMotionProgramValidator_OBJECTS)
 main_testMotionProgramValidator_LDADD = $(LDADD)
 main_testMotionProgramValidator_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testOutputs_SOURCES_DIST = main_testOutputs.cpp testOutputs.h \
 	testOutputs.cpp
@@ -479,7 +479,7 @@ am_main_testOutputs_OBJECTS =  \
 main_testOutputs_OBJECTS = $(am_main_testOutputs_OBJECTS)
 main_testOutputs_LDADD = $(LDADD)
 main_testOutputs_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testPairPositionAngles_SOURCES_DIST =  \
 	main_testPairPositionAngles.cpp testPairPositionAngles.h \
@@ -491,7 +491,7 @@ main_testPairPositionAngles_OBJECTS =  \
 	$(am_main_testPairPositionAngles_OBJECTS)
 main_testPairPositionAngles_LDADD = $(LDADD)
 main_testPairPositionAngles_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testPointersList_SOURCES_DIST = main_testPointersList.cpp \
 	testPointersList.h testPointersList.cpp
@@ -501,7 +501,7 @@ am_main_testPointersList_OBJECTS =  \
 main_testPointersList_OBJECTS = $(am_main_testPointersList_OBJECTS)
 main_testPointersList_LDADD = $(LDADD)
 main_testPointersList_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testPointersSlideArray_SOURCES_DIST =  \
 	main_testPointersSlideArray.cpp testPointersSlideArray.h \
@@ -513,7 +513,7 @@ main_testPointersSlideArray_OBJECTS =  \
 	$(am_main_testPointersSlideArray_OBJECTS)
 main_testPointersSlideArray_LDADD = $(LDADD)
 main_testPointersSlideArray_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testPositionerCenter_SOURCES_DIST =  \
 	main_testPositionerCenter.cpp testPositionerCenter.h \
@@ -525,7 +525,7 @@ main_testPositionerCenter_OBJECTS =  \
 	$(am_main_testPositionerCenter_OBJECTS)
 main_testPositionerCenter_LDADD = $(LDADD)
 main_testPositionerCenter_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testProjectionPoint_SOURCES_DIST =  \
 	main_testProjectionPoint.cpp testProjectionPoint.h \
@@ -537,7 +537,7 @@ main_testProjectionPoint_OBJECTS =  \
 	$(am_main_testProjectionPoint_OBJECTS)
 main_testProjectionPoint_LDADD = $(LDADD)
 main_testProjectionPoint_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testQuantificator_SOURCES_DIST = main_testQuantificator.cpp \
 	testQuantificator.h testQuantificator.cpp
@@ -547,7 +547,7 @@ am_main_testQuantificator_OBJECTS =  \
 main_testQuantificator_OBJECTS = $(am_main_testQuantificator_OBJECTS)
 main_testQuantificator_LDADD = $(LDADD)
 main_testQuantificator_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testRampFunction_SOURCES_DIST = main_testRampFunction.cpp \
 	testRampFunction.h testRampFunction.cpp
@@ -557,7 +557,7 @@ am_main_testRampFunction_OBJECTS =  \
 main_testRampFunction_OBJECTS = $(am_main_testRampFunction_OBJECTS)
 main_testRampFunction_LDADD = $(LDADD)
 main_testRampFunction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testRoboticPositioner_SOURCES_DIST =  \
 	main_testRoboticPositioner.cpp testRoboticPositioner.h \
@@ -569,7 +569,7 @@ main_testRoboticPositioner_OBJECTS =  \
 	$(am_main_testRoboticPositioner_OBJECTS)
 main_testRoboticPositioner_LDADD = $(LDADD)
 main_testRoboticPositioner_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testRoboticPositionerList1_SOURCES_DIST =  \
 	main_testRoboticPositionerList1.cpp \
@@ -581,7 +581,7 @@ main_testRoboticPositionerList1_OBJECTS =  \
 	$(am_main_testRoboticPositionerList1_OBJECTS)
 main_testRoboticPositionerList1_LDADD = $(LDADD)
 main_testRoboticPositionerList1_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testRoboticPositionerList2_SOURCES_DIST =  \
 	main_testRoboticPositionerList2.cpp \
@@ -593,7 +593,7 @@ main_testRoboticPositionerList2_OBJECTS =  \
 	$(am_main_testRoboticPositionerList2_OBJECTS)
 main_testRoboticPositionerList2_LDADD = $(LDADD)
 main_testRoboticPositionerList2_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testRoboticPositionerList3_SOURCES_DIST =  \
 	main_testRoboticPositionerList3.cpp \
@@ -605,7 +605,7 @@ main_testRoboticPositionerList3_OBJECTS =  \
 	$(am_main_testRoboticPositionerList3_OBJECTS)
 main_testRoboticPositionerList3_LDADD = $(LDADD)
 main_testRoboticPositionerList3_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testScalars_SOURCES_DIST = main_testScalars.cpp testScalars.h \
 	testScalars.cpp
@@ -615,7 +615,7 @@ am_main_testScalars_OBJECTS =  \
 main_testScalars_OBJECTS = $(am_main_testScalars_OBJECTS)
 main_testScalars_LDADD = $(LDADD)
 main_testScalars_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testSkyPoint_SOURCES_DIST = main_testSkyPoint.cpp \
 	testSkyPoint.h testSkyPoint.cpp
@@ -625,7 +625,7 @@ am_main_testSkyPoint_OBJECTS =  \
 main_testSkyPoint_OBJECTS = $(am_main_testSkyPoint_OBJECTS)
 main_testSkyPoint_LDADD = $(LDADD)
 main_testSkyPoint_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testSlideArray_SOURCES_DIST = main_testSlideArray.cpp \
 	testSlideArray.h testSlideArray.cpp
@@ -635,7 +635,7 @@ am_main_testSlideArray_OBJECTS =  \
 main_testSlideArray_OBJECTS = $(am_main_testSlideArray_OBJECTS)
 main_testSlideArray_LDADD = $(LDADD)
 main_testSlideArray_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testSquareFunction_SOURCES_DIST =  \
 	main_testSquareFunction.cpp testSquareFunction.h \
@@ -647,7 +647,7 @@ main_testSquareFunction_OBJECTS =  \
 	$(am_main_testSquareFunction_OBJECTS)
 main_testSquareFunction_LDADD = $(LDADD)
 main_testSquareFunction_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testStrPR_SOURCES_DIST = main_testStrPR.cpp testStrPR.h \
 	testStrPR.cpp
@@ -657,7 +657,7 @@ am_main_testStrPR_OBJECTS =  \
 main_testStrPR_OBJECTS = $(am_main_testStrPR_OBJECTS)
 main_testStrPR_LDADD = $(LDADD)
 main_testStrPR_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testStrings_SOURCES_DIST = main_testStrings.cpp testStrings.h \
 	testStrings.cpp
@@ -667,7 +667,7 @@ am_main_testStrings_OBJECTS =  \
 main_testStrings_OBJECTS = $(am_main_testStrings_OBJECTS)
 main_testStrings_LDADD = $(LDADD)
 main_testStrings_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testTelescopeProjectionModel_SOURCES_DIST =  \
 	main_testTelescopeProjectionModel.cpp \
@@ -679,7 +679,7 @@ main_testTelescopeProjectionModel_OBJECTS =  \
 	$(am_main_testTelescopeProjectionModel_OBJECTS)
 main_testTelescopeProjectionModel_LDADD = $(LDADD)
 main_testTelescopeProjectionModel_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testTextFile_SOURCES_DIST = main_testTextFile.cpp \
 	testTextFile.h testTextFile.cpp
@@ -689,7 +689,7 @@ am_main_testTextFile_OBJECTS =  \
 main_testTextFile_OBJECTS = $(am_main_testTextFile_OBJECTS)
 main_testTextFile_LDADD = $(LDADD)
 main_testTextFile_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testTile_SOURCES_DIST = main_testTile.cpp testTile.h \
 	testTile.cpp
@@ -698,7 +698,7 @@ am_main_testTile_OBJECTS =  \
 main_testTile_OBJECTS = $(am_main_testTile_OBJECTS)
 main_testTile_LDADD = $(LDADD)
 main_testTile_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testVCLemu_SOURCES_DIST = main_testVCLemu.cpp testVCLemu.h \
 	testVCLemu.cpp
@@ -708,7 +708,7 @@ am_main_testVCLemu_OBJECTS =  \
 main_testVCLemu_OBJECTS = $(am_main_testVCLemu_OBJECTS)
 main_testVCLemu_LDADD = $(LDADD)
 main_testVCLemu_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testVector_SOURCES_DIST = main_testVector.cpp testVector.h \
 	testVector.cpp
@@ -718,7 +718,7 @@ am_main_testVector_OBJECTS =  \
 main_testVector_OBJECTS = $(am_main_testVector_OBJECTS)
 main_testVector_LDADD = $(LDADD)
 main_testVector_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__main_testVectors_SOURCES_DIST = main_testVectors.cpp testVectors.h \
 	testVectors.cpp
@@ -728,7 +728,7 @@ am_main_testVectors_OBJECTS =  \
 main_testVectors_OBJECTS = $(am_main_testVectors_OBJECTS)
 main_testVectors_LDADD = $(LDADD)
 main_testVectors_DEPENDENCIES =  \
-	$(top_builddir)/src/libfmtp.la \
+	$(top_builddir)/src/libfmpt.la \
 	$(am__DEPENDENCIES_1)
 am__dist_check_SCRIPTS_DIST = no_tests.sh
 AM_V_P = $(am__v_P_$(V))
@@ -1160,10 +1160,10 @@ OTOOL64 =
 PACKAGE = megara-fmpt
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = megara-fmpt
-PACKAGE_STRING = megara-fmpt 3.5.0
+PACKAGE_STRING = megara-fmpt 3.8.1
 PACKAGE_TARNAME = megara-fmpt
 PACKAGE_URL = 
-PACKAGE_VERSION = 3.5.0
+PACKAGE_VERSION = 3.8.1
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
@@ -1173,7 +1173,7 @@ SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/bash
 STRIP = strip
-VERSION = 3.5.0
+VERSION = 3.8.1
 abs_builddir = /home/user/MEGARA/megarafmpt/tests
 abs_srcdir = /home/user/MEGARA/megarafmpt/tests
 abs_top_builddir = /home/user/MEGARA/megarafmpt
@@ -1278,7 +1278,7 @@ main_testFileMethods_SOURCES = main_testFileMethods.cpp testFileMethods.h testFi
 main_testFMOSATable_SOURCES = main_testFMOSATable.cpp testFMOSATable.h testFMOSATable.cpp
 main_testOutputs_SOURCES = main_testOutputs.cpp testOutputs.h testOutputs.cpp
 AM_CPPFLAGS = -I$(top_srcdir) -I$(CPPUNIT_CFLAGS)
-LDADD = $(top_builddir)/src/libfmtp.la $(CPPUNIT_LIBS)
+LDADD = $(top_builddir)/src/libfmpt.la $(CPPUNIT_LIBS)
 #XFAIL_TESTS = no_tests.sh
 #dist_check_SCRIPTS = no_tests.sh
 all: all-am

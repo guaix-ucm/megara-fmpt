@@ -47,16 +47,17 @@ public:
     TRoboticPositionerList Obstructed;
     TFMOSATable FMOSAT;
 
-    //get the outputs in text format
-    void getText(string& str, const int Bid,
+    //get the pair (PP, DP) in text format
+    //with comments and with FMOSAT
+    void getOutputsText(string& str, const int Bid,
                  const TPairPositionAnglesList& OPL,
-                 const TPairPositionAnglesList& IPL) const;
+                 const TPairPositionAnglesList& IPL, bool r2_negative) const;
 
-    //get the outputs in text format
-    //with rotor 2 negative
-    void getNegativeText(string& str, const int Bid,
+    //get the pair (PP, DP) in text format
+    //without comments and without the FMOSAT
+    void getFiberMOSText(string& str, const int Bid,
                  const TPairPositionAnglesList& OPL,
-                 const TPairPositionAnglesList& IPL) const;
+                 const TPairPositionAnglesList& IPL, bool r2_negative) const;
 
     //set the outputs in text format
     void setText(unsigned int& Bid, const string& str);

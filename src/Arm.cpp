@@ -1446,7 +1446,6 @@ void  TArm::readInstance(TArm *A, const AnsiString& S, int &i)
         //variables tampón
         double L12, L13, theta__O3, R3;
         double thetaO3, theta___3min, theta___3max, theta___3;
-        double SB2;
 
         StrTravelSeparators(S, i);
         StrTravelLabel("L12", S, i);

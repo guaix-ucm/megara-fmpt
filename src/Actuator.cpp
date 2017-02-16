@@ -328,6 +328,274 @@ TPurpose strToPurpose(const string& str)
 }
 
 //---------------------------------------------------------------------------
+//TAdjacentEA
+//---------------------------------------------------------------------------
+
+//build an item with the indicated values
+TAdjacentEA::TAdjacentEA(TExclusionArea *t_EA, double t_Dmin, double t_Dend)
+{
+    EA = t_EA;
+    Dmin = t_Dmin;
+    Dmin = t_Dend;
+}
+//clone an item
+void TAdjacentEA::Clone(TAdjacentEA& AEA)
+{
+    EA = AEA.EA;
+    Dmin = AEA.Dmin;
+    Dend = AEA.Dend;
+}
+//build a clon of an item
+TAdjacentEA::TAdjacentEA(TAdjacentEA *&AEA)
+{
+    //check the precondition
+    if(AEA == NULL)
+        throw EImproperArgument("pointer AEA should point to built adjacent EA");
+
+    EA = AEA->EA;
+    Dmin = AEA->Dmin;
+    Dend = AEA->Dend;
+}
+
+//compare the Id of the EA of two adjacent EAs
+int TAdjacentEA::compareIds(const TAdjacentEA *AEA1, const TAdjacentEA *AEA2)
+{
+    //check the preconditions
+    if(AEA1 == NULL)
+        throw EImproperArgument("adjacent exclusion area AEA1 should point to built adjacent EA");
+    if(AEA2 == NULL)
+        throw EImproperArgument("adjacent exclusion area AEA2 should point to built adjacent EA");
+    if(AEA1->EA == NULL)
+        throw EImproperArgument("adjacent exclusion area AEA1 should has an attached EA");
+    if(AEA2->EA == NULL)
+        throw EImproperArgument("adjacent exclusion area AEA2 should has an attached EA");
+
+    //compare Id
+    if(AEA1->EA->getId() < AEA2->EA->getId())
+        return -1;
+    if(AEA1->EA->getId() > AEA2->EA->getId())
+        return 1;
+    return 0;
+}
+//print the Id of the EA of an adjacent EA
+void TAdjacentEA::printId(AnsiString &S, const TAdjacentEA *AEA)
+{
+    //check the precondition
+    if(AEA == NULL)
+        throw EImproperArgument("adjacent exclusion area AEA should pint to built adjacent EA");
+    if(AEA->EA == NULL)
+        throw EImproperArgument("adjacent exclusion area AEA should has an attached EA");
+
+    //concatenate the string
+    S += AEA->EA->getIdText();
+}
+
+//---------------------------------------------------------------------------
+//TAdjacentEAList
+//---------------------------------------------------------------------------
+
+//build a list by default
+TAdjacentEAList::TAdjacentEAList(void) :
+    TPointersList<TAdjacentEA>(1, TAdjacentEA::compareIds, NULL, NULL, TAdjacentEA::printId, NULL)
+{
+}
+//build a clon of a list
+TAdjacentEAList::TAdjacentEAList(const TAdjacentEAList& AEA) : TPointersList<TAdjacentEA>(AEA)
+{
+}
+
+//get partial lists in text format
+string TAdjacentEAList::getIdText(void) const
+{
+    string str = "{";
+    if(getCount() > 0) {
+        str += Items.getFirst()->EA->getId();
+        for(int i=1; i<getCount(); i++) {
+            str += ", ";
+            str += Items[i]->EA->getIdText().str;
+        }
+    }
+    str += "}";
+
+    return str;
+}
+string TAdjacentEAList::getDminText(void) const
+{
+    string str = "{";
+    if(getCount() > 0) {
+        str += "(EA" + Items.getFirst()->EA->getIdText().str + ", " + floattostr(Items.getFirst()->Dmin) + ")";
+        for(int i=1; i<getCount(); i++) {
+            str += ", ";
+            str += "(EA" + Items[i]->EA->getIdText().str + ", " + floattostr(Items[i]->Dmin) + ")";
+        }
+    }
+    str += "}";
+
+    return str;
+}
+string TAdjacentEAList::getDendText(void) const
+{
+    string str = "{";
+    if(getCount() > 0) {
+        str += "(EA" + Items.getFirst()->EA->getIdText().str + ", " + floattostr(Items.getFirst()->Dend) + ")";
+        for(int i=1; i<getCount(); i++) {
+            str += ", ";
+            str += "(EA" + Items[i]->EA->getIdText().str + ", " + floattostr(Items[i]->Dend) + ")";
+        }
+    }
+    str += "}";
+
+    return str;
+}
+
+//set a same value to all Dmins
+void TAdjacentEAList::setAllDmins(double Dmin)
+{
+    for(int i=0; i<getCount(); i++)
+        Items[i]->Dmin = Dmin;
+}
+//set a same value to all Dends
+void TAdjacentEAList::setAllDends(double Dend)
+{
+    for(int i=0; i<getCount(); i++)
+        Items[i]->Dend = Dend;
+}
+
+//---------------------------------------------------------------------------
+//TAdjacentRP
+//---------------------------------------------------------------------------
+
+//build an item with the indicated values
+TAdjacentRP::TAdjacentRP(TRoboticPositioner *t_RP, double t_Dmin, double t_Dend)
+{
+    RP = t_RP;
+    Dmin = t_Dmin;
+    Dmin = t_Dend;
+}
+//clone an item
+void TAdjacentRP::Clone(TAdjacentRP& ARP)
+{
+    RP = ARP.RP;
+    Dmin = ARP.Dmin;
+    Dend = ARP.Dend;
+}
+//build a clon of an item
+TAdjacentRP::TAdjacentRP(TAdjacentRP *&ARP)
+{
+    //check the precondition
+    if(ARP == NULL)
+        throw EImproperArgument("pointer ARP should point to built adjacent RP");
+
+    RP = ARP->RP;
+    Dmin = ARP->Dmin;
+    Dend = ARP->Dend;
+}
+
+//compare the Id of the RP of two adjacent RPs
+int TAdjacentRP::compareIds(const TAdjacentRP *ARP1, const TAdjacentRP *ARP2)
+{
+    //check the preconditions
+    if(ARP1 == NULL)
+        throw EImproperArgument("adjacent exclusion arRP ARP1 should point to built adjacent RP");
+    if(ARP2 == NULL)
+        throw EImproperArgument("adjacent exclusion arRP ARP2 should point to built adjacent RP");
+    if(ARP1->RP == NULL)
+        throw EImproperArgument("adjacent exclusion arRP ARP1 should has an attached RP");
+    if(ARP2->RP == NULL)
+        throw EImproperArgument("adjacent exclusion arRP ARP2 should has an attached RP");
+
+    //compare Id
+    if(ARP1->RP->getActuator()->getId() < ARP2->RP->getActuator()->getId())
+        return -1;
+    if(ARP1->RP->getActuator()->getId() > ARP2->RP->getActuator()->getId())
+        return 1;
+    return 0;
+}
+//print the Id of the RP of an adjacent RP
+void TAdjacentRP::printId(AnsiString &S, const TAdjacentRP *ARP)
+{
+    //check the precondition
+    if(ARP == NULL)
+        throw EImproperArgument("adjacent exclusion arRP ARP should pint to built adjacent RP");
+    if(ARP->RP == NULL)
+        throw EImproperArgument("adjacent exclusion arRP ARP should has an attached RP");
+
+    //concatenate the string
+    S += ARP->RP->getActuator()->getIdText();
+}
+
+//---------------------------------------------------------------------------
+//TAdjacentRPList
+//---------------------------------------------------------------------------
+
+//build a list by default
+TAdjacentRPList::TAdjacentRPList(void) :
+    TPointersList<TAdjacentRP>(1, TAdjacentRP::compareIds, NULL, NULL, TAdjacentRP::printId, NULL)
+{
+}
+//build a clon of a list
+TAdjacentRPList::TAdjacentRPList(const TAdjacentRPList& ARP) : TPointersList<TAdjacentRP>(ARP)
+{
+}
+
+//get partial lists in text format
+string TAdjacentRPList::getIdText(void) const
+{
+    string str = "{";
+    if(getCount() > 0) {
+        str += Items.getFirst()->RP->getActuator()->getId();
+        for(int i=1; i<getCount(); i++) {
+            str += ", ";
+            str += Items[i]->RP->getActuator()->getIdText().str;
+        }
+    }
+    str += "}";
+
+    return str;
+}
+string TAdjacentRPList::getDminText(void) const
+{
+    string str = "{";
+    if(getCount() > 0) {
+        str += "(RP" + Items.getFirst()->RP->getActuator()->getIdText().str + ", " + floattostr(Items.getFirst()->Dmin) + ")";
+        for(int i=1; i<getCount(); i++) {
+            str += ", ";
+            str += "(RP" + Items[i]->RP->getActuator()->getIdText().str + ", " + floattostr(Items[i]->Dmin) + ")";
+        }
+    }
+    str += "}";
+
+    return str;
+}
+string TAdjacentRPList::getDendText(void) const
+{
+    string str = "{";
+    if(getCount() > 0) {
+        str += "(RP" + Items.getFirst()->RP->getActuator()->getIdText().str + ", " + floattostr(Items.getFirst()->Dend) + ")";
+        for(int i=1; i<getCount(); i++) {
+            str += ", ";
+            str += "(RP" + Items[i]->RP->getActuator()->getIdText().str + ", " + floattostr(Items[i]->Dend) + ")";
+        }
+    }
+    str += "}";
+
+    return str;
+}
+
+//set a same value to all Dmins
+void TAdjacentRPList::setAllDmins(double Dmin)
+{
+    for(int i=0; i<getCount(); i++)
+        Items[i]->Dmin = Dmin;
+}
+//set a same value to all Dends
+void TAdjacentRPList::setAllDends(double Dend)
+{
+    for(int i=0; i<getCount(); i++)
+        Items[i]->Dend = Dend;
+}
+
+//---------------------------------------------------------------------------
 //TPairEADmin
 //---------------------------------------------------------------------------
 
@@ -1047,10 +1315,12 @@ AnsiString TActuator::getStatusText(void) const
     S += AnsiString("    Purpose = ")+getPurposeText()+AnsiString("\r\n");
 
     S += AnsiString("    Id = ")+IntToStr(getId())+AnsiString("\r\n");
-    S += AnsiString("    AdjacentEAs = ")+AdjacentEAs.getText()+AnsiString("\r\n");
-    S += AnsiString("    DminEAs = ")+DminEAs.getText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentEAs = ")+AdjacentEAs.getIdText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentDmins = ")+AdjacentEAs.getDminText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentDends = ")+AdjacentEAs.getDendText()+AnsiString("\r\n");
     S += AnsiString("    AdjacentRPs = ")+AdjacentRPs.getText()+AnsiString("\r\n");
-    S += AnsiString("    DminRPs = ")+DminRPs.getText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentDmins = ")+AdjacentRPs.getDminText()+AnsiString("\r\n");
+    S += AnsiString("    AdjacentDends = ")+AdjacentRPs.getDendText()+AnsiString("\r\n");
     S += AnsiString("    Pending = ")+getPendingText();
 
     return S;
@@ -1605,10 +1875,8 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     TCilinder(P0, thetao_),
     //inicializa las propiedades de estado
     p_PAkd(kdPre), p_Purpose(pGenPairPPDP),
-    AdjacentEAs(1, TExclusionArea::compareIds, NULL, NULL, TExclusionArea::printId, NULL),
-    DminEAs(1, NULL, NULL, TPairEADmin::assign, TPairEADmin::print),
-    AdjacentRPs(6, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId, NULL),
-    DminRPs(6, NULL, NULL, TPairRPDmin::assign, TPairRPDmin::print),
+    AdjacentEAs(),
+    AdjacentRPs(),
     Pending(true), Collision(false)
 {
     //el número de identificación Id debe ser no negativo
@@ -1678,9 +1946,7 @@ void TActuator::copyStatus(const TActuator *A)
 
     p_Id = A->p_Id;
     AdjacentEAs.Clone(A->AdjacentEAs);
-    DminEAs.Clone(A->DminEAs);
     AdjacentRPs.Clone(A->AdjacentRPs);
-    DminRPs.Clone(A->DminRPs);
     Pending = A->Pending;
     Collision = A->Collision;
 }
@@ -1791,7 +2057,7 @@ void TActuator::calculateSafeParameters(void)
         //por cada actuador adyacente
         for(int i=0; i<AdjacentRPs.getCount(); i++) {
             //apunta el actuador indicado para facilitar su acceso
-            AA = AdjacentRPs[i]->getActuator();
+            AA = AdjacentRPs[i].RP->getActuator();
 
             //calcula la distancia de seguridad
             double aux = Mod(AA->getP0() - A.getP0());
@@ -2537,7 +2803,7 @@ double TActuator::distanceWithAdjacent(void)
     //por cada EA adyacente
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta el EA indicado para facilitar su acceso
-        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        TBarrier *AB = &(AdjacentEAs[i].EA->Barrier);
         //determina la distancia entre el brazo y la barrera
         double d = getArm()->getContour().distanceMin(AB->getContour());
         //si la distancia es menor que la mínima
@@ -2548,7 +2814,7 @@ double TActuator::distanceWithAdjacent(void)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el RP indicado para facilitar su acceso
-        TActuator *AA = AdjacentRPs[i]->getActuator();
+        TActuator *AA = AdjacentRPs[i].RP->getActuator();
         //determina la distancia entre brazos
         double d = getArm()->getContour().distanceMin(AA->getArm()->getContour());
         //si la distancia es menor que la mínima
@@ -2569,7 +2835,7 @@ double TActuator::distanceP3WithAdjacent(void)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador indicado para facilitar su acceso
-        AA = AdjacentRPs[i]->getActuator();
+        AA = AdjacentRPs[i].RP->getActuator();
         //determina la distancia entre puntos P3
         d = Mod(AA->getArm()->getP3() - getArm()->getP3());
         //si la distancia es menor que la mínima
@@ -2634,7 +2900,7 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
     //por cada EA adyacente
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta la barrera indicada para facilitar su acceso
-        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        TBarrier *AB = &(AdjacentEAs[i].EA->Barrier);
 
         //determina la distancia mínima entre el brazo y
         //la barrera adyacente
@@ -2656,7 +2922,7 @@ bool TActuator::P3IsOutNoninvasiveArea(TDoublePoint P)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador indicado para facilitar su acceso
-        TActuator *AA = AdjacentRPs[i]->getActuator();
+        TActuator *AA = AdjacentRPs[i].RP->getActuator();
 
         //determina la distancia mínima entre el brazo y
         //el centro del actuador adyacente
@@ -2711,7 +2977,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
     //por cada EA adyacente
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta la barrera indicada para facilitar su acceso
-        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        TBarrier *AB = &(AdjacentEAs[i].EA->Barrier);
 
         //determina la distancia mínima entre el brazo y
         //la barrera adyacente
@@ -2733,7 +2999,7 @@ bool TActuator::P3IsInNoninvasiveArea(TDoublePoint P)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador indicado para facilitar su acceso
-        TActuator *AA = AdjacentRPs[i]->getActuator();
+        TActuator *AA = AdjacentRPs[i].RP->getActuator();
 
         //determina la distancia mínima entre el brazo y
         //el centro del actuador adyacente
@@ -2836,21 +3102,23 @@ double TActuator::distanceMin(const TExclusionArea *EA)
 
     //busca el EA en la lista de pares (Ea, Dmin)
     int i = 0;
-    while(i<DminEAs.getCount() && EA!=DminEAs[i].getEA())
+    while(i<AdjacentEAs.getCount() && EA!=AdjacentEAs[i].EA)
         i++;
 
     //comprueba las precondiciones
-    if(i >= DminEAs.getCount())
+    if(i >= AdjacentEAs.getCount())
         throw EImproperArgument("pointer EA should be an adjacent exclusion area");
 
     //calcula la distancia con la barrera del EA
     double dm = distanceMin(&(EA->Barrier));
 
     //actualiza la distancia mínima
-    if(i >= DminEAs.getCount())
+    if(i >= AdjacentEAs.getCount())
         throw EImpossibleError("lateral effect");
-    if(dm < DminEAs[i].getDmin())
-        DminEAs[i].setDmin(dm);
+    if(dm < AdjacentEAs[i].Dmin)
+        AdjacentEAs[i].Dmin = dm;
+    //actualiza la distancia final
+    AdjacentEAs[i].Dend = dm;
 
     return dm;
 }
@@ -2863,11 +3131,11 @@ double TActuator::distanceMin(const TActuator *Actuator)
 
     //busca el RP en la lista de pares (RP, Dmin)
     int i = 0;
-    while(i<DminRPs.getCount() && Actuator!=DminRPs[i].getRP()->getActuator())
+    while(i<AdjacentRPs.getCount() && Actuator!=AdjacentRPs[i].RP->getActuator())
         i++;
 
     //comprueba las precondiciones
-    if(i >= DminRPs.getCount())
+    if(i >= AdjacentRPs.getCount())
         throw EImproperArgument("pointer RP should be an adjacent robotic positioner");
 
     //calcula la distancia mínima
@@ -2890,10 +3158,12 @@ double TActuator::distanceMin(const TActuator *Actuator)
         dm = distanceMin(Actuator->getBarrier());
 
     //actualiza la distancia mínima
-    if(i >= DminRPs.getCount())
+    if(i >= AdjacentRPs.getCount())
         throw EImpossibleError("lateral effect");
-    if(dm < DminRPs[i].getDmin())
-        DminRPs[i].setDmin(dm);
+    if(dm < AdjacentRPs[i].Dmin)
+        AdjacentRPs[i].Dmin = dm;
+    //actualiza la distancia final
+    AdjacentRPs[i].Dend = dm;
 
     return dm;
 }
@@ -2943,7 +3213,7 @@ bool TActuator::thereIsCollisionWithAdjacent(void)
     //por cada EA adyacente
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta la barrera indicada para facilitar su acceso
-        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        TBarrier *AB = &(AdjacentEAs[i].EA->Barrier);
         //si hay colisión
         if(thereIsCollision(AB))
             //indica que si hay colisión
@@ -2953,7 +3223,7 @@ bool TActuator::thereIsCollisionWithAdjacent(void)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador indicado para facilitar su acceso
-        TActuator *AA = AdjacentRPs[i]->getActuator();
+        TActuator *AA = AdjacentRPs[i].RP->getActuator();
         //si hay colisión
         if(thereIsCollision(AA))
             //indica que si hay colisión
@@ -2969,7 +3239,7 @@ bool TActuator::thereIsntCollisionWithAdjacent(void)
     //por cada EA adyacente
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta la barrera indicada para facilitar su acceso
-        TBarrier *AB = &(AdjacentEAs[i]->Barrier);
+        TBarrier *AB = &(AdjacentEAs[i].EA->Barrier);
         //si hay colisión
         if(thereIsCollision(AB))
             //indica que si hay colisión
@@ -2979,7 +3249,7 @@ bool TActuator::thereIsntCollisionWithAdjacent(void)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador indicado para facilitar su acceso
-        TActuator *AA = AdjacentRPs[i]->getActuator();
+        TActuator *AA = AdjacentRPs[i].RP->getActuator();
         //si hay colisión
         if(thereIsCollision(AA))
             //indica que si hay colisión
@@ -3000,7 +3270,7 @@ void TActuator::searchCollindingAdjacent(TItemsList<TExclusionArea*>& Collinding
     //determina las barreras adyacentes con las que hay colisión
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta el actuador adyacente indicado para facilitar su acceso
-        TExclusionArea *EAA = AdjacentEAs[i];
+        TExclusionArea *EAA = AdjacentEAs[i].EA;
         //si el actuador adyacente colisiona con este actuador
         if(thereIsCollision(&(EAA->Barrier)))
             //añade el EA a la lista de los que colisionan
@@ -3017,7 +3287,7 @@ void TActuator::searchCollindingAdjacent(TItemsList<TRoboticPositioner*>& Collin
     //determina los actuadores adyacentes con los que hay colisión
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador adyacente indicado para facilitar su acceso
-        TRoboticPositioner *RPA = AdjacentRPs[i];
+        TRoboticPositioner *RPA = AdjacentRPs[i].RP;
         //si el actuador adyacente colisiona con este actuador
         if(thereIsCollision(RPA->getActuator()))
             //añade el RP a la lista de los que colisionan
@@ -3032,7 +3302,7 @@ bool TActuator::thereIsCollisionWithPendingAdjacent(void)
     //por cada EA adyacente
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apuntala barrera del EA indicada para facilitar su acceso
-        TExclusionArea *EAA = AdjacentEAs[i];
+        TExclusionArea *EAA = AdjacentEAs[i].EA;
         //si alguno tiene pendiente la determinación de colisión,
         //y hay colisión
         if((Pending || EAA->Pending) && thereIsCollision(&(EAA->Barrier)))
@@ -3043,7 +3313,7 @@ bool TActuator::thereIsCollisionWithPendingAdjacent(void)
     //por cada RP adyacente
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el actuador del RP indicado para facilitar su acceso
-        TActuator *AA = AdjacentRPs[i]->getActuator();
+        TActuator *AA = AdjacentRPs[i].RP->getActuator();
         //si alguno de los actuadores tiene pendiente la determinación de colisión,
         //y hay colisión
         if((Pending || AA->Pending) && thereIsCollision(AA))
@@ -3069,7 +3339,7 @@ void TActuator::searchCollindingPendingAdjacent(TItemsList<TExclusionArea*>& Col
     //determina las barreras adyacentes con los que hay colisión
     for(int i=0; i<AdjacentEAs.getCount(); i++) {
         //apunta el RP adyacente indicado para facilitar su acceso
-        TExclusionArea *EAA = AdjacentEAs[i];
+        TExclusionArea *EAA = AdjacentEAs[i].EA;
         //si alguna de las barreras tiene pendiente la determinación de colisión,
         //y colisiona con este actuador
         if((Pending || EAA->Pending) && thereIsCollision(&(EAA->Barrier)))
@@ -3088,7 +3358,7 @@ void TActuator::searchCollindingPendingAdjacent(TItemsList<TRoboticPositioner*>&
     //determina los actuadores adyacentes con los que hay colisión
     for(int i=0; i<AdjacentRPs.getCount(); i++) {
         //apunta el RP adyacente indicado para facilitar su acceso
-        TRoboticPositioner *RPA = AdjacentRPs[i];
+        TRoboticPositioner *RPA = AdjacentRPs[i].RP;
         //si alguno de los actuadores tiene pendiente la determinación de colisión,
         //y colisiona con este actuador
         if((Pending || RPA->getActuator()->Pending) && thereIsCollision(RPA->getActuator()))

@@ -29,7 +29,6 @@
 #include "Geometry.h"
 
 #include <algorithm> //std::min, std::max
-#include <limits> //std::numeric_limits
 
 //---------------------------------------------------------------------------
 
@@ -1882,7 +1881,7 @@ double TCilinder::searchNearestStablePosition(double& p_1nsp, double& p___3nsp,
     getArm()->setQuantify___(true);
 
     //inicializa la distancia de P a P3 a infinito
-    double R = std::numeric_limits<double>::max();
+    double R = DBL_MAX;
 
     //por cada punto estable del intervalo de búsqueda
     for(double p_1=ceil(p_1min); p_1<=floor(p_1max); p_1++) {

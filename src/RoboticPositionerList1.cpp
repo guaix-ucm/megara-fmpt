@@ -906,12 +906,8 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
 
         //inicializa la lista de EAs adyacentes
         RPi->getActuator()->AdjacentEAs.Clear();
-        //inicializa el vector de distancias mínimas con EAs adyacentes
-        RPi->getActuator()->DminEAs.Clear();
         //inicializa la lista de RPs adyacentes
         RPi->getActuator()->AdjacentRPs.Clear();
-        //inicializa el vector de distancias mínimas con RPs adyacentes
-        RPi->getActuator()->DminRPs.Clear();
 
         //para cada una de las EAs
         for(int j=0; j<EAL.getCount(); j++) {
@@ -922,9 +918,7 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
                     (RPi->getActuator()->getr_max() + RPi->getActuator()->getSPMall_a() +
                      EAj->Barrier.getr_max() + EAj->Barrier.getSPM()) + ERR_NUM) {
                 //añade el EA a la lista de EAs adyacentes
-                RPi->getActuator()->AdjacentEAs.Add(EAj);
-                //añade una distancia mínima para el EA adyacente
-                RPi->getActuator()->DminEAs.Add(TPairEADmin(EAj, DBL_MAX));
+                RPi->getActuator()->AdjacentEAs.Add(new TAdjacentEA(EAj, DBL_MAX, DBL_MAX));
             }
         }
         //para cada uno de los RPs previos al indicado
@@ -936,9 +930,8 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
                     (RPi->getActuator()->getr_max() + RPi->getActuator()->getSPMall_a() +
                      RPj->getActuator()->getr_max() + RPj->getActuator()->getSPMall_a()) + ERR_NUM) {
                 //añade el RP a la lista de RPs adyacentes
-                RPi->getActuator()->AdjacentRPs.Add(RPj);
                 //añade una distancia mínima para el RP adyacente
-                RPi->getActuator()->DminRPs.Add(TPairRPDmin(RPj, DBL_MAX));
+                RPi->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPj, DBL_MAX, DBL_MAX));
             }
         }
         //para cada uno de los RPs posteriores al indicado
@@ -950,9 +943,8 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
                     (RPi->getActuator()->getr_max() + RPi->getActuator()->getSPMall_a() +
                      RPj->getActuator()->getr_max() + RPj->getActuator()->getSPMall_a())) {
                 //añade el RP a la lista de RPs adyacentes
-                RPi->getActuator()->AdjacentRPs.Add(RPj);
                 //añade una distancia mínima para el RP adyacente
-                RPi->getActuator()->DminRPs.Add(TPairRPDmin(RPj, DBL_MAX));
+                RPi->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPj, DBL_MAX, DBL_MAX));
             }
         }
     }
@@ -970,7 +962,7 @@ void TRoboticPositionerList1::sortAdjacents(void)
         //por cada posicionador adyacente
         for(int j=0; j<RP->getActuator()->AdjacentRPs.getCount(); j++) {
             //apunta el posicionador indicado para facilitar su acceso
-            RPA = RP->getActuator()->AdjacentRPs[j];
+            RPA = RP->getActuator()->AdjacentRPs[j].RP;
             //si el adyacente es el posicionador de referencia
             if(RPA->getActuator()->getId() == RP->getActuator()->getId())
                 throw EImproperCall("adjacent positioner should not be same the reference positioner");
@@ -1041,7 +1033,7 @@ void TRoboticPositionerList1::sortAdjacents(void)
         //por cada posicionador adyacente
         for(int j=0; j<RP->getActuator()->AdjacentRPs.getCount(); j++) {
             //apunta el posicionador adyacente indicado para facilitar su acceso
-            RPA = RP->getActuator()->AdjacentRPs[j];
+            RPA = RP->getActuator()->AdjacentRPs[j].RP;
 
             //construye el par (RPA, theta)
             //con theta en [0, 2*M_PI)
@@ -1068,7 +1060,7 @@ void TRoboticPositionerList1::sortAdjacents(void)
         //transcribe la lista
         RP->getActuator()->AdjacentRPs.Clear();
         for(int j=0; j<LP.getCount(); j++)
-            RP->getActuator()->AdjacentRPs.Add(LP[j].P);
+            RP->getActuator()->AdjacentRPs.Add(new TAdjacentRP(LP[j].P));
     }
 }
 

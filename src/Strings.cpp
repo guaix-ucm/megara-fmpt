@@ -808,7 +808,7 @@ void strTrim(string& des, const string& src)
     }
 
     //determina el número de caracteres a copiar
-    int count = i2 - i1 + 1;
+    unsigned int count = i2 - i1 + 1;
 
     //prepara la cadena de destino
     if(des.length() < count)

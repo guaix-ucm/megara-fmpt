@@ -836,7 +836,7 @@ void TStrings::Clear(void)
 //assign a text string decomposing it in lines
 void TStringList::setText(const AnsiString& S)
 {
-    throw Exception("falta por definir");
+    throw Exception("TBD");
 }
 
 //add a copy of a text string by the end of the list

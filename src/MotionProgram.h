@@ -107,23 +107,12 @@ public:
     //  label: string labeling all the MP.
     //  Bid: univoque identifier of the CB.
     //  SPL: starting position list for all RPs of the Fiber MOS.
+    //  r2_negative: indicates if the rotor 2 coordinates must be negative.
     //Preconditions:
     //  All PPAs of the SPL must be addresed to different RPs.
     //  All RPs included in the MP, must be in included in the SPL.
     void getInterfaceText(string& str, const string& label, unsigned int Bid,
-                          const TPairPositionAnglesList& SPL) const;
-
-    //Get a motion progam in the interface format of the MCS.
-    //With rotor 2 negative.
-    //Inputs:
-    //  label: string labeling all the MP.
-    //  Bid: univoque identifier of the CB.
-    //  SPL: starting position list for all RPs of the Fiber MOS.
-    //Preconditions:
-    //  All PPAs of the SPL must be addresed to different RPs.
-    //  All RPs included in the MP, must be in included in the SPL.
-    void getInterfaceNegativeText(string& str, const string& label, unsigned int Bid,
-                          const TPairPositionAnglesList& SPL) const;
+                          const TPairPositionAnglesList& SPL, bool r2_negative) const;
 
     //Values for label:
     //  "obs depos" for depositioning programs
@@ -147,6 +136,13 @@ public:
     //  label: string labeling all the MP-Dmin.
     //  Bid: univoque identifier of the CB.
     void getDminInterfaceText(string& str, const string& label,
+                               unsigned int Bid) const;
+
+    //Get MP-Dends in the interface format of the MCS.
+    //Inputs:
+    //  label: string labeling all the MP-Dend.
+    //  Bid: univoque identifier of the CB.
+    void getDendInterfaceText(string& str, const string& label,
                                unsigned int Bid) const;
 };
 

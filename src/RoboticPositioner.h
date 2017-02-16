@@ -272,10 +272,13 @@ public:
         double getDsec(void) const {return p_Dsec;}
         void setDsec(double);
 
-        //minimun real distance of the RP with their adjacents
+/*        //minimun real distance of the RP with their adjacents
         //default value: DBL_MAX
         double Dmin;
-
+        //minimun real end distance of the RP with their adjacents
+        //default value: DBL_MAX
+        double Dend;
+*/
         //------------------------------------------------------------------
         //PROPERTIES IN TEXT FORMAT:
 
@@ -339,6 +342,8 @@ public:
 
         //set of minimun distances in text format
         AnsiString getDminsText(void) const;
+        //set of final distances in text format
+        AnsiString getDendsText(void) const;
 
         //------------------------------------------------------------------
         //STATIC METHODS:

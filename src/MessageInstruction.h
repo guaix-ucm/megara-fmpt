@@ -46,6 +46,7 @@ class TMessageInstruction {
         int p_Id;
         string p_Comment1;
         string p_Comment2;
+        string p_Comment3;
 
 public:
         //PUBLIC PROPERTIES:
@@ -75,6 +76,12 @@ public:
         //default value: ""
         string getComment2(void) const{return p_Comment2;}
         void setComment2(const string&);
+
+        //comment 3
+        //for anotate Dmin value when the instruction is executed
+        //default value: ""
+        string getComment3(void) const{return p_Comment3;}
+        void setComment3(const string&);
 
         //PUBLIC PROPERTIES IN TEXT FORMAT:
 

@@ -84,7 +84,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
         //and are in the list Outsiders
         TItemsList<TRoboticPositioner*> Adjacents;
         for(int j=0; j<RP->getActuator()->AdjacentRPs.getCount(); j++) {
-            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[j];
+            TRoboticPositioner *RPA = RP->getActuator()->AdjacentRPs[j].RP;
             if(RPA->getActuator()->ArmIsOutSafeArea()) {
                 int k = Outsiders.Search(RPA);
                 if(k < Outsiders.getCount())
@@ -462,13 +462,20 @@ bool TMotionProgramGenerator::motionProgramsAreIncongruent(TRoboticPositioner* &
         Ids.push_back(MI->getId());
     }
 
-    //check if the first instruction is for retraction
-    if(MPretraction[0][0].Instruction.getName() != "MM")
-        return true;
-    //check if the second instruction (if any) is for abatement
-    if(MPretraction.getCount() > 1)
+    //check when there is a single instruction
+    if(MPretraction.getCount() == 1)
+        //the single instruction may be either for retraccion or abatement
+        if(MPretraction[0][0].Instruction.getName() != "MM" && MPretraction[0][0].Instruction.getName() != "M2")
+            return true;
+    //check when there are two instructions
+    if(MPretraction.getCount() == 2) {
+        //the first intruccions must be for retraccion
+        if(MPretraction[0][0].Instruction.getName() != "MM")
+            return true;
+        //the second intruccions must be for abatement
         if(MPretraction[1][0].Instruction.getName() != "M2")
             return true;
+    }
 
     //--------------------------------------------------------
     //For the pair (MPturn, MPretraction):
@@ -627,7 +634,7 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
     //The content of the list of adjacents shall be restablished at the end of the process.
 
     //save the content of the list of adjacents
-    TItemsList<TRoboticPositioner*> AdjacentRPs = RP->getActuator()->AdjacentRPs;
+    TAdjacentRPList AdjacentRPs = RP->getActuator()->AdjacentRPs;
 
     //suppose that there is solution until the contrary is proved
     bool there_is_solution = true;
@@ -641,14 +648,16 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
     //search a solution with an adjacent every time
     while(there_is_solution && i<AdjacentRPs.getCount()) {
         //point the next adjacent RP single in the list of adjacents
-        TRoboticPositioner *RPA = AdjacentRPs[i];
+        TRoboticPositioner *RPA = AdjacentRPs[i].RP;
         RP->getActuator()->AdjacentRPs.Clear();
-        RP->getActuator()->AdjacentRPs.Add(RPA);
+        RP->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPA));
 
         //determine if the MP is valid (with the single adjacent)
         there_is_solution = motionProgramsAreValid(RP->MPturn, RP->MPretraction);
-        //restablish the starting position of the RP
-///        RP->getActuator()->restorethetas(); <----------it is not necesary
+
+        //Function motionProgramsAreValid not changes the position of the RP.
+        //Then here it is not necesary restablish the initial status of the RP:
+        //  RP->getActuator()->restorethetas();
 
         //if the MP is valid pass to the next adjacent
         if(there_is_solution)
@@ -669,8 +678,10 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
 
                 //determine if the MP is valid (with the single adjacent)
                 there_is_solution = motionProgramsAreValid(RP->MPturn, RP->MPretraction);
-                //restablish the starting position of the RP
-///                RP->getActuator()->restorethetas(); <----------it is not necesary
+
+                //Function motionProgramsAreValid not changes the position of the RP.
+                //Then here it is not necesary restablish the initial status of the RP:
+                //  RP->getActuator()->restorethetas();
 
                 //adjust the new searching interval
                 if(there_is_solution)
@@ -774,7 +785,7 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
     //The content of the list of adjacents shall be restablished at the end of the process.
 
     //save the content of the list of adjacents
-    TItemsList<TRoboticPositioner*> AdjacentRPs = RP->getActuator()->AdjacentRPs;
+    TAdjacentRPList AdjacentRPs = RP->getActuator()->AdjacentRPs;
 
     //suppose that there is solution until the contrary is proved
     bool there_is_solution = true;
@@ -788,14 +799,16 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
     //search a solution with an adjacent every time
     while(there_is_solution && i<AdjacentRPs.getCount()) {
         //point the next RP single in the list of adjacents
-        TRoboticPositioner *RP_ = AdjacentRPs[i];
+        TRoboticPositioner *RP_ = AdjacentRPs[i].RP;
         RP->getActuator()->AdjacentRPs.Clear();
-        RP->getActuator()->AdjacentRPs.Add(RP_);
+        RP->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RP_));
 
         //determine if the MP is valid (with the single adjacent)
         there_is_solution = motionProgramsAreValid(RP->MPturn, RP->MPretraction);
-        //restablish the starting position of the RP
-///        RP->getActuator()->restorethetas(); <----------it is not necesary
+
+        //Function motionProgramsAreValid not changes the position of the RP.
+        //Then here it is not necesary restablish the initial status of the RP:
+        //  RP->getActuator()->restorethetas();
 
         //if the MP is valid pass to the next adjacent
         if(there_is_solution)
@@ -816,8 +829,10 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
 
                 //determine if the MP is valid (with the single adjacent)
                 there_is_solution = motionProgramsAreValid(RP->MPturn, RP->MPretraction);
-                //restablish the starting position of the RP
-///                RP->getActuator()->restorethetas(); <----------it is not necesary
+
+                //Function motionProgramsAreValid not changes the position of the RP.
+                //Then here it is not necesary restablish the initial status of the RP:
+                //  RP->getActuator()->restorethetas();
 
                 //adjust the new searching interval
                 if(there_is_solution)
@@ -880,7 +895,7 @@ bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
     for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
         TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
         if(RP->getActuator()->getPurpose()!=pGenPairPPDP && RP->getActuator()->getPurpose()!=pGenParPro)
-            throw EImproperCall("All RPs of the Fiber MOS Model should be configurated for MP generation.");
+            throw EImproperCall("all RPs of the Fiber MOS Model should be configurated for MP generation");
     }
 
     int i = getFiberMOSModel()->RPL.Search(RP);
@@ -891,7 +906,7 @@ bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
         throw EImproperArgument("the RP should be in unsecurity position");
 
     if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-        throw EImproperArgument("the RP should be enabled the quantifiers of their rotors");
+        throw EImproperArgument("the RP should have enabled the quantifiers of their rotors");
 
     if(RP->getActuator()->thereIsCollisionWithAdjacent())
         throw EImproperArgument("the RP should not have dynamic collisions");
@@ -970,7 +985,7 @@ void TMotionProgramGenerator::segregateRecoverables(
     for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
         TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
         if(RP->getActuator()->getPurpose()!=pGenPairPPDP && RP->getActuator()->getPurpose()!=pGenParPro)
-            throw EImproperCall("All RPs of the Fiber MOS Model should be configurated for MP generation.");
+            throw EImproperCall("all RPs of the Fiber MOS Model should be configurated for MP generation");
     }
 
     //All RPs of DDS:
@@ -1105,7 +1120,7 @@ void TMotionProgramGenerator::segregateRecoverables(
         }
     }
 
-    //erase the empty disperse subset in RecoverablesDDS
+    //erase the empty disperse subsets in RecoverablesDDS
     int i = 0;
     while(i < RecoverablesDDS.getCount()) {
         //point the indicated disjoint set to facilitate its access
@@ -1131,7 +1146,7 @@ void TMotionProgramGenerator::segregateRecoverables(
             RecoverablesDDS.Delete(i);
     }
 
-    //erase the empty disperse subset from UnrecoverablesDDS
+    //erase the empty disperse subsets from UnrecoverablesDDS
     i = 0;
     while(i < UnrecoverablesDDS.getCount()) {
         //point the indicated disjoint set to facilitate its access
@@ -1367,13 +1382,13 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
         TRoboticPositioner *RP = Outsiders[i];
         int j = getFiberMOSModel()->RPL.Search(RP);
         if(j >= getFiberMOSModel()->RPL.getCount())
-            throw EImproperArgument("All RPs of the list Outsiders, shall be in the Fiber MOS Model.");
+            throw EImproperArgument("all RPs of the list Outsiders, shall be in the Fiber MOS Model");
         if(!RP->getOperative())
-            throw EImproperArgument("All RPs in the list Outsiders, shall be operatives.");
+            throw EImproperArgument("all RPs in the list Outsiders, shall be operatives");
         if(RP->getActuator()->ArmIsInSafeArea())
-            throw EImproperArgument("All RPs in the list Outsiders, shall be in insecurity positions.");
+            throw EImproperArgument("all RPs in the list Outsiders, shall be in insecurity positions");
         if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-            throw EImproperArgument("All RPs in the list Outsiders, shall have enabled the quantifiers of their rotors.");
+            throw EImproperArgument("all RPs in the list Outsiders, shall have enabled the quantifiers of their rotors");
     }
 
     //MAKE ACTIONS:
@@ -1392,10 +1407,12 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //segregates the RPs of the list Outsiders which are in collision status, in the list Collided
     Outsiders.segregateCollided(Collided, Outsiders_);
 
-    //solve the trivial case when there aren't RPs of the list Outsiders in insecurity positions
-    if(Outsiders.allRPsAreInSecurePosition())
-        //return the empty solution
-        return;
+    //The following check is unnecesary, because in the preconditions is checked that
+    //all RPs of the list Outsiders are in insecurity positions:
+    //  //solve the trivial case when there aren't RPs of the list Outsiders in insecurity positions
+    //  if(Outsiders.allRPsAreInSecurePosition())
+    //      //return the empty solution
+    //      return;
 
     //Here all RPs are in their starting positions.
 
@@ -1410,7 +1427,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
     //  1. During segregation of recoverables, for simulate the movement
     //     of each RP from their starting position to their final position.
     //  2. During validation of the generated recovery program, for simmulate
-    //     the jointly movement of the RPs which must be move together.
+    //     the jointly movement of the RPs which must be moved together.
     //If the recovery program not pass the validation process, the quantifiers
     //remains disabled, and their original status stacked.
 
@@ -1454,41 +1471,11 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
             segregateRPsInDisperseSubsets(DisperseSubsets, DisjointSets[i]);
             DDS.Add(DisperseSubsets);
         }
-/*
-//------
-        int Count_DDS = DDS.getCount();
-        TPointersList<TRoboticPositionerList> *DisperseSubsets1 = DDS.GetPointer(0);
-        TRoboticPositionerList *Subset1 = DisperseSubsets1->GetPointer(0);
-        TRoboticPositionerList *Subset2 = DisperseSubsets1->GetPointer(1);
-//        TRoboticPositionerList *Subset3 = DisperseSubsets1->GetPointer(2);
-        int Count_DDS_00 = Subset1->getCount();
-        int Count_DDS_01 = Subset2->getCount();
-//        int Count_DDS_02 = Subset3->getCount();
-//------*/
+
         //segregates the RPs which can be recovered in each subset of each set
         TPointersList<TPointersList<TRoboticPositionerList> > RecoverablesDDS;
         TPointersList<TPointersList<TRoboticPositionerList> > UnrecoverablesDDS;
-        segregateRecoverables(RecoverablesDDS, UnrecoverablesDDS, DDS); //<--------------AQUÍ se calcula Dsec?
-
-/*//------
-        int Count_Rec = RecoverablesDDS.getCount();
-        DisperseSubsets1 = RecoverablesDDS.GetPointer(0);
-        Subset1 = DisperseSubsets1->GetPointer(0);
-        Subset2 = DisperseSubsets1->GetPointer(1);
-//        Subset3 = DisperseSubsets1->GetPointer(2);
-        int Count_Rec_00 = Subset1->getCount();
-        int Count_Rec_01 = Subset2->getCount();
-//        int Count_Rec_02 = Subset3->getCount();
-
-        int Count_Unrec = UnrecoverablesDDS.getCount();*/
-/*        DisperseSubsets1 = UnrecoverablesDDS.GetPointer(0);
-        Subset1 = DisperseSubsets1->GetPointer(0);
-        Subset2 = DisperseSubsets1->GetPointer(1);
-        Subset3 = DisperseSubsets1->GetPointer(2);
-        int Count_Unrec_00 = Subset1->getCount();
-        int Count_Unrec_01 = Subset2->getCount();
-        int Count_Unrec_02 = Subset3->getCount();*/
-//------
+        segregateRecoverables(RecoverablesDDS, UnrecoverablesDDS, DDS);
 
         //Here all RPs of RecoverablesDDS will be in their starting positions,
         //and we want retract the RPs in the larger disperse subsets.
@@ -1549,7 +1536,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
             //for avoid inter ferences with the next iteration and to get the
             //message-instruction list to turn the rotors 1.
 
-            //trasfer the MIs from the RPs to be recovery to the recovery program
+            //trasfer the MIs from the RPs to be recovered to the recovery program
             addMessageLists(RecoveryProgram, RPsToBeRecovered);
 
             //delete the retracted RPs from the list Outsiders_
@@ -1571,7 +1558,7 @@ void TMotionProgramGenerator::generateRecoveryProgram(TRoboticPositionerList& Co
         //determines if has recovered some RP in the last iteration
         condition2 = (RPsToBeRecovered.getCount() > 0);
 
-    //while are accomplish the two conditions
+    //while both conditions are met
     } while(condition1 && condition2);
 
     //=======================================================================
@@ -1992,7 +1979,7 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RRPs,
 
     //search the replacement RPs
     for(i=0; i<RP->getActuator()->AdjacentRPs.getCount(); i++) {
-        TRoboticPositioner *RRP = RP->getActuator()->AdjacentRPs[i];
+        TRoboticPositioner *RRP = RP->getActuator()->AdjacentRPs[i].RP;
 
         //Here the RRP is adjacent to the RP to be replaced.
 
@@ -2015,7 +2002,7 @@ void TMotionProgramGenerator::searchReplacementRPs(TRoboticPositionerList& RRPs,
                     bool clear = true;
                     int k = 0;
                     while(clear && k<RRP->getActuator()->AdjacentRPs.getCount()) {
-                        TRoboticPositioner *RPA = RRP->getActuator()->AdjacentRPs[k];
+                        TRoboticPositioner *RPA = RRP->getActuator()->AdjacentRPs[k].RP;
 
                         //if the RPA is operative
                         //must be in security area, and if it has allocated PP,

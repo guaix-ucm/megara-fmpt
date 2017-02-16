@@ -55,6 +55,11 @@ void TMessageInstruction::setComment2(const string& Comment2)
     p_Comment2 = Comment2;
 }
 
+void TMessageInstruction::setComment3(const string& Comment3)
+{
+    p_Comment3 = Comment3;
+}
+
 //PUBLIC PROPERTIES IN TEXT FORMAT:
 
 AnsiString TMessageInstruction::getIdText(void) const
@@ -288,12 +293,13 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
 //PUBLIC METHODS:
 
 //build a MI by default
-TMessageInstruction::TMessageInstruction(void) : p_Id(0), p_Comment1(""), p_Comment2(""), Instruction()
+TMessageInstruction::TMessageInstruction(void) :
+    p_Id(0), p_Comment1(""), p_Comment2(""), p_Comment3(""), Instruction()
 {
 }
 //build a MI with the indicated values
 TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
-    p_Comment1(""), p_Comment2(""), Instruction()
+    p_Comment1(""), p_Comment2(""), p_Comment3(""), Instruction()
 {
     try {
         setId(Id);
@@ -305,7 +311,7 @@ TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
 }
 //clone a MI
 TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
-    p_Id(), p_Comment1(), p_Comment2(), Instruction()
+    p_Id(), p_Comment1(), p_Comment2(), p_Comment3(""), Instruction()
 {
     try {
         Copy(MI);
@@ -327,6 +333,7 @@ void TMessageInstruction::Copy(const TMessageInstruction *MI)
     Instruction = MI->Instruction;
     p_Comment1 = MI->p_Comment1;
     p_Comment2 = MI->p_Comment2;
+    p_Comment3 = MI->p_Comment3;
 }
 //assign the properties of a MI
 TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &MI)
@@ -336,6 +343,7 @@ TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &M
     Instruction = MI.Instruction;
     p_Comment1 = MI.p_Comment1;
     p_Comment2 = MI.p_Comment2;
+    p_Comment3 = MI.p_Comment3;
 
     //devuelve una referencia a este mensaje para poder concatenar asignaciones
     return *this;
@@ -354,6 +362,9 @@ bool TMessageInstruction::operator!=(const TMessageInstruction& MI) const
         return true;
 
     if(getComment2() != MI.getComment2())
+        return true;
+
+    if(getComment3() != MI.getComment3())
         return true;
 
     return false;
