@@ -317,8 +317,8 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.8.1.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.8.1).\r\n";
+    str += "This application is the FMPT SAA 3.8.2.\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.8.2).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2598,6 +2598,19 @@ int main(int argc, char *argv[])
     //
     //###################################################################
 
+    //-----------------------------------------------------------------------
+    //SIMULATES THE INTRODUCTION OF THE ARGUMENTS (Qt only):
+
+    //Qt only:
+    //get the actual directory in argv[0]
+    //QCoreApplication a(argc, argv);
+    //	QApplication a(argc, argv);
+
+    //arguments for help
+    //	argc = 2;
+    //	string arg1 = "help";
+    //	argv[1] = (char*)arg1.c_str();
+
     //-------------------------------------------------------------------
     //CONFIGURATE THE SYSTEM:
 
@@ -2703,7 +2716,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.8.1 is running...", log_filename.c_str());
+        append("FMPT SAA 3.8.2 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
@@ -2716,8 +2729,8 @@ int main(int argc, char *argv[])
         string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
 
         //Qt only:
-        //string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
-        //string dir_FMM2 = dir_FMM1;
+        //	string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
+        //	string dir_FMM2 = dir_FMM1;
 
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
@@ -2752,7 +2765,7 @@ int main(int argc, char *argv[])
         if(command == "valuesSPM_EA") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command valuesSPM_EA sould have 1 arguments");
+                throw EImproperArgument("command valuesSPM_EA sould have 1 arguments: <Aid>");
 
             //built a string from arg 1 (<Aid>)
             string str(argv[2]);
@@ -2774,7 +2787,7 @@ int main(int argc, char *argv[])
         else if(command == "valuesSPM_RP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command valuesSPM_RP sould have 1 arguments");
+                throw EImproperArgument("command valuesSPM_RP sould have 1 arguments: <Pid>");
 
             //built a string from arg 1 (<Pid>)
             string str(argv[2]);
@@ -2813,7 +2826,7 @@ int main(int argc, char *argv[])
         else if(command == "applyPC") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyPC sould have 1 arguments");
+                throw EImproperArgument("command applyPC sould have 1 arguments: <path_PC>");
 
             //built a path from arg 1
             string path_PC(argv[2]);
@@ -2836,7 +2849,7 @@ int main(int argc, char *argv[])
         else if(command == "applyRP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyRP sould have 1 arguments");
+                throw EImproperArgument("command applyRP sould have 1 arguments: <dir_RP>");
 
             //built a path from arg 1
             string dir_RP(argv[2]);
@@ -2965,7 +2978,7 @@ int main(int argc, char *argv[])
         else if(command == "checkPairPPDP") {
             //check the precondition
             if(argc!=4 && argc!=5)
-                throw EImproperArgument("command checkPairPPDP sould have 2 or 3 arguments");
+                throw EImproperArgument("command checkPairPPDP sould have 2 or 3 arguments: <path_PP> <path_DP> [Pid list]");
 
             //built a path from arg 1
             string path_PP(argv[2]);
@@ -3015,7 +3028,7 @@ int main(int argc, char *argv[])
         else if(command == "validatePairPPDP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command validatePairPPDP sould have 1 arguments");
+                throw EImproperArgument("command validatePairPPDP sould have 1 arguments: <path_outputs>");
 
             //built a path from arg 1
             string path_outputs(argv[2]);
@@ -3034,7 +3047,7 @@ int main(int argc, char *argv[])
         else if(command == "regeneratePairPPDP") {
             //check the precondition
             if(argc!=5 && argc!=6)
-                throw EImproperArgument("command regeneratePairPPDP sould have 3 or 4 arguments");
+                throw EImproperArgument("command regeneratePairPPDP sould have 3 or 4 arguments: <path_PP> <path_DP> <path_FMOSA> [Pid list]");
 
             //built a path from arg 1
             string path_PP(argv[2]);
@@ -3172,7 +3185,7 @@ int main(int argc, char *argv[])
         else if(command == "visualizePPDP") {
             //check the precondition
             if(argc != 4)
-                throw EImproperArgument("command visualizePPDP should have 2 arguments");
+                throw EImproperArgument("command visualizePPDP should have 2 arguments: <path_PP> <path_DP>");
 
             //built a path from arg 1
             string path_PP(argv[2]);
@@ -3211,6 +3224,7 @@ int main(int argc, char *argv[])
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
+    // 	return a.exec(); //Qt only
     return 0;
 }
 
