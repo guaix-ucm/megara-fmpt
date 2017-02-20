@@ -91,40 +91,35 @@ string help(void)
     str += "\r\n    Print this help.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa help_generatePairPPDP_offline";
-    str += "\r\n    Print help for function generatePairPPDP_offline.";
+    str += "\r\n    Print the help for function generatePairPPDP_offline.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa help_generateParkingProgram_offline";
-    str += "\r\n    Print help for function generatePairPPDP_offline.";
+    str += "\r\n    Print the help for function generatePairPPDP_offline.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa help_others";
     str += "\r\n    Print the help about other functions.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa aboutOf";
     str += "\r\n    Print the legend about of...";
-
     str += "\r\n";
     str += "\r\n$ fmpt_saa generatePairPPDP_offline <path_FMOSA>";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to file type FMOSA.";
     str += "\r\n    Generate a pair (PP, DP) offline.";
-    str += "\r\n    In the file type FMOSA:";
-    str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
-    str += "\r\n        Parameter Bid indicates if the source is allocated or no.";
-    str += "\r\n        Parameter Enabled indicates if the RP is enabled or no.";
-    str += "\r\n        When Bid is empty:";
-    str += "\r\n            parameters Name, Mag, Pr and Comment will be empty;";
-    str += "\r\n            parameter Type will be UNKNOWN.";
-
+    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the files:";
+    str += "\r\n        outputs-from-<filename>: the pair (PP, DP) in the format of the MCS,";
+    str += "\r\n            and the observing source list (OS) contained in the input file;";
+    str += "\r\n        other_outputs-from-<filename>: PPvalid, DPvalid, Collided, Obstructed";
+    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n    Where <filename> is the name of the input file.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa generateParkingProgram_offline <path_FMOSA>";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to file type FMOSA.";
     str += "\r\n    Generate a parking program offline.";
-    str += "\r\n    In the file type FMOSA:";
-    str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
-    str += "\r\n        Parameter Bid indicates if the source is allocated or no.";
-    str += "\r\n        Parameter Enabled indicates if the RP is enabled or no.";
-    str += "\r\n        When Bid is empty:";
-    str += "\r\n            parameters Name, Mag, Pr and Comment will be empty;";
-    str += "\r\n            parameter Type will be UNKNOWN.";
+    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the files:";
+    str += "\r\n        ParkingProgram-from-<filename>: the parking program in the format of the MCS;";
+    str += "\r\n        other_outputs-from-<filename>: ParkingProgramValid, Collided, Obstructed";
+    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n    Where <filename> is the name of the input file.";
 
     //Note that here not has sense define functions for generate MPs online.
 
@@ -136,30 +131,38 @@ string help_generatePairPPDP_offline(void)
 {
     string str;
 
-    str = "$ fmpt_saa generatePairPPDP_offline <path_FMOSA> [OPL] [OPL_S0] ... [fiberMOS] [r2_negative]";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to file type FMOSA.";
+    str = "$ fmpt_saa generatePairPPDP_offline <path_FMOSA> [OPL] [OPL_S0] [OPL_S1] [PP-FMPT] [DP-FMPT] [IPL] [Disp_Corners1] [Disp_Corners2] [PP] [DP] [PP-Dmin] [PP-Dend] [DP-Dmin] [DP-Dend] [fiberMOS] [r2_negative]";
     str += "\r\n    Generate a pair (PP, DP) offline.";
+    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the files:";
+    str += "\r\n        outputs-from-<filename>: the pair (PP, DP) in the format of the MCS,";
+    str += "\r\n            and the observing source list (OS) contained in the input file;";
+    str += "\r\n        other_outputs-from-<filename>: PPvalid, DPvalid, Collided, Obstructed";
+    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n    Where <filename> is the name of the input file.";
+    str += "\r\n";
     str += "\r\n    In the file type FMOSA:";
     str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
-    str += "\r\n        Parameter Bid indicates if the source is allocated or no.";
-    str += "\r\n        Parameter Enabled indicates if the RP is enabled or no.";
+    str += "\r\n        Parameter Bid indicates if the source is allocated or not.";
+    str += "\r\n        Parameter Enabled indicates if the RP is enabled or not.";
     str += "\r\n        When Bid is empty:";
-    str += "\r\n            parameters Name, Mag, Pr and Comment will be empty;";
-    str += "\r\n            parameter Type will be UNKNOWN.";
+    str += "\r\n            parameters Name, Mag, Pr and Comment must be empty;";
+    str += "\r\n            parameter Type must be UNKNOWN.";
     str += "\r\n";
-    str += "\r\n    Each option allow save a data in a file, whose name is composed as follow:";
-    str += "\r\n        option + \"-from-\" + filename";
-    str += "\r\n    Where filename is the name of the input file, and option is one of the following strings:";
+    str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
+    str += "\r\n    whose name is composed as follow:";
+    str += "\r\n        <argument> + \"-from-\" + <filename>";
+    str += "\r\n    Where <filename> is the name of the input file, and <argument> is one of the following strings:";
     str += "\r\n";
     str += "\r\n    OPL:    Observing Position List in the format PPA (Pair Position Angles in steps).";
-    str += "\r\n    OPL_S0: Observing Position List in the format CC (Cartesian Coordinates) from S0.";
-    str += "\r\n    OPL_S1: Observing Position List in the format CC (Cartesian Coordinates) from S1.";
+    str += "\r\n    OPL_S0: Observing Position List in the format cartesian coordinates from S0.";
+    str += "\r\n    OPL_S1: Observing Position List in the format cartesian coordinates from S1.";
     str += "\r\n";
     str += "\r\n    PP-FMPT: Positioning Program in the format of the FMPT.";
     str += "\r\n    DP-FMPT: Depositioning Program in the format of the FMPT.";
     str += "\r\n    (The FMPT format use absolute coordinates and own instruction).";
     str += "\r\n";
-    str += "\r\n    IPL:    Initial Position List in the format PPA (Pair Position Angles in steps).";
+    str += "\r\n    IPL: Initial Position List in the format PPA (Pair Position Angles in steps).";
     str += "\r\n";
     str += "\r\n    Disp_Corners1: displacement of corners 1 from initial position to observing position.";
     str += "\r\n    Disp_Corners2: displacement of corners 2 from initial position to observing position.";
@@ -190,16 +193,27 @@ string help_generateParkingProgram_offline(void)
 {
     string str;
 
-    str = "$ fmpt_saa generateParkingProgram_offline <path_FMOSA> [SPL] [ParkingProgram_FMPT] ... [r2_negative]";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to file type FMOSA.";
+    str = "$ fmpt_saa generateParkingProgram_offline <path_FMOSA> [SPL] [ParkingProgram-FMPT] [ParkingProgram-Dmin] [ParkingProgram-Dend] [FPL] [r2_negative]";
     str += "\r\n    Generate a parking program offline.";
+    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the files:";
+    str += "\r\n        ParkingProgram-from-<filename>: the parking program in the format of the MCS;";
+    str += "\r\n        other_outputs-from-<filename>: ParkingProgramValid, Collided, Obstructed";
+    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n    Where <filename> is the name of the input file.";
+    str += "\r\n";
     str += "\r\n    In the file type FMOSA:";
     str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
-    str += "\r\n        Parameter Bid indicates if the source is allocated or no.";
-    str += "\r\n        Parameter Enabled indicates if the RP is enabled or no.";
+    str += "\r\n        Parameter Bid indicates if the source is allocated or not.";
+    str += "\r\n        Parameter Enabled indicates if the RP is enabled or not.";
     str += "\r\n        When Bid is empty:";
-    str += "\r\n            parameters Name, Mag, Pr and Comment will be empty;";
-    str += "\r\n            parameter Type will be UNKNOWN.";
+    str += "\r\n            parameters Name, Mag, Pr and Comment must be empty;";
+    str += "\r\n            parameter Type must be UNKNOWN.";
+    str += "\r\n";
+    str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
+    str += "\r\n    whose name is composed as follow:";
+    str += "\r\n        <argument> + \"-from-\" + <filename>";
+    str += "\r\n    Where <filename> is the name of the input file, and <argument> is one of the following strings:";
     str += "\r\n";
     str += "\r\n    SPL: Starting Position List in the format PPA (Pair Position Angles in steps).";
     str += "\r\n";
@@ -317,8 +331,8 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.8.2.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.8.2).\r\n";
+    str += "This application is the FMPT SAA 3.8.3.\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.8.3).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2023,7 +2037,7 @@ void generateParkingProgram_offline(bool& ParkingProgramValid,
         }
 
         //save the other outputs in the corresponding file
-        str = "\r\ngParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str;
+        str = "ParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str;
         str += "\r\nCollided: "+Collided.getText().str;
         str += "\r\nObstructed: "+Obstructed.getText().str;
         if(ParkingProgram.thereIsSomeComment1())
@@ -2598,19 +2612,6 @@ int main(int argc, char *argv[])
     //
     //###################################################################
 
-    //-----------------------------------------------------------------------
-    //SIMULATES THE INTRODUCTION OF THE ARGUMENTS (Qt only):
-
-    //Qt only:
-    //get the actual directory in argv[0]
-    //QCoreApplication a(argc, argv);
-    //	QApplication a(argc, argv);
-
-    //arguments for help
-    //	argc = 2;
-    //	string arg1 = "help";
-    //	argv[1] = (char*)arg1.c_str();
-
     //-------------------------------------------------------------------
     //CONFIGURATE THE SYSTEM:
 
@@ -2716,7 +2717,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.8.2 is running...", log_filename.c_str());
+        append("FMPT SAA 3.8.3 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
@@ -2729,8 +2730,8 @@ int main(int argc, char *argv[])
         string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
 
         //Qt only:
-        //	string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
-        //	string dir_FMM2 = dir_FMM1;
+        //string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
+        //string dir_FMM2 = dir_FMM1;
 
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
@@ -2902,45 +2903,45 @@ int main(int argc, char *argv[])
             bool saveIPL=false, saveDisp_Corners1=false, saveDisp_Corners2=false, savePP=false, saveDP=false;
             bool savePP_Dmin=false, savePP_Dend=false, saveDP_Dmin=false, saveDP_Dend=false, saveFiberMOS=false, r2_negative=false;
             for(int i=3; i<argc; i++) {
-                string option(argv[i]);
+                string argument(argv[i]);
                 //------------------------------------
-                if(option == "OPL")
+                if(argument == "OPL")
                     saveOPL = true;
-                else if(option == "OPL_S0")
+                else if(argument == "OPL_S0")
                     saveOPL_S0 = true;
-                else if(option == "OPL_S1")
+                else if(argument == "OPL_S1")
                     saveOPL_S1 = true;
-                else if(option == "PP-FMPT")
+                else if(argument == "PP-FMPT")
                     savePP_FMPT = true;
-                else if(option == "DP-FMPT")
+                else if(argument == "DP-FMPT")
                     saveDP_FMPT = true;
                 //------------------------------------
-                else if(option == "IPL")
+                else if(argument == "IPL")
                     saveIPL = true;
-                else if(option == "Disp_Corners1")
+                else if(argument == "Disp_Corners1")
                     saveDisp_Corners1 = true;
-                else if(option == "Disp_Corners2")
+                else if(argument == "Disp_Corners2")
                     saveDisp_Corners2 = true;
-                else if(option == "PP")
+                else if(argument == "PP")
                     savePP = true;
-                else if(option == "DP")
+                else if(argument == "DP")
                     saveDP = true;
                 //------------------------------------
-                else if(option == "PP_Dmin")
+                else if(argument == "PP_Dmin")
                     savePP_Dmin = true;
-                else if(option == "PP_Dend")
+                else if(argument == "PP_Dend")
                     savePP_Dend = true;
-                else if(option == "DP_Dmin")
+                else if(argument == "DP_Dmin")
                     saveDP_Dmin = true;
-                else if(option == "DP_Dend")
+                else if(argument == "DP_Dend")
                     saveDP_Dend = true;
-                else if(option == "fiberMOS")
+                else if(argument == "fiberMOS")
                     saveFiberMOS = true;
-                else if(option == "r2_negative")
+                else if(argument == "r2_negative")
                     r2_negative = true;
                 //------------------------------------
                 else
-                    throw EImproperArgument("unknoledge option: "+option);
+                    throw EImproperArgument("unknoledge option: "+argument);
             }
 
             //generate a pair (PP, DP) from a path and write the events in the log file
@@ -3131,25 +3132,25 @@ int main(int argc, char *argv[])
             bool saveParkingProgram_Dmin=false, saveParkingProgram_Dend=false;
             bool saveFPL=false, r2_negative=false;
             for(int i=3; i<argc; i++) {
-                string option(argv[i]);
+                string argument(argv[i]);
                 //------------------------------------
-                if(option == "SPL")
+                if(argument == "SPL")
                     saveSPL = true;
-                else if(option == "ParkingProgram_FMPT")
+                else if(argument == "ParkingProgram_FMPT")
                     saveParkingProgram_FMPT = true;
                 //------------------------------------
-                else if(option == "ParkingProgram_Dmin")
+                else if(argument == "ParkingProgram_Dmin")
                     saveParkingProgram_Dmin = true;
-                else if(option == "ParkingProgram_Dend")
+                else if(argument == "ParkingProgram_Dend")
                     saveParkingProgram_Dend = true;
                 //------------------------------------
-                else if(option == "FPL")
+                else if(argument == "FPL")
                     saveFPL = true;
-                else if(option == "r2_negative")
+                else if(argument == "r2_negative")
                     r2_negative = true;
                 //------------------------------------
                 else
-                    throw EImproperArgument("unknoledge option: "+option);
+                    throw EImproperArgument("unknoledge option: "+argument);
             }
 
             //generate a DP from a path and write the events in the log file
@@ -3224,7 +3225,7 @@ int main(int argc, char *argv[])
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
-    // 	return a.exec(); //Qt only
+    //    return a.exec(); //Qt only
     return 0;
 }
 
