@@ -120,6 +120,10 @@ string help(void)
     str += "\r\n        other_outputs-from-<filename>: ParkingProgramValid, Collided, Obstructed";
     str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
     str += "\r\n    Where <filename> is the name of the input file.";
+    str += "\r\n";
+    str += "\r\nFor learn about use of online-generation functions, look the files:";
+    str += "\r\n    /usr/local/share/megara-fmpt/Manuals/main_example_generatePairPPDP_online.cpp";
+    str += "\r\n    /usr/local/share/megara-fmpt/Manuals/main_example_generateParkingProgram_online.cpp";
 
     //Note that here not has sense define functions for generate MPs online.
 
@@ -331,8 +335,8 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.9.1.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.1).\r\n";
+    str += "This application is the FMPT SAA 3.9.2.\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.2).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2717,7 +2721,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.9.1 is running...", log_filename.c_str());
+        append("FMPT SAA 3.9.2 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
