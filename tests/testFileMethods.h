@@ -23,6 +23,15 @@
 //Autor: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
+//WARNING: for pass the test of FileMethods, the FMM instance
+//not hould contains non-significant zeros:
+//	wrong: 3.141592653589790
+//	wrong: 03.14159265358979
+//	wrong: 03.141592653589790
+//	right: 3.14159265358979
+//If the instance has non-significant zeros, the FMPT will work fine,
+//but the test of FileMethods will not be OK.
+
 #ifndef FMPT_TESTFILEMETHODS_H
 #define FMPT_TESTFILEMETHODS_H
 

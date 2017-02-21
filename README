@@ -41,8 +41,8 @@ Installation
 
 The process to install this S/W can be found in the file INSTALL. The summarized process is explained below:
 
-1. Decompress tar file 'megara-fmpt-3.9.2.tar.gz' (or .xz).
-2. Change to directory './megara-fmpt-3.9.2'.
+1. Decompress tar file 'megara-fmpt-3.9.3.tar.gz' (or .xz).
+2. Change to directory './megara-fmpt-3.9.3'.
 3. Execute './configure; make;' to configure and build this package.
 4. Grant superuser privileges to have access to '/usr/local/...'.
 5. Execute 'make install' (as superuser) to install the library and the application. 

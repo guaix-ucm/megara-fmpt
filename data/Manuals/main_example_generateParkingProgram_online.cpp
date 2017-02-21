@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: main_example_generateParkingProgram_online.cpp
-//Content: principal program fmpt_example
+//Content: program for ilustrate the use of the online generation function
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -27,11 +27,11 @@
 //for generate a parking program using the online function.
 //If you want compile and execute this example perform the following actions:
 //
-//    1. Decompress the release 'megara-fmpt-3.9.1.tar.gz (or xz)
+//    1. Decompress the release 'megara-fmpt-3.9.3.tar.gz (or xz)
 //
-//    2. Move this file to 'megara-fmpt-3.9.1/src'.
+//    2. Move this file to 'megara-fmpt-3.9.3/src'.
 //
-//    3. Edit the file 'megara-fmpt-3.9.1/src/Makefile.am', and change:
+//    3. Edit the file 'megara-fmpt-3.9.3/src/Makefile.am', and change:
 //           bin_PROGRAMS = fmpt_saa
 //           fmpt_saa_SOURCES = main.cpp
 //           fmpt_saa_LDADD = libfmtp.la
@@ -45,7 +45,7 @@
 //    4. Install and execute the example in a separated directory:
 //           $ make build
 //           $ cd build
-//           $ ../megara-fmpt-3.9.1/configure (or the corresponding path)
+//           $ ../megara-fmpt-3.9.3/configure (or the corresponding path)
 //           $ sudo make install
 //
 //    Then the executable will be written in '/usr/local/bin' (or similar).
@@ -54,22 +54,23 @@
 //        fmpt_example_generateParkingProgram_online
 //
 //    If you don't have installed the FMPT SAA previously, maybe you need
-//    execute $ ldcondig for assimilate the FMPT library in the system.
+//    execute $ sudo ldcondig for assimilate the FMPT library in the system.
 //
 //    Now you may execute the example with the command:
 //        $ fmpt_example_generateParkingProgram_online.
 //    The output files will be written in the directory where you execute it.
 //###########################################################################
 
-#include "FileMethods.h"
-#include "MotionProgramGenerator.h"
-#include "FMOSATable.h"
-#include "PositionerCenter.h"
-#include "Strings.h"
-#include "TextFile.h"
-#include "Geometry.h" //distanceSegmentPoint
-#include "Outputs.h" //Outputs
+#include "../megarafmpt/src/FileMethods.h"
+#include "../megarafmpt/src/MotionProgramGenerator.h"
+#include "../megarafmpt/src/FMOSATable.h"
+#include "../megarafmpt/src/PositionerCenter.h"
+#include "../megarafmpt/src/Strings.h"
+#include "../megarafmpt/src/TextFile.h"
+#include "../megarafmpt/src/Geometry.h" //distanceSegmentPoint
+#include "../megarafmpt/src/Outputs.h" //Outputs
 
+#include <QCoreApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
 
@@ -123,17 +124,17 @@ int main(int argc, char *argv[])
     //Using autotools over Linux:
     //-------------------------------------------------------------------
     //
-    //Selecting '/home/Isaac/MEGARA' how working directory, before compilation:
-    //  sources shall be in:    '/home/Isaac/MEGARA/megarafmpt/src'
-    //  data shall be in:       '/home/Isaac/MEGARA/megarafmpt/data'
+    //Selecting '/home/User/MEGARA' how working directory, before compilation:
+    //  sources shall be in:    '/home/User/MEGARA/megarafmpt/src'
+    //  data shall be in:       '/home/User/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in the same directory named megarafmpt:
-    //  sources will be in:     '/home/Isaac/MEGARA/megarafmpt/src'
-    //  data will be in:        '/home/Isaac/MEGARA/megarafmpt/data'
+    //  sources will be in:     '/home/User/MEGARA/megarafmpt/src'
+    //  data will be in:        '/home/User/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in an appart directory named build:
-    //  sources will be in:     '/home/Isaac/MEGARA/build/src'
-    //  data will be in:        '/home/Isaac/MEGARA/build/data'
+    //  sources will be in:     '/home/User/MEGARA/build/src'
+    //  data will be in:        '/home/User/MEGARA/build/data'
     //
     //When the installation has been make:
     //  executable will be in:  'prefix/bin'
@@ -154,9 +155,9 @@ int main(int argc, char *argv[])
     //-------------------------------------------------------------------
     //
     //The Qt project and the main.cpp file will be in:
-    //  '/home/Isaac/MEGARA/FMPT_SAA-CLI'
+    //  '/home/User/MEGARA/FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  '/home/Isaac/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
+    //  '/home/User/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
     //The other source files and data files will be in the same repository for autotools,
     //whose relative path from the executable is:
     //  for source files:   '../megarafmpt/src'
@@ -167,19 +168,19 @@ int main(int argc, char *argv[])
     //      when program is released:  getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //      when program is debugging: getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //  The input data:
-    //      path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
+    //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
+    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //Using Qt over Windows:
     //-------------------------------------------------------------------
     //
-    //Selecting 'D:\Isaac\MEGARA' how working directory:
+    //Selecting 'D:\User\MEGARA' how working directory:
     //The Qt project and the main.cpp file will be in:
-    //  'D:\Isaac\MEGARA\FMPT_SAA-CLI'
+    //  'D:\User\MEGARA\FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
-    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
+    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
+    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
     //
     //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
     //  The Fiber MOS Model Instance:
@@ -188,15 +189,22 @@ int main(int argc, char *argv[])
     //  The input data:
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //###################################################################
 
-    string log_filename; //the log filename
+    //-----------------------------------------------------------------------
+    //BUILD A QCoreApplication (QT ONLY):
 
+    //get the actual directory in argv[0]
+    QCoreApplication a(argc, argv);
+
+    //-----------------------------------------------------------------------
+
+    //initalize the log file
+    string log_filename; //the log filename
     try {
-        //initalize the log file
-        log_filename = "fmpt_testGenerateParkingProgram_online.log";
+        log_filename = "example_generateParkingProgram_online.log";
         char mode[] = "w";
         TTextFile TF(log_filename.c_str(), mode);
         TF.Close();
@@ -204,12 +212,12 @@ int main(int argc, char *argv[])
     catch(Exception &E) {
         //indicates that has happened an exception
         //and show the message of the exception
-        cout << "ERROR generating example: "+E.Message.str << endl;
+        cout << "ERROR: "+E.Message.str << endl;
         return 1;
     }
     catch(...) {
         //indicates that has happened an unknown exception
-        cout << "ERROR generating example: unknown exception" << endl;
+        cout << "ERROR: unknown exception" << endl;
         return 2;
     }
 
@@ -230,9 +238,13 @@ int main(int argc, char *argv[])
         append("FMPT example generateParkingProgram_online is running...", log_filename.c_str());
 
         //built the paths where search the Fiber MOS Model
-        string dir_FMM1 = DATADIR;
-        dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
-        string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+        //string dir_FMM1 = DATADIR;
+        //dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
+        //string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+
+        //Qt only:
+        string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
+        string dir_FMM2 = dir_FMM1;
 
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
@@ -289,6 +301,7 @@ int main(int argc, char *argv[])
 
         //When you re-use the MPG, you need to do:
         //  Destroy(MPG);
+        //before add allocation to it.
 
         //randomize the projection points in the domain of their attached RPs
         FMM.RPL.setPurpose(pGenParPro);
@@ -296,10 +309,13 @@ int main(int argc, char *argv[])
         MPG.RandomizeWithoutCollision();
         append("Starting points randomized avoinding collisions.", log_filename.c_str());
 
-        //Note that before randomize the allocations withoud collisions,
+        //Note that before randomize the allocations without collisions,
         //must be configured the FMM for generate a parking program.
+        //If randomizing was for generate a pair (PP, DP), you must configure
+        //the FMM for generate a pair (PP, DP) making:
+        //  FMM.RPL.setPurpose(pGenPairPPDP);
 
-        //save the allocation table
+        //save the allocation list
         string str = TAllocation::GetIdPPLabelsRow().str;
         str += "\r\n"+MPG.getColumnText().str;
         string output_filename = output_dir+"/AL-from-"+filename;
@@ -337,7 +353,7 @@ int main(int argc, char *argv[])
             p_1s.push_back(RP->getActuator()->getp_1());
             p___3s.push_back(RP->getActuator()->getArm()->getp___3());
         }
-        append("Input parameters extracted from the FMM.", log_filename.c_str());
+        append("Input parameters extracted from the FMM. (p_1s, p___3s).", log_filename.c_str());
 
         //move the RPs to their origin positions
         FMM.RPL.moveToOrigins();
@@ -349,9 +365,11 @@ int main(int argc, char *argv[])
         //determine the RPs to be disabled
         vector<int> Ids;
         //TBD
+        append("List of Ids of RPs to be disabled must match with the real Fiber MOS.", log_filename.c_str());
 
         //When you re-use the Ids, you need to do:
         //  Ids.clear();
+        //before determine the RPs to be disabled.
 
         //The RPs that shall be disabled depend of the status of the RPs
         //of the real Fiber MOS.
@@ -363,7 +381,7 @@ int main(int argc, char *argv[])
         append("ParkingProgramValid = generateParkingProgram_online(ParkingProgram,", log_filename.c_str());
         append("                                                    FMM, p_1s, p___3s, Ids);", log_filename.c_str());
         bool ParkingProgramValid = generateParkingProgram_online(ParkingProgram,
-                                                           FMM, p_1s, p___3s, Ids);
+                                                                 FMM, p_1s, p___3s, Ids);
         append("----------------------------------------------------------------------------", log_filename.c_str());
         append("Returned from function generateParkingProgram_online.", log_filename.c_str());
 
@@ -378,6 +396,7 @@ int main(int argc, char *argv[])
         //was stablished by the programmer of the MCS, which was warned about this circunstance.
 
         //determine the list of RPs excluded in the parking program
+        //and the list of Ids excluded from the pair (PP, DP)
         TRoboticPositionerList Included;
         getRPsIncludedInMP(Included, ParkingProgram, &FMM);
         TVector<int> Excluded;
@@ -408,9 +427,17 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------
         //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
+        //You need to know that the generated MPs are in the format of the FMPT.
+        //So you may access to the information from each MI of each generated MP,
+        //and you may translate each MP to the format of the MCS.
+        //Due to the format of the MCS requires the coordinates even the rotors
+        //that aren't moved, the translation need the list of initial positions
+        //(the SPL for the ParkingProgram).
+
         //if generation function was successfully generated
         if(ParkingProgramValid) {
-            //access to each instruction of the ParkingProgram
+
+            //access to each message instruction of the ParkingProgram
             for(int i=0; i<ParkingProgram.getCount(); i++) {
                 TMessageList *ML = ParkingProgram.GetPointer(i);
                 for(int j=0; j<ML->getCount(); j++) {
@@ -420,18 +447,22 @@ int main(int argc, char *argv[])
                     //get the information from the message instruction
                     int Id = MI->getId();
                     TInstruction I = MI->Instruction;
-                    string name = I.getName().str;
-                    if(name == "M1") {
+                    string name = I.getName().str;                    
+                    if(name == "M1") { //if the instruction move the rotor 1
                         double p_1 = I.Args[0];
-                    } else if(name == "M2") {
+                        //here is possible use the properties (Id, p_1) of the MI (i, j)
+                    }                    
+                    else if(name == "M2") { //if the instruction move the rotor 2
                         double p___3 = I.Args[0];
-                    } else if(name == "MM") {
+                        //here is possible use the properties (Id, p___3) of the MI (i, j)
+                    }                    
+                    else if(name == "MM") { //if the instruction move both rotors
                         double p_1 = I.Args[0];
                         double p___3 = I.Args[1];
-                    } else
+                        //here is possible use the properties (Id, p_1, p___3) of the MI (i, j)
+                    }
+                    else
                         throw EImpossibleError("lateral effect");
-
-                    //here is possible use the properties (Id, p_1, p___3) of the message instruction (i, j)
                 }
             }
 
@@ -442,7 +473,7 @@ int main(int argc, char *argv[])
             str = ParkingProgram.getText().str;
             output_filename = output_dir+"/ParkingProgram-FMPT-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Parking program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Parking program in the format of the FMPT saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated parking program is valid,
             //all operative outsider RPs which aren't obstructed, should be:
@@ -460,13 +491,13 @@ int main(int argc, char *argv[])
             //Other whay to obtain the final position table directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
 
-            //translates the parking program to the format of the interface MCS-FMPT
+            //translates the parking program to the format of the MCS
             //and save it in a file
             ParkingProgram.getInterfaceText(str, "depos", Bid, SPL, true);
-            append("Parking program translated to the MCS format.", log_filename.c_str());
+            append("Parking program translated to the format of the MCS.", log_filename.c_str());
             output_filename = output_dir+"/ParkingProgram-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Parking program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Parking program in the format of the MCS saved in '"+output_filename+"'.", log_filename.c_str());
         }
         else {
             //Given that here the generated parking program is invalid,
@@ -512,17 +543,17 @@ int main(int argc, char *argv[])
     catch(Exception &E) {
         //indicates that has happened an exception
         //and show the message of the exception
-        append("ERROR generating example: "+E.Message.str, log_filename.c_str());
+        append("ERROR: "+E.Message.str, log_filename.c_str());
         return 1;
     }
     catch(...) {
         //indicates that has happened an unknown exception
-        append("ERROR generating example: unknown exception", log_filename.c_str());
+        append("ERROR: unknown exception", log_filename.c_str());
         return 2;
     }
 
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
-    return 0;
+    return a.exec();
 }

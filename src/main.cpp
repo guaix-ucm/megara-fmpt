@@ -121,7 +121,7 @@ string help(void)
     str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
     str += "\r\n    Where <filename> is the name of the input file.";
     str += "\r\n";
-    str += "\r\nFor learn about use of online-generation functions, look the files:";
+    str += "\r\nFor learn about use of online generation functions, look the files:";
     str += "\r\n    /usr/local/share/megara-fmpt/Manuals/main_example_generatePairPPDP_online.cpp";
     str += "\r\n    /usr/local/share/megara-fmpt/Manuals/main_example_generateParkingProgram_online.cpp";
 
@@ -333,10 +333,10 @@ string aboutOf(void)
     string str;
 
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
-    str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
+    str += "Institute of Astrophysics of Andalusia, IAA-CSIC. isaac@iaa.es.\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.9.2.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.2).\r\n";
+    str += "This application is the FMPT SAA 3.9.3.\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.3).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2535,17 +2535,17 @@ int main(int argc, char *argv[])
     //Using autotools over Linux:
     //-------------------------------------------------------------------
     //
-    //Selecting '/home/Isaac/MEGARA' how working directory, before compilation:
-    //  sources shall be in:    '/home/Isaac/MEGARA/megarafmpt/src'
-    //  data shall be in:       '/home/Isaac/MEGARA/megarafmpt/data'
+    //Selecting '/home/User/MEGARA' how working directory, before compilation:
+    //  sources shall be in:    '/home/User/MEGARA/megarafmpt/src'
+    //  data shall be in:       '/home/User/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in the same directory named megarafmpt:
-    //  sources will be in:     '/home/Isaac/MEGARA/megarafmpt/src'
-    //  data will be in:        '/home/Isaac/MEGARA/megarafmpt/data'
+    //  sources will be in:     '/home/User/MEGARA/megarafmpt/src'
+    //  data will be in:        '/home/User/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in an appart directory named build:
-    //  sources will be in:     '/home/Isaac/MEGARA/build/src'
-    //  data will be in:        '/home/Isaac/MEGARA/build/data'
+    //  sources will be in:     '/home/User/MEGARA/build/src'
+    //  data will be in:        '/home/User/MEGARA/build/data'
     //
     //When the installation has been make:
     //  executable will be in:  'prefix/bin'
@@ -2566,9 +2566,9 @@ int main(int argc, char *argv[])
     //-------------------------------------------------------------------
     //
     //The Qt project and the main.cpp file will be in:
-    //  '/home/Isaac/MEGARA/FMPT_SAA-CLI'
+    //  '/home/User/MEGARA/FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  '/home/Isaac/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
+    //  '/home/User/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
     //The other source files and data files will be in the same repository for autotools,
     //whose relative path from the executable is:
     //  for source files:   '../megarafmpt/src'
@@ -2579,19 +2579,19 @@ int main(int argc, char *argv[])
     //      when program is released:  getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //      when program is debugging: getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //  The input data:
-    //      path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
+    //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
+    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //Using Qt over Windows:
     //-------------------------------------------------------------------
     //
-    //Selecting 'D:\Isaac\MEGARA' how working directory:
+    //Selecting 'D:\User\MEGARA' how working directory:
     //The Qt project and the main.cpp file will be in:
-    //  'D:\Isaac\MEGARA\FMPT_SAA-CLI'
+    //  'D:\User\MEGARA\FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
-    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
+    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
+    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
     //
     //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
     //  The Fiber MOS Model Instance:
@@ -2600,19 +2600,7 @@ int main(int argc, char *argv[])
     //  The input data:
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
-    //
-    //WARNING:
-    //-------------------------------------------------------------------
-    //
-    //Changes could happen using more actually versions of qmake.
-    //The following change has been found:
-    //  getCurrentDir(): could return personal folder '/home/user'
-    //  instead the current path.
-    //This error can't be solved changing the following value:
-    //  Tools -> Options... -> Build & Run -> Projects Directory:
-    //      - Current Directory
-    //      - Directory
+    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //###################################################################
 
@@ -2721,7 +2709,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.9.2 is running...", log_filename.c_str());
+        append("FMPT SAA 3.9.3 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
@@ -3227,3 +3215,4 @@ int main(int argc, char *argv[])
     //indicates that the program has been executed without error
     return 0;
 }
+

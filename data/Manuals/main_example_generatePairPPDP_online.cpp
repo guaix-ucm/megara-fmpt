@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -18,7 +18,7 @@
 
 //---------------------------------------------------------------------------
 //File: main_example_generatePairPPDP_online.cpp
-//Content: principal program fmpt_example
+//Content: program for ilustrate the use of the online generation function
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
@@ -27,11 +27,11 @@
 //for generate a pair (PP, DP) using the online function.
 //If you want compile and execute this example perform the following actions:
 //
-//    1. Decompress the release 'megara-fmpt-3.9.1.tar.gz (or xz)
+//    1. Decompress the release 'megara-fmpt-3.9.3.tar.gz (or xz)
 //
-//    2. Move this file to 'megara-fmpt-3.9.1/src'.
+//    2. Move this file to 'megara-fmpt-3.9.3/src'.
 //
-//    3. Edit the file 'megara-fmpt-3.9.1/src/Makefile.am', and change:
+//    3. Edit the file 'megara-fmpt-3.9.3/src/Makefile.am', and change:
 //           bin_PROGRAMS = fmpt_saa
 //           fmpt_saa_SOURCES = main.cpp
 //           fmpt_saa_LDADD = libfmtp.la
@@ -45,7 +45,7 @@
 //    4. Install and execute the example in a separated directory:
 //           $ make build
 //           $ cd build
-//           $ ../megara-fmpt-3.9.1/configure (or the corresponding path)
+//           $ ../megara-fmpt-3.9.3/configure (or the corresponding path)
 //           $ sudo make install
 //
 //    Then the executable will be written in '/usr/local/bin' (or similar).
@@ -54,22 +54,23 @@
 //        fmpt_example_generatePairPPDP_online
 //
 //    If you don't have installed the FMPT SAA previously, maybe you need
-//    execute $ ldcondig for assimilate the FMPT library in the system.
+//    execute $ sudo ldcondig for assimilate the FMPT library in the system.
 //
 //    Now you may execute the example with the comand:
 //        $ fmpt_example_generatePairPPDP_online.
 //    The output files will be written in the directory where you execute it.
 //###########################################################################
 
-#include "FileMethods.h"
-#include "MotionProgramGenerator.h"
-#include "FMOSATable.h"
-#include "PositionerCenter.h"
-#include "Strings.h"
-#include "TextFile.h"
-#include "Geometry.h" //distanceSegmentPoint
-#include "Outputs.h" //Outputs
+#include "../megarafmpt/src/FileMethods.h"
+#include "../megarafmpt/src/MotionProgramGenerator.h"
+#include "../megarafmpt/src/FMOSATable.h"
+#include "../megarafmpt/src/PositionerCenter.h"
+#include "../megarafmpt/src/Strings.h"
+#include "../megarafmpt/src/TextFile.h"
+#include "../megarafmpt/src/Geometry.h" //distanceSegmentPoint
+#include "../megarafmpt/src/Outputs.h" //Outputs
 
+#include <QCoreApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout
 
@@ -123,17 +124,17 @@ int main(int argc, char *argv[])
     //Using autotools over Linux:
     //-------------------------------------------------------------------
     //
-    //Selecting '/home/Isaac/MEGARA' how working directory, before compilation:
-    //  sources shall be in:    '/home/Isaac/MEGARA/megarafmpt/src'
-    //  data shall be in:       '/home/Isaac/MEGARA/megarafmpt/data'
+    //Selecting '/home/User/MEGARA' how working directory, before compilation:
+    //  sources shall be in:    '/home/User/MEGARA/megarafmpt/src'
+    //  data shall be in:       '/home/User/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in the same directory named megarafmpt:
-    //  sources will be in:     '/home/Isaac/MEGARA/megarafmpt/src'
-    //  data will be in:        '/home/Isaac/MEGARA/megarafmpt/data'
+    //  sources will be in:     '/home/User/MEGARA/megarafmpt/src'
+    //  data will be in:        '/home/User/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in an appart directory named build:
-    //  sources will be in:     '/home/Isaac/MEGARA/build/src'
-    //  data will be in:        '/home/Isaac/MEGARA/build/data'
+    //  sources will be in:     '/home/User/MEGARA/build/src'
+    //  data will be in:        '/home/User/MEGARA/build/data'
     //
     //When the installation has been make:
     //  executable will be in:  'prefix/bin'
@@ -154,9 +155,9 @@ int main(int argc, char *argv[])
     //-------------------------------------------------------------------
     //
     //The Qt project and the main.cpp file will be in:
-    //  '/home/Isaac/MEGARA/FMPT_SAA-CLI'
+    //  '/home/User/MEGARA/FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  '/home/Isaac/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
+    //  '/home/User/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
     //The other source files and data files will be in the same repository for autotools,
     //whose relative path from the executable is:
     //  for source files:   '../megarafmpt/src'
@@ -167,19 +168,19 @@ int main(int argc, char *argv[])
     //      when program is released:  getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //      when program is debugging: getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //  The input data:
-    //      path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
+    //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
+    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //Using Qt over Windows:
     //-------------------------------------------------------------------
     //
-    //Selecting 'D:\Isaac\MEGARA' how working directory:
+    //Selecting 'D:\User\MEGARA' how working directory:
     //The Qt project and the main.cpp file will be in:
-    //  'D:\Isaac\MEGARA\FMPT_SAA-CLI'
+    //  'D:\User\MEGARA\FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
-    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
+    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
+    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
     //
     //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
     //  The Fiber MOS Model Instance:
@@ -188,15 +189,22 @@ int main(int argc, char *argv[])
     //  The input data:
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //###################################################################
 
-    string log_filename; //the log filename
+    //-----------------------------------------------------------------------
+    //BUILD A QCoreApplication (QT ONLY):
 
+    //get the actual directory in argv[0]
+    QCoreApplication a(argc, argv);
+
+    //-----------------------------------------------------------------------
+
+    //initalize the log file
+    string log_filename; //the log filename
     try {
-        //initalize the log file
-        log_filename = "fmpt_testGeneratePairPPDP_online.log";
+        log_filename = "example_generateGeneratePairPPDP_online.log";
         char mode[] = "w";
         TTextFile TF(log_filename.c_str(), mode);
         TF.Close();
@@ -204,12 +212,12 @@ int main(int argc, char *argv[])
     catch(Exception &E) {
         //indicates that has happened an exception
         //and show the message of the exception
-        cout << "ERROR generating example: "+E.Message.str << endl;
+        cout << "ERROR: "+E.Message.str << endl;
         return 1;
     }
     catch(...) {
         //indicates that has happened an unknown exception
-        cout << "ERROR generating example: unknown exception" << endl;
+        cout << "ERROR: unknown exception" << endl;
         return 2;
     }
 
@@ -230,9 +238,13 @@ int main(int argc, char *argv[])
         append("FMPT example generatePairPPDP_online is running...", log_filename.c_str());
 
         //built the paths where search the Fiber MOS Model
-        string dir_FMM1 = DATADIR;
-        dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
-        string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+        //string dir_FMM1 = DATADIR;
+        //dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
+        //string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+
+        //Qt only:
+        string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
+        string dir_FMM2 = dir_FMM1;
 
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
@@ -260,7 +272,7 @@ int main(int argc, char *argv[])
         //-------------------------------------------------------------------
         //DECLARE AND BUILD ALL VARIABLES:
 
-        //make the folder to put the outputss
+        //make the folder to put the outputs
         string output_dir = "example_generatePairPPDP_online";
         ForceDirectories(AnsiString(output_dir));
 
@@ -276,11 +288,11 @@ int main(int argc, char *argv[])
 
         //###################################################################
         //There are two ways to get a set of allocations:
-        // 1. Load the allocations from a FMOSA file and get them from the MPG.
+        // 1. Load the allocations from a FMOSA file and transfer it to the MPG.
         // 2. Randomize the allocations without collisions.
 
         //-------------------------------------------------------------------
-        //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
+        //WAY 1: GETTING A SET OF ALLOCATIONS LOADING IT FROM A FMOSA FILE:
 
         //load the Outputs structure from a file
         string input_path = "/usr/local/share/megara-fmpt/Samples/megara-cb0.txt";
@@ -299,9 +311,9 @@ int main(int argc, char *argv[])
         //get the allocation from the FMOSA table
         TMotionProgramGenerator MPG(&FMM);
         outputs.FMOSAT.getAllocations(MPG);
-        append("Allocations got from the FMOSA table in MPG.", log_filename.c_str());
+        append("Allocations got from the FMOSA table to MPG.", log_filename.c_str());
 
-        //save the allocation table
+        //save the allocation list
         str = TAllocation::GetIdPPLabelsRow().str;
         str += "\r\n"+MPG.getColumnText().str;
         string output_filename = output_dir+"/AL-from-"+filename;
@@ -339,7 +351,7 @@ int main(int argc, char *argv[])
             p_1s.push_back(RP->getActuator()->getp_1());
             p___3s.push_back(RP->getActuator()->getArm()->getp___3());
         }
-        append("Input parameters extracted from the FMM.", log_filename.c_str());
+        append("Input parameters extracted from the FMM. (p_1s, p___3s).", log_filename.c_str());
 
         //move the RPs to their origin positions
         FMM.RPL.moveToOrigins();
@@ -351,9 +363,11 @@ int main(int argc, char *argv[])
         //determine the RPs to be disabled
         vector<int> Ids;
         //TBD
+        append("List of Ids of RPs to be disabled must match with the real Fiber MOS.", log_filename.c_str());
 
         //When you re-use the Ids, you need to do:
         //  Ids.clear();
+        //before determine the RPs to be disabled.
 
         //The RPs that shall be disabled depend of the status of the RPs
         //of the real Fiber MOS.
@@ -378,9 +392,10 @@ int main(int argc, char *argv[])
         //So it is possible that the function return true, but there are RPs collided or obstructed.
         //in these case, these RPs will not be included in the pair (PP, DP).
         //Inputs and outputs parameters of the function generatePairPPDP_online,
-        //was stablished by the programmer of the MCS, which was warned about this circunstance.
+        //was stablished by request of the programmer of the MCS, who was warned about this circunstance.
 
         //determine the list of RPs included in the pair (PP, DP)
+        //and the list of Ids excluded from the pair (PP, DP)
         TRoboticPositionerList Included;
         getRPsIncludedInMPs(Included, PP, DP, &FMM);
         TVector<int> Excluded;
@@ -411,9 +426,19 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------
         //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
-        //if generation function was successfully generated
+        //You need to know that the generated MPs are in the format of the FMPT.
+        //So you may access to the information from each MI of each generated MP,
+        //and you may translate each MP to the format of the MCS.
+        //Due to the format of the MCS requires the coordinates even the rotors
+        //that aren't moved, the translation need the list of initial positions
+        //(the IPL for the PP, and the OPL for the DP).
+
+        //if pair (PP, DP) was successfully generated
         if(PairPPDPvalid) {
-            //access to each instruction of the PP
+            //indicates the result of the generation
+            append("Generated pair (PP, DP) is valid.", log_filename.c_str());
+
+            //access to each message instruction of the PP
             for(int i=0; i<PP.getCount(); i++) {
                 TMessageList *ML = PP.GetPointer(i);
                 for(int j=0; j<ML->getCount(); j++) {
@@ -423,22 +448,26 @@ int main(int argc, char *argv[])
                     //get the information from the message instruction
                     int Id = MI->getId();
                     TInstruction I = MI->Instruction;
-                    string name = I.getName().str;
-                    if(name == "M1") {
+                    string name = I.getName().str;                    
+                    if(name == "M1") { //if the instruction move the rotor 1
                         double p_1 = I.Args[0];
-                    } else if(name == "M2") {
+                        //here is possible use the properties (Id, p_1) of the MI (i, j)
+                    }                    
+                    else if(name == "M2") { //if the instruction move the rotor 2
                         double p___3 = I.Args[0];
-                    } else if(name == "MM") {
+                        //here is possible use the properties (Id, p___3) of the MI (i, j)
+                    }                    
+                    else if(name == "MM") { //if the instruction move both rotors
                         double p_1 = I.Args[0];
                         double p___3 = I.Args[1];
-                    } else
+                        //here is possible use the properties (Id, p_1, p___3) of the MI (i, j)
+                    }
+                    else
                         throw EImpossibleError("lateral effect");
-
-                    //here is possible use the properties (Id, p_1, p___3) of the message instruction (i, j)
                 }
             }
 
-            //access to each instruction of the DP
+            //access to each message instruction of the DP
             for(int i=0; i<DP.getCount(); i++) {
                 TMessageList *ML = DP.GetPointer(i);
                 for(int j=0; j<ML->getCount(); j++) {
@@ -448,35 +477,36 @@ int main(int argc, char *argv[])
                     //get the information from the message instruction
                     int Id = MI->getId();
                     TInstruction I = MI->Instruction;
-                    string name = I.getName().str;
-                    if(name == "M1") {
+                    string name = I.getName().str;                    
+                    if(name == "M1") { //if the instruction move the rotor 1
                         double p_1 = I.Args[0];
-                    } else if(name == "M2") {
+                        //here is possible use the properties (Id, p_1) of the MI (i, j)
+                    }                    
+                    else if(name == "M2") { //if the instruction move the rotor 2
                         double p___3 = I.Args[0];
-                    } else if(name == "MM") {
+                        //here is possible use the properties (Id, p___3) of the MI (i, j)
+                    }                    
+                    else if(name == "MM") { //if the instruction move both rotors
                         double p_1 = I.Args[0];
                         double p___3 = I.Args[1];
-                    } else
+                        //here is possible use the properties (Id, p_1, p___3) of the MI (i, j)
+                    }
+                    else
                         throw EImpossibleError("lateral effect");
-
-                    //here is possible use the properties (Id, p_1, p___3) of the message instruction (i, j)
                 }
             }
-
-            //indicates the result of the generation
-            append("Generated pair (PP, DP) is valid.", log_filename.c_str());
-
-            //save the DP in the format of the FMPT
-            str = DP.getText().str;
-            output_filename = output_dir+"/DP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
 
             //save the PP in the format of the FMPT
             str = PP.getText().str;
             output_filename = output_dir+"/PP-FMPT-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Positioning program in propietary format saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Positioning program in the format of the FMPT saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //save the DP in the format of the FMPT
+            str = DP.getText().str;
+            output_filename = output_dir+"/DP-FMPT-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Depositioning program in the format of the FMPT saved in '"+output_filename+"'.", log_filename.c_str());
 
             //Given that here the generated pair (PP, DP) is valid,
             //all operative outsider RPs which aren't obstructed, should be:
@@ -497,21 +527,21 @@ int main(int argc, char *argv[])
             //Other whay to obtain the initial position table directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
 
-            //translates the depositioning program to the format of the interface MCS-FMPT
-            //and save it in a file
-            DP.getInterfaceText(str, "depos", Bid, OPL, true);
-            append("Depositiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = output_dir+"/DP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //translates the positioning program to the format of the interface MCS-FMPT
+            //translates the positioning program to the format of the MCS
             //and save it in a file
             PP.getInterfaceText(str, "pos", Bid, IPL, true);
-            append("Positiong program translated to the MCS format.", log_filename.c_str());
+            append("Positiong program translated to the format of the MCS.", log_filename.c_str());
             output_filename = output_dir+"/PP-from-"+filename;
             strWriteToFile(output_filename, str);
-            append("Positioning program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+            append("Positioning program in the format of the MCS saved in '"+output_filename+"'.", log_filename.c_str());
+
+            //translates the depositioning program to the format of the MCS
+            //and save it in a file
+            DP.getInterfaceText(str, "depos", Bid, OPL, true);
+            append("Depositiong program translated to the the format of the MCS.", log_filename.c_str());
+            output_filename = output_dir+"/DP-from-"+filename;
+            strWriteToFile(output_filename, str);
+            append("Depositioning program in the format of the MCS saved in '"+output_filename+"'.", log_filename.c_str());
 
             //###############################################################
             //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
@@ -567,7 +597,7 @@ int main(int argc, char *argv[])
         //but they are discarted in the function of generation online.
 
         //indicates that the generating example has finished
-        append("\r\nFinished online generation example of a pair (PP, DP) for CB"+inttostr(Bid)+"!", log_filename.c_str());
+        append("\r\nFinished online generation of a pair (PP, DP) for CB"+inttostr(Bid)+"!", log_filename.c_str());
         append("PairPPDPvalid: "+BoolToStr(PairPPDPvalid, true).str, log_filename.c_str());
         //append("Collided: "+Collided.gettText().str, log_filename.c_str());     //not returned by the function online
         //append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str()); //not returned by the function online
@@ -576,17 +606,17 @@ int main(int argc, char *argv[])
     catch(Exception &E) {
         //indicates that has happened an exception
         //and show the message of the exception
-        append("ERROR generating example: "+E.Message.str, log_filename.c_str());
+        append("ERROR: "+E.Message.str, log_filename.c_str());
         return 1;
     }
     catch(...) {
         //indicates that has happened an unknown exception
-        append("ERROR generating example: unknown exception", log_filename.c_str());
+        append("ERROR: unknown exception", log_filename.c_str());
         return 2;
     }
 
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
-    return 0;
+    return a.exec();
 }
