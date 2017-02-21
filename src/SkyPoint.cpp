@@ -44,7 +44,7 @@ void  strPrinPointType(string& str, TPointType value)
     case ptREFERENCE: str += "REFERENCE"; break;
     case ptBLANK: str += "BLANK"; break;
     }
-    throw EImpossibleError("unknowledge value in type TPointType");
+    throw EImpossibleError("unknown value in type TPointType");
 }
 void  strReadPointType(TPointType& value, const string& str, unsigned int& i)
 {
@@ -108,7 +108,7 @@ string pointTypeToStr(TPointType value)
     case ptREFERENCE: return "REFERENCE";
     case ptBLANK: return "BLANK";
     }
-    throw EImpossibleError("unknowledge value in variable of type TPointType");
+    throw EImpossibleError("unknown value in variable of type TPointType");
 }
 TPointType strToPointType(const string& str)
 {

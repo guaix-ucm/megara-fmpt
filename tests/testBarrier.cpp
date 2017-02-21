@@ -118,7 +118,7 @@ void TestBarrier::test_()
     B2.set(TDoublePoint(x0, 0), M_PI);
 
     //-------------------------------------------------------------------
-    //MÉTODOS PARA DETERMINAR SI HAY COLISIÓN:
+    //METHODS FOR DETECT COLLISIONS:
 
     //calculate the minimun distance with a barrier
     double D = B1.distanceMin(&B2);
@@ -142,17 +142,17 @@ void TestBarrier::test_()
         return;
     }
 
-    //Si los contornos están tan alejado que no puede haber colisión,
-    //la distancia mínima devuelta será igual a DBL_MAX.
+    //If the contours are so far that can not be in collision,
+    //the returned minimun distance will be DBL_MAX.
 
-    //determina si hay colisión con una barrera
+    //determine f there is collision with a barrier
     B2.setP0(TDoublePoint(B2.getP0().x + ERR_NUM, B2.getP0().y));
     bool b = B1.collides(&B2);
     if(b != false) {
         CPPUNIT_ASSERT(false);
         return;
     }
-    //determina si hay colisión con un brazo
+    //determine f there is collision with an arm
     A.setP1(TDoublePoint(A.getP1().x + ERR_NUM, A.getP1().y));
     b = B1.collides(&A);
     if(b != false) {
@@ -160,7 +160,7 @@ void TestBarrier::test_()
         return;
     }
 
-    //determina si un punto está dentro de la barrera
+    //determine if a point within the barrier
     b = B1.covers(TDoublePoint(-B1.getSPM(), 0));
     if(b != true) {
         CPPUNIT_ASSERT(false);
@@ -168,22 +168,6 @@ void TestBarrier::test_()
     }
     b = B1.covers(TDoublePoint(ERR_NUM, 0));
     if(b != false) {
-        CPPUNIT_ASSERT(false);
-        return;
-    }
-
-    //----------------------------------------------------
-
-    //build an instance in text format
-    string str;
-    str += "P0 = {0, 0}\r\n";
-    str += "thetaO1 = 0";
-
-    //set the instance to the barrier
-    B1.setInstanceText(str);
-
-    //check if has all default values
-    if(B1.dontHasAllDefaultValuesActuator()) {
         CPPUNIT_ASSERT(false);
         return;
     }

@@ -32,9 +32,10 @@
 #include "Outputs.h" //Outputs
 #include "TextFile.h"
 
-//#include "../megarafmpt/ui/GenerateFrames.h"
-//#include "../megarafmpt/ui/mainwindow.h"
+//#include "../ui/GenerateFrames.h"
+//#include "../ui/mainwindow.h"
 
+//#include <QCoreApplication> //Qt only
 //#include <QApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout, ios::fixed
@@ -307,12 +308,12 @@ string help_others(void)
     str += "\r\n    Test the function generateParkingProgram_online:";
     str += "\r\n        ParkingProgramValid = generateParkingProgram_online(ParkingProgram,";
     str += "\r\n                                                            FMM, p_1s, p___3s,";
-    str += "\r\n                                                            Ids);";
+/*    str += "\r\n                                                            Ids);";
     str += "\r\n$ fmpt_saa visualizePairPPDP <path_PP> <path_DP>";
     str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
     str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
     str += "\r\n    Generate one animation with the pair (PP, DP).";
-
+*/
     //Others diserable functionalities:
     //  - Determine the RPs included in a MP.
     //  - Determine the RPs included in a pair of MPs.
@@ -331,8 +332,8 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.8.3.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.8.3).\r\n";
+    str += "This application is the FMPT SAA 3.9.0.\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.0).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2690,7 +2691,7 @@ int main(int argc, char *argv[])
                 command != "test_generateParkingProgram_online" &&
                 command != "visualizePPDP") {
             //indicates that happened
-            cout << "Unknoledge command." << endl;
+            cout << "Unknowledge command." << endl;
             //print the help
             cout << "\r\n"+help() << endl;
             //indicates that the program has been executed without error
@@ -2710,14 +2711,14 @@ int main(int argc, char *argv[])
         return 1;
     }
     catch(...) {
-        //indicates that has happened an unknoledge exception
-        cout << "ERROR: unknowledge exception" << endl;
+        //indicates that has happened an unknown exception
+        cout << "ERROR: unknown exception" << endl;
         return 2;
     }
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.8.3 is running...", log_filename.c_str());
+        append("FMPT SAA 3.9.0 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
@@ -2880,7 +2881,7 @@ int main(int argc, char *argv[])
             string arg1(argv[2]);
 
             //argument 1 can be:
-            //  option help ("help")
+            //  command help ("help")
             //  <path_FMOSA>
 
             //make a rutinary check
@@ -2941,7 +2942,7 @@ int main(int argc, char *argv[])
                     r2_negative = true;
                 //------------------------------------
                 else
-                    throw EImproperArgument("unknoledge option: "+argument);
+                    throw EImproperArgument("unknown argument: "+argument);
             }
 
             //generate a pair (PP, DP) from a path and write the events in the log file
@@ -3109,7 +3110,7 @@ int main(int argc, char *argv[])
             string arg1(argv[2]);
 
             //argument 1 can be:
-            //  option help ("help")
+            //  command help ("help")
             //  <path_FMOSA>
 
             //make a rutinary check
@@ -3150,7 +3151,7 @@ int main(int argc, char *argv[])
                     r2_negative = true;
                 //------------------------------------
                 else
-                    throw EImproperArgument("unknoledge option: "+argument);
+                    throw EImproperArgument("unknown argument: "+argument);
             }
 
             //generate a DP from a path and write the events in the log file
@@ -3217,15 +3218,14 @@ int main(int argc, char *argv[])
         return 1;
     }
     catch(...) {
-        //indicates that has happened an unknoledge exception
-        append("ERROR: unknowledge exception", log_filename.c_str());
+        //indicates that has happened an unknown exception
+        append("ERROR: unknown exception", log_filename.c_str());
         return 2;
     }
 
     //-----------------------------------------------------------------------
 
     //indicates that the program has been executed without error
-    //    return a.exec(); //Qt only
     return 0;
 }
 

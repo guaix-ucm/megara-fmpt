@@ -47,7 +47,7 @@ void  StrPrintKnowledgeDegree(AnsiString& S, TKnowledgeDegree kd)
     case kdApp: S += AnsiString("App"); break;
     case kdUnk: S += AnsiString("Unk"); break;
     }
-    throw EImpossibleError("unknowledge value in type TKnowledgeValue");
+    throw EImpossibleError("unknown value in type TKnowledgeValue");
 }
 void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
                              const AnsiString &S, int &i)
@@ -115,7 +115,7 @@ AnsiString KnowledgeDegreeToStr(TKnowledgeDegree kd)
     case kdApp: return AnsiString("App");
     case kdUnk: return AnsiString("Unk");
     }
-    throw EImpossibleError("unknowledge value in type TKnowledgeValue");
+    throw EImpossibleError("unknown value in type TKnowledgeValue");
 }
 TKnowledgeDegree StrToKnowledgeDegree(const AnsiString& S)
 {
@@ -174,7 +174,7 @@ void  strPrintPurpose(string& str, TPurpose p)
     case pValParPro: str += "ValParPro"; break;
     case pExe: str += "Exe"; break;
     }
-    throw EImpossibleError("unknowledge value in type TPurpose");
+    throw EImpossibleError("unknown value in type TPurpose");
 }
 void  strReadPurpose(TPurpose& value, const string& str, unsigned int &i)
 {
@@ -268,7 +268,7 @@ string purposeToStr(TPurpose value)
     case pValParPro: return "ValParPro";
     case pExe: return "Exe";
     }
-    throw EImpossibleError("unknowledge value in type TPurpose");
+    throw EImpossibleError("unknown value in type TPurpose");
 }
 TPurpose strToPurpose(const string& str)
 {
@@ -1483,7 +1483,7 @@ void TActuator::AssignSPM(void)
         case pExe: getArm()->setSPM(getSPMexe_a()); break;
         }
         break;
-    case kdUnk: //unknowledge
+    case kdUnk: //unknown
         getBarrier()->setSPM(getSPMsta());
         break;
     }
@@ -3085,7 +3085,7 @@ bool TActuator::notInvadeManeuveringDomain(const TActuator *A) const
         break;
 
     default:
-        throw EImpossibleError("unknowledge value of PAkd");
+        throw EImpossibleError("unknown value of PAkd");
     }
 }
 

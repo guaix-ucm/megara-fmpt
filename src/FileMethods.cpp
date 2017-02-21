@@ -129,9 +129,8 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir)
         //contruye una lista tampón
         TExclusionAreaList t_EAL;
 
-        string str;
-
         //lee y asigna la tabla de orígenes de coordenadas
+        string str;
         strReadFromFile(str, dir+"/ExclusionAreaOriginsTable.txt");
         t_EAL.setOriginsTableText(str);
 

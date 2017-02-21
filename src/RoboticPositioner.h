@@ -58,7 +58,7 @@ TControlMode StrToControlMode(const AnsiString& S);
 //TFaultType
 
 //Fault type of the RP
-//      ftUnk: unknowledge;
+//      ftUnk: unknown;
 //      ftSta: static;
 //      ftDyn: dynamic;
 enum TFaultType {ftUnk, ftSta, ftDyn};
@@ -229,7 +229,7 @@ public:
         double getFaultProbability(void) const {return p_FaultProbability;}
         void setFaultProbability(double);
         //type of fault:
-        //  ftUnk: unknoledge
+        //  ftUnk: unknown
         //  ftSta: static
         //  ftDyn: dynamic
         //default value: ftUnk

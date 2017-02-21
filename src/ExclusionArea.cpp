@@ -163,13 +163,7 @@ AnsiString TExclusionArea::getToleranceText(void) const
 //en formato de asignaciones
 AnsiString TExclusionArea::getInstanceText(void) const
 {
-    string str;
-
-    str = commentedLine("BarrierInstance:", "Instance properties of the EA.Barrier (position and orientation):");
-    str += "\r\n"+StrIndent(Barrier.getInstanceText()).str;
-
-    str += "\r\n";
-    str += "\r\n"+commentedLine("Tolerances:", "Tolerance properties of the EA:");
+    string str = "\r\n"+commentedLine("Tolerances:", "Tolerance properties of the EA:");
     str += "\r\n"+StrIndent(getToleranceText()).str;
 
     return AnsiString(str);
@@ -338,11 +332,6 @@ void  TExclusionArea::readInstance(TExclusionArea *EA,
 
     try {
         TExclusionArea t_EA(EA); //variables tampón
-
-        //-----------------------------------------------
-
-        StrTravelLabel("BarrierInstance:", S, i);
-        TBarrier::readInstance(&t_EA.Barrier, S, i);
 
         //-----------------------------------------------
 

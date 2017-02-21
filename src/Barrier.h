@@ -140,17 +140,6 @@ public:
     //conjunto de todas las propiedades
     //en formato de asignaciones
     AnsiString getAllText(void) const;
-    //conjunto de todas las propiedades de instancia
-    //en formato de asignaciones
-    AnsiString getInstanceText(void) const;
-    void setInstanceText(const AnsiString&);
-
-    //-------------------------------------------------------------------
-    //MÉTODOS ESTÁTICOS:
-
-    //lee una instancia de barrera en una cadena
-    static void  readInstance(TBarrier *B,
-                              const AnsiString& S, int& i);
 
     //-------------------------------------------------------------------
     //MÉTODOS PUBLICOS:

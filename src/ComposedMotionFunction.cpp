@@ -174,7 +174,7 @@ void  StrPrintSquareSynchronismMode(AnsiString& S,
     case ssmMaxTmin: S +=  AnsiString("MaxTmin")+AnsiString("\r\n");
     case ssmDouTmin: S +=  AnsiString("DouTmin")+AnsiString("\r\n");
     }
-    throw EImpossibleError("ununknown value in type TSquareSynchronousMode");
+    throw EImpossibleError("unknown value in type TSquareSynchronousMode");
 }
 void  StrReadSquareSynchronismMode(TSquareSynchronismMode& ssm,
                                    const AnsiString &S, int &i)
@@ -260,7 +260,7 @@ AnsiString SquareSynchronismModeToStr(TSquareSynchronismMode ssm)
     case ssmMaxTmin: return  AnsiString("MaxTmin");
     case ssmDouTmin: return  AnsiString("DouTmin");
     }
-    throw EImpossibleError("ununknown value in type TSquareSynchronousMode");
+    throw EImpossibleError("unknown value in type TSquareSynchronousMode");
 }
 TSquareSynchronismMode StrToSquareSynchronismMode(const AnsiString& S)
 {
@@ -334,7 +334,7 @@ void  StrPrintRampSynchronismMode(AnsiString& S,
     case rsmMaxTv: S +=  AnsiString("MaxTv")+AnsiString("\r\n");
     case rsmDouTv: S +=  AnsiString("DouTv")+AnsiString("\r\n");
     }
-    throw EImpossibleError("ununknown value in type TRampSynchronousMode");
+    throw EImpossibleError("unknown value in type TRampSynchronousMode");
 }
 void  StrReadRampSynchronismMode(TRampSynchronismMode& rsm,
                                  const AnsiString &S, int &i)
@@ -464,7 +464,7 @@ AnsiString RampSynchronismModeToStr(TRampSynchronismMode rsm)
     case rsmMaxTv: return AnsiString("MaxTv");
     case rsmDouTv: return AnsiString("DouTv");
     }
-    throw EImpossibleError("ununknown value in type TRampSynchronousMode");
+    throw EImpossibleError("unknown value in type TRampSynchronousMode");
 }
 TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S)
 {

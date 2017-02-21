@@ -112,11 +112,6 @@ void TBarrier::setContour_ColumnText(const AnsiString &S)
         TContourFigureList Contour_;
         //asigna el nuevo valor al clon
         Contour_.setColumnText(S);
-TDoublePoint Pa;
-if(Contour_.getCount() >= 7) {
-    TArc *Arc = (TArc*)Contour_[6];
-    Pa = Arc->getPa();
-}
         //intenta asignar la nueva plantilla
         setContour_(Contour_);
 
@@ -192,43 +187,6 @@ AnsiString TBarrier::getAllText(void) const
 
     return AnsiString(str);
 }
-AnsiString TBarrier::getInstanceText(void) const
-{
-    string str;
-
-    str = commentedLine("P0 = "+getP0Text().str, "position of S1 respect S0 (in mm)");
-    str += "\r\n"+commentedLine("thetaO1 = "+getthetaO1Text().str, "orientation of S1 respect S0 (in rad)");
-
-    return AnsiString(str);
-}
-void TBarrier::setInstanceText(const AnsiString& S)
-{
-    try {
-        //contruye una variable tampón
-        TBarrier aux(this);
-        TBarrier *B = &aux;
-        //lee la instancia y la asigna a la variable tampón
-        int i = 1;
-        readInstance((TBarrier*&)B, S, i);
-
-        //avanza el índice i hasta la próxima posición que no contenga un separador
-        StrTravelSeparatorsIfAny(S, i);
-        //si el índice i indica a algún caracter de la cadena S
-        if(i <= S.Length()) {
-            //indica que ha encontrado una cadena inesperada
-            unsigned int row, col;
-            strPositionToCoordinates(row, col, S.str, i-1);
-            throw EImproperArgument("unexpected string in row "+inttostr(row)+" and column "+inttostr(col)+": "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
-        }
-
-        //asigna la variable tampón
-        copy(B);
-
-    } catch(Exception& E) {
-        E.Message.Insert(1, "setting instance to barrier in text format: ");
-        throw;
-    }
-}
 
 //---------------------------------------------------------------------------
 //MÉTODOS DE ASIMILACIÓN:
@@ -256,51 +214,6 @@ void TBarrier::calculateImage(void)
 {
     //determina el contorno del brazo (rotado y trasladado):
     getContour_().getRotatedAndTranslated(p_Contour, getthetaO1(), getP0());
-}
-
-//---------------------------------------------------------------------------
-//MÉTODOS ESTÁTICOS:
-
-//lee una instancia de barrera en una cadena
-void  TBarrier::readInstance(TBarrier *B,
-                             const AnsiString& S, int& i)
-{
-    //comprueba las precondiciones
-    if(B == NULL)
-        throw EImproperArgument("pointer B should point to built barrier");
-    if(i<1 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a position in the string S");
-
-    //NOTA: no se exige que la cadena de texto S sea imprimible,
-    //de modo que cuando se quiera imprimir uno de sus caracteres,
-    //si no es imprimible saldrá el caracter por defecto.
-
-    try {
-        TBarrier t_B(B); //variables tampón
-
-        StrTravelSeparatorsIfAny(S, i);
-        StrTravelLabel("P0", S, i);
-        StrTravelLabel("=", S, i);
-        TDoublePoint P0;
-        StrReadDPoint(&P0, S, i);
-        t_B.setP0(P0);
-
-        StrTravelSeparators(S, i);
-        StrTravelLabel("thetaO1", S, i);
-        StrTravelLabel("=", S, i);
-        double thetaO1;
-        StrReadFloat(thetaO1, S, i);
-        t_B.setthetaO1(thetaO1);
-
-        //asigna la viariable tampón
-        B->copy(&t_B);;
-
-    }catch(Exception& E) {
-        unsigned int row, col;
-        strPositionToCoordinates(row, col, S.str, i-1);
-        E.Message.Insert(1, "reading instance of barrier in row "+inttostr(row)+" and column "+inttostr(col)+": ");
-        throw;
-    }
 }
 
 //---------------------------------------------------------------------------
