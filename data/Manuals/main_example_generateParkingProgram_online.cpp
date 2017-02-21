@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2014-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -17,7 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: main.cpp
+//File: main_example_generateParkingProgram_online.cpp
 //Content: principal program fmpt_example
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
@@ -27,11 +27,11 @@
 //for generate a parking program using the online function.
 //If you want compile and execute this example perform the following actions:
 //
-//    1. Decompress the release 'megara-fmpt-3.3.0.tar.gz (or xz)
+//    1. Decompress the release 'megara-fmpt-3.9.1.tar.gz (or xz)
 //
-//    2. Move this file to 'megara-fmpt-3.3.0/src'.
+//    2. Move this file to 'megara-fmpt-3.9.1/src'.
 //
-//    3. Edit the file 'megara-fmpt-3.0.0/src/Makefile.am', and change:
+//    3. Edit the file 'megara-fmpt-3.9.1/src/Makefile.am', and change:
 //           bin_PROGRAMS = fmpt_saa
 //           fmpt_saa_SOURCES = main.cpp
 //           fmpt_saa_LDADD = libfmtp.la
@@ -45,7 +45,7 @@
 //    4. Install and execute the example in a separated directory:
 //           $ make build
 //           $ cd build
-//           $ ../megara-fmpt-3.3.0/configure (or the corresponding path)
+//           $ ../megara-fmpt-3.9.1/configure (or the corresponding path)
 //           $ sudo make install
 //
 //    Then the executable will be written in '/usr/local/bin' (or similar).
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     //  The input data:
     //      path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb0.txt";
+    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //Using Qt over Windows:
     //-------------------------------------------------------------------
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
     //  The input data:
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb0.txt";
+    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //###################################################################
 
@@ -208,8 +208,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     catch(...) {
-        //indicates that has happened an unknoledge exception
-        cout << "ERROR generating example: unknowledge exception" << endl;
+        //indicates that has happened an unknown exception
+        cout << "ERROR generating example: unknown exception" << endl;
         return 2;
     }
 
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
         for(int i=0; i<FMM.RPL.getCount(); i++)
             MPG.AddAllocation(i);
 
-        //When you reuse the MPG, you need to do:
+        //When you re-use the MPG, you need to do:
         //  Destroy(MPG);
 
         //randomize the projection points in the domain of their attached RPs
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
         vector<int> Ids;
         //TBD
 
-        //When you reuse the Ids, you need to do:
+        //When you re-use the Ids, you need to do:
         //  Ids.clear();
 
         //The RPs that shall be disabled depend of the status of the RPs
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
         append("----------------------------------------------------------------------------", log_filename.c_str());
         append("Returned from function generateParkingProgram_online.", log_filename.c_str());
 
-        //When you reuse the MP, you need to do:
+        //When you re-use the MP, you need to do:
         //  ParkingProgram.clear();
         //before call the generation function.
 
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
 
             //translates the parking program to the format of the interface MCS-FMPT
             //and save it in a file
-            ParkingProgram.getInterfaceText(str, "depos", Bid, SPL);
+            ParkingProgram.getInterfaceText(str, "depos", Bid, SPL, true);
             append("Parking program translated to the MCS format.", log_filename.c_str());
             output_filename = output_dir+"/ParkingProgram-from-"+filename;
             strWriteToFile(output_filename, str);
@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
         //    append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
 
         //print the other outputs in the corresponding file
-        str = "ParkingProgramValid: "+BoolToStr(ParkingProgramValid,true).str;
+        str = "ParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str;
         //str += "\r\nCollided: "+Collided.getText().str;                         //not returned by the function online
         //str += "\r\nObstructed: "+Obstructed.getText().str;                     //not returned by the function online
         str += "\r\nExcluded: "+Excluded.getText().str;
@@ -516,8 +516,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     catch(...) {
-        //indicates that has happened an unknoledge exception
-        append("ERROR generating example: unknowledge exception", log_filename.c_str());
+        //indicates that has happened an unknown exception
+        append("ERROR generating example: unknown exception", log_filename.c_str());
         return 2;
     }
 

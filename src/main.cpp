@@ -35,7 +35,6 @@
 //#include "../ui/GenerateFrames.h"
 //#include "../ui/mainwindow.h"
 
-//#include <QCoreApplication> //Qt only
 //#include <QApplication> //Qt only
 #include <locale.h> //setlocale, LC_NUMERIC
 #include <iostream> //std::cout, ios::fixed
@@ -312,8 +311,8 @@ string help_others(void)
     str += "\r\n$ fmpt_saa visualizePairPPDP <path_PP> <path_DP>";
     str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
     str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
-    str += "\r\n    Generate one animation with the pair (PP, DP).";
-*/
+    str += "\r\n    Generate one animation with the pair (PP, DP).";*/
+
     //Others diserable functionalities:
     //  - Determine the RPs included in a MP.
     //  - Determine the RPs included in a pair of MPs.
@@ -332,8 +331,8 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.9.0.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.0).\r\n";
+    str += "This application is the FMPT SAA 3.9.1.\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.1).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -2718,7 +2717,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.9.0 is running...", log_filename.c_str());
+        append("FMPT SAA 3.9.1 is running...", log_filename.c_str());
 
         //print the arguments with has called the program
         append("\r\nArguments with has called the program:", log_filename.c_str());
@@ -2729,10 +2728,6 @@ int main(int argc, char *argv[])
         string dir_FMM1 = DATADIR;
         dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
         string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
-
-        //Qt only:
-        //string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
-        //string dir_FMM2 = dir_FMM1;
 
         //load the instance of the Fiber MOS Model from a dir
         TFiberMOSModel FMM;
@@ -3228,4 +3223,3 @@ int main(int argc, char *argv[])
     //indicates that the program has been executed without error
     return 0;
 }
-
