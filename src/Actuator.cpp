@@ -25,7 +25,6 @@
 #include "Actuator.h"
 #include "RoboticPositioner.h"
 #include "Strings.h"
-#include "Geometry.h"
 #include "RoboticPositioner.h"
 #include "TextFile.h"
 
@@ -62,7 +61,7 @@ void  StrReadKnowledgeDegree(TKnowledgeDegree& kd,
 
     //La longitud de los valores legibles de la cadena son:
     //      strlen("Pre"): 3
-    //      strlen("Apr"): 3
+    //      strlen("App"): 3
     //      strlen("Unk"): 3
 
     //variable tampón
@@ -327,275 +326,7 @@ TPurpose strToPurpose(const string& str)
     throw EImproperArgument("there isn't' a value of type TPurpose from position i in string str");
 }
 
-//---------------------------------------------------------------------------
-//TAdjacentEA
-//---------------------------------------------------------------------------
-
-//build an item with the indicated values
-TAdjacentEA::TAdjacentEA(TExclusionArea *t_EA, double t_Dmin, double t_Dend)
-{
-    EA = t_EA;
-    Dmin = t_Dmin;
-    Dmin = t_Dend;
-}
-//clone an item
-void TAdjacentEA::Clone(TAdjacentEA& AEA)
-{
-    EA = AEA.EA;
-    Dmin = AEA.Dmin;
-    Dend = AEA.Dend;
-}
-//build a clon of an item
-TAdjacentEA::TAdjacentEA(TAdjacentEA *&AEA)
-{
-    //check the precondition
-    if(AEA == NULL)
-        throw EImproperArgument("pointer AEA should point to built adjacent EA");
-
-    EA = AEA->EA;
-    Dmin = AEA->Dmin;
-    Dend = AEA->Dend;
-}
-
-//compare the Id of the EA of two adjacent EAs
-int TAdjacentEA::compareIds(const TAdjacentEA *AEA1, const TAdjacentEA *AEA2)
-{
-    //check the preconditions
-    if(AEA1 == NULL)
-        throw EImproperArgument("adjacent exclusion area AEA1 should point to built adjacent EA");
-    if(AEA2 == NULL)
-        throw EImproperArgument("adjacent exclusion area AEA2 should point to built adjacent EA");
-    if(AEA1->EA == NULL)
-        throw EImproperArgument("adjacent exclusion area AEA1 should has an attached EA");
-    if(AEA2->EA == NULL)
-        throw EImproperArgument("adjacent exclusion area AEA2 should has an attached EA");
-
-    //compare Id
-    if(AEA1->EA->getId() < AEA2->EA->getId())
-        return -1;
-    if(AEA1->EA->getId() > AEA2->EA->getId())
-        return 1;
-    return 0;
-}
-//print the Id of the EA of an adjacent EA
-void TAdjacentEA::printId(AnsiString &S, const TAdjacentEA *AEA)
-{
-    //check the precondition
-    if(AEA == NULL)
-        throw EImproperArgument("adjacent exclusion area AEA should pint to built adjacent EA");
-    if(AEA->EA == NULL)
-        throw EImproperArgument("adjacent exclusion area AEA should has an attached EA");
-
-    //concatenate the string
-    S += AEA->EA->getIdText();
-}
-
-//---------------------------------------------------------------------------
-//TAdjacentEAList
-//---------------------------------------------------------------------------
-
-//build a list by default
-TAdjacentEAList::TAdjacentEAList(void) :
-    TPointersList<TAdjacentEA>(1, TAdjacentEA::compareIds, NULL, NULL, TAdjacentEA::printId, NULL)
-{
-}
-//build a clon of a list
-TAdjacentEAList::TAdjacentEAList(const TAdjacentEAList& AEA) : TPointersList<TAdjacentEA>(AEA)
-{
-}
-
-//get partial lists in text format
-string TAdjacentEAList::getIdText(void) const
-{
-    string str = "{";
-    if(getCount() > 0) {
-        str += Items.getFirst()->EA->getId();
-        for(int i=1; i<getCount(); i++) {
-            str += ", ";
-            str += Items[i]->EA->getIdText().str;
-        }
-    }
-    str += "}";
-
-    return str;
-}
-string TAdjacentEAList::getDminText(void) const
-{
-    string str = "{";
-    if(getCount() > 0) {
-        str += "(EA" + Items.getFirst()->EA->getIdText().str + ", " + floattostr(Items.getFirst()->Dmin) + ")";
-        for(int i=1; i<getCount(); i++) {
-            str += ", ";
-            str += "(EA" + Items[i]->EA->getIdText().str + ", " + floattostr(Items[i]->Dmin) + ")";
-        }
-    }
-    str += "}";
-
-    return str;
-}
-string TAdjacentEAList::getDendText(void) const
-{
-    string str = "{";
-    if(getCount() > 0) {
-        str += "(EA" + Items.getFirst()->EA->getIdText().str + ", " + floattostr(Items.getFirst()->Dend) + ")";
-        for(int i=1; i<getCount(); i++) {
-            str += ", ";
-            str += "(EA" + Items[i]->EA->getIdText().str + ", " + floattostr(Items[i]->Dend) + ")";
-        }
-    }
-    str += "}";
-
-    return str;
-}
-
-//set a same value to all Dmins
-void TAdjacentEAList::setAllDmins(double Dmin)
-{
-    for(int i=0; i<getCount(); i++)
-        Items[i]->Dmin = Dmin;
-}
-//set a same value to all Dends
-void TAdjacentEAList::setAllDends(double Dend)
-{
-    for(int i=0; i<getCount(); i++)
-        Items[i]->Dend = Dend;
-}
-
-//---------------------------------------------------------------------------
-//TAdjacentRP
-//---------------------------------------------------------------------------
-
-//build an item with the indicated values
-TAdjacentRP::TAdjacentRP(TRoboticPositioner *t_RP, double t_Dmin, double t_Dend)
-{
-    RP = t_RP;
-    Dmin = t_Dmin;
-    Dmin = t_Dend;
-}
-//clone an item
-void TAdjacentRP::Clone(TAdjacentRP& ARP)
-{
-    RP = ARP.RP;
-    Dmin = ARP.Dmin;
-    Dend = ARP.Dend;
-}
-//build a clon of an item
-TAdjacentRP::TAdjacentRP(TAdjacentRP *&ARP)
-{
-    //check the precondition
-    if(ARP == NULL)
-        throw EImproperArgument("pointer ARP should point to built adjacent RP");
-
-    RP = ARP->RP;
-    Dmin = ARP->Dmin;
-    Dend = ARP->Dend;
-}
-
-//compare the Id of the RP of two adjacent RPs
-int TAdjacentRP::compareIds(const TAdjacentRP *ARP1, const TAdjacentRP *ARP2)
-{
-    //check the preconditions
-    if(ARP1 == NULL)
-        throw EImproperArgument("adjacent exclusion arRP ARP1 should point to built adjacent RP");
-    if(ARP2 == NULL)
-        throw EImproperArgument("adjacent exclusion arRP ARP2 should point to built adjacent RP");
-    if(ARP1->RP == NULL)
-        throw EImproperArgument("adjacent exclusion arRP ARP1 should has an attached RP");
-    if(ARP2->RP == NULL)
-        throw EImproperArgument("adjacent exclusion arRP ARP2 should has an attached RP");
-
-    //compare Id
-    if(ARP1->RP->getActuator()->getId() < ARP2->RP->getActuator()->getId())
-        return -1;
-    if(ARP1->RP->getActuator()->getId() > ARP2->RP->getActuator()->getId())
-        return 1;
-    return 0;
-}
-//print the Id of the RP of an adjacent RP
-void TAdjacentRP::printId(AnsiString &S, const TAdjacentRP *ARP)
-{
-    //check the precondition
-    if(ARP == NULL)
-        throw EImproperArgument("adjacent exclusion arRP ARP should pint to built adjacent RP");
-    if(ARP->RP == NULL)
-        throw EImproperArgument("adjacent exclusion arRP ARP should has an attached RP");
-
-    //concatenate the string
-    S += ARP->RP->getActuator()->getIdText();
-}
-
-//---------------------------------------------------------------------------
-//TAdjacentRPList
-//---------------------------------------------------------------------------
-
-//build a list by default
-TAdjacentRPList::TAdjacentRPList(void) :
-    TPointersList<TAdjacentRP>(1, TAdjacentRP::compareIds, NULL, NULL, TAdjacentRP::printId, NULL)
-{
-}
-//build a clon of a list
-TAdjacentRPList::TAdjacentRPList(const TAdjacentRPList& ARP) : TPointersList<TAdjacentRP>(ARP)
-{
-}
-
-//get partial lists in text format
-string TAdjacentRPList::getIdText(void) const
-{
-    string str = "{";
-    if(getCount() > 0) {
-        str += Items.getFirst()->RP->getActuator()->getId();
-        for(int i=1; i<getCount(); i++) {
-            str += ", ";
-            str += Items[i]->RP->getActuator()->getIdText().str;
-        }
-    }
-    str += "}";
-
-    return str;
-}
-string TAdjacentRPList::getDminText(void) const
-{
-    string str = "{";
-    if(getCount() > 0) {
-        str += "(RP" + Items.getFirst()->RP->getActuator()->getIdText().str + ", " + floattostr(Items.getFirst()->Dmin) + ")";
-        for(int i=1; i<getCount(); i++) {
-            str += ", ";
-            str += "(RP" + Items[i]->RP->getActuator()->getIdText().str + ", " + floattostr(Items[i]->Dmin) + ")";
-        }
-    }
-    str += "}";
-
-    return str;
-}
-string TAdjacentRPList::getDendText(void) const
-{
-    string str = "{";
-    if(getCount() > 0) {
-        str += "(RP" + Items.getFirst()->RP->getActuator()->getIdText().str + ", " + floattostr(Items.getFirst()->Dend) + ")";
-        for(int i=1; i<getCount(); i++) {
-            str += ", ";
-            str += "(RP" + Items[i]->RP->getActuator()->getIdText().str + ", " + floattostr(Items[i]->Dend) + ")";
-        }
-    }
-    str += "}";
-
-    return str;
-}
-
-//set a same value to all Dmins
-void TAdjacentRPList::setAllDmins(double Dmin)
-{
-    for(int i=0; i<getCount(); i++)
-        Items[i]->Dmin = Dmin;
-}
-//set a same value to all Dends
-void TAdjacentRPList::setAllDends(double Dend)
-{
-    for(int i=0; i<getCount(); i++)
-        Items[i]->Dend = Dend;
-}
-
-//---------------------------------------------------------------------------
+/*//---------------------------------------------------------------------------
 //TPairEADmin
 //---------------------------------------------------------------------------
 
@@ -726,7 +457,7 @@ TPairRPDmin::TPairRPDmin(TRoboticPositioner *RP, double Dmin)
     p_RP = RP; //assign the new value
     p_Dmin = Dmin; //assign the new value
 }
-
+*/
 //---------------------------------------------------------------------------
 //TActuator
 //---------------------------------------------------------------------------
@@ -930,7 +661,7 @@ void TActuator::setr_3maxnom(double r_3maxnom)
     if(DBL_MAX <= r_3maxnom)
         throw EImproperArgument("nominal domain radio of P3 r_3maxnom should be less infinite");
     if(AdjacentRPs.getCount()<0 || 6<AdjacentRPs.getCount())
-        throw EImproperArgument("adjacent ositioner number AdjacentRPs.Count should be in [0, 6]");
+        throw EImproperArgument("adjacent positioner number AdjacentRPs.Count should be in [0, 6]");
 
     p_r_3maxnom = r_3maxnom; //asigna el nuevo valor
 
@@ -1271,35 +1002,35 @@ AnsiString TActuator::getSecurityText(void) const
 
     //PROPIEDADES DE SEGURIDAD:
 
-    S = "SPM components:\r\n";
+    S = "SPM components:";
 
-    S += AnsiString("    SPMrec = ")+getSPMrecText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    SPMrec = ")+getSPMrecText();
 
-    S += AnsiString("    SPMsta = ")+getSPMstaText()+AnsiString("\r\n");
-    S += AnsiString("    SPMdyn = ")+getSPMdynText()+AnsiString("\r\n");
-    S += AnsiString("    SPMmin = ")+getSPMminText()+AnsiString("\r\n");
-    S += AnsiString("    SPMsim = ")+getSPMsimText()+AnsiString("\r\n");
-    S += AnsiString("    SPMoff = ")+getSPMoffText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    SPMsta = ")+getSPMstaText();
+    S += AnsiString("\r\n    SPMdyn = ")+getSPMdynText();
+    S += AnsiString("\r\n    SPMmin = ")+getSPMminText();
+    S += AnsiString("\r\n    SPMsim = ")+getSPMsimText();
+    S += AnsiString("\r\n    SPMoff = ")+getSPMoffText();
 
-    S += "SPMS values when PAkd = Pre:\r\n";
+    S += "\r\nSPMS values when PAkd = Pre:";
 
-    S += AnsiString("    SPMexe_p: ")+getSPMexe_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMvalParPro_p: ")+getSPMvalParPro_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMgenParPro_p: ")+getSPMgenParPro_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMvalPP_p: ")+getSPMvalPP_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMvalDP_p: ")+getSPMvalDP_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMgenPairPPDP_p: ")+getSPMgenPairPPDP_pText()+AnsiString("\r\n");
-    S += AnsiString("    SPMall_p: ")+getSPMall_pText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    SPMexe_p: ")+getSPMexe_pText();
+    S += AnsiString("\r\n    SPMvalParPro_p: ")+getSPMvalParPro_pText();
+    S += AnsiString("\r\n    SPMgenParPro_p: ")+getSPMgenParPro_pText();
+    S += AnsiString("\r\n    SPMvalPP_p: ")+getSPMvalPP_pText();
+    S += AnsiString("\r\n    SPMvalDP_p: ")+getSPMvalDP_pText();
+    S += AnsiString("\r\n    SPMgenPairPPDP_p: ")+getSPMgenPairPPDP_pText();
+    S += AnsiString("\r\n    SPMall_p: ")+getSPMall_pText();
 
-    S += "SPMS values when PAkd = Apr:\r\n";
+    S += "\r\nSPMS values when PAkd = App:";
 
-    S += AnsiString("    SPMexe_a: ")+getSPMexe_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMvalParPro_a: ")+getSPMvalParPro_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMgenParPro_a: ")+getSPMgenParPro_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMvalPP_a: ")+getSPMvalPP_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMvalDP_a: ")+getSPMvalDP_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMgenPairPPDP_a: ")+getSPMgenPairPPDP_aText()+AnsiString("\r\n");
-    S += AnsiString("    SPMall_a: ")+getSPMall_aText();
+    S += AnsiString("\r\n    SPMexe_a: ")+getSPMexe_aText();
+    S += AnsiString("\r\n    SPMvalParPro_a: ")+getSPMvalParPro_aText();
+    S += AnsiString("\r\n    SPMgenParPro_a: ")+getSPMgenParPro_aText();
+    S += AnsiString("\r\n    SPMvalPP_a: ")+getSPMvalPP_aText();
+    S += AnsiString("\r\n    SPMvalDP_a: ")+getSPMvalDP_aText();
+    S += AnsiString("\r\n    SPMgenPairPPDP_a: ")+getSPMgenPairPPDP_aText();
+    S += AnsiString("\r\n    SPMall_a: ")+getSPMall_aText();
 
     return S;
 }
@@ -1309,19 +1040,19 @@ AnsiString TActuator::getStatusText(void) const
 
     //PROPIEDADES DE ESTADO:
 
-    S = "R/W:\r\n";
+    S = "R/W:";
 
-    S += AnsiString("    PAkd = ")+getPAkdText()+AnsiString("\r\n");
-    S += AnsiString("    Purpose = ")+getPurposeText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    PAkd = ")+getPAkdText();
+    S += AnsiString("\r\n    Purpose = ")+getPurposeText();
 
-    S += AnsiString("    Id = ")+IntToStr(getId())+AnsiString("\r\n");
-    S += AnsiString("    AdjacentEAs = ")+AdjacentEAs.getIdText()+AnsiString("\r\n");
-    S += AnsiString("    AdjacentDmins = ")+AdjacentEAs.getDminText()+AnsiString("\r\n");
-    S += AnsiString("    AdjacentDends = ")+AdjacentEAs.getDendText()+AnsiString("\r\n");
-    S += AnsiString("    AdjacentRPs = ")+AdjacentRPs.getText()+AnsiString("\r\n");
-    S += AnsiString("    AdjacentDmins = ")+AdjacentRPs.getDminText()+AnsiString("\r\n");
-    S += AnsiString("    AdjacentDends = ")+AdjacentRPs.getDendText()+AnsiString("\r\n");
-    S += AnsiString("    Pending = ")+getPendingText();
+    S += AnsiString("\r\n    Id = ")+IntToStr(getId());
+    S += AnsiString("\r\n    AdjacentEAs = ")+AdjacentEAs.getIdText();
+    //S += AnsiString("\r\n    AdjacentEAs.Dmins = ")+AdjacentEAs.getDminText();
+    //S += AnsiString("\r\n    AdjacentEAs.Dends = ")+AdjacentEAs.getDendText();
+    S += AnsiString("\r\n    AdjacentRPs = ")+AdjacentRPs.getText();
+    //S += AnsiString("\r\n    AdjacentRPs.Dmins = ")+AdjacentRPs.getDminText();
+    //S += AnsiString("\r\n    AdjacentRPs.Dends = ")+AdjacentRPs.getDendText();
+    S += AnsiString("\r\n    Pending = ")+getPendingText();
 
     return S;
 }
@@ -1331,16 +1062,16 @@ AnsiString TActuator::getLimitsText(void) const
 
     //COTAS ÚTILES:
 
-    S = "R:\r\n";
+    S = "R:";
 
-    S += AnsiString("    r_min: ")+getr_minText()+AnsiString("\r\n");
-    S += AnsiString("    r_saf: ")+getr_safText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    r_min: ")+getr_minText();
+    S += AnsiString("\r\n    r_saf: ")+getr_safText();
 
-    S += AnsiString("    r_2saf: ")+getr_2safText()+AnsiString("\r\n");
-    S += AnsiString("    theta___2saf: ")+gettheta___2safText()+AnsiString("\r\n");
-    S += AnsiString("    theta___3saf: ")+gettheta___3safText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    r_2saf: ")+getr_2safText();
+    S += AnsiString("\r\n    theta___2saf: ")+gettheta___2safText();
+    S += AnsiString("\r\n    theta___3saf: ")+gettheta___3safText();
 
-    S += AnsiString("    theta_2rad: ")+gettheta_2radText();
+    S += AnsiString("\r\n    theta_2rad: ")+gettheta_2radText();
 
     return S;
 }
@@ -1350,37 +1081,37 @@ AnsiString TActuator::getAreaText(void) const
 
     //PROPIEDADES DE ÁREA:
 
-    S = "R/W:\r\n";
+    S = "R/W:";
 
-    S += AnsiString("    r_3maxnom = ")+getr_3maxnomText()+AnsiString(";\r\n");
+    S += AnsiString("\r\n    r_3maxnom = ")+getr_3maxnomText();
 
-    S += "R:\r\n";
+    S += "\r\nR:";
 
-    S += AnsiString("    Sc: ")+getScText()+AnsiString("\r\n");
-    S += AnsiString("    Sw: ")+getSwText()+AnsiString("\r\n");
-    S += AnsiString("    Sp: ")+getSpText()+AnsiString("\r\n");
-    S += AnsiString("    Ss: ")+getSsText()+AnsiString("\r\n");
-    S += AnsiString("    Se: ")+getSeText()+AnsiString("\r\n");
-    S += AnsiString("    Re: ")+getReText()+AnsiString("\r\n");
+    S += AnsiString("\r\n    Sc: ")+getScText();
+    S += AnsiString("\r\n    Sw: ")+getSwText();
+    S += AnsiString("\r\n    Sp: ")+getSpText();
+    S += AnsiString("\r\n    Ss: ")+getSsText();
+    S += AnsiString("\r\n    Se: ")+getSeText();
+    S += AnsiString("\r\n    Re: ")+getReText();
 
-    S += AnsiString("    Spt: ")+getSptText()+AnsiString("\r\n");
-    S += AnsiString("    Set: ")+getSetText()+AnsiString("\r\n");
-    S += AnsiString("    Ret: ")+getRetText();
+    S += AnsiString("\r\n    Spt: ")+getSptText();
+    S += AnsiString("\r\n    Set: ")+getSetText();
+    S += AnsiString("\r\n    Ret: ")+getRetText();
 
     return S;
 }
 
 AnsiString TActuator::getAllText(void) const
 {
-    //TODAS LASPROPIEDADES:
+    //TODAS LAS PROPIEDADES:
 
     AnsiString S;
 
-    S += getCilinderText()+AnsiString("\r\n");
-    S += AnsiString("Security:\r\n")+StrIndent(getSecurityText())+AnsiString("\r\n");
-    S += AnsiString("Status:\r\n")+StrIndent(getStatusText())+AnsiString("\r\n");
-    S += AnsiString("Limits:\r\n")+StrIndent(getLimitsText())+AnsiString("\r\n");
-    S += AnsiString("Area:\r\n")+StrIndent(getAreaText());
+    S += getCilinderText();
+    S += AnsiString("\r\nSecurity:\r\n")+StrIndent(getSecurityText());
+    S += AnsiString("\r\nStatus:\r\n")+StrIndent(getStatusText());
+    S += AnsiString("\r\nLimits:\r\n")+StrIndent(getLimitsText());
+    S += AnsiString("\r\nArea:\r\n")+StrIndent(getAreaText());
 
     return S;
 }
@@ -1407,7 +1138,7 @@ AnsiString TActuator::getInstanceText(void) const
     str += "\r\n";
     str += "\r\n"+commentedLine("SPMmin = "+getSPMminText().str, "SPM minimum: is the SPM due to the minimum jump during generation (in mm)");
     str += "\r\n"+commentedLine("SPMsim = "+getSPMsimText().str, "SPM of simulation: is the maximum deviation in the radial trajectory (in mm)");
-    str += "\r\n"+commentedLine("PAkd = "+getPAkdText().str, "position angles knowledge degree [Pre | Apr | Unk]");
+    str += "\r\n"+commentedLine("PAkd = "+getPAkdText().str, "position angles knowledge degree [Pre | App | Unk]");
 
     return AnsiString(str);
 }
@@ -1448,7 +1179,7 @@ AnsiString TActuator::getPositionP_3RowText(void) const
 {
     return getIdText()+AnsiString("\t")+getP_3().getRowText();
 }
-AnsiString TActuator::getPositionPAPRowText(void) const
+AnsiString TActuator::getPositionAnglesRowText(void) const
 {
     return getIdText()+AnsiString("\t")+getp_1Text()+AnsiString("\t")+getArm()->getp___3Text();
 }
@@ -1856,13 +1587,13 @@ void  TActuator::printPositionP_3Row(AnsiString& S, TActuator *A)
 //imprime los valores de las propiedades de posición de un actuador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
-void  TActuator::printPositionPPARow(AnsiString& S, TActuator *A)
+void  TActuator::printPositionAnglesRow(AnsiString& S, TActuator *A)
 {
     //el puntero A debe apuntar a un actuador construido
     if(A == NULL)
         throw EImproperArgument("pointer A should bepoint to built actuator");
 
-    S += A->getPositionPAPRowText();
+    S += A->getPositionAnglesRowText();
 }
 
 //---------------------------------------------------------------------------
@@ -1877,7 +1608,7 @@ TActuator::TActuator(int Id, TDoublePoint P0, double thetao_) :
     p_PAkd(kdPre), p_Purpose(pGenPairPPDP),
     AdjacentEAs(),
     AdjacentRPs(),
-    Pending(true), Collision(false)
+    Pending(true)//, Collision(false)
 {
     //el número de identificación Id debe ser no negativo
     if(Id < 0)
@@ -1948,7 +1679,7 @@ void TActuator::copyStatus(const TActuator *A)
     AdjacentEAs.Clone(A->AdjacentEAs);
     AdjacentRPs.Clone(A->AdjacentRPs);
     Pending = A->Pending;
-    Collision = A->Collision;
+    //    Collision = A->Collision;
 }
 //copia las propiedades límite de un actuador
 void TActuator::copyLimits(const TActuator *A)
@@ -1985,15 +1716,15 @@ void TActuator::copyArea(const TActuator *A)
     p_Ret = A->p_Ret;
 }
 
-//copia todas las propiedades de un actuador
+//clona todas las propiedades de un actuador
 void TActuator::clone(const TActuator *A)
 {
     //el puntero A debería apuntar a un actuador construido
     if(A == NULL)
         throw EImproperArgument("pointer A should point to built actuator");
 
-    //copia las propiedades del cilindro
-    copyCilinder(A);
+    //clona las propiedades del cilindro
+    cloneCilinder(A);
 
     //copia las propiedades de seguridad
     copySecurity(A);
@@ -2074,60 +1805,69 @@ void TActuator::calculateSafeParameters(void)
             //Nótese que r_saf podría salir negativo.
         }
 
-        //Busca la posición del rotor 2 a partir de la cual
-        //el contorno no invade el espacio más allá de r_saf:
+        if(p_r_min >= r_saf) {
+            p_r_2saf = Mod(A.getArm()->getP2() - A.getP0());
+            p_theta___2saf = A.getArm()->gettheta___2();
+            p_theta___3saf = A.getArm()->gettheta___3();
 
-        //como la evaluación es computacionalmente costosa
-        //conviene hacer una búsqueda binaria en (0, M_PI)
+        }
+        else {
+            //Busca la posición del rotor 2 a partir de la cual
+            //el contorno no invade el espacio más allá de r_saf:
 
-        //desactiva la cuantificación
-        A.disableQuantification();
+            //como la evaluación es computacionalmente costosa
+            //conviene hacer una búsqueda binaria en (0, M_PI)
 
-        //determina los límites del intervalo de búsqueda
-        double theta___2min = M_PI - A.gettheta_O3o() + max(0., A.getArm()->gettheta___2min());
-        double theta___2max = M_PI - A.gettheta_O3o() + min(M_PI, A.getArm()->gettheta___2max());
+            //desactiva la cuantificación
+            A.disableQuantification();
 
-        //Nótese que aunque las coordenadas angulares se refieren a P2,
-        //están dadas en S3, razón por la cual, debe sumarse M_PI - theta_O3o,
-        //para que el brazo quede alineado con el eje 1-0.
+            //determina los límites del intervalo de búsqueda
+            double theta___3min = 0;
+            double theta___3max = M_PI;
 
-        //calcula el punto medio del intervalo de búsqueda
-        double theta___2 = (theta___2max + theta___2min)/2;
-        //mueve el rotor 2 al punto medio del intervalo de búsqueda
-        A.getArm()->settheta___2(theta___2);
-        //calcula el radio de la envolvente descrita por el contorno del brazo
-        double r_max = A.getArm()->getContour().distanceMax(A.getP0());
-        //realiza iteraciones mientras sean necesarias
-        //o hasta que elcontador marque el numero de bits
-        //de la mantisa de un tipo double (54 bits) más 4.
-        int j=0;
-        while(fabs(r_max-getr_saf())>ERR_NUM && j<58) {
+            //Nótese que aunque las coordenadas angulares se refieren a P2,
+            //están dadas en S3, razón por la cual, debe sumarse M_PI - theta_O3o,
+            //para que el brazo quede alineado con el eje 1-0.
 
-            if(r_max > getr_saf()) //si se sale por exceso
-                theta___2max = theta___2; //retrae la cota superior
-            else if(r_max < getr_saf()) //si se sale pordefecto
-                theta___2min = theta___2; //retrae la cota inferior
+            //calcula el punto medio del intervalo de búsqueda
+            double theta___3 = (theta___3max + theta___3min)/2;
+            //mueve el rotor 2 al punto medio del intervalo de búsqueda
+            A.getArm()->settheta___3(theta___3);
+            //calcula el radio de la envolvente descrita por el contorno del brazo
+            double r_max = A.getArm()->getContour().distanceMax(A.getP0());
+            //realiza iteraciones mientras sean necesarias
+            //o hasta que el contador marque el numero de bits
+            //de la mantisa de un tipo double (54 bits) más 4.
+            int j=0;
+            while(fabs(r_max-getr_saf())>ERR_NUM && j<58) {
 
-            //si el error cometido supera el error numérico
-            if(fabs(r_max-getr_saf()) > ERR_NUM) {
-                //calcula el punto medio del intervalo de búsqueda
-                theta___2 = (theta___2max + theta___2min)/2;
-                //mueve el rotor 2 al punto medio del intervalo de búsqueda
-                A.getArm()->settheta___2(theta___2);
-                //calcula la distancia máxima
-                r_max = A.getArm()->getContour().distanceMax(A.getP0());
+                if(r_max > getr_saf()) //si se sale por exceso
+                    theta___3max = theta___3; //retrae la cota superior
+                else if(r_max < getr_saf()) //si se sale pordefecto
+                    theta___3min = theta___3; //retrae la cota inferior
+
+                //si el error cometido supera el error numérico
+                if(fabs(r_max-getr_saf()) > ERR_NUM) {
+                    //calcula el punto medio del intervalo de búsqueda
+                    theta___3 = (theta___3max + theta___3min)/2;
+                    //mueve el rotor 2 al punto medio del intervalo de búsqueda
+                    A.getArm()->settheta___3(theta___3);
+                    //calcula la distancia máxima
+                    r_max = A.getArm()->getContour().distanceMax(A.getP0());
+                }
+
+                j++; //contabiliza la iteración
             }
 
-            j++; //contabiliza la iteración
+            //Nótese que se realizan 4 iteraciones adicionales
+            //para compensar el hecho de que el intervalo
+            //contiene M_PI unidades de double.
+
+            //registra las corodenadas angulares
+            p_r_2saf = A.getr_2();
+            p_theta___2saf = A.getArm()->gettheta___2();
+            p_theta___3saf = A.getArm()->gettheta___3();
         }
-
-        //Nótese que se realizan 4 iteraciones adicionales
-        //paracompensar el hecho de que el intervalo
-        //contiene M_PI unidades de double.
-
-        //registra las corodenadas angulares
-        p_r_2saf = A.getr_2();
-        p_theta___3saf = p_theta___2saf = A.getArm()->gettheta___2();
     }
 
     //si no hay actuadores adyacentes
@@ -2149,19 +1889,13 @@ void TActuator::calculateSafeParameters(void)
 void TActuator::setOrientationRadians(double theta_1min, double theta_1max,
                                       double theta_1, double theta_O3o)
 {
-    //el ángulo theta_1min debe estar en el dominio de F(theta_1)
+    //comprueba las precondiciones
     if(!getF().BelongToDomain(theta_1min))
         throw EImproperArgument("angle theta_1min should be in domain F(theta_1)");
-
-    //el ángulo theta_1max debe estar en el domaxio de F(theta_1)
     if(!getF().BelongToDomain(theta_1max))
         throw EImproperArgument("angle theta_1max should be in domain F(theta_1)");
-
-    //el ángulo theta_1min no debe ser mayor que el ángulo theta_1max
     if(theta_1min > theta_1max)
         throw EImproperArgument("angle theta_1min should not be upper than angle theta_1max");
-
-    //el ángulo theta_1 debe estar en su dominio [theta_1min, theta_1max]
     if(isntInDomaintheta_1(theta_1))
         throw EImproperArgument("angle theta_1 should be in his domain [theta_1min, theta_1max]");
 
@@ -2271,7 +2005,7 @@ void TActuator::setPositionP3(double x3, double y3)
     //asigna el punto
     setAnglesRadians(theta_1, theta___3);
 }
-//assign a pair of position angles in radians
+/*//assign a pair of position angles in radians
 //if the position angle theta_1 isn't in domain of theta_1,
 //or the position angle theta___3 isn't in domain of theta___3
 //  throw an exception EImproperArgument
@@ -2298,7 +2032,7 @@ void TActuator::setPositionPPASteps(double p_1, double p___3)
 
     //assign the position angles
     setAnglesSteps(p_1, p___3);
-}
+}*/
 //asigna las propiedades de identificación y posición
 //si el punto (x3, y3) no está en el dominio del actuador
 //      lanza EImproperArgument
@@ -3100,7 +2834,7 @@ double TActuator::distanceMin(const TExclusionArea *EA)
     if(EA == NULL)
         throw EImproperArgument("pointer EA should point to built exclusion area");
 
-    //busca el EA en la lista de pares (Ea, Dmin)
+    //busca el EA en la lista de adyacentes
     int i = 0;
     while(i<AdjacentEAs.getCount() && EA!=AdjacentEAs[i].EA)
         i++;
@@ -3113,8 +2847,6 @@ double TActuator::distanceMin(const TExclusionArea *EA)
     double dm = distanceMin(&(EA->Barrier));
 
     //actualiza la distancia mínima
-    if(i >= AdjacentEAs.getCount())
-        throw EImpossibleError("lateral effect");
     if(dm < AdjacentEAs[i].Dmin)
         AdjacentEAs[i].Dmin = dm;
     //actualiza la distancia final
@@ -3129,7 +2861,7 @@ double TActuator::distanceMin(const TActuator *Actuator)
     if(Actuator == NULL)
         throw EImproperArgument("pointer Actuator should point to built barrier");
 
-    //busca el RP en la lista de pares (RP, Dmin)
+    //busca el RP en la lista de adyacentes
     int i = 0;
     while(i<AdjacentRPs.getCount() && Actuator!=AdjacentRPs[i].RP->getActuator())
         i++;
@@ -3139,27 +2871,18 @@ double TActuator::distanceMin(const TActuator *Actuator)
         throw EImproperArgument("pointer RP should be an adjacent robotic positioner");
 
     //calcula la distancia mínima
+    //con el brazo o la barrera, en función de PAkd
     double dm;
-
-    //si la posición angular de ambos rotores del actuador adyacente es conocida
     if(Actuator->getPAkd() != kdUnk) {
-        //si la posición angular de ambos rotores de este actuador es conocida
         if(getPAkd() != kdUnk)
-            //calcula la distancia brazo-brazo
             dm = getArm()->distanceMin(Actuator->getArm());
-        //si la posición angular de algún eje de este actuador es desconocida
         else
-            //calcula la distancia barrera-brazo
             dm = getBarrier()->distanceMin(Actuator->getArm());
     }
-    //si la posición angular de algún rotor del actuador adyacente es desconocida
     else
-        //determina si hay colisión con la barrera del posicionador adyacente
         dm = distanceMin(Actuator->getBarrier());
 
     //actualiza la distancia mínima
-    if(i >= AdjacentRPs.getCount())
-        throw EImpossibleError("lateral effect");
     if(dm < AdjacentRPs[i].Dmin)
         AdjacentRPs[i].Dmin = dm;
     //actualiza la distancia final

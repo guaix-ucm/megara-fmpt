@@ -121,23 +121,22 @@ bool TMotionProgram::operator!=(const TMotionProgram& MP) const
 //TMotionProgram
 //---------------------------------------------------------------------------
 
-//determines if there is some coment 1 in any instruction
+//determines if there is some coment Dsec in any instruction
 //of the the motion program
-bool TMotionProgram::thereIsSomeComment1(void) const
+bool TMotionProgram::thereIsSomeCommentDsec(void) const
 {
     for(int i=0; i<getCount(); i++) {
         const TMessageList *ML = Items[i];
         for(int j=0;  j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
-            if(MI->getComment1().length() > 0)
+            if(MI->getCommentDsec().length() > 0)
                 return true;
         }
     }
     return false;
 }
 //get the non empty coments of the motion program
-//in column text format
-string TMotionProgram::getComment1sColumnText(void) const
+string TMotionProgram::getCommentsDsecInterfaceText(void) const
 {
     string str;
 
@@ -146,12 +145,12 @@ string TMotionProgram::getComment1sColumnText(void) const
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
 
-            if(MI->getComment1().length() > 0) {
+            if(MI->getCommentDsec().length() > 0) {
                 if(str.length() > 0)
                     str += "\r\n";
-                str += "group"+inttostr(i+1);
-                str += ": "+MI->getText().str;
-                str += ": "+MI->getComment1();
+                str += "# group_"+inttostr(i+1);
+                str += ", "+MI->getTextForComment().str;
+                str += ": "+MI->getCommentDsec();
             }
         }
     }
@@ -197,19 +196,18 @@ void TMotionProgram::excludeRP(int Id)
     }
 }
 
-//Get a motion progam in the interface format of the MCS.
+//Get a motion progam in the format of the MCS.
 //Inputs:
-//  label: string labeling all the MP.
-//  Bid: univoque identifier of the CB.
+//  label: type of MP ["pos", "depos"].
+//  Bid: identifier of the CB.
 //  SPL: starting position list for all RPs of the Fiber MOS.
-//  r2_negative: indicates if the rotor 2 coordinates must be negative.
 //Preconditions:
-//  All PPAs of the SPL must be addresed to different RPs.
+//  All PPAs of the SPL must be referred to different RPs.
 //  All RPs included in the MP, must be in included in the SPL.
 void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned int Bid,
-    const TPairPositionAnglesList& SPL, bool r2_negative) const
+    const TPairPositionAnglesList& SPL) const
 {
-    //VERIFIES THE PRECONDITIONS:
+    //CHECK THE PRECONDITIONS:
 
     if(label!="pos" && label!="depos")
         throw EImproperArgument("MP label should be \"pos\" or \"depos\"");
@@ -217,8 +215,8 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
     if(int(Bid) < 0)
         throw EImproperArgument("block identifier Bid should be less maximun integer value");
 
-    if(SPL.notAllPPAsAreAddresedToDifferentRPs())
-        throw EImproperArgument("all PPAs of the SPL must be addresed to different RPs");
+    if(SPL.notAllAreReferredToDifferentRPs())
+        throw EImproperArgument("all PPAs of the SPL must be referred to different RPs");
 
     TVector<int> Ids;
     getAllIncludedIds(Ids);
@@ -227,11 +225,13 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
 
     //PRINT THE MOTION PROGRAM:
 
-    //actualize the actual position list
-    TPairPositionAnglesList APL = SPL;
+    str = ""; //initialize the output
 
     //print the label of the motion program and their start delimiter
-    str = label+"_"+inttostr(int(Bid))+" {";
+    str += label+"_"+inttostr(int(Bid))+" {";
+
+    //actualize the actual position list
+    TPairPositionAnglesList APL = SPL;
 
     //for each list of message of instructions of the motion program
     //  print a group
@@ -242,7 +242,7 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
         //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
 
         //print the label of the indicated group and their start delimiter
-        str += "\r\n\tgroup_"+IntToStr(i+1).str+" {";
+        str += "\r\n\tgroup_"+inttostr(i+1)+" {";
 
         //print the label of the indicated group and their start delimiter
         //inserting zeros on the left:	
@@ -254,8 +254,8 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
             const TMessageInstruction *MI = ML->GetPointer(j);
 
             //search and point the corresponding PPA
-            int Id = MI->getId();
-            int k = APL.SearchId(Id);
+            int id = MI->getId();
+            int k = APL.searchId(id);
             if(k >= APL.getCount())
                 throw EImpossibleError("lateral effect");
             TPairPositionAngles *PPA = APL.GetPointer(k);
@@ -270,10 +270,7 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
-                if(r2_negative)
-                    str += " "+floattostr(-r2_final_position);
-                else
-                    str += " "+floattostr(r2_final_position);
+                str += " "+floattostr(-r2_final_position);
 
                 //print the instruction in the interface format
                 //inserting zeros on the left:
@@ -294,10 +291,7 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
-                if(r2_negative)
-                    str += " "+floattostr(-r2_final_position);
-                else
-                    str += " "+floattostr(r2_final_position);
+                str += " "+floattostr(-r2_final_position);
 
                 //print the instruction in the interface format
                 //inserting zeros on the left:
@@ -318,10 +312,7 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
-                if(r2_negative)
-                    str += " "+floattostr(-r2_final_position);
-                else
-                    str += " "+floattostr(r2_final_position);
+                str += " "+floattostr(-r2_final_position);
 
                 //print the instruction in the interface format
                 //inserting zeros on the left:
@@ -570,15 +561,15 @@ void TMotionProgram::getDminInterfaceText(string& str, const string& label,
             //print the corresponding instruction in the interface format
             if(MI->Instruction.getName() == "M1") {
                 //print the comment with the Dmin
-                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDmin();
 
             } else if(MI->Instruction.getName() == "M2") {
                 //print the comment with the Dmin
-                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDmin();
 
             } else if(MI->Instruction.getName() == "MM") {
                 //print the comment with the Dmin
-                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment2();
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDmin();
 
             } else
                 throw EImpossibleError("lateral effect");
@@ -644,15 +635,15 @@ void TMotionProgram::getDendInterfaceText(string& str, const string& label,
             //print the corresponding instruction in the interface format
             if(MI->Instruction.getName() == "M1") {
                 //print the comment with the Dend
-                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment3();
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDend();
 
             } else if(MI->Instruction.getName() == "M2") {
                 //print the comment with the Dend
-                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment3();
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDend();
 
             } else if(MI->Instruction.getName() == "MM") {
                 //print the comment with the Dend
-                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getComment3();
+                str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDend();
 
             } else
                 throw EImpossibleError("lateral effect");

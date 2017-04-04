@@ -25,9 +25,6 @@
 #ifndef EXCLUSIONAREA_H
 #define EXCLUSIONAREA_H
 
-//#include "RoboticPositioner.h"
-//#include "VCLemu.h"
-//#include "ItemsList.h"
 #include "Barrier.h"
 
 //Para determinar el estado de colisión de un EA con un RP adyacente,
@@ -42,6 +39,8 @@ using namespace Lists;
 
 //espacio de nombres de modelos
 namespace Models {
+
+class TRoboticPositioner;
 
 //---------------------------------------------------------------------------
 //TExclusionArea
@@ -94,14 +93,22 @@ public:
     //valor por defecto: 0
     int getId(void) const {return p_Id;} void setId(int);
 
+    //lista de clusters (RP, Dmin, Dend) cuyo RP está lo bastante cerca
+    //para que pueda colisionar con la barrera
+    //valor por defecto: {}
+    TItemsList<TRoboticPositioner*> AdjacentRPs;
+
+    //Las EAs adyacentes y los RPs adyacentes serán determinados mediante
+    //el método TRoboticPositionerList::determineAdyacents().
+
     //indica si la barrera del EA será tenida en cuenta
     //en la determinación de distancias y colisiones
     //valor por defecto: true
     bool Pending;
 
     //La propiedad Pending será usada en los métodos:
-    //      ThereIsCollisionWithPendingAdjacent
-    //      SearchCollindingPendingAdjacent
+    //      thereIsCollisionWithPendingAdjacent
+    //      searchCollindingPendingAdjacent
     //con objeto de evitar aplicar el método de determinación de colisión
     //más de una vez entre cada par de brazos.
 
@@ -124,6 +131,10 @@ public:
     void setPendingText(const AnsiString&);
 
     //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+
+    //contorno de la barrera
+    //en formato de asignaciones
+    AnsiString getContour_Text(void) const;
 
     //conjuntos de propiedades de seguridad
     //en formato asignaciones de texto
@@ -202,10 +213,10 @@ public:
     //será posible configurar dos objetos para que tengan el mismo
     //identificador.
 
-    //copia un área de exclusión
-    void copy(const TExclusionArea *EA);
+    //clona un área de exclusión
+    void clone(const TExclusionArea *EA);
 
-    //contruye un clon de unárea de exclusión
+    //contruye un clon de un área de exclusión
     TExclusionArea(const TExclusionArea *EA);
 
     //libera la memoria dinámica y borra el objeto de Builts

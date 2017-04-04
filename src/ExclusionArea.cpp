@@ -28,6 +28,7 @@
 #include "FiberMOSModelConstants.h"
 #include "Strings.h" //StrIndent
 #include "TextFile.h"
+#include "RoboticPositioner.h"
 
 //---------------------------------------------------------------------------
 
@@ -37,7 +38,8 @@ using namespace Strings;
 namespace Models {
 
 //---------------------------------------------------------------------------
-//clase area de exclusion:
+//TExclusionArea:
+//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 //PROPIEDADES ESTÁTICAS:
@@ -132,8 +134,33 @@ void TExclusionArea::setPendingText(const AnsiString &S)
         throw;
     }
 }
+/*AnsiString TExclusionArea::getCollisionText(void) const
+{
+    return BoolToStr(Collision, true);
+}
+void TExclusionArea::setCollisionText(const AnsiString &S)
+{
+    try {
+        Collision = StrToBool(S);
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting Collision in text format: ");
+        throw;
+    }
+}*/
 
 //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+
+//contorno de la barrera
+//en formato de asignaciones
+AnsiString TExclusionArea::getContour_Text(void) const
+{
+    string str = "# A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe";
+    str += "\r\n# the template of EA.Barrier.Contour_, in S1 (in mm):";
+    str += "\r\n\r\n";
+    str += Barrier.getContour_().getColumnText().str;
+
+    return AnsiString(str);
+}
 
 //conjuntos de propiedades de seguridad
 //en formato asignaciones de texto
@@ -163,8 +190,13 @@ AnsiString TExclusionArea::getToleranceText(void) const
 //en formato de asignaciones
 AnsiString TExclusionArea::getInstanceText(void) const
 {
-    string str = "\r\n"+commentedLine("Tolerances:", "Tolerance properties of the EA:");
-    str += "\r\n"+StrIndent(getToleranceText()).str;
+    string str;
+
+    str = "# Instance properties of the EA (Exclusion Area):";
+    str += "\r\n\r\n";
+    str += commentedLine("Tolerances:", "Tolerance properties of the EA:");
+    str += "\r\n";
+    str += StrIndent(getToleranceText()).str;
 
     return AnsiString(str);
 }
@@ -182,7 +214,7 @@ void TExclusionArea::setInstanceText(const AnsiString &S)
             throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
 
         //asigna la variable tampón
-        copy(&EA);
+        clone(&EA);
 
     } catch(Exception& E) {
         unsigned int row, col;
@@ -354,7 +386,7 @@ void  TExclusionArea::readInstance(TExclusionArea *EA,
         //-----------------------------------------------
 
         //asigna la variable tampón
-        EA->copy(&t_EA);
+        EA->clone(&t_EA);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "reading instance: ");
@@ -371,7 +403,9 @@ TExclusionArea::TExclusionArea(void) :
     p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
     p_Id(0),
     Barrier(TDoublePoint(0, 0), 0),
-    Pending(true)
+    //inicializa las propiedades de estado
+    AdjacentRPs(10, TRoboticPositioner::compareIds, NULL, NULL, TRoboticPositioner::printId),
+    Pending(true)//, Collision(false)
 {
     //asimilalas propiedades de inicialización
     calculateSPM();
@@ -386,10 +420,10 @@ TExclusionArea::TExclusionArea(void) :
 TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
     p_Eo(MEGARA_Eo), p_Ep(MEGARA_Ep),
     Barrier(P0, thetaO1),
-    Pending(true)
+    //inicializa las propiedades de estado
+    AdjacentRPs(),
+    Pending(true)//, Collision(false)
 {
-    //ADVERTENCIA: está permitida la duplicidad de números de identificación Id.
-
     //inicializa las propiedades
     setId(Id);
     Barrier.setContour_Text(MEGARA_LIFU_Contour_Text);
@@ -401,18 +435,19 @@ TExclusionArea::TExclusionArea(int Id, TDoublePoint P0, double thetaO1) :
     Builts.Add(this);
 }
 
-//copia un área de exclusión
-void TExclusionArea::copy(const TExclusionArea *EA)
+//clona un área de exclusión
+void TExclusionArea::clone(const TExclusionArea *EA)
 {
     //el puntero EA debería apuntar a un área de exclusión contruida
     if(EA == NULL)
-        throw EImproperArgument("pointer EA ahould point to built exclusion area");
+        throw EImproperArgument("pointer EA should point to built exclusion area");
 
     p_Eo = EA->p_Eo;
     p_Ep = EA->p_Ep;
     p_Id = EA->p_Id;
-    Barrier.copy(&EA->Barrier);
+    Barrier.clone(&EA->Barrier);
     Pending = EA->Pending;
+//    Collision = EA->Collision;
 }
 
 //contruye un clon de un área de exclusión
@@ -420,12 +455,12 @@ TExclusionArea::TExclusionArea(const TExclusionArea *EA) :
     //construye un clon de la barrera
     Barrier(EA->Barrier)
 {
-    //el puntero EA debería apuntar a una barrera contruida
+    //check the precondition
     if(EA == NULL)
-        throw EImproperArgument("pointer EA ahould point to built barrier");
+        throw EImproperArgument("pointer EA should point to built barrier");
 
-    //copia todas las propiedades
-    copy(EA);
+    //clona todas las propiedades
+    clone(EA);
 
     //añade el objeto a la lista de contruidos
     Builts.Add(this);
@@ -542,6 +577,8 @@ bool areUnequals(const TExclusionArea *EA1, const TExclusionArea *EA2)
         return true;
     if(EA1->Pending != EA2->Pending)
         return true;
+//    if(EA1->Collision != EA2->Collision)
+  //      return true;
 
     return false;
 }

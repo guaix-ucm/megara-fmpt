@@ -598,7 +598,7 @@ void  TIdDouble::Read(TIdDouble &ID, const AnsiString &S, int &i)
                 //      StrReadFloat(ID.Value, S, i);
                 //por:
                 //      try {
-                //              //segrega un punto flotante a aprtir de i
+                //              //segrega un punto flotante a a partir de i
                 //              StrReadFloatStr(ValueStr, S, i);
                 //
                 //              //intenta convertir a entero
@@ -808,7 +808,7 @@ void  TIdDouble::Read(TIdDouble *ID, const AnsiString &S, int &i)
                 //      StrReadFloat(ID.Value, S, i);
                 //por:
                 //      try {
-                //              //segrega un punto flotante a aprtir de i
+                //              //segrega un punto flotante a a partir de i
                 //              StrReadFloatStr(ValueStr, S, i);
                 //
                 //              //intenta convertir a entero

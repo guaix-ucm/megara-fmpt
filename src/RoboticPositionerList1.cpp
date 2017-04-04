@@ -148,22 +148,25 @@ AnsiString TRoboticPositionerList1::getFiberDensityText(void) const
 //  Id      x0      y0      thetaO1
 AnsiString TRoboticPositionerList1::getOriginsTableText(void) const
 {
-    //guarda el valor de Print
+    //print the header
+    string str = "# A table for indicate the position and orientation of each RP (Robotic Positioner):";
+    str += "\r\n#     Id: identifier of the RP (a nonnegative integer number)";
+    str += "\r\n#     x0: abscissa of the point P0 of the RP in S0 (in mm)";
+    str += "\r\n#     y0: ordinate of the point P0 of the RP in S0 (in mm)";
+    str += "\r\n#     thetaO1: orientation of S1 in S0 (in rad)";
+
+    //print the table
+    str += "\r\n\r\n";
+    str += TActuator::getOriginsLabelsRow().str;
     void ( *PrintBak)(AnsiString&, TRoboticPositioner*);
     PrintBak = Print;
-
-    //apunta la lista de posicionadores con un puntero no constante para facilitar su escritura
     TRoboticPositionerList1 *RPL = (TRoboticPositionerList1*)this;
-
-    //apunta la función de impresión de coordenadas de origen en formato linea de texto
     RPL->Print = TRoboticPositioner::printOriginsRow;
-    //obtiene la lista de coordenadas de origen en una cadena de texto
-    AnsiString S = RPL->getColumnText();
-
-    //restaura el valor de Print
+    str += "\r\n";
+    str += RPL->getColumnText().str;
     RPL->Print = PrintBak;
 
-    return S; //devuelve la cadena de texto
+    return AnsiString(str);
 }
 //set the origins table in text format:
 //  Id      x0      y0      thetaO1
@@ -303,7 +306,7 @@ AnsiString TRoboticPositionerList1::getPositionsP_3TableText(void) const
 
     return S; //devuelve la cadena de texto
 }
-//get the PPA table in text format:
+//get the PPA list in text format:
 //  Id      p_1     p___3
 AnsiString TRoboticPositionerList1::getPositionsPPATableText(void) const
 {
@@ -315,8 +318,8 @@ AnsiString TRoboticPositionerList1::getPositionsPPATableText(void) const
     TRoboticPositionerList1 *RPL = (TRoboticPositionerList1*)this;
 
     //point the required print function
-    RPL->Print = TRoboticPositioner::printPositionPPARow;
-    //get the PPA table in a text string
+    RPL->Print = TRoboticPositioner::printPositionAnglesRow;
+    //get the PPA list in a text string
     AnsiString S = RPL->getColumnText();
 
     //restore theprint value
@@ -868,6 +871,19 @@ void TRoboticPositionerList1::searchDisabledQuantificators(TVector<int> &indices
     }
 }
 
+//busca el primer posicionador de la lista
+//que tenga un fallo dinámico
+int TRoboticPositionerList1::searchFaultDynamic(void)
+{
+    int i;
+    for(i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(RP->FaultType == ftDyn)
+            return i;
+    }
+    return i;
+}
+
 //--------------------------------------------------------------------------
 //MÉTODOS DE ASIMILACIÓN:
 
@@ -918,7 +934,7 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
                     (RPi->getActuator()->getr_max() + RPi->getActuator()->getSPMall_a() +
                      EAj->Barrier.getr_max() + EAj->Barrier.getSPM()) + ERR_NUM) {
                 //añade el EA a la lista de EAs adyacentes
-                RPi->getActuator()->AdjacentEAs.Add(new TAdjacentEA(EAj, DBL_MAX, DBL_MAX));
+                RPi->getActuator()->AdjacentEAs.Add(new TAdjacentEA(EAj));
             }
         }
         //para cada uno de los RPs previos al indicado
@@ -931,7 +947,7 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
                      RPj->getActuator()->getr_max() + RPj->getActuator()->getSPMall_a()) + ERR_NUM) {
                 //añade el RP a la lista de RPs adyacentes
                 //añade una distancia mínima para el RP adyacente
-                RPi->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPj, DBL_MAX, DBL_MAX));
+                RPi->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPj));
             }
         }
         //para cada uno de los RPs posteriores al indicado
@@ -944,7 +960,7 @@ void TRoboticPositionerList1::determineAdjacents(const TExclusionAreaList& EAL)
                      RPj->getActuator()->getr_max() + RPj->getActuator()->getSPMall_a())) {
                 //añade el RP a la lista de RPs adyacentes
                 //añade una distancia mínima para el RP adyacente
-                RPi->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPj, DBL_MAX, DBL_MAX));
+                RPi->getActuator()->AdjacentRPs.Add(new TAdjacentRP(RPj));
             }
         }
     }
@@ -1050,8 +1066,6 @@ void TRoboticPositionerList1::sortAdjacents(void)
             //añade el par a la lista
             LP.Add(P);
         }
-
-        AnsiString Saux = LP.getText();
 
         //ordena la lista de posicionadores de menor a mayor ángulo
         if(LP.getCount() > 1)
@@ -1165,8 +1179,8 @@ void TRoboticPositionerList1::assimilateSizing(const TExclusionAreaList& EAL)
 //      assimilateSizing();
 void TRoboticPositionerList1::assimilate(const TExclusionAreaList& EAL)
 {
-        calculateSPMcomponents();
-        assimilateSizing(EAL);
+    calculateSPMcomponents();
+    assimilateSizing(EAL);
 }
 
 //MÉTODOS DE LECTURA CONJUNTA:
@@ -1182,7 +1196,7 @@ void TRoboticPositionerList1::getPositions(TPairPositionAnglesList& PPAL) const
         //point the indicated RP to facilitate its access
         TRoboticPositioner *RP = Items[i];
         //builds a PPA attached to the RP
-        TPairPositionAngles *PPA = new TPairPositionAngles(RP);
+        TPairPositionAngles *PPA = new TPairPositionAngles(RP->getActuator()->getId());
         //assign the position angles of the rotors
         PPA->p_1 = RP->getActuator()->getp_1();
         PPA->p___3 = RP->getActuator()->getArm()->getp___3();
@@ -1473,6 +1487,18 @@ void TRoboticPositionerList1::segregateInOut(TRoboticPositionerList1 &Inners,
     }
 }
 
+//segregates the enabled RPs in unsecure positions
+void TRoboticPositionerList1::segregateEnabledOutsiders(
+        TRoboticPositionerList1& Outsiders) const
+{
+    Outsiders.Clear();
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(!RP->Disabled && RP->getActuator()->ArmIsOutSafeArea())
+            Outsiders.Add(RP);
+    }
+}
+
 //segregates the operative RPs in unsecure positions
 void TRoboticPositionerList1::segregateOperativeOutsiders(
         TRoboticPositionerList1& Outsiders) const
@@ -1513,7 +1539,7 @@ void TRoboticPositionerList1::segregateCollided(TRoboticPositionerList1& Collide
     }
 }
 
-/*//segrega losposicionadores seleccionados en una lista
+/*//segrega los posicionadores seleccionados en una lista
 void TRoboticPositionerList1::segregateSelected(TRoboticPositionerList1& RPL) const
 {
     //inicializa la lista de posicionadores
@@ -1776,29 +1802,36 @@ void TRoboticPositionerList1::restoreAndPopArmQuantify___s(void)
 }
 
 //--------------------------------------------------------------------------
-//MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
+//METHODS FOR DETERMINE COLLIDING STATUS:
 
 //levanta las banderas indicadoras de determinación de colisión pendiente
 //de todos los RPs de la lista
-void TRoboticPositionerList1::enablePending(void)
+void TRoboticPositionerList1::enableAllPending(void)
 {
     for(int i=0; i<getCount(); i++)
         Items[i]->getActuator()->Pending = true;
 }
+/*//configura el estado de colisión
+//de todos los posicionadores de la lista
+void TRoboticPositionerList1::setAllCollision(bool Collision)
+{
+    for(int i=0; i<getCount(); i++)
+        Items[i]->getActuator()->Collision = Collision;
+}*/
 
 //determina si algún actuador de algún RP colisiona con
 //algún actuador o barrera de algún RP o EA adyacente
 bool TRoboticPositionerList1::thereIsCollision(void)
 {
     //inicializa las banderas de determinación de colisión pendiente
-    enablePending();
+    enableAllPending();
 
     //busca colisión del actuador de cada RP con algún actuador o barrera de RP o EA adyacente,
     //exceptuando aquellos con los que se ha comprobado ya
     for(int i= 0; i<getCount(); i++) {
         //apunta el RP indicado para facilitar su acceso
         TRoboticPositioner *RP = Items[i];
-        //si el actudor del posicionador indicado colisiona con
+        //si el actuador del posicionador indicado colisiona con
         //el actuador o barrera de algún RP o EA adyacente con
         //determinación de colisión pendiente
         if(RP->getActuator()->thereIsCollisionWithPendingAdjacent())
@@ -1816,80 +1849,18 @@ bool TRoboticPositionerList1::thereIsCollision(void)
 //algún actuador o barrera de algún RP o EA adyacente
 void TRoboticPositionerList1::searchCollinding(TVector<int> &indices)
 {
-/*    //ADVERTENCIA: los RPs de la lista no tienen
-    //por que estar ordenados según su identificador.
-
-    TRoboticPositioner *RP;
-    TItemsList<TRoboticPositioner*> Collindings;
-
     //inicializa la salida
     indices.Clear();
 
     //inicializa las banderas de determinación de colisión pendiente
-    enablePending();
-
-    //por cada RP de la lista
-    for(int i= 0; i<getCount(); i++) {
-        //apunta el posicionador indicado para facilitar su acceso
-        RP = Items[i];
-        //busca colisiones con los RPs o EAs adyacentes con los
-        //que todavía no hayan determinado su estado de colisión
-        RP->getActuator()->searchCollindingPendingAdjacent(Collindings);
-        //indica que ya ha determinado el estado de colisión del posicionador
-        RP->getActuator()->Pending = false;
-
-        //si ha encontrado colisión con algún adyacente
-        if(Collindings.getCount() > 0) {
-
-            //añade el índice a la lista
-            indices.Add(i);
-
-            int m, n;
-
-            //añade los índices de los posicionadores adyacentes
-            //que tengan un posicionador adscrito en la lista y
-            //no hayan sido añadidos previamente
-            for(int j=0; j<Collindings.getCount(); j++) {
-                //apunta el actuador indicado para facilitar su acceso
-                RP = Collindings[j];
-
-                //busca la pósición del posicionador correspondiente
-                m = search(RP);
-
-                //si noha encontrado el actuador en la lista
-                if(m >= getCount())
-                    //indica efecto lateral
-                    throw EImpossibleError("lateral effect");
-
-                //indica que ya ha determinado el estado de colisión del posicionador adyacente
-                Items[m]->getActuator()->Pending = false;
-
-                //busca el índice en la lista de añadidos
-                n = indices.Search(m);
-                //si la posición del posicionador no ha sido previamente agregada
-                if(n >= indices.getCount())
-                    //añade el el índice a la lista de añadidos
-                    indices.Add(m);
-            }
-        }
-    }
-
-    //ordena la lista de índices en sentido creciente
-    if(indices.getCount() > 1)
-        indices.SortInc(0, indices.getCount()-1);
-*/
-    //inicializa la salida
-    indices.Clear();
-
-    //inicializa las banderas de determinación de colisión pendiente
-    enablePending();
+    enableAllPending();
 
     //busca colisión del actuador de cada RP con algún actuador o barrera de RP o EA adyacente,
     //exceptuando aquellos con los que se ha comprobado ya
     for(int i= 0; i<getCount(); i++) {
         //apunta el RP indicado para facilitar su acceso
         TRoboticPositioner *RP = Items[i];
-        //si el actudor del posicionador indicado colisiona con
+        //si el actuador del posicionador indicado colisiona con
         //el actuador o barrera de algún RP o EA adyacente con
         //determinación de colisión pendiente
         if(RP->getActuator()->thereIsCollisionWithPendingAdjacent()) {
@@ -1898,7 +1869,7 @@ void TRoboticPositionerList1::searchCollinding(TVector<int> &indices)
             //si la posición del posicionador no ha sido previamente agregada
             if(j >= indices.getCount())
                 //añade el el índice a la lista de añadidos
-                indices.Add(j);
+                indices.Add(i);
         }
 
         //desactiva la bandera para evitar que

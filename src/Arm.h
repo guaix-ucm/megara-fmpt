@@ -688,7 +688,7 @@ public:
     void setSPM(double);
 
     //The SPM will be selected according (PAkd, Purpose):
-    //  PAkd == kdPRECISE:
+    //  PAkd == kdPre:
     //      Asignación:
     //          FP->Arm->SPM = FP->SPMall_p;
     //      Programación:
@@ -697,7 +697,7 @@ public:
     //          FP->Arm->SPM = FP->SPMval_p;
     //      Ejecución simulada:
     //          FP->Arm->SPM = FP->SPMexe_p;
-    //  PAkd == kdAPROXIMATE:
+    //  PAkd == kdApp:
     //      Asignación:
     //          FP->Arm->SPM = FP->SPMall_a;
     //      Programación:
@@ -706,7 +706,7 @@ public:
     //          FP->Arm->SPM = FP->SPMval_a;
     //      Ejecución simulada:
     //          FP->Arm->SPM = FP->SPMexe_a;
-    //  PAkd == kdUNKNOWN:
+    //  PAkd == kdUnk:
     //      En todos los casos:
     //          FP->Wall->SPM = FP->SPMwall;
 
@@ -916,8 +916,8 @@ public:
     //construye un brazo
     //con la posición y orientación indicadas
     TArm(TDoublePoint P1, double thetaO2=-M_PI);
-    //copia todas las propiedades de un brazo
-    void copy(TArm*);
+    //clona todas las propiedades de un brazo
+    void clone(TArm*);
     //contruye un clon de un brazo
     TArm(TArm*);
     //libera la memoria dinámica
@@ -966,11 +966,13 @@ public:
     void setTemplate(double L12=MEGARA_L, double L13=MEGARA_L,
                      double theta____3=0, double R3=0.75);
     //asigna conjuntamente las propiedades de orientación en radianes
-    void setOrientationRadians(double thetaO3,
-                               double theta___3min, double theta___3max,
+    void setOrientationRadians(double theta___3min, double theta___3max,
                                double theta___3);
     //asigna conjuntamente las propiedades de cuantificación
     void setQuantification(double SB2);
+
+    //obtiene el contorno del perímetro de seguridad del brazo
+    void getSecurityContour(TContourFigureList& securityContour);
 
     //-------------------------------------------------------------------
     //MÉTODOS PARA DETERMIANAR DISTANCIAS:
@@ -1021,7 +1023,7 @@ public:
     //          por corrección del offset. (~offset*(Rc/L13))
 
     //Valor de SPM para cada ocasión:
-    //  Vkd == kdPRECISE:
+    //  Vkd == kdPre:
     //      ejecución:
     //          SPMexe_p = SPMmec + SPMnum + SPMvar
     //      validación:
@@ -1030,7 +1032,7 @@ public:
     //          SPMpro_p = SPMval_p + SPMmin
     //      asignación:
     //          SPMall_p = SPMpro_p + SPMoff
-    //  Vkd == kdAPROXIMATE:
+    //  Vkd == kdApp:
     //      ejecución:
     //          SPMexe_a = SPMexe_p + SPMrec
     //      validación:

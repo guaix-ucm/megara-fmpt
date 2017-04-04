@@ -357,6 +357,14 @@ AnsiString DRectToStr(TDoubleRect R);
 //cuando es rotado a rad en torno de Q
 TDoublePoint Rotate(TDoublePoint P, TDoublePoint Q, double a);
 
+//rotate a bidimensional vector 90 degrees
+TDoublePoint rotate90(TDoublePoint v);
+
+//determine the versor in the middle of two vectors
+//when ArgPos(v1) == ArgPos(v2)
+//  return TDoublePoint(cos(ArgPos(v1)), sin(ArgPos(v1)))
+TDoublePoint middleVersor(TDoublePoint v1, TDoublePoint v2);
+
 //---------------------------------------------------------------------------
 //Funciones con vectores tridimensionales:
 

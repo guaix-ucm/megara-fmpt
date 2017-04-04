@@ -18,26 +18,30 @@
 
 //---------------------------------------------------------------------------
 //File: main.cpp
-//Content: principal program fmpt_saa
+//Content: main program of the FMPT SAA
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#include "FileMethods.h"
-#include "MotionProgramGenerator.h"
-#include "FMOSATable.h"
-#include "PositionerCenter.h"
+//includes for generic
+#include "globalconsts.h"
 #include "Strings.h"
 #include "TextFile.h"
 #include "Geometry.h" //distanceSegmentPoint
-#include "Outputs.h" //Outputs
 #include "TextFile.h"
+//includes for calculus
+#include "MotionProgramGenerator.h"
+#include "FMOSA.h"
+#include "PositionerCenter.h"
+#include "OutputsPairPPDP.h" //Outputs
+#include "OutputsParkProg.h" //ParkProg
+#include "FileMethods.h"
+#include "roboticpositionertuner.h"
 
-//#include "../ui/GenerateFrames.h"
-//#include "../ui/mainwindow.h"
-
-//#include <QApplication> //Qt only
-#include <locale.h> //setlocale, LC_NUMERIC
+#include <clocale> //setlocale, LC_ALL
 #include <iostream> //std::cout, ios::fixed
+#include <stdio.h> //getchar
+
+//#include "tests/testFileMethods.h"
 
 using namespace Strings;
 using namespace Models;
@@ -47,7 +51,7 @@ using namespace Positioning;
 //GENERAL FUNCTIONS:
 
 //print a text line in the standard output and in the log file
-void append(const string& str, const char *log_filename)
+void append(const string& str, const char *log_path)
 {
     string str_aux = str;
     str_aux += "\r\n";
@@ -55,31 +59,21 @@ void append(const string& str, const char *log_filename)
     std::cout << str_aux;
 
     char mode[] = "a";
-    TTextFile TF(log_filename, mode);
+    TTextFile TF(log_path, mode);
     TF.Print(str_aux.c_str());
     TF.Close();
 }
 
-//split a path
-void splitpath(string& parent_path, string& filename, const string& path)
+//print a text line in the standard output and in the log file
+void append_without_endl(const string& str, const char *log_path)
 {
-    int i = path.length() - 1;
-    while(i>=0 && path[i] != '/')
-        i--;
+    std::cout << str;
+    std::cout.flush();
 
-    parent_path = "";
-    if(i >= 0)
-        parent_path = path.substr(0, i);
-
-    filename = "";
-    int aux = path.length() - 1;
-    if(i < aux) {
-        int count = aux - i;
-        filename = path.substr(i+1, count);
-    }
-
-    //WARNING: in GCC 2.95 it is not recognized:
-    //    string::clear()
+    char mode[] = "a";
+    TTextFile TF(log_path, mode);
+    TF.Print(str.c_str());
+    TF.Close();
 }
 
 //gets a string containing the help
@@ -93,39 +87,124 @@ string help(void)
     str += "\r\n$ fmpt_saa help_generatePairPPDP_offline";
     str += "\r\n    Print the help for function generatePairPPDP_offline.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa help_generateParkingProgram_offline";
-    str += "\r\n    Print the help for function generatePairPPDP_offline.";
+    str += "\r\n$ fmpt_saa help_generateParkProg_offline";
+    str += "\r\n    Print the help for function generateParkProg_offline.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa help_others";
-    str += "\r\n    Print the help about other functions.";
+    str += "\r\n    Print the help about other commands of the FMPT.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa aboutOf";
     str += "\r\n    Print the legend about of...";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa generatePairPPDP_offline <path_FMOSA>";
-    str += "\r\n    Generate a pair (PP, DP) offline.";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n$ fmpt_saa generateParkProg_offline <FMOSA_path>";
+    str += "\r\n    Generate a valid parking program offline.";
+    str += "\r\n    The generated parking program will be saved, even if there are either collided or obstructed RPs.";
+    str += "\r\n    Note that motion programs generated with this function (without the argument outputs),";
+    str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
+    str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
     str += "\r\n    This command generates the files:";
-    str += "\r\n        outputs-from-<filename>: the pair (PP, DP) in the format of the MCS,";
-    str += "\r\n            and the observing source list (OS) contained in the input file;";
-    str += "\r\n        other_outputs-from-<filename>: PPvalid, DPvalid, Collided, Obstructed";
+    str += "\r\n        ParkProg_outputs_from_<filename>: the parking program in format MCS,";
+    str += "\r\n            comments about the collided RPs, if any,";
+    str += "\r\n            comments about the obstructed RPs, if any,";
+    str += "\r\n            comments about the validity of the generated MP,";
     str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
-    str += "\r\n    Where <filename> is the name of the input file.";
+    str += "\r\n        Where <filename> is the name of the input file.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa generateParkingProgram_offline <path_FMOSA>";
-    str += "\r\n    Generate a parking program offline.";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
-    str += "\r\n    This command generates the files:";
-    str += "\r\n        ParkingProgram-from-<filename>: the parking program in the format of the MCS;";
-    str += "\r\n        other_outputs-from-<filename>: ParkingProgramValid, Collided, Obstructed";
+    str += "\r\n$ fmpt_saa generatePairPPDP_offline <FMOSA_path>";
+    str += "\r\n    Generate a valid pair (PP, DP) offline.";
+    str += "\r\n    If there are either collided or obstructed RPs, the generated pair (PP, DP) will not be saved.";
+    str += "\r\n    Note that motion programs generated with this function (without the argument outputs),";
+    str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
+    str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the file:";
+    str += "\r\n        PairPPDP_outputs_from_<filename>: the pair (PP, DP) in format MCS,";
+    str += "\r\n            comments about the collided RPs, if any,";
+    str += "\r\n            comments about the obstructed RPs, if any,";
+    str += "\r\n            comments about the validity of the generated MPs,";
     str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
-    str += "\r\n    Where <filename> is the name of the input file.";
+    str += "\r\n            the content of the input file type FMOSA,";
+    str += "\r\n        Where <filename> is the name of the input file.";
     str += "\r\n";
-    str += "\r\nFor learn about use of online generation functions, look the files:";
-    str += "\r\n    /usr/local/share/megara-fmpt/Manuals/main_example_generatePairPPDP_online.cpp";
-    str += "\r\n    /usr/local/share/megara-fmpt/Manuals/main_example_generateParkingProgram_online.cpp";
+    str += "\r\nOnly offline generation function use files type FMOSA.";
+    str += "\r\nIn the file type FMOSA:";
+    str += "\r\n    The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
+    str += "\r\n    Parameter Bid indicates if the source is allocated or not.";
+    str += "\r\n    Parameter Enabled indicates if the RP is enabled or not.";
+    str += "\r\n    When Bid is empty:";
+    str += "\r\n        parameters Name, Mag, Pr and Comment are usually empty;";
+    str += "\r\n        parameter Type is usually UNKNOWN.";
+    str += "\r\n    Parameter Enabled shall be in accordance with parameter Disabled of the FMM Instance.";
+    str += "\r\n    Otherwise motion program generation will be interupted and message error will be shown.";
+    str += "\r\n";
+    str += "\r\nIn case of PRs stopped in unsecurity positions which aren't neither the initial position nor the";
+    str += "observing positions, the parking program shall be generated using the function generateParkProg_online.";
+    str += " The function generateParkProg_offline has been included in the FMPT SAA with the exclusive purpose of";
+    str += " familiarize to the user with parking program generation, but it is not part of the protocol of action";
+    str += " during megara operations. For further reference of online generation functions, check out FMPT GUI";
+    str += " and file: '/usr/local/include/megara-fmpt/MotionProgramGenerator.h' (or similar path).";
 
     //Note that here not has sense define functions for generate MPs online.
+
+    return str;
+}
+
+//gets a string containing the help about function generateParkProg_offline
+string help_generateParkProg_offline(void)
+{
+    string str;
+
+    str = "$ fmpt_saa generateParkProg_offline <FMOSA_path> [all]";
+    str += "\r\n    [SPL] [CPL] [FPL]";
+    str += "\r\n    [DispCorners1] [DispCorners2]";
+    str += "\r\n    [Dmin] [Dend]";
+    str += "\r\n    [FMPT] [MCS]";
+    str += "\r\n    [outputs] [other-outputs]";
+    str += "\r\n";
+    str += "\r\n    Generate a valid parking program offline.";
+    str += "\r\n    The generated parking program will be saved, even if there are either collided or obstructed RPs.";
+    str += "\r\n    Note that motion programs generated with this function (without the argument outputs),";
+    str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
+    str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the files:";
+    str += "\r\n        ParkProg_outputs_from_<filename>: the parking program in format MCS,";
+    str += "\r\n            comments about the collided RPs, if any,";
+    str += "\r\n            comments about the obstructed RPs, if any,";
+    str += "\r\n            comments about the validity of the generated MP,";
+    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n        Where <filename> is the name of the input file.";
+    str += "\r\n";
+    str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
+    str += "\r\n    whose name is composed as follow:";
+    str += "\r\n        \"ParkProg_\" + <argument> + \"_from_\" + <filename>";
+    str += "\r\n    Where <filename> is the name of the input file, and <argument> is one of the following strings:";
+    str += "\r\n";
+    str += "\r\n    all: save all files.";
+    str += "\r\n";
+    str += "\r\n    SPL: Starting Position List in format PPA (Pair Position Angles in steps).";
+    str += "\r\n    CPL: Colliding Position List in format PPA (Pair Position Angles in steps).";
+    str += "\r\n    FPL: Final Position List in format PPA (Pair Position Angles in steps).";
+    str += "\r\n";
+    str += "\r\n    DispCorners1: displacement of corners 1 from starting position to final position.";
+    str += "\r\n    DispCorners2: displacement of corners 2 from starting position to final position.";
+    str += "\r\n    (1 and 2 are upper and lower corners of the arm elbow, when rotors are in the origin).";
+    str += "\r\n";
+    str += "\r\n    Dmin: minimun distance during executing the Parking Program.";
+    str += "\r\n    Dend: distance at the end of the trajectory during executing the Parking Program.";
+    str += "\r\n    (The distances are given in mm for each gesture for each RP).";
+    str += "\r\n";
+    str += "\r\n    FMPT: Parking Program in format FMPT.";
+    str += "\r\n    (The format of the FMPT use absolute coordinates and own instruction).";
+    str += "\r\n";
+    str += "\r\n    MCS: Parking Program in format MCS (without neither comments nor additional information.).";
+    str += "\r\n    (ParkProg is saved also in the file ouputs).";
+    str += "\r\n";
+    str += "\r\n    outputs: force write of the generated parking program in format MCS in the file outputs,";
+    str += "\r\n    even if there are enabled-not-operative PRs.";
+    str += "\r\n    other-outputs: the same comments of the file outputs in the old format other-outputs.";
+    str += "\r\n";
+    str += "\r\n    WARNING! rotor 2 position angle (r2) has sign minus. r2 is exclusive of format MCS:";
+    str += "\r\n        Files MCS and outputs, contains r2.";
+    str += "\r\n        Files SPL, CPL, FPL and FMPT, contains p___3 (not r2).";
 
     return str;
 }
@@ -135,46 +214,44 @@ string help_generatePairPPDP_offline(void)
 {
     string str;
 
-    str = "$ fmpt_saa generatePairPPDP_offline <path_FMOSA> [OPL] [OPL_S0] [OPL_S1] [PP-FMPT] [DP-FMPT] [IPL] [Disp_Corners1] [Disp_Corners2] [PP] [DP] [PP-Dmin] [PP-Dend] [DP-Dmin] [DP-Dend] [fiberMOS] [r2_negative]";
-    str += "\r\n    Generate a pair (PP, DP) offline.";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
-    str += "\r\n    This command generates the files:";
-    str += "\r\n        outputs-from-<filename>: the pair (PP, DP) in the format of the MCS,";
-    str += "\r\n            and the observing source list (OS) contained in the input file;";
-    str += "\r\n        other_outputs-from-<filename>: PPvalid, DPvalid, Collided, Obstructed";
-    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
-    str += "\r\n    Where <filename> is the name of the input file.";
+    str = "$ fmpt_saa generatePairPPDP_offline <FMOSA_path> [all]";
+    str += "\r\n    [OPL] [OPL-S0] [OPL-S1] [CPL] [IPL]";
+    str += "\r\n    [DispCorners1] [DispCorners2]";
+    str += "\r\n    [PP-Dmin] [PP-Dend] [DP-Dmin] [DP-Dend]";
+    str += "\r\n    [PP-FMPT] [DP-FMPT] [PP-MCS] [DP-MCS]";
+    str += "\r\n    [MCS] [outputs] [other-outputs]";
     str += "\r\n";
-    str += "\r\n    In the file type FMOSA:";
-    str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
-    str += "\r\n        Parameter Bid indicates if the source is allocated or not.";
-    str += "\r\n        Parameter Enabled indicates if the RP is enabled or not.";
-    str += "\r\n        When Bid is empty:";
-    str += "\r\n            parameters Name, Mag, Pr and Comment must be empty;";
-    str += "\r\n            parameter Type must be UNKNOWN.";
+    str += "\r\n    Generate a valid pair (PP, DP) offline.";
+    str += "\r\n    If there are either collided or obstructed RPs, the generated pair (PP, DP) will not be saved.";
+    str += "\r\n    Note that motion programs generated with this function (without the argument outputs),";
+    str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
+    str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
+    str += "\r\n    This command generates the file:";
+    str += "\r\n        PairPPDP_outputs_from_<filename>: the pair (PP, DP) in format MCS,";
+    str += "\r\n            comments about the collided RPs, if any,";
+    str += "\r\n            comments about the obstructed RPs, if any,";
+    str += "\r\n            comments about the validity of the generated MPs,";
+    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n            the content of the input file type FMOSA,";
+    str += "\r\n        Where <filename> is the name of the input file.";
     str += "\r\n";
     str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
     str += "\r\n    whose name is composed as follow:";
-    str += "\r\n        <argument> + \"-from-\" + <filename>";
+    str += "\r\n        \"PairPPDP_\" + <argument> + \"_from_\" + <filename>";
     str += "\r\n    Where <filename> is the name of the input file, and <argument> is one of the following strings:";
     str += "\r\n";
-    str += "\r\n    OPL:    Observing Position List in the format PPA (Pair Position Angles in steps).";
-    str += "\r\n    OPL_S0: Observing Position List in the format cartesian coordinates from S0.";
-    str += "\r\n    OPL_S1: Observing Position List in the format cartesian coordinates from S1.";
+    str += "\r\n    all: save all files.";
     str += "\r\n";
-    str += "\r\n    PP-FMPT: Positioning Program in the format of the FMPT.";
-    str += "\r\n    DP-FMPT: Depositioning Program in the format of the FMPT.";
-    str += "\r\n    (The FMPT format use absolute coordinates and own instruction).";
+    str += "\r\n    OPL:    Observing Position List in format PPA (Pair Position Angles in steps).";
+    str += "\r\n    OPL-S0: Observing Position List in format CC (Cartesian Coordinates) from S0.";
+    str += "\r\n    OPL-S1: Observing Position List in format CC (Cartesian Coordinates) from S1.";
     str += "\r\n";
-    str += "\r\n    IPL: Initial Position List in the format PPA (Pair Position Angles in steps).";
+    str += "\r\n    CPL: Colliding Position List in format PPA (Pair Position Angles in steps).";
+    str += "\r\n    IPL: Initial Position List in format PPA (Pair Position Angles in steps).";
     str += "\r\n";
-    str += "\r\n    Disp_Corners1: displacement of corners 1 from initial position to observing position.";
-    str += "\r\n    Disp_Corners2: displacement of corners 2 from initial position to observing position.";
+    str += "\r\n    DispCorners1: displacement of corners 1 from initial position to observing position.";
+    str += "\r\n    DispCorners2: displacement of corners 2 from initial position to observing position.";
     str += "\r\n    (1 and 2 are upper and lower corners of the arm elbow, when rotors are in the origin).";
-    str += "\r\n";
-    str += "\r\n    PP: Positioning Program in the format of the MCS.";
-    str += "\r\n    DP: Depositioning Program in the format of the MCS.";
-    str += "\r\n    (PP and DP are saved also in the file ouputs, followed by the content of the input file).";
     str += "\r\n";
     str += "\r\n    PP-Dmin: minimun distance during executing the Positioning Program.";
     str += "\r\n    PP-Dend: distance at the end of the trajectory during executing the Positioning Program.";
@@ -182,56 +259,22 @@ string help_generatePairPPDP_offline(void)
     str += "\r\n    DP-Dend: distance at the end of the trajectory during executing the Depositioning Program.";
     str += "\r\n    (The distances are given in mm for each gesture for each RP).";
     str += "\r\n";
-    str += "\r\n    fiberMOS: a file containing only the PP followed by the DP, in the format of the MCS.";
-    str += "\r\n    (For this option, the file name will be 'fiberMOS.txt' only).";
+    str += "\r\n    PP-FMPT: Positioning Program in format FMPT.";
+    str += "\r\n    DP-FMPT: Depositioning Program in format FMPT.";
+    str += "\r\n    (The format of the FMPT use absolute coordinates and own instruction).";
     str += "\r\n";
-    str += "\r\n    r2_negative: switch the sign of rotor 2 coordinates in PP and DP in the format of the MCS.";
-    str += "\r\n    (r2 negative affects exclusively to files: PP, DP, outputs and fiberMOS).";
-    str += "\r\n    (r2_negative not afects to files: OPL, PP-FMPT, DP-FMPT and IPL).";
-
-    return str;
-}
-
-//gets a string containing the help about function generateParkingProgram_offline
-string help_generateParkingProgram_offline(void)
-{
-    string str;
-
-    str = "$ fmpt_saa generateParkingProgram_offline <path_FMOSA> [SPL] [ParkingProgram-FMPT] [ParkingProgram-Dmin] [ParkingProgram-Dend] [FPL] [r2_negative]";
-    str += "\r\n    Generate a parking program offline.";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to the input file type FMOSA.";
-    str += "\r\n    This command generates the files:";
-    str += "\r\n        ParkingProgram-from-<filename>: the parking program in the format of the MCS;";
-    str += "\r\n        other_outputs-from-<filename>: ParkingProgramValid, Collided, Obstructed";
-    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
-    str += "\r\n    Where <filename> is the name of the input file.";
+    str += "\r\n    PP-MCS: Positioning Program in format MCS.";
+    str += "\r\n    DP-MCS: Depositioning Program in format MCS.";
+    str += "\r\n    MCS: Pair (PP, DP) in format MCS (without neither comments nor additional information.).";
+    str += "\r\n    (PP and DP are also saved in the file ouputs, followed by the content of the input file).";
     str += "\r\n";
-    str += "\r\n    In the file type FMOSA:";
-    str += "\r\n        The following parameters could be empty: Name, Mag, Pr, Bid and Comment.";
-    str += "\r\n        Parameter Bid indicates if the source is allocated or not.";
-    str += "\r\n        Parameter Enabled indicates if the RP is enabled or not.";
-    str += "\r\n        When Bid is empty:";
-    str += "\r\n            parameters Name, Mag, Pr and Comment must be empty;";
-    str += "\r\n            parameter Type must be UNKNOWN.";
+    str += "\r\n    outputs: force write of the generated pair (PP, DP) in format MCS in the file outputs,";
+    str += "\r\n    even if there are either enabled-not-operative or collided or obstructed PRs.";
+    str += "\r\n    other-outputs: the same comments of the file outputs in the old format other-outputs.";
     str += "\r\n";
-    str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
-    str += "\r\n    whose name is composed as follow:";
-    str += "\r\n        <argument> + \"-from-\" + <filename>";
-    str += "\r\n    Where <filename> is the name of the input file, and <argument> is one of the following strings:";
-    str += "\r\n";
-    str += "\r\n    SPL: Starting Position List in the format PPA (Pair Position Angles in steps).";
-    str += "\r\n";
-    str += "\r\n    ParkingProgram-FMPT: Parking Program in the format of the FMPT.";
-    str += "\r\n    (The FMPT format use absolute coordinates and own instruction).";
-    str += "\r\n";
-    str += "\r\n    ParkingProgram-Dmin: minimun distance during executing the Parking Program.";
-    str += "\r\n    ParkingProgram-Dend: distance at the end of the trajectory during executing the Parking Program.";
-    str += "\r\n";
-    str += "\r\n    FPL: Final Position List in the format PPA (Pair Position Angles in steps).";
-    str += "\r\n";
-    str += "\r\n    r2_negative: switch the sign of rotor 2 coordinates in ParkingProgram in the format of the MCS.";
-    str += "\r\n    (r2 negative affects exclusively to file: ParkingProgram).";
-    str += "\r\n    (r2_negative not afects to files: SPL, ParkingProgram-FMPT and FPL).";
+    str += "\r\n    WARNING! rotor 2 position angle (r2) has sign minus. r2 is exclusive of format MCS:";
+    str += "\r\n        Files PP-MCS, DP-MCS, MCS and outputs, contains r2.";
+    str += "\r\n        Files OPL, OPL-S0, OPL-S1, CPL, IPL, PP-FMPT and DP-FMPT, contains p___3 (not r2).";
 
     return str;
 }
@@ -241,87 +284,113 @@ string help_others(void)
 {
     string str;
 
-    str = "\r\n$ fmpt_saa valuesSPM_EA <Aid>";
+    str = "$ fmpt_saa valuesSPM_EA <Id>";
     str += "\r\n    View the SPM values.";
-    str += "\r\n    <Aid>: identifier list of the EA to view.";
+    str += "\r\n    <Id>: identifier list of the EA to view.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa valuesSPM_RP <Pid>";
+    str += "\r\n$ fmpt_saa valuesSPM_RP <Id>";
     str += "\r\n    View the SPM values pending varibales PAkd and Purpose.";
-    str += "\r\n    <Pid>: identifier list of the RP to view.";
+    str += "\r\n    <Id>: identifier list of the RP to view.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa testRadialMotion";
-    str += "\r\n    Take the measure of maximun deviation around the radial trajectory of the fiber of each RP.";
+    str += "\r\n    Take the measure of theoretical maximun deviation around the radial trajectory.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa testDistanceMin";
     str += "\r\n    Determine the minimun distance for each RP, with each of their adjacents,";
     str += "\r\n    when one of each pair is in the origin position.";
-
     str += "\r\n";
-    str += "\r\n$ fmpt_saa applyPC <path_PC>";
-    str += "\r\n    <path_PC>: absolute or relative path to file containing";
-    str += "\r\n    a positioner center table.";
-    str += "\r\n    Apply a positioner center table to the Fiber MOS Model instance.";
+    str += "\r\n$ fmpt_saa applyPCL <PCL_path>";
+    str += "\r\n    Apply a positioner center list to the Fiber MOS Model instance.";
     str += "\r\n    The new added RPs are built by default.";
+    str += "\r\n    <PCL_path>: absolute or relative path to file containing";
+    str += "\r\n    a positioner center list.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa applyRP <dir_RP>";
-    str += "\r\n    <dir_RP>: absolute or relative path to dir containing a RP instance.";
-    str += "\r\n    Apply a RP instance to the Fiber MOS Model instance.";
-
+    str += "\r\n$ fmpt_saa applyRPI <RPI_dir>";
+    str += "\r\n    Apply a Robotic Positioner Instance to the Fiber MOS Model Instance.";
+    str += "\r\n    <RPI_dir>: absolute or relative path to dir containing a Robotic Positioner Instance.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa evaluateErrors <measures_path>";
+    str += "\r\n$   For a RP (minibundle) generate:";
+    str += "\r\n        The file type errors.";
+    str += "\r\n        The file type vectors.";
+    str += "\r\n    <measures_path>: absolute or relative path to file type measures.";
+    str += "\r\n    A file type measures contains:";
+    str += "\r\n        The tuning parameters: (minibundle, x0, y0, L01, L13, offset1, offset2).";
+    str += "\r\n        A position table with the fields (rot1, rot2, x, y).";
+    str += "\r\n    A file type errors contains:";
+    str += "\r\n        A table with the fields (ave, max, rot1, rot2, x, y, positions).";
+    str += "\r\n    A file type vectors contans:";
+    str += "\r\n        The vector (positions, aves, maxs) in format Matlab.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa tuneRP <measures_path> <errors_path> <positions>";
+    str += "\r\n    Generate the tuning file for a RP.";
+    str += "\r\n    <measures_path>: absolute or relative path to file type measures.";
+    str += "\r\n    <errors_path>: absolute or relative path to file type errors.";
+    str += "\r\n    <positions>: number of positions taken into accounts.";
+    str += "\r\n    A file type measures contains:";
+    str += "\r\n        The tuning parameters: (minibundle, x0, y0, L01, L13, offset1, offset2).";
+    str += "\r\n        A position table with the fields (rot1, rot2, x, y).";
+    str += "\r\n    A file type errors contains:";
+    str += "\r\n        A table with the fields (ave, max, rot1, rot2, x, y, positions).";
+    str += "\r\n    A tuning file is similar to a meaasures file, but containing:";
+    str += "\r\n        The tuning parameters with the tuned values.";
+    str += "\r\n        The tuning table with only the positions taken into account for tuning.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa applyTuning <tuning_path>";
+    str += "\r\n    Apply a file type tuning to the FMM Instance.";
+    str += "\r\n    <tuning_path>: absolute or relative path to file type tuning.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa PPA_to_CC-S0 <PPAL_path>";
+    str += "\r\n    Translate from pair position angles (in steps) to cartesian coordinates in S0 (in mm).";
+    str += "\r\n    <PPAL_path>: absolute or relative path to file containing a PPA list.";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa test_generateParkProg_offline";
+    str += "\r\n    Test the function generateParkProg_offline:";
+    str += "\r\n        generateParkProg_offline(FMM, input_path, output_dir, log_path);";
+    str += "\r\n";
+    str += "\r\n$ fmpt_saa test_generateParkProg_online";
+    str += "\r\n    Test the function generateParkProg_online:";
+    str += "\r\n        ParkProgValid = generateParkProgValid_online(outputs_str, FMM_dir,";
+    str += "\r\n                                                     p_1s, p___3s, RPids, Bid)";
     str += "\r\n";
     str += "\r\n$ fmpt_saa test_generatePairPPDP_offline";
     str += "\r\n    Test the function generatePairPPDP_offline:";
-    str += "\r\n        generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,";
-    str += "\r\n                                 FMM, input_path, output_dir, log_filename);";
+    str += "\r\n        generatePairPPDP_offline(FMM, input_path, output_dir, log_path);";
     str += "\r\n";
     str += "\r\n$ fmpt_saa test_generatePairPPDP_online";
     str += "\r\n    Test the function generatePairPPDP_online:";
-    str += "\r\n        PairPPDPvalid = generatePairPPDP_online(PP, DP,";
-    str += "\r\n                                                FMM, p_1s, p___3s, Ids);";
-
+    str += "\r\n        PairPPDPvalid = generatePairPPDP_online(outputs_str, FMM_dir,";
+    str += "\r\n                                                p_1s, p___3s, RPids, Bid)";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa checkPairPPDP <path_PP> <path_DP> [Pid list]";
-    str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
-    str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
-    str += "\r\n    [Pid list]: optional identifier list of RPs to be disabled.";
+    str += "\r\n$ fmpt_saa checkPairPPDP <PP_path> <DP_path> [RPids]";
+    str += "\r\n    <PP_path>: absolute or relative path to file containing the PP in teh format of the MCS.";
+    str += "\r\n    <DP_path>: absolute or relative path to file containing the DP in format MCS.";
+    str += "\r\n    [RPids]: optional identifier list of RPs to be disabled.";
     str += "\r\n    Determine if all RPs included in the pair (PP, DP), are enabled.";
     str += "\r\n    The instance of the Fiber MOS Model will not be written.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa validatePairPPDP <path_outputs>";
-    str += "\r\n    <path_outputs>: absolute or relative path to file type outputs,";
+    str += "\r\n$ fmpt_saa validatePairPPDP <outputs_path>";
+    str += "\r\n    Check if a pair (PP, DP) avoid collisions, when it is executed starting from the origin.";
+    str += "\r\n    <outputs_path>: absolute or relative path to file type outputs,";
     str += "\r\n    containing the pair (PP, DP).";
-    str += "\r\n    Check if a pair (PP, DP) avoid collisions,";
-    str += "\r\n    wehn it is executed starting from the origin.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa regeneratePairPPDP <path_PP> <path_DP> <path_FMOSA> [Pid list]";
-    str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
-    str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
-    str += "\r\n    <path_FMOSA>: absolute or relative path to file type FMOSA.";
-    str += "\r\n    [Pid list]: optional identifier list of RPs to be disabled.";
-    str += "\r\n    Attempt regenerate a pair (PP, DP).";
-    str += "\r\n    The instance of the Fiber MOS Model will not be written.";
+    str += "\r\n$ fmpt_saa regeneratePairPPDP <PP_path> <DP_path> <FMOSA_path> [RPids]";
+    str += "\r\n    Attempt regenerate a pair (PP, DP) in limited sense.";
+    str += "\r\n    Functions for attempt regenerate a pair (PP, DP) in limited sense";
+    str += "\r\n    was developed for restrictive circunstances where the motion programs";
+    str += "\r\n    can not be changed. For regenerate a pair (PP, DP) in not limited sense";
+    str += "\r\n    use the same function for generate the pair (PP, DP) generatePairPPDP.";
+    str += "\r\n    <PP_path>: absolute or relative path to file containing the PP.";
+    str += "\r\n    <DP_path>: absolute or relative path to file containing the DP.";
+    str += "\r\n    <FMOSA_path>: absolute or relative path to file type FMOSA.";
+    str += "\r\n    [RPids]: optional identifier list of RPs to be disabled.";
+    str += "\r\n    The instance of the Fiber MOS Model will not be written in permant memory.";
 
-    str += "\r\n";
-    str += "\r\n$ fmpt_saa test_generateParkingProgram_offline";
-    str += "\r\n    Test the function generateParkingProgram_offline:";
-    str += "\r\n        generateParkingProgram_offline(ParkingProgramValid, ";
-    str += "\r\n                                       Collided, Obstructed, ParkingProgram,";
-    str += "\r\n                                       FMM, input_path, output_dir, log_filename);";
-    str += "\r\n";
-    str += "\r\n$ fmpt_saa test_generateParkingProgram_online";
-    str += "\r\n    Test the function generateParkingProgram_online:";
-    str += "\r\n        ParkingProgramValid = generateParkingProgram_online(ParkingProgram,";
-    str += "\r\n                                                            FMM, p_1s, p___3s,";
-/*    str += "\r\n                                                            Ids);";
-    str += "\r\n$ fmpt_saa visualizePairPPDP <path_PP> <path_DP>";
-    str += "\r\n    <path_PP>: absolute or relative path to file containing the PP.";
-    str += "\r\n    <path_DP>: absolute or relative path to file containing the DP.";
-    str += "\r\n    Generate one animation with the pair (PP, DP).";*/
-
-    //Others diserable functionalities:
+    //Other diserable functionalities:
     //  - Determine the RPs included in a MP.
     //  - Determine the RPs included in a pair of MPs.
-    //  - Enable all not faulty RPs of the FMM instance,
-    //  - Disable the indicated PRs of the FMM instance,
+    //  - Enable all not faulty RPs of the FMM Instance,
+    //  - Disable the indicated PRs of the FMM Instance,
     //  - Print the samples includes in the directory data/Samples
 
     return str;
@@ -335,8 +404,8 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC. isaac@iaa.es.\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA 3.9.3.\r\n";
-    str += "(Fiber MOS Positioning Tools Stand Alone Application. Version 3.9.3).\r\n";
+    str += "This application is the FMPT SAA "+FMPT_VERSION+".\r\n";
+    str += "(Fiber MOS Positioning Tools Stand Alone Application).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
     str += "it under the terms of the GNU General Public License as published by\r\n";
@@ -349,7 +418,7 @@ string aboutOf(void)
     str += "GNU General Public License for more details.\r\n";
     str += "\r\n";
     str += "You should have received a copy of the GNU General Public License\r\n";
-    str += "along with this program.  If not, see <http://www.gnu.org/licenses/>.\r\n";
+    str += "along with this program.  If not, see <http://www.gnu.org/licenses/>.";
 
     return str;
 }
@@ -358,10 +427,9 @@ string aboutOf(void)
 //FUNCTIONS FOR COMMANDS:
 
 //Take the measure of maximun deviation around the radial trajectory of the fiber of each RP.
-void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
+void testRadialMotion(TFiberMOSModel& FMM, string& log_path)
 {
     try {
-
         //CHECK THE PRECONDITIONS:
 
         if(FMM.RPL.thereIsSomeNullPointer())
@@ -379,9 +447,9 @@ void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
         //MAKE ACTIONS:
 
         //indicates that the simulation is extension
-        append("SIMULATION THE RADIAL EXTENSION AND RADIAL RETRACTION OF THE FIBERS:", log_filename.c_str());
+        append("SIMULATION THE RADIAL EXTENSION AND RADIAL RETRACTION OF THE FIBERS:", log_path.c_str());
         //print the labels of the table
-        append("\r\nId\tdistanceMin\t\tdistanceMax", log_filename.c_str());
+        append("\r\nId\tdistanceMin\t\tdistanceMax", log_path.c_str());
 
         for(int i=0; i<FMM.RPL.getCount(); i++) {
             TRoboticPositioner *RP = FMM.RPL[i];
@@ -477,7 +545,7 @@ void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
             str += "\t"+floattostr(distanceMin)+"\t"+floattostr(distanceMax);
 
             //print the result
-            append(str, log_filename.c_str());
+            append(str, log_path.c_str());
         }
     }
     catch(Exception& E) {
@@ -488,10 +556,9 @@ void testRadialMotion(TFiberMOSModel& FMM, string& log_filename)
 
 //Determine the minimun distance for each RP, with each of their adjacents,
 //when one of each pair is in the origin position.
-void testDistanceMin(TFiberMOSModel& FMM, string& log_filename)
+void testDistanceMin(TFiberMOSModel& FMM, string& log_path)
 {
     try {
-
         //CHECK THE PRECONDITIONS:
 
         if(FMM.RPL.thereIsSomeNullPointer())
@@ -506,9 +573,9 @@ void testDistanceMin(TFiberMOSModel& FMM, string& log_filename)
         //MAKE ACTIONS:
 
         //indicates that the simulation is extension
-        append("THE SPMmax OF EACH RP:", log_filename.c_str());
+        append("THE SPMmax OF EACH RP:", log_path.c_str());
         //print the labels of the table
-        append("\r\nId\tSPMmax", log_filename.c_str());
+        append("\r\nId\tSPMmax", log_path.c_str());
 
         //for each RP and for each adjacent, calculates the SPMmin
         for(int i=0; i<FMM.RPL.getCount(); i++) {
@@ -576,7 +643,7 @@ void testDistanceMin(TFiberMOSModel& FMM, string& log_filename)
             str += "\t"+floattostr(SPMmax);
 
             //print the result
-            append(str, log_filename.c_str());
+            append(str, log_path.c_str());
         }
     }
     catch(Exception& E) {
@@ -585,24 +652,23 @@ void testDistanceMin(TFiberMOSModel& FMM, string& log_filename)
     }
 }
 
-//Apply a positioner center table to the Fiber MOS Model instance.
+//Apply a positioner center list to the Fiber MOS Model instance.
 //The new added RPs are built by default.
-void applyPC(TFiberMOSModel& FMM, string& path, string& log_filename)
+void applyPCL(TFiberMOSModel& FMM, string& path, string& log_path)
 {
     try {
-
         //LOAD SETTINGS FROM FILES:
 
-        //load the positioner center table from a file
+        //load the positioner center list from a file
         string str;
         strReadFromFile(str, path);
         TPositionerCenterList PCL;
         PCL.setTableText(str);
-        append("Positioner center table loaded from '"+path+"'.", log_filename.c_str());
+        append("Positioner Center List loaded from file '"+path+"'.", log_path.c_str());
 
         //MAKE THE OPERATIONS:
 
-        //assimilates the table in the Fiber MOS Model
+        //assimilates the list in the Fiber MOS Model
         for(int i=0; i<PCL.getCount(); i++) {
             TPositionerCenter PC = PCL[i];
             int j = FMM.RPL.searchId(PC.Id);
@@ -619,400 +685,948 @@ void applyPC(TFiberMOSModel& FMM, string& path, string& log_filename)
             }
         }
         FMM.assimilate();
-        append("Positioner center table applied to the Fiber MOS Model.", log_filename.c_str());
+        append("Positioner Center List applied to the Fiber MOS Model.", log_path.c_str());
 
     } catch(Exception& E) {
-        E.Message.Insert(1, "aplying positioner center table: ");
+        E.Message.Insert(1, "aplying positioner center list: ");
         throw;
     }
 }
 
-//Apply a RP instance to the Fiber MOS Model instance.
-void applyRP(TFiberMOSModel& FMM, string& path, string& log_filename)
+//Apply a RP Instance to the Fiber MOS Model instance.
+void applyRPI(TFiberMOSModel& FMM, string& RPI_path, string& log_path)
 {
     try {
-
         //LOAD SETTINGS FROM FILES:
 
-        //load the RP instance from a dir
+        //load the RP Instance from a dir
         TRoboticPositioner RP;
-        readInstanceFromDir(RP, path);
-        append("RP instance loaded from '"+path+"'.", log_filename.c_str());
+        readInstanceFromDir(RP, RPI_path);
+        append("RP Instance loaded from file '"+RPI_path+"'.", log_path.c_str());
 
         //MAKE THE OPERATIONS:
 
         //assimilates the instance of the RP in the Fiber MOS Model
         FMM.RPL.apply(&RP, FMM.EAL);
-        append("RP instance applied to the Fiber MOS Model.", log_filename.c_str());
+        append("RP Instance applied to the Fiber MOS Model.", log_path.c_str());
     }
     catch(Exception& E) {
-        E.Message.Insert(1, "aplying RP instance: ");
+        E.Message.Insert(1, "aplying RP Instance: ");
         throw;
     }
 }
 
-//Generate a pair (PP, DP) offline.
-//Parameters for can use the function for test:
-//  (PPvalid, DPvalid, Collided, Obstructed, PP, DP)
-//Parameters for generate a pair PPDP:
-//  (FMM, path, log_filename)
-void generatePairPPDP_offline(bool& PPvalid, bool& DPvalid,
-                              TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
-                              TMotionProgram& PP, TMotionProgram& DP,
-                              //-------------------------------------------------------------------------------------------------
-                              TFiberMOSModel& FMM, const string& input_path, const string& output_dir, const string& log_filename,
-                              //-------------------------------------------------------------------------------------------------
-                              bool saveOPL, bool saveOPL_S0, bool saveOPL_S1, bool savePP_FMPT, bool saveDP_FMPT,
-                              bool saveIPL, bool saveDisp_Corners1, bool saveDisp_Corners2, bool savePP, bool saveDP,
-                              bool savePP_Dmin, bool savePP_Dend, bool saveDP_Dmin, bool saveDP_Dend, bool saveFiberMOS, bool r2_negative)
+//Generate a table with the fields (errorAve, errorMax, positions).
+void evaluateErrors(TFiberMOSModel& FMM, const string& measures_path, const string& output_dir, string& log_path)
+{
+    try {
+        //load the file type measures
+        string str;
+        strReadFromFile(str, measures_path);
+        Measures measures;
+        measures.setText(str);
+        append("Mesures loaded from file '"+measures_path+"'.", log_path.c_str());
+
+        //check the preconditions
+        if(measures.PL.getCount() <= 0)
+            throw EImproperFileLoadedValue("measures should contains almos a position");
+
+        //search the RP (of the minibundle) in the FMM
+        int i = FMM.RPL.searchId(measures.minibundle);
+
+        //check that has found the RP
+        if(i >= FMM.RPL.getCount())
+            throw EImproperFileLoadedValue("minibundle not found in the FMM: " + inttostr(measures.minibundle));
+
+        //point the RP
+        TRoboticPositioner *RP = FMM.RPL[i];
+
+        //get the tuning parameters from the measures
+        measures.getTuningParameters(RP);
+        append("", log_path.c_str());
+        append("Parameters got from measures:", log_path.c_str());
+        append("    P0: "+RP->getActuator()->getP0Text().str+" mmxmm", log_path.c_str());
+        append("    L01: "+RP->getActuator()->getL01Text().str+" mm", log_path.c_str());
+        append("    L13: "+RP->getActuator()->getArm()->getL13Text().str+" mm", log_path.c_str());
+        append("    thetaO1: "+RP->getActuator()->getthetaO1Text().str+" rad", log_path.c_str());
+        append("    theta_O3o: "+RP->getActuator()->gettheta_O3oText().str+" rad", log_path.c_str());
+
+        //determine the error
+        Error error;
+        measures.determineError(error, RP);
+        append("", log_path.c_str());
+        append("Initial error before fast tuning:", log_path.c_str());
+        append(StrIndent(error.getAssignText()).str, log_path.c_str());
+
+        //split the path of the input file
+        string dir, filename;
+        splitpath(dir, filename, measures_path);
+
+        //initialize the file type errors
+        //printing the header of the table
+        str = error.getLabelsRowText();
+        //string path = output_dir + "/evaluateErrors";
+        //ForceDirectories(path);
+        //path += "/errors_from_" + filename;
+        string path = output_dir + "/errors_from_" + filename;
+        strWriteToFile(path, str);
+        append("", log_path.c_str());
+        append("Error List initialized in file '"+path+"'.", log_path.c_str());
+
+        //print the header of the table
+        append(error.getErrorFunctionVariablesLabelsRowText(), log_path.c_str());
+
+        Keyboard keyboard;
+        keyboard.initNonCannonical();
+
+        RoboticPositionerTuner RPT;
+        ErrorList EL;
+        char c = 0;
+        do {
+            //tune the parameters of the RP
+            RPT.tune(RP, &measures);
+            //determine the error and the location of the worst position
+            int i = measures.determineError(error, RP);
+            //delete the worst position
+            measures.PL.Delete(i);
+
+            //add the error toe the file type errors
+            str = "\r\n" + error.getRowText();
+            char mode[] = "a";
+            TTextFile TF(path.c_str(), mode);
+            TF.Print(str.c_str());
+            TF.Close();
+
+            //print the error
+            append(error.getErrorFunctionVariablesRowText(), log_path.c_str());
+
+            //add the error to the error list
+            EL.Add(error);
+
+            //capture key pulsation
+            if(keyboard.kbhit()) {
+                c = keyboard.getch();
+                keyboard.restoreSetting();
+            }
+        }
+        while(measures.PL.getCount() > 0 && c!=27);
+
+        //indicates that evaluation has finished
+        append("Error List finished in file '"+path+"'.", log_path.c_str());
+
+        //save the vectors in a file
+        str = "positions = [" + EL.getPositionsRowText() + "]";
+        str += "\r\n";
+        str += "\r\naves = [" + EL.getAvesRowText() + "]";
+        str += "\r\n";
+        str += "\r\nmaxs = [" + EL.getMaxsRowText() + "]";
+        //path = output_dir + "/evaluateErrors/vectors_from_" + filename;
+        path = output_dir + "/vectors_from_" + filename;
+        strWriteToFile(path, str);
+        append("Vectors saved in file '"+path+"'.", log_path.c_str());
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "translating from PPA (in steps) to CC-S0 (in mm): ");
+        throw;
+    }
+}
+
+//Generate a tuning file.
+void tuneRP(TFiberMOSModel& FMM, const string& measures_path, const string& errors_path, int pos,
+                  const string& output_dir, string& log_path)
+{
+    try {
+        //load the file type measures
+        string str;
+        strReadFromFile(str, measures_path);
+        Measures measures;
+        measures.setText(str);
+        append("Mesures loaded from file '"+measures_path+"'.", log_path.c_str());
+
+        //check the preconditions
+        if(measures.PL.getCount() <= 0)
+            throw EImproperFileLoadedValue("measures should contains almos a position");
+
+        //search the RP (of the minibundle) in the FMM
+        int i = FMM.RPL.searchId(measures.minibundle);
+
+        //check that has found the RP
+        if(i >= FMM.RPL.getCount())
+            throw EImproperFileLoadedValue("minibundle not found in the FMM: " + inttostr(measures.minibundle));
+
+        //point the RP
+        TRoboticPositioner *RP = FMM.RPL[i];
+
+        //load the file type errors
+        strReadFromFile(str, errors_path);
+        ErrorList EL;
+        EL.setText(str);
+        append("Errors loaded from file '"+errors_path+"'.", log_path.c_str());
+
+        //sort the error table to decreasing pos
+        EL.Compare = Error::comparePos;
+        EL.SortDec();
+
+        //check the precondition
+        int p = 0;
+        while(p < EL.getCount() && EL[p].getPos() != pos)
+            p++;
+        if(p > EL.getCount())
+            throw EImproperArgument("number of positions to be into account (pos) should be in the file type error");
+
+        //delete the positions whose error.pos > pos
+        for(i=0; i<p; i++) {
+            Error error = EL[i];
+
+            //make a rutinary check
+            if(error.getPos() <= pos)
+                throw EImpossibleError("lateral effect");
+
+            //get the position from the error
+            Position position;
+            error.worstPosition.get(position);
+
+            //search the position starting by the end of the position list
+            int j = measures.PL.getCount() - 1;
+            while(j >= 0 && measures.PL[j] != position)
+                j--;
+
+            //delete the position if has found it
+            if(j >= 0)
+                measures.PL.Delete(j);
+            else
+                throw EImproperFileLoadedValue("file type error not correspond to the file tyoe measures");
+        }
+
+        //get the tuning parameters from measures to the RP
+        measures.getTuningParameters(RP);
+        append("\r\nNot tuned parameters got from measures to the RP.", log_path.c_str());
+
+        //determine the error before fast tuning
+        Error error;
+        measures.determineError(error, RP);
+        append("Error determined before fast tuning:", log_path.c_str());
+        append(StrIndent(error.getAssignText()).str, log_path.c_str());
+
+        //get the tuning parameters from error to the RP
+        error = EL[p];
+        error.tuningParameters.get(RP);
+        append("\r\nFast tuned parameters got from error to the RP.", log_path.c_str());
+
+        //determine the error before fine tuning
+        measures.determineError(error, RP);
+        append("Error determined before fine tuning:", log_path.c_str());
+        append(StrIndent(error.getAssignText()).str, log_path.c_str());
+
+        //make the fine tuning
+        RoboticPositionerTuner RPT;
+        RPT.setFineTuningMode();
+        RPT.verbose = true;
+        RPT.tune(RP, &measures);
+
+        //determine the error after fine tuning
+        measures.determineError(error, RP);
+        append("\r\n\r\nError determined after fine tuning:", log_path.c_str());
+        append(StrIndent(error.getAssignText()).str, log_path.c_str());
+
+        //get the filename from measures_path
+        string dir, filename;
+        splitpath(dir, filename, measures_path);
+
+        //save the measures (with the fine tuned parameters)
+        measures.setTuningParameters(RP);
+        measures.getText(str);
+        string output_path = output_dir + "/fine-tuned-parameters-" + inttostr(pos) + "_from_" + filename;
+        strWriteToFile(output_path, str);
+        append("\r\nTuned parameters saved in file '"+output_path+"'.", log_path.c_str());
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "translating from PPA (in steps) to CC-S0 (in mm): ");
+        throw;
+    }
+}
+
+//Apply a set of tuning files to the FMM Instance.
+void applyTuning(TFiberMOSModel& FMM, const string& tuning_path, string& log_path)
+{
+    try {
+        //load the file type tuning
+        string str;
+        strReadFromFile(str, tuning_path);
+        Measures measures;
+        measures.setText(str);
+        append("Mesures loaded from file '"+tuning_path+"'.", log_path.c_str());
+
+        //check the preconditions
+        if(measures.PL.getCount() <= 0)
+            throw EImproperFileLoadedValue("measures should contains almos a position");
+
+        //search the RP (of the minibundle) in the FMM
+        int i = FMM.RPL.searchId(measures.minibundle);
+
+        //check that has found the RP
+        if(i >= FMM.RPL.getCount())
+            throw EImproperFileLoadedValue("minibundle not found in the FMM: " + inttostr(measures.minibundle));
+
+        //point the RP
+        TRoboticPositioner *RP = FMM.RPL[i];
+
+        //get the tuning parameters from the measures
+        measures.getTuningParameters(RP);
+        append("\r\nParameters got from measures:", log_path.c_str());
+        append("    P0: "+RP->getActuator()->getP0Text().str+" mmxmm", log_path.c_str());
+        append("    L01: "+RP->getActuator()->getL01Text().str+" mm", log_path.c_str());
+        append("    L13: "+RP->getActuator()->getArm()->getL13Text().str+" mm", log_path.c_str());
+        append("    thetaO1: "+RP->getActuator()->getthetaO1Text().str+" rad", log_path.c_str());
+        append("    theta_O3o: "+RP->getActuator()->gettheta_O3oText().str+" rad", log_path.c_str());
+
+        //assimilate the new parameters
+        FMM.assimilate();
+        append("\r\nNew tuning parameters assimilated.", log_path.c_str());
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "aplying RP Instance: ");
+        throw;
+    }
+}
+
+//translate from SSA (in steps) to CC in S0 (in mm)
+void PPA_to_CC_S0(TFiberMOSModel& FMM, const string& PPAL_path, const string& output_dir, string& log_path)
+{
+    try {
+        //load the PPA list
+        string str;
+        strReadFromFile(str, PPAL_path);
+        TPairPositionAnglesList PPAL;
+        PPAL.setText(str);
+        append("PPA list loaded from file '"+PPAL_path+"'.", log_path.c_str());
+
+        //check the preconditions
+        if(PPAL.getCount() != FMM.RPL.getCount())
+            throw EImproperFileLoadedValue("PPA list should contain a PPA for each RP (including disabled RPs)");
+
+        //set the PPA list in the FMM
+        FMM.RPL.setPositions(PPAL);
+
+        //split the path of the file
+        string dir, filename;
+        splitpath(dir, filename, PPAL_path);
+
+        //The filename will be used to attach the outputs filenames witht the input filename.
+
+        //get the positions in CC-S0
+        str = TActuator::getPositionP3LabelsRow().str;
+        str += "\r\n";
+        str += FMM.RPL.getPositionsP3TableText().str;
+        string output_path = output_dir + "/CC-S0-L_from_" + filename;
+        strWriteToFile(output_path, str);
+        append("CC-S0 list saved in file '"+output_path+"'.", log_path.c_str());
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "translating from PPA (in steps) to CC-S0 (in mm): ");
+        throw;
+    }
+}
+
+//---------------------------------------------------------------------------------
+//FUNCTIONS FOR PARKING PROGRAM:
+//---------------------------------------------------------------------------------
+
+//Generate a parking program offline.
+//Inputs:
+//  FMM: the Fiber MOS Model
+//  input_path: path to the input file type FMOSA
+//  output_dir: path to the output directory hwere save the output files
+//  log_path: path of the log file where save the events
+//Outputs:
+//  generateParkProg_offline: indicates if the generated parking program is valid
+//      and if there aren't neither collider nor obstructed RPs
+bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, const string& output_dir, const string& log_path,
+                              //------------------------------------------------------
+                              bool saveSPL, bool saveCPL, bool saveFPL,
+                              bool saveDmin, bool saveDend,
+                              bool saveDispCorners1, bool saveDispCorners2,
+                              bool saveFMPT, bool saveMCS,
+                              bool saveOutputs, bool saveOtherOutputs)
 {
     try {
 
         //LOAD SETTINGS FROM FILES:
 
-        //load the FMOSA table from the file input_path
-        string str;
-        Outputs outputs;
+        //load the FMOSA from the file input_path
+        TFMOSA FMOSA;
         unsigned int Bid;
-        try {
-            strReadFromFileWithComments(str, input_path);
-            outputs.FMOSAT.setTableText(Bid, str);
+        string str;
+        strReadFromFileWithComments(str, input_path);
+        FMOSA.setTableText(Bid, str);
+        append("FMOSA loaded from file '"+input_path+"'.", log_path.c_str());
 
-        } catch(Exception& E) {
-            E.Message.Insert(1, "reading FMOSA file: ");
-            throw;
+        //get the anbled not operative RPs
+        TRoboticPositionerList EnabledNotOperative;
+        for(int i=0; i<FMM.RPL.getCount(); i++) {
+            TRoboticPositioner *RP = FMM.RPL[i];
+            if(!RP->Disabled && !RP->getOperative())
+                EnabledNotOperative.Add(RP);
         }
-        append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
 
-        //get the allocation from the FMOSA table
+        //get the allocation from the FMOSA
         TMotionProgramGenerator MPG(&FMM);
-        outputs.FMOSAT.getAllocations(MPG);
-        append("Allocations got from the FMOSA table in MPG.", log_filename.c_str());
+        FMOSA.getAllocations(MPG);
+        append("Allocations got from the FMOSA to MPG.", log_path.c_str());
 
         //MAKE THE OPERATIONS:
 
-        //split the path of the file containing the FMOSA table
-        string parent_path, filename;
-        splitpath(parent_path, filename, input_path);
+        //split the path of the file containing the FMOSA
+        string dir, filename;
+        splitpath(dir, filename, input_path);
 
         //The filename will be used to attach the outputs filenames witht the input filename.
 
-        //move the RPs to the more closer stable position to the allocated projection points
+        //move the RPs to the more closer stable point to the TPs
         MPG.MoveToTargetP3();
         if(MPG.getCount() > 0)
-            append("RPs moved to observing positions.", log_filename.c_str());
+            append("RPs moved to observing positions.", log_path.c_str());
         else
-            append("There aren't RPs to be moved to observing positions.", log_filename.c_str());
+            append("There aren't RPs to be moved to observing positions.", log_path.c_str());
 
         //WARNING: sentence could take several seconds:
         //  MPG.MoveToTargetP3();
 
-        //check the limiting case when there aren't allocation
-
-        //Other way to obtain the more closer stable positions to the allocated projection points,
-        //consist in get from the FMOSA table the following lists:
+        //Other way to obtain the more closer stable points to the projection points,
+        //consist in get from the FMOSA the following lists:
         //  the allocation list;
         //  the projection point list.
         //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
 
-        //A PPA table shall be stored how a table (Id, p_1, p___3).
+        //A PPA list shall be stored how a table (Id, p_1, p___3).
 
-        //captures the observing positions of the RPs in a PPA list
-        TPairPositionAnglesList OPL;
-        FMM.RPL.getPositions(OPL);
-        string output_filename;
+        //captures the starting positions of the RPs in a PPA list
+        TPairPositionAnglesList SPL;
+        FMM.RPL.getPositions(SPL);
+        append("Starting Position List got from the FMM.", log_path.c_str());
 
-        //save OPL, if any
-        if(saveOPL) {
+        //save SPL in a file, if any
+        string output_path;
+        if(saveSPL) {
             str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+OPL.getColumnText().str;
+            str += "\r\n"+SPL.getColumnText().str;
             ForceDirectories(AnsiString(output_dir));
-            output_filename = output_dir+"/OPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing Position List (in Pair Position Angles) saved in '"+output_filename+"'.", log_filename.c_str());
+            output_path = output_dir+"/ParkProg_SPL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Starting Position List saved in file '"+output_path+"'.", log_path.c_str());
         }
 
-        //Other whay to obtain the observing position table directly in text format:
+        //Other whay to obtain the starting position list directly in text format:
         //  FMM.RPL.getPositionsPPATableText()
 
-        //save OPL in cartesian coordinates respect S0, if any
-        if(saveOPL_S0) {
-            str = TActuator::getPositionP3LabelsRow().str;
-            str += "\r\n";
-            str += FMM.RPL.getPositionsP3TableText().str;
-            output_filename = output_dir+"/OPL_S0-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing Position List (in Cart. Coord. respect S0) saved in '"+output_filename+"'.", log_filename.c_str());
-        }
-
-        //save OPL in cartesian coordinates respect S1, if any
-        if(saveOPL_S1) {
-            str = TActuator::getPositionP_3LabelsRow().str;
-            str += "\r\n";
-            str += FMM.RPL.getPositionsP_3TableText().str;
-            output_filename = output_dir+"/OPL_S1-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing Position List (in Cart. Coord. respect S1) saved in '"+output_filename+"'.", log_filename.c_str());
-        }
-
         //captures the corner of arms in the observing positions in cartesian coordinates
-        TItemsList<TDoublePoint> OPL_Corners1;
-        FMM.RPL.getPositionsCorners1(OPL_Corners1);
-        TItemsList<TDoublePoint> OPL_Corners2;
-        FMM.RPL.getPositionsCorners2(OPL_Corners2);
+        TItemsList<TDoublePoint> SPL_Corners1;
+        FMM.RPL.getPositionsCorners1(SPL_Corners1);
+        TItemsList<TDoublePoint> SPL_Corners2;
+        FMM.RPL.getPositionsCorners2(SPL_Corners2);
 
-        //segregates the operative outsider RPs
+        //segregates the enabled outsider RPs
         TRoboticPositionerList Outsiders;
-        FMM.RPL.segregateOperativeOutsiders(Outsiders);
+        FMM.RPL.segregateEnabledOutsiders(Outsiders);
+
+        //get the list of colliding items (both EAs and RPs) in text format
+        FMM.RPL.setPurpose(pGenParPro);
+        string collided_str;
+        FMM.getCollidedText(collided_str);
+
+        //Note that MPG.generateParkProg will execute automatically:
+        //  //configure the Fiber MOS Model for generate a parking program
+        //  getFiberMOSModel()->RPL.setPurpose(pGenParPro);
 
         //check the limiting case when there aren't allocations
         if(MPG.getCount() <= 0)
-            append("WARNING: there aren't allocations. The generated parking program will be empty.", log_filename.c_str());
+            append("WARNING: there aren't allocations. The generated parking program will be empty.", log_path.c_str());
         //check the limiting case when all operative RPs are in the origin
         else if(FMM.RPL.allOperativeRPsAreInTheOrigin())
-            append("WARNING: all operative RPs are in the origin. The generated pair (PP, DP) will be empty.", log_filename.c_str());
+            append("WARNING: all operative RPs are in the origin. The generated parking program will be empty.", log_path.c_str());
         //else, check the limiting case when all operative RPs are in security positions
         else if(Outsiders.getCount() <= 0)
-            append("WARNING: all operative RPs are in security positions. The generated pair (PP, DP) will contains only a message-instruction list to go to the observing positions and back to the origin.", log_filename.c_str());
+            append("WARNING: all operative RPs are in security positions. The generated parking program will contains only a message-instruction list to go to the origin.", log_path.c_str());
 
-        //Now are fulfilled the preconditions:
-        //  All RPs of the Fiber MOS Model, shall be in their observing positions.
-        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-        //  All RPs of the list Outsiders, shall be operatives.
-        //  All RPs of the list Outsiders, shall be in unsecurity positions.
-        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
+        //Now are fulfilled the preconditions for the function TMotionProgramGenerator::generateParkProg:
+        //  All RPs of the Fiber MOS Model:
+        //      shall be in their starting positions.
+        //  All RPs of the list Outsiders:
+        //      shall be in the Fiber MOS Model.
+        //      shall be operatives.
+        //      shall be in insecurity positions.
+        //      shall have enabled the quantifiers.
 
-        //generates a pair (PP, DP) for the operative RPs in unsecurity positions
+        //generates a parking program for the operative RPs in insecure positions
         //and determines the RPs in collision status or obstructed in insecure positions
-        append("Generating pair (PP, DP)...", log_filename.c_str());
-        PPvalid = false;
-        DPvalid = false;
-        Collided.Clear();
-        Obstructed.Clear();
-        PP.Clear();
-        DP.Clear();
-        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
+        append("Generating a parking program...", log_path.c_str());
+        TRoboticPositionerList Collided;
+        TRoboticPositionerList Obstructed;
+        TMotionProgram ParkProg;
+        bool ParkProgValid = MPG.generateParkProg(Collided, Obstructed, ParkProg, Outsiders);
 
         //Now are fulfilled the postconditions:
-        //  All RPs of the Fiber MOS Model will be configured for MP validation.
-        //  All RPs of the fiber MOS Model will be in their origin positions,
-        //  or the first position where the collision was detected.
-        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
+        //  All RPs of the FMM:
+        //      will be configured for validate a parking program.
+        //  When the generated recovery program isn't valid:
+        //      All RPs of the FMM:
+        //          will have disabled the quantifiers of their rotors;
+        //          will be in the first position where the collision was detected
+        //              during the validation process.
+        //  When the generated recovery program is valid (even the trivial case):
+        //      All RPs of the FMM:
+        //          will have enabled the quantifiers of their rotors;
+        //          will be in their final positions.
 
         //########################################################################
         //#WARNING: before re-use a function to generation, shall be restablished#
         //#the preconditions.                                                    #
         //########################################################################
 
+        //captures the final positions of the RPs in a PPA list
+        TPairPositionAnglesList FPL;
+        FMM.RPL.getPositions(FPL);
+        append("Final Position List got from the FMM.", log_path.c_str());
+
         //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
-        //if the pair (PP, DP) is valid
-        if(PPvalid && DPvalid) {
-            //indicates the result of the generation
-            append("Generated pair (PP, DP) is valid.", log_filename.c_str());
+        //########################################################################
+        //FPL can be got only if the generated parking program is valid.
+        //CPL can be got only if the generated parking program is invalid.
+        //So will be saved as many as possible requested data in each circunstance
+        //of variables:
+        //  The generated parking program is valid:
+        //Function after generation if shown follow:
+        //########################################################################
+        //Warn about either collided or obstructed RPs, if any.
+        //----------------------------------------------------------------------
+        //If the generated parking program is valid:
+        //  warn about validity of the generated parking program
+        //
+        //  SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
+        //  if saveCPL: WARNING! Colliding Position List can't be got because the generated parking program avoid collisions.
+        //  get FPL
+        //  save FPL, if any
+        //  save DispCorners1, if any
+        //  save DispCorners2, if any
+        //  save ParkProg_Dmin, if any
+        //  save ParkProg_Dend, if any
+        //
+        //  SAVE FILES ABOUT MPs:
+        //  save ParkProg_FMPT, if any
+        //  save ParkProg
+        //
+        //  SAVE FILE OUTPUTS:
+        //  set values in the structure outputs
+        //  if there aren't enabled-not-collided RPs
+        //      save outputs
+        //  if there are enabled-not-collided RPs:
+        //      if outputs:
+        //          WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-collided RPs.
+        //          save outputs
+        //      if not outputs:
+        //          WARNING! File outputs will not be saved, because there are enabled-not-operative RPs. You can force write outputs by the argument outputs.
+        //  save other-outputs, if any
+        //
+        //--------------------------------------------------------------------------
+        //The generated parking program is invalid:
+        //  warn about invalidity of the generated parking program
+        //
+        //  SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
+        //  get CPL
+        //  save CPL, if any
+        //  if saveFPL: WARNING! Final Position List can't be got because the generated parking program not avoid collisions.
+        //  save DispCorners1, if any
+        //  save DispCorners2, if any
+        //  save ParkProg_Dmin, if any
+        //  save ParkProg_Dend, if any
+        //
+        //  SAVE FILES ABOUT MPs:
+        //  save ParkProg_FMPT, if any
+        //  save ParkProg, if any
+        //
+        //  SAVE FILE OUTPUTS:
+        //  set values in the structure outputs
+        //  if there aren't enabled-not-collided RPs
+        //      save outputs
+        //  if there are enabled-not-collided RPs:
+        //      if outputs:
+        //          WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-collided RPs.
+        //          save outputs
+        //      if not outputs:
+        //          WARNING! File outputs will not be saved, because there are enabled-not-operative RPs. You can force write outputs by the argument outputs.
+        //  save other-outputs, if any
+        //
+        //########################################################################
 
-            //save the PP in the format of the FMPT, if any
-            if(savePP_FMPT) {
-                str = PP.getText().str;
-                output_filename = output_dir+"/PP-FMPT-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("PP (in FMPT format) saved in '"+output_filename+"'.", log_filename.c_str());
+        //Warn about either enabled-not-operative or collided or obstructed RPs, if any.
+        if(EnabledNotOperative.getCount() > 0 || Collided.getCount() > 0 || Obstructed.getCount() > 0) {
+            if(EnabledNotOperative.getCount() > 0) {
+                append("WARNING! There are enabled not operative RPs:", log_path.c_str());
+                append("Enabled not operative RP Ids: "+EnabledNotOperative.getText().str, log_path.c_str());
             }
-
-            //save the DP in the format of the FMPT, if any
-            if(saveDP_FMPT) {
-                str = DP.getText().str;
-                output_filename = output_dir+"/DP-FMPT-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP (in FMPT format) saved in '"+output_filename+"'.", log_filename.c_str());
+            if(Collided.getCount() > 0) {
+                append("WARNING! There are collided items:", log_path.c_str());
+                append("Collided items: "+collided_str, log_path.c_str());
+                append("Collided RP Ids: "+Collided.getText().str, log_path.c_str());
             }
+            if(Obstructed.getCount() > 0) {
+                append("WARNING! There are obstructed RPs:", log_path.c_str());
+                append("Obstructed RP Ids: "+Obstructed.getText().str, log_path.c_str());
+            }
+            append("Nor enabled-not-operative nor collided nor obstructed RPs can be recoverded safely with the generated parking program.", log_path.c_str());
+        }
 
-            //Given that here the generated pair (PP, DP) is valid,
-            //all operative outsider RPs which aren't obstructed, can be:
-            //- in the origin positions, in their final position after execute the DP.
+        //If the generated parking program is valid:
+        if(ParkProgValid) {
+            //warn about validity of the generated parking program
+            append("Generated parking program is valid, so FPL can be got and CPL can't be got.", log_path.c_str());
+            if(Collided.getCount() > 0 || Obstructed.getCount() > 0)
+                append("The final positions of collided and obstructed RPs match with their starting position.", log_path.c_str());
 
-            //captures the initial positions of the RPs in a PPA list
-            TPairPositionAnglesList IPL;
-            FMM.RPL.getPositions(IPL);
+            //SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
 
-            //save IPL if any
-            if(saveIPL) {
+            //if saveCPL: WARNING! Colliding Position List (CPL) can't be got because the generated parking program avoid collisions.
+            if(saveCPL)
+                append("Colliding Position List (CPL) can't be got because RPs to be moved not collide.", log_path.c_str());
+
+            //get FPL
+            TPairPositionAnglesList FPL;
+            FMM.RPL.getPositions(FPL);
+            append("Final Position List got from the FMM.", log_path.c_str());
+
+            //save FPL, if any
+            if(saveFPL) {
                 str = TActuator::getPositionPPALabelsRow().str;
-                str += "\r\n"+IPL.getColumnText().str;
-                output_filename = output_dir+"/IPL-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Initial Position List (in Pair Position Angles in steps) saved in '"+output_filename+"'.", log_filename.c_str());
+                str += "\r\n"+FPL.getColumnText().str;
+                output_path = output_dir + "/ParkProg_FPL_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("Final Position List saved in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //Other whay to obtain the initial position list directly in text format:
-            //  FMM.RPL.getPositionsPPATableText()
+            //save DispCorners1, if any
+            if(saveDispCorners1) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners1;
+                FMM.RPL.getPositionsCorners1(IPL_Corners1);
 
-            //captures the corner of arms in the initial positions in cartesian coordinates
-            TItemsList<TDoublePoint> IPL_Corners1;
-            FMM.RPL.getPositionsCorners1(IPL_Corners1);
-            TItemsList<TDoublePoint> IPL_Corners2;
-            FMM.RPL.getPositionsCorners2(IPL_Corners2);
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners1(SPL_Corners1);
+                for(int i=0; i<DispCorners1.getCount(); i++) {
+                    DispCorners1[i].x -= IPL_Corners1[i].x;
+                    DispCorners1[i].y -= IPL_Corners1[i].y;
+                }
 
-            //calculates the displacement of each corner
-            TItemsList<TDoublePoint> Disp_Corners1(OPL_Corners1);
-            for(int i=0; i<Disp_Corners1.getCount(); i++) {
-                Disp_Corners1[i].x -= IPL_Corners1[i].x;
-                Disp_Corners1[i].y -= IPL_Corners1[i].y;
-            }
-            TItemsList<TDoublePoint> Disp_Corners2(OPL_Corners2);
-            for(int i=0; i<Disp_Corners2.getCount(); i++) {
-                Disp_Corners2[i].x -= IPL_Corners2[i].x;
-                Disp_Corners2[i].y -= IPL_Corners2[i].y;
-            }
-
-            //save the displacements of the corners 1 in text format, if any
-            if(saveDisp_Corners1) {
-                //Disp_Corners1.Print = TDoublePoint::PrintRow;
-                //str = Disp_Corners1.getText().str;
+                //DispCorners1.Print = TDoublePoint::PrintRow;
+                //str = DispCorners1.getText().str;
                 str = "Id\tdx\tdy";
                 for(int i=0; i<FMM.RPL.getCount(); i++) {
                     str += "\r\n";
                     TRoboticPositioner *RP = FMM.RPL[i];
                     str += RP->getActuator()->getIdText().str;
                     str += "\t";
-                    str += Disp_Corners1[i].getRowText().str;
+                    str += DispCorners1[i].getRowText().str;
                 }
-                output_filename = output_dir+"/Disp_Corners1-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Displacement corners 1 saved in '"+output_filename+"'.", log_filename.c_str());
+                output_path = output_dir + "/ParkProg_DispCorners1_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 1 saved in in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //save the displacements of the corners 2 in text format, if any
-            if(saveDisp_Corners2) {
-                //Disp_Corners2.Print = TDoublePoint::PrintRow;
-                //str = Disp_Corners2.getText().str;
+            //save DispCorners2, if any
+            if(saveDispCorners2) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners2;
+                FMM.RPL.getPositionsCorners2(IPL_Corners2);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners2(SPL_Corners2);
+                for(int i=0; i<DispCorners2.getCount(); i++) {
+                    DispCorners2[i].x -= IPL_Corners2[i].x;
+                    DispCorners2[i].y -= IPL_Corners2[i].y;
+                }
+
+                //DispCorners2.Print = TDoublePoint::PrintRow;
+                //str = DispCorners2.getText().str;
                 str = "Id\tdx\tdy";
                 for(int i=0; i<FMM.RPL.getCount(); i++) {
                     str += "\r\n";
                     TRoboticPositioner *RP = FMM.RPL[i];
                     str += RP->getActuator()->getIdText().str;
                     str += "\t";
-                    str += Disp_Corners2[i].getRowText().str;
+                    str += DispCorners2[i].getRowText().str;
                 }
-                output_filename = output_dir+"/Disp_Corners2-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Displacement corners 2 saved in '"+output_filename+"'.", log_filename.c_str());
+                output_path = output_dir + "/ParkProg_DispCorners2_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 2 saved in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //save PP in a file, in MCS format, if any
-            if(savePP) {
-                PP.getInterfaceText(str, "pos", Bid, IPL, r2_negative);
-                output_filename = output_dir+"/PP-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("PP (in MCS format) saved in '"+output_filename+"'.", log_filename.c_str());
+            //save ParkProg_Dmin, if any
+            if(saveDmin) {
+                ParkProg.getDminInterfaceText(str, "depos", Bid);
+                output_path = output_dir + "/ParkProg_Dmin_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("ParkProg-Dmin saved in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //save DP in a file, in MCS format, if any
-            if(saveDP) {
-                DP.getInterfaceText(str, "depos", Bid, OPL, r2_negative);
-                output_filename = output_dir+"/DP-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP (in MCS format) saved in '"+output_filename+"'.", log_filename.c_str());
+            //save ParkProg_Dend, if any
+            if(saveDend) {
+                ParkProg.getDendInterfaceText(str, "depos", Bid);
+                output_path = output_dir + "/ParkProg_Dend_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("ParkProg-Dend saved in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //set the pair (PP, DP) in the output structure
-            outputs.PP = PP;
-            outputs.DP = DP;
+            //SAVE FILES ABOUT MPs:
 
-            //save the fiberMOS file, if any
-            if(saveFiberMOS) {
-                outputs.getFiberMOSText(str, Bid, OPL, IPL, r2_negative);
-                output_filename = output_dir+"/fiberMOS.txt";
-                strWriteToFile(output_filename, str);
-                append("Pair (PP, DP) (in fiberMOS format) saved in '"+output_filename+"'.", log_filename.c_str());
+            //save ParkProg_FMPT, if any
+            if(saveFMPT) {
+                str = ParkProg.getText().str;
+                output_path = output_dir + "/ParkProg_FMPT_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("Parking program in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //get the outputs file
-            outputs.getOutputsText(str, Bid, OPL, IPL, r2_negative);
-            output_filename = output_dir+"/outputs-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Pair (PP, DP) (in the output format) saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //save PP-Dmin in a file, if any
-            if(savePP_Dmin) {
-                PP.getDminInterfaceText(str, "pos", Bid);
-                output_filename = output_dir+"/PP-Dmin-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("PP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
+            //save ParkProg_MCS, if any
+            if(saveMCS) {
+                ParkProg.getInterfaceText(str, "depos", Bid, SPL);
+                output_path = output_dir + "/ParkProg_MCS_from_" + filename;
+                strWriteToFile(output_path, str);
+                append("Parking program in format MCS saved in file '"+output_path+"'.", log_path.c_str());
             }
 
-            //save PP-Dend in a file, if any
-            if(savePP_Dend) {
-                PP.getDendInterfaceText(str, "pos", Bid);
-                output_filename = output_dir+"/PP-Dend-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("PP-Dend saved in '"+output_filename+"'.", log_filename.c_str());
+            //SAVE FILE OUTPUTS:
+
+            //set values in the structure outputs
+
+            //properties for built comments about file outputs
+            OutputsParkProg outputs;
+            outputs.FMOSA_filename = filename;
+            outputs.FMPT_version = FMPT_VERSION;
+            outputs.datetime = strfromtime_t(time(NULL));
+            outputs.EnabledNotOperative = EnabledNotOperative;
+            outputs.collided_str = collided_str;
+            outputs.Collided = Collided;
+            outputs.Obstructed = Obstructed;
+            //properties for built comments about each MP
+            outputs.ParkProgValid = ParkProgValid;
+            outputs.DsecMax = 1;
+            //properties for built the executable data
+            outputs.Bid = Bid;
+            outputs.SPL = SPL;
+            outputs.ParkProg = ParkProg;
+            outputs.FPL = FPL;
+
+            //if there aren't enabled-not-collided RPs
+            if(EnabledNotOperative.getCount() <= 0) {
+                //save outputs
+                outputs.getText(str);
+                output_path = output_dir+"/ParkProg_outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Parking Program in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+            //if there are enabled-not-collided RPs:
+            else {
+                //if outputs:
+                if(saveOutputs) {
+                    //WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-collided RPs.
+                    append("WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-collided RPs.", log_path.c_str());
+                    //save outputs
+                    outputs.getText(str);
+                    output_path = output_dir+"/ParkProg_outputs_from_"+filename;
+                    strWriteToFile(output_path, str);
+                    append("Parking Program in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+                }
+                //if not outputs:
+                else {
+                    //WARNING! File outputs will not be saved, because there are enabled-not-operative RPs. You can force write outputs by the argument outputs.
+                    append("WARNING! File outputs will not be saved, because there are enabled-not-operative RPs. You can force write outputs by the argument outputs.", log_path.c_str());
+                }
             }
 
-            //save DP-Dmin in a file, if any
-            if(saveDP_Dmin) {
-                DP.getDminInterfaceText(str, "depos", Bid);
-                output_filename = output_dir+"/DP-Dmin-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
-            }
-
-            //save DP-Dend in a file, if any
-            if(saveDP_Dend) {
-                DP.getDendInterfaceText(str, "depos", Bid);
-                output_filename = output_dir+"/DP-Dend-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP-Dend saved in '"+output_filename+"'.", log_filename.c_str());
+            //save other-outputs, if any
+            if(saveOtherOutputs) {
+                outputs.getOtherText(str);
+                output_path = output_dir+"/ParkProg_other-outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Comments about generated parking program saved in file '"+output_path+"'.", log_path.c_str());
             }
         }
+        //The generated parking program is invalid:
         else {
-            //Given that here the generated pair (PP, DP) is invalid,
-            //all operative outsider RPs which aren't obstructed, can be:
-            //- in the first position where the collision was detected.
+            //warn about invalidity of the generated parking program
+            append("Generated parking program have not passed the validation process, so the FMM is", log_path.c_str());
+            append("in their colliding position, detected during validation process.", log_path.c_str());
 
-            //print the result of generation of the DP
-            if(DPvalid)
-                append("Generated DP is valid.", log_filename.c_str());
-            else
-                append("Generated DP is not valid.", log_filename.c_str());
+            //SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
 
-            //print the result of generation of the PP
-            if(PPvalid)
-                append("Generated PP is valid.", log_filename.c_str());
-            else
-                append("Generated PP is not valid.", log_filename.c_str());
+            //get CPL
+            TPairPositionAnglesList CPL;
+            FMM.RPL.getPositions(CPL);
+            append("Colliding Position List got from the FMM.", log_path.c_str());
+
+            //save CPL, if any
+            if(saveCPL) {
+                str = TActuator::getPositionPPALabelsRow().str;
+                str += "\r\n"+CPL.getColumnText().str;
+                output_path = output_dir+"/ParkProg_CPL_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Final Position List saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //if saveFPL: WARNING! Final Position List (FPL) can't be got because the generated parking program not avoid collisions.
+            if(saveFPL)
+                append("Final Position List (FPL) can't be got because RPs to be moved not collide.", log_path.c_str());
+
+            //save DispCorners1, if any
+            if(saveDispCorners1) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners1;
+                FMM.RPL.getPositionsCorners1(IPL_Corners1);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners1(SPL_Corners1);
+                for(int i=0; i<DispCorners1.getCount(); i++) {
+                    DispCorners1[i].x -= IPL_Corners1[i].x;
+                    DispCorners1[i].y -= IPL_Corners1[i].y;
+                }
+
+                //DispCorners1.Print = TDoublePoint::PrintRow;
+                //str = DispCorners1.getText().str;
+                str = "Id\tdx\tdy";
+                for(int i=0; i<FMM.RPL.getCount(); i++) {
+                    str += "\r\n";
+                    TRoboticPositioner *RP = FMM.RPL[i];
+                    str += RP->getActuator()->getIdText().str;
+                    str += "\t";
+                    str += DispCorners1[i].getRowText().str;
+                }
+                output_path = output_dir+"/ParkProg_DispCorners1_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 1 saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DispCorners2, if any
+            if(saveDispCorners2) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners2;
+                FMM.RPL.getPositionsCorners2(IPL_Corners2);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners2(SPL_Corners2);
+                for(int i=0; i<DispCorners2.getCount(); i++) {
+                    DispCorners2[i].x -= IPL_Corners2[i].x;
+                    DispCorners2[i].y -= IPL_Corners2[i].y;
+                }
+
+                //DispCorners2.Print = TDoublePoint::PrintRow;
+                //str = DispCorners2.getText().str;
+                str = "Id\tdx\tdy";
+                for(int i=0; i<FMM.RPL.getCount(); i++) {
+                    str += "\r\n";
+                    TRoboticPositioner *RP = FMM.RPL[i];
+                    str += RP->getActuator()->getIdText().str;
+                    str += "\t";
+                    str += DispCorners2[i].getRowText().str;
+                }
+                output_path = output_dir+"/ParkProg_DispCorners2_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 2 saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save ParkProg_Dmin, if any
+            if(saveDmin) {
+                ParkProg.getDminInterfaceText(str, "depos", Bid);
+                output_path = output_dir+"/ParkProg_Dmin_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("ParkProg-Dmin saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save ParkProg_Dend, if any
+            if(saveDend) {
+                ParkProg.getDendInterfaceText(str, "depos", Bid);
+                output_path = output_dir+"/ParkProg_Dend_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("ParkProg-Dend saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //SAVE FILES ABOUT MPs:
+
+            //save ParkProg_FMPT, if any
+            if(saveFMPT) {
+                str = ParkProg.getText().str;
+                output_path = output_dir+"/ParkProg_FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Parking program in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //SAVE FILE OUTPUTS:
+
+            //set values in the structure outputs
+
+            //properties for built comments about file outputs
+            OutputsParkProg outputs;
+            outputs.FMOSA_filename = filename;
+            outputs.FMPT_version = FMPT_VERSION;
+            outputs.datetime = strfromtime_t(time(NULL));
+            outputs.EnabledNotOperative = EnabledNotOperative;
+            outputs.collided_str = collided_str;
+            outputs.Collided = Collided;
+            outputs.Obstructed = Obstructed;
+            //properties for built comments about each MP
+            outputs.ParkProgValid = ParkProgValid;
+            //properties for built the executable data
+            outputs.Bid = Bid;
+            outputs.SPL = SPL;
+            outputs.ParkProg = ParkProg;
+            outputs.FPL = FPL;
+
+            //if there aren't enabled-not-collided RPs
+            if(EnabledNotOperative.getCount() <= 0) {
+                //save outputs
+                outputs.getText(str);
+                output_path = output_dir+"/ParkProg_outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Parking Program in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+            //if there are enabled-not-collided RPs:
+            else {
+                //if outputs:
+                if(saveOutputs) {
+                    //WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-collided RPs.
+                    append("WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-collided RPs.", log_path.c_str());
+                    //save outputs
+                    outputs.getText(str);
+                    output_path = output_dir+"/ParkProg_outputs_from_"+filename;
+                    strWriteToFile(output_path, str);
+                    append("Parking Program in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+                }
+                //if not outputs:
+                else {
+                    //WARNING! File outputs will not be saved, because there are enabled-not-operative RPs. You can force write outputs by the argument outputs.
+                    append("WARNING! File outputs will not be saved, because there are enabled-not-operative RPs. You can force write outputs by the argument outputs.", log_path.c_str());
+                }
+            }
+
+            //save other-outputs, if any
+            if(saveOtherOutputs) {
+                outputs.getOtherText(str);
+                output_path = output_dir+"/ParkProg_other-outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Comments about generated parking program saved in file '"+output_path+"'.", log_path.c_str());
+            }
         }
-
-        if(Obstructed.getCount() > 0)
-            append("There are obstructed RPs: "+Obstructed.getText().str, log_filename.c_str());
-
-        if(Collided.getCount() > 0)
-            append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
-
-        //save the other outputs in the corresponding file
-        str = "DPvalid: "+BoolToStr(DPvalid,true).str;
-        str += "\r\nPPvalid: "+BoolToStr(PPvalid,true).str;
-        str += "\r\nCollided: "+Collided.getText().str;
-        str += "\r\nObstructed: "+Obstructed.getText().str;
-        if(DP.thereIsSomeComment1())
-            str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
-        if(PP.thereIsSomeComment1())
-            str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
-        output_filename = output_dir+"/other_outputs-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
+        //indicates if the generated parking program is valid and if there aren't neither collided nor obstructed RPs
+        bool valid = ParkProgValid && Collided.getCount()<=0 && Obstructed.getCount()<=0;
+        return valid;
     }
     catch(Exception& E) {
-        E.Message.Insert(1, "generating pair (PP, DP) offline: ");
-        throw;
-    }
-    catch(...) {
+        E.Message.Insert(1, "generating parking program offline: ");
         throw;
     }
 }
 
-//Test the function generatePairPPDP_offline.
-void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
+//Test the function generateParkProg_offline.
+void test_generateParkProg_offline(TFiberMOSModel& FMM, string& log_path)
 {
     try {
 
@@ -1032,35 +1646,29 @@ void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
         //builds the MPG attached to the FMM
         TMotionProgramGenerator MPG(&FMM);
 
-        //outputs parameters of the function generatePairPPDP_offline
-        TRoboticPositionerList Collided, Obstructed;
-        TMotionProgram PP, DP;
-        bool PPvalid, DPvalid;
-
-        //inputs parameters of the function generatePairPPDP_offline
-        string input_path; //path of input file
-        string output_dir; //folder to put the outputss
-
         //other variables
         int count = 0; //number os simulations
+        string input_path; //path of input file
         string filename; //filename of reference including the number of simulation
-        string output_filename; //output filename each time
+        string output_dir; //folder to put the outputss
+        string output_path; //output filename each time
         string str; //string to writo to file each time
-
-        //initialize the output directory
-        output_dir = "test_generatePairPPDP_offline";
-        ForceDirectories(AnsiString(output_dir));
+        bool valid; //indicates if the generated parking program is valid and if there aren't neither collided nor obstructed RPs
 
         do {
             //contabilize the test and print the test tittle
-            append("TEST "+inttostr(++count)+":", log_filename.c_str());
-            append("========================================================================", log_filename.c_str());
+            append("TEST "+inttostr(++count)+":", log_path.c_str());
+            append("========================================================================", log_path.c_str());
+
+            //initialize the output subdirectory
+            output_dir = "test_generateParkProg_offline-"+inttostr(count);
+            ForceDirectories(AnsiString(output_dir));
 
             //build the filename of reference
-            filename = "test-"+inttostr(count)+".txt";
+            filename = output_dir+".txt";
 
             //-------------------------------------------------------------------
-            //GENERATES A FILE CONTAINING A RANDOM FMOSA TABLE:
+            //GENERATES A FILE CONTAINING A RANDOM FMOSA:
 
             //add to the MPG an allocation for each RP of the FMM
             Destroy(MPG);
@@ -1068,23 +1676,23 @@ void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
                 MPG.AddAllocation(i);
 
             //randomize the projection points in the domain of their attached RPs
-            FMM.RPL.setPurpose(pGenPairPPDP);
-            append("FMM configured for generate a pair (PP, DP). (Purpose = GenPairPPDP).", log_filename.c_str());
+            FMM.RPL.setPurpose(pGenParPro);
+            append("FMM configured for generate a pair (PP, DP). (Purpose = GenParPro).", log_path.c_str());
             MPG.RandomizeWithoutCollision();
-            append("Projection points randomized avoinding collisions.", log_filename.c_str());
+            append("Projection points randomized avoinding collisions.", log_path.c_str());
 
             //WARNING: sentence could take several seconds:
             //  MPG.RandomizeWithoutCollision();
 
-            //save the allocation table
+            //save the allocation list
             str = TAllocation::GetIdPPLabelsRow().str;
             str += "\r\n"+MPG.getColumnText().str;
-            output_filename = output_dir+"/AL-for-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
+            output_path = output_dir+"/AL-for-"+filename;
+            strWriteToFile(output_path, str);
+            append("Allocation list saved in file '"+output_path+"'.", log_path.c_str());
 
-            //build a FMOSA table and set the allocations
-            TFMOSATable FMOSAT;
+            //build a FMOSA and set the allocations
+            TFMOSA FMOSA;
             for(int i=0; i<MPG.getCount(); i++) {
                 TAllocation *A = MPG[i];
 
@@ -1113,53 +1721,53 @@ void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
                 //OS->there_is_notAllocated = true;
                 //OS->there_is_allocateInAll = true;
 
-                //add the OS to the FMOSA table
-                FMOSAT.Add(OS);
+                //add the OS to the FMOSA
+                FMOSA.Add(OS);
             }
 
-            //save the FMOSA table in a file
-            FMOSAT.getTableText(str);
-            output_filename = output_dir+"/FMOSA-for-"+filename;
-            strWriteToFile(output_filename, str);
-            append("FMOSA table saved in '"+output_filename+"'.", log_filename.c_str());
+            //save the FMOSA in a file
+            FMOSA.getTableText(str);
+            output_path = output_dir+"/FMOSA-for-"+filename;
+            strWriteToFile(output_path, str);
+            append("FMOSA saved in file '"+output_path+"'.", log_path.c_str());
 
             //-------------------------------------------------------------------
-            //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) OFFLINE:
+            //TEST THE FUNCTION TO GENERATE PAIRS (PP, DP):
 
             //initializes the parameters of the function:
             Destroy(MPG);
-            input_path = output_filename;
+            input_path = output_path;
 
             //call the function to test
-            append("Calling function generatePairPPDP_offline...", log_filename.c_str());
-            append("------------------------------------------------------------------------", log_filename.c_str());
-            append("generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,", log_filename.c_str());
-            append("                         FMM, input_path, output_dir, log_filename);", log_filename.c_str());
-            generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,
-                                     FMM, input_path, output_dir, log_filename,
-                                     true, true, true, true, true,
-                                     true, true, true, true, true,
-                                     true, true, true, true, true, true);
-            append("------------------------------------------------------------------------", log_filename.c_str());
-            append("Returned from function generatePairPPDP_offline.", log_filename.c_str());
+            append("Calling function generateParkProg_offline...", log_path.c_str());
+            append("-------------------------------------------------------------------", log_path.c_str());
+            append("generateParkProg_offline(FMM, input_path, output_dir, log_path);", log_path.c_str());
+            valid = generateParkProg_offline(FMM, input_path, output_dir, log_path,
+                                             true, true, true,
+                                             true, true,
+                                             true, true,
+                                             true, true,
+                                             true, true);
+            append("-------------------------------------------------------------------", log_path.c_str());
+            append("Returned from function generateParkProg_offline.", log_path.c_str());
 
             //WARNING: sentence could take several seconds:
-            //  generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,
-            //                           FMM, input_path, output_dir, log_filename);
+            //  generateParkProg_offline(FMM, input_path, output_dir, log_path,
+            //                           true, true, true,
+            //                           true, true,
+            //                           true, true
+            //                           true, true,
+            //                           true, true);
 
             //Note that the outputs are saved in the function to test.
 
             //prepare the standard output for the next test
-            append("", log_filename.c_str());
+            append("", log_path.c_str());
         }
-        while(PPvalid && DPvalid && Collided.getCount()<=0 && Obstructed.getCount()<=0);
+        while(valid);
 
-        //indicates that the test has failed
-        append("\r\nFailed test "+inttostr(count)+"!", log_filename.c_str());
-        append("PPvalid: "+BoolToStr(PPvalid, true).str, log_filename.c_str());
-        append("DPvalid: "+BoolToStr(DPvalid, true).str, log_filename.c_str());
-        append("Collided: "+Collided.gettText().str, log_filename.c_str());
-        append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str());
+        //indicates that test has failed
+        append("\r\nFailed test "+inttostr(count)+"!", log_path.c_str());
     }
     catch(Exception& E) {
         E.Message.Insert(1, "testing generatePairPPDP_offline: ");
@@ -1167,8 +1775,8 @@ void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_filename)
     }
 }
 
-//Test the function generatePairPPDP_online.
-void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
+//Test the function generateParkProg_online.
+void test_generateParkProg_online(TFiberMOSModel& FMM, string& log_path)
 {
     try {
 
@@ -1188,11 +1796,11 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
         //builds the MPG attached to the FMM
         TMotionProgramGenerator MPG(&FMM);
 
-        //outputs parameters of the function generatePairPPDP_online
-        bool PairPPDPvalid;
-        TMotionProgram PP, DP;
+/*        //outputs parameters of the function generateParkProg_online
+        bool ParkProgValid;
+        TMotionProgram ParkProg;
 
-        //inputs parameters of the function generatePairPPDP_online
+        //inputs parameters of the function generateParkProg_online
         vector<double> p_1s, p___3s;
         vector<int> Ids;
 
@@ -1200,19 +1808,21 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
         int Bid = 0; //block identification
         string filename; //filename of reference including the Bid
         string output_dir; //folder to put the outputss
-        string output_filename; //output filename each time
-        string str; //string to write to file each time
-
-        output_dir = "test_generatePairPPDP_online";
-        ForceDirectories(AnsiString(output_dir));
+        string output_path; //output filename each time
+        string str; //string to writo to file each time
+        OutputsPairPPDP outputs; //structure outputs for print the pair (PP, DP) with commentsa and without FMOSA
 
         do {
             //contabilize the test and print the test tittle
-            append("TEST "+inttostr(++Bid)+":", log_filename.c_str());
-            append("========================================================================", log_filename.c_str());
+            append("TEST "+inttostr(++Bid)+":", log_path.c_str());
+            append("========================================================================", log_path.c_str());
+
+            //build the outputs directory
+            output_dir = "test_generateParkProg_online-"+inttostr(Bid);
+            ForceDirectories(AnsiString(output_dir));
 
             //build the filename of reference
-            filename = "test-"+inttostr(Bid)+".txt";
+            filename = output_dir+".txt";
 
             //-------------------------------------------------------------------
             //RANDOMIZE THE POSITION ANGLES WITHOUT COLLISIONS AND SAVE THE ALLOCATIONS:
@@ -1223,20 +1833,20 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
                 MPG.AddAllocation(i);
 
             //randomize the projection points in the domain of their attached RPs
-            FMM.RPL.setPurpose(pGenPairPPDP);
-            append("FMM configured for generate a pair (PP, DP). (Purpose = GenPairPPDP).", log_filename.c_str());
+            FMM.RPL.setPurpose(pGenParPro);
+            append("FMM configured for generate a pair (PP, DP). (Purpose = GenParPro).", log_path.c_str());
             MPG.RandomizeWithoutCollision();
-            append("Projection points randomized avoinding collisions.", log_filename.c_str());
+            append("Projection points randomized avoinding collisions.", log_path.c_str());
 
             //WARNING: sentence could take several seconds:
             //  MPG.RandomizeWithoutCollision();
 
-            //save the allocation table
+            //save the allocation list
             str = TAllocation::GetIdPPLabelsRow().str;
             str += "\r\n"+MPG.getColumnText().str;
-            output_filename = output_dir+"/AL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
+            output_path = output_dir+"/ParkProg_AL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Allocation List saved in file '"+output_path+"'.", log_path.c_str());
 
             //-------------------------------------------------------------------
             //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) ONLINE:
@@ -1244,26 +1854,26 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
             //move the RPs to the more closer stable point to the projection points
             MPG.MoveToTargetP3();
             if(MPG.getCount() > 0)
-                append("RPs moved to observing positions.", log_filename.c_str());
+                append("RPs moved to observing positions.", log_path.c_str());
             else
-                append("There aren't RPs to be moved to observing positions.", log_filename.c_str());
+                append("There aren't RPs to be moved to observing positions.", log_path.c_str());
 
             //WARNING: sentence could take several seconds:
             //  MPG.MoveToTargetP3();
 
             //A PPA list shall be stored how a table (Id, p_1, p___3).
 
-            //captures the observing positions of the RPs in a PPA list
-            TPairPositionAnglesList OPL;
-            FMM.RPL.getPositions(OPL);
+            //captures the starting positions of the RPs in a PPA list
+            TPairPositionAnglesList SPL;
+            FMM.RPL.getPositions(SPL);
             str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+OPL.getColumnText().str;
+            str += "\r\n"+SPL.getColumnText().str;
             ForceDirectories(AnsiString(output_dir));
-            string output_filename = output_dir+"/OPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+            string output_path = output_dir+"/ParkProg_SPL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Starting Position List saved in file '"+output_path+"'.", log_path.c_str());
 
-            //Other whay to obtain the observing position list directly in text format:
+            //Other whay to obtain the starting position list directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
 
             //copy the position angles in the input parameters
@@ -1274,32 +1884,32 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
                 p_1s.push_back(RP->getActuator()->getp_1());
                 p___3s.push_back(RP->getActuator()->getArm()->getp___3());
             }
-            append("Input parameters extracted from the FMM.", log_filename.c_str());
+            append("Input parameters copied from FMM to (p_1s, p___3s).", log_path.c_str());
 
             //move the RPs to their origin positions
             FMM.RPL.moveToOrigins();
-            append("RPs moved to origins.", log_filename.c_str());
+            append("RPs moved to origins.", log_path.c_str());
 
             //Move the FMM to the origins in convenient because this function
             //is for test the generating function.
 
-            //determine the RPs to be disabled
+            //determine a number of RPs to be disabled
             Ids.clear();
             //TBD
 
             //call the function to test
-            append("Calling function generatePairPPDP_online...", log_filename.c_str());
-            append("----------------------------------------------------------------", log_filename.c_str());
-            append("PairPPDPvalid = generatePairPPDP_online(PP, DP,", log_filename.c_str());
-            append("                                        FMM, p_1s, p___3s, Ids);", log_filename.c_str());
-            PairPPDPvalid = generatePairPPDP_online(PP, DP,
-                                                    FMM, p_1s, p___3s, Ids);
-            append("----------------------------------------------------------------", log_filename.c_str());
-            append("Returned from function generatePairPPDP_online.", log_filename.c_str());
+            append("Calling function generateParkProg_online...", log_path.c_str());
+            append("----------------------------------------------------------------", log_path.c_str());
+            append("ParkProgValid = generateParkProg_online(outputs_str, FMM,", log_path.c_str());
+            append("                                        p_1s, p___3s, RPids, Bid);", log_path.c_str());
+            ParkProgValid = generateParkProg_online(outputs_str, FMM,
+                                                    p_1s, p___3s, RPids, Bid);
+            append("----------------------------------------------------------------", log_path.c_str());
+            append("Returned from function generateParkProg_online.", log_path.c_str());
 
             //WARNING: sentence could take several seconds:
-            //  PairPPDPvalid = generatePairPPDP_online(PP, DP,
-            //                                          FMM, p_1s, p___3s, Ids);
+            //  ParkProgValid = generateParkProg_online(outputs_str, FMM,
+            //                                          p_1s, p___3s, RPids, bid);
 
             //restore de enabling status of all RPs
             for(unsigned int i=0; i<Ids.size(); i++) {
@@ -1314,21 +1924,1083 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
             //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
 
             //if generation function was successfully generated
+            if(ParkProgValid) {
+                //indicates the result of the generation
+                append("Generated parking program is valid.", log_path.c_str());
+
+                //save the parking program in format FMPT
+                str = ParkProg.getText().str;
+                output_path = output_dir+"/ParkProg_FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Parking Program in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+
+                //Given that here the generated pair ((PP, DP) is valid,
+                //all operative outsider RPs which aren't obstructed, should be:
+                //- in the origin positions, in their final position after execute the DP.
+
+                //get IPL
+                TPairPositionAnglesList FPL;
+                FMM.RPL.getPositions(FPL);
+                append("Final Position List got from the FMM.", log_path.c_str());
+
+                //save IPL
+                string str = TActuator::getPositionPPALabelsRow().str;
+                str += "\r\n"+FPL.getColumnText().str;
+                string output_path = output_dir+"/ParkProg_FPL_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Final Position List saved in file '"+output_path+"'.", log_path.c_str());
+
+                //Other whay to obtain the observing position list directly in text format:
+                //  FMM.RPL.getPositionsPPATableText()
+
+                //translates the parking program to the format MCS
+                //and save it in a file
+                ParkProg.getInterfaceText(str, "depos", Bid, SPL);
+                append("Parking program translated to the format of the MCS.", log_path.c_str());
+                output_path = output_dir+"/ParkProg_MCS_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Parking Program in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+            else {
+                //Given that here the generated parking program is invalid,
+                //all operative outsider RPs which aren't obstructed, should be:
+                //- in the first position where the collision was detected.
+
+                //print the result of generation of the parking program
+                append("Generated ParkProg is not valid, because PP or DP is invalid.", log_path.c_str());
+            }
+
+            //END OF SAVE THE OUTPUTS
+
+            //prepare the standard output for the next test
+            append("", log_path.c_str());
+        }
+        while(ParkProgValid); // && Collided.getCount()<=0 && Obstructed.getCount()<=0);
+
+        //Note that not collided and not obstructed should be part of the stop condition,
+        //but they are discarted in the function of generation online.
+
+        //indicates that the test has failed
+        append("\r\nFailed test "+inttostr(Bid)+"!", log_path.c_str());
+        append("ParkProgValid: "+BoolToStr(ParkProgValid, true).str, log_path.c_str());
+        //append("Collided RP Ids: "+Collided.gettText().str, log_path.c_str());
+        //append("Obstructed RP Ids: "+Obstructed.gettText().str, log_path.c_str());*/
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "testing generateParkProg_online: ");
+        throw;
+    }
+}
+
+//---------------------------------------------------------------------------------
+//FUNCTIONS FOR PAIR (PP, DP):
+//---------------------------------------------------------------------------------
+
+//Generate a pair (PP, DP) offline.
+//Inputs:
+//  FMM: the Fiber MOS Model
+//  input_path: path of the input file type FMOSA
+//  output_dir: path to the output dir where save the output files
+//  log_path: file name of the log file where anotate eevents
+//Outputs:
+//  generatePairPPDP_offline: indicates if the generated pair (PP, DP) is valid
+//      and if there aren't neither collided nor obstructed RPs
+bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, const string& output_dir, const string& log_path,
+                              //-------------------------------------------------------------------------------------------------
+                              bool saveOPL, bool saveOPL_S0, bool saveOPL_S1,
+                              bool saveCPL, bool saveIPL, bool saveDispCorners1, bool saveDispCorners2,
+                              bool savePP_Dmin, bool savePP_Dend, bool saveDP_Dmin, bool saveDP_Dend,
+                              bool savePP_FMPT, bool saveDP_FMPT, bool savePP_MCS, bool saveDP_MCS,
+                              bool saveMCS, bool save_outputs, bool save_other_outputs)
+{
+    try {
+
+        //LOAD SETTINGS FROM FILES:
+
+        //load the FMOSA from the file input_path
+        string str;
+        OutputsPairPPDP outputs;
+        unsigned int Bid;
+        try {
+            strReadFromFileWithComments(str, input_path);
+            outputs.FMOSA.setTableText(Bid, str);
+
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading FMOSA file: ");
+            throw;
+        }
+        append("FMOSA loaded from file '"+input_path+"'.", log_path.c_str());
+
+        //get the anbled not operative RPs
+        TRoboticPositionerList EnabledNotOperative;
+        for(int i=0; i<FMM.RPL.getCount(); i++) {
+            TRoboticPositioner *RP = FMM.RPL[i];
+            if(!RP->Disabled && !RP->getOperative())
+                EnabledNotOperative.Add(RP);
+        }
+
+        //get the allocation from the FMOSA
+        TMotionProgramGenerator MPG(&FMM);
+        outputs.FMOSA.getAllocations(MPG);
+        append("Allocations got from the FMOSA to MPG.", log_path.c_str());
+
+        //MAKE THE OPERATIONS:
+
+        //split the path of the file containing the FMOSA
+        string dir, filename;
+        splitpath(dir, filename, input_path);
+
+        //The filename will be used to attach the outputs filenames witht the input filename.
+
+        //move the RPs to the more closer stable position to the allocated projection points
+        //taken into account the limiting case when there aren't allocation
+        if(MPG.getCount() > 0) {
+            MPG.MoveToTargetP3();
+            append("RPs moved to observing positions.", log_path.c_str());
+        } else
+            append("There aren't RPs to be moved to observing positions.", log_path.c_str());
+
+        //WARNING: sentence could take several seconds:
+        //  MPG.MoveToTargetP3();
+
+        //Other way to obtain the more closer stable positions to the allocated projection points,
+        //consist in get from the FMOSA the following lists:
+        //  the allocation list;
+        //  the projection point list.
+        //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
+
+        //captures the observing positions of the RPs in a PPA list
+        TPairPositionAnglesList OPL;
+        FMM.RPL.getPositions(OPL);
+        append("Observing Position List got from the FMM.", log_path.c_str());
+
+        //A PPA list in format PPA in steps, will be stored how a table (Id, p_1, p___3).
+
+        //save OPL, if any
+        string output_path;
+        if(saveOPL) {
+            str = TActuator::getPositionPPALabelsRow().str;
+            str += "\r\n"+OPL.getColumnText().str;
+            ForceDirectories(AnsiString(output_dir));
+            output_path = output_dir+"/PairPPDP_OPL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List in format PPA in steps saved in file '"+output_path+"'.", log_path.c_str());
+        }
+
+        //Other whay to obtain the observing position list directly in text format:
+        //  FMM.RPL.getPositionsPPATableText()
+
+        //save OPL in cartesian coordinates respect S0, if any
+        if(saveOPL_S0) {
+            str = TActuator::getPositionP3LabelsRow().str;
+            str += "\r\n";
+            str += FMM.RPL.getPositionsP3TableText().str;
+            output_path = output_dir+"/PairPPDP_OPL-S0_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List in format CC respect S0 saved in file '"+output_path+"'.", log_path.c_str());
+        }
+
+        //save OPL in cartesian coordinates respect S1, if any
+        if(saveOPL_S1) {
+            str = TActuator::getPositionP_3LabelsRow().str;
+            str += "\r\n";
+            str += FMM.RPL.getPositionsP_3TableText().str;
+            output_path = output_dir+"/PairPPDP_OPL-S1_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List in format CC respect S1 saved in file '"+output_path+"'.", log_path.c_str());
+        }
+
+        //captures the corner of arms in the observing positions in cartesian coordinates
+        TItemsList<TDoublePoint> OPL_Corners1;
+        FMM.RPL.getPositionsCorners1(OPL_Corners1);
+        TItemsList<TDoublePoint> OPL_Corners2;
+        FMM.RPL.getPositionsCorners2(OPL_Corners2);
+
+        //segregates the enabled outsider RPs
+        TRoboticPositionerList Outsiders;
+        FMM.RPL.segregateEnabledOutsiders(Outsiders);
+
+        //get the list of colliding items (both EAs and RPs) in text format
+        FMM.RPL.setPurpose(pGenPairPPDP);
+        string collided_str;
+        FMM.getCollidedText(collided_str);
+
+        //Note that MPG.generatePairPPDP will execute automatically:
+        //  //configure the Fiber MOS Model for generate a DP
+        //  getFiberMOSModel()->RPL.setPurpose(pGenPairPPDP);
+
+        //check the limiting case when there aren't allocations
+        if(MPG.getCount() <= 0)
+            append("WARNING: there aren't allocations. The generated parking program will be empty.", log_path.c_str());
+        //check the limiting case when all operative RPs are in the origin
+        else if(FMM.RPL.allOperativeRPsAreInTheOrigin())
+            append("WARNING: all operative RPs are in the origin. The generated pair (PP, DP) will be empty.", log_path.c_str());
+        //else, check the limiting case when all operative RPs are in security positions
+        else if(Outsiders.getCount() <= 0)
+            append("WARNING: all operative RPs are in security positions. The generated pair (PP, DP) will contains only a message-instruction list to go to the observing positions and back to the origin.", log_path.c_str());
+
+        //Now are fulfilled the preconditions for the function TMotionProgramGenerator::generatePairPPDP:
+        //  All RPs of the Fiber MOS Model:
+        //      shall be in their observing positions.
+        //  All RPs of the list Outsiders:
+        //      shall be in the Fiber MOS Model.
+        //      shall be operatives.
+        //      shall be in insecurity positions.
+        //      shall have enabled the quantifiers.
+        //      shall have a velocity of rotor 2 approximately double than rotor 1.
+
+        //generates a pair (PP, DP) for the operative RPs in unsecurity positions
+        //and determines the RPs in collision status or obstructed in insecure positions
+        append("Generating pair (PP, DP)...", log_path.c_str());
+        bool PPvalid = false;
+        bool DPvalid = false;
+        TRoboticPositionerList Collided;
+        TRoboticPositionerList Obstructed;
+        TMotionProgram PP;
+        TMotionProgram DP;
+        MPG.generatePairPPDP(PPvalid, DPvalid, Collided, Obstructed, PP, DP, Outsiders);
+
+        //Now are fulfilled the postconditions:
+        //  All RPs of the Fiber MOS Model:
+        //      will be configured for validate a PP. (Purpose = pValPP).
+        //      will have disabled the quantifiers.
+        //  All RPs included in the generated pair (PP, DP):
+        //      if the pair (PP, DP) is valid:
+        //          will be in their final positions.
+        //      if the pair (PP, DP) is not valid:
+        //          will be in the first position where the collision was detected.
+
+        //########################################################################
+        //#WARNING: before re-use a function to generation, shall be restablished#
+        //#the preconditions.                                                    #
+        //########################################################################
+
+        //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
+
+        //########################################################################
+        //IPL can be only got if both PP and DP are valid.
+        //IPL is necessary for generate the PP in format MCS, and PP is necessari for files PairPPDP and outputs.
+        //So will be saved as many as possible requested data in each circunstance
+        //of variables:
+        //  The generated pair (PP, DP) is valid:
+        //  there aren't neither collided nor obstructed:
+        //  Argument outputs is missing.
+        //Function after generation if shown follow:
+        //########################################################################
+        //Warn about either collided or obstructed RPs.
+        //----------------------------------------------------------------------
+        //If the generated pair (PP, DP) is valid:
+        //  warn about validity of generated RPs
+        //
+        //  SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
+        //  if saveCPL: WARNING! Colliding Position List can't be got because the generated pair (PP, DP) avoid collisions.
+        //  get IPL
+        //  save IPL, if any
+        //  save DispCorners1, if any
+        //  save DispCorners2, if any
+        //  save PP-Dmin, if any
+        //  save PP-Dend, if any
+        //  save DP-Dmin, if any
+        //  save DP-Dend, if any
+        //
+        //  SAVE FILES ABOUT MPs:
+        //  save PP-FMPT, if any
+        //  save DP-FMPT, if any
+        //  save PP, if any
+        //  save DP, if any
+        //  save PairPPDP, if any
+        //
+        //  SAVE FILE OUTPUTS:
+        //  set values in the structure outputs
+        //  if there aren't nor enabled-not-operative nor collided nor obstructed:
+        //      save outputs
+        //  if there are either enabled-not-operative or collided or obstructed:
+        //      if outputs:
+        //          WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-operative RPs, or either collided or obstructed RPs.
+        //          save outputs
+        //      if not outputs:
+        //          WARNING! File outputs will not be saved, because there are either enabled-not-operative or collided or obstructed RPs. You can force write outputs by the argument outputs.
+        //  save other-outputs, if any
+        //
+        //--------------------------------------------------------------------------
+        //If the generated pair (PP, DP) is invalid:
+        //  warn about invalidity of generated RPs
+        //
+        //  SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
+        //  get CPL
+        //  save CPL, if any
+        //  if saveIPL: WARNING! Initial Position List can't be got because has been detected a collision during validation process.
+        //  save DispCorners1, if any
+        //  save DispCorners2, if any
+        //  save PP-Dmin, if any
+        //  save PP-Dend, if any
+        //  save DP-Dmin, if any
+        //  save DP-Dend, if any
+        //
+        //  SAVE FILES ABOUT MPs:
+        //  save PP-FMPT, if any
+        //  save DP-FMPT, if any
+        //  if savePP: WARNING! PP in format MCS can't be got, because it has not been possible get IPL.
+        //  save DP, if any
+        //  if saveMCS: WARNING! PairPPDP in format MCS can't be got, because it has not been possible get IPL.
+        //  save other-outputs, if any
+        //
+        //  SAVE FILE OUTPUTS:
+        //  WARNING! File outputs can't be got, because IPL can't be got, because it has not been possible get IPL.
+        //  save other-outputs, if any
+        //
+        //########################################################################
+
+        //Warn about either enabled-not-obstructed or collided or obstructed RPs.
+        if(EnabledNotOperative.getCount() > 0 || Collided.getCount() > 0 || Obstructed.getCount() > 0) {
+            if(EnabledNotOperative.getCount() > 0) {
+                append("WARNING! There are enabled not operative RPs:", log_path.c_str());
+                append("Enabled-not-operative RP Ids: "+EnabledNotOperative.getText().str, log_path.c_str());
+            }
+            if(Collided.getCount() > 0) {
+                append("WARNING! There are collided items:", log_path.c_str());
+                append("Collided items: "+collided_str, log_path.c_str());
+                append("Collided RP Ids: "+Collided.getText().str, log_path.c_str());
+            }
+            if(Obstructed.getCount() > 0) {
+                append("WARNING! There are obstructed RPs:", log_path.c_str());
+                append("Obstructed RP Ids: "+Obstructed.getText().str, log_path.c_str());
+            }
+        }
+        else
+            append("There aren't nor enabled-not-operative nor collided nor obstructed RPs.", log_path.c_str());
+
+        //----------------------------------------------------------------------
+        //If the generated pair (PP, DP) is valid:
+        if(PPvalid && DPvalid) {
+            //warn about validity of generated RPs
+            append("Generated pair (PP, DP) is valid, so IPL can be got, and PP can be generated in format MCS.", log_path.c_str());
+            if(Collided.getCount() > 0 || Obstructed.getCount() > 0)
+                append("The initial positions of the collided and obstructed RPs match with their observing position.", log_path.c_str());
+
+            //SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
+
+            //if saveCPL: WARNING! Colliding Position List (CPL) can't be got because the generated pair (PP, DP) avoid collisions.
+            if(saveCPL)
+                append("WARNING! Colliding Position List (CPL) can't be got because the generated pair (PP, DP) avoid collisions.", log_path.c_str());
+
+            //Other whay to obtain the colliding position list directly in text format:
+            //  FMM.RPL.getPositionsPPATableText()
+
+            //get IPL
+            TPairPositionAnglesList IPL;
+            FMM.RPL.getPositions(IPL);
+            append("Initial Position List got from the FMM.", log_path.c_str());
+
+            //save IPL, if any
+            if(saveIPL) {
+                str = TActuator::getPositionPPALabelsRow().str;
+                str += "\r\n"+IPL.getColumnText().str;
+                output_path = output_dir+"/PairPPDP_IPL_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Initial Position List in format PPA in steps saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DispCorners1, if any
+            if(saveDispCorners1) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners1;
+                FMM.RPL.getPositionsCorners1(IPL_Corners1);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners1(OPL_Corners1);
+                for(int i=0; i<DispCorners1.getCount(); i++) {
+                    DispCorners1[i].x -= IPL_Corners1[i].x;
+                    DispCorners1[i].y -= IPL_Corners1[i].y;
+                }
+
+                //DispCorners1.Print = TDoublePoint::PrintRow;
+                //str = DispCorners1.getText().str;
+                str = "Id\tdx\tdy";
+                for(int i=0; i<FMM.RPL.getCount(); i++) {
+                    str += "\r\n";
+                    TRoboticPositioner *RP = FMM.RPL[i];
+                    str += RP->getActuator()->getIdText().str;
+                    str += "\t";
+                    str += DispCorners1[i].getRowText().str;
+                }
+                output_path = output_dir+"/PairPPDP_DispCorners1_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 1 saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DispCorners2, if any
+            if(saveDispCorners2) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners2;
+                FMM.RPL.getPositionsCorners2(IPL_Corners2);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners2(OPL_Corners2);
+                for(int i=0; i<DispCorners2.getCount(); i++) {
+                    DispCorners2[i].x -= IPL_Corners2[i].x;
+                    DispCorners2[i].y -= IPL_Corners2[i].y;
+                }
+
+                //DispCorners2.Print = TDoublePoint::PrintRow;
+                //str = DispCorners2.getText().str;
+                str = "Id\tdx\tdy";
+                for(int i=0; i<FMM.RPL.getCount(); i++) {
+                    str += "\r\n";
+                    TRoboticPositioner *RP = FMM.RPL[i];
+                    str += RP->getActuator()->getIdText().str;
+                    str += "\t";
+                    str += DispCorners2[i].getRowText().str;
+                }
+                output_path = output_dir+"/PairPPDP_DispCorners2_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 2 saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save PP_Dmin, if any
+            if(savePP_Dmin) {
+                PP.getDminInterfaceText(str, "pos", Bid);
+                output_path = output_dir+"/PairPPDP_PP-Dmin_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP-Dmin saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save PP_Dend, if any
+            if(savePP_Dend) {
+                PP.getDendInterfaceText(str, "pos", Bid);
+                output_path = output_dir+"/PairPPDP_PP-Dend_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP-Dend saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP_Dmin, if any
+            if(saveDP_Dmin) {
+                DP.getDminInterfaceText(str, "depos", Bid);
+                output_path = output_dir+"/PairPPDP_DP-Dmin_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP-Dmin saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP_Dend, if any
+            if(saveDP_Dend) {
+                DP.getDendInterfaceText(str, "depos", Bid);
+                output_path = output_dir+"/PairPPDP_DP-Dend_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP-Dend saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //SAVE FILES ABOUT MPs:
+
+            //save PP_FMPT, if any
+            if(savePP_FMPT) {
+                str = PP.getText().str;
+                output_path = output_dir+"/PairPPDP_PP-FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP_FMPT, if any
+            if(saveDP_FMPT) {
+                str = DP.getText().str;
+                output_path = output_dir+"/PairPPDP_DP-FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save PP, if any
+            if(savePP_MCS) {
+                PP.getInterfaceText(str, "pos", Bid, IPL);
+                output_path = output_dir+"/PairPPDP_PP-MCS_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP, if any
+            if(saveDP_MCS) {
+                DP.getInterfaceText(str, "depos", Bid, OPL);
+                output_path = output_dir+"/PairPPDP_DP-MCS_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save PairPPDP, if any
+            if(saveMCS) {
+                string PP_str;
+                PP.getInterfaceText(PP_str, "pos", Bid, IPL);
+                string DP_str;
+                DP.getInterfaceText(DP_str, "depos", Bid, OPL);
+                output_path = output_dir+"/PairPPDP_MCS_from_"+filename;
+                strWriteToFile(output_path, PP_str + "\r\n" + DP_str);
+                append("Pair (PP, DP) in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //SAVE FILE OUTPUTS:
+
+            //set values in the structure outputs:
+
+            //properties for built comments about file outputs
+            outputs.FMOSA_filename = filename;
+            outputs.FMPT_version = FMPT_VERSION;
+            outputs.datetime = strfromtime_t(time(NULL));
+            outputs.EnabledNotOperative = EnabledNotOperative;
+            outputs.collided_str = collided_str;
+            outputs.Collided = Collided;
+            outputs.Obstructed = Obstructed;
+            //properties for built comments about each MP
+            outputs.PPvalid = PPvalid;
+            outputs.DPvalid = DPvalid;
+            outputs.DsecMax = 1;
+            //properties for built the executable data
+            outputs.Bid = Bid;
+            outputs.IPL = IPL;
+            outputs.PP = PP;
+            outputs.OPL = OPL;
+            outputs.DP = DP;
+            //FMOSA has been set above
+
+            //if there aren't nor enabled-not-operative nor collided nor obstructed RPs
+            if(EnabledNotOperative.getCount() <= 0 && Collided.getCount() <= 0 && Obstructed.getCount() <= 0) {
+                //save outputs
+                outputs.getText(str);
+                output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Pair (PP, DP) in format MCS, and FMOSA, saved in file '"+output_path+"'.", log_path.c_str());
+            }
+            //if there are either enabled-not-operative or collided or obstructed:
+            else {
+                //if outputs:
+                if(save_outputs) {
+                    //WARNING! Since argument outputs has been included, file outputs will be saved, despite there are enabled-not-operative RPs, or either collided or obstructed RPs.
+                    append("WARNING! Since argument outputs has been included, file outputs will be saved,", log_path.c_str());
+                    append("despite there are enabled-not-operative RPs, or collided or obstructed RPs.", log_path.c_str());
+                    //save outputs
+                    string aux = "WARNING! This file outputs has been generataed by force, because the input file type FMOSA contains either enabled-not-operative or collided or obstructed RPs.";
+                    aux += " According the FMPT, execution of the pair (PP, DP) included in this file will not produce";
+                    aux += " a collision, but you not should execute it, because the usage protocol of the FMPT stablish that";
+                    aux += " you should generate a pair (PP, DP) without enabled-not-operative nor collider nor obstructed RPs. This text";
+                    aux += " has been added uncommented for difficult the execution of the pair (PP, DP) contained in this file.";
+                    aux += "\r\n";
+                    aux += "\r\n";
+                    outputs.getText(str);
+                    output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
+                    strWriteToFile(output_path, aux + str);
+                    append("Pair (PP, DP) in format MCS, and FMOSA, saved in file '"+output_path+"'.", log_path.c_str());
+                }
+                //if not outputs:
+                else {
+                    //WARNING! File outputs will not be saved, because there are either enabled-not-operative or collided or obstructed RPs. You can force write outputs by the argument outputs.
+                    append("WARNING! File outputs will not be saved, because there are either enabled-not-operative or collided or obstructed RPs.", log_path.c_str());
+                    append("You can force write outputs by the argument outputs.", log_path.c_str());
+                }
+            }
+
+            //save other-outputs, if any
+            if(save_other_outputs) {
+                outputs.getOtherText(str);
+                output_path = output_dir+"/PairPPDP_other-outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Comments about generated pair (PP, PD) saved in file '"+output_path+"'.", log_path.c_str());
+            }
+        }
+        //--------------------------------------------------------------------------
+        //If the generated pair (PP, DP) is invalid:
+        else {
+            //warn about invalidity of generated RPs
+            if(!PPvalid && DPvalid)
+                append("Generated PP is invalid and generated DP is valid.", log_path.c_str());
+            else if(PPvalid && !DPvalid)
+                append("Generated PP is valid and generated DP is invalid.", log_path.c_str());
+            else if(!PPvalid && !DPvalid)
+                append("Both generated PP is invalid and generated DP is invalid.", log_path.c_str());
+            else
+                throw EImpossibleError("lateral effect");
+            append("Due to the generated pair (PP, DP) is invalid, the FMM is in their colliding position, detected during validation process.", log_path.c_str());
+
+            //SAVE THE FILES ABOUT POSITIONS, DISPLACEMENTS AND DISTANCES:
+
+            //get CPL
+            TPairPositionAnglesList CPL;
+            FMM.RPL.getPositions(CPL);
+            append("Colliding Position List got from the FMM.", log_path.c_str());
+
+            //save CPL, if any
+            if(saveCPL) {
+                str = TActuator::getPositionPPALabelsRow().str;
+                str += "\r\n"+CPL.getColumnText().str;
+                output_path = output_dir+"/PairPPDP_CPL_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Colliding Position List in format PPA in steps saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //Other whay to obtain the colliding position list directly in text format:
+            //  FMM.RPL.getPositionsPPATableText()
+
+            //if saveIPL: WARNING! Initial Position List (IPL) can't be got because has been detected a collision during validation process.
+            if(saveIPL)
+                append("WARNING! Initial Position List (IPL) can't be got because has been detected a collision during validation process.", log_path.c_str());
+
+            //save DispCorners1, if any
+            if(saveDispCorners1) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners1;
+                FMM.RPL.getPositionsCorners1(IPL_Corners1);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners1(OPL_Corners1);
+                for(int i=0; i<DispCorners1.getCount(); i++) {
+                    DispCorners1[i].x -= IPL_Corners1[i].x;
+                    DispCorners1[i].y -= IPL_Corners1[i].y;
+                }
+
+                //DispCorners1.Print = TDoublePoint::PrintRow;
+                //str = DispCorners1.getText().str;
+                str = "Id\tdx\tdy";
+                for(int i=0; i<FMM.RPL.getCount(); i++) {
+                    str += "\r\n";
+                    TRoboticPositioner *RP = FMM.RPL[i];
+                    str += RP->getActuator()->getIdText().str;
+                    str += "\t";
+                    str += DispCorners1[i].getRowText().str;
+                }
+                output_path = output_dir+"/PairPPDP_DispCorners1_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 1 saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DispCorners2, if any
+            if(saveDispCorners2) {
+                //captures the corner of arms in the initial positions in cartesian coordinates
+                TItemsList<TDoublePoint> IPL_Corners2;
+                FMM.RPL.getPositionsCorners2(IPL_Corners2);
+
+                //calculates the displacement of the corner
+                TItemsList<TDoublePoint> DispCorners2(OPL_Corners2);
+                for(int i=0; i<DispCorners2.getCount(); i++) {
+                    DispCorners2[i].x -= IPL_Corners2[i].x;
+                    DispCorners2[i].y -= IPL_Corners2[i].y;
+                }
+
+                //DispCorners2.Print = TDoublePoint::PrintRow;
+                //str = DispCorners2.getText().str;
+                str = "Id\tdx\tdy";
+                for(int i=0; i<FMM.RPL.getCount(); i++) {
+                    str += "\r\n";
+                    TRoboticPositioner *RP = FMM.RPL[i];
+                    str += RP->getActuator()->getIdText().str;
+                    str += "\t";
+                    str += DispCorners2[i].getRowText().str;
+                }
+                output_path = output_dir+"/PairPPDP_DispCorners2_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 2 saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save PP_Dmin, if any
+            if(savePP_Dmin) {
+                PP.getDminInterfaceText(str, "pos", Bid);
+                output_path = output_dir+"/PairPPDP_PP-Dmin_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP-Dmin saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save PP_Dend, if any
+            if(savePP_Dend) {
+                PP.getDendInterfaceText(str, "pos", Bid);
+                output_path = output_dir+"/PairPPDP_PP-Dend_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP-Dend saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP_Dmin, if any
+            if(saveDP_Dmin) {
+                DP.getDminInterfaceText(str, "depos", Bid);
+                output_path = output_dir+"/PairPPDP_DP-Dmin_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP-Dmin saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP_Dend, if any
+            if(saveDP_Dend) {
+                DP.getDendInterfaceText(str, "depos", Bid);
+                output_path = output_dir+"/PairPPDP_DP-Dend_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP-Dend saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //SAVE FILES ABOUT MPs:
+
+            //save PP_FMPT, if any
+            if(savePP_FMPT) {
+                str = PP.getText().str;
+                output_path = output_dir+"/PairPPDP_PP-FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //save DP_FMPT, if any
+            if(saveDP_FMPT) {
+                str = DP.getText().str;
+                output_path = output_dir+"/PairPPDP_DP-FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //if savePP: WARNING! PP in format MCS (PP-MCS) can't be got, because it has not been possible get IPL.
+            if(savePP_MCS)
+                append("WARNING! PP in format MCS (PP-MCS) can't be got, because it has not been possible get IPL.", log_path.c_str());
+
+            //save DP, if any
+            if(saveDP_MCS) {
+                DP.getInterfaceText(str, "depos", Bid, OPL);
+                output_path = output_dir+"/PairPPDP_DP-MCS_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+            }
+
+            //if saveMCS: WARNING! PairPPDP in format MCS can't be got, because it has not been possible get IPL.
+            if(saveMCS)
+                append("WARNING! PairPPDP in format MCS can't be got, because it has not been possible get IPL.", log_path.c_str());
+
+            //SAVE FILE OUTPUTS:
+
+            //WARNING! File outputs can't be got, because IPL can't be got, because it has not been possible get IPL.
+            append("WARNING! File outputs can't be got, because IPL can't be got, because it has not been possible get IPL.", log_path.c_str());
+
+            //save other-outputs, if any
+            if(save_other_outputs) {
+                outputs.getOtherText(str);
+                output_path = output_dir+"/PairPPDP_other-outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Comments about generated pair (PP, DP) saved in file '"+output_path+"'.", log_path.c_str());
+            }
+        }
+        //indicates if the pair (PP. DP) is valid and there aren't neither collided nor obstructed RPs
+        bool valid = PPvalid && DPvalid && Collided.getCount()<=0 && Obstructed.getCount()<=0;
+        return valid;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "generating pair (PP, DP) offline: ");
+        throw;
+    }
+    catch(...) {
+        throw;
+    }
+}
+
+//Test the function generatePairPPDP_offline.
+void test_generatePairPPDP_offline(TFiberMOSModel& FMM, string& log_path)
+{
+    try {
+
+        //CHECK THE PRECONDITIONS:
+
+        if(FMM.RPL.thereIsSomeNullPointer())
+            throw EImproperCall("RP null pointer in the FMM");
+
+        if(FMM.RPL.thereIsSomeRepeatedPointer())
+            throw EImproperCall("RP repeated pointer in the FMM");
+
+        if(FMM.RPL.thereIsSomeNotOperative())
+            throw EImproperCall("not operative RP in the FMM");
+
+        //MAKE ACTIONS:
+
+        //builds the MPG attached to the FMM
+        TMotionProgramGenerator MPG(&FMM);
+
+        //inputs parameters of the function generatePairPPDP_offline
+        string input_path; //path of input file
+        string output_dir; //folder to put the outputss
+
+        //other variables
+        int count = 0; //number os simulations
+        string filename; //filename of reference including the number of simulation
+        string output_path; //output filename each time
+        string str; //string to writo to file each time
+        bool valid; //indicates if the pair (PP, DP) is valid and there aren't neither collided nor obstructed RPs
+
+        do {
+            //contabilize the test and print the test tittle
+            append("TEST "+inttostr(++count)+":", log_path.c_str());
+            append("========================================================================", log_path.c_str());
+
+            //initialize the output directory
+            output_dir = "test_generatePairPPDP_offline-"+inttostr(count);
+            ForceDirectories(AnsiString(output_dir));
+
+            //build the filename of reference
+            filename = output_dir+".txt";
+
+            //-------------------------------------------------------------------
+            //GENERATES A FILE CONTAINING A RANDOM FMOSA:
+
+            //add to the MPG an allocation for each RP of the FMM
+            Destroy(MPG);
+            for(int i=0; i<FMM.RPL.getCount(); i++)
+                MPG.AddAllocation(i);
+
+            //randomize the projection points in the domain of their attached RPs
+            FMM.RPL.setPurpose(pGenPairPPDP);
+            append("FMM configured for generate a pair (PP, DP). (Purpose = GenPairPPDP).", log_path.c_str());
+            MPG.RandomizeWithoutCollision();
+            append("Projection points randomized avoinding collisions.", log_path.c_str());
+
+            //WARNING: sentence could take several seconds:
+            //  MPG.RandomizeWithoutCollision();
+
+            //save the allocation list
+            str = TAllocation::GetIdPPLabelsRow().str;
+            str += "\r\n"+MPG.getColumnText().str;
+            output_path = output_dir+"/AL-for-"+filename;
+            strWriteToFile(output_path, str);
+            append("Allocation List saved in file '"+output_path+"'.", log_path.c_str());
+
+            //build a FMOSA and set the allocations
+            TFMOSA FMOSA;
+            for(int i=0; i<MPG.getCount(); i++) {
+                TAllocation *A = MPG[i];
+
+                TObservingSource *OS = new TObservingSource();
+
+                //transcribe the allocation properties to the OS
+                OS->Type = ptSOURCE;
+                OS->Pid = A->getRP()->getActuator()->getId();
+                OS->X = A->PP.x;
+                OS->Y = A->PP.y;
+                OS->Enabled = true;
+
+                //set the optional values
+                OS->Name = "s:"+inttostr(i+1);
+                OS->Mag = 0;
+                OS->Pr = 0;
+                OS->Bid = 0;
+                //OS->notAllocated = true;
+                //OS->allocateInAll = false;
+                OS->Comment = "too coment";
+
+                //enable the optional values
+                OS->there_is_Mag = true;
+                OS->there_is_Pr = true;
+                OS->there_is_Bid = true;
+                //OS->there_is_notAllocated = true;
+                //OS->there_is_allocateInAll = true;
+
+                //add the OS to the FMOSA
+                FMOSA.Add(OS);
+            }
+
+            //save the FMOSA in a file
+            FMOSA.getTableText(str);
+            output_path = output_dir+"/FMOSA-for-"+filename;
+            strWriteToFile(output_path, str);
+            append("FMOSA saved in file '"+output_path+"'.", log_path.c_str());
+
+            //-------------------------------------------------------------------
+            //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) OFFLINE:
+
+            //initializes the parameters of the function:
+            Destroy(MPG);
+            input_path = output_path;
+
+            //call the function to test
+            append("Calling function generatePairPPDP_offline...", log_path.c_str());
+            append("--------------------------------------------------------------------", log_path.c_str());
+            append("generatePairPPDP_offline(FMM, input_path, output_dir, log_path);", log_path.c_str());
+            valid = generatePairPPDP_offline(FMM, input_path, output_dir, log_path,
+                                             true, true, true,
+                                             true, true, true, true,
+                                             true, true, true, true,
+                                             true, true, true, true,
+                                             true, true, true);
+            append("--------------------------------------------------------------------", log_path.c_str());
+            append("Returned from function generatePairPPDP_offline.", log_path.c_str());
+
+            //WARNING: sentence could take several seconds:
+            //  generatePairPPDP_offline(FMM, input_path, output_dir, log_path);
+
+            //Note that the outputs are saved in the function to test.
+
+            //prepare the standard output for the next test
+            append("", log_path.c_str());
+        }
+        while(valid);
+
+        //indicates that the test has failed
+        append("\r\nFailed test "+inttostr(count)+"!", log_path.c_str());
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "testing generatePairPPDP_offline: ");
+        throw;
+    }
+}
+
+//Test the function generatePairPPDP_online.
+void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
+{
+    try {
+
+        //CHECK THE PRECONDITIONS:
+
+        if(FMM.RPL.thereIsSomeNullPointer())
+            throw EImproperCall("RP null pointer in the FMM");
+
+        if(FMM.RPL.thereIsSomeRepeatedPointer())
+            throw EImproperCall("RP repeated pointer in the FMM");
+
+        if(FMM.RPL.thereIsSomeNotOperative())
+            throw EImproperCall("not operative RP in the FMM");
+
+        //MAKE ACTIONS:
+
+        //builds the MPG attached to the FMM
+        TMotionProgramGenerator MPG(&FMM);
+
+/*        //outputs parameters of the function generatePairPPDP_online
+        bool PairPPDPvalid;
+        TMotionProgram PP, DP;
+
+        //inputs parameters of the function generatePairPPDP_online
+        vector<double> p_1s, p___3s;
+        vector<int> Ids;
+
+        //other variables
+        int Bid = 0; //block identification
+        string filename; //filename of reference including the Bid
+        string output_dir; //folder to put the outputss
+        string output_path; //output filename each time
+        string str; //string to write to file each time
+        OutputsPairPPDP outputs; //structure outputs for print the pair (PP, DP) with comments, without FMOSA
+
+        do {
+            //contabilize the test and print the test tittle
+            append("TEST "+inttostr(++Bid)+":", log_path.c_str());
+            append("========================================================================", log_path.c_str());
+
+            //build the output directory
+            output_dir = "test_generatePairPPDP_online-"+inttostr(Bid);
+            ForceDirectories(AnsiString(output_dir));
+
+            //build the filename of reference
+            filename = output_dir+".txt";
+
+            //-------------------------------------------------------------------
+            //RANDOMIZE THE POSITION ANGLES WITHOUT COLLISIONS AND SAVE THE ALLOCATIONS:
+
+            //add to the MPG an allocation for each RP of the FMM
+            Destroy(MPG);
+            for(int i=0; i<FMM.RPL.getCount(); i++)
+                MPG.AddAllocation(i);
+
+            //randomize the projection points in the domain of their attached RPs
+            FMM.RPL.setPurpose(pGenPairPPDP);
+            append("FMM configured for generate a pair (PP, DP). (Purpose = GenPairPPDP).", log_path.c_str());
+            MPG.RandomizeWithoutCollision();
+            append("Projection points randomized avoinding collisions.", log_path.c_str());
+
+            //WARNING: sentence could take several seconds:
+            //  MPG.RandomizeWithoutCollision();
+
+            //save the allocation list
+            str = TAllocation::GetIdPPLabelsRow().str;
+            str += "\r\n"+MPG.getColumnText().str;
+            output_path = output_dir+"/PairPPDP_AL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Allocation List saved in file '"+output_path+"'.", log_path.c_str());
+
+            //-------------------------------------------------------------------
+            //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) ONLINE:
+
+            //move the RPs to the more closer stable point to the projection points
+            //taken into account the trivial case when there aren't allocations
+            MPG.MoveToTargetP3();
+            if(MPG.getCount() > 0)
+                append("RPs moved to observing positions.", log_path.c_str());
+            else
+                append("There aren't RPs to be moved to observing positions.", log_path.c_str());
+
+            //WARNING: sentence could take several seconds:
+            //  MPG.MoveToTargetP3();
+
+            //A PPA list in format PPA is stored how a table (Id, p_1, p___3).
+
+            //captures the observing positions of the RPs in a PPA list
+            TPairPositionAnglesList OPL;
+            FMM.RPL.getPositions(OPL);
+            str = TActuator::getPositionPPALabelsRow().str;
+            str += "\r\n"+OPL.getColumnText().str;
+            ForceDirectories(AnsiString(output_dir));
+            string output_path = output_dir+"/PairPPDP_OPL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List saved in file '"+output_path+"'.", log_path.c_str());
+
+            //Other whay to obtain the observing position list directly in text format:
+            //  FMM.RPL.getPositionsPPATableText()
+
+            //copy the position angles in the input parameters
+            p_1s.clear();
+            p___3s.clear();
+            for(int i=0; i<FMM.RPL.getCount(); i++) {
+                TRoboticPositioner *RP = FMM.RPL[i];
+                p_1s.push_back(RP->getActuator()->getp_1());
+                p___3s.push_back(RP->getActuator()->getArm()->getp___3());
+            }
+            append("Input parameters extracted from the FMM.", log_path.c_str());
+
+            //move the RPs to their origin positions
+            FMM.RPL.moveToOrigins();
+            append("RPs moved to origins.", log_path.c_str());
+
+            //Move the FMM to the origins in convenient because this function
+            //is for test the generating function.
+
+            //determine the RPs to be disabled
+            Ids.clear();
+            //TBD
+
+            //call the function to test
+            append("Calling function generatePairPPDP_online...", log_path.c_str());
+            append("----------------------------------------------------------------", log_path.c_str());
+            append("PairPPDPvalid = generatePairPPDP_online(outputs_str, FMM,", log_path.c_str());
+            append("                                        p_1s, p___3s, RPids, Bid);", log_path.c_str());
+            PairPPDPvalid = generatePairPPDP_online(outputs_str, FMM,
+                                                    p_1s, p___3s, RPids, Bid);
+            append("----------------------------------------------------------------", log_path.c_str());
+            append("Returned from function generatePairPPDP_online.", log_path.c_str());
+
+            //WARNING: sentence could take several seconds:
+            //  PairPPDPvalid = generatePairPPDP_online(outputs_str, FMM,
+            //                                          p_1s, p___3s, RPids, Bid);
+
+            //restore de enabling status of all RPs
+            for(unsigned int i=0; i<Ids.size(); i++) {
+                int Id = Ids[i];
+                int j = FMM.RPL.searchId(Id);
+                if(j >= FMM.RPL.getCount())
+                    throw EImpossibleError("lateral effect");
+                FMM.RPL[j]->Disabled = false;
+            }
+
+            //---------------------------------------------------------------
+            //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
+
+            //Note that since there aren't neither Collided nor Obstructed list, it is not possible do:
+            //  //Warn about either collided or obstructed RPs.
+            //  if(Collided.getCount() > 0 || Obstructed.getCount() > 0) {
+            //      if(Collided.getCount() > 0) {
+            //          append("WARNING! There are collided items:", log_path.c_str());
+            //          append("Collided items: "+collided_str, log_path.c_str());
+            //          append("Collided RP Ids: "+Collided.getText().str, log_path.c_str());
+            //      } if(Obstructed.getCount() > 0) {
+            //          append("WARNING! There are obstructed RPs:", log_path.c_str());
+            //          append("Obstructed RP Ids: "+Obstructed.getText().str, log_path.c_str());
+            //      }
+            //  } else
+            //      append("There aren't neither collided nor obstructed RPs.", log_path.c_str());
+
+            //if the motion program was successfully generated
             if(PairPPDPvalid) {
                 //indicates the result of the generation
-                append("Generated pair (PP, DP) is valid.", log_filename.c_str());
-
-                //save the PP in the format of the FMPT
-                str = PP.getText().str;
-                output_filename = output_dir+"/PP-FMPT-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("PP in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
-
-                //save the DP in the format of the FMPT
-                str = DP.getText().str;
-                output_filename = output_dir+"/DP-FMPT-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
+                append("Generated pair (PP, DP) is valid.", log_path.c_str());
 
                 //Given that here the generated pair (PP, DP) is valid,
                 //all operative outsider RPs which aren't obstructed, should be:
@@ -1337,33 +3009,72 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
                 //test first the DP and after the PP, but at the end
                 //move all RPs to their initial positions.
 
-                //captures the initial positions of the RPs in a PPA list
+                //get the IPL
                 TPairPositionAnglesList IPL;
                 FMM.RPL.getPositions(IPL);
+                append("Initial Position List got from the FMM.", log_path.c_str());
+
+                //save the IPL
                 string str = TActuator::getPositionPPALabelsRow().str;
                 str += "\r\n"+IPL.getColumnText().str;
-                string output_filename = output_dir+"/IPL-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+                string output_path = output_dir+"/PairPPDP_IPL_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Initial Position List saved in file '"+output_path+"'.", log_path.c_str());
 
-                //Other whay to obtain the observing position table directly in text format:
+                //Other whay to obtain the observing position list directly in text format:
                 //  FMM.RPL.getPositionsPPATableText()
 
-                //translates the PP to the format of the interface MCS-FMPT
-                //and save it in a file
-                PP.getInterfaceText(str, "pos", Bid, IPL, false);
-                append("Positiong program translated to the MCS format.", log_filename.c_str());
-                output_filename = output_dir+"/PP-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("PP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+                //save the PP in format FMPT
+                str = PP.getText().str;
+                output_path = output_dir+"/PairPPDP_PP-FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
 
-                //translates the DP to the format of the interface MCS-FMPT
-                //and save it in a file
-                DP.getInterfaceText(str, "depos", Bid, OPL, false);
-                append("Depositiong program translated to the MCS format.", log_filename.c_str());
-                output_filename = output_dir+"/DP-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
+                //save the DP in format FMPT
+                str = DP.getText().str;
+                output_path = output_dir+"/PairPPDP_DP-FMPT_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP in format FMPT saved in file '"+output_path+"'.", log_path.c_str());
+
+                //save the PP in format MCS
+                PP.getInterfaceText(str, "pos", Bid, IPL);
+                append("Positiong program translated to the format of the MCS.", log_path.c_str());
+                output_path = output_dir+"/PairPPDP_PP-MCS_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("PP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+
+                //save the DP in format MCS
+                DP.getInterfaceText(str, "depos", Bid, OPL);
+                append("Depositiong program translated to the format of the MCS.", log_path.c_str());
+                output_path = output_dir+"/PairPPDP_DP-MCS_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+
+                //set values in the structure outputs:
+
+                //properties for built comments about file outputs
+                outputs.FMOSA_filename = filename;
+                outputs.FMPT_version = FMPT_VERSION;
+                outputs.datetime = strfromtime_t(time(NULL));
+                //outputs.collided_str = collided_str;
+                //outputs.Collided = Collided;
+                //outputs.Obstructed = Obstructed;
+                //properties for built comments about each MP
+                outputs.PPvalid = PairPPDPvalid;
+                outputs.DPvalid = PairPPDPvalid;
+                //properties for built the executable data
+                outputs.Bid = Bid;
+                outputs.IPL = IPL;
+                outputs.PP = PP;
+                outputs.OPL = OPL;
+                outputs.DP = DP;
+                outputs.FMOSA.Clear(); //there isn't a FMOSA for set
+
+                //save outputs
+                outputs.getText(str, Bid, OPL, IPL, true);
+                output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Pair (PP, DP) in format MCS, saved in file '"+output_path+"'.", log_path.c_str());
             }
             else {
                 //Given that here the generated pair (PP, DP) is invalid,
@@ -1372,44 +3083,21 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
                 //During the test of DP or the test of PP.
 
                 //print the result of generation of the PP
-                append("Generated Pair (PP, DP) is not valid, because either PP nor DP is invalid.", log_filename.c_str());
+                append("Generated Pair (PP, DP) is not valid, because either PP or DP is invalid.", log_path.c_str());
             }
-
-            //Below alll instruction about Obstructed or Collided has been comented:
-            //
-            //if(Obstructed.getCount() > 0)
-            //    append("There are obstructed RPs: "+Obstructed.getText().str, log_filename.c_str());
-            //
-            //if(Collided.getCount() > 0)
-            //    append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
-
-            //print the other outputs in the corresponding file
-            str = "PairPPDPvalid: "+BoolToStr(PairPPDPvalid,true).str;
-            //str += "\r\nCollided: "+Collided.getText().str;
-            //str += "\r\nObstructed: "+Obstructed.getText().str;
-            if(DP.thereIsSomeComment1())
-                str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
-            if(PP.thereIsSomeComment1())
-                str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
-            output_filename = output_dir+"/other_outputs-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
 
             //END OF SAVE THE OUTPUTS
 
             //prepare the standard output for the next test
-            append("", log_filename.c_str());
+            append("", log_path.c_str());
         }
-        while(PairPPDPvalid); // && Collided.getCount()<=0 && Obstructed.getCount()<=0);
+        while(PairPPDPvalid); //&& Collided.getCount()<=0 && Obstructed.getCount()<=0);
 
         //Note that not collided and not obstructed should be part of the stop condition,
-        //but they are discarted in the function of generation online.
+        //but they are discarted in the online generation function.
 
         //indicates that the test has failed
-        append("\r\nFailed test "+inttostr(Bid)+"!", log_filename.c_str());
-        append("PairPPDPvalid: "+BoolToStr(PairPPDPvalid, true).str, log_filename.c_str());
-        //append("Collided: "+Collided.gettText().str, log_filename.c_str());
-        //append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str());
+        append("\r\nFailed test "+inttostr(Bid)+"!", log_path.c_str());*/
     }
     catch(Exception& E) {
         E.Message.Insert(1, "testing generatePairPPDP_online: ");
@@ -1419,7 +3107,7 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_filename)
 
 //Determine if all RPs included in the pair (PP, DP), are enabled.
 //The instance of the Fiber MOS Model will not be written.
-void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& log_filename)
+void checkPairPPDP(TFiberMOSModel& FMM, string& PP_path, string& DP_path, string& log_path)
 {
     try {
 
@@ -1429,10 +3117,10 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
         TMotionProgram PP;
         string PP_label;
         string str;
-        strReadFromFile(str, path_PP);
+        strReadFromFile(str, PP_path);
         unsigned int PP_Bid;
         PP.setInterfaceText(PP_label, PP_Bid, str);
-        append("PP loaded from '"+path_PP+"'.", log_filename.c_str());
+        append("PP loaded from file '"+PP_path+"'.", log_path.c_str());
 
         //check the precondition
         if(PP_label != "pos")
@@ -1442,10 +3130,10 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
         TMotionProgram DP;
         string DP_label;
         //str.clear();
-        strReadFromFile(str, path_DP);
+        strReadFromFile(str, DP_path);
         unsigned int DP_Bid;
         DP.setInterfaceText(DP_label, DP_Bid, str);
-        append("DP loaded from '"+path_DP+"'.", log_filename.c_str());
+        append("DP loaded from file '"+DP_path+"'.", log_path.c_str());
 
         //check the preconditions
         if(DP_label != "depos")
@@ -1464,30 +3152,21 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
 
         //print the result
         if(valid)
-            append("All RPs included in the pair (PP, DP) are operatives.", log_filename.c_str());
+            append("All RPs included in the pair (PP, DP) are operatives.", log_path.c_str());
         else
-            append("Not all RPs included in the pair (PP, DP) are operatives.", log_filename.c_str());
+            append("Not all RPs included in the pair (PP, DP) are operatives.", log_path.c_str());
 
         //split the path of the file containing the PP
-        string parent_path_PP, filename_PP;
-        splitpath(parent_path_PP, filename_PP, path_PP);
+        string PP_dir, PP_filename;
+        splitpath(PP_dir, PP_filename, PP_path);
 
         //The filename will be used to attach the outputs filenames witht the input filename.
 
         //split the path of the file containing the DP
-        string parent_path_DP, filename_DP;
-        splitpath(parent_path_DP, filename_DP, path_DP);
+        string DP_dir, DP_filename;
+        splitpath(DP_dir, DP_filename, DP_path);
 
         //The filename will be used to attach the outputs filenames witht the input filename.
-
-        //PROBLEM: el nombre del archivo 'other_outputs-from...' se contruye a partir
-        //del filename de path_FMOSA, pero en esta función, solo se pasan path_PP y path_DP.
-
-        //print the other outputs in the corresponding file
-        str = "checkPairPPDP: "+BoolToStr(valid, true).str;
-        string output_filename = "other_outputs-from-"+filename_PP+"-"+filename_DP;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
     }
     catch(Exception& E) {
         E.Message.Insert(1, "checking pair (PP, DP): ");
@@ -1497,35 +3176,34 @@ void checkPairPPDP(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string
 
 //Check if a pair (PP, DP) avoid collisions,
 //wehn it is executed starting from the origin.
-void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_dir, string& log_filename)
+void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_dir, string& log_path)
 {
     try {
         //LOAD SETTINGS FROM FILES:
 
         //load the Outputs structure from a file
         string str;         //auxiliary string
-        Outputs outputs;    //outputs structure
-        unsigned int Bid;   //the block identificator in the FMOSA FILE
+        OutputsPairPPDP outputs;    //outputs structure
         try {
             //load the outputs structure
-            strReadFromFile(str, path_outputs);
-            outputs.setText(Bid, str);
+            strReadFromFile(str, outputs_path);
+            outputs.setText(str);
 
         } catch(Exception& E) {
             E.Message.Insert(1, "reading FMOSA file: ");
             throw;
         }
-        append("Outputs structure loaded from '"+path_outputs+"'.", log_filename.c_str());
+        append("Structure outputs loaded from file '"+outputs_path+"'.", log_path.c_str());
 
         //Now the PP and the DP will be validated.
 
         //---------------------------------------------
         //MAKE THE OPERATIONS:
 
-        //split the path of the file containing the FMOSA table
-        string parent_path, filename;
-        splitpath(parent_path, filename, path_outputs);
-        string output_filename; //auxiliary string
+        //split the path of the file containing the FMOSA
+        string dir, filename;
+        splitpath(dir, filename, outputs_path);
+        string output_path; //auxiliary string
 
         //The filename will be used to attach the outputs filenames witht the input filename.
 
@@ -1534,7 +3212,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
 
         //configure the SPM of all RPs for validate the PP and validate it
         FMM.RPL.setPurpose(pValPP);
-        append("FMM configured for generate a pair (PP, DP). (Purpose = ValPP).", log_filename.c_str());
+        append("FMM configured for validate a PP. (Purpose = ValPP).", log_path.c_str());
         bool PPvalid = MPV.validateMotionProgram(outputs.PP);
 
         //initalize the flags for indicate the validity of the DP
@@ -1543,42 +3221,42 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
         //if the PP avoid collisions
         if(PPvalid) {
             //indicates the result of the validation
-            append("The PP is valid.", log_filename.c_str());
+            append("The PP is valid.", log_path.c_str());
 
             //Given that here the PP is valid,
             //all operative outsider RPs which aren't obstructed, can be:
             //- in the observing positions, in their final position after execute the PP.
 
-            //A PPA table shall be stored how a table (Id, p_1, p___3).
+            //A PPA list shall be stored how a table (Id, p_1, p___3).
 
             //captures the observing positions of the RPs in a PPA list
             TPairPositionAnglesList OPL;
             FMM.RPL.getPositions(OPL);
             str = TActuator::getPositionPPALabelsRow().str;
             str += "\r\n"+OPL.getColumnText().str;
-            ForceDirectories(AnsiString(path_outputs));
-            output_filename = output_dir+"/OPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+            ForceDirectories(AnsiString(outputs_path));
+            output_path = output_dir+"/PairPPDP_OPL_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List saved in file '"+output_path+"'.", log_path.c_str());
 
-            //Other whay to obtain the observing position table directly in text format:
+            //Other whay to obtain the observing position list directly in text format:
             //  FMM.RPL.getPositionsPPATableText()
 
             //captures the observing positions of the RPs in cartesian coordinates respect S0
             str = TActuator::getPositionP3LabelsRow().str;
             str += "\r\n";
             str += FMM.RPL.getPositionsP3TableText().str;
-            output_filename = output_dir+"/OPL_S0-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing position list (in cartesian coordinates respect S0) saved in '"+output_filename+"'.", log_filename.c_str());
+            output_path = output_dir+"/PairPPDP_OPL-S0_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List in format CC respect S0 saved in file '"+output_path+"'.", log_path.c_str());
 
             //captures the observing positions of the RPs in cartesian coordinates respect S1
             str = TActuator::getPositionP_3LabelsRow().str;
             str += "\r\n";
             str += FMM.RPL.getPositionsP_3TableText().str;
-            output_filename = output_dir+"/OPL_S1-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Observing position list (in cartesian coordinates respect S1) saved in '"+output_filename+"'.", log_filename.c_str());
+            output_path = output_dir+"/PairPPDP_OPL-S1_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("Observing Position List in format CC respect S1 saved in file '"+output_path+"'.", log_path.c_str());
 
             //captures the corner of arms in the observing positions in cartesian coordinates
             TItemsList<TDoublePoint> OPL_Corners1;
@@ -1587,20 +3265,20 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
             FMM.RPL.getPositionsCorners2(OPL_Corners2);
 
             //save PP-Dmin in a file
-            outputs.PP.getDminInterfaceText(str, "pos", Bid);
-            output_filename = output_dir+"/PP-Dmin-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("PP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
+            outputs.PP.getDminInterfaceText(str, "pos", outputs.Bid);
+            output_path = output_dir+"/PairPPDP_PP-Dmin_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("PP-Dmin saved in file '"+output_path+"'.", log_path.c_str());
 
             //save PP-Dend in a file
-            outputs.PP.getDendInterfaceText(str, "pos", Bid);
-            output_filename = output_dir+"/PP-Dend-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("PP-Dend saved in '"+output_filename+"'.", log_filename.c_str());
+            outputs.PP.getDendInterfaceText(str, "pos", outputs.Bid);
+            output_path = output_dir+"/PairPPDP_PP-Dend_from_"+filename;
+            strWriteToFile(output_path, str);
+            append("PP-Dend saved in file '"+output_path+"'.", log_path.c_str());
 
             //configure the SPM for validate the PP and validate it
             FMM.RPL.setPurpose(pValDP);
-            append("FMM configured for generate a pair (PP, DP). (Purpose = ValDP).", log_filename.c_str());
+            append("FMM configured for validate a DP. (Purpose = ValDP).", log_path.c_str());
             DPvalid = MPV.validateMotionProgram(outputs.DP);
 
             //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
@@ -1608,7 +3286,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
             //if the pair (PP, DP) is valid
             if(DPvalid) {
                 //indicates the result of the validation
-                append("The DP is valid.", log_filename.c_str());
+                append("The DP is valid.", log_path.c_str());
 
                 //Given that here the pair (PP, DP) is valid,
                 //all operative outsider RPs which aren't obstructed, can be:
@@ -1619,9 +3297,9 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
                 FMM.RPL.getPositions(IPL);
                 string str = TActuator::getPositionPPALabelsRow().str;
                 str += "\r\n"+IPL.getColumnText().str;
-                string output_filename = output_dir+"/IPL-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
+                string output_path = output_dir+"/PairPPDP_IPL_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Initial Position List saved in file '"+output_path+"'.", log_path.c_str());
 
                 //Other whay to obtain the initial position list directly in text format:
                 //  FMM.RPL.getPositionsPPATableText()
@@ -1633,57 +3311,82 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
                 FMM.RPL.getPositionsCorners2(IPL_Corners2);
 
                 //calculates the displacement of each corner
-                TItemsList<TDoublePoint> Disp_Corners1(OPL_Corners1);
-                for(int i=0; i<Disp_Corners1.getCount(); i++) {
-                    Disp_Corners1[i].x -= IPL_Corners1[i].x;
-                    Disp_Corners1[i].y -= IPL_Corners1[i].y;
+                TItemsList<TDoublePoint> DispCorners1(OPL_Corners1);
+                for(int i=0; i<DispCorners1.getCount(); i++) {
+                    DispCorners1[i].x -= IPL_Corners1[i].x;
+                    DispCorners1[i].y -= IPL_Corners1[i].y;
                 }
-                TItemsList<TDoublePoint> Disp_Corners2(OPL_Corners2);
-                for(int i=0; i<Disp_Corners2.getCount(); i++) {
-                    Disp_Corners2[i].x -= IPL_Corners2[i].x;
-                    Disp_Corners2[i].y -= IPL_Corners2[i].y;
+                TItemsList<TDoublePoint> DispCorners2(OPL_Corners2);
+                for(int i=0; i<DispCorners2.getCount(); i++) {
+                    DispCorners2[i].x -= IPL_Corners2[i].x;
+                    DispCorners2[i].y -= IPL_Corners2[i].y;
                 }
 
                 //save the displacements in text format
-                //            Disp_Corners1.Print = TDoublePoint::PrintRow;
-                //          str = Disp_Corners1.getText().str;
+                //            DispCorners1.Print = TDoublePoint::PrintRow;
+                //          str = DispCorners1.getText().str;
                 str = "Id\tdx\tdy";
                 for(int i=0; i<FMM.RPL.getCount(); i++) {
                     str += "\r\n";
                     TRoboticPositioner *RP = FMM.RPL[i];
                     str += RP->getActuator()->getIdText().str;
                     str += "\t";
-                    str += Disp_Corners1[i].getRowText().str;
+                    str += DispCorners1[i].getRowText().str;
                 }
-                output_filename = output_dir+"/Disp_Corners1-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Displacement corners 1 saved in '"+output_filename+"'.", log_filename.c_str());
-                //            Disp_Corners2.Print = TDoublePoint::PrintRow;
-                //          str = Disp_Corners2.getText().str;
+                output_path = output_dir+"/PairPPDP_DispCorners1_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 1 saved in file '"+output_path+"'.", log_path.c_str());
+                //            DispCorners2.Print = TDoublePoint::PrintRow;
+                //          str = DispCorners2.getText().str;
                 str = "Id\tdx\tdy";
                 for(int i=0; i<FMM.RPL.getCount(); i++) {
                     str += "\r\n";
                     TRoboticPositioner *RP = FMM.RPL[i];
                     str += RP->getActuator()->getIdText().str;
                     str += "\t";
-                    str += Disp_Corners2[i].getRowText().str;
+                    str += DispCorners2[i].getRowText().str;
                 }
-                output_filename = output_dir+"/Disp_Corners2-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Displacement corners 2 saved in '"+output_filename+"'.", log_filename.c_str());
+                output_path = output_dir+"/PairPPDP_DispCorners2_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Displacement corners 2 saved in file '"+output_path+"'.", log_path.c_str());
 
                 //save DP-Dmin in a file
-                outputs.DP.getDminInterfaceText(str, "depos", Bid);
-                output_filename = output_dir+"/DP-Dmin-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
+                outputs.DP.getDminInterfaceText(str, "depos", outputs.Bid);
+                output_path = output_dir+"/PairPPDP_DP-Dmin_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP-Dmin saved in file '"+output_path+"'.", log_path.c_str());
 
                 //save DP-Dend in a file
-                outputs.DP.getDendInterfaceText(str, "depos", Bid);
-                output_filename = output_dir+"/DP-Dend-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("DP-Dend saved in '"+output_filename+"'.", log_filename.c_str());
-            }
+                outputs.DP.getDendInterfaceText(str, "depos", outputs.Bid);
+                output_path = output_dir+"/PairPPDP_DP-Dend_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("DP-Dend saved in file '"+output_path+"'.", log_path.c_str());
+
+                //set values in the structure outputs:
+
+                //properties for built comments about file outputs
+                outputs.FMOSA_filename = filename;
+                outputs.FMPT_version = FMPT_VERSION;
+                outputs.datetime = strfromtime_t(time(NULL));
+                outputs.collided_str = ""; //outputs.collided_str not set above
+                outputs.Collided.Clear(); //outputs.Collided not set above
+                outputs.Obstructed.Clear(); //outputs.Obstructed not set above
+                //properties for built comments about each MP
+                outputs.PPvalid = PPvalid;
+                outputs.DPvalid = DPvalid;
+                //properties for built the executable data
+                //outputs.Bid set above
+                outputs.IPL = IPL;
+                //outputs.PP set above
+                outputs.OPL = OPL;
+                //outputs.DP set avove
+                //outputs.FMOSA set above
+
+                //save outputs in a file
+                outputs.getText(str, true);
+                output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
+                strWriteToFile(output_path, str);
+                append("Pair (PP, DP) in format MCS, and FMOSA, saved in file '"+output_path+"'.", log_path.c_str());            }
         }
 
         //if the pair (PP, DP) is not valid
@@ -1692,29 +3395,17 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
             //all operative outsider RPs which aren't obstructed, can be:
             //- in the first position where the collision was detected.
 
-            //print the result of generation of the DP
-            if(DPvalid)
-                append("The DP is valid.", log_filename.c_str());
+            //warn about invalidity of generated RPs
+            if(!PPvalid && DPvalid)
+                append("The PP is invalid and the DP is valid.", log_path.c_str());
+            else if(PPvalid && !DPvalid)
+                append("The PP is valid and the DP is invalid.", log_path.c_str());
+            else if(!PPvalid && !DPvalid)
+                append("Both the PP and the DP are invalid.", log_path.c_str());
             else
-                append("The DP is not valid.", log_filename.c_str());
-
-            //print the result of generation of the PP
-            if(PPvalid)
-                append("The PP is valid.", log_filename.c_str());
-            else
-                append("The PP is not valid.", log_filename.c_str());
+                throw EImpossibleError("lateral effect");
+            append("Due to the pair (PP, DP) is invalid, the FMM is in their colliding position, detected during validation process.", log_path.c_str());
         }
-
-        //print the other outputs in the corresponding file
-        str = "PPvalid: "+BoolToStr(PPvalid,true).str;
-        str += "\r\nDPvalid: "+BoolToStr(DPvalid,true).str;
-        if(outputs.PP.thereIsSomeComment1())
-            str += "\r\nPP comments:\r\n"+outputs.PP.getComment1sColumnText();
-        if(outputs.DP.thereIsSomeComment1())
-            str += "\r\nDP comments:\r\n"+outputs.DP.getComment1sColumnText();
-        output_filename = output_dir+"/other_outputs-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
     }
     catch(Exception& E) {
         E.Message.Insert(1, "validating pair (PP, DP) offline: ");
@@ -1727,7 +3418,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& path_outputs, string output_d
 
 //Attempt regenerate a pair (PP, DP).
 //The instance of the Fiber MOS Model will not be written.
-void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& path_FMOSA, string& log_filename)
+void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& PP_path, string& DP_path, string& FMOSA_path, string& log_path)
 {
     try {
 
@@ -1738,9 +3429,9 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         string PP_label;
         unsigned int PP_Bid;
         string str;
-        strReadFromFile(str, path_PP);
+        strReadFromFile(str, PP_path);
         PP.setInterfaceText(PP_label, PP_Bid, str);
-        append("PP loaded from '"+path_PP+"'.", log_filename.c_str());
+        append("PP loaded from file '"+PP_path+"'.", log_path.c_str());
 
         //check the precondition
         if(PP_label != "pos")
@@ -1750,9 +3441,9 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         TMotionProgram DP;
         string DP_label;
         unsigned int DP_Bid;
-        strReadFromFile(str, path_DP);
+        strReadFromFile(str, DP_path);
         DP.setInterfaceText(DP_label, DP_Bid, str);
-        append("DP loaded from '"+path_DP+"'.", log_filename.c_str());
+        append("DP loaded from file '"+DP_path+"'.", log_path.c_str());
 
         //check the precondition
         if(DP_label != "depos")
@@ -1760,59 +3451,61 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         if(DP_Bid != PP_Bid)
             throw EImproperArgument("DP Bid should be equal to PP Bid");
 
-        //load the FMOSA table from the file path_FMOSA
-        TFMOSATable FMOSA;
+        //load the FMOSA from the file FMOSA_path
+        TFMOSA FMOSA;
         unsigned int FMOSA_Bid;
-        strReadFromFileWithComments(str, path_FMOSA);
+        strReadFromFileWithComments(str, FMOSA_path);
         FMOSA.setTableText(FMOSA_Bid, str);
-        append("FMOSA table loaded from '"+path_FMOSA+"'.", log_filename.c_str());
+        append("FMOSA loaded from file '"+FMOSA_path+"'.", log_path.c_str());
 
+        //check the precondition
         if(FMOSA_Bid!=PP_Bid || FMOSA_Bid!=DP_Bid)
             throw EImproperArgument("FMOSA Bid should be equal to PP Bid and DP Bid");
 
-        //get the data from the FMOSA table
+        //get the data from the FMOSA
         TMotionProgramGenerator MPG(&FMM);
         FMOSA.getAllocations(MPG);
-        append("Got data from  the FMOSA table.", log_filename.c_str());
+        append("Allocations got from FMOSA to FMM.", log_path.c_str());
 
         //-------------------------------------------------------------------
         //MAKE THE OPERATIONS:
 
         //split the path of the file containing the PP table
-        string parent_path, filename;
-        splitpath(parent_path, filename, path_FMOSA);
+        string dir, filename;
+        splitpath(dir, filename, FMOSA_path);
 
         //The filename will be used to attach the outputs filenames witht the input filename.
 
         //get the initial position list
         TPairPositionAnglesList IPL;
         FMM.RPL.getPositions(IPL);
-        append("Initial position list got from the Fiber MOS Model.", log_filename.c_str());
+        append("Initial Position List got from the Fiber MOS Model.", log_path.c_str());
 
         //The IPL is useful to get the PP in the interface format.
 
         //move the RPs to the more closer stable point to the TPs
-        MPG.MoveToTargetP3();
-        if(MPG.getCount() > 0)
-            append("RPs moved to observing positions.", log_filename.c_str());
-        else
-            append("There aren't RPs to be moved to observing positions.", log_filename.c_str());
+        //taken into account the trivial case when there aren't allocations
+        if(MPG.getCount() > 0) {
+            MPG.MoveToTargetP3();
+            append("RPs moved to observing positions.", log_path.c_str());
+        } else
+            append("There aren't RPs to be moved to observing positions.", log_path.c_str());
 
         //WARNING: sentence could take several seconds:
         //  MPG.MoveToTargetP3();
 
         //Other way to obtain the more closer stablepoints to the projection points,
-        //consist in get from the FMOSA table the following lists:
+        //consist in get from the FMOSA the following lists:
         //  the allocation list;
         //  the projection point list.
         //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
 
-        //A PPA table shall be stored how a table (Id, p_1, p___3).
+        //A PPA list in format PPA is a table (Id, p_1, p___3).
 
         //get the observing position list
         TPairPositionAnglesList OPL;
         FMM.RPL.getPositions(OPL);
-        append("Observing position list got from the Fiber MOS Model.", log_filename.c_str());
+        append("Observing Position List got from the Fiber MOS Model.", log_path.c_str());
 
         //The OPL is useful to get the DP in the interface format.
 
@@ -1820,35 +3513,28 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
         TVector<int> Excluded;
         bool regenerated = MPG.attemptRegenerate(Excluded, PP, DP);
 
-        string output_filename;
+        string output_path;
 
         //print the result
         if(regenerated) {
-            append("The pair (PP, DP) has been regenerated excluding the following RPs: "+Excluded.getText().str, log_filename.c_str());
+            string aux = "# The pair (PP, DP) has been regenerated excluding the following RPs:";
+            aux += "\r\n# Excluded: " + Excluded.getText().str;
+            append(aux, log_path.c_str());
 
-            //save the regenerated PP
-            PP.getInterfaceText(str, "pos", PP_Bid, IPL, false);
-            append("Positiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = "regeneratedPP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Regenerated PP saved in '"+output_filename+"'.", log_filename.c_str());
+            //save the regenerated PP in format MCS
+            PP.getInterfaceText(str, "pos", PP_Bid, IPL);
+            output_path = "PairPPDP_regenerated-PP-MCS_from_"+filename;
+            strWriteToFile(output_path, aux + "\r\n" + str);
+            append("Regenerated PP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
 
-            //save the regenerated DP
-            DP.getInterfaceText(str, "depos", DP_Bid, OPL, false);
-            append("Depositiong program translated to the MCS format.", log_filename.c_str());
-            output_filename = "regeneratedDP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Regenerated DP saved in '"+output_filename+"'.", log_filename.c_str());
+            //save the regenerated DP in format MCS
+            DP.getInterfaceText(str, "depos", DP_Bid, OPL);
+            output_path = "PairPPDP_regenerated-DP-MCS_from_"+filename;
+            strWriteToFile(output_path, aux + "\r\n" + str);
+            append("Regenerated DP in format MCS saved in file '"+output_path+"'.", log_path.c_str());
         }
         else
-            append("The pair (PP, DP) can not be regenerated.", log_filename.c_str());
-
-        //print the other outputs in the corresponding file
-        str = "regeneratePairPPDP: "+BoolToStr(regenerated, true).str;
-        str += "\r\nExcluded: "+Excluded.getText().str;
-        output_filename = "other_outputs-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
+            append("The pair (PP, DP) can not be regenerated.", log_path.c_str());
     }
     catch(Exception& E) {
         E.Message.Insert(1, "regenerating pair (PP, DP): ");
@@ -1856,675 +3542,139 @@ void regeneratePairPPDP_offline(TFiberMOSModel& FMM, string& path_PP, string& pa
     }
 }
 
-//Generate a parking program offline.
-//Parameters for can use the function for test:
-//  (ParkingProgramValid, Collided, Obstructed, PP, DP)
-//Parameters for generate a pair PPDP:
-//  (FMM, path, log_filename)
-void generateParkingProgram_offline(bool& ParkingProgramValid,
-                                    TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
-                                    TMotionProgram& ParkingProgram,
-                                    //------------------------------------------------------
-                                    TFiberMOSModel& FMM, const string& input_path, const string& output_dir, const string& log_filename,
-                                    //------------------------------------------------------
-                                    bool saveSPL, bool saveParkingProgram_FMPT,
-                                    bool saveParkingProgram_Dmin, bool saveParkingProgram_Dend,
-                                    bool saveFPL, bool r2_negative)
+//---------------------------------------------------------------------------------
+//MAIN FUNCTION:
+//---------------------------------------------------------------------------------
+
+//get arguments for a command
+void getArguments(int& argc, char* argv[], const string& command)
 {
-    try {
+    string *arg1 = new string(command);
+    argv[1] = (char*)arg1->c_str();
 
-        //LOAD SETTINGS FROM FILES:
-
-        //load the FMOSA table from the file input_path
-        TFMOSATable FMOSA;
-        unsigned int Bid;
-        string str;
-        strReadFromFileWithComments(str, input_path);
-        FMOSA.setTableText(Bid, str);
-        append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
-
-        //get the allocation from the FMOSA table
-        TMotionProgramGenerator MPG(&FMM);
-        FMOSA.getAllocations(MPG);
-        append("Allocations got from the FMOSA table in MPG.", log_filename.c_str());
-
-        //MAKE THE OPERATIONS:
-
-        //split the path of the file containing the FMOSA table
-        string parent_path, filename;
-        splitpath(parent_path, filename, input_path);
-
-        //The filename will be used to attach the outputs filenames witht the input filename.
-
-        //move the RPs to the more closer stable point to the TPs
-        MPG.MoveToTargetP3();
-        if(MPG.getCount() > 0)
-            append("RPs moved to observing positions.", log_filename.c_str());
-        else
-            append("There aren't RPs to be moved to observing positions.", log_filename.c_str());
-
-        //WARNING: sentence could take several seconds:
-        //  MPG.MoveToTargetP3();
-
-        //Other way to obtain the more closer stable points to the projection points,
-        //consist in get from the FMOSA table the following lists:
-        //  the allocation list;
-        //  the projection point list.
-        //Them using the Fiber MOS Model, get the PPA list corresponding to these lists.
-
-        //A PPA table shall be stored how a table (Id, p_1, p___3).
-
-        //captures the starting positions of the RPs in a PPA list
-        TPairPositionAnglesList SPL;
-        FMM.RPL.getPositions(SPL);
-
-        //save SPL in a file, if any
-        string output_filename;
-        if(saveSPL) {
-            str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+SPL.getColumnText().str;
-            ForceDirectories(AnsiString(output_dir));
-            output_filename = output_dir+"/SPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
-        }
-
-        //Other whay to obtain the starting position table directly in text format:
-        //  FMM.RPL.getPositionsPPATableText()
-
-        //segregates the operative outsider RPs
-        TRoboticPositionerList Outsiders;
-        FMM.RPL.segregateOperativeOutsiders(Outsiders);
-
-        //check the limiting case when there aren't allocations
-        if(MPG.getCount() <= 0)
-            append("WARNING: there aren't allocations. The generated parking program will be empty.", log_filename.c_str());
-        //check the limiting case when all operative RPs are in the origin
-        else if(FMM.RPL.allOperativeRPsAreInTheOrigin())
-            append("WARNING: all operative RPs are in the origin. The generated parking program will be empty.", log_filename.c_str());
-        //else, check the limiting case when all operative RPs are in security positions
-        else if(Outsiders.getCount() <= 0)
-            append("WARNING: all operative RPs are in security positions. The generated parking program will contains only a message-instruction list to go to the origin.", log_filename.c_str());
-
-        //Now are fulfilled the preconditions:
-        //  All RPs of the Fiber MOS Model, shall be in their starting positions.
-        //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-        //  All RPs of the list Outsiders, shall be operatives.
-        //  All RPs of the list Outsiders, shall be in unsecure positions.
-        //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-
-        //generates a parking program for the operative RPs in insecure positions
-        //and determines the RPs in collision status or obstructed in insecure positions
-        append("Generating a parking program...", log_filename.c_str());
-        Collided.Clear();
-        Obstructed.Clear();
-        ParkingProgram.Clear();
-        ParkingProgramValid = MPG.generateParkingProgram(Collided, Obstructed, ParkingProgram, Outsiders);
-
-        //Now are fulfilled the postconditions:
-        //  All RPs of the Fiber MOS Model will be configured for MP validation
-        //  All RPs of the fiber MOS Model will be in their final positions,
-        //  or the first position where the collision was detected.
-        //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
-
-        //########################################################################
-        //#WARNING: before re-use a function to generation, shall be restablished#
-        //#the preconditions.                                                    #
-        //########################################################################
-
-        //if generation function was successfully generated
-        if(ParkingProgramValid) {
-            //indicates that the parking program has been generated successfully
-            append("Generated parking program is valid.", log_filename.c_str());
-
-            //save the parking program in the format of the FMPT, if any
-            if(saveParkingProgram_FMPT) {
-                str = ParkingProgram.getText().str;
-                output_filename = output_dir+"/ParkingProgram-FMPT-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Parking program in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
-            }
-
-            //Given that here the generated parking program is valid,
-            //all operative outsider RPs which aren't obstructed are in the origin positions,
-            //in their final position after execute the MP.
-
-            //translates the parking program to the format of the interface MCS-FMPT
-            //and save it in a file
-            ParkingProgram.getInterfaceText(str, "depos", Bid, SPL, r2_negative);
-            append("Parking program translated to the MCS format.", log_filename.c_str());
-            string output_filename = output_dir+"/ParkingProgram-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Parking program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //save ParkingProgram-Dmin in a file, if any
-            if(saveParkingProgram_Dmin) {
-                ParkingProgram.getDminInterfaceText(str, "depos", Bid);
-                output_filename = output_dir+"/ParkingProgram-Dmin-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("ParkingProgram-Dmin saved in '"+output_filename+"'.", log_filename.c_str());
-            }
-
-            //save ParkingProgram-Dend in a file, if any
-            if(saveParkingProgram_Dend) {
-                ParkingProgram.getDendInterfaceText(str, "depos", Bid);
-                output_filename = output_dir+"/ParkingProgram-Dend-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("ParkingProgram-Dend saved in '"+output_filename+"'.", log_filename.c_str());
-            }
-        }
-
-        //Given that here the generated parking program can be valid or invalid,
-        //all operative outsider RPs which aren't obstructed, can be:
-        //- in the origin positions, in their final position after execute the MP.
-        //  if success == true.
-        //- in the first position where the collision was detected.
-        //  if success == false.
-
-        if(Obstructed.getCount() > 0)
-            append("There are obstructed RPs: "+Obstructed.getText().str, log_filename.c_str());
-
-        if(Collided.getCount() > 0)
-            append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
-
-        //get and save the positions where the collision was detected
-        TPairPositionAnglesList FPL;
-        FMM.RPL.getPositions(FPL);
-
-        //save FPL in a file, if any
-        if(saveFPL) {
-            str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+FPL.getColumnText().str;
-            output_filename = output_dir+"/FPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
-        }
-
-        //save the other outputs in the corresponding file
-        str = "ParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str;
-        str += "\r\nCollided: "+Collided.getText().str;
-        str += "\r\nObstructed: "+Obstructed.getText().str;
-        if(ParkingProgram.thereIsSomeComment1())
-            str += "\r\nMP comments:\r\n"+ParkingProgram.getComment1sColumnText();
-        output_filename = output_dir+"/other_outputs-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
+    if(command == "help") {
+        argc = 2;
     }
-    catch(Exception& E) {
-        E.Message.Insert(1, "generating parking program offline: ");
-        throw;
+    else if(command == "help_generatePairPPDP_offline") {
+        argc = 2;
     }
+    else if(command == "help_generateParkProg_offline") {
+        argc = 2;
+    }
+    else if(command == "help_others") {
+        argc = 2;
+    }
+    else if(command == "aboutOf") {
+        argc = 2;
+    }
+    else if(command == "valuesSPM_EA") {
+        argc = 3;
+        string *arg2 = new string("1");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "valuesSPM_RP") {
+        argc = 3;
+        string *arg2 = new string("1");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "testRadialMotion") {
+        argc = 2;
+    }
+    else if(command == "testDistanceMin") {
+        argc = 2;
+    }
+    else if(command == "applyPCL") {
+        argc = 3;
+        string *arg2 = new string(getCurrentDir()+"/../megarafmpt/data/Models/positionerCenters_theoretical_100RPs.txt");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "applyRPI") {
+        argc = 3;
+        string *arg2 = new string(getCurrentDir()+"/../megara-fmpt/data/Models/MEGARA_RP_Instance");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "PPA_to_CC-S0") {
+        argc = 3;
+        string *arg2 = new string("/home/user/pruebas PPA/PPAL.txt");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "evaluateErrors") {
+        argc = 3;
+        string *arg2 = new string("/home/user/pruebas Measures/Medidas1.txt");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "tuneRP") {
+        argc = 5;
+        string *arg2 = new string("/home/user/pruebas Measures/Medidas1.txt");
+        argv[2] = (char*)arg2->c_str();
+        string *arg3 = new string("/home/user/pruebas Measures/errors_from_Medidas1.txt");
+        argv[3] = (char*)arg3->c_str();
+        string *arg4 = new string("154");
+        argv[4] = (char*)arg4->c_str();
+    }
+    else if(command == "applyTuning") {
+        argc = 3;
+        string *arg2 = new string("/home/user/pruebas Measures/fine-tuned-parameters-154_from_Medidas1.txt");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "generateParkProg_offline") {
+        argc = 4;
+        string *arg2 = new string("/home/user/prueba sencilla con RP1/megara-cb0.txt");
+        argv[2] = (char*)arg2->c_str();
+        //-----------------------------
+        string *arg3 = new string("all");
+        argv[3] = (char*)arg3->c_str();
+    }
+    else if(command == "test_generateParkProg_offline") {
+        argc = 2;
+    }
+    else if(command == "test_generateParkProg_online") {
+        argc = 2;
+    }
+    else if(command == "generatePairPPDP_offline") {
+        argc = 4;
+        string *arg2 = new string("/home/user/MEGARA/ejemplos/error 31-03-2017/megara_2p0e5_000765.txt");
+        argv[2] = (char*)arg2->c_str();
+        //-----------------------------
+        string *arg3 = new string("all");
+        argv[3] = (char*)arg3->c_str();
+    }
+    else if(command == "test_generatePairPPDP_offline") {
+        argc = 2;
+    }
+    else if(command == "test_generatePairPPDP_online") {
+        argc = 2;
+    }
+    else if(command == "checkPairPPDP") {
+        argc = 5;
+        string *arg2 = new string(getCurrentDir()+"/PairPPDP_PP-MCS_from_megara-cb_90sources.txt");
+        argv[2] = (char*)arg2->c_str();
+        string *arg3 = new string(getCurrentDir()+"/PairPPDP_DP-MCS_from_megara-cb_90sources.txt");
+        argv[3] = (char*)arg3->c_str();
+        string *arg4 = new string("{1, 3, 4}");
+        argv[4] = (char*)arg4->c_str();
+    }
+    else if(command == "validatePairPPDP") {
+        argc = 3;
+        //string *arg2 = new string(getCurrentDir()+"/PairPPDP_outputs_from_megara-cb0_RP1.txt");
+        string *arg2 = new string(getCurrentDir()+"../../pruebas_choque/margin_3p50/PairPPDP_outputs_from_megara_5p0e5_x1.txt");
+        argv[2] = (char*)arg2->c_str();
+    }
+    else if(command == "regeneratePairPPDP") {
+        argc = 6;
+        string *arg2 = new string(getCurrentDir()+"/PairPPDP_PP-MCS_from_megara-cb_90sources.txt");
+        argv[2] = (char*)arg2->c_str();
+        string *arg3 = new string(getCurrentDir()+"/PairPPDP_DP-MCS_from_megara-cb_90sources.txt");
+        argv[3] = (char*)arg3->c_str();
+        string *arg4 = new string(getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb_90sources.txt");
+        argv[4] = (char*)arg4->c_str();
+        string *arg5 = new string("{1, 3, 4}");
+        argv[5] = (char*)arg5->c_str();
+    }
+    else
+        throw EImproperArgument("unknown command: " + command);
 }
 
-//Test the function generateParkingProgram_offline.
-void test_generateParkingProgram_offline(TFiberMOSModel& FMM, string& log_filename)
-{
-    try {
-
-        //CHECK THE PRECONDITIONS:
-
-        if(FMM.RPL.thereIsSomeNullPointer())
-            throw EImproperCall("RP null pointer in the FMM");
-
-        if(FMM.RPL.thereIsSomeRepeatedPointer())
-            throw EImproperCall("RP repeated pointer in the FMM");
-
-        if(FMM.RPL.thereIsSomeNotOperative())
-            throw EImproperCall("not operative RP in the FMM");
-
-        //MAKE ACTIONS:
-
-        //builds the MPG attached to the FMM
-        TMotionProgramGenerator MPG(&FMM);
-
-        //parameters of the function generateParkingProgram_offline
-        TRoboticPositionerList Collided, Obstructed;
-        TMotionProgram ParkingProgram;
-        bool ParkingProgramValid;
-
-        int count = 0; //number os simulations
-        string input_path; //path of input file
-        string filename; //filename of reference including the number of simulation
-        string output_dir; //folder to put the outputss
-        string output_filename; //output filename each time
-        string str; //string to writo to file each time
-
-        output_dir = "test_generateParkingProgram_offline";
-        ForceDirectories(AnsiString(output_dir));
-
-        do {
-            //contabilize the test and print the test tittle
-            append("TEST "+inttostr(++count)+":", log_filename.c_str());
-            append("========================================================================", log_filename.c_str());
-
-            //build the filename of reference
-            filename = "test-"+inttostr(count)+".txt";
-
-            //-------------------------------------------------------------------
-            //GENERATES A FILE CONTAINING A RANDOM FMOSA TABLE:
-
-            //add to the MPG an allocation for each RP of the FMM
-            Destroy(MPG);
-            for(int i=0; i<FMM.RPL.getCount(); i++)
-                MPG.AddAllocation(i);
-
-            //randomize the projection points in the domain of their attached RPs
-            FMM.RPL.setPurpose(pGenParPro);
-            append("FMM configured for generate a pair (PP, DP). (Purpose = GenParPro).", log_filename.c_str());
-            MPG.RandomizeWithoutCollision();
-            append("Projection points randomized avoinding collisions.", log_filename.c_str());
-
-            //WARNING: sentence could take several seconds:
-            //  MPG.RandomizeWithoutCollision();
-
-            //save the allocation table
-            str = TAllocation::GetIdPPLabelsRow().str;
-            str += "\r\n"+MPG.getColumnText().str;
-            output_filename = output_dir+"/AL-for-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //build a FMOSA table and set the allocations
-            TFMOSATable FMOSAT;
-            for(int i=0; i<MPG.getCount(); i++) {
-                TAllocation *A = MPG[i];
-
-                TObservingSource *OS = new TObservingSource();
-
-                //transcribe the allocation properties to the OS
-                OS->Type = ptSOURCE;
-                OS->Pid = A->getRP()->getActuator()->getId();
-                OS->X = A->PP.x;
-                OS->Y = A->PP.y;
-                OS->Enabled = true;
-
-                //set the optional values
-                OS->Name = "s:"+inttostr(i+1);
-                OS->Mag = 0;
-                OS->Pr = 0;
-                OS->Bid = 0;
-                //OS->notAllocated = true;
-                //OS->allocateInAll = false;
-                OS->Comment = "too coment";
-
-                //enable the optional values
-                OS->there_is_Mag = true;
-                OS->there_is_Pr = true;
-                OS->there_is_Bid = true;
-                //OS->there_is_notAllocated = true;
-                //OS->there_is_allocateInAll = true;
-
-                //add the OS to the FMOSA table
-                FMOSAT.Add(OS);
-            }
-
-            //save the FMOSA table in a file
-            FMOSAT.getTableText(str);
-            output_filename = output_dir+"/FMOSA-for-"+filename;
-            strWriteToFile(output_filename, str);
-            append("FMOSA table saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //-------------------------------------------------------------------
-            //TEST THE FUNCTION TO GENERATE PAIRS (PP, DP):
-
-            //initializes the parameters of the function:
-            Destroy(MPG);
-            input_path = output_filename;
-
-            //call the function to test
-            append("Calling function generateParkingProgram_offline...", log_filename.c_str());
-            append("--------------------------------------------------------------------------", log_filename.c_str());
-            append("generateParkingProgram_offline(ParkingProgramValid,", log_filename.c_str());
-            append("                               Collided, Obstructed, ParkingProgram,", log_filename.c_str());
-            append("                               FMM, input_path, output_dir, log_filename,", log_filename.c_str());
-            append("                               true, true, true, true, true, true);", log_filename.c_str());
-            generateParkingProgram_offline(ParkingProgramValid, Collided, Obstructed, ParkingProgram,
-                                           FMM, input_path, output_dir, log_filename,
-                                           true, true, true, true, true, true);
-            append("--------------------------------------------------------------------------", log_filename.c_str());
-            append("Returned from function generateParkingProgram_offline.", log_filename.c_str());
-
-            //WARNING: sentence could take several seconds:
-            //  generateParkingProgram_offline(ParkingProgramValid, Collided, Obstructed, ParkingProgram,
-            //                                 FMM, input_path, output_dir, log_filename,
-            //                                 true, true, true, true, true, true);
-
-            //Note that the outputs are saved in the function to test.
-
-            //prepare the standard output for the next test
-            append("", log_filename.c_str());
-        }
-        while(ParkingProgramValid && Collided.getCount()<=0 && Obstructed.getCount()<=0);
-
-        //indicates that test
-        append("\r\nFailed test "+inttostr(count)+"!", log_filename.c_str());
-        append("ParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str, log_filename.c_str());
-        append("Collided: "+Collided.gettText().str, log_filename.c_str());
-        append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str());
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "testing generatePairPPDP_offline: ");
-        throw;
-    }
-}
-
-//Test the function generateParkingProgram_online.
-void test_generateParkingProgram_online(TFiberMOSModel& FMM, string& log_filename)
-{
-    try {
-
-        //CHECK THE PRECONDITIONS:
-
-        if(FMM.RPL.thereIsSomeNullPointer())
-            throw EImproperCall("RP null pointer in the FMM");
-
-        if(FMM.RPL.thereIsSomeRepeatedPointer())
-            throw EImproperCall("RP repeated pointer in the FMM");
-
-        if(FMM.RPL.thereIsSomeNotOperative())
-            throw EImproperCall("not operative RP in the FMM");
-
-        //MAKE ACTIONS:
-
-        //builds the MPG attached to the FMM
-        TMotionProgramGenerator MPG(&FMM);
-
-        //outputs parameters of the function generateParkingProgram_online
-        bool ParkingProgramValid;
-        TMotionProgram ParkingProgram;
-
-        //inputs parameters of the function generateParkingProgram_online
-        vector<double> p_1s, p___3s;
-        vector<int> Ids;
-
-        //other variables
-        int Bid = 0; //block identification
-        string filename; //filename of reference including the Bid
-        string output_dir; //folder to put the outputss
-        string output_filename; //output filename each time
-        string str; //string to writo to file each time
-
-        output_dir = "test_generateParkingProgram_online";
-        ForceDirectories(AnsiString(output_dir));
-
-        do {
-            //contabilize the test and print the test tittle
-            append("TEST "+inttostr(++Bid)+":", log_filename.c_str());
-            append("========================================================================", log_filename.c_str());
-
-            //build the filename of reference
-            filename = "test-"+inttostr(Bid)+".txt";
-
-            //-------------------------------------------------------------------
-            //RANDOMIZE THE POSITION ANGLES WITHOUT COLLISIONS AND SAVE THE ALLOCATIONS:
-
-            //add to the MPG an allocation for each RP of the FMM
-            Destroy(MPG);
-            for(int i=0; i<FMM.RPL.getCount(); i++)
-                MPG.AddAllocation(i);
-
-            //randomize the projection points in the domain of their attached RPs
-            FMM.RPL.setPurpose(pGenParPro);
-            append("FMM configured for generate a pair (PP, DP). (Purpose = GenParPro).", log_filename.c_str());
-            MPG.RandomizeWithoutCollision();
-            append("Projection points randomized avoinding collisions.", log_filename.c_str());
-
-            //WARNING: sentence could take several seconds:
-            //  MPG.RandomizeWithoutCollision();
-
-            //save the allocation table
-            str = TAllocation::GetIdPPLabelsRow().str;
-            str += "\r\n"+MPG.getColumnText().str;
-            output_filename = output_dir+"/AL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //-------------------------------------------------------------------
-            //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) ONLINE:
-
-            //move the RPs to the more closer stable point to the projection points
-            MPG.MoveToTargetP3();
-            if(MPG.getCount() > 0)
-                append("RPs moved to observing positions.", log_filename.c_str());
-            else
-                append("There aren't RPs to be moved to observing positions.", log_filename.c_str());
-
-            //WARNING: sentence could take several seconds:
-            //  MPG.MoveToTargetP3();
-
-            //A PPA table shall be stored how a table (Id, p_1, p___3).
-
-            //captures the starting positions of the RPs in a PPA list
-            TPairPositionAnglesList SPL;
-            FMM.RPL.getPositions(SPL);
-            str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+SPL.getColumnText().str;
-            ForceDirectories(AnsiString(output_dir));
-            string output_filename = output_dir+"/SPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Starting position list saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //Other whay to obtain the starting position table directly in text format:
-            //  FMM.RPL.getPositionsPPATableText()
-
-            //copy the position angles in the input parameters
-            p_1s.clear();
-            p___3s.clear();
-            for(int i=0; i<FMM.RPL.getCount(); i++) {
-                TRoboticPositioner *RP = FMM.RPL[i];
-                p_1s.push_back(RP->getActuator()->getp_1());
-                p___3s.push_back(RP->getActuator()->getArm()->getp___3());
-            }
-            append("Input parameters extracted from the FMM.", log_filename.c_str());
-
-            //move the RPs to their origin positions
-            FMM.RPL.moveToOrigins();
-            append("RPs moved to origins.", log_filename.c_str());
-
-            //Move the FMM to the origins in convenient because this function
-            //is for test the generating function.
-
-            //determine a number of RPs to be disabled
-            Ids.clear();
-            //TBD
-
-            //call the function to test
-            append("Calling function generateParkingProgram_online...", log_filename.c_str());
-            append("----------------------------------------------------------------------------", log_filename.c_str());
-            append("ParkingProgramValid = generateParkingProgram_online(ParkingProgram,", log_filename.c_str());
-            append("                                                    FMM, p_1s, p___3s, Ids);", log_filename.c_str());
-            ParkingProgramValid = generateParkingProgram_online(ParkingProgram,
-                                                                FMM, p_1s, p___3s, Ids);
-            append("----------------------------------------------------------------------------", log_filename.c_str());
-            append("Returned from function generateParkingProgram_online.", log_filename.c_str());
-
-            //WARNING: sentence could take several seconds:
-            //  ParkingProgramValid = generateParkingProgram_online(ParkingProgram,
-            //                                                      FMM, p_1s, p___3s, Ids);
-
-            //restore de enabling status of all RPs
-            for(unsigned int i=0; i<Ids.size(); i++) {
-                int Id = Ids[i];
-                int j = FMM.RPL.searchId(Id);
-                if(j >= FMM.RPL.getCount())
-                    throw EImpossibleError("lateral effect");
-                FMM.RPL[j]->Disabled = false;
-            }
-
-            //---------------------------------------------------------------
-            //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
-
-            //if generation function was successfully generated
-            if(ParkingProgramValid) {
-                //indicates the result of the generation
-                append("Generated pair (PP, DP) is valid.", log_filename.c_str());
-
-                //save the parking program in the format of the FMPT
-                str = ParkingProgram.getText().str;
-                output_filename = output_dir+"/ParkingProgram-FMPT-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Parking program in FMPT format saved in '"+output_filename+"'.", log_filename.c_str());
-
-                //Given that here the generated pair ((PP, DP) is valid,
-                //all operative outsider RPs which aren't obstructed, should be:
-                //- in the origin positions, in their final position after execute the DP.
-
-                //captures the initial positions of the RPs in a PPA list
-                TPairPositionAnglesList FPL;
-                FMM.RPL.getPositions(FPL);
-                string str = TActuator::getPositionPPALabelsRow().str;
-                str += "\r\n"+FPL.getColumnText().str;
-                string output_filename = output_dir+"/FPL-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Final position list saved in '"+output_filename+"'.", log_filename.c_str());
-
-                //Other whay to obtain the observing position table directly in text format:
-                //  FMM.RPL.getPositionsPPATableText()
-
-                //translates the parking program to the format of the interface MCS-FMPT
-                //and save it in a file
-                ParkingProgram.getInterfaceText(str, "depos", Bid, SPL, false);
-                append("Parking program translated to the MCS format.", log_filename.c_str());
-                output_filename = output_dir+"/ParkingProgram-from-"+filename;
-                strWriteToFile(output_filename, str);
-                append("Parking program in MCS format saved in '"+output_filename+"'.", log_filename.c_str());
-            }
-            else {
-                //Given that here the generated parking program is invalid,
-                //all operative outsider RPs which aren't obstructed, should be:
-                //- in the first position where the collision was detected.
-
-                //print the result of generation of the parking program
-                append("Generated ParkingProgram is not valid, because PP or DP is invalid.", log_filename.c_str());
-            }
-
-            //Below alll instruction about Obstructed or Collided has been comented:
-            //
-            //if(Obstructed.getCount() > 0)
-            //    append("There are obstructed RPs: "+Obstructed.getText().str, log_filename.c_str());
-            //
-            //if(Collided.getCount() > 0)
-            //    append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
-
-            //print the other outputs in the corresponding file
-            str = "ParkingProgramValid: "+BoolToStr(ParkingProgramValid,true).str;
-            //str += "\r\nCollided: "+Collided.getText().str;
-            //str += "\r\nObstructed: "+Obstructed.getText().str;
-            if(ParkingProgram.thereIsSomeComment1())
-                str += "\r\nParkingProgram comments:\r\n"+ParkingProgram.getComment1sColumnText();
-            output_filename = output_dir+"/other_outputs-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //END OF SAVE THE OUTPUTS
-
-            //prepare the standard output for the next test
-            append("", log_filename.c_str());
-        }
-        while(ParkingProgramValid); // && Collided.getCount()<=0 && Obstructed.getCount()<=0);
-
-        //Note that not collided and not obstructed should be part of the stop condition,
-        //but they are discarted in the function of generation online.
-
-        //indicates that the test has failed
-        append("\r\nFailed test "+inttostr(Bid)+"!", log_filename.c_str());
-        append("ParkingProgramValid: "+BoolToStr(ParkingProgramValid, true).str, log_filename.c_str());
-        //append("Collided: "+Collided.gettText().str, log_filename.c_str());
-        //append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str());
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "testing generateParkingProgram_online: ");
-        throw;
-    }
-}
-
-/*//Generate one animation with the pair (PP, DP).
-int visualizePPDP(int argc, char *argv[], TFiberMOSModel& FMM, string& path_PP, string& path_DP, string& log_filename)
-{
-    try {
-
-        //load the PP from a file
-        TMotionProgram PP;
-        string PP_label;
-        unsigned int PP_Bid;
-        string str;
-        strReadFromFile(str, path_PP);
-        PP.setInterfaceText(PP_label, PP_Bid, str);
-        append("PP loaded from '"+path_PP+"'.", log_filename.c_str());
-
-        //check the precondition
-        if(PP_label != "pos")
-            throw EImproperArgument("PP label should be \"pos\"");
-
-        //load the DP from a file
-        TMotionProgram DP;
-        string DP_label;
-        unsigned int DP_Bid;
-        strReadFromFile(str, path_DP);
-        DP.setInterfaceText(DP_label, DP_Bid, str);
-        append("DP loaded from '"+path_DP+"'.", log_filename.c_str());
-
-        //check the precondition
-        if(DP_label != "depos")
-            throw EImproperArgument("DP label should be \"depos\"");
-        if(DP_Bid != PP_Bid)
-            throw EImproperArgument("DP Bid should be equal to PP Bid");
-
-        //TODO
-        //set path_frames according to nomenclature based on configuration block and/or number of sources
-        //
-        //
-        //
-        //
-        string path_frames = "/home/user/MEGARA/megarafmpt/data/Samples/frames/builder10/";
-        //        string path_frames = "/home/user/pruebas_choque/magin_3p50/frames/builder10";
-        QString pathSequence = QString(path_frames.c_str());
-
-        //check if folder exists
-        if (!QDir(pathSequence).exists()){
-            QDir().mkdir(pathSequence);
-        }
-
-        //check if sequence is already stored in disk
-        if(QDir(pathSequence).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() == 0)
-        {
-
-            //generate Frames
-            GenerateFrames FrameBuilder;
-            FrameBuilder.pathSequence = pathSequence;
-            FrameBuilder.FMM = &FMM;
-            FrameBuilder.PP = &PP;
-            FrameBuilder.DP = &DP;
-
-            append("Generating PP frames in '"+path_frames+"'.", log_filename.c_str());
-            FrameBuilder.generatePPFrames();
-
-            append("Generating DP frames in '"+path_frames+"'.", log_filename.c_str());
-            FrameBuilder.generateDPFrames();
-        }
-
-
-        //executes Qt GUI app
-        QApplication a(argc, argv);
-        MainWindow w;
-
-        //set pathSequence dir
-        //..
-        //QString appPath = QDir().currentPath();
-        //QDir dir(appPath+"/../megarafmpt/data/Samples/frames/eclipse/");
-        //..
-        QDir dir(pathSequence);
-        w.setFramesDir(dir);
-
-        w.show();          // visualize PP/DP sequence
-        return a.exec();
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "visualizing motion progress: ");
-        throw;
-    }
-}
-*/
 //main function
 int main(int argc, char *argv[])
 {
@@ -2535,17 +3685,17 @@ int main(int argc, char *argv[])
     //Using autotools over Linux:
     //-------------------------------------------------------------------
     //
-    //Selecting '/home/User/MEGARA' how working directory, before compilation:
-    //  sources shall be in:    '/home/User/MEGARA/megarafmpt/src'
-    //  data shall be in:       '/home/User/MEGARA/megarafmpt/data'
+    //Selecting '/home/Isaac/MEGARA' how working directory, before compilation:
+    //  sources shall be in:    '/home/Isaac/MEGARA/megarafmpt/src'
+    //  data shall be in:       '/home/Isaac/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in the same directory named megarafmpt:
-    //  sources will be in:     '/home/User/MEGARA/megarafmpt/src'
-    //  data will be in:        '/home/User/MEGARA/megarafmpt/data'
+    //  sources will be in:     '/home/Isaac/MEGARA/megarafmpt/src'
+    //  data will be in:        '/home/Isaac/MEGARA/megarafmpt/data'
     //
     //When compilation has been make in an appart directory named build:
-    //  sources will be in:     '/home/User/MEGARA/build/src'
-    //  data will be in:        '/home/User/MEGARA/build/data'
+    //  sources will be in:     '/home/Isaac/MEGARA/build/src'
+    //  data will be in:        '/home/Isaac/MEGARA/build/data'
     //
     //When the installation has been make:
     //  executable will be in:  'prefix/bin'
@@ -2566,9 +3716,9 @@ int main(int argc, char *argv[])
     //-------------------------------------------------------------------
     //
     //The Qt project and the main.cpp file will be in:
-    //  '/home/User/MEGARA/FMPT_SAA-CLI'
+    //  '/home/Isaac/MEGARA/FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  '/home/User/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
+    //  '/home/Isaac/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
     //The other source files and data files will be in the same repository for autotools,
     //whose relative path from the executable is:
     //  for source files:   '../megarafmpt/src'
@@ -2579,19 +3729,19 @@ int main(int argc, char *argv[])
     //      when program is released:  getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //      when program is debugging: getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
     //  The input data:
-    //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
-    //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
+    //      path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
+    //      path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
     //
     //Using Qt over Windows:
     //-------------------------------------------------------------------
     //
-    //Selecting 'D:\User\MEGARA' how working directory:
+    //Selecting 'D:\Isaac\MEGARA' how working directory:
     //The Qt project and the main.cpp file will be in:
-    //  'D:\User\MEGARA\FMPT_SAA-CLI'
+    //  'D:\Isaac\MEGARA\FMPT_SAA-CLI'
     //The object code and the executable will be in:
-    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
-    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
+    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
+    //  'D:\Isaac\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
     //
     //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
     //  The Fiber MOS Model Instance:
@@ -2600,9 +3750,47 @@ int main(int argc, char *argv[])
     //  The input data:
     //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
     //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //      for generateDP:                 path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
+    //
+    //WARNING:
+    //-------------------------------------------------------------------
+    //
+    //Changes could happen using more actually versions of qmake.
+    //The following change has been found:
+    //  getCurrentDir(): could return personal folder '/home/user'
+    //  instead the current path.
+    //This error can't be solved changing the following value:
+    //  Tools -> Options... -> Build & Run -> Projects Directory:
+    //      - Current Directory
+    //      - Directory
     //
     //###################################################################
+
+#ifdef QMAKE //if debugging using qmake
+    //Get the arguments for a command
+    getArguments(argc, argv, "applyTuning");
+
+    //Comands:
+    //  "valuesSPM_EA"
+    //  "valuesSPM_RP"
+    //  "testRadialMotion"
+    //  "testDistanceMin"
+    //  "applyPCL"
+    //  "applyRPI"
+    //  "evaluateErrors"
+    //  "tuneRP"
+    //  "applyTuning"
+    //  "PPA_to_CC-S0"
+    //  "generatePairPPDP_offline"
+    //  "test_generatePairPPDP_offline"
+    //  "test_generatePairPPDP_online"
+    //  "checkPairPPDP"
+    //  "validatePairPPDP"
+    //  "regeneratePairPPDP"
+    //  "generateParkProg_offline"
+    //  "test_generateParkProg_offline"
+    //  "test_generateParkProg_online"
+#endif //#ifndef QMAKE
 
     //-------------------------------------------------------------------
     //CONFIGURATE THE SYSTEM:
@@ -2610,14 +3798,14 @@ int main(int argc, char *argv[])
     //REMEMBER: exceptions in runtime can be due to that
     //the system is not configurated.
 
-    //configurates the decimal separator
-    setlocale(LC_NUMERIC, "C");
+    //configurates the locale information
+    setlocale(LC_ALL, "C");
 
     //-----------------------------------------------------------------------
     //MAKE ACTIONS:
 
     string command;
-    string log_filename;
+    string log_path;
 
     try {
         //if the program is run without the necessary command
@@ -2626,7 +3814,9 @@ int main(int argc, char *argv[])
             //indicates that happened
             cout << "Missing command." << endl;
             //print the help
-            cout << "\r\n"+help()+"\r\n" << endl;
+            cout << endl;
+            cout << help() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
@@ -2637,31 +3827,41 @@ int main(int argc, char *argv[])
         //reacts according the comands without log file
         if(command == "help") {
             //print the help
-            cout << "\r\n"+help()+"\r\n" << endl;
+            cout << endl;
+            cout << help() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
         else if(command == "help_generatePairPPDP_offline") {
             //print the help
-            cout << "\r\n"+help_generatePairPPDP_offline()+"\r\n" << endl;
+            cout << endl;
+            cout << help_generatePairPPDP_offline() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
-        else if(command == "help_generateParkingProgram_offline") {
+        else if(command == "help_generateParkProg_offline") {
             //print the help
-            cout << "\r\n"+help_generateParkingProgram_offline()+"\r\n" << endl;
+            cout << endl;
+            cout << help_generateParkProg_offline() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
         else if(command == "help_others") {
             //print the help
-            cout << "\r\n"+help_others()+"\r\n" << endl;
+            cout << endl;
+            cout << help_others() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
         else if(command == "aboutOf") {
             //print the about of legend
-            cout << "\r\n"+aboutOf() << endl;
+            cout << endl;
+            cout << aboutOf() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
@@ -2669,30 +3869,38 @@ int main(int argc, char *argv[])
                 command != "valuesSPM_RP" &&
                 command != "testRadialMotion" &&
                 command != "testDistanceMin" &&
-                command != "applyPC" &&
-                command != "applyRP" &&
+                command != "applyPCL" &&
+                command != "applyRPI" &&
+                command != "evaluateErrors" &&
+                command != "tuneRP" &&
+                command != "applyTuning" &&
+                command != "PPA_to_CC-S0" &&
+                //-------------------------------------------
+                command != "generateParkProg_offline" &&
+                command != "test_generateParkProg_offline" &&
+                command != "test_generateParkProg_online" &&
+                //-------------------------------------------
                 command != "generatePairPPDP_offline" &&
                 command != "test_generatePairPPDP_offline" &&
                 command != "test_generatePairPPDP_online" &&
                 command != "checkPairPPDP" &&
                 command != "validatePairPPDP" &&
-                command != "regeneratePairPPDP" &&
-                command != "generateParkingProgram_offline" &&
-                command != "test_generateParkingProgram_offline" &&
-                command != "test_generateParkingProgram_online" &&
-                command != "visualizePPDP") {
+                command != "regeneratePairPPDP") {
+                //-------------------------------------------
             //indicates that happened
-            cout << "Unknowledge command." << endl;
+            cout << "Unknowledge command: "+command << endl;
             //print the help
-            cout << "\r\n"+help() << endl;
+            cout << endl;
+            cout << help() << endl;
+            cout << endl;
             //indicates that the program has been executed without error
             return 0;
         }
 
         //initalize the log file
-        log_filename = "fmpt_saa.log";
+        log_path = "fmpt_saa.log";
         char mode[] = "w";
-        TTextFile TF(log_filename.c_str(), mode);
+        TTextFile TF(log_path.c_str(), mode);
         TF.Close();
     }
     catch(Exception &E) {
@@ -2709,54 +3917,103 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA 3.9.3 is running...", log_filename.c_str());
+        append("FMPT SAA "+FMPT_VERSION+" is running...", log_path.c_str());
 
-        //print the arguments with has called the program
-        append("\r\nArguments with has called the program:", log_filename.c_str());
+        //print the arguments with you has called the program
+        append("\r\nArguments with you has called the program:", log_path.c_str());
         for(int i=0; i<argc; i++)
-            append("    argv["+inttostr(i)+"]: "+string(argv[i]), log_filename.c_str());
+            append("    argv["+inttostr(i)+"]: "+string(argv[i]), log_path.c_str());
 
-        //built the paths where search the Fiber MOS Model
-        string dir_FMM1 = DATADIR;
-        dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
-        string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
-
-        //load the instance of the Fiber MOS Model from a dir
+        //load the FMM Instance
         TFiberMOSModel FMM;
-        string dir_FMM;
+        string FMM_dir = "";
+#ifdef QMAKE
+//        string FMM_dir1 = getCurrentDir()+"/../megara-fmpt/data/Models/MEGARA_FiberMOSModel_Instance";
+        string FMM_dir1 = "/usr/local/share/megara-fmpt/Models/MEGARA_FiberMOSModel_Instance";
 
-        try {
-            append("\r\nLoading FMM instance from: '"+dir_FMM1+"'.", log_filename.c_str());
-            readInstanceFromDir(FMM, dir_FMM1);
-            dir_FMM = dir_FMM1;
-        }
-        catch(Exception& E) {
-            append("FMM instance can't be loaded: "+E.Message.str, log_filename.c_str());
+        //try load the FMM Instance from dir 3
+        if(FMM_dir.length() <= 0) {
             try {
-                append("Loading FMM instance from: '"+dir_FMM2+"'.", log_filename.c_str());
-                readInstanceFromDir(FMM, dir_FMM2);
-                dir_FMM = dir_FMM2;
+                append("\r\nLoading FMM Instance from directory '"+FMM_dir1+"'.", log_path.c_str());
+                readInstanceFromDir(FMM, FMM_dir1);
+                FMM_dir = FMM_dir1;
+            }
+            catch(ECantComplete& E) {
+                append("Cant't complete action: "+E.Message.str, log_path.c_str());
+            }
+            catch(EImproperFileLoadedValue& E) {
+                append("Improper file loaded value: "+E.Message.str, log_path.c_str());
             }
             catch(Exception& E) {
-                E.Message.Insert(1, "loading instance: ");
+                E.Message.Insert(1, "loading instance: "+E.Message.str);
                 throw;
             }
         }
-        append("FMM instance loaded.", log_filename.c_str());
+#else
+        //built the paths where search the Fiber MOS Model
+        string FMM_dir1 = DATADIR;
+        FMM_dir1 += "/Models/MEGARA_FiberMOSModel_Instance";
+        string FMM_dir2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+
+        //Assignation to FMM_dir1 split for avoid the following error:
+        //main.cpp:3737:35: error: invalid operands of types ‘const char [29]’ and ‘const char [38]’ to binary ‘operator+’
+        //         string FMM_dir1 = DATADIR+"/Models/MEGARA_FiberMOSModel_Instance";
+
+        //try load the FMM Instance from dir 1
+        try {
+            append("\r\nLoading FMM Instance from directory '"+FMM_dir1+"'.", log_path.c_str());
+            readInstanceFromDir(FMM, FMM_dir1);
+            FMM_dir = FMM_dir1;
+        }
+        catch(ECantComplete& E) {
+            append("Cant't complete action: "+E.Message.str, log_path.c_str());
+        }
+        catch(EImproperFileLoadedValue& E) {
+            append("Improper file loaded value: "+E.Message.str, log_path.c_str());
+        }
+        catch(Exception& E) {
+            E.Message.Insert(1, "loading instance: "+E.Message.str);
+            throw;
+        }
+
+        //try load the FMM Instance from dir 2
+        if(FMM_dir.length() <= 0) {
+            try {
+                append("\r\nLoading FMM Instance from directory '"+FMM_dir2+"'.", log_path.c_str());
+                readInstanceFromDir(FMM, FMM_dir2);
+                FMM_dir = FMM_dir2;
+            }
+            catch(ECantComplete& E) {
+                append("Cant't complete action: "+E.Message.str, log_path.c_str());
+            }
+            catch(EImproperFileLoadedValue& E) {
+                append("Improper file loaded value: "+E.Message.str, log_path.c_str());
+            }
+            catch(Exception& E) {
+                E.Message.Insert(1, "loading instance: "+E.Message.str);
+                throw;
+            }
+        }
+#endif
+        //check if has loaded a FMM instance
+        if(FMM_dir.length() > 0)
+            append("FMM Instance loaded.", log_path.c_str());
+        else
+            throw EImproperCall("the Fiber MOS Model Instance can't be loaded");
 
         //-------------------------------------------------------------------
         //REACTS ACCORDING THE COMMAND AND THE ARGUMENTS:
 
         //print a blank line for improve legibility
-        append("", log_filename.c_str());
+        append("", log_path.c_str());
 
         //-------------------------------------------------------------------
         if(command == "valuesSPM_EA") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command valuesSPM_EA sould have 1 arguments: <Aid>");
+                throw EImproperArgument("command valuesSPM_EA sould have 1 arguments: <Id>");
 
-            //built a string from arg 1 (<Aid>)
+            //built a string from arg 1 (<Id>)
             string str(argv[2]);
 
             //convert the argument to int
@@ -2769,16 +4026,16 @@ int main(int argc, char *argv[])
             TExclusionArea *EA = FMM.EAL[i];
 
             //print the SPM values
-            append("The EA"+EA->getIdText().str+" has been found in the FMM, and their SPM values are:", log_filename.c_str());
-            append(StrIndent(EA->getSecurityText()).str, log_filename.c_str());
-            append("\r\nFor learn about the calculus of SPM values, see the file: '/usr/local/share/megara-fmpt/Models/Calculus_of_SPM.txt'", log_filename.c_str());
+            append("The EA"+EA->getIdText().str+" has been found in the FMM, and their SPM values are:", log_path.c_str());
+            append(StrIndent(EA->getSecurityText()).str, log_path.c_str());
+            append("\r\nFor learn about the calculus of SPM values, see the file: '/usr/local/share/megara-fmpt/Models/Calculus_of_SPM.txt'", log_path.c_str());
         }
         else if(command == "valuesSPM_RP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command valuesSPM_RP sould have 1 arguments: <Pid>");
+                throw EImproperArgument("command valuesSPM_RP sould have 1 arguments: <Id>");
 
-            //built a string from arg 1 (<Pid>)
+            //built a string from arg 1 (<Id>)
             string str(argv[2]);
 
             //convert the argument to int
@@ -2791,9 +4048,9 @@ int main(int argc, char *argv[])
             TRoboticPositioner *RP = FMM.RPL[i];
 
             //print the SPM values
-            append("The RP"+RP->getActuator()->getIdText().str+" has been found in the FMM, and their SPM values are:", log_filename.c_str());
-            append(StrIndent(RP->getActuator()->getSecurityText()).str, log_filename.c_str());
-            append("\r\nFor learn about the calculus of SPM values, see the file: '/usr/local/share/megara-fmpt/Models/Calculus_of_SPM.txt'", log_filename.c_str());
+            append("The RP"+RP->getActuator()->getIdText().str+" has been found in the FMM, and their SPM values are:", log_path.c_str());
+            append(StrIndent(RP->getActuator()->getSecurityText()).str, log_path.c_str());
+            append("\r\nFor learn about the calculus of SPM values, see the file: '/usr/local/share/megara-fmpt/Models/Calculus_of_SPM.txt'", log_path.c_str());
         }
         else if(command == "testRadialMotion") {
             //check the precondition
@@ -2801,7 +4058,7 @@ int main(int argc, char *argv[])
                 throw EImproperArgument("command testRadialMotion should have 0 arguments");
 
             //execute the test
-            testRadialMotion(FMM, log_filename);
+            testRadialMotion(FMM, log_path);
         }
         else if(command == "testDistanceMin") {
             //check the precondition
@@ -2809,67 +4066,163 @@ int main(int argc, char *argv[])
                 throw EImproperArgument("command testDistanceMin should have 0 arguments");
 
             //execute the test
-            testDistanceMin(FMM, log_filename);
+            testDistanceMin(FMM, log_path);
         }
         //-------------------------------------------------------------------
-        else if(command == "applyPC") {
+        else if(command == "applyPCL") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyPC sould have 1 arguments: <path_PC>");
+                throw EImproperArgument("command applyPCL sould have 1 arguments: <PCL_path>");
 
             //built a path from arg 1
-            string path_PC(argv[2]);
+            string PCL_path(argv[2]);
 
             //make a rutinary check
-            if(path_PC.length() <= 0)
+            if(PCL_path.length() <= 0)
                 throw EImpossibleError("lateral effect");
 
             //complete the relative path, if any
-            if(path_PC[0] != '/')
-                path_PC.insert(0, getCurrentDir()+"/");
+            if(PCL_path[0] != '/')
+                PCL_path.insert(0, getCurrentDir()+"/");
 
-            //apply the positioner center table to the Fiber MOS Model Instance
-            applyPC(FMM, path_PC, log_filename);
+            //apply the positioner center list to the Fiber MOS Model Instance
+            applyPCL(FMM, PCL_path, log_path);
 
             //save the instance of the Fiber MOS Model from where was loaded
-            writeInstanceToDir(dir_FMM, FMM);
-            append("Fiber MOS Model instance saved in '"+dir_FMM+"'.", log_filename.c_str());
+            writeInstanceToDir(FMM_dir, FMM);
+            append("Fiber MOS Model instance saved in directory '"+FMM_dir+"'.", log_path.c_str());
         }
-        else if(command == "applyRP") {
+        else if(command == "applyRPI") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command applyRP sould have 1 arguments: <dir_RP>");
+                throw EImproperArgument("command applyRPI sould have 1 arguments: <RPI_dir>");
 
             //built a path from arg 1
-            string dir_RP(argv[2]);
+            string RPI_dir(argv[2]);
 
             //make a rutinary check
-            if(dir_RP.length() <= 0)
+            if(RPI_dir.length() <= 0)
                 throw EImpossibleError("lateral effect");
 
             //complete the relative path, if any
-            if(dir_RP[0] != '/')
-                dir_RP.insert(0, getCurrentDir()+"/");
+            if(RPI_dir[0] != '/')
+                RPI_dir.insert(0, getCurrentDir()+"/");
 
-            //apply the RP model for all RPs of the Fiber MOS Model Instance
-            applyRP(FMM, dir_RP, log_filename);
+            //apply the RP Instance for all RPs of the Fiber MOS Model Instance
+            applyRPI(FMM, RPI_dir, log_path);
 
             //save the instance of the Fiber MOS Model from where was loaded
-            writeInstanceToDir(dir_FMM, FMM);
-            append("Fiber MOS Model instance saved in '"+dir_FMM+"'.", log_filename.c_str());
+            writeInstanceToDir(FMM_dir, FMM);
+            append("Fiber MOS Model instance saved in directory '"+FMM_dir+"'.", log_path.c_str());
+        }
+        else if(command == "evaluateErrors") {
+            //check the precondition
+            if(argc != 3)
+                throw EImproperArgument("command evaluateErrors sould have 1 arguments: <measures_path>");
+
+            //built a path from arg 1
+            string measures_path(argv[2]);
+
+            //make a rutinary check
+            if(measures_path.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative path, if any
+            if(measures_path[0] != '/')
+                measures_path.insert(0, getCurrentDir()+"/");
+
+            //call the function
+            evaluateErrors(FMM, measures_path, ".", log_path);
+        }
+        else if(command == "tuneRP") {
+            //check the precondition
+            if(argc != 5)
+                throw EImproperArgument("command tuneRP sould have 3 arguments: <measures_path> <errors_path> <positions>");
+
+            //built a path from args 1 and 2
+            string measures_path(argv[2]);
+            string errors_path(argv[3]);
+
+            //make a rutinary check
+            if(measures_path.length() <= 0)
+                throw EImpossibleError("lateral effect");
+            if(errors_path.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative paths, if any
+            if(measures_path[0] != '/')
+                measures_path.insert(0, getCurrentDir()+"/");
+            if(errors_path[0] != '/')
+                errors_path.insert(0, getCurrentDir()+"/");
+
+            int positions;
+            try {
+                //convert to int the arg 3
+                string positions_str(argv[4]);
+                positions = strToInt(positions_str);
+            }
+            catch(Exception& E) {
+                E.Message.Insert(1, "number of positions (positions) should be an integer upper zero");
+                throw;
+            }
+
+            //call the function
+            tuneRP(FMM, measures_path, errors_path, positions, ".", log_path);
+        }
+        else if(command == "applyTuning") {
+            //check the precondition
+            if(argc != 3)
+                throw EImproperArgument("command applyTuning sould have 1 arguments: <tuning_path>");
+
+            //built a path from arg 1
+            string tuning_path(argv[2]);
+
+            //make a rutinary check
+            if(tuning_path.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative path, if any
+            if(tuning_path[0] != '/')
+                tuning_path.insert(0, getCurrentDir()+"/");
+
+            //call the function
+            applyTuning(FMM, tuning_path, log_path);
+
+            //save the instance of the Fiber MOS Model from where was loaded
+            writeInstanceToDir(FMM_dir, FMM);
+            append("Fiber MOS Model instance saved in directory '"+FMM_dir+"'.", log_path.c_str());
+        }
+        else if(command == "PPA_to_CC-S0") {
+            //check the precondition
+            if(argc != 3)
+                throw EImproperArgument("command PPA_to_CC-S0 sould have 1 arguments: <PPAL_path>");
+
+            //built a path from arg 1
+            string PPAL_path(argv[2]);
+
+            //make a rutinary check
+            if(PPAL_path.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //complete the relative path, if any
+            if(PPAL_path[0] != '/')
+                PPAL_path.insert(0, getCurrentDir()+"/");
+
+            //call the function
+            PPA_to_CC_S0(FMM, PPAL_path, ".", log_path);
         }
         //-------------------------------------------------------------------
-        else if(command == "generatePairPPDP_offline") {
+        else if(command == "generateParkProg_offline") {
             //check the precondition
             if(argc < 3)
-                throw EImproperArgument("command generatePairPPDP_offline sould have almost 1 argument: <path_FMOSA>");
+                throw EImproperArgument("command generateParkProg_offline sould have almost 1 argument: <FMOSA_path>");
 
             //build a string for the argument 1
             string arg1(argv[2]);
 
             //argument 1 can be:
             //  command help ("help")
-            //  <path_FMOSA>
+            //  <FMOSA_path>
 
             //make a rutinary check
             if(arg1.length() <= 0)
@@ -2878,7 +4231,8 @@ int main(int argc, char *argv[])
             //reacts according the comands without log file
             if(arg1 == "help") {
                 //print the help
-                cout << help_generatePairPPDP_offline()+"\r\n" << endl;
+                cout << help_generateParkProg_offline() << endl;
+                cout << endl;
                 //indicates that the program has been executed without error
                 return 0;
             }
@@ -2887,65 +4241,182 @@ int main(int argc, char *argv[])
             if(arg1[0] != '/')
                 arg1.insert(0, getCurrentDir()+"/");
 
-            bool saveOPL=false, saveOPL_S0=false, saveOPL_S1=false, savePP_FMPT=false, saveDP_FMPT=false;
-            bool saveIPL=false, saveDisp_Corners1=false, saveDisp_Corners2=false, savePP=false, saveDP=false;
-            bool savePP_Dmin=false, savePP_Dend=false, saveDP_Dmin=false, saveDP_Dend=false, saveFiberMOS=false, r2_negative=false;
+            bool saveAll=false;
+            bool saveSPL=false, saveCPL=false, saveFPL=false;
+            bool saveDmin=false, saveDend=false;
+            bool saveDispCorners1=false, saveDispCorners2=false;
+            bool saveFMPT=false, saveMCS=false;
+            bool save_outputs=false, save_other_outputs=false;
             for(int i=3; i<argc; i++) {
                 string argument(argv[i]);
                 //------------------------------------
-                if(argument == "OPL")
-                    saveOPL = true;
-                else if(argument == "OPL_S0")
-                    saveOPL_S0 = true;
-                else if(argument == "OPL_S1")
-                    saveOPL_S1 = true;
-                else if(argument == "PP-FMPT")
-                    savePP_FMPT = true;
-                else if(argument == "DP-FMPT")
-                    saveDP_FMPT = true;
+                if(argument == "all")
+                    saveAll = true;
                 //------------------------------------
-                else if(argument == "IPL")
-                    saveIPL = true;
-                else if(argument == "Disp_Corners1")
-                    saveDisp_Corners1 = true;
-                else if(argument == "Disp_Corners2")
-                    saveDisp_Corners2 = true;
-                else if(argument == "PP")
-                    savePP = true;
-                else if(argument == "DP")
-                    saveDP = true;
+                else if(argument == "SPL")
+                    saveSPL = true;
+                else if(argument == "CPL")
+                    saveCPL = true;
+                else if(argument == "FPL")
+                    saveFPL = true;
                 //------------------------------------
-                else if(argument == "PP_Dmin")
-                    savePP_Dmin = true;
-                else if(argument == "PP_Dend")
-                    savePP_Dend = true;
-                else if(argument == "DP_Dmin")
-                    saveDP_Dmin = true;
-                else if(argument == "DP_Dend")
-                    saveDP_Dend = true;
-                else if(argument == "fiberMOS")
-                    saveFiberMOS = true;
-                else if(argument == "r2_negative")
-                    r2_negative = true;
+                else if(argument == "Dmin")
+                    saveDmin = true;
+                else if(argument == "Dend")
+                    saveDend = true;
+                else if(argument == "DispCorners1")
+                    saveDispCorners1 = true;
+                else if(argument == "DispCorners2")
+                    saveDispCorners2 = true;
+                //------------------------------------
+                else if(argument == "FMPT")
+                    saveFMPT = true;
+                else if(argument == "MCS")
+                    saveMCS = true;
+                else if(argument == "outputs")
+                    save_outputs = true;
+                else if(argument == "other-outputs")
+                    save_other_outputs = true;
                 //------------------------------------
                 else
                     throw EImproperArgument("unknown argument: "+argument);
             }
 
+            if(saveAll) {
+                saveSPL=true, saveCPL=true, saveFPL=true;
+                saveDmin=true, saveDend=true;
+                saveDispCorners1=true, saveDispCorners2=true;
+                saveFMPT=true, saveMCS=true;
+                save_outputs=true, save_other_outputs=true;
+            }
+
+            //generate a DP from a path and write the events in the log file
+            generateParkProg_offline(FMM, arg1, ".", log_path,
+                                     //--------------------------------------------
+                                     saveSPL, saveCPL, saveFPL,
+                                     saveDmin, saveDend,
+                                     saveDispCorners1, saveDispCorners2,
+                                     saveFMPT, saveMCS,
+                                     save_outputs, save_other_outputs);
+        }
+        else if(command == "test_generateParkProg_offline") {
+            //check the precondition
+            if(argc != 2)
+                throw EImproperArgument("command test_generateParkProg_offline should have 0 arguments");
+
+            //execute the test
+            test_generateParkProg_offline(FMM, log_path);
+        }
+        else if(command == "test_generateParkProg_online") {
+            //check the precondition
+            if(argc != 2)
+                throw EImproperArgument("command test_generateParkProg_online should have 0 arguments");
+
+            //execute the test
+            test_generateParkProg_online(FMM, log_path);
+        }
+        else if(command == "generatePairPPDP_offline") {
+            //check the precondition
+            if(argc < 3)
+                throw EImproperArgument("command generatePairPPDP_offline sould have almost 1 argument: <FMOSA_path>");
+
+            //build a string for the argument 1
+            string arg1(argv[2]);
+
+            //argument 1 can be:
+            //  command help ("help")
+            //  <FMOSA_path>
+
+            //make a rutinary check
+            if(arg1.length() <= 0)
+                throw EImpossibleError("lateral effect");
+
+            //reacts according the comands without log file
+            if(arg1 == "help") {
+                //print the help
+                cout << help_generatePairPPDP_offline() << endl;
+                cout << endl;
+                //indicates that the program has been executed without error
+                return 0;
+            }
+
+            //complete the relative path, if any
+            if(arg1[0] != '/')
+                arg1.insert(0, getCurrentDir()+"/");
+
+            bool saveAll=false;
+            bool saveOPL=false, saveOPL_S0=false, saveOPL_S1=false;
+            bool saveCPL=false, saveIPL=false, saveDispCorners1=false, saveDispCorners2=false;
+            bool savePP_Dmin=false, savePP_Dend=false, saveDP_Dmin=false, saveDP_Dend=false;
+            bool savePP_FMPT=false, saveDP_FMPT=false, savePP_MCS=false, saveDP_MCS=false;
+            bool saveMCS=false, save_outputs=false, save_other_outputs=false;
+            for(int i=3; i<argc; i++) {
+                string argument(argv[i]);
+                //------------------------------------
+                if(argument == "all")
+                    saveAll = true;
+                //------------------------------------
+                else if(argument == "OPL")
+                    saveOPL = true;
+                else if(argument == "OPL-S0")
+                    saveOPL_S0 = true;
+                else if(argument == "OPL-S1")
+                    saveOPL_S1 = true;
+                //------------------------------------
+                else if(argument == "CPL")
+                    saveCPL = true;
+                else if(argument == "IPL")
+                    saveIPL = true;
+                else if(argument == "DispCorners1")
+                    saveDispCorners1 = true;
+                else if(argument == "DispCorners2")
+                    saveDispCorners2 = true;
+                //------------------------------------
+                else if(argument == "PP-Dmin")
+                    savePP_Dmin = true;
+                else if(argument == "PP-Dend")
+                    savePP_Dend = true;
+                else if(argument == "DP-Dmin")
+                    saveDP_Dmin = true;
+                else if(argument == "DP-Dend")
+                    saveDP_Dend = true;
+                //------------------------------------
+                else if(argument == "PP-FMPT")
+                    savePP_FMPT = true;
+                else if(argument == "DP-FMPT")
+                    saveDP_FMPT = true;
+                else if(argument == "PP-MCS")
+                    savePP_MCS = true;
+                else if(argument == "DP-MCS")
+                    saveDP_MCS = true;
+                //------------------------------------
+                else if(argument == "MCS")
+                    saveMCS = true;
+                else if(argument == "outputs")
+                    save_outputs = true;
+                else if(argument == "other-outputs")
+                    save_other_outputs = true;
+                //------------------------------------
+                else
+                    throw EImproperArgument("unknown argument: "+argument);
+            }
+
+            if(saveAll) {
+                saveOPL=true, saveOPL_S0=true, saveOPL_S1=true;
+                saveCPL=true, saveIPL=true, saveDispCorners1=true, saveDispCorners2=true;
+                savePP_Dmin=true, savePP_Dend=true, saveDP_Dmin=true, saveDP_Dend=true;
+                savePP_FMPT=true, saveDP_FMPT=true, savePP_MCS=true, saveDP_MCS=true;
+                saveMCS=true, save_outputs=true, save_other_outputs=true;
+            }
+
             //generate a pair (PP, DP) from a path and write the events in the log file
-            bool PPvalid;
-            bool DPvalid;
-            TRoboticPositionerList Collided;
-            TRoboticPositionerList Obstructed;
-            TMotionProgram PP;
-            TMotionProgram DP;
-            generatePairPPDP_offline(PPvalid, DPvalid, Collided, Obstructed, PP, DP,
+            generatePairPPDP_offline(FMM, arg1, ".", log_path,
                                      //------------------------------------------------------------
-                                     FMM, arg1, ".", log_filename,
-                                     //------------------------------------------------------------
-                                     saveOPL, saveOPL_S0, saveOPL_S1, savePP_FMPT, saveDP_FMPT,
-                                     saveIPL, saveDisp_Corners1, saveDisp_Corners2, savePP, saveDP,
-                                     savePP_Dmin, savePP_Dend, saveDP_Dmin, saveDP_Dend, saveFiberMOS, r2_negative);
+                                     saveOPL, saveOPL_S0, saveOPL_S1,
+                                     saveCPL, saveIPL, saveDispCorners1, saveDispCorners2,
+                                     savePP_Dmin, savePP_Dend, saveDP_Dmin, saveDP_Dend,
+                                     savePP_FMPT, saveDP_FMPT, savePP_MCS, saveDP_MCS,
+                                     saveMCS, save_outputs, save_other_outputs);
         }
         else if(command == "test_generatePairPPDP_offline") {
             //check the precondition
@@ -2953,7 +4424,7 @@ int main(int argc, char *argv[])
                 throw EImproperArgument("command test_generatePairPPDP_offline should have 0 arguments");
 
             //execute the test
-            test_generatePairPPDP_offline(FMM, log_filename);
+            test_generatePairPPDP_offline(FMM, log_path);
         }
         else if(command == "test_generatePairPPDP_online") {
             //check the precondition
@@ -2961,28 +4432,28 @@ int main(int argc, char *argv[])
                 throw EImproperArgument("command test_generatePairPPDP_online should have 0 arguments");
 
             //execute the test
-            test_generatePairPPDP_online(FMM, log_filename);
+            test_generatePairPPDP_online(FMM, log_path);
         }
         //-------------------------------------------------------------------
         else if(command == "checkPairPPDP") {
             //check the precondition
             if(argc!=4 && argc!=5)
-                throw EImproperArgument("command checkPairPPDP sould have 2 or 3 arguments: <path_PP> <path_DP> [Pid list]");
+                throw EImproperArgument("command checkPairPPDP sould have 2 or 3 arguments: <PP_path> <DP_path> [RPids]");
 
             //built a path from arg 1
-            string path_PP(argv[2]);
+            string PP_path(argv[2]);
             //built a path from arg 2
-            string path_DP(argv[3]);
+            string DP_path(argv[3]);
 
             //make a rutinary check
-            if(path_PP.length()<=0 || path_DP.length()<=0)
+            if(PP_path.length()<=0 || DP_path.length()<=0)
                 throw EImpossibleError("lateral effect");
 
             //complete the relative path, if any
-            if(path_PP[0] != '/')
-                path_PP.insert(0, getCurrentDir()+"/");
-            if(path_DP[0] != '/')
-                path_DP.insert(0, getCurrentDir()+"/");
+            if(PP_path[0] != '/')
+                PP_path.insert(0, getCurrentDir()+"/");
+            if(DP_path[0] != '/')
+                DP_path.insert(0, getCurrentDir()+"/");
 
             //if has been specified a RP list, disable it
             if(argc == 5) {
@@ -3008,54 +4479,54 @@ int main(int argc, char *argv[])
                     TRoboticPositioner *RP = FMM.RPL[j];
                     RP->Disabled = true;
                 }
-                append("Identifiers of the disabled RPs: "+Ids.getText().str, log_filename.c_str());
+                append("Identifiers of the disabled RPs: "+Ids.getText().str, log_path.c_str());
             }
 
             //check a pair (PP, DP) from a path and write the events in the log file
-            checkPairPPDP(FMM, path_PP, path_DP, log_filename);
+            checkPairPPDP(FMM, PP_path, DP_path, log_path);
         }
         else if(command == "validatePairPPDP") {
             //check the precondition
             if(argc != 3)
-                throw EImproperArgument("command validatePairPPDP sould have 1 arguments: <path_outputs>");
+                throw EImproperArgument("command validatePairPPDP sould have 1 arguments: <outputs_path>");
 
             //built a path from arg 1
-            string path_outputs(argv[2]);
+            string outputs_path(argv[2]);
 
             //make a rutinary check
-            if(path_outputs.length() <= 0)
+            if(outputs_path.length() <= 0)
                 throw EImpossibleError("lateral effect");
 
             //complete the relative path, if any
-            if(path_outputs[0] != '/')
-                path_outputs.insert(0, getCurrentDir()+"/");
+            if(outputs_path[0] != '/')
+                outputs_path.insert(0, getCurrentDir()+"/");
 
             //validates a pair (PP, DP) from a path and write the events in the log file
-            validatePairPPDP(FMM, path_outputs, ".", log_filename);
+            validatePairPPDP(FMM, outputs_path, ".", log_path);
         }
         else if(command == "regeneratePairPPDP") {
             //check the precondition
             if(argc!=5 && argc!=6)
-                throw EImproperArgument("command regeneratePairPPDP sould have 3 or 4 arguments: <path_PP> <path_DP> <path_FMOSA> [Pid list]");
+                throw EImproperArgument("command regeneratePairPPDP sould have 3 or 4 arguments: <PP_path> <DP_path> <FMOSA_path> [RPids]");
 
             //built a path from arg 1
-            string path_PP(argv[2]);
+            string PP_path(argv[2]);
             //built a path from arg 2
-            string path_DP(argv[3]);
+            string DP_path(argv[3]);
             //built a path from arg 3
-            string path_FMOSA(argv[4]);
+            string FMOSA_path(argv[4]);
 
             //make a rutinary check
-            if(path_PP.length()<=0 || path_DP.length()<=0 || path_FMOSA.length()<=0)
+            if(PP_path.length()<=0 || DP_path.length()<=0 || FMOSA_path.length()<=0)
                 throw EImpossibleError("lateral effect");
 
             //complete the relative path, if any
-            if(path_PP[0] != '/')
-                path_PP.insert(0, getCurrentDir()+"/");
-            if(path_DP[0] != '/')
-                path_DP.insert(0, getCurrentDir()+"/");
-            if(path_FMOSA[0] != '/')
-                path_FMOSA.insert(0, getCurrentDir()+"/");
+            if(PP_path[0] != '/')
+                PP_path.insert(0, getCurrentDir()+"/");
+            if(DP_path[0] != '/')
+                DP_path.insert(0, getCurrentDir()+"/");
+            if(FMOSA_path[0] != '/')
+                FMOSA_path.insert(0, getCurrentDir()+"/");
 
             //if has been specified a RP list, disable it
             if(argc == 6) {
@@ -3081,118 +4552,12 @@ int main(int argc, char *argv[])
                     TRoboticPositioner *RP = FMM.RPL[j];
                     RP->Disabled = true;
                 }
-                append("Identifiers of the disabled RPs: "+Ids.getText().str, log_filename.c_str());
+                append("Identifiers of the disabled RPs: "+Ids.getText().str, log_path.c_str());
             }
 
             //validates a pair (PP, DP) from a path and write the events in the log file
-            regeneratePairPPDP_offline(FMM, path_PP, path_DP, path_FMOSA, log_filename);
+            regeneratePairPPDP_offline(FMM, PP_path, DP_path, FMOSA_path, log_path);
         }
-        //-------------------------------------------------------------------
-        else if(command == "generateParkingProgram_offline") {
-            //check the precondition
-            if(argc < 3)
-                throw EImproperArgument("command generateParkingProgram_offline sould have almost 1 argument: <path_FMOSA>");
-
-            //build a string for the argument 1
-            string arg1(argv[2]);
-
-            //argument 1 can be:
-            //  command help ("help")
-            //  <path_FMOSA>
-
-            //make a rutinary check
-            if(arg1.length() <= 0)
-                throw EImpossibleError("lateral effect");
-
-            //reacts according the comands without log file
-            if(arg1 == "help") {
-                //print the help
-                cout << help_generateParkingProgram_offline()+"\r\n" << endl;
-                //indicates that the program has been executed without error
-                return 0;
-            }
-
-            //complete the relative path, if any
-            if(arg1[0] != '/')
-                arg1.insert(0, getCurrentDir()+"/");
-
-            bool saveSPL=false, saveParkingProgram_FMPT=false;
-            bool saveParkingProgram_Dmin=false, saveParkingProgram_Dend=false;
-            bool saveFPL=false, r2_negative=false;
-            for(int i=3; i<argc; i++) {
-                string argument(argv[i]);
-                //------------------------------------
-                if(argument == "SPL")
-                    saveSPL = true;
-                else if(argument == "ParkingProgram_FMPT")
-                    saveParkingProgram_FMPT = true;
-                //------------------------------------
-                else if(argument == "ParkingProgram_Dmin")
-                    saveParkingProgram_Dmin = true;
-                else if(argument == "ParkingProgram_Dend")
-                    saveParkingProgram_Dend = true;
-                //------------------------------------
-                else if(argument == "FPL")
-                    saveFPL = true;
-                else if(argument == "r2_negative")
-                    r2_negative = true;
-                //------------------------------------
-                else
-                    throw EImproperArgument("unknown argument: "+argument);
-            }
-
-            //generate a DP from a path and write the events in the log file
-            bool ParkingProgramValid;
-            TRoboticPositionerList Collided;
-            TRoboticPositionerList Obstructed;
-            TMotionProgram ParkingProgram;
-            generateParkingProgram_offline(ParkingProgramValid, Collided, Obstructed, ParkingProgram,
-                                           //--------------------------------------------------------
-                                           FMM, arg1, ".", log_filename,
-                                           //--------------------------------------------------------
-                                           saveSPL, saveParkingProgram_FMPT,
-                                           saveParkingProgram_Dmin, saveParkingProgram_Dend,
-                                           saveFPL, r2_negative);
-        }
-        else if(command == "test_generateParkingProgram_offline") {
-            //check the precondition
-            if(argc != 2)
-                throw EImproperArgument("command test_generateParkingProgram_offline should have 0 arguments");
-
-            //execute the test
-            test_generateParkingProgram_offline(FMM, log_filename);
-        }
-        else if(command == "test_generateParkingProgram_online") {
-            //check the precondition
-            if(argc != 2)
-                throw EImproperArgument("command test_generateParkingProgram_online should have 0 arguments");
-
-            //execute the test
-            test_generateParkingProgram_online(FMM, log_filename);
-        }
-/*        //-------------------------------------------------------------------
-        else if(command == "visualizePPDP") {
-            //check the precondition
-            if(argc != 4)
-                throw EImproperArgument("command visualizePPDP should have 2 arguments: <path_PP> <path_DP>");
-
-            //built a path from arg 1
-            string path_PP(argv[2]);
-            //built a path from arg 2
-            string path_DP(argv[3]);
-
-            //make a rutinary check
-            if(path_PP.length()<=0 || path_DP.length()<=0)
-                throw EImpossibleError("lateral effect");
-
-            //complete the relative path, if any
-            if(path_PP[0] != '/')
-                path_PP.insert(0, getCurrentDir()+"/");
-            if(path_DP[0] != '/')
-                path_DP.insert(0, getCurrentDir()+"/");
-
-            visualizePPDP(argc, argv, FMM, path_PP, path_DP, log_filename);
-        }*/
         //-------------------------------------------------------------------
         else {
             throw EImpossibleError("lateral effect");
@@ -3201,16 +4566,25 @@ int main(int argc, char *argv[])
     catch(Exception &E) {
         //indicates that has happened an exception
         //and show the message of the exception
-        append("ERROR: "+E.Message.str, log_filename.c_str());
+        append("ERROR: "+E.Message.str, log_path.c_str());
         return 1;
     }
     catch(...) {
         //indicates that has happened an unknown exception
-        append("ERROR: unknown exception", log_filename.c_str());
+        append("ERROR: unknown exception", log_path.c_str());
         return 2;
     }
 
     //-----------------------------------------------------------------------
+
+    //TestFileMethods TFM;
+    //TFM.test_readInstanceFromDir_RP();
+    //TFM.test_writeInstanceToDir_EAL();
+    //TFM.test_readInstanceFromDir_EAL();
+    //TFM.test_writeInstanceToDir_RPL();
+    //TFM.test_readInstanceFromDir_RPL();
+    //TFM.test_writeInstanceToDir_FMM();
+    //TFM.test_readInstanceFromDir_FMM();
 
     //indicates that the program has been executed without error
     return 0;

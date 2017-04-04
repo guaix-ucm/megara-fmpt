@@ -129,10 +129,17 @@ AnsiString TProjectionPoint::getRowText(void) const
 void TProjectionPoint::setRowText(const AnsiString &S)
 {
     try {
+        //read the projection point from the first position
         int i = 1;
         ReadRow(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("setting projection point in row text format");
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting projection point in row text format: ");
         throw;
     }
 }
@@ -161,7 +168,7 @@ void  TProjectionPoint::ReadRow(TProjectionPoint *PP,
     //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
         //indica que no se han encontrado los valores del círculo
-        throw EImproperArgument("projection point values not founds");
+        throw EImproperArgument("projection point values not found");
 
     //estado de lectura
     //      0: esperando asignación a Id

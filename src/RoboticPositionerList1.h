@@ -39,8 +39,9 @@ using namespace Positioning;
 namespace Models {
 
 //---------------------------------------------------------------------------
-
 //class RP list
+//---------------------------------------------------------------------------
+
 class TRoboticPositionerList1 : public TItemsList<TRoboticPositioner*> {
 protected:
     //TOLERANCES:
@@ -206,7 +207,7 @@ public:
     //get the P_3 table in text format:
     //  Id      x_3      y_3
     AnsiString getPositionsP_3TableText(void) const;
-    //tabla de PPA table in text format:
+    //tabla de PPA list in text format:
     //  Id      p_1     p___3
     AnsiString getPositionsPPATableText(void) const;
 
@@ -344,6 +345,10 @@ public:
     //busca los posicionadores de la lista que tienen
     //algún cuantificador desactivado
     void searchDisabledQuantificators(TVector<int> &indices);
+
+    //busca el primer posicionador de la lista
+    //que tenga un fallo dinámico
+    int searchFaultDynamic(void);
 
     //------------------------------------------------------------------
     //ASSIMILATION METHODS:
@@ -483,6 +488,10 @@ public:
     void segregateInOut(TRoboticPositionerList1 &Inners,
                         TRoboticPositionerList1 &Outsiders) const;
 
+    //segregates the enabled RPs in unsecure positions
+    void segregateEnabledOutsiders(
+            TRoboticPositionerList1& Outsiders) const;
+
     //segregates the operative RPs in unsecure positions
     void segregateOperativeOutsiders(
             TRoboticPositionerList1& Outsiders) const;
@@ -545,11 +554,14 @@ public:
     void restoreAndPopArmQuantify___s(void);
 
     //------------------------------------------------------------------
-    //METHODS FOR DETERMINE COLLISION STATUS:
+    //METHODS FOR DETERMINE COLLIDING STATUS:
 
     //levanta las banderas indicadoras de determinación de colisión pendiente
     //de todos los RPs de la lista
-    void enablePending(void);
+    void enableAllPending(void);
+    //configura el estado de colisión
+    //de todos los posicionadores de la lista
+//    void setAllCollision(bool);
 
     //determina si algún actuador de algún RP colisiona con
     //algún actuador o barrera de algún RP o EA adyacente

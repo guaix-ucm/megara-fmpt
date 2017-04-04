@@ -56,7 +56,7 @@
 
 //default value for
 //additional component of SPMdyn
-#define MEGARA_SPMadd 0.2 //mm
+#define MEGARA_SPMadd 0.5 //mm
 //SPM of minimun jump, consumed when validation process is applied
 #define MEGARA_SPMmin 0.005 //mm
 //SPM of simulation, consumed when simulation process is applied
@@ -79,7 +79,7 @@
 //#define MEGARA_Contour____Text "{({0.802, 2.35}, {5.802, 2.35}), ({5.802, 2.35}, {5.802, -2.35}, {5.802, 0}, 2.35), ({5.802, -2.35}, {0.802, -2.35}), ({0.802, -2.35}, {0.802, 2.35})}"
 #define MEGARA_Contour____Text "{({0.807111, 2.35}, {5.807111, 2.35}), ({5.807111, 2.35}, {5.807111, -2.35}, {5.807111, 0}, 2.35), ({5.807111, -2.35}, {0.807111, -2.35}), ({0.807111, -2.35}, {0.807111, 2.35})}"
 //steps back of rotor 1 (mumber of steps by whole lap)
-#define MEGARA_SB1 194953.8462 //steps
+#define MEGARA_SB1 194086.302 //steps
 
 //orientation of S1 respect S0
 #define MEGARA_thetaO1 0 //rad
@@ -178,7 +178,7 @@
 //Para reducir SPMsta así como el error de posicionamiento
 //del punto P3, es posible realizar un procedimiento de calibración
 //para medir las siguientes propiedades:
-//      P0: posición del eje1 en S0;
+//      P0: posición del eje 1 en S0;
 //      thetaO1: orientación de S1 en S0;
 //      Arm->theta__O3: orientación de S3 en S2;
 //      L01: longitud del antebrazo o radio del cilindro;

@@ -652,7 +652,7 @@ template <class T> void TPointersSlideArray<T>::Insert(int i, const T *item)
 //--------------------------------------------------------------------------
 //COPIADO:
 
-//copia todas las propiedades del array incluidos sus elementos
+//clona todas las propiedades del array incluidos sus elementos
 template <class T> void TPointersSlideArray<T>::Clone(const TPointersSlideArray &SA)
 {
     //destruye los elementos del array

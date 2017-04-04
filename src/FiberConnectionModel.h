@@ -42,7 +42,7 @@ namespace Models {
 //Se considera que el espectrógrafo enpieza en las microlentes, de modo que
 //del Fiber MOS Model solo se obtendrán los valores de las siguientes
 //propiedades, por cada RP: (RPId, x3, y3, theta3). Con estos datos
-//se realizará el sigueinte proceso:
+//se realizará el siguiente proceso:
 //1. La FMPT, obtiene de cada RP del Fiber MOS Model:
 //      (RPId, x3, y3, theta3)
 //2. La FMPT determina por cada RP los siete valores:

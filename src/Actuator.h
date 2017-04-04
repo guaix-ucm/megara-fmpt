@@ -27,6 +27,7 @@
 
 #include "Cilinder.h"
 #include "Constants.h"
+#include "adjacentitem.h"
 
 //---------------------------------------------------------------------------
 
@@ -69,109 +70,7 @@ void  strReadPurpose(TPurpose& value, const string &str, unsigned int &i);
 string purposeToStr(TPurpose value);
 TPurpose strToPurpose(const string& str);
 
-//---------------------------------------------------------------------------
-//TAdjacentEA
-//---------------------------------------------------------------------------
-
-//predeclares classes to avoid loops
-class TExclusionArea;
-
-//class cluster (EAQ, Dmin, Dend)
-class TAdjacentEA {
-public:
-    TExclusionArea *EA; //attached-extern EA
-    double Dmin; //minimun distance during motion
-    double Dend; //distance in the final posicion
-
-    //build an item with the indicated values
-    TAdjacentEA(TExclusionArea *t_EA=NULL,
-                double t_Dmin=DBL_MAX, double t_Dend=DBL_MAX);
-    //clone an item
-    void Clone(TAdjacentEA&);
-    //build a clon of an item
-    TAdjacentEA(TAdjacentEA*&);
-
-    //compare the Id of the EA of two adjacent EAs
-    static int compareIds(const TAdjacentEA *AEA1, const TAdjacentEA *AEA2);
-    //print the Id of the EA of an adjacent EA
-    static void printId(AnsiString &S, const TAdjacentEA *AEA);
-};
-
-//---------------------------------------------------------------------------
-//TAdjacentEAList
-//---------------------------------------------------------------------------
-
-//cluss list of adjacent EAs
-class TAdjacentEAList : public TPointersList<TAdjacentEA> {
-public:
-    //build a list by default
-    TAdjacentEAList(void);
-    //build a clon of a list
-    TAdjacentEAList(const TAdjacentEAList&);
-
-    //get partial lists in text format
-    string getIdText(void) const;
-    string getDminText(void) const;
-    string getDendText(void) const;
-
-    //set a same value to all Dmins
-    void setAllDmins(double Dmin);
-    //set a same value to all Dends
-    void setAllDends(double Dend);
-};
-
-//---------------------------------------------------------------------------
-//TAdjacentRP
-//---------------------------------------------------------------------------
-
-//predeclares classes to avoid loops
-class TRoboticPositioner;
-
-//class cluster (RPQ, Dmin, Dend)
-class TAdjacentRP {
-public:
-    TRoboticPositioner *RP; //attached-extern RP
-    double Dmin; //minimun distance during motion
-    double Dend; //distance in the final posicion
-
-    //build an item with the indicated values
-    TAdjacentRP(TRoboticPositioner *t_RP=NULL,
-                double t_Dmin=DBL_MAX, double t_Dend=DBL_MAX);
-    //clone an item
-    void Clone(TAdjacentRP&);
-    //build a clon of an item
-    TAdjacentRP(TAdjacentRP*&);
-
-    //compare the Id of the RP of two adjacent RPs
-    static int compareIds(const TAdjacentRP *ARP1, const TAdjacentRP *ARP2);
-    //print the Id of the RP of an adjacent RP
-    static void printId(AnsiString &S, const TAdjacentRP *ARP);
-};
-
-//---------------------------------------------------------------------------
-//TAdjacentRPList
-//---------------------------------------------------------------------------
-
-//cluss list of adjacent RPs
-class TAdjacentRPList : public TPointersList<TAdjacentRP> {
-public:
-    //build a list by default
-    TAdjacentRPList(void);
-    //build a clon of a list
-    TAdjacentRPList(const TAdjacentRPList&);
-
-    //get partial lists in text format
-    string getIdText(void) const;
-    string getDminText(void) const;
-    string getDendText(void) const;
-
-    //set a same value to all Dmins
-    void setAllDmins(double Dmin);
-    //set a same value to all Dends
-    void setAllDends(double Dend);
-};
-
-//---------------------------------------------------------------------------
+/*//---------------------------------------------------------------------------
 //TPairEADmin
 //---------------------------------------------------------------------------
 
@@ -244,7 +143,7 @@ public:
 
     //The default consturctor is necessary for can define a ItemsList.
 };
-
+*/
 //---------------------------------------------------------------------------
 //TActuator
 //---------------------------------------------------------------------------
@@ -524,25 +423,17 @@ public:
 
     //lista de clusters (EA, Dmin, Dend) cuyo EA está lo bastante cerca
     //para que pueda colisionar con el brazo
-    //valor por defecto:
-    //  AdjacentEAs.Count = 0;
-    //  AdjacentEAs.Capacity = 1;
-    //  AdjacentEAs.Compare = TAdjacentEA::CompareIds;
-    //  AdjacentEAs.Print = TAdjacentEA::PrintId;
+    //valor por defecto: {}
     TAdjacentEAList AdjacentEAs;
     //lista de clusters (RP, Dmin, Dend) cuyo RP está lo bastante cerca
     //para que pueda colisionar con el brazo
-    //valor por defecto:
-    //  AdjacentRPs.Count = 0;
-    //  AdjacentRPs.Capacity = 1;
-    //  AdjacentRPs.Compare = TAdjacentRP::CompareIds;
-    //  AdjacentRPs.Print = TAdjacentRP::PrintId;
+    //valor por defecto: {}
     TAdjacentRPList AdjacentRPs;
 
     //Las EAs adyacentes y los RPs adyacentes serán determinados mediante
     //el método TRoboticPositionerList::determineAdyacents().
 
-    //Lasdistancias mínimas serán determinadas durante la ejecución de validateMP.
+    //Las distancias mínimas serán determinadas durante la ejecución de validateMP.
 
     //indica si el brazo del actuador será tenido en cuenta
     //en la determinación de distancias y colisiones
@@ -560,15 +451,16 @@ public:
     //- la bandera de determinación de colisión pendiente (Pending)
     //  sea true.
 
-    //estado de colisión del actuador con alguno de sus adyacentes (EAs o RPs)
+    //estado de colisión del actuador con
+    //alguno de sus adyacentes (EAs o RPs)
     //valor por defecto: false
-    bool Collision;
+//    bool Collision;
 
     //------------------------------------------------------------------
     //COTAS ÚTILES:
 
     //radio de la envolvente del contorno del brazo
-    //cuando el eje2 está en el origen
+    //cuando el eje 2 está en el origen
     //valor por  defecto: el mismo que r_max
     double getr_min(void) const {return p_r_min;}
     //Radio de la frontera segura.
@@ -785,7 +677,7 @@ public:
     //en formato asignaciones de texto
     AnsiString getAreaText(void) const;
 
-    //conjunto de otras propiedades en formato texto
+    //conjunto de todas propiedades en formato texto
     //en formato asignaciones de texto
     AnsiString getAllText(void) const;
 
@@ -805,7 +697,7 @@ public:
     AnsiString getPositionP_3RowText(void) const;
     //conjunto de propiedades de posición de P3 (Id, p_1, p___3)
     //en formato línea de texto
-    AnsiString getPositionPAPRowText(void) const;
+    AnsiString getPositionAnglesRowText(void) const;
 
     //------------------------------------------------------------------
     //MÉTODOS ESTÁTICOS:
@@ -844,7 +736,7 @@ public:
     //(Id, x0, y0, thetaO1) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
     static void  readOriginsRow(TActuator* &FP,
-                                          const AnsiString& S, int &i);
+                                const AnsiString& S, int &i);
 
     //obtiene las etiquetas de las propiedades de posición
     //("Id", "x3", "y3") al final de una cadena de texto
@@ -871,7 +763,7 @@ public:
     //(Id, x3, y3) desde la posición indicada de una cadena
     //de texto, en formato fila de texto
     static void  readPositionP3Row(TActuator* &FP,
-                                             const AnsiString& S, int &i);
+                                   const AnsiString& S, int &i);
     //imprime los valores de las propiedades de posición de un actuador
     //(Id, x_3, y_3) al final de una cadena de texto
     //en formato fila de texto
@@ -880,7 +772,7 @@ public:
     //imprime los valores de las propiedades de posición de un actuador
     //(Id, p_1, p___3) al final de una cadena de texto
     //en formato fila de texto
-    static void  printPositionPPARow(AnsiString&, TActuator*);
+    static void  printPositionAnglesRow(AnsiString&, TActuator*);
 
     //------------------------------------------------------------------
     //MÉTODOS DE CONSTRUCCIÓN, COPIA Y DESTRUCCIÓN:
@@ -905,7 +797,7 @@ public:
     //copia las propiedades de área de un actuador
     void copyArea(const TActuator*);
 
-    //copia todas las propiedades de un actuador
+    //clona todas las propiedades de un actuador
     void clone(const TActuator*);
 
     //clona un actuador
@@ -941,7 +833,7 @@ public:
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
     void setPositionP3(double x3, double y3);
-    //assign a pair of position angles in radians
+    /*    //assign a pair of position angles in radians
     //if the position angle theta_1 isn't in domain of theta_1,
     //or the position angle theta___3 isn't in domain of theta___3
     //  throw an exception EImproperArgument
@@ -950,7 +842,7 @@ public:
     //if the position angle p_1 isn't in domain of p_1,
     //or the position angle p___3 isn't in domain of p___3
     //  throw an exception EImproperArgument
-    void setPositionPPASteps(double p_1, double p___3);
+    void setPositionPPASteps(double p_1, double p___3);*/
     //asigna las propiedades de identificación y posición
     //si el punto (x3, y3) no está en el dominio del actuador
     //      lanza EImproperArgument
@@ -1097,7 +989,7 @@ public:
 
     //------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR LAS COLISIONES
-    //CON ACTUADORES ADYACENTES:
+    //CON EAs y RPs ADYACENTES:
 
     //determina la distancia mínima con un EA
     double distanceMin(const TExclusionArea*);

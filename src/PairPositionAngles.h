@@ -42,13 +42,12 @@ namespace Models {
 //predeclares classes to avoid loops
 class TRoboticPositioner;
 
-//class pair position angles
+//class PPA (Pair Position Angles)
 class TPairPositionAngles {
 protected:
     //ATTACHED EXTERN OBJECTS:
 
-    TRoboticPositioner *p_RP;
-    TProjectionPoint *p_PP;
+    int Id;
 
 public:
     //SATIC PROPERTIES:
@@ -63,20 +62,12 @@ public:
     //default value: "p___3"
     static AnsiString p___3Label;
 
-    //ATTACHED EXTERN OBJECTS:
-
-    //extern attached robotic positioner
-    //default value: NULL
-    TRoboticPositioner *getRP(void) const {return p_RP;}
-    //extern attached projection point
-    //default value: NULL
-    TProjectionPoint *getPP(void) const {return p_PP;}
-
     //PROPERTIES:
 
-    //single identification number of the attached robotic positioner
-    //  RoboticPositioner->Id
-    int getId(void) const;
+    //single identification number of the attached RP
+    //shall be nonnegative
+    //default value: 0
+    int getId(void) const {return Id;} void setId(const int);
 
     //position angle for rotor 1
     double p_1;
@@ -91,46 +82,47 @@ public:
 
     //SETS OF PROPERTIES IN TEXT FORMAT:
 
-    //values of all properties in row fortam
+    //values of all properties in row text format
     AnsiString getRowText(void) const; void setRowText(const AnsiString&);
 
     //STATIC METHODS:
 
     //labels of all properties in a row:
-    //  IdLabel+"\t"+p_1Label+"\t"+p___3Label
+    //  PRidLabel+"\t"+p_1Label+"\t"+p___3Label
     static AnsiString getLabelsRow(void);
     //travel the labels of the properties
     //in row text format
     static void travelLabelsRow(const AnsiString& S, int& i);
 
-    //print the properties of a pair of position angles in a string
+    //print the properties of a PPA in a string
     //in row format
     static void  printRow(AnsiString &S,
                           const TPairPositionAngles *PPA);
-    //read the properties of a pair of position angles in a string
+    //read the properties of a PPA in a string
     //in row format
     static void  readRow(TPairPositionAngles *PPA,
                          const AnsiString &S, int &i);
 
     //PUBLIC METHODS:
 
-    //build a PPA attached to a RP
-    //pointer RP can be null
-    TPairPositionAngles(TRoboticPositioner *RP= NULL);
+    //build a PPA
+    TPairPositionAngles(const int Id = 0);
 
     //copy all properties of a PPA
-    void clone(TPairPositionAngles*);
+    void clone(const TPairPositionAngles*);
     TPairPositionAngles &operator=(const TPairPositionAngles&);
 
     //build a clon a PPA
-    TPairPositionAngles(TPairPositionAngles*);
+    TPairPositionAngles(const TPairPositionAngles*);
 
-    //set the PPA
-    void setPPA(double p_1, double p___3);
+    //set all properties
+    void set(const int Id, const double p_1, const double p___3);
+    //set (p_1, p___3)
+    void set(const double p_1, const double p___3);
 
-    //randomize the PPA
-    void randomize(double p_1min, double p_1max,
-                   double p___3min, double p___3max);
+    //randomize (p_1, p___3)
+    void randomize(const double p_1min, const double p_1max,
+                   const double p___3min, const double p___3max);
 };
 
 //---------------------------------------------------------------------------
@@ -143,7 +135,7 @@ public:
     //PROPERTIES IN TEXT FORMAT:
 
     //PPA list in text format
-    AnsiString getText(void); void setText(const AnsiString &);
+    AnsiString getText(void) const; void setText(const AnsiString &);
 
     //WARNING: setText will build new PPAs without attached PP.
 
@@ -155,22 +147,23 @@ public:
     //copy a PPA list
     TPairPositionAnglesList &operator=(const TPairPositionAnglesList&);
 
-    //add the PPAs attached to the PPs of a PP list
-//    void Build(TProjectionPointList&);
-
     //search the first PPA with a given identifier
-    int SearchId(int Id) const;
+    int searchId(const int Id) const;
 
     //randomize the PPAs of the list
-    void Randomize(double p_1min, double p_1max,
-                   double p___3min, double p___3max);
+    void randomize(const double p_1min, const double p_1max,
+                   const double p___3min, const double p___3max);
 
-    //check if all PPAs are addresed to different RPs
-    bool notAllPPAsAreAddresedToDifferentRPs(void) const;
+    //check if all PPAs are referred to different RPs
+    bool notAllAreReferredToDifferentRPs(void) const;
 
     //check if all Ids of a list are in the PPA list
     bool notAllIdsAreFound(const TVector<int>& Ids) const;
 };
+
+//compare two PPA list
+bool operator!=(const TPairPositionAnglesList&,
+                const TPairPositionAnglesList&);
 
 //---------------------------------------------------------------------------
 

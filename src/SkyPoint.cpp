@@ -309,11 +309,18 @@ AnsiString TSkyPoint::getRowText(void) const
 void TSkyPoint::setRowText(const AnsiString &S)
 {
     try {
+        //read the sky point fron the first position
         int i = 1;
         TSkyPoint *aux = this;
         ReadRow(aux, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text setting sky point in text format");
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting sky point in text format: ");
         throw;
     }
 }
@@ -330,11 +337,18 @@ AnsiString TSkyPoint::getColText(void) const
 void TSkyPoint::setColText(const AnsiString &S)
 {
     try {
+        //read the sky point from the first position
         int i = 1;
         TSkyPoint *aux = this;
         ReadCol(aux, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text setting sky point in column text format");
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "setting sky point in column text format: ");
         throw;
     }
 }
@@ -351,11 +365,18 @@ AnsiString TSkyPoint::getAssignsText(void) const
 void TSkyPoint::setAssignsText(const AnsiString &S)
 {
     try {
+        //read the sky point from the first position
         int i = 1;
         TSkyPoint *aux = this;
         ReadAssigns(aux, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i >= S.Length())
+            throw EImproperArgument("setting sky point in assign text format");
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting sky point in assign text format: ");
         throw;
     }
 }
@@ -464,7 +485,7 @@ void  TSkyPoint::ReadRow(TSkyPoint* &SP,
     //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
         //indica que no se han encontrado los valores del punto de cielo
-        throw EImproperArgument("sky point values not founds");
+        throw EImproperArgument("sky point values not found");
 
     //estado de lectura
     //      0: esperando cadena de texto para Id
@@ -540,7 +561,7 @@ void  TSkyPoint::ReadCol(TSkyPoint* &SP,
     //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
         //indica que no se han encontrado los valores del punto de cielo
-        throw EImproperArgument("sky point values not founds");
+        throw EImproperArgument("sky point values not found");
 
     //estado de lectura
     //      0: esperando cadena de texto para Name
@@ -616,7 +637,7 @@ void  TSkyPoint::ReadAssigns(TSkyPoint* &SP,
     //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
         //indica que no se han encontrado los valores del punto de cielo
-        throw EImproperArgument("sky point values not founds");
+        throw EImproperArgument("sky point values not found");
 
     //estado de lectura
     //      0: esperando cadena de texto para Name

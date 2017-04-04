@@ -1279,10 +1279,17 @@ template <class T> AnsiString TPointersList<T>::getText(void) const
 template <class T> void TPointersList<T>::setText(const AnsiString &S)
 {
     try {
+        //lee la lista desde la primera posición
         int i = 1;
         ReadList(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text translating stirng to list");
+
+    } catch(Exception& E) {
+        E.Message.Insert(1, "translating string to list: ");
         throw;
     }
 }

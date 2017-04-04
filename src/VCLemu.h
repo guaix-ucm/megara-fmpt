@@ -29,6 +29,10 @@
 #include <string>
 #include <float.h> //DBL_MANT_DIG, DBL_DIG, DBL_MAX
 #include <exception> //class eception
+#include <stdio.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
 
 using namespace std; //string
 
@@ -253,6 +257,11 @@ string getCurrentDir(void);
 //force the building of a path of directories
 void ForceDirectories(const AnsiString&);
 
+//split a path
+void splitpath(string& parent_path, string& filename, const string& path);
+//determine if a path correspond to a existing file
+bool isfile(const string& path);
+
 //---------------------------------------------------------------------------
 //class TStrings: an array of AnsiStrings
 
@@ -385,6 +394,24 @@ struct TRect
     }
     bool operator !=(const TRect& rc) const
     {  return !(rc==*this); }
+};
+
+//---------------------------------------------------------------------------
+//KEYBOARD:
+
+class Keyboard {
+    struct termios initial_setting;
+    struct termios new_setting;
+    int peek_character;
+
+public:
+    Keyboard(void) : peek_character(-1) {}
+
+    void initNonCannonical(void);
+    void restoreSetting(void);
+
+    int kbhit(void);
+    char getch(void);
 };
 
 //---------------------------------------------------------------------------

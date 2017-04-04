@@ -24,6 +24,7 @@
 
 #include "ExclusionAreaList.h"
 #include "Strings.h"
+#include "RoboticPositionerList3.h"
 
 using namespace Strings;
 
@@ -70,20 +71,25 @@ AnsiString TExclusionAreaList::getymaxText(void) const
 //    Id      x0      y0      thetaO1
 AnsiString TExclusionAreaList::getOriginsTableText(void) const
 {
-    //guarda el valor de Print
+    //print the header
+    string str = "# A table for indicate the position and orientation of each EA (Exclusion Area):";
+    str += "\r\n#     Id: identifier of the EA (a nonnegative integer number)";
+    str += "\r\n#     x0: abscissa of the point P0 of the EA in S0 (in mm)";
+    str += "\r\n#     y0: ordinate of the point P0 of the EA in S0 (in mm)";
+    str += "\r\n#     thetaO1: orientation of S1 in S0 (in rad)";
+
+    //print the table
+    str += "\r\n\r\n";
+    str += TExclusionArea::getOriginsLabelsRow().str;
     void ( *PrintBak)(AnsiString&, TExclusionArea*);
     PrintBak = Print;
-
-    //apunta la lista de EAs con un puntero no constante para facilitar su escritura
     TExclusionAreaList *EAL = (TExclusionAreaList*)this;
-
     EAL->Print = TExclusionArea::printOriginsRow;
-    AnsiString S = EAL->getColumnText();
-
-    //restaura el valor de Print
+    str += "\r\n";
+    str += EAL->getColumnText().str;
     EAL->Print = PrintBak;
 
-    return S;
+    return AnsiString(str);
 }
 void TExclusionAreaList::setOriginsTableText(const AnsiString &S)
 {
@@ -137,7 +143,7 @@ AnsiString TExclusionAreaList::getLocationText(void) const
 
     str += "rmax = "+getrmaxText().str;
 
-/*    str += "xmin = "+getxminText().str+"\r\n";
+    /*    str += "xmin = "+getxminText().str+"\r\n";
     str += "xmax = "+getxmaxText().str+"\r\n";
     str += "ymin = "+getyminText().str+"\r\n";
     str += "ymax = "+getymaxText().str;
@@ -180,7 +186,7 @@ void TExclusionAreaList::copyLocation(const TExclusionAreaList *EAL)
     p_O = EAL->getO();
 
     p_rmax = EAL->getrmax();
-/*
+    /*
     p_xmin = EAL->getxmin();
     p_xmax = EAL->getxmax();
     p_ymin = EAL->getymin();
@@ -220,7 +226,7 @@ TExclusionAreaList::TExclusionAreaList(const TExclusionAreaList *EAL) :
     if(EAL == NULL)
         throw EImproperArgument("pointers EAL should point to built exclusion area list");
 
-    //copia todas las propiedades
+    //clona todas las propiedades
     Clone(EAL);
 }
 
@@ -338,7 +344,7 @@ void TExclusionAreaList::calculateLocationParameters(void)
         if(rmax > p_rmax)
             p_rmax = rmax;
 
-/*        //actualiza xmin
+        /*        //actualiza xmin
         if(EA->xmin < xmin)
             p_xmin = EA->xmin;
         //actualiza xmax
@@ -350,14 +356,90 @@ void TExclusionAreaList::calculateLocationParameters(void)
         //actualiza ymax
         if(EA->ymax > ymax)
             p_ymax = EA->ymax;*/
-/*        getDomain(p_xmin, p_xmax, p_ymin, p_ymax);*/
+        /*        getDomain(p_xmin, p_xmax, p_ymin, p_ymax);*/
+    }
+}
+
+//determina los RPs que están lo bastante cerca
+//de cada posicionador como para invadir su perímetro de seguridad
+void TExclusionAreaList::determineAdjacents(const TRoboticPositionerList& RPL)
+{
+    //por cada EA de la lista
+    for(int i=0; i<getCount(); i++) {
+        //apunta el EA indicado para facilitar su acceso
+        TExclusionArea *EA = Items[i];
+
+        //inicializa la lista de RPs adyacentes
+        EA->AdjacentRPs.Clear();
+
+        //para cada una de los RPs de la lista
+        for(int j=0; j<RPL.getCount(); j++) {
+            //apunta el RP indicada para facilitar su acceso
+            TRoboticPositioner *RP = RPL[j];
+            //si están lo bastante cerca como para colisionar
+            if(Mod(RP->getActuator()->getP0() - EA->Barrier.getP0()) <
+                    (RP->getActuator()->getr_max() + RP->getActuator()->getSPMall_a() +
+                     EA->Barrier.getr_max() + EA->Barrier.getSPM()) + ERR_NUM) {
+                //añade el RP a la lista de RPs adyacentes
+                EA->AdjacentRPs.Add(RP);
+            }
+        }
+    }
+}
+//ordena las listas de RPs adyacentes en
+//sentido levógiro empezando por el más próximo a 0
+void TExclusionAreaList::sortAdjacents(void)
+{
+    TPairTD<TRoboticPositioner> *P;
+    TPointersList<TPairTD<TRoboticPositioner> > LP(10, TPairTD<TRoboticPositioner>::Comparex,
+                                                   NULL, NULL, TPairTD<TRoboticPositioner>::Printx);
+
+    //por cada EA de la lista
+    for(int i=0; i<getCount(); i++) {
+        //apunta el EA indicado para facilitar su acceso
+        TExclusionArea *EA = Items[i];
+
+        //vacia la lista de punteros a pares
+        LP.Clear();
+
+        //por cada posicionador adyacente
+        for(int j=0; j<EA->AdjacentRPs.getCount(); j++) {
+            //apunta el posicionador adyacente indicado para facilitar su acceso
+            TRoboticPositioner *RPA = EA->AdjacentRPs[j];
+
+            //construye el par (RPA, theta)
+            //con theta en [0, 2*M_PI)
+            P = new TPairTD<TRoboticPositioner>(RPA);
+            TDoublePoint V = RPA->getActuator()->getP0() - EA->Barrier.getP0();
+            if(Mod(V) != 0)
+                P->x = ArgPos(V);
+            else
+                P->x = 0;
+
+            //ADVERTENCIA: un posicionador adyacente puede estar
+            //ubicado en el mismo lugar que el de referencia.
+
+            //añade el par a la lista
+            LP.Add(P);
+        }
+
+        //ordena la lista de posicionadores de menor a mayor ángulo
+        if(LP.getCount() > 1)
+            LP.SortInc(0, LP.getCount()-1);
+
+        //transcribe la lista
+        EA->AdjacentRPs.Clear();
+        for(int j=0; j<LP.getCount(); j++)
+            EA->AdjacentRPs.Add(LP[j].P);
     }
 }
 
 //asimila la configurración de posicionadores dada ejecutando:
-//    calculateSPM();
-//    calculateLocationParameters();
-void TExclusionAreaList::assimilate(/*const TRoboticPositionerList& RPL*/void)
+//  calculateSPM();
+//  calculateLocationParameters();
+//  determineAdjacents(RPL)
+//  sortAdjacents();
+void TExclusionAreaList::assimilate(void)
 {
     calculateSPM();
     calculateLocationParameters();
@@ -426,11 +508,18 @@ bool TExclusionAreaList::isInSquare(const TDoublePoint &P)
 
 //levanta las banderas indicadoras de determinación de colisión
 //pendiente de todos los posicionadores de la lista
-void TExclusionAreaList::enablePending(void)
+void TExclusionAreaList::enableAllPending(void)
 {
     for(int i=0; i<getCount(); i++)
         Items[i]->Pending = true;
 }
+/*//configura el estado de colisión
+//de todos los posicionadores de la lista
+void TExclusionAreaList::setAllCollision(bool Collision)
+{
+    for(int i=0; i<getCount(); i++)
+        Items[i]->Collision = Collision;
+}*/
 
 //---------------------------------------------------------------------------
 

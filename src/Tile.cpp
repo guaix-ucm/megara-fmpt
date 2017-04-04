@@ -48,7 +48,6 @@ AnsiString TTile::RLabel = "R";
 
 void TTile::setId(int Id)
 {
-    //el número de identificación debería ser no negativo
     if(Id < 0)
         throw EImproperArgument("identifier number Id should be nonnegative");
 
@@ -58,7 +57,6 @@ void TTile::setId(int Id)
 
 void TTile::setDEC(double DEC)
 {
-    //la declinación theta debe estar en [-pi/2, pi/2]
     if(DEC<-M_PI/2 || M_PI/2<DEC)
         throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
 
@@ -67,7 +65,6 @@ void TTile::setDEC(double DEC)
 }
 void TTile::setR_(double R_)
 {
-    //el radio R_ debería ser mayor que cero
     if(R_ <= 0)
         throw EImproperArgument(AnsiString("radio '")+FloatToStr(R_)+AnsiString("' should be upper zero"));
 
@@ -145,10 +142,17 @@ AnsiString TTile::getRowText(void) const
 void TTile::setRowText(const AnsiString &S)
 {
     try {
+        //read the tile form the first position
         int i = 1;
         ReadRow(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("setting tile in row text format");
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting tile in row text format: ");
         throw;
     }
 }
@@ -166,10 +170,17 @@ AnsiString TTile::getColText(void) const
 void TTile::setColText(const AnsiString &S)
 {
     try {
+        //read the tile from the first position
         int i = 1;
         ReadCol(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("setting tile in column text format");
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting tile in column text format: ");
         throw;
     }
 }
@@ -187,10 +198,17 @@ AnsiString TTile::getAssignsText(void) const
 void TTile::setAssignsText(const AnsiString &S)
 {
     try {
+        //read the tile from the first position
         int i = 1;
         ReadAssigns(this, S, i);
-        StrTravelToEnd(S, i);
-    } catch(...) {
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("setting tile in assign text format");
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting tile in assign text format: ");
         throw;
     }
 }
@@ -318,281 +336,86 @@ void  TTile::PrintAssigns(AnsiString &S, const TTile *T)
 //lee las propiedades de un objeto en una cadena
 void  TTile::ReadRow(TTile *T, const AnsiString &S, int &i)
 {
-    //el puntero T debería apuntar a un objeto construido
     if(T == NULL)
         throw EImproperArgument("pointer T shoult point to built object");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se ha encontrado un azulejo
-        throw EImproperArgument("tile not founds");
+        throw EImproperArgument("tile not found");
 
-    //estado de lectura
-    //      0: esperando valor en punto flotante para Id
-    //      1: esperando valor en punto flotante para phi'
-    //      2: esperando cadena de texto para theta'
-    //      3: esperando valor en punto flotante para R'
-    //      4: objeto leido con éxito
-    int status = 0;
+    try {
+        int Id;
+        StrReadInt(Id, S, i);
+        double RA;
+        StrReadFloat(RA, S, i);
+        double DEC;
+        StrReadFloat(DEC, S, i);
+        double R_;
+        StrReadFloat(R_, S, i);
 
-    //variables auxiliares
-    TTile Tile(T); //variabletampón
-    AnsiString Ident; //identificador de propiedad
-    AnsiString Value; //valor de propiedad
-
-    //ADVERTENCIA: las variables tampón con propiedades interdependientes
-    //deben ser clones de las variables que se pretenden modificar.
-
-    //NTTA: adviertase que las propiedades enteras son escaneadas como
-    //valores en punto flotante para detectar errores en los cuales
-    //sea especificado un valor en punto flotante en vez de un valor entero.
-
-    do {
-        switch(status) {
-        case 0: //esperando valor en punto flotante para Id
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setIdText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("phi' value not found");
-            status++;
-            break;
-        case 1: //esperando valor en punto flotante para phi'
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setRAText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("theta' value not found");
-            status++;
-            break;
-        case 2: //esperando valor en punto flotante para theta'
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setDECText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("R' value not found");
-            status++;
-            break;
-        case 3: //esperando valor entero para R'
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setR_Text(Value);
-            StrTravelToEnd(S, i);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property R'"));
-            } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-    } while(status < 4);
-
-    //asigna la variable tampón
-    *T = Tile;
+        T->Set(Id, RA, DEC, R_);
+    }
+    catch(Exception &E) {
+        E.Message.Insert(1, "reading tile in row text format: ");
+        throw;
+    }
 }
 void  TTile::ReadCol(TTile *T, const AnsiString &S, int &i)
 {
-    //el puntero T debería apuntar a un objeto construido
     if(T == NULL)
         throw EImproperArgument("pointer T shoult point to built object");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se ha encontrado un azulejo
-        throw EImproperArgument("tile not founds");
+        throw EImproperArgument("tile not found");
 
-    //estado de lectura
-    //      0: esperando valor en punto flotante para Id
-    //      1: esperando valor en punto flotante para phi'
-    //      2: esperando cadena de texto para theta'
-    //      3: esperando valor en punto flotante para R'
-    //      4: objeto leido con éxito
-    int status = 0;
+    try {
+        int Id;
+        StrReadInt(Id, S, i);
+        double RA;
+        StrReadFloat(RA, S, i);
+        double DEC;
+        StrReadFloat(DEC, S, i);
+        double R_;
+        StrReadFloat(R_, S, i);
 
-    //variables auxiliares
-    TTile Tile(T); //variabletampón
-    AnsiString Ident; //identificador de propiedad
-    AnsiString Value; //valor de propiedad
-
-    //ADVERTENCIA: las variables tampón con propiedades interdependientes
-    //deben ser clones de las variables que se pretenden modificar.
-
-    //NTTA: adviertase que las propiedades enteras son escaneadas como
-    //valores en punto flotante para detectar errores en los cuales
-    //sea especificado un valor en punto flotante en vez de un valor entero.
-
-    do {
-        switch(status) {
-        case 0: //esperando valor en punto flotante para Id
-            try {
-            StrReadString(Value, S, i);
-            Tile.setIdText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("phi' value not found");
-            status++;
-            break;
-        case 1: //esperando valor en punto flotante para phi'
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setRAText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("R' value not found");
-            status++;
-            break;
-        case 2: //esperando valor en punto flotante para theta'
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setDECText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("phi' value not found");
-            status++;
-            break;
-        case 3: //esperando valor entero para R'
-            try {
-            StrReadWord(Value, S, i);
-            Tile.setR_Text(Value);
-            StrTravelToEnd(S, i);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property R'"));
-            } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-    } while(status < 4);
-
-    //asigna la variable tampón
-    *T = Tile;
+        T->Set(Id, RA, DEC, R_);
+    }
+    catch(Exception &E) {
+        E.Message.Insert(1, "reading tile in row text format: ");
+        throw;
+    }
 }
 void  TTile::ReadAssigns(TTile *T, const AnsiString &S, int &i)
 {
-    //el puntero T debería apuntar a un objeto construido
     if(T == NULL)
         throw EImproperArgument("pointer T shoult point to built object");
-
-    //si el índice i no indica a una posición de la cadena
     if(i<1 || S.Length()<i)
-        //indica que no se ha encontrado un azulejo
-        throw EImproperArgument("tile not founds");
+        throw EImproperArgument("tile not found");
 
-    //estado de lectura
-    //      0: esperando valor en punto flotante para Id
-    //      1: esperando valor en punto flotante para phi'
-    //      2: esperando cadena de texto para theta'
-    //      3: esperando valor en punto flotante para R'
-    //      4: objeto leido con éxito
-    int status = 0;
+    try {
+        StrTravelLabel("Id", S, i);
+        StrTravelLabel("=", S, i);
+        int Id;
+        StrReadInt(Id, S, i);
 
-    //variables auxiliares
-    TTile Tile(T); //variabletampón
-    AnsiString Ident; //identificador de propiedad
-    AnsiString Value; //valor de propiedad
+        StrTravelLabel("phi'", S, i);
+        StrTravelLabel("=", S, i);
+        double RA;
+        StrReadFloat(RA, S, i);
 
-    //ADVERTENCIA: las variables tampón con propiedades interdependientes
-    //deben ser clones de las variables que se pretenden modificar.
+        StrTravelLabel("theta'", S, i);
+        StrTravelLabel("=", S, i);
+        double DEC;
+        StrReadFloat(DEC, S, i);
 
-    //NTTA: adviertase que las propiedades enteras son escaneadas como
-    //valores en punto flotante para detectar errores en los cuales
-    //sea especificado un valor en punto flotante en vez de un valor entero.
+        StrTravelLabel("R'", S, i);
+        StrTravelLabel("=", S, i);
+        double R_;
+        StrReadFloat(R_, S, i);
 
-    do {
-        switch(status) {
-        case 0: //esperando valor en punto flotante para Id
-            try {
-            StrReadLabel(Ident, "Id", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadString(Value, S, i);
-            Tile.setIdText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property Id"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("theta' value not found");
-            status++;
-            break;
-        case 1: //esperando valor en punto flotante para phi'
-            try {
-            StrReadLabel(Ident, "phi'", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadWord(Value, S, i);
-            Tile.setRAText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property phi'"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("R' value not found");
-            status++;
-            break;
-        case 2: //esperando valor en punto flotante para theta'
-            try {
-            StrReadLabel(Ident, "theta'", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadWord(Value, S, i);
-            Tile.setDECText(Value);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property theta'"));
-            } catch(...) {
-            throw;
-        }
-            if(i > S.Length())
-                throw EImproperArgument("phi' value not found");
-            status++;
-            break;
-        case 3: //esperando valor entero para R'
-            try {
-            StrReadLabel(Ident, "R'", S, i);
-            StrTravelLabel("=", S, i);
-            StrReadWord(Value, S, i);
-            Tile.setR_Text(Value);
-            StrTravelToEnd(S, i);
-        } catch(EImproperArgument &E) {
-                throw EImproperArgument(E.Message+AnsiString(" for property R'"));
-            } catch(...) {
-            throw;
-        }
-            status++;
-            break;
-        }
-    } while(status < 4);
-
-    //asigna la variable tampón
-    *T = Tile;
+        T->Set(Id, RA, DEC, R_);
+    }
+    catch(Exception &E) {
+        E.Message.Insert(1, "reading tile in row text format: ");
+        throw;
+    }
 }
 
 //MÉTODOS PÚBLICOS:
@@ -643,6 +466,22 @@ TTile &TTile::operator=(const TTile &T)
 }
 
 //MÉTODOS:
+
+//asigna conjuntamente
+void TTile::Set(int Id, double RA, double DEC, double R_)
+{
+    if(Id < 0)
+        throw EImproperArgument("identifier number Id should be nonnegative");
+    if(DEC<-M_PI/2 || M_PI/2<DEC)
+        throw EImproperArgument(AnsiString("declination '")+FloatToStr(DEC)+AnsiString("' should be in [-pi/2, pi/2]"));
+    if(R_ <= 0)
+        throw EImproperArgument(AnsiString("radio '")+FloatToStr(R_)+AnsiString("' should be upper zero"));
+
+    p_Id = Id;
+    RA = RA;
+    p_DEC = DEC;
+    p_R_ = R_;
+}
 
 //mueve el azulejo al punto indicado
 void TTile::Move(double t_RA, double DEC)

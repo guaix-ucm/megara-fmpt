@@ -181,13 +181,13 @@ TMotionFunction::TMotionFunction(void) :
 }
 
 //contruye un clon de una función de movimiento
-TMotionFunction::TMotionFunction(TMotionFunction *MF)
+TMotionFunction::TMotionFunction(const TMotionFunction *MF)
 {
         //el puntero MF debe apuntar a una función de movimeinto contruida
         if(MF == NULL)
                 throw EImproperArgument("pointer MF should point to built motion function");
 
-        //copia todas las propiedades
+        //clona todas las propiedades
         p_vmaxabs = MF->p_vmaxabs;
         p_psta = MF->p_psta;
         p_pfin = MF->p_pfin;

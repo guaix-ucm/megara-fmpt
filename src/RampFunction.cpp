@@ -602,7 +602,7 @@ void TRampFunction::CalculateVariables_Tc(void)
 //  vmax=vmaxabs,
 //  psta=0, pfin=0;
 //and assimilate the parameters
-TRampFunction::TRampFunction(double amaxabs, double vmaxabs) :
+TRampFunction::TRampFunction(const double amaxabs, const double vmaxabs) :
     TMotionFunction() //inicializa las propiedades heredadas
 {
         //deben ser mayores que cero
@@ -637,35 +637,8 @@ TRampFunction::TRampFunction(double amaxabs, double vmaxabs) :
         //calcula las variables correspondientes a 'Tc'
         CalculateVariables_Tc();
 }
-//clona una función rampa
-TRampFunction::TRampFunction(TRampFunction *RampFunction) :
-        TMotionFunction(RampFunction) //clona las propiedades heredadas
-{
-        //debe apuntar a un objeto construido
-        if(RampFunction == NULL)
-                throw EImproperArgument("pointer RampFunction should not be null");
-
-        //copia todas las propiedades no heredadas
-        p_amaxabs = RampFunction->p_amaxabs;
-        p_amax = RampFunction->p_amax;
-        p_Tspr = RampFunction->p_Tspr;
-        p_Dspr = RampFunction->p_Dspr;
-        p_Tmin = RampFunction->p_Tmin;
-        p_Tv = RampFunction->p_Tv;
-        p_av = RampFunction->p_av;
-        p_Dv = RampFunction->p_Dv;
-        p_acmin = RampFunction->p_acmin;
-        p_Trmax = RampFunction->p_Trmax;
-        p_Tcmin = RampFunction->p_Tcmin;
-        p_acmax = RampFunction->p_acmax;
-        p_Trmin = RampFunction->p_Trmin;
-        p_Tcmax = RampFunction->p_Tcmax;
-        p_ac = RampFunction->p_ac;
-        p_Tr = RampFunction->p_Tr;
-        p_Tc = RampFunction->p_Tc;
-}
-//copia todas las propiedades de una función rampa
-void TRampFunction::Copy(TMotionFunction *RampFunction)
+//clona todas las propiedades de una función rampa
+void TRampFunction::Clone(const TMotionFunction *RampFunction)
 {
         //debe apuntar a un objeto construido
         if(RampFunction == NULL)
@@ -705,6 +678,33 @@ void TRampFunction::Copy(TMotionFunction *RampFunction)
         p_ac = aux->p_ac;
         p_Tr = aux->p_Tr;
         p_Tc = aux->p_Tc;
+}
+//construye un clon de una función rampa
+TRampFunction::TRampFunction(const TRampFunction *RampFunction) :
+        TMotionFunction(RampFunction) //clona las propiedades heredadas
+{
+        //debe apuntar a un objeto construido
+        if(RampFunction == NULL)
+                throw EImproperArgument("pointer RampFunction should not be null");
+
+        //clona todas las propiedades no heredadas
+        p_amaxabs = RampFunction->p_amaxabs;
+        p_amax = RampFunction->p_amax;
+        p_Tspr = RampFunction->p_Tspr;
+        p_Dspr = RampFunction->p_Dspr;
+        p_Tmin = RampFunction->p_Tmin;
+        p_Tv = RampFunction->p_Tv;
+        p_av = RampFunction->p_av;
+        p_Dv = RampFunction->p_Dv;
+        p_acmin = RampFunction->p_acmin;
+        p_Trmax = RampFunction->p_Trmax;
+        p_Tcmin = RampFunction->p_Tcmin;
+        p_acmax = RampFunction->p_acmax;
+        p_Trmin = RampFunction->p_Trmin;
+        p_Tcmax = RampFunction->p_Tcmax;
+        p_ac = RampFunction->p_ac;
+        p_Tr = RampFunction->p_Tr;
+        p_Tc = RampFunction->p_Tc;
 }
 
 //initalize all properties except (vmaxabs, amaxabs)

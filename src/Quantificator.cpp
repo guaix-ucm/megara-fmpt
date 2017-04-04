@@ -287,7 +287,7 @@ void  TQuantificator::ReadRW(TQuantificator *Q, const AnsiString &S,
                 //      StrScanFloat(x, S, i);
                 //por:
                 //      try {
-                //              //segrega un punto flotante a aprtir de i
+                //              //segrega un punto flotante a a partir de i
                 //              StrScanFloatStr(ValueStr, S, i);
                 //
                 //              //intenta convertir a entero
@@ -473,12 +473,12 @@ TQuantificator::TQuantificator(double q, double xmin, double xmax)
     //asimila los parámetros de configuración
     CalculateImageDomain();
 }
-//copia todas las propiedades de un cuantificador
-void TQuantificator::Copy(const TQuantificator *Q)
+//clona todas las propiedades de un cuantificador
+void TQuantificator::Clone(const TQuantificator *Q)
 {
     //el puntero Q deberí apauntar a un cuantificador contruido
     if(Q == NULL)
-        throw EImproperArgument("pointer Q ahould point to built quantificator");
+        throw EImproperArgument("pointer Q should point to built quantificator");
 
     //copia las propiedades de configuración
     p_q = Q->p_q;
@@ -488,7 +488,7 @@ void TQuantificator::Copy(const TQuantificator *Q)
     p_Qmin = Q->p_Qmin;
     p_Qmax = Q->p_Qmax;
 }
-void TQuantificator::Copy(const TQuantificator& Q)
+void TQuantificator::Clone(const TQuantificator& Q)
 {
     //copia las propiedades de configuración
     p_q = Q.p_q;
@@ -516,10 +516,10 @@ TQuantificator::TQuantificator(const TQuantificator *Q)
 {
     //el puntero Q deberí apauntar a un cuantificador contruido
     if(Q == NULL)
-        throw EImproperArgument("pointer Q ahould point to built quantificator");
+        throw EImproperArgument("pointer Q should point to built quantificator");
 
     //copia las propiedades del cuantificador
-    Copy(Q);
+    Clone(Q);
 }
 
 //compara un cuantificador

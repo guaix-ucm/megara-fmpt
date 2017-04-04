@@ -40,6 +40,8 @@ namespace Models {
 //TExclusionAreaList
 //---------------------------------------------------------------------------
 
+class TRoboticPositionerList;
+
 //clase lista de EAs
 class TExclusionAreaList : public TItemsList<TExclusionArea*> {
 protected:
@@ -138,6 +140,7 @@ public:
     //    Delete(i);
     //    DeleteWithoutDestroy(i);
 
+    //------------------------------------------------------------------
     //MÉTODOS DE DESTRUCCION DE EAs:
 
     //detruye el EA indicada de la lista
@@ -145,6 +148,7 @@ public:
     //destruye todas las EAs de la lista
     void Destroy(void);
 
+    //------------------------------------------------------------------
     //MÉTODOS DE BÚSQUEDA DE EAs:
 
     //busca el primer puntero a EA
@@ -157,6 +161,7 @@ public:
     //con el identificador indicado
     const TExclusionArea *searchIdPointer(int Id) const;
 
+    //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
 
     //calcula el SPM de todas las EAs
@@ -178,11 +183,19 @@ public:
     //    (rmax)//, xmin, xmax, ymin, ymax)
     void calculateLocationParameters(void);
 
+    //determina los RPs que están lo bastante cerca
+    //de cada posicionador como para invadir su perímetro de seguridad
+    void determineAdjacents(const TRoboticPositionerList& RPL);
+    //ordena las listas de RPs adyacentes en
+    //sentido levógiro empezando por el más próximo a 0
+    void sortAdjacents(void);
+
     //asimila la configurración de posicionadores dada ejecutando:
-    //    calculateSPM();
-    //    calculateLocationParameters();
+    //  calculateSPM();
+    //  calculateLocationParameters();
     void assimilate(void);
 
+    //------------------------------------------------------------------
     //MÉTODOS DE DOMINIO CONJUNTO:
 
 /*    //determina el intervalo cartesiano que contiene
@@ -199,11 +212,15 @@ public:
     //que contiene el dominio conjunto de las EAs
     bool isInRectangle(const TDoublePoint&);*/
 
+    //------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
 
     //levanta las banderas indicadoras de determinación de colisión
     //pendiente de todos los posicionadores de la lista
-    void enablePending(void);
+    void enableAllPending(void);
+    //configura el estado de colisión
+    //de todos los posicionadores de la lista
+//    void setAllCollision(bool);
 };
 
 //---------------------------------------------------------------------------

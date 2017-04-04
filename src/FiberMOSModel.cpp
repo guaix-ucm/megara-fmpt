@@ -35,12 +35,12 @@ namespace Models {
 
 AnsiString TFiberMOSModel::getInstanceText(void) const
 {
-    AnsiString S;
+    string str = "# Instance properties of the FMM (Fiber MOS Model):";
 
-    //        S += AnsiString("RoboticPositionerListInstance:\r\n");
-    //      S += StrIndent(RPL.getInstanceText())+AnsiString("\r\n");
+    str += "\r\n\r\n";
+    str += RPL.getInstanceText().str;
 
-    return S;
+    return AnsiString(str);
 }
 void TFiberMOSModel::setInstanceText(const AnsiString& S)
 {
@@ -52,13 +52,10 @@ void TFiberMOSModel::setInstanceText(const AnsiString& S)
         int i = 1;
         readInstance(FMM, S, i);
 
-        //avanza el índice hasta el próximo caracterno separador
-        //o hasta el final de la cadena
+        //busca texto inesperado
         StrTravelSeparatorsIfAny(S, i);
-        //siel índice no indica a la posúltima posición de la cadena
-        if(i<=S.Length())
-            //indica que la cadena S debería contener solamente una instancia de Fiber MOS Model
-            throw EImproperArgument("string S should containan instance of Fiber MOS Model only");
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text");
 
         //asigna la variable tampón
         Clone(FMM);
@@ -74,7 +71,7 @@ void TFiberMOSModel::setInstanceText(const AnsiString& S)
 //lee una instancia de Fiber MOS Model
 //en una cadena de texto en formato de asignaciones
 void  TFiberMOSModel::readInstance(TFiberMOSModel *FMM,
-                                    const AnsiString &S, int &i)
+                                   const AnsiString &S, int &i)
 {
     //el puntero FMM debe apuntar a un Fiber MOS Model construído
     if(FMM == NULL)
@@ -90,8 +87,8 @@ void  TFiberMOSModel::readInstance(TFiberMOSModel *FMM,
 //construye un Fiber MOS Model
 TFiberMOSModel::TFiberMOSModel(void) :
     //contruye las listas de objetos
-    RPL(),
-    EAL()
+    EAL(),
+    RPL()
 {
 }
 
@@ -103,8 +100,8 @@ void TFiberMOSModel::Clone(const TFiberMOSModel *FMM)
         throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
 
     //clona las listas de objetos
-    RPL.Clone(&FMM->RPL);
     EAL.Clone(&FMM->EAL);
+    RPL.Clone(&FMM->RPL);
 }
 
 //construye un clon de un Fiber MOS Model
@@ -114,17 +111,17 @@ TFiberMOSModel::TFiberMOSModel(const TFiberMOSModel *FMM)
     if(FMM == NULL)
         throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
 
-    //copia todas las propiedades
+    //clona todas las propiedades
     Clone(FMM);
 }
 
 //destruye un Fiber MOS Model
 TFiberMOSModel::~TFiberMOSModel()
 {
-    //destruye los robots posicionadores
-    EAL.Destroy();
     //destruye las áreas de exclusión
     RPL.Destroy();
+    //destruye los robots posicionadores
+    EAL.Destroy();
 }
 
 //MÉTODOS DE DESTRUCCION DE ÁREAS DE EXCLUSIÓN:
@@ -132,10 +129,10 @@ TFiberMOSModel::~TFiberMOSModel()
 //destruye todos los objetos de la lista
 void TFiberMOSModel::Destroy(void)
 {
-    //destruye los robots posicionadores
-    EAL.Destroy();
     //destruye las áreas de exclusión
     RPL.Destroy();
+    //destruye los robots posicionadores
+    EAL.Destroy();
 }
 
 //MÉTODOS PARA CONTRUIR Y DESTRUIR POSICIONADORES:
@@ -176,6 +173,8 @@ void TFiberMOSModel::assimilate()
 {
     EAL.assimilate();
     RPL.assimilate(EAL);
+    EAL.determineAdjacents(RPL);
+    EAL.sortAdjacents();
 }
 
 //MÉTODOS PARA DETERMINAR SI HAY COLISIONES:
@@ -191,14 +190,101 @@ bool TFiberMOSModel::thereIsCollision(void)
     return false; //indica que no hay colisión
 }
 
+//imprime los elementos colisionados (EAs y RPs) en una lista de listas
+void TFiberMOSModel::getCollidedText(string& str)
+{
+    //build a structure for anotate the colliding sets
+    TCSL CSL;
+
+    //procesate each RP of the FMM
+    for(int i=0; i<RPL.getCount(); i++) {
+        TRoboticPositioner *RP = RPL[i];
+
+        //get their colliding adjacent EAs
+        TItemsList<TExclusionArea*> CA_EAs;
+        RP->getActuator()->searchCollindingAdjacent(CA_EAs);
+        //get their colliding adjacent RPs
+        TItemsList<TRoboticPositioner*> CA_RPs;
+        RP->getActuator()->searchCollindingAdjacent(CA_RPs);
+
+        //search the RP in the CSL
+        int j, k;
+        bool found = CSL.findRP(j, k, RP->getActuator()->getId());
+
+        //if not has found the RP
+        if(!found) {
+            j = CSL.getCount();
+            //add a new colliding set
+            CSL.setCount(CSL.getCount() + 1);
+            //add the RP to the new set
+            CSL.Get(j).RPids.Add(RP->getActuator()->getId());
+        }
+
+        //anotate all colliding adjacent EAs
+        for(int l=0; l<CA_EAs.getCount(); l++) {
+            TExclusionArea *CA_EA = CA_EAs[l];
+
+            //search the CA_EA in the CSL
+            int m, n;
+            found = CSL.findEA(m, n, CA_EA->getId());
+
+            //if not has found the CA_EA
+            if(!found)
+                //add the CA_EA to the same set (that the central RP)
+                CSL.Get(j).EAids.Add(CA_EA->getId());
+        }
+        //anotate all colliding adjacent RPs
+        for(int l=0; l<CA_RPs.getCount(); l++) {
+            TRoboticPositioner *CA_RP = CA_RPs[l];
+
+            //search the CA_RP in the CSL
+            int m, n;
+            found = CSL.findRP(m, n, CA_RP->getActuator()->getId());
+
+            //if not has found the CA_RP
+            if(!found)
+                //add the CA_RP to the same set (that the central RP)
+                CSL.Get(j).RPids.Add(CA_RP->getActuator()->getId());
+        }
+    }
+
+    //delete the colliding sets with only an item
+    for(int i=CSL.getCount()-1; i>=0; i--) {
+        int count = CSL.Get(i).EAids.getCount() + CSL.Get(i).RPids.getCount();
+        if(count < 2)
+            CSL.Delete(i);
+    }
+
+    //print the CSL in the output string
+    str = "{";
+    for(int i=0; i<CSL.getCount(); i++) {
+        str += "{";
+        for(int j=0; j<CSL.Get(i).EAids.getCount(); j++) {
+            str += "EA";
+            str += inttostr(CSL.Get(i).EAids[j]);
+            str += ", ";
+        }
+        for(int j=0; j<CSL.Get(i).RPids.getCount(); j++) {
+            str += "RP";
+            str += inttostr(CSL.Get(i).RPids[j]);
+            str += ", ";
+        }
+        str.resize(str.length() - 2);
+        str += "}, ";
+    }
+    if(str.length() > 1)
+        str.resize(str.length() - 2);
+    str += "}";
+}
+
 //RANDOMIZADO DE LOS EJES:
 
-//lleva los ejes de los posicionadores a posiciones aleatorias
+/*//lleva los ejes de los posicionadores a posiciones aleatorias
 //con distribución uniforme en sus dominios
 //en las que no colisionan entre si
 void TFiberMOSModel::randomizeWithoutCollision(void)
 {
-    /*        TRoboticPositioner *RP;
+        TRoboticPositioner *RP;
 
         //para cada posicionador de la lista de posicionadores
         for(int i=0; i<Count; i++)
@@ -209,7 +295,7 @@ void TFiberMOSModel::randomizeWithoutCollision(void)
                         RP->Actuator->Randomizep_1();
                         RP->Actuator->Arm->Randomizep___3();
                         //mientras colisione con algún adyacente
-                } while(RP->Actuator->ThereIsCollisionWithPendingAdjacent());*/
+                } while(RP->Actuator->ThereIsCollisionWithPendingAdjacent());
 }
 
 //RANDOMIZADO DE P3:
@@ -219,7 +305,7 @@ void TFiberMOSModel::randomizeWithoutCollision(void)
 //en las que no colisionan entre si
 void TFiberMOSModel::randomizeP3WithoutCollision(void)
 {
-    /*        TRoboticPositioner *RP;
+        TRoboticPositioner *RP;
 
         //para cada posicionador de la lista de osicionadores
         for(int i=0; i<Count; i++)
@@ -229,9 +315,9 @@ void TFiberMOSModel::randomizeP3WithoutCollision(void)
                         //randomiza el punto P3
                         RP->Actuator->RandomizeP3();
                         //mientras colisione con algún adyacente
-                } while(RP->Actuator->ThereIsCollisionWithPendingAdjacent());*/
+                } while(RP->Actuator->ThereIsCollisionWithPendingAdjacent());
 }
-
+*/
 //---------------------------------------------------------------------------
 
 } //namespace Models

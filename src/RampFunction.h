@@ -228,11 +228,11 @@ public:
     //  vmax=vmaxabs,
     //  psta=0, pfin=0;
     //and assimilate the parameters
-    TRampFunction(double amaxabs, double vmaxabs);
-    //clona una función rampa
-    TRampFunction(TRampFunction*);
-    //copia todas las propiedades de una función rampa
-    void Copy(TMotionFunction *RampFunction);
+    TRampFunction(const double amaxabs, const double vmaxabs);
+    //clona todas las propiedades de una función rampa
+    void Clone(const TMotionFunction *RampFunction);
+    //construye un clon de una función rampa
+    TRampFunction(const TRampFunction*);
 
     //initalize all properties except (vmaxabs, amaxabs)
     void reset(void);

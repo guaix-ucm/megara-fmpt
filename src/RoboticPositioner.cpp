@@ -505,7 +505,58 @@ AnsiString TRoboticPositioner::getOperativeText(void) const
 }
 
 //---------------------------------------------------------------------------
-//CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+//INSTANCE OF PROPERTIES IN TEXT FORMAT:
+
+//contour of the arm
+//in column text format
+AnsiString TRoboticPositioner::getContour____Text(void) const
+{
+    string str = "# A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc) for describe";
+    str += "\r\n# the template of RP.Actuator.Arm.Contour____ in S4 (in mm):";
+    str += "\r\n\r\n"+getActuator()->getArm()->getContour____().getColumnText().str;
+
+    return AnsiString(str);
+}
+
+//contour of the border
+//in column text format
+AnsiString TRoboticPositioner::getContour_Text(void) const
+{
+    string str = "# A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe";
+    str += "\r\n# the template of the RP.Barrier.Contour_, in S1 (in mm):";
+    str += "\r\n\r\n";
+    str += getActuator()->getBarrier()->getContour_().getColumnText().str;
+
+    return AnsiString(str);
+}
+
+//function F1
+//in table text format
+AnsiString TRoboticPositioner::getF1Text(void) const
+{
+    string str = "# The compression-function of the quantifier of rot 1 of the RP in step/rad.";
+    str += "\r\n# Must be defined almost in the rot 1 domain [theta_1min, theta_1max]:";
+    str += "\r\n#     theta_1: position of rot 1 (in rad)";
+    str += "\r\n#     p_1: position of rot 1 (in step)";
+    str += "\r\n\r\n";
+    str += getActuator()->getF().getTableText().str;
+
+    return AnsiString(str);
+}
+
+//function F2
+//in table text format
+AnsiString TRoboticPositioner::getF2Text(void) const
+{
+    string str = "# The compression-function of the quantifier of rot 2 of the RP in step/rad.";
+    str += "\r\n# Must be defined in the rot 2 domain [theta___3min, theta___3max]:";
+    str += "\r\n#     theta___3: position of rot 2 (in rad)";
+    str += "\r\n#     p___3: position of rot 2 (in step)";
+    str += "\r\n\r\n";
+    str += getActuator()->getArm()->getF().getTableText().str;
+
+    return AnsiString(str);
+}
 
 AnsiString TRoboticPositioner::getToleranceText(void) const
 {
@@ -533,7 +584,7 @@ AnsiString TRoboticPositioner::getStatusText(void) const
     str += "\r\n"+commentedLine("FaultProbability = "+getFaultProbabilityText().str, "probability of fault status (a real number in [0, 1])");
     str += "\r\n"+commentedLine("FaultType = "+getFaultTypeText().str, "type of fault [Unk | Sta | Dyn]");
 
-    //Thefollowing R/W status property is disused:
+    //The following R/W status property is unsused:
     //  ControlMode
 
     //There are the following only read status properties:
@@ -542,22 +593,14 @@ AnsiString TRoboticPositioner::getStatusText(void) const
     return AnsiString(str);
 }
 
-/*AnsiString TRoboticPositioner::getAllText(void) const
-{
-    AnsiString S;
-
-    S = AnsiString("ActuatorAddress: ")+getActuatorAddressText()+AnsiString("\r\n");
-    S += AnsiString("CMFAddress: ")+getCMFAddressText()+AnsiString("\r\n");
-    S += AnsiString("Tolerance:\r\n")+StrIndent(getToleranceText())+AnsiString("\r\n");
-    S += AnsiString("Status:\r\n")+StrIndent(getStatusText());
-
-    return S;
-}*/
 AnsiString TRoboticPositioner::getInstanceText(void) const
 {
     string str;
 
-    str = commentedLine("ActuatorInstance:", "Instance properties of the RP.Actuator (sizing, orientation and others):");
+    str = "# Instance properties of the RP (Robotic Positioner):";
+
+    str += "\r\n";
+    str += "\r\n"+commentedLine("ActuatorInstance:", "Instance properties of the RP.Actuator (sizing, orientation and others):");
     str += "\r\n"+StrIndent(getActuator()->getInstanceText()).str;
 
     str += "\r\n";
@@ -584,12 +627,10 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
         int i = 1;
         readInstance((TRoboticPositioner*&)RP, S, i);
 
-        //avanza el índice i hasta la próxima posición que no contenga un separador
+        //busca texto inesperado
         StrTravelSeparatorsIfAny(S, i);
-        //si el índice i indica a algún caracter de la cadena S
         if(i <= S.Length())
-            //indica que la cadena S solo debería contener el valor para una instancia
-            throw EImproperArgument("string S should contain the instance value only");
+            throw EImproperArgument("unexpected additional text");
 
         //asigna la variable tampón
         clone(RP);
@@ -598,6 +639,8 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
         throw;
     }
 }
+
+//SETS OF PROPERTIES IN TEXT FORMAT:
 
 //set of minimun distances in text format
 AnsiString TRoboticPositioner::getDminsText(void) const
@@ -650,6 +693,40 @@ AnsiString TRoboticPositioner::getDendsText(void) const
     return AnsiString(str);
 }
 
+AnsiString TRoboticPositioner::getAllText(void) const
+{
+    string str;
+
+    str += "ActuatorAddress: " + getActuatorAddressText().str;
+
+    str += "\r\nCMFAddress: " + getCMFAddressText().str;
+
+    //PROPIEDADES DE SEGURIDAD:
+
+    str += "\r\nTolerances:";
+    str += "\r\n    R/W:";
+    str += "\r\n        Eo = "+getEoText().str;
+    str += "\r\n        Ep = "+getEpText().str;
+    str += "\r\n        Tstop = "+getTstopText().str;
+    str += "\r\n        Tshiff = "+getTshiffText().str;
+    str += "\r\n        SPMadd = "+getSPMaddText().str;
+
+    //PROPIEDADES DE ESTADO:
+
+    str += "\r\nStatus:";
+    str += "\r\n    R/W:";
+    str += "\r\n        Disabled = "+getDisabledText().str;
+    str += "\r\n        FaultProbability = "+getFaultProbabilityText().str;
+    str += "\r\n        FaultType = "+getFaultTypeText().str;
+    str += "\r\n    R:";
+    str += "\r\n        ControlMode = "+getControlModeText().str;
+    str += "\r\n        Operative = "+getOperativeText().str;
+
+    //The following R/W status property is unsused:
+    //  ControlMode
+
+    return AnsiString(str);
+}
 
 //---------------------------------------------------------------------------
 //MÉTODOS ESTÁTICOS:
@@ -721,10 +798,10 @@ void  TRoboticPositioner::printPositionP_3Row(AnsiString& S,
 //imprime los valores de las propiedades de posición de un posicionador
 //(Id, p_1, p___3) al final de una cadena de texto
 //en formato fila de texto
-void  TRoboticPositioner::printPositionPPARow(AnsiString& S,
+void  TRoboticPositioner::printPositionAnglesRow(AnsiString& S,
                                               TRoboticPositioner *FP)
 {
-    TActuator::printPositionPPARow(S, FP->getActuator());
+    TActuator::printPositionAnglesRow(S, FP->getActuator());
 }
 
 //lee una instancia en una cadena
@@ -742,7 +819,7 @@ void  TRoboticPositioner::readInstance(TRoboticPositioner* &RP,
     //si no es imprimible saldrá el caracter por defecto.
 
     try {
-        //lee la instancia en una variables tampón
+        //lee la instancia en una variable tampón
         TRoboticPositioner t_RP(RP);
 
         StrTravelSeparatorsIfAny(S, i);
@@ -838,7 +915,7 @@ TRoboticPositioner::TRoboticPositioner(void) :
     //inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
     ControlMode(cmSinc), MPturn(), MPretraction()
-///    Dmin(DBL_MAX), Dend(DBL_MAX)
+    //Dmin(DBL_MAX), Dend(DBL_MAX)
 {
     //contruye el actuador del posicionador
     //con el identificador 0
@@ -866,7 +943,7 @@ TRoboticPositioner::TRoboticPositioner(int Id, TDoublePoint P0,
     //construye e inicializa las propiedades de estado
     Disabled(false), FaultType(ftUnk),
     ControlMode(cmSinc), MPturn(), MPretraction()
-///    Dmin(DBL_MAX), Dend(DBL_MAX)
+    //Dmin(DBL_MAX), Dend(DBL_MAX)
 {
     //el número de identificación Id debe ser mayor que cero
     if(Id < 1)
@@ -913,8 +990,6 @@ void TRoboticPositioner::copyStatus(const TRoboticPositioner *RP)
     MPretraction.Clone(RP->MPretraction);
     p_DsecMax = RP->p_DsecMax;
     p_Dsec = RP->p_Dsec;
-///    Dmin = RP->Dmin;
-///    Dend = RP->Dend;
 }
 
 //copy all properties of a RP
@@ -926,7 +1001,7 @@ void TRoboticPositioner::clone(const TRoboticPositioner *RP)
 
     //copia las propiedades
     getActuator()->clone(RP->getActuator());
-    CMF.Copy(RP->CMF);
+    CMF.Clone(RP->CMF);
     copyTolerance(RP);
     copyStatus(RP);
 }
@@ -934,7 +1009,7 @@ TRoboticPositioner& TRoboticPositioner::operator=(const TRoboticPositioner& RP)
 {
     //copia las propiedades
     getActuator()->clone(RP.getActuator());
-    CMF.Copy(RP.CMF);
+    CMF.Clone(RP.CMF);
     copyTolerance(&RP);
     copyStatus(&RP);
 
@@ -1422,7 +1497,7 @@ void TRoboticPositioner::setPosition(const TInstruction& Instruction)
     } else if(Instruction.getName() == "MM") {
         double p_1 = Instruction.Args.getFirst();
         double p___3 = Instruction.Args[1];
-        getActuator()->setPositionPPASteps(p_1, p___3);
+        getActuator()->setAnglesSteps(p_1, p___3);
 
     } else
         //indicates that the instruction should be known
@@ -1718,7 +1793,7 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
         MI->Instruction.Args[0] = p_1fin;
         MI->Instruction.Args[1] = p___3fin;
         if(getDsec() < getDsecMax())
-            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
+            MI->setCommentDsec("Dsec = "+floattostr(getDsec())+" mm");
 
         //add the message instruction to the MP
         Positioning::TMessageList *ML = new Positioning::TMessageList();
@@ -1737,7 +1812,7 @@ void TRoboticPositioner::proposeRecoveryProgram(void)
         MI->Instruction.Args.setCount(1);
         MI->Instruction.Args[0] = p___3saf;
         if(getDsec() < getDsecMax())
-            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
+            MI->setCommentDsec("Dsec = "+floattostr(getDsec())+" mm");
 
         //add the message instruction to the MP
         Positioning::TMessageList *ML = new Positioning::TMessageList();
@@ -1872,7 +1947,7 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
         MI->Instruction.Args[0] = p_1fin;
         MI->Instruction.Args[1] = p___3fin;
         if(getDsec() < getDsecMax())
-            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
+            MI->setCommentDsec("Dsec = "+floattostr(getDsec())+" mm");
 
         //add the message instruction to the MP
         ML = new Positioning::TMessageList();
@@ -1891,7 +1966,7 @@ void TRoboticPositioner::proposeRecoveryProgram(double p_1new)
         MI->Instruction.Args.setCount(1);
         MI->Instruction.Args[0] = p___3saf;
         if(getDsec() < getDsecMax())
-            MI->setComment1("Dsec = "+floattostr(getDsec())+" mm");
+            MI->setCommentDsec("Dsec = "+floattostr(getDsec())+" mm");
 
         //add the message instruction to the MP
         Positioning::TMessageList *ML = new Positioning::TMessageList();

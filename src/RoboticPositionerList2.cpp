@@ -270,7 +270,7 @@ AnsiString TRoboticPositionerList2::getCellsText(void) const
     str += "\r\n"+commentedLine("J = "+getJText().str, "number of columns of the cell matrix");
 
     //print the cells of the matrix
-    str += "\r\n\r\n#Cells[i][j]: list of RPs whose observing domain is in the square cell (i, j)";
+    str += "\r\n\r\n# Cells[i][j]: list of RPs whose observing domain is in the square cell (i, j)";
     str += "\r\n";
     for(int i=0; i<getI(); i++)
         for(int j=0; j<getJ(); j++)
@@ -315,12 +315,14 @@ AnsiString TRoboticPositionerList2::getSizeText(void)
 
 AnsiString TRoboticPositionerList2::getInstanceMapText(void) const
 {
-    string str;
+    //print the header
+    string str = "# A matrix to transform each point (x, y) given in Cartesian coordinates in S0,";
+    str += "\r\n# in a list of identifiers of RPs {Id} in whose observing domain could be the point (x, y):";
 
-    //imprime los límites del intervalo
-    str = getIntervalText().str;
+    //print the bounds of the interval
+    str += "\r\n\r\n"+getIntervalText().str;
 
-    //imprime la matriz de listas de posicionadores
+    //print the matrix
     str += "\r\n\r\n"+getCellsText().str;
 
     return AnsiString(str);
@@ -1022,7 +1024,7 @@ void TRoboticPositionerList2::apply(const TRoboticPositioner *RP, const TExclusi
     if(RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
 
-    //for all RPs copy all properties of the RP instance except (P0, Id, Id1, Id2)
+    //for all RPs copy all properties of the RP Instance except (P0, Id, Id1, Id2)
     for(int i=0; i<getCount(); i++)
         Items[i]->apply(RP);
 

@@ -218,7 +218,7 @@ public:
 
     //En este modelo la escala viene determinada por:
     //  D1 = -d = -R/tan(angview_rad);
-    //de modo que las sigueintes propiedades no son utilizadas
+    //de modo que las siguientes propiedades no son utilizadas
     //para proyectar o deproyectar puntos, siendo proporcionadas
     //por si resultasen útiles al usuario.
 

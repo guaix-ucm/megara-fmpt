@@ -278,7 +278,7 @@ void TSquareFunction::CalculateVariables_vc(void)
 //MÉTODOS:
 
 //inicializa {vmax=vmaxabs, tini=0, tfin=0} y asimila los parámetros
-TSquareFunction::TSquareFunction(double vmaxabs) :
+TSquareFunction::TSquareFunction(const double vmaxabs) :
         TMotionFunction()
 {
         //vmaxabs debe ser mayor que cero
@@ -318,19 +318,8 @@ TSquareFunction::TSquareFunction(double vmaxabs) :
         //calcula la variable (vc)
         //CalculateVariables_vc();
 }
-//clona una función cuadrada
-TSquareFunction::TSquareFunction(TSquareFunction *SquareFunction) :
-        TMotionFunction(SquareFunction) //clona las propiedades heredadas
-{
-        //debe apuntar a un objeto construido
-        if(SquareFunction == NULL)
-                throw EImproperArgument("pointer SquareFunction should not be null");
-
-        //copia todas las propiedades no heredadas
-        //no hay propiedades no heredadas
-}
-//copia todas las propiedades de una función cuadrada
-void TSquareFunction::Copy(TMotionFunction *SquareFunction)
+//clona todas las propiedades de una función cuadrada
+void TSquareFunction::Clone(const TMotionFunction *SquareFunction)
 {
         //debe apuntar a un objeto construido
         if(SquareFunction == NULL)
@@ -351,6 +340,17 @@ void TSquareFunction::Copy(TMotionFunction *SquareFunction)
         p_vcmin = aux->p_vcmin;
         p_vcmax = aux->p_vcmax;
         p_vc = aux->p_vc;
+}
+//construye un clon de una función cuadrada
+TSquareFunction::TSquareFunction(const TSquareFunction *SquareFunction) :
+        TMotionFunction(SquareFunction) //clona las propiedades heredadas
+{
+        //debe apuntar a un objeto construido
+        if(SquareFunction == NULL)
+                throw EImproperArgument("pointer SquareFunction should not be null");
+
+        //clona todas las propiedades no heredadas
+        //no hay propiedades no heredadas
 }
 
 //initalize all properties except (vmaxabs)

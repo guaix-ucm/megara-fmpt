@@ -484,14 +484,6 @@ void TRoboticPositionerList::setQuantifys(bool Quantify_, bool Quantify___)
         }
 }
 
-//configura el estado de colisión
-//de todos los posicionadores de la lista
-void TRoboticPositionerList::setCollisions(bool Collision)
-{
-        for(int i=0; i<getCount(); i++)
-                Items[i]->getActuator()->Collision = Collision;
-}
-
 //---------------------------------------------------------------------------
 //METHODS FOR CHECK PRECONDITIONS:
 

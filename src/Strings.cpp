@@ -162,6 +162,30 @@ int strPreviousChar(const string &str, int i)
 
     return i;
 }
+//busca, a partir de la posición indicada, la primera sbcadena entre dos caracteres
+//si no la encuentra devuelve la cadena vacía
+string strBetweenChars(const string& str, const unsigned int i, const char c1, const char c2)
+{
+    unsigned int i1 = i;
+    while(i1 < str.length() && str[i1] != c1)
+        i1++;
+    unsigned int i2 = i1;
+    while(i2 < str.length() && str[i2] != c2)
+        i2++;
+
+    string substr;
+    if(i1 >= str.length() || i2 >= str.length()) {
+        substr = "";
+    }
+    else {
+        int count = i2 - i1 - 1;
+        if(count > 0)
+            substr = str.substr(i1+1, count);
+        else
+            substr = "";
+    }
+    return substr;
+}
 
 //invierte el orden de los elementos de una cadena
 void StrFlip(AnsiString &S)
@@ -972,7 +996,7 @@ void StrFill(AnsiString &S, int L, char c)
 }
 //insert a char in the indicated position of a text string
 //to get the intended length
-AnsiString strInsertChar(const AnsiString& S, int length,
+AnsiString StrInsertChar(const AnsiString& S, int length,
                         int i, char c)
 {
     //the length to achieve should be upper zero

@@ -1394,7 +1394,6 @@ AnsiString TArm::getInstanceText(void) const
     str += "\r\n"+commentedLine("theta__O3 = "+gettheta__O3Text().str, "orientation of S3 respect S2 (in rad)");
     str += "\r\n"+commentedLine("R3 = "+getR3Text().str, "radio of representative circle of the microlens (in mm)");
 
-    str += "\r\n"+commentedLine("thetaO3 = "+getthetaO3Text().str, "orientation of S3 respect S0 (in rad)");
     str += "\r\n"+commentedLine("theta___3min = "+gettheta___3minText().str, "position angle’s lower limit of axis 1-3 respect S3 (in rad)");
     str += "\r\n"+commentedLine("theta___3max = "+gettheta___3maxText().str, "position angle’s upper limit of axis 1-3 respect S3 (in rad)");
     str += "\r\n"+commentedLine("theta___3 = "+gettheta___3Text().str, "position angle of axis 1-3 respect S3 (in rad)");
@@ -1416,7 +1415,7 @@ void TArm::setInstanceText(const AnsiString& S)
             throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
 
         //asigna la variable tampón
-        copy(&A);
+        clone(&A);
     }
     catch(Exception& E) {
         unsigned int row, col;
@@ -1445,7 +1444,7 @@ void  TArm::readInstance(TArm *A, const AnsiString& S, int &i)
 
         //variables tampón
         double L12, L13, theta__O3, R3;
-        double thetaO3, theta___3min, theta___3max, theta___3;
+        double theta___3min, theta___3max, theta___3;
 
         StrTravelSeparators(S, i);
         StrTravelLabel("L12", S, i);
@@ -1468,11 +1467,6 @@ void  TArm::readInstance(TArm *A, const AnsiString& S, int &i)
         StrReadFloat(R3, S, i);
 
         StrTravelSeparators(S, i);
-        StrTravelLabel("thetaO3", S, i);
-        StrTravelLabel("=", S, i);
-        StrReadFloat(thetaO3, S, i);
-
-        StrTravelSeparators(S, i);
         StrTravelLabel("theta___3min", S, i);
         StrTravelLabel("=", S, i);
         StrReadFloat(theta___3min, S, i);
@@ -1489,7 +1483,7 @@ void  TArm::readInstance(TArm *A, const AnsiString& S, int &i)
 
         //asigna las variables tampón
         A->setTemplate(L12, L13, theta__O3, R3);
-        A->setOrientationRadians(thetaO3, theta___3min, theta___3max, theta___3);
+        A->setOrientationRadians(theta___3min, theta___3max, theta___3);
 
     }catch(Exception& E) {
         E.Message.Insert(1, "reading instance of arm: ");
@@ -1539,6 +1533,10 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //Por eso theta___3 dbe inicializarse dentro de su dominio.
 
     //INICIALIZA LAS PROPIEDADES DE CUANTIFICACIÓN:
+
+    //nombra las funciones
+    p_F.Label = "F2";
+    p_G.Label = "G2";
 
     //añade los puntos de la función de compresión
     p_F.Add(-M_2PI, -double(MEGARA_SB2));
@@ -1602,8 +1600,8 @@ TArm::TArm(TDoublePoint P1, double thetaO2) :
     //no se pude invocar a los métodos virtuales de la clase,
     //de modo que los métodos de asimilación no pueden ser abstractos.
 }
-//copia todas las propiedades de un brazo
-void TArm::copy(TArm *Arm)
+//clona todas las propiedades de un brazo
+void TArm::clone(TArm *Arm)
 {
     //el puntero Arm debería apuntar a un brazo contruido
     if(Arm == NULL)
@@ -1616,22 +1614,22 @@ void TArm::copy(TArm *Arm)
     p_theta____3 = Arm->gettheta____3();
     p_P____3 = Arm->getP____3();
     p_R3 = Arm->getR3();
-    p_Contour____ = Arm->getContour____();
+    p_Contour____.Clone(Arm->getContour____());
 
     //copia las propiedades de plantilla de solo lectura
     p_L1V = Arm->getL1V();
     p_V____ = Arm->getV____();
 
     //copia las propiedades de cuanticiación delectura/escritura
-    p_F = Arm->getF();
+    p_F.Clone(Arm->getF());
     p_Quantify___ = Arm->getQuantify___();
     Quantify___s.Clone(Arm->Quantify___s);
 
     //copia las propiedades de cuantificación de solo lectura
-    p_G = Arm->getG();
+    p_G.Clone(Arm->getG());
     p_SB2 = Arm->getSB2();
     p_rbs = Arm->getrbs();
-    p_Q = Arm->getQ();
+    p_Q.Clone(Arm->getQ());
 
     //copia las propiedades de orientación en radianes de lectura/escritura
     p_thetaO3 = Arm->getthetaO3();
@@ -1648,7 +1646,7 @@ void TArm::copy(TArm *Arm)
     p_P2 = Arm->getP2();
     p_P3 = Arm->getP3();
     p_V = Arm->getV();
-    p_Contour = Arm->getContour();
+    p_Contour.Clone(Arm->getContour());
 }
 //contruye un clon de un brazo
 TArm::TArm(TArm *Arm)
@@ -1658,7 +1656,7 @@ TArm::TArm(TArm *Arm)
         throw EImproperArgument("pointer Arm should point to built arm");
 
     //copia las propiedades del brazo
-    copy(Arm);
+    clone(Arm);
 }
 //libera la memoria dinámica
 TArm::~TArm()
@@ -1772,8 +1770,7 @@ void TArm::setTemplate(double L12, double L13, double theta____3, double R3)
     calculateImage();
 }
 //asigna conjuntamente las propiedades de orientación en radianes
-void TArm::setOrientationRadians(double thetaO3,
-                                 double theta___3min, double theta___3max,
+void TArm::setOrientationRadians(double theta___3min, double theta___3max,
                                  double theta___3)
 {
     //comprueba las precondiciones
@@ -1785,9 +1782,6 @@ void TArm::setOrientationRadians(double thetaO3,
         throw EImproperArgument("angle theta___3min should not be upper than angle theta___3max");
     if(isntInDomaintheta___3(theta___3))
         throw EImproperArgument("angle theta___3 should be in his domain [theta___3min, theta___3max]");
-
-    //asigna el origen de coordenadas
-    p_thetaO3 = thetaO3;
 
     //asignalos nuevos límites del intervalo
     p_theta___3min = theta___3min;
@@ -1841,6 +1835,12 @@ void TArm::setQuantification(double SB2)
     //asimila F
     processateF();
     calculateImage();
+}
+
+//obtiene el contorno del perímetro de seguridad del brazo
+void TArm::getSecurityContour(TContourFigureList& securityContour)
+{
+    getContour().getSecurityContour(securityContour, getSPM());
 }
 
 //---------------------------------------------------------------------------
@@ -2076,7 +2076,7 @@ void TArm::set(TDoublePoint P1, double thetaO3, double theta___3)
         //cuantifica el nuevo valor
         theta___3 = Qtheta___3(theta___3);
 
-    //si alguno de os nuevos valores difiere del actual
+    //si alguno de los nuevos valores difiere del actual
     if(P1!=getP1() || thetaO3!=getthetaO3() || theta___3!=gettheta___3()) {
         //asigna los nuevos valores
         p_P1 = P1;

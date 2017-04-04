@@ -349,7 +349,7 @@ void TAllocationList::RandomizeWithoutCollision(void)
     bool collision;
 
     //levanta las baderas de colisión de todos los posicionadores
-    getRoboticPositionerList()->enablePending();
+    getRoboticPositionerList()->enableAllPending();
 
     //ADVERTENCIA: no basta con levantar las banderas de colisión de
     //los posicionadores adscritos  los puntos objetivo de la lista
@@ -690,7 +690,7 @@ void TAllocationList::SearchCollindingTAllocations(TVector<int> &indices)
     indices.Clear();
 
     //levanta las baderas de colisión de todos los posicionadores
-    getRoboticPositionerList()->enablePending();
+    getRoboticPositionerList()->enableAllPending();
 
     //ADVERTENCIA: no basta con levantar las banderas de colisión de
     //los posicionadores adscritos  los puntos objetivo de la lista

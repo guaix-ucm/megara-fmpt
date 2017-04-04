@@ -648,6 +648,45 @@ void ForceDirectories(const AnsiString& S)
     //    Dir.mkpath(S.c_str());
 }
 
+//split a path
+void splitpath(string& parent_path, string& filename, const string& path)
+{
+    int i = path.length() - 1;
+    while(i>=0 && path[i] != '/')
+        i--;
+
+    parent_path = "";
+    if(i >= 0)
+        parent_path = path.substr(0, i);
+
+    filename = "";
+    int aux = path.length() - 1;
+    if(i < aux) {
+        int count = aux - i;
+        filename = path.substr(i+1, count);
+    }
+
+    //WARNING: in GCC 2.95 it is not recognized:
+    //    string::clear()
+}
+//determine if a path correspond to a existing file
+bool isfile(const string& path)
+{
+    //read the attributes of the path
+    struct stat sb;
+    int result = stat(path.c_str(), &sb);
+
+    //chack that has read the attributes
+    if(result != 0)
+        return false;
+
+    //check that it is not a directory
+    if(S_ISDIR(sb.st_mode))
+        return false;
+
+    return false;
+}
+
 //---------------------------------------------------------------------------
 //TStrings
 
@@ -752,7 +791,7 @@ bool TStrings::operator==(const TStrings& Strings) const
 {
     //si el número de cadenas difiere
     if(Strings.Count != Count)
-        //sindica que las listas no son iguales
+        //indica que las listas no son iguales
         return false;
 
     //por cada cadena de la lista
@@ -770,7 +809,7 @@ bool TStrings::operator!=(const TStrings& Strings) const
 {
     //si el número de cadenas difiere
     if(Strings.Count != Count)
-        //sindica que las listas son diferentes
+        //indica que las listas son diferentes
         return true;
 
     //por cada cadena de la lista
@@ -857,6 +896,68 @@ void TStringList::Add(const char *chars)
     Strings.setCount(Strings.getCount()+1);
     //copia la nueva cadena
     Strings[Strings.getCount()-1] = chars;
+}
+
+//---------------------------------------------------------------------------
+//KEYBOARD:
+
+//struct termios initial_setting;
+//struct termios new_setting;
+//int Keyboard::peek_character = -1;
+
+void Keyboard::initNonCannonical(void)
+{
+    tcgetattr(0, &initial_setting);
+    new_setting = initial_setting;
+    new_setting.c_lflag &= ~ICANON;
+    new_setting.c_lflag &= ~ECHO;
+    new_setting.c_lflag &= ~ISIG;
+    new_setting.c_cc[VMIN] = 1;
+    new_setting.c_cc[VTIME] = 0;
+    tcsetattr(0, TCSANOW, &new_setting);
+}
+
+void Keyboard::restoreSetting(void)
+{
+    tcsetattr(0, TCSANOW, &initial_setting);
+}
+
+int Keyboard::kbhit(void)
+{
+    if(peek_character != -1)
+        return 1;
+
+    new_setting.c_cc[VMIN] = 0;
+    tcsetattr(0, TCSANOW, &new_setting);
+
+    char ch;
+    ssize_t nread = read(0, &ch, 1);
+
+    new_setting.c_cc[VMIN] = 1;
+    tcsetattr(0, TCSANOW, &new_setting);
+
+    if(nread > 0) {
+        peek_character = ch;
+        return nread;
+    }
+    return 0;
+}
+
+char Keyboard::getch(void)
+{
+    char ch;
+
+    if(peek_character != 1) {
+        ch = peek_character;
+        peek_character = -1;
+        return ch;
+    }
+
+    ssize_t nread = read(0, &ch, 1);
+    if(nread != 1)
+        throw EImpossibleError("error using ssize_t read(int__fd, void*, size_t__nbytes)");
+
+    return ch;
 }
 
 //---------------------------------------------------------------------------

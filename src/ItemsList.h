@@ -426,14 +426,12 @@ template <class T> void  TItemsList<T>::ReadSeparated(TItemsList<T> *L,
         throw EImproperArgument("pointer L should point to built based pointer list");
     if(L->Read == NULL)
         throw EImproperCall("pointer Read should point to reading function");
+    if(i<=0 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a posicion in the string S");
 
     //NOTA: no se exige que la cadena de texto S sea imprimible,
     //de modo que cuando se quiera imprimir uno de sus caracteres,
     //si no es imprimible saldrá el caracter por defecto.
-
-    //el índice i debería indicar a alguna posición de la cadena de texto S
-    if(i<0 || S.Length()+1<i)
-        throw EImproperArgument("index i should indicate a posicion in the string S");
 
     //estado de la máquina de estados
     //      0: esperando próximo elemento o fin de cadena

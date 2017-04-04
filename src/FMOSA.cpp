@@ -17,12 +17,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FMOSATable.cpp
-//Content: FMOSA table
+//File: FMOSA.cpp
+//Content: structure FMOSA
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#include "FMOSATable.h"
+#include "FMOSA.h"
 #include "Strings.h"
 #include "StrPR.h"
 
@@ -357,10 +357,10 @@ bool TObservingSource::operator!=(const TObservingSource& OS)
 }
 
 //---------------------------------------------------------------------------
-//class TFMOSATable:
+//class TFMOSA:
 
 //read the OB section in tampon variables
-void TFMOSATable::readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
+void TFMOSA::readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
                              const string& str)
 {
     try {
@@ -411,8 +411,8 @@ void TFMOSATable::readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
     }
 }
 
-//set a FMOSA table in text format
-void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
+//set a FMOSA in text format
+void TFMOSA::setTableText(unsigned int& Bid, const string& str)
 {
     int i; //index to rows
 
@@ -510,7 +510,7 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
             throw EImproperArgument("OS parameters not found: \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Enabled> | <Comment>\"");
 
         //read all lines (using a tampon variable) until the close label @@EOS@
-        TFMOSATable t_FMOSAT;
+        TFMOSA t_FMOSAT;
         try {
             while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
                 TObservingSource *OS = new TObservingSource();
@@ -569,13 +569,13 @@ void TFMOSATable::setTableText(unsigned int& Bid, const string& str)
         Bid = Id;
     }
     catch(Exception& E) {
-        E.Message.Insert(1, "setting FMOSA table in text format in row "+inttostr(i+1)+": ");
+        E.Message.Insert(1, "setting FMOSA in text format in row "+inttostr(i+1)+": ");
         throw;
     }
 }
 
-//get the FMOSA table in text format
-void TFMOSATable::getTableText(string& str) const
+//get the FMOSA in text format
+void TFMOSA::getTableText(string& str) const
 {
     if(str_original.length() > 0)
         str = str_original;
@@ -595,37 +595,81 @@ void TFMOSATable::getTableText(string& str) const
     }
 }
 
-//get the Pids of the allocations which accomplish:
-//  there_is_Bid && Enabled
-//  and Pid is not found in the FMM
-void TFMOSATable::searchMissingPids(TVector<int>& Pids, TAllocationList& AL)
+//get the Pids of the OSs which accomplish:
+//  there_is_Bid
+//  Pid is not found in the FMM
+void TFMOSA::searchMissingPids(TVector<int>& Pids,
+                                    const TRoboticPositionerList2 *RPL)
 {
+    //check the precondition
+    if(RPL == NULL)
+        throw EImproperArgument("pinter RPL should point to built robotic positioner list");
+
     //initialize the output
     Pids.Clear();
 
-    //check each Pid
+    //check each OS
     for(int i=0; i<getCount(); i++) {
         TObservingSource *OS = Items[i];
         if(OS->there_is_Bid) { //if the PP is allocated to the RP
-            if(OS->Enabled) { //if the RP is enabled
-                //search the RP in the RPL attached to the AL
-                int j = AL.getRoboticPositionerList()->searchId(OS->Pid);
-                //check if not has found the RP in the FMM
-                if(j >= AL.getRoboticPositionerList()->getCount())
-                    Pids.Add(OS->Pid);
-            }
+            //search the RP in the RPL attached to the AL
+            int j = RPL->searchId(OS->Pid);
+            //check if not has found the RP in the FMM
+            if(j >= RPL->getCount())
+                Pids.Add(OS->Pid);
+        }
+    }
+}
+
+//get the Pids of the OSs which accomplish:
+//  there_is_Bid
+//  Enabled don't match with Disbaled in the FMM
+//If there are missing Pids:
+//  throw EImproperCall
+void TFMOSA::searchDontMatchEnabled(TVector<int>& Pids,
+                                         const TRoboticPositionerList2 *RPL)
+{
+    //check the precondition
+    if(RPL == NULL)
+        throw EImproperArgument("pinter RPL should point to built robotic positioner list");
+
+    //check the preconditions
+    TVector<int> Pids_;
+    searchMissingPids(Pids_, RPL);
+    if(Pids_.getCount() > 0)
+        throw EImproperCall("there are Pids not found in the FMM: "+Pids_.getText().str);
+
+    //initialize the output
+    Pids.Clear();
+
+    //check each OS
+    for(int i=0; i<getCount(); i++) {
+        TObservingSource *OS = Items[i];
+        if(OS->there_is_Bid) { //if the PP is allocated to the RP
+            //search the RP in the RPL attached to the AL
+            int j = RPL->searchId(OS->Pid);
+            //make a rutinary check
+            if(j >= RPL->getCount())
+                throw EImpossibleError("lateral effect");
+            //check that Enabled match with Disabled in the RPL
+            if(OS->Enabled == RPL->Get(j)->Disabled)
+                Pids.Add(OS->Pid);
         }
     }
 }
 
 //get the allocations which accomplish: there_is_Bid && Enabled
-void TFMOSATable::getAllocations(TAllocationList& AL)
+void TFMOSA::getAllocations(TAllocationList& AL)
 {
-    //check the precondition
+    //check the preconditions
     TVector<int> Pids;
-    searchMissingPids(Pids, AL);
+    searchMissingPids(Pids, AL.getRoboticPositionerList());
     if(Pids.getCount() > 0)
-        throw EImproperArgument("there are Pids not found in the FMM: "+Pids.getText().str);
+        throw EImproperCall("there are Pids not found in the FMM: "+Pids.getText().str);
+
+    searchDontMatchEnabled(Pids, AL.getRoboticPositionerList());
+    if(Pids.getCount() > 0)
+        throw EImproperCall("there are Enabled (in the FMOSA) that don't match with Disabled (in the FMM Instance): "+Pids.getText().str);
 
     try {
         //build an allocation for each OS
@@ -652,21 +696,21 @@ void TFMOSATable::getAllocations(TAllocationList& AL)
         }
     }
     catch(Exception& E) {
-        E.Message.Insert(1, "getting allocations from the FMOSA table: ");
+        E.Message.Insert(1, "getting allocations from the FMOSA: ");
         throw;
     }
 }
 
-//build a FMOSA table by default
-TFMOSATable::TFMOSATable(void) : TPointersList<TObservingSource>(),
+//build a FMOSA by default
+TFMOSA::TFMOSA(void) : TPointersList<TObservingSource>(),
     str_original(""),
     Id(0), Ra(0), Dec(0), Pos(0)
 {
     Print = TObservingSource::printRow;
 }
 
-//clone a FMOSA table
-void TFMOSATable::Clone(TFMOSATable& FMOSAT)
+//clone a FMOSA
+void TFMOSA::Clone(TFMOSA& FMOSAT)
 {
     //clone the original setted string
     str_original = FMOSAT.str_original;

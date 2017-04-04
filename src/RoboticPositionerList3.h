@@ -140,10 +140,6 @@ public:
         //de todos los posicionadores de la lista
         void setQuantifys(bool Quantify_, bool Quantify___);
 
-        //configura el estado de colisión
-        //de todos los posicionadores de la lista
-        void setCollisions(bool);
-
         //------------------------------------------------------------------
         //METHODS FOR CHECK PRECONDITIONS:
 

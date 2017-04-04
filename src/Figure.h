@@ -486,6 +486,23 @@ public:
     TDoublePoint getPb(void) const {return p_Pb;}
     virtual void setPb(TDoublePoint) = 0;
 
+    //bandera de inversión de la figura
+    //valor por defecto: false
+    bool inverted;
+    //vértice inicial de la figura
+    //valor por defecto: Pa
+    TDoublePoint getPini(void) const; void setPini(const TDoublePoint);
+    //vértice final de la figura
+    //valor por defecto: Pb
+    TDoublePoint getPfin(void) const; void setPfin(const TDoublePoint);
+
+    //Si inverted:
+    //  Pini corresponde a Pb
+    //  Pfin corresponde a Pa
+    //si no
+    //  Pini corresponde a Pa
+    //  Pfin corresponde a Pb
+
     //MÉTODOS ESTÁTICOS DE LISTA:
 
     //imprime las propiedades de un objeto en una cadena de texto
@@ -788,6 +805,9 @@ double rotation(TContourFigure *F, bool PbIsNext, TDoublePoint P);
 
 //determina si dos figuras son diferentes
 bool areUnequals(const TFigure*, const TFigure*);
+
+//determine if there is intersections between cf1 and cf2
+bool intersection(TContourFigure *cf1, TContourFigure *cf2);
 
 //---------------------------------------------------------------------------
 

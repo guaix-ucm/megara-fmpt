@@ -44,9 +44,9 @@ namespace Models {
 //class MI (message instruction)
 class TMessageInstruction {
         int p_Id;
-        string p_Comment1;
-        string p_Comment2;
-        string p_Comment3;
+        string p_CommentDsec;
+        string p_CommentDmin;
+        string p_CommentDend;
 
 public:
         //PUBLIC PROPERTIES:
@@ -67,21 +67,22 @@ public:
 
         //comment 1
         //for anotate Dsec value when Dsec < DsecMax
+        //during generation of the MP
         //default value: ""
-        string getComment1(void) const{return p_Comment1;}
-        void setComment1(const string&);
+        string getCommentDsec(void) const{return p_CommentDsec;}
+        void setCommentDsec(const string&);
 
         //comment 2
-        //for anotate Dmin value when the instruction is executed
+        //for anotate Dmin value during validation of the MP
         //default value: ""
-        string getComment2(void) const{return p_Comment2;}
-        void setComment2(const string&);
+        string getCommentDmin(void) const{return p_CommentDmin;}
+        void setCommentDmin(const string&);
 
         //comment 3
-        //for anotate Dmin value when the instruction is executed
+        //for anotate Dend value during validation of the MP
         //default value: ""
-        string getComment3(void) const{return p_Comment3;}
-        void setComment3(const string&);
+        string getCommentDend(void) const{return p_CommentDend;}
+        void setCommentDend(const string&);
 
         //PUBLIC PROPERTIES IN TEXT FORMAT:
 
@@ -98,6 +99,10 @@ public:
         //  IdText+": "+Instruction.Text
         //default value: "0: "
         AnsiString getText(void) const; void setText(const AnsiString&);
+        //the MI in text format for comment:
+        //  "rp"+IdText+", "+Instruction.TextForComment
+        //default value: "0: "
+        AnsiString getTextForComment(void) const;
 
         //STATIC METHODS:
 

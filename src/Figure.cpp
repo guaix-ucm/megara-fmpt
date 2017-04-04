@@ -398,7 +398,7 @@ void  TCircle::Read(TCircle *C,
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("circle value not founds");
+        throw EImproperArgument("circle value not found");
 
     try {
         //lee las propiedades en una variable tampón
@@ -428,7 +428,7 @@ void  TCircle::ReadRow(TCircle *C,
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("circle values not founds");
+        throw EImproperArgument("circle values not found");
 
     try {
         //lee el valor en una variable tampón
@@ -707,16 +707,17 @@ AnsiString TCircunference::getRowText(void) const
 void TCircunference::setRowText(const AnsiString& S)
 {
     try {
+        //read the circunference fron the first position
         int i = 1;
         ReadRow(this, S, i);
-        StrTravelToEnd(S, i);
 
+        //search unexpected text
         StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
-            throw EImproperArgument("string S shouldcontain a single circle only");
+            throw EImproperArgument("unexpected text translating string to circunference");
     }
     catch(Exception& E) {
-        E.Message.Insert(1, "setting value to circunference in text format: ");
+        E.Message.Insert(1, "translating string to circunference: ");
         throw;
     }
 }
@@ -834,7 +835,7 @@ void  TCircunference::Read(TCircunference *C,
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("circle values not founds");
+        throw EImproperArgument("circle values not found");
 
     try {
         //lee el valor en una variable tampón
@@ -864,7 +865,7 @@ void  TCircunference::ReadRow(TCircunference *C,
     if(C == NULL)
         throw EImproperArgument("pointer C shoult point to built circle");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("circle values not founds");
+        throw EImproperArgument("circle values not found");
 
     try {
         //lee el valor en una variable tampón
@@ -1082,6 +1083,40 @@ void TCircunference::translate(TDoublePoint V)
 //TContourFigure
 //--------------------------------------------------------------------------
 
+//vértice inicial de la figura
+//valor por defecto: Pa
+TDoublePoint TContourFigure::getPini(void) const
+{
+    if(inverted)
+        return getPb();
+    else
+        return getPa();
+}
+void TContourFigure::setPini(const TDoublePoint Pini)
+{
+    if(inverted)
+        setPb(Pini);
+    else
+        setPa(Pini);
+
+}
+//vértice final de la figura
+//valor por defecto: Pb
+TDoublePoint TContourFigure::getPfin(void) const
+{
+    if(inverted)
+        return getPa();
+    else
+        return getPb();
+}
+void TContourFigure::setPfin(const TDoublePoint Pfin)
+{
+    if(inverted)
+        setPa(Pfin);
+    else
+        setPb(Pfin);
+}
+
 //FUNCIONES ESTÁTICAS:
 
 //imprime las propiedades de un objeto en una cadena de texto
@@ -1108,7 +1143,8 @@ void  TContourFigure::ContourFigureRead(TContourFigure* &F,
 
 //inicializa la propiedad Color a su valor por defecto
 //Pa y Pb quedarán sin inicializar
-TContourFigure::TContourFigure(void) : TFigure()
+TContourFigure::TContourFigure(void) : TFigure(),
+    p_Pa(0, 0), p_Pb(0, 0), inverted(false)
 {
 }
 
@@ -1226,7 +1262,7 @@ void  TSegment::Read(TContourFigure *O_,
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("segment values not founds");
+        throw EImproperArgument("segment values not found");
 
     try {
         //lee el valor envariables tampón
@@ -1257,7 +1293,7 @@ void  TSegment::ReadRow(TContourFigure *O_,
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("segment values not founds");
+        throw EImproperArgument("segment values not found");
 
     try {
         //lee el valor envariables tampón
@@ -1655,7 +1691,7 @@ void  TArc::Read(TContourFigure *_O,
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("arc values not founds");
+        throw EImproperArgument("arc values not found");
 
     try {
         //lee el valor en variables tampón
@@ -1693,7 +1729,7 @@ void  TArc::ReadRow(TContourFigure *_O,
     if(O == NULL)
         throw EImproperArgument("pointer O should point to built segment");
     if(i<1 || S.Length()<i)
-        throw EImproperArgument("arc values not founds");
+        throw EImproperArgument("arc values not found");
 
     try {
         //lee el valor en variables tampón
@@ -2086,6 +2122,46 @@ bool areUnequals(const TFigure *F1, const TFigure *F2)
             return true;
     }
     return false;
+}
+
+//determine if there is intersections between cf1 and cf2
+bool intersection(TContourFigure *cf1, TContourFigure *cf2)
+{
+    if(cf1 == NULL)
+        throw EImproperArgument("pointer cf1 should point to built contour figure");
+    if(cf2 == NULL)
+        throw EImproperArgument("pointer cf2 should point to built contour figure");
+
+    if(typeid(*cf1) == typeid(TSegment) && typeid(*cf2) == typeid(TSegment)) {
+        TSegment *s1 = (TSegment*)cf1;
+        TSegment *s2 = (TSegment*)cf2;
+        TDoublePoint p;
+        bool aux = intersectionSegmentSegment(p, s1->getPa(), s1->getPb(),
+                                                 s2->getPa(), s2->getPb());
+        return aux;
+    }
+    if(typeid(*cf1) == typeid(TSegment) && typeid(*cf2) == typeid(TArc)) {
+        TSegment *s1 = (TSegment*)cf1;
+        TArc *a2 = (TArc*)cf2;
+        bool aux = intersectionSegmentArc(s1->getPa(), s1->getPb(),
+                                          a2->getPa(), a2->getPb(), a2->getPc(), a2->getR());
+        return aux;
+    }
+    if(typeid(*cf1) == typeid(TArc) && typeid(*cf2) == typeid(TSegment)) {
+        TArc *a1 = (TArc*)cf1;
+        TSegment *s2 = (TSegment*)cf2;
+        bool aux = intersectionArcSegment(a1->getPa(), a1->getPb(), a1->getPc(), a1->getR(),
+                                          s2->getPa(), s2->getPb());
+        return aux;
+    }
+    if(typeid(*cf1) == typeid(TArc) && typeid(*cf2) == typeid(TArc)) {
+        TArc *a1 = (TArc*)cf1;
+        TArc *a2 = (TArc*)cf2;
+        bool aux = intersectionArcArc(a1->getPa(), a1->getPb(), a1->getPc(), a1->getR(),
+                                      a2->getPa(), a2->getPb(), a2->getPc(), a2->getR());
+        return aux;
+    }
+    throw EImproperArgument("contour figures cf1 and cf2 should be either segment or arc");
 }
 
 //---------------------------------------------------------------------------

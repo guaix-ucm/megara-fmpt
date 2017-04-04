@@ -146,8 +146,8 @@ public:
 
     //contruye una barrera
     TBarrier(TDoublePoint P0, double thetaO1=0);
-    //copia una barrera
-    void copy(const TBarrier*);
+    //clona una barrera
+    void clone(const TBarrier*);
     //contruye un clon de una barrera
     TBarrier(const TBarrier*);
     //libera la memoria dinámica
@@ -163,9 +163,12 @@ public:
     //determina si una barrera es distinta
     bool operator!=(const TBarrier&) const;
 
-    //cambia la posición y orientación
+    //establece la posición y orientación
     //del origen de coordenadas simultaneamente
     void set(TDoublePoint P0, double thetaO1);
+
+    //obtiene el contorno del perímetro de seguridad de la barrera
+    void getSecurityContour(TContourFigureList& securityContour);
 
     //-------------------------------------------------------------------
     //MÉTODOS PARA DETERMINAR SI HAY COLISIÓN:

@@ -50,14 +50,15 @@ AnsiString TPairPositionAngles::p_1Label = "p_1";
 //default value: "p___3"
 AnsiString TPairPositionAngles::p___3Label = "p___3";
 
-//PROPIEDADES:
+//PUBLIC PROPERTIES:
 
-//single identification number of the attached robotic positioner
-//      RoboticPositioner->Id
-//shall be nonnegative
-int TPairPositionAngles::getId(void) const
+//single identification number of the attached RP
+void TPairPositionAngles::setId(const int Id_)
 {
-    return getRP()->getActuator()->getId();
+    if(Id_ < 0)
+        throw EImproperArgument("RP identifier (Id) should be nonnegative");
+
+    Id = Id_;
 }
 
 //PROPERTIES IN TEXT FORMAT:
@@ -113,12 +114,12 @@ void TPairPositionAngles::setRowText(const AnsiString &S)
         TPairPositionAngles PPA;
         readRow(&PPA, S, i);
 
-        //search another text
-        StrTravelToEnd(S, i);
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
-            throw EImproperArgument("unexpected text: "+StrFirstChars(S.SubString(i, S.Length() - i + 1)).str);
+            throw EImproperArgument("unexpected text setting pair position angles in text format");
 
-        clone(&PPA); //clonethe tampon object
+        clone(&PPA); //clone the tampon object
 
     } catch(Exception& E) {
         unsigned int row, col;
@@ -158,7 +159,7 @@ void TPairPositionAngles::travelLabelsRow(const AnsiString& S, int& i)
     }
 }
 
-//print the properties of a pair of position angles in a string
+//print the properties of a PPA in a string
 //in row format
 void  TPairPositionAngles::printRow(AnsiString &S,
                                     const TPairPositionAngles *PPA)
@@ -171,7 +172,7 @@ void  TPairPositionAngles::printRow(AnsiString &S,
     S += PPA->getRowText();
 }
 
-//read the properties of a pair of position angles in a string
+//read the properties of a PPA in a string
 //in row format
 void  TPairPositionAngles::readRow(TPairPositionAngles *PPA,
                                    const AnsiString &S, int &i)
@@ -186,30 +187,19 @@ void  TPairPositionAngles::readRow(TPairPositionAngles *PPA,
         //tanpon variables
         int Id;
         double p_1, p___3;
-        TPairPositionAngles t_PPA(PPA);
 
-        //ADVERTENCIA: las variables tampón con propiedades interdependientes
-        //deben ser clones de las variables que se pretenden modificar.
+        //ADVERTENCIA: tampon variables with interdependent properties
+        //shall be clones of the variables to be modified.
 
-        //read the property Id
         StrTravelSeparatorsIfAny(S, i);
-
-        //compare the Id value
-        if(Id != t_PPA.getId())
-            throw EImproperArgument("the Id of the PPA not match");
-
-        //read the position angles properties
         StrReadInt(Id, S, i);
         StrTravelSeparators(S, i);
         StrReadFloat(p_1, S, i);
         StrTravelSeparators(S, i);
         StrReadFloat(p___3, S, i);
 
-        //set the PPA
-        t_PPA.setPPA(p_1, p___3);
-
-        //set the tanpon variable
-        PPA->clone(&t_PPA);
+        //set the tanpon variables
+        PPA->set(Id, p_1, p___3);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "reading a PPA in text format: ");
@@ -219,38 +209,35 @@ void  TPairPositionAngles::readRow(TPairPositionAngles *PPA,
 
 //PUBLIC METHODS:
 
-//build a PPA attached to a RP
-//pointer RP can be null
-TPairPositionAngles::TPairPositionAngles(TRoboticPositioner *RP)
+//build a PPA
+TPairPositionAngles::TPairPositionAngles(const int Id) :
+    p_1(0), p___3(0)
 {
-    //Note that pointer RP can be null.
-
-    //point the extern objects
-    p_RP = RP;
-
-    //initialize the properties
-    p_1 = 0;
-    p___3 = 0;
+    try {
+        setId(Id);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "building PPA: ");
+        throw;
+    }
 }
 
 //copy all properties of a PPA
-void TPairPositionAngles::clone(TPairPositionAngles *PPA)
+void TPairPositionAngles::clone(const TPairPositionAngles *PPA)
 {
     //check the precondition
     if(PPA == NULL)
         throw EImproperArgument("pointer PPA should point to built pair of position angles");
 
     //assign the properties
-    p_RP = PPA->p_RP;
-    p_PP = PPA->p_PP;
+    Id = PPA->Id;
     p_1 = PPA->p_1;
     p___3 = PPA->p___3;
 }
 TPairPositionAngles &TPairPositionAngles::operator=(const TPairPositionAngles &PPA)
 {
     //assign the properties
-    p_RP = PPA.p_RP;
-    p_PP = PPA.p_PP;
+    Id = PPA.Id;
     p_1 = PPA.p_1;
     p___3 = PPA.p___3;
 
@@ -258,8 +245,11 @@ TPairPositionAngles &TPairPositionAngles::operator=(const TPairPositionAngles &P
 }
 
 //build a clon of a PPA
-TPairPositionAngles::TPairPositionAngles(TPairPositionAngles *PPA)
+TPairPositionAngles::TPairPositionAngles(const TPairPositionAngles *PPA)
 {
+    if(PPA == NULL)
+        throw EImproperArgument("pointer PPA should point to built pair position angles");
+
     try {
         clone(PPA);
     } catch(Exception& E) {
@@ -268,22 +258,29 @@ TPairPositionAngles::TPairPositionAngles(TPairPositionAngles *PPA)
     }
 }
 
-//set the PPA
-void TPairPositionAngles::setPPA(double t_p_1, double t_p___3)
+//set all properties
+void TPairPositionAngles::set(const int Id, const double p_1_, const double p___3_)
 {
-    //check the precondition
-    if(getRP()->getActuator()->isntInDomainp_1(t_p_1))
-        throw EImproperArgument("angle p_1 should be in [thata_1min, thata_1max]");
-    if(getRP()->getActuator()->getArm()->isntInDomainp___3(t_p___3))
-        throw EImproperArgument("angle p___3 should be in [p___3min, p___3max]");
-
-    p_1 = t_p_1;
-    p___3 = t_p___3;
+    try {
+        setId(Id);
+        p_1 = p_1_;
+        p___3 = p___3_;
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting all properties to pair position angles: ");
+    }
 }
 
-//rabdomize the PPA
-void TPairPositionAngles::randomize(double p_1min, double p_1max,
-                                    double p___3min, double p___3max)
+//set (p_1, p___3)
+void TPairPositionAngles::set(const double p_1_, const double p___3_)
+{
+    p_1 = p_1_;
+    p___3 = p___3_;
+}
+
+//rabdomize (p_1, p_3)
+void TPairPositionAngles::randomize(const double p_1min, const double p_1max,
+                                    const double p___3min, const double p___3max)
 {
     p_1 = RandomUniform(p_1min, p_1max);
     p___3 = RandomUniform(p___3min, p___3max);
@@ -296,14 +293,12 @@ void TPairPositionAngles::randomize(double p_1min, double p_1max,
 
 //SET OF PROPERTIES IN TEXT FORMAT:
 
-AnsiString TPairPositionAnglesList::getText(void)
+AnsiString TPairPositionAnglesList::getText(void) const
 {
-    AnsiString S;
-
-    //añade la cabecera
-    S = TPairPositionAngles::getLabelsRow()+AnsiString("\r\n");
-//    for(int i=0; i<getCount(); i++)
-  //      S += Items[i]->getRowText()+AnsiString("\r\n");
+    //add the header
+    AnsiString S = TPairPositionAngles::getLabelsRow();
+    //add the table
+    S += AnsiString("\r\n");
     S += getColumnText();
 
     return S;
@@ -321,13 +316,11 @@ void TPairPositionAnglesList::setText(const AnsiString &S)
         //read the values in a tampon variable
         TPairPositionAnglesList PPAL;
         ReadSeparated(&PPAL, S, i);
-        //travel the rest of separators of the string
-        StrTravelToEnd(S, i);
 
-        //if the string contains anymore
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
         if(i < S.Length()+1)
-            //indicates that string S should contains only a PPA list
-            throw EImproperArgument("string S shouldcontains only a PPA list");
+            throw EImproperArgument("unexpected text reading pair position angles");
 
         //clone the tampon list
         Clone(&PPAL);
@@ -342,7 +335,7 @@ void TPairPositionAnglesList::setText(const AnsiString &S)
 
 //built a PPA list
 TPairPositionAnglesList::TPairPositionAnglesList(void) :
-        TPointersList<TPairPositionAngles>()
+        TPointersList<TPairPositionAngles>(100)
 {
     Print = TPairPositionAngles::printRow;
     Read = TPairPositionAngles::readRow;
@@ -364,16 +357,8 @@ TPairPositionAnglesList &TPairPositionAnglesList::operator=(const TPairPositionA
     return *this;
 }
 
-/*//add the PPAs attached to the PPs of a PP list
-void TPairPositionAnglesList::Build(TProjectionPointList &PPL)
-{
-    for(int i=0; i<PPL.getCount(); i++)
-        Add(new TPairPositionAngles(PPL.GetPointer(i)));
-}
-*/
-
 //search the first PPA with a given identifier
-int TPairPositionAnglesList::SearchId(int Id) const
+int TPairPositionAnglesList::searchId(int Id) const
 {
     int i;
     for(i=0; i<getCount(); i++) {
@@ -386,20 +371,16 @@ int TPairPositionAnglesList::SearchId(int Id) const
 }
 
 //randomize the PPAs of the list
-void TPairPositionAnglesList::Randomize(double p_1min, double p_1max,
-               double p___3min, double p___3max)
+void TPairPositionAnglesList::randomize(const double p_1min, const double p_1max,
+                                        const double p___3min, const double p___3max)
 {
-    try {
-        for(int i=0; i<getCount(); i++)
-            Items[i]->randomize(p_1min, p_1max, p___3min, p___3max);
-    } catch(...) {
-        throw;
-    }
+    for(int i=0; i<getCount(); i++)
+        Items[i]->randomize(p_1min, p_1max, p___3min, p___3max);
 }
 
 
-//check if all PPAs are addresed to different RPs
-bool TPairPositionAnglesList::notAllPPAsAreAddresedToDifferentRPs(void) const
+//check if all PPAs are referred to different RPs
+bool TPairPositionAnglesList::notAllAreReferredToDifferentRPs(void) const
 {
     for(int i=0; i<getCount(); i++) {
         const TPairPositionAngles *PPAi = Items[i];
@@ -418,12 +399,43 @@ bool TPairPositionAnglesList::notAllPPAsAreAddresedToDifferentRPs(void) const
 bool TPairPositionAnglesList::notAllIdsAreFound(const TVector<int>& Ids) const
 {
     for(int i=0; i<Ids.getCount(); i++) {
-        int Id = Ids[i];
+        const int Id = Ids[i];
 
-        int j = SearchId(Id);
+        int j = searchId(Id);
         if(j >= getCount())
             return true;
     }
+    return false;
+}
+
+//compare two PPA list
+bool operator!=(const TPairPositionAnglesList& PPAL1,
+                       const TPairPositionAnglesList& PPAL2)
+
+{
+    //check that match sizes
+    if(PPAL2.getCount() != PPAL1.getCount())
+        return true;
+
+    //check preconditions
+    if(PPAL1.notAllAreReferredToDifferentRPs())
+        throw EImproperCall("can't compare pair position angles list with repeated identifiers");
+    if(PPAL2.notAllAreReferredToDifferentRPs())
+        throw EImproperCall("can't compare pair position angles list with repeated identifiers");
+
+    //compare items (not their locations)
+    for(int i=0; i<PPAL1.getCount(); i++) {
+        const TPairPositionAngles *PPA1 = PPAL1.GetPointer(i);
+        int j = PPAL2.searchId(PPA1->getId());
+        if(j >= PPAL2.getCount())
+            return true;;
+        const TPairPositionAngles *PPA2 = PPAL2.GetPointer(j);
+        if(PPA1->p_1 != PPA2->p_1)
+            return true;
+        if(PPA1->p___3 != PPA2->p___3)
+            return true;
+    }
+
     return false;
 }
 

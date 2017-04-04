@@ -232,7 +232,7 @@ public:
 
     //orientation of the coordinate system S3 respect S0:
     //  thetaO3 = thetaO1 - theta_1 - theta_O3
-    double getthetaO3(void) const {return getthetaO1() - gettheta_1() -
+    double getthetaO3(void) const {return getthetaO1() - gettheta_1() +
                 gettheta_O3o();}
 
     //------------------------------------------------------------------
@@ -602,7 +602,7 @@ public:
         return IntToHex(intptr_t(getBarrier()));}
 
     //------------------------------------------------------------------
-    //SETOFPROPERTIES IN TEXT FORMAT:
+    //SET OF PROPERTIES IN TEXT FORMAT:
 
     //conjunto de propiedades de dimensionamiento en formato texto
     AnsiString getSizingText(void) const;
@@ -642,12 +642,13 @@ public:
     //con la posición y orientación indicadas
     TCilinder(TDoublePoint P0, double thetaO1=MEGARA_thetaO1);
 
-    //copia un conjunto de propiedades de un actuador de fibra
+    //copia un conjunto de propiedades de un cilindro
     void copySizing(const TCilinder*);
     void copyOrientationRadians(const TCilinder*);
     void copyQuantification(const TCilinder*);
     void copyLocation(const TCilinder*);
-    void copyCilinder(const TCilinder*);
+    //clona todas las propiedades de un cilindro
+    void cloneCilinder(const TCilinder*);
 
     //construye un clon de un actuador de fibra
     TCilinder(const TCilinder*);
@@ -935,7 +936,7 @@ public:
     bool segmentCantBeFollowedByP3(TDoublePoint Pa, TDoublePoint Pb);
 
     //Un polisegmento puede estar en una de las cuatro situaciones
-    //sigueintes respecto del dominio de P3:
+    //siguientes respecto del dominio de P3:
     // 1. Totalmente en el interior sin intersecar los límites del dominio.
     // 2. Totalmente en el interior intersecando los límites del dominio.
     // 3. Parcialmente en el interior y el resto fuera.

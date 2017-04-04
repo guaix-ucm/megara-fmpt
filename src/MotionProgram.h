@@ -79,12 +79,11 @@ public:
 //class motion program
 class TMotionProgram : public TPointersList<TMessageList> {
 public:
-    //determines if there is some coment 1 in any instruction
+    //determines if there is some coment Dsec in any instruction
     //of the the motion program
-    bool thereIsSomeComment1(void) const;
+    bool thereIsSomeCommentDsec(void) const;
     //get the non empty coments of the motion program
-    //in column text format
-    string getComment1sColumnText(void) const;
+    string getCommentsDsecInterfaceText(void) const;
 
     //builds a motion program
     TMotionProgram(int Capacity=7) :
@@ -102,17 +101,16 @@ public:
     //exclude the MIs addressed to a determined RP
     void excludeRP(int Id);
 
-    //Get a motion progam in the interface format of the MCS.
+    //Get a motion progam in the format of the MCS.
     //Inputs:
-    //  label: string labeling all the MP.
-    //  Bid: univoque identifier of the CB.
+    //  label: type of MP ["pos", "depos"].
+    //  Bid: identifier of the CB.
     //  SPL: starting position list for all RPs of the Fiber MOS.
-    //  r2_negative: indicates if the rotor 2 coordinates must be negative.
     //Preconditions:
-    //  All PPAs of the SPL must be addresed to different RPs.
+    //  All PPAs of the SPL must be referred to different RPs.
     //  All RPs included in the MP, must be in included in the SPL.
     void getInterfaceText(string& str, const string& label, unsigned int Bid,
-                          const TPairPositionAnglesList& SPL, bool r2_negative) const;
+                          const TPairPositionAnglesList& SPL) const;
 
     //Values for label:
     //  "obs depos" for depositioning programs

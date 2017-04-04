@@ -25,8 +25,6 @@
 #include "FileMethods.h"
 #include "TextFile.h" //StrReadFromFile, StrWriteToFile
 
-//#include <iostream>
-
 using namespace Strings;
 
 //---------------------------------------------------------------------------
@@ -37,7 +35,7 @@ namespace Models {
 //---------------------------------------------------------------------------
 //FILE FUNCTIONS FOR ROBOTIC POSITIONERS:
 
-//read and assign the content of the files of a RP instance
+//read and assign the content of the files of a RP Instance
 void readAndAssign(TRoboticPositioner& RP, const string& dir)
 {
     string str;
@@ -62,6 +60,10 @@ void readAndAssign(TRoboticPositioner& RP, const string& dir)
 void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         //build a tampon variable
         TRoboticPositioner t_RP;
         //read and assign the content of the files
@@ -69,9 +71,12 @@ void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
         //clone the tampon variable
         RP.clone(&t_RP);
     }
-    catch(Exception& E) {
+    catch(ECantComplete& E) {
         E.Message.Insert(1, "reading instance of RP"+RP.getActuator()->getIdText().str+": ");
         throw;
+    }
+    catch(Exception& E) {
+        throw EImproperFileLoadedValue("reading instance of RP"+RP.getActuator()->getIdText().str+": " + E.Message.str);
     }
 }
 
@@ -83,7 +88,13 @@ void readInstanceFromDir(TRoboticPositioner& RP, const string& dir)
 void writeInstanceToDir(const string& dir, const TExclusionAreaList& EAL)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         string str;
+        string path;
+        string aux;
 
         //por cada área de exclusión de la lista
         for(int i=0; i<EAL.getCount(); i++) {
@@ -96,25 +107,29 @@ void writeInstanceToDir(const string& dir, const TExclusionAreaList& EAL)
             mkpath(subdir);
 
             //archiva el contorno de la barrera
-            str = "#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe";
-            str += "\r\n#the template of EA.Barrier.Contour_, in S1 (in mm):";
-            str += "\r\n\r\n"+EA->Barrier.getContour_().getColumnText().str;
-            strWriteToFile(subdir+"/Contour_.txt", str);
+            str = EA->getContour_Text().str;
+            path = subdir+"/Contour_.txt";
+            if(isfile(path))
+                strReadFromFileWithComments(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
 
             //archiva la instancia del área de exclusión
-            str = "#Instance properties of the EA (Exclusion Area):";
-            str += "\r\n\r\n"+EA->getInstanceText().str;
-            strWriteToFile(subdir+"/Instance.txt", str);
+            str = EA->getInstanceText().str;
+            path = subdir+"/Instance.txt";
+            if(isfile(path))
+                strReadFromFileWithComments(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
         }
 
         //archiva la lista de orígenes de coordenadas de la lista de área de exclusiónes
-        str = "#A table for indicate the position and orientation of each EA (Exclusion Area):";
-        str += "\r\n#    Id: identifier of the EA (a nonnegative integer number)";
-        str += "\r\n#    x0: abscissa of the point P0 of the EA in S0 (in mm)";
-        str += "\r\n#    y0: ordinate of the point P0 of the EA in S0 (in mm)";
-        str += "\r\n#    thetaO1: orientation of S1 in S0 (in rad)";
-        str += "\r\n\r\n"+TExclusionArea::getOriginsLabelsRow().str+"\r\n"+EAL.getOriginsTableText().str;
-        strWriteToFile(dir+"/ExclusionAreaOriginsTable.txt", str);
+        str = EAL.getOriginsTableText().str;
+        path = dir+"/ExclusionAreaOriginsTable.txt";
+        if(isfile(path))
+            strReadFromFileWithComments(aux, path);
+        if(str != aux)
+            strWriteToFile(path, str);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "writing instance of EAL to dir '"+dir+"': ");
@@ -126,6 +141,10 @@ void writeInstanceToDir(const string& dir, const TExclusionAreaList& EAL)
 void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         //contruye una lista tampón
         TExclusionAreaList t_EAL;
 
@@ -167,9 +186,12 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir)
         //ser destruidas porque se trata de una lista de punteros
         //y no de una lista basada en punteros.
     }
-    catch(Exception& E) {
+    catch(ECantComplete& E) {
         E.Message.Insert(1, "reading instance of EAL: ");
         throw;
+    }
+    catch(Exception& E) {
+        throw EImproperFileLoadedValue("reading instance of EAL: " + E.Message.str);
     }
 }
 
@@ -181,19 +203,30 @@ void readInstanceFromDir(TExclusionAreaList& EAL, const string& dir)
 void writeInstanceToDir(const string& dir, const TRoboticPositionerList& RPL)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         string str;
+        string path;
+        string aux;
 
         //write the RP map
-        str = "#A matrix to transform each point (x, y) given in Cartesian coordinates in S0,";
-        str += "\r\n#in a list of identifiers of RPs {Id} in whose observing domain could be the point (x, y):";
-        str += "\r\n\r\n"+RPL.getInstanceMapText().str;
-        strWriteToFile(dir+"/InstanceMap.txt", str);
+        str = RPL.getInstanceMapText().str;
+        path = dir+"/InstanceMap.txt";
+        if(isfile(path))
+            strReadFromFile(aux, path);
+        if(str != aux)
+            strWriteToFile(path, str);
 
-        //write the instance properties of the RPL
-        str = "#Instance properties of the FMM (Fiber MOS Model):";
-        str += "\r\n\r\n"+RPL.getInstanceText().str;
-        strWriteToFile(dir+"/Instance.txt", str);
-
+/*        //write the instance properties of the RPL
+        str = RPL.getInstanceText().str;
+        path = dir+"/Instance.txt";
+        if(isfile(path))
+            strReadFromFile(aux, path);
+        if(str != aux)
+            strWriteToFile(path, str);
+*/
         //por cada posicionador de la lista
         for(int i=0; i<RPL.getCount(); i++) {
             //apunta el posicionador indicado para facilitar su acceso
@@ -205,47 +238,53 @@ void writeInstanceToDir(const string& dir, const TRoboticPositionerList& RPL)
             mkpath(subdir);
 
             //archiva el contorno del brazo
-            str = "#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc) for describe";
-            str += "\r\n#the template of RP.Actuator.Arm.Contour____ in S4 (in mm):";
-            str += "\r\n\r\n"+RP->getActuator()->getArm()->getContour____().getColumnText().str;
-            strWriteToFile(subdir+"/Contour____.txt", str);
+            str = RP->getContour____Text().str;
+            path = subdir+"/Contour____.txt";
+            if(isfile(path))
+                strReadFromFile(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
 
             //archiva el contorno de la barrera
-            str = "#A list of segments (Pa, Pb) and arcs (Pa, Pb, Pc, R) for describe";
-            str += "\r\n#the template of the RP.Barrier.Contour_, in S1 (in mm):";
-            str += "\r\n\r\n"+RP->getActuator()->getBarrier()->getContour_().getColumnText().str;
-            strWriteToFile(subdir+"/Contour_.txt", str);
+            str = RP->getContour_Text().str;
+            path = subdir+"/Contour_.txt";
+            if(isfile(path))
+                strReadFromFile(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
 
             //archiva la función de compresión del rotor 1
-            str = "#The compression-function of the quantifier of rot 1 of the RP in step/rad.";
-            str += "\r\n#Must be defined almost in the rot 1 domain [theta_1min, theta_1max]:";
-            str += "\r\n#    theta_1: position of rot 1 (in rad)";
-            str += "\r\n#    p_1: position of rot 1 (in step)";
-            str += "\r\n\r\n"+RP->getActuator()->getF().getTableText().str;
-            strWriteToFile(subdir+"/F1.txt", str);
+            str = RP->getF1Text().str;
+            path = subdir+"/F1.txt";
+            if(isfile(path))
+                strReadFromFile(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
 
             //archiva la función de compresión del rotor 2
-            str = "#The compression-function of the quantifier of rot 2 of the RP in step/rad.";
-            str += "\r\n#Must be defined in the rot 2 domain [theta___3min, theta___3max]:";
-            str += "\r\n#    theta___3: position of rot 2 (in rad)";
-            str += "\r\n#    p___3: position of rot 2 (in step)";
-            str += "\r\n\r\n"+RP->getActuator()->getArm()->getF().getTableText().str;
-            strWriteToFile(subdir+"/F2.txt", str);
+            str = RP->getF2Text().str;
+            path = subdir+"/F2.txt";
+            if(isfile(path))
+                strReadFromFile(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
 
             //archiva la instancia del posicionador
-            str = "#Instance properties of the RP (Robotic Positioner):";
-            str += "\r\n\r\n"+RP->getInstanceText().str;
-            strWriteToFile(subdir+"/Instance.txt", str);
+            str = RP->getInstanceText().str;
+            path = subdir+"/Instance.txt";
+            if(isfile(path))
+                strReadFromFileWithComments(aux, path);
+            if(str != aux)
+                strWriteToFile(path, str);
         }
 
         //archiva la lista de orígenes de coordenadas de la lista de posicionadores
-        str = "#A table for indicate the position and orientation of each RP (Robotic Positioner):";
-        str += "\r\n#    Id: identifier of the RP (a nonnegative integer number)";
-        str += "\r\n#    x0: abscissa of the point P0 of the RP in S0 (in mm)";
-        str += "\r\n#    y0: ordinate of the point P0 of the RP in S0 (in mm)";
-        str += "\r\n#    thetaO1: orientation of S1 in S0 (in rad)";
-        str += "\r\n\r\n"+TActuator::getOriginsLabelsRow().str+"\r\n"+RPL.getOriginsTableText().str;
-        strWriteToFile(dir+"/RoboticPositionerOriginsTable.txt", str);
+        str = RPL.getOriginsTableText().str;
+        path = dir+"/RoboticPositionerOriginsTable.txt";
+        if(isfile(path))
+            strReadFromFileWithComments(aux, path);
+        if(str != aux)
+            strWriteToFile(path, str);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "writing instance of RPL: ");
@@ -258,6 +297,10 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir,
                          const TExclusionAreaList& EAL)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         //contruye una lista tampón
         TRoboticPositionerList t_RPL;
 
@@ -299,10 +342,10 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir,
             RP->getActuator()->getArm()->setFTableText(str);
         }
 
-        //lee y asigna la instancia de la lista de posicionadores
+/*        //lee y asigna la instancia de la lista de posicionadores
         strReadFromFile(str, dir+AnsiString("/Instance.txt").str);
         t_RPL.setInstanceText(str);
-
+*/
         //El mapa de RPs puede ser cargado de un archivo, o puede ser
         //determinado tras la asimilación mediante el método:
         //      void TRoboticPositioneer::GenerateMap(void);
@@ -319,9 +362,12 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir,
         //RPs of thetampon list must be destroyed here, because
         //the RPL is a list of pointers.
     }
-    catch(Exception& E) {
+    catch(ECantComplete& E) {
         E.Message.Insert(1, "reading instance of RPL: ");
         throw;
+    }
+    catch(Exception& E) {
+        throw EImproperFileLoadedValue("reading instance of RPL: " + E.Message.str);
     }
 }
 
@@ -333,9 +379,25 @@ void readInstanceFromDir(TRoboticPositionerList& RPL, const string& dir,
 void writeInstanceToDir(const string& dir, const TFiberMOSModel& FMM)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
+        //fuerza la creación del directorio
+        ForceDirectories(dir);
+
+        string str;
+        string path;
+        string aux;
+
         //escribe las demás propiedades de la instancia
         //en el archivo 'Instance.txt'
-        strWriteToFile(dir+"/Instance.txt", FMM.getInstanceText().str);
+        str = FMM.getInstanceText().str;
+        path = dir+"/Instance.txt";
+        if(isfile(path))
+            strReadFromFileWithComments(aux, path);
+        if(str != aux)
+            strWriteToFile(path, str);
 
         //escribe las instancias de las listas de objetos en el directorio
         writeInstanceToDir(dir, FMM.EAL);
@@ -351,6 +413,10 @@ void writeInstanceToDir(const string& dir, const TFiberMOSModel& FMM)
 void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         //contruye una variable tampón
         TFiberMOSModel t_FMM;
 
@@ -376,9 +442,12 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
         //ya que algunas de sus propiedades dependen de su posición
         //en la memoria. Sean los punteros de Adjacents.
     }
-    catch(Exception& E) {
+    catch(ECantComplete& E) {
         E.Message.Insert(1, "reading instance of FMM: ");
         throw;
+    }
+    catch(Exception& E) {
+        throw EImproperFileLoadedValue("reading instance of FMM: " + E.Message.str);
     }
 }
 
@@ -390,10 +459,23 @@ void readInstanceFromDir(TFiberMOSModel& FMM, const string& dir)
 void writeInstanceToDir(const string& dir, const TFiberConnectionModel& FCM)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
+        string str;
+        string path;
+        string aux;
+
         //fuerza la construcción del directorio
         mkpath(dir);
         //escribe la tabla de conexiones de la pseudoslit en el archivo correspondiente
-        strWriteToFile(dir+"/Connections.txt", FCM.getConnectionsText().str);
+        str = FCM.getConnectionsText().str;
+        path = dir+"/Connections.txt";
+        if(isfile(path))
+            strReadFromFile(aux, path);
+        if(str != aux)
+            strWriteToFile(path, str);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "writing instance of FCM: ");
@@ -405,6 +487,10 @@ void writeInstanceToDir(const string& dir, const TFiberConnectionModel& FCM)
 void readInstanceFromDir(TFiberConnectionModel& FCM, const string& dir)
 {
     try {
+        locale l;
+        if(l.name() != "C")
+            throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
         //lee la tabla de conexiones de la pseudoslit en una cadena de texto
         string str;
         strReadFromFile(str, dir+"/Connections.txt");
@@ -416,9 +502,12 @@ void readInstanceFromDir(TFiberConnectionModel& FCM, const string& dir)
         //clona la variable tampón
         FCM.Clone(t_FCM);
     }
-    catch(Exception& E) {
+    catch(ECantComplete& E) {
         E.Message.Insert(1, "reading instance of FCM: ");
         throw;
+    }
+    catch(Exception& E) {
+        throw EImproperFileLoadedValue("reading instance of FCM: " + E.Message.str);
     }
 }
 

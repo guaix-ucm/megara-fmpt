@@ -166,13 +166,12 @@ public:
     //contruye un clon de un azulejo
     TTile(TTile*);
 
-    //MÉTODOS DE COPIA
-
     //clona un axulejo
     void Copy(TTile*);
     TTile &operator=(const TTile&);
 
-    //MÉTODOS:
+    //asigna conjuntamente
+    void Set(int Id, double RA, double DEC, double R_);
 
     //mueve el azulejo al punto indicado
     void Move(double RA, double DEC);

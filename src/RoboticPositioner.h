@@ -272,13 +272,11 @@ public:
         double getDsec(void) const {return p_Dsec;}
         void setDsec(double);
 
-/*        //minimun real distance of the RP with their adjacents
-        //default value: DBL_MAX
-        double Dmin;
-        //minimun real end distance of the RP with their adjacents
-        //default value: DBL_MAX
-        double Dend;
-*/
+        //For avoid duplicity, here not must be declarated Dmin and Dend.
+        //Values of Dmin and Dend, will be get from the lists:
+        //  AdjacentEAs
+        //  AdjacentRPs
+
         //------------------------------------------------------------------
         //PROPERTIES IN TEXT FORMAT:
 
@@ -322,7 +320,23 @@ public:
 
         AnsiString getOperativeText(void) const;
 
-        //SETS OF PROPERTIES IN TEXT FORMAT:
+        //INSTANCE OF PROPERTIES IN TEXT FORMAT:
+
+        //contour of the arm
+        //in column text format
+        AnsiString getContour____Text(void) const;
+
+        //contour of the border
+        //in column text format
+        AnsiString getContour_Text(void) const;
+
+        //function F1
+        //in table text format
+        AnsiString getF1Text(void) const;
+
+        //function F2
+        //in table text format
+        AnsiString getF2Text(void) const;
 
         //set of R/W security properties
         //in assign text format
@@ -331,19 +345,21 @@ public:
         //in assign text format
         AnsiString getStatusText(void) const;
 
-        //set of all properties
-        //in assign text format
-        //AnsiString getAllText(void) const;
-
         //set of properties of the instance of the RP
         //in assign text format
         AnsiString getInstanceText(void) const;
         void setInstanceText(const AnsiString&);
 
+        //SETS OF PROPERTIES IN TEXT FORMAT:
+
         //set of minimun distances in text format
         AnsiString getDminsText(void) const;
         //set of final distances in text format
         AnsiString getDendsText(void) const;
+
+        //set of all properties
+        //in assign text format
+        AnsiString getAllText(void) const;
 
         //------------------------------------------------------------------
         //STATIC METHODS:
@@ -398,7 +414,7 @@ public:
         //  (Id, p_1, p___3)
         //to the end of a text string
         //in row text format
-        static void  printPositionPPARow(AnsiString& S,
+        static void  printPositionAnglesRow(AnsiString& S,
                                         TRoboticPositioner *FP);
 
         //lee una instancia en una cadena

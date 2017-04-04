@@ -126,6 +126,10 @@ public:
     AnsiString getTableText(void) const;
     void setTableText(const AnsiString&);
 
+    //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+
+    AnsiString getAllText(void) const;
+
     //MÉTODOS ESTÁTICOS:
 
     //imprime los puntos de una función en una cadena
@@ -177,7 +181,6 @@ public:
     //si es aperiódica en los puntos X = {0, 1, 2, ..., n-1}
     void Zeros(int n);
 
-    //        TFunction& operator=(TFunction &F); //copia una función
     TFunction& operator=(const TFunction &F); //copia una función
     bool operator==(const TFunction &F) const; //compara con una función
     bool operator!=(const TFunction &F) const; //compara con una función

@@ -140,9 +140,9 @@ public:
 
         //contruye un cuantificador
         TQuantificator(double q=1, double xmin=-1, double xmax=1);
-        //copia todas las propiedades de un cuantificador
-        void Copy(const TQuantificator*);
-        void Copy(const TQuantificator&);
+        //clona todas las propiedades de un cuantificador
+        void Clone(const TQuantificator*);
+        void Clone(const TQuantificator&);
         TQuantificator& operator=(const TQuantificator& Q);
         //construye un clon del cuantificador
         TQuantificator(const TQuantificator*);

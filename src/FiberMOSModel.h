@@ -38,16 +38,40 @@ namespace Models {
 //TFiberMOSModel
 //---------------------------------------------------------------------------
 
+//build a structure for anotate the colliding sets
+class TCollidingSet {
+public:
+    TVector<int> EAids;
+    TVector<int> RPids;
+};
+class TCSL : public TPointersList<TCollidingSet> {
+public:
+    bool findRP(int& i, int& j, const int id) const {
+        for(i=0; i<getCount(); i++)
+            for(j=0; j<Items[i]->RPids.getCount(); j++)
+                if(Items[i]->RPids[j] == id)
+                    return true;
+        return false;
+    }
+    bool findEA(int& i, int& j, const int id) const {
+        for(i=0; i<getCount(); i++)
+            for(j=0; j<Items[i]->EAids.getCount(); j++)
+                if(Items[i]->EAids[j] == id)
+                    return true;
+        return false;
+    }
+};
+
 //clase Fiber MOS Model
 class TFiberMOSModel {
 public:
         //------------------------------------------------------------------
         //LISTAS DE OBJETOS:
 
-        //lista de robots posicionadores
-        TRoboticPositionerList RPL;
         //lista de áreas de exclusión
         TExclusionAreaList EAL;
+        //lista de robots posicionadores
+        TRoboticPositionerList RPL;
 
         //------------------------------------------------------------------
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
@@ -114,7 +138,10 @@ public:
         //colisiona con el brazo de algún posicionador adyacente
         bool thereIsCollision(void);
 
-        //MÉTODOS RANDOMIZADO DE LOS EJES:
+        //imprime los elementos colisionados (EAs y RPs) en una lista de listas
+        void getCollidedText(string& str);
+
+/*        //MÉTODOS RANDOMIZADO DE LOS EJES:
 
         //lleva los ejes de los posicionadores a posiciones aleatorias
         //con distribución uniforme en sus dominios
@@ -126,7 +153,7 @@ public:
         //lleva el punto P3 de los posicionadores a posiciones aleatorias
         //con distribución uniforme en su dominio
         //en las que no colisionan entre si
-        void randomizeP3WithoutCollision(void);
+        void randomizeP3WithoutCollision(void);*/
 };
 
 //---------------------------------------------------------------------------

@@ -74,11 +74,36 @@ AnsiString TInstruction::getText(void) const
     //asigna el nombre de la instrucción
     S = getName();
 
-    //cncatena los argumentos de la intrucción en formato texto
+    //concatena los argumentos de la intrucción en formato texto
     for(int i=0; i<Args.getCount(); i++)
         S += AnsiString(" ")+Args.getItemsText(i);
 
     return S;
+}
+AnsiString TInstruction::getTextForComment(void) const
+{
+    //check preconditions
+    if(getName().str != "M1" && getName().str != "M2" && getName().str != "MM")
+        throw EImproperCall("instruction name should be in [M1, M2, MM]");
+    if(getName().str == "M1" && Args.getCount() != 1)
+        throw EImproperCall("insturction M1 should has one argument");
+    if(getName().str == "M2" && Args.getCount() != 1)
+        throw EImproperCall("insturction M2 should has one argument");
+    if(getName().str == "MM" && Args.getCount() != 2)
+        throw EImproperCall("insturction MM should has two argument");
+
+    //print the instruction
+    string str = "";
+    if(getName().str == "M1")
+        str = "r1 " + Args.getItemsText(0).str;
+    else if(getName().str == "M2")
+        str = "r2 " + Args.getItemsText(0).str;
+    else if(getName().str == "MM")
+        str = "r1 " + Args.getItemsText(0).str + ", r2 " + Args.getItemsText(1).str;
+    else
+        throw EImpossibleError("lateral effect");
+
+    return AnsiString(str);
 }
 
 void TInstruction::setText(const AnsiString &S)

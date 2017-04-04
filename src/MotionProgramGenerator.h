@@ -27,7 +27,7 @@
 
 #include "MotionProgramValidator.h"
 #include "AllocationList.h"
-#include "FMOSATable.h"
+#include "FMOSA.h"
 #include "FiberMOSModel.h"
 #include "MotionProgram.h"
 
@@ -372,17 +372,28 @@ public:
     //
     //- SPL (starting Position List): position of all RPs
     //  when a recovery program is going to be generated
-    //  or a ParkingProgram is going to be executed.
+    //  or a ParkProg is going to be executed.
+
+    //Note that all methods for generate motion programs, validate
+    //the motion programs applying the function considered unerring:
+    //  bool validateMotionProgram(TMotionProgram &MP) const;
 
     //Generates a recovery program for a given set of operative RPs
     //in insecurity positions and determines the RPs of the given set,
-    //which can not be recovered because are in collision status
+    //which can not be recovered because are in colliding status
     //or because are obstructed in insecurity positions.
+    //Inputs:
+    //  Outsiders: list of operative RPs in unsecurity positions which
+    //      we want recover the security positions.
+    //Outputs:
+    //  Collided: list of RPs collided in insecurity position.
+    //  Obstructed: list of RPs obstructed in insecurity position.
+    //  RecoveryProgram: the generated recovery program.
     //Preconditions:
     //  All RPs of the Fiber MOS Model:
     //    - shall be in their starting positions.
-    //    - shall be configurated for MP generation
-    //      (Purpose==pGenPairPPDP || Purpose==pGenParPro).
+    //    - shall be configurated for MP generation.
+    //      (Purpose == pGenPairPPDP || Purpose == pGenParPro).
     //  All RPs of the list Outsiders:
     //    - shall be in the Fiber MOS Model;
     //    - shall be operatives;
@@ -392,94 +403,66 @@ public:
     //  All RPs of the Fiber MOS Model:
     //    - will be in the starting positions.
     //    - will have enabled the quantifiers.
-    //Inputs:
-    //  FMM: Fiber MOS Model with RPs in their starting positions.
-    //  Outsiders: list of operative RPs in unsecurity positions which
-    //      we want recover the security positions.
-    //Outputs:
-    //  Collided: list of RPs collided in insecurity position.
-    //  Obstructed: list of RPs obstructed in insecurity position.
-    //  RcoveryProgram: the generated recovery program.
-    //Note:
-    //  The generated recovery program could be invalid, reason why
-    //  it shall be tested with the validation method.
-    void generateRecoveryProgram(TRoboticPositionerList& Collided,
-        TRoboticPositionerList& Obstructed, TMotionProgram& RecoveryProgram,
-        const TRoboticPositionerList& Outsiders);
+    void generateRecoveryProgram(
+        TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
+        TMotionProgram& RecoveryProgram, const TRoboticPositionerList& Outsiders);
 
     //Generates a depositioning program for a given set of operative RPs
     //in insecurity positions and determines the RPs of the given set,
-    //which can not be recovered because are in collision status
+    //which can not be recovered because are in colliding status
     //or because are obstructed in insecurity positions.
-    //Preconditions:
-    //  All RPs of the Fiber MOS Model:
-    //      - shall be in their starting positions.
-    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-    //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in insecurity positions.
-    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
-    //  approximately double that rotor 1 velocity.
-    //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for
-    //      validate a DP.
-    //  When the generated recovery program isn't valid:
-    //      All RPs of the FMM:
-    //          will have disabled the quantifiers of their rotors;
-    //          will be in the first position where the collision was detected
-    //              during the validation process.
-    //  When the generated recovery program is valid (even the trivial case):
-    //      All RPs of the FMM:
-    //          will have enabled the quantifiers of their rotors;
-    //          will be in their final positions.
     //Inputs:
-    //  FiberMOSModel: Fiber MOS Model with RPs in their starting positions.
     //  Outsiders: list of operative RPs in unsecurity positions which
-    //      we want recover the security positions.
+    //      we want recover the origin positions.
     //Outputs:
     //  generateDepositioningProgram: indicates if the generated DP is valid.
     //  Collided: list of RPs collided in insecurity position.
     //  Obstructed: list of RPs obstructed in insecurity position.
     //  DP: the generated depositioning program.
-    bool generateDepositioningProgram(TRoboticPositionerList& Collided,
-        TRoboticPositionerList& Obstructed, TMotionProgram& DP,
-        const TRoboticPositionerList& Outsiders);
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model:
+    //    - shall be in their starting positions.
+    //  All RPs of the list Outsiders:
+    //    - shall be in the Fiber MOS Model.
+    //    - shall be operatives.
+    //    - shall be in insecurity positions.
+    //    - shall have enabled the quantifiers.
+    //    - shall have velocity of rotor 2 approximately double than rotor 1.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model:
+    //    - will be configured for validate a DP. (Purpose == pValDP).
+    //  When the generated depositioning program isn't valid:
+    //      All RPs of the FMM:
+    //        - will have disabled the quantifiers of their rotors;
+    //        - will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated depositioning program is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //        - will have enabled the quantifiers of their rotors;
+    //        - will be in their final positions.
+    bool generateDepositioningProgram(
+        TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
+        TMotionProgram& DP, const TRoboticPositionerList& Outsiders);
 
     //Generates a positioning program from a given depositioning program.
-    //Preconditions:
-    //  All RPs included in the OPL shall be in the FMM.
-    //  All RPs included in the DP shall be in the FMM.
     //Inputs:
     //  DP: depositioning program.
     //  OPL: observing position list.
     //Outputs:
     //  PP: the generated positioning program.
+    //Preconditions:
+    //  All RPs included in the OPL shall be in the FMM.
+    //  All RPs included in the DP shall be in the FMM.
     void generatePositioningProgram(TMotionProgram& PP,
         const TMotionProgram& DP, const TPairPositionAnglesList& OPL);
 
     //Generates a pair (PP, DP) for a given set of operative RPs
     //in insecurity positions and determines the RPs of the given set,
-    //which can not be recovered because are in collision status
+    //which can not be recovered because are in colliding status
     //or because are obstructed in insecurity positions.
-    //Preconditions:
-    //  All RPs of the Fiber MOS Model:
-    //      - shall be in their observing positions.
-    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-    //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in insecurity positions.
-    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-    //  All RPs of the list Outsiders, shall have a rotor 2 velocity
-    //  approximately double that rotor 1 velocity.
-    //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for
-    //      validate a PP.
-    //  All RPs of the fiber MOS Model will be in their final positions,
-    //  or the first position where the collision was detected.
-    //  All RPs of the Fiber MOS Model will have disabled the quantifiers.
     //Inputs:
-    //  FiberMOSModel: Fiber MOS Model with RPs in their observing positions.
     //  Outsiders: list of operative RPs in unsecurity positions which
-    //      we want recover the security positions.
+    //      we want move.
     //Outputs:
     //  PPvalid: flag indicating if the generated PP is valid.
     //  DPvalid: flag indicating if the generated DP is valid.
@@ -487,49 +470,76 @@ public:
     //  Obstructed: list of RPs obstructed in insecurity position.
     //  PP: the generated positioning program.
     //  DP: the generated depositioning program.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model:
+    //    - shall be in their observing positions.
+    //  All RPs of the list Outsiders:
+    //    - shall be in the Fiber MOS Model.
+    //    - shall be operatives.
+    //    - shall be in insecurity positions.
+    //    - shall have enabled the quantifiers.
+    //    - shall have velocity of rotor 2 approximately double than rotor 1.
+    //Postconditions:
+    //  All RPs of the Fiber MOS Model:
+    //    - will be configured for validate a PP. (Purpose = pValPP).
+    //    - will have disabled the quantifiers.
+    //  When the generated pair (PP, DP) isn't valid:
+    //      All RPs of the FMM:
+    //        - will have disabled the quantifiers of their rotors;
+    //        - will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated pair (PP, DP) is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //        - will have enabled the quantifiers of their rotors;
+    //        - will be in their initial positions.
     void generatePairPPDP(bool& PPvalid, bool& DPvalid,
         TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
         TMotionProgram& PP, TMotionProgram& DP,
         const TRoboticPositionerList& Outsiders);
 
-    //Generates a depositioning program for a given set of operative RPs
+    //Generates a parking program for a given set of operative RPs
     //in insecurity positions and determines the RPs of the given set,
-    //which can not be recovered because are in collision status
+    //which can not be recovered because are in colliding status
     //or because are obstructed in insecurity positions.
-    //Preconditions:
-    //  All RPs of the Fiber MOS Model:
-    //      - shall be in their starting positions.
-    //  All RPs of the list Outsiders, shall be in the Fiber MOS Model.
-    //  All RPs of the list Outsiders, shall be operatives.
-    //  All RPs of the list Outsiders, shall be in insecurity positions.
-    //  All RPs of the list Outsiders, shall have enabled the quantifiers.
-    //Postconditions:
-    //  All RPs of the Fiber MOS Model will be configured for
-    //      validate a parking program.
-    //  When the generated recovery program isn't valid:
-    //      All RPs of the FMM:
-    //          will have disabled the quantifiers of their rotors;
-    //          will be in the first position where the collision was detected
-    //              during the validation process.
-    //  When the generated recovery program is valid (even the trivial case):
-    //      All RPs of the FMM:
-    //          will have enabled the quantifiers of their rotors;
-    //          will be in their final positions.
     //Inputs:
-    //  FiberMOSModel: Fiber MOS Model with RPs in their starting positions.
     //  Outsiders: list of operative RPs in unsecurity positions which
     //      we want recover the security positions.
     //Outputs:
     //  generateDepositioningProgram: indicates if the generated DP is valid.
     //  Collided: list of RPs collided in insecurity position.
     //  Obstructed: list of RPs obstructed in insecurity position.
-    //  ParkingProgram: the generated parking program.
-    bool generateParkingProgram(TRoboticPositionerList& Collided,
-        TRoboticPositionerList& Obstructed, TMotionProgram& ParkingProgram,
-        const TRoboticPositionerList& Outsiders);
+    //  ParkProg: the generated parking program.
+    //Preconditions:
+    //  All RPs of the Fiber MOS Model:
+    //    - shall be in their starting positions.
+    //  All RPs of the list Outsiders:
+    //    - shall be in the Fiber MOS Model.
+    //    - shall be operatives.
+    //    - shall be in insecurity positions.
+    //    - shall have enabled the quantifiers.
+    //Postconditions:
+    //  All RPs of the FMM:
+    //    - will be configured for validate a parking program.
+    //  When the generated recovery program isn't valid:
+    //      All RPs of the FMM:
+    //        - will have disabled the quantifiers of their rotors;
+    //        - will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated recovery program is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //        - will have enabled the quantifiers of their rotors;
+    //        - will be in their final positions.
+    bool generateParkProg(
+        TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,
+        TMotionProgram& ParkProg, const TRoboticPositionerList& Outsiders);
 
     //-----------------------------------------------------------------------
-    //METHODS FOR REGENERATE MPs:
+    //METHODS FOR REGENERATE MPs IN LIMITED SENSE:
+
+    //Functions for attempt regenerate a pair (PP, DP) in limited sense
+    //was developed for restrictive circunstances where the motion programs
+    //can not be changed. For regenerate a pair (PP, DP) in not limited sense
+    //use the same function for generate the pair (PP, DP) generatePairPPDP.
 
     //A not operative RP is a simple case if:
     //1. The replacement RP exist and be available:
@@ -582,7 +592,7 @@ public:
     //  4. Not has been allocated in other CB.
     //  5. Has been indicated that the point must be allocated in all CBs.
 
-    //The FMOSA table contains the following data by each observing source:
+    //The FMOSA contains the following data by each observing source:
     //
     //SP properties:
     //string Name;        //name ("")                 (can be empty)
@@ -661,30 +671,42 @@ public:
                            TMotionProgram& PP, TMotionProgram& DP) const;
 };
 
-//FUNCTIONS TO BE USED ONLINE BY MCS:
+/*****************************************************************************
+//FUNCTIONS TO BE USED ONLINE BY MCS (2015):
 
-//WARNING: online generating functions has the following diferences
-//respect the offline functions:
+//Online functions are declared bellow. They can be summarized as follow:
+//  ParkProgValid = generateParkProg_online(ParkProg, FMM, p_1s, p___3s, Ids);
+//  PairPPDPValid = generatePairPPDP_online(PP, DP, FMM, p_1s, p___3s, Ids);
+
+//Really all arguments of the online functions are included in the FMM,
+//so argument p_1s, p___3s and Ids are innecessary. Furthermore these
+//functions don't return neither Collided list nor Obstructed list,
+//so it is not possible to know which RPs are collided or obstructed.
+//These circunstances was warned to the programmer of the MCS, but he
+//insisted do this in this way.
+
+//Online generating functions has the following diferences respect
+//the offline functions:
 //   1. The online functions must have the FMM how argument, because
 //      the instance of the FMM can't be loaded in this functions.
 //
 //   2. The messages indicating status of the process can't be printed
-//      (either in the standard output nor the log file). Then can't be
-//      warned the following circunstances:
+//      (neither in the standard output nor the log file).
+//      So can't be warned the following circunstances:
 //          If all operative outsider RPs are in the origins:
 //              the generated motion program/s will be empty;
 //          else, if there isn't operative outsider RPs:
 //              the generated motion program/s will contains a single
 //              message-instruction list,
 //
-//   3. The lists Collided and Obstructed are determined but they are discarted.
+//   3. The lists Collided and Obstructed are determined but they aren't returned.
 //      Then could have collided or obstructed RPs, but it is not possible know
 //      whiches.
 //
 //   4. The online functions include the list of RPs to be disabled.
 //
 //These are the reasons why is preferible implemt the offline functions
-//at independ whay and not based on the inline functions.
+//at independ whay and not based on the online functions.
 
 //Generates a parking program.
 //Inputs:
@@ -693,34 +715,34 @@ public:
 //  p___3s: the rotor 2 starting positions of all RPs of the FMM.
 //  Ids: the identifiers of the RPs of the FMM to be disabled.
 //Outputs:
-//  generateParkingProgram_online: indicates if the generated parking program is valid.
-//  ParkingProgram: the parking program to be generated.
+//  generateParkProg_online: indicates if the generated parking program is valid.
+//  ParkProg: the parking program to be generated.
 //Preconditions:
 //  All operative outsider RPs of the FMM:
-//      shall be in the Fiber MOS Model;
-//      shall be operatives;
-//      shall be in insecurity positions;
-//      shall have enabled the quantifiers;
+//    - shall be in the Fiber MOS Model;
+//    - shall be operatives;
+//    - shall be in insecurity positions;
+//    - shall have enabled the quantifiers;
 //  All position angles in the vector p_1s:
-//      must be in the rotor 1 domain of their corresponding RP.
+//    - must be in the rotor 1 domain of their corresponding RP.
 //  All position angles in the vector p___3s:
-//      must be in the rotor 2 domain of their corresponding RP.
+//    - must be in the rotor 2 domain of their corresponding RP.
 //  All identifiers in the vector Ids:
-//      must be referred to RPs in the FMM.
+//    - must be referred to RPs in the FMM.
 //Postconditions:
 //  The RPs indicated in the list Ids will be disabled.
 //  All RPs of the Fiber MOS Model will be configured for
-//      validate a parking program.
+//    - validate a parking program. (Purpose = valParPro).
 //  When the generated recovery program isn't valid:
 //      All RPs of the FMM:
-//          will have disabled the quantifiers of their rotors;
-//          will be in the first position where the collision was detected
+//        - will have disabled the quantifiers of their rotors;
+//        - will be in the first position where the collision was detected
 //              during the validation process.
 //  When the generated recovery program is valid (even in the trivial case):
 //      All RPs of the FMM:
-//          will have enabled the quantifiers of their rotors;
-//          will be in their final positions.
-bool generateParkingProgram_online(TMotionProgram& ParkingProgram,
+//        - will have enabled the quantifiers of their rotors;
+//        - will be in their final positions.
+bool generateParkProg_online(TMotionProgram& ParkProg,
     TFiberMOSModel& FMM,
     const vector<double>& p_1s, const vector<double>& p___3s,
     const vector<int>& Ids);
@@ -737,33 +759,194 @@ bool generateParkingProgram_online(TMotionProgram& ParkingProgram,
 //  DP: the depositioning program to be generated.
 //Preconditions:
 //  All operative outsider RPs of the FMM:
-//      shall be in the Fiber MOS Model;
-//      shall be operatives;
-//      shall be in insecurity positions;
-//      shall have enabled the quantifiers;
+//    - shall be in the Fiber MOS Model;
+//    - shall be operatives;
+//    - shall be in insecurity positions;
+//    - shall have enabled the quantifiers;
 //  All position angles in the vector p_1s:
-//      must be in the rotor 1 domain of their corresponding RP.
+//    - must be in the rotor 1 domain of their corresponding RP.
 //  All position angles in the vector p___3s:
-//      must be in the rotor 2 domain of their corresponding RP.
+//    - must be in the rotor 2 domain of their corresponding RP.
 //  All identifiers in the vector Ids:
-//      must be referred to RPs in the FMM.
+//    - must be referred to RPs in the FMM.
 //Postconditions:
 //  The RPs indicated in the list Ids will be disabled.
 //  All RPs of the Fiber MOS Model will be configured for
-//      validate a PP.
-//  When the generated DP program isn't valid:
+//    - validate a PP. (Purpose = valPP).
+//  When the generated pair (PP, DP) isn't valid:
 //      All RPs of the FMM:
-//          will have disabled the quantifiers of their rotors;
-//          will be in the first position where the collision was detected
+//        - will have disabled the quantifiers of their rotors;
+//        - will be in the first position where the collision was detected
 //              during the validation process.
-//  When the generated DP is valid (even in the trivial case):
+//  When the generated pair (PP, DP) is valid (even in the trivial case):
 //      All RPs of the FMM:
-//          will have enabled the quantifiers of their rotors;
-//          will be in their initial positions.
+//        - will have enabled the quantifiers of their rotors;
+//        - will be in their initial positions.
 bool generatePairPPDP_online(TMotionProgram& PP, TMotionProgram& DP,
     TFiberMOSModel& FMM,
     const vector<double>& p_1s, const vector<double>& p___3s,
     const vector<int>& Ids);
+*****************************************************************************/
+
+//############################################################################
+//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH 2017)
+//OUTPUTS IN STRUCTURE FORMAT:
+
+class OutputsParkProg;
+
+//Generate a parking program online
+//Inputs:
+//  FMMI_dir: dir of the FMM Instance
+//  p_1s: the rotor 1 starting positions of all RPs of the FMM.
+//  p___3s: the rotor 2 starting positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  outputs: structure OutputsParkProg.
+//  generateParkProg_online:
+//    - true: the generated parking program has passed the validation
+//      process, so it is safe that it not produces a dynamic collission.
+//      moreover there aren't enabled-not-operative RPs with dynamic fault,
+//      but could have either collided or obstructed RPs.
+//    - false: either the generated parking program has not passed
+//      the validation process, so it is not safe that it not produces
+//      a dynamic collission, or there are enabled-not-operative RPs
+//      with dynamic fault.
+bool generateParkProg_online(OutputsParkProg& outputs,
+        const string& FMMI_dir,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid);
+
+class OutputsPairPPDP;
+
+//Generate a pair (PP, DP) online
+//Inputs:
+//  FMMI_dir: dir of the FMM Instance
+//  p_1s: the rotor 1 observing positions of all RPs of the FMM.
+//  p___3s: the rotor 2 observing positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  outputs: structure OutputsPairPPDP (without FMOSA).
+//  generatePairPPDP_online:
+//    - true: the generated pair (PP, DP) has passed the validation
+//      process, so it is safe that it not produces a dynamic collission.
+//      moreover there aren't enabled-not-operative RPs with dynamic fault,
+//      and there aren't neither collided nor obstructed RPs.
+//    - false: some of above conditions are not meet.
+bool generatePairPPDP_online(OutputsPairPPDP& outputs,
+        const string& FMMI_dir,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid);
+
+//############################################################################
+//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH 2017)
+//OUTPUTS IN STRING FORMAT:
+
+//Generate a parking program online
+//Inputs:
+//  FMMI_dir: dir of the FMM Instance
+//  p_1s: the rotor 1 starting positions of all RPs of the FMM.
+//  p___3s: the rotor 2 starting positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//  Bid: identifier of the block.
+//Outputs:
+//  outputs_str: structure OutputsParkProg in format string.
+//  generateParkProg_online:
+//    - true: the generated parking program has passed the validation
+//      process, so it is safe that it not produces a dynamic collission.
+//      moreover there aren't enabled-not-operative RPs with dynamic fault,
+//      but could have either collided or obstructed RPs.
+//    - false: either the generated parking program has not passed
+//      the validation process, so it is not safe that it not produces
+//      a dynamic collission, or there are enabled-not-operative RPs
+//      with dynamic fault.
+bool generateParkProg_online(string& outputs_str,
+        const string& FMMI_dir,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid);
+
+//Generate a pair (PP, DP) online
+//Inputs:
+//  FMMI_dir: dir of the FMM Instance
+//  p_1s: the rotor 1 observing positions of all RPs of the FMM.
+//  p___3s: the rotor 2 observing positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//  Bid: identifier of the block.
+//Outputs:
+//  outputs_str: structure OutputsPairPPDP in format string (without FMOSA).
+//  generatePairPPDP_online:
+//    - true: the generated pair (PP, DP) has passed the validation
+//      process, so it is safe that it not produces a dynamic collission.
+//      moreover there aren't enabled-not-operative RPs with dynamic fault,
+//      and there aren't neither collided nor obstructed RPs.
+//    - false: some of above conditions are not meet.
+bool generatePairPPDP_online(string& outputs_str,
+        const string& FMMI_dir,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid);
+
+//############################################################################
+//Precondition and their exceptions:
+//  EImproperCall       locale information shall be set to minimal C locale
+//      (you can make this calling "setlocale(LC_ALL, "C");")
+//  EImproperFileLoadedValue: directory FMMI_dir shall contains
+//      a valid FMM Instance.
+//  EImproperArgument   vector p_1s should has one position
+//      for each RP of the FMM
+//  EImproperArgument   vector p___3s should has one position
+//      for each RP of the FMM
+//  EImproperArgument   all position angles indicated in (p_1, p___3)
+//      shall be in the domain of their respectives rotors of the RPs
+//  EImproperArgument   vector RPids shall contains exclusively
+//      RP's identifiers of the FMM
+//
+//Exceptions EImproperFileLoadedValue will start with: "writing instance: "
+//All exception are dervied from "Excetion" which is derived from "exception".
+//
+//Posconditions:
+//  The stored FMM Instance can be changed.
+//So maybe you need administrator provileges for execute these functions.
+//############################################################################
+
+//############################################################################
+//WARNING!
+//
+//In function generateParkProg_online:
+//- if in the FMM there are enabled-not-operative RPs, will be generated
+//  with an initial uncommented note for difficult their execution.
+//- both collided and obstructed RPs will be excluded from
+//  the generated parking program.
+//
+//In function generatePairPPDP_online:
+//- if in the FMM there are enabled not operative RPs, will be generated
+//  with an initial uncommented note for difficult their execution.
+//- both collided and obstructed RPs shall be disabled, because
+//  the pair (PP, DP) can't be re-generated including either
+//  collided or obstructed RPs.
+//
+//So in functions online, it is responsability of the user, determine the RPs
+//to be disabled, and to be conscious of the RPs icluded in the generated MPs.
+//
+//For determine the list of RPs included in a generated parking program
+//or a re-generated pair (PP, DP), you can use the following functions:
+//
+//  //Get the list of RPs included in a MP.
+//  //Precondition:
+//  //  All message of instruction in the MP shall be addressed
+//  //  to an existent RP of the Fiber MOS Model.
+//  void getRPsIncludedInMP(TRoboticPositionerList& RPL,
+//                          const TMotionProgram& MP,
+//                          const TFiberMOSModel *FMM);
+//
+//  //Get the list of RPs included in a pair of MPs.
+//  //Precondition:
+//  //  All message of instruction in the MPs shall be addressed
+//  //  to an existent RP of the Fiber MOS Model.
+//  void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
+//                       const TMotionProgram& MP1, const TMotionProgram& MP2,
+//                       const TFiberMOSModel *FMM);
+//
+//For use this functions maybe you need include 'MotionProgramValidator.h'.
+//############################################################################
 
 //---------------------------------------------------------------------------
 

@@ -1,0 +1,5 @@
+make clean;
+./autoclear.sh;
+./autogen.sh;
+./configure;
+make -j;

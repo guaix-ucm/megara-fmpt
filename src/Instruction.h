@@ -118,6 +118,11 @@ public:
     //instrucción en formato de linea de texto
     //      "Name Arg1 Arg2..."
     AnsiString getText(void) const; void setText(const AnsiString&);
+    //instrucción en formato de linea de texto para comentario
+    //      "r1 Arg1"           (Name == M1)
+    //      "r2 Arg2"           (Name == M2)
+    //      "r1 Arg1, r2 Arg2"  (Name == MM)
+    AnsiString getTextForComment(void) const;
 
     //MÉTODOS ESTÁTICOS:
 

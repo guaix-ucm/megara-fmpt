@@ -752,6 +752,33 @@ TDoublePoint Rotate(TDoublePoint P, TDoublePoint Q, double a)
     return R;
 }
 
+//rotate a bidimensional vector 90 degrees
+TDoublePoint rotate90(TDoublePoint v)
+{
+    TDoublePoint v_(-v.y, v.x);
+    return v_;
+}
+
+//determine the versor in the middle of two vectors
+//when ArgPos(v1) == ArgPos(v2)
+//  return TDoublePoint(cos(ArgPos(v1)), sin(ArgPos(v1)))
+TDoublePoint middleVersor(TDoublePoint v1, TDoublePoint v2)
+{
+    double theta1 = ArgPos(v1);
+    double theta2 = ArgPos(v2);
+
+    double theta;
+    if(theta1 < theta2)
+        theta = (theta1 + theta2)/2;
+    else if(theta1 > theta2)
+        theta = (theta1 + theta2 + M_2PI)/2;
+    else //theta1 == theta2
+        theta = theta1;
+
+    TDoublePoint v(cos(theta), sin(theta));
+    return v;
+}
+
 //---------------------------------------------------------------------------
 //Funciones con vectores tridimensionales:
 

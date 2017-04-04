@@ -1084,6 +1084,10 @@ TCilinder::TCilinder(TDoublePoint P0, double thetaO1) :
 
     //INICIALIZA LAS PROPIEDADES DE CUANTIFICACIÓN:
 
+    //nombra las funciones
+    p_F.Label = "F1";
+    p_G.Label = "G1";
+
     //añade los puntos de la función de compresión
     p_F.Add(-M_2PI, -double(MEGARA_SB1));
     p_F.Add(0., 0.);
@@ -1173,7 +1177,8 @@ void TCilinder::copyLocation(const TCilinder *C)
     //copia las propiedades
     p_P0 = C->p_P0;
 }
-void TCilinder::copyCilinder(const TCilinder *C)
+//clona todas las propiedades de un cilindro
+void TCilinder::cloneCilinder(const TCilinder *C)
 {
     //comprueba las precondiciones
     if(C == NULL)
@@ -1184,8 +1189,8 @@ void TCilinder::copyCilinder(const TCilinder *C)
     copyOrientationRadians(C);
     copyQuantification(C);
     copyLocation(C);
-    p_Arm->copy(C->p_Arm);
-    p_Barrier->copy(C->p_Barrier);
+    p_Arm->clone(C->p_Arm);
+    p_Barrier->clone(C->p_Barrier);
 }
 
 //build a clone of a cilinder
@@ -1199,8 +1204,8 @@ TCilinder::TCilinder(const TCilinder *C)
     p_Arm = new TArm(newP1(), getthetaO1() - M_PI);
     p_Barrier = new TBarrier(getP0(), getthetaO1());
 
-    //copia todas las propiedades del cilindro
-    copyCilinder(C);
+    //clona todas las propiedades del cilindro
+    cloneCilinder(C);
 }
 
 //libera la memoria dinámica del posicionador de fibra
@@ -1465,7 +1470,7 @@ void TCilinder::moveOrigin(TDoublePoint P0, double thetaO1)
     //modifica la posición y orientación del origen de coordenadas del brazo
 
     //cambia la posición y orientación del origen de coordenadas del brazo
-    getArm()->set(newP1(), getthetaO1() - gettheta_1() - M_PI);
+    getArm()->set(newP1(), getthetaO3());
 }
 
 //asigna conjuntamente theta_1 y theta___3
@@ -1491,7 +1496,7 @@ void TCilinder::setAnglesRadians(double theta_1, double theta___3)
         //modifica la posición y orientación del origen de coordenadas del brazo
 
         //mueve el brazo
-        getArm()->set(newP1(), getthetaO1() - gettheta_1() - M_PI, theta___3);
+        getArm()->set(newP1(), getthetaO3(), theta___3);
     }
 }
 
@@ -1500,7 +1505,7 @@ void TCilinder::setAnglesSteps(double p_1, double p___3)
 {
     //comprueba las precondiciones
     if(isntInDomainp_1(p_1))
-        throw EImproperArgument("angle p_1 should be in [thata_1min, thata_1max]");
+        throw EImproperArgument("angle p_1 should be in [p_1min, p_1max]");
     if(getArm()->isntInDomainp___3(p___3))
         throw EImproperArgument("angle p___3 should be in [p___3min, p___3max]");
 
@@ -1522,7 +1527,7 @@ void TCilinder::setAnglesSteps(double p_1, double p___3)
         //modifica la posición y orientación del origen de coordenadas del brazo
 
         //mueve el brazo
-        getArm()->set(newP1(), getthetaO1() - gettheta_1() - M_PI, theta___3);
+        getArm()->set(newP1(), getthetaO3(), theta___3);
     }
 }
 
@@ -1564,7 +1569,7 @@ void TCilinder::addAnglesRadians(double at_1, double at__3)
         //modifica la posición y orientación del origen de coordenadas del brazo
 
         //mueve el brazo
-        getArm()->set(newP1(), getthetaO1() - gettheta_1() - M_PI, theta___3);
+        getArm()->set(newP1(), getthetaO3(), theta___3);
     }
 }
 //añade conjuntamente 'a_1' y 'a___3' a 'p_1' y 'p___3'
@@ -1602,7 +1607,7 @@ void TCilinder::addAnglesSteps(double ap_1, double ap___3)
         //modifica la posición y orientación del origen de coordenadas del brazo
 
         //mueve el brazo
-        getArm()->set(newP1(), getthetaO1() - gettheta_1() - M_PI, theta___3);
+        getArm()->set(newP1(), getthetaO3(), theta___3);
     }
 }
 
@@ -1677,7 +1682,7 @@ bool TCilinder::anglesToGoP_3(double &theta_1, double &theta___3,
         else if(x__ > 1)
             x__ = 1;
         //obtiene la posición del rotor 2
-        theta___3 = acos(x__);
+        theta___3 = acos(x__) + M_PI - gettheta_O3o();
     }
 
     //determina si los posiciones de los rotores están dentro de sus dominios
@@ -2149,7 +2154,7 @@ bool TCilinder::pointIsOutDomainP_3(TDoublePoint P_)
     if(anglesToGoP_3(theta_1, theta___3, r_, theta_))
         return false; //indica que no está fuera
 
-    return true; //sindica que está fuera
+    return true; //indica que está fuera
 }
 
 //determina si el punto P está dentro del dominio de P3

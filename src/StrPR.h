@@ -159,14 +159,14 @@ void strTravelLabel(const string& label, const string& str, unsigned int& i);
 //lee de S una cadena hasta que encuentra ';'
 //void StrReadSentence(AnsiString &Sentence, const AnsiString &S, int &i);
 
-//segrega la subcadena desde la posición indicada hasta el final
+/*//segrega la subcadena desde la posición indicada hasta el final
 //si encuentra un caracter no separador lanza una excepción EImproperArgument
 //i quedará indicando a la posúltima posición
 //void StrReadToEnd(AnsiString &SubS, const AnsiString &S, int &i);
 //atraviesa la subcadena desde la posición indicada hasta el final
 //si encuentra un caracter no separador lanza una excepción EImproperArgument
 //i quedará indicando a la posúltima posición
-void StrTravelToEnd(const AnsiString&, int&);
+void StrTravelToEnd(const AnsiString&, int&);*/
 //recorre una cadena desde la posición indicada
 //hasta que encuentra un caracter no separador
 void StrTravelSeparatorsIfAny(const AnsiString&, int&);
@@ -299,7 +299,18 @@ void ReadVector (TStringList *SL, const AnsiString &S,
     char c1='(', char c2=')');  */
 
 //---------------------------------------------------------------------------
-//Funciones para fecha-hora
+//FUNCTIONS FOR DATE-TIME:
+
+//translate from time_t to string in format en_EN
+string strfromtime_t(time_t, string format = "%a, %d/%m/%Y %H:%M:%S");
+
+//for get the current date-time in format time_t:
+//  time_t t = time(NULL);
+
+//Function:
+//  time_t time(time_t *time);
+//returns the current calendar time of the system in number of seconds
+//elapsed since January 1, 1970. If the system has no time, .1 is returned.
 
 //Para traducir de QString a QDateTime, existen los métodos:
 //  QDateTime	fromString(const QString & string, Qt::DateFormat format = Qt::TextDate)
@@ -312,7 +323,7 @@ void ReadVector (TStringList *SL, const AnsiString &S,
 //Por otra parte TDateTime mantenía homología con double.
 //En el caso de QDteTime, la homología se mantiene con uint.
 //TDateTime era convertido automáticamente a double y viceversa.
-//En el caso de QDateTime existen las funciones sigueintes:
+//En el caso de QDateTime existen las funciones siguientes:
 //  void	setTime_t(uint seconds)
 //  uint	toTime_t() const
 //  QDateTime	fromTime_t(uint seconds)

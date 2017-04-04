@@ -91,6 +91,9 @@ int strNextChar(const string &str, int i);
 //busca en str, a partir de i, el caracter previo imprimible distinto de espacio
 //si no lo encuentrsa devuelve la preprimera posición
 int strPreviousChar(const string &str, int i);
+//busca, a partir de la posición indicada, la primera sbcadena entre dos caracteres
+//si no la encuentra devuelve la cadena vacía
+string strBetweenChars(const string& str, const unsigned int i, const char c1, const char c2);
 
 //invierte el orden de los elementos de una cadena
 void StrFlip(AnsiString &S);
@@ -180,7 +183,7 @@ char strFirstNonseparatorChar(const string&);
 void StrFill(AnsiString &S, int length, char c);
 //insert a char in the indicated position of a text string
 //to get the intended length
-AnsiString strInsertChar(const AnsiString& S, int length,
+AnsiString StrInsertChar(const AnsiString& S, int length,
                         int i=1, char c='0');
 
 //ERROR: usar en StrFill la 'L' como nombre de variable provoca el error:

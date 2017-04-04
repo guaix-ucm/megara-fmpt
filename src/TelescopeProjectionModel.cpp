@@ -360,11 +360,17 @@ AnsiString TTelescopeProjectionModel::getAssignsText(void) const
 void TTelescopeProjectionModel::setAssignsText(const AnsiString &S)
 {
     try {
+        //lee desde la primera posición de la cadena
         int i = 1;
         ReadAssigns(this, S, i);
-        StrTravelToEnd(S, i);
 
-    } catch(...) {
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text setting telescope projection model in assign text format");
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "setting telescope projection model in assign text format");
         throw;
     }
 }

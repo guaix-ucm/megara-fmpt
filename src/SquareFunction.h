@@ -80,11 +80,11 @@ public:
 
         //inicializa {vmax=vmaxabs, tini=0, tfin=0}
         //y asimila los parámetros
-        TSquareFunction(double vmaxabs);
-        //clona una función cuadrada
-        TSquareFunction(TSquareFunction*);
-        //copia todas las propiedades una función cuadrada
-        void Copy(TMotionFunction *SquareFunction);
+        TSquareFunction(const double vmaxabs);
+        //clona todas las propiedades una función cuadrada
+        void Clone(const TMotionFunction *SquareFunction);
+        //construye un clon de una función cuadrada
+        TSquareFunction(const TSquareFunction*);
 
         //initalize all properties except (vmaxabs)
         void reset(void);

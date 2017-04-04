@@ -27,10 +27,12 @@
 #include "FiberMOSModelConstants.h"
 #include "Strings.h"
 #include "TextFile.h"
+#include "Geometry.h"
 
 //---------------------------------------------------------------------------
 
 using namespace Strings;
+using namespace Mathematics;
 
 //espacio de nombres de modelos
 namespace Models {
@@ -245,18 +247,18 @@ TBarrier::TBarrier(TDoublePoint P0, double thetaO1) :
     p_SPM = MEGARA_Eo*getr_max() + MEGARA_Ep;
 }
 
-//copia una barrera
-void TBarrier::copy(const TBarrier *B)
+//clona una barrera
+void TBarrier::clone(const TBarrier *B)
 {
     //comprueba las precondiciones
     if(B == NULL)
-        throw EImproperArgument("pointer B ahould point to built barrier");
+        throw EImproperArgument("pointer B should point to built barrier");
 
-    p_Contour_.Copy(B->getContour_());
+    p_Contour_.Clone(B->getContour_());
     p_r_max = B->getr_max();
     p_P0 = B->getP0();
     p_thetaO1 = B->getthetaO1();
-    p_Contour.Copy(B->getContour());
+    p_Contour.Clone(B->getContour());
     p_SPM = B->getSPM();
 }
 
@@ -265,9 +267,9 @@ TBarrier::TBarrier(const TBarrier *B)
 {
     //comprueba las precondiciones
     if(B == NULL)
-        throw EImproperArgument("pointer B ahould point to built barrier");
+        throw EImproperArgument("pointer B should point to built barrier");
 
-    copy(B); //copia todas las propiedades
+    clone(B); //clona todas las propiedades
 }
 //libera la memoria dinámica
 TBarrier::~TBarrier()
@@ -345,7 +347,7 @@ bool TBarrier::operator!=(const TBarrier& B) const
     return false;
 }
 
-//cambia la posición y orientación
+//establece la posición y orientación
 //del origen de coordenadas simultaneamente
 void TBarrier::set(TDoublePoint P0, double thetaO1)
 {
@@ -355,6 +357,12 @@ void TBarrier::set(TDoublePoint P0, double thetaO1)
 
     //asimila las propiedades de posición y orientación
     calculateImage();
+}
+
+//obtiene el contorno del perímetro de seguridad de la barrera
+void TBarrier::getSecurityContour(TContourFigureList& securityContour)
+{
+    getContour().getSecurityContour(securityContour, getSPM());
 }
 
 //-------------------------------------------------------------------

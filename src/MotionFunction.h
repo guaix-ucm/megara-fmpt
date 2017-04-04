@@ -178,11 +178,11 @@ public:
         //inicializa las propiedades a sus valores por defecto
         TMotionFunction(void);
 
-        //copia todas las propiedades de una función de movimiento
-        virtual void Copy(TMotionFunction*) = 0;
+        //clona todas las propiedades de una función de movimiento
+        virtual void Clone(const TMotionFunction*) = 0;
 
         //construye un clon de una función de movimiento
-        TMotionFunction(TMotionFunction*);
+        TMotionFunction(const TMotionFunction*);
 
         //destruye una función de movimiento
         virtual ~TMotionFunction() = 0;

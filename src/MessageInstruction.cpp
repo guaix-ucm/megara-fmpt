@@ -45,19 +45,19 @@ void TMessageInstruction::setId(int Id)
     p_Id = Id;
 }
 
-void TMessageInstruction::setComment1(const string& Comment1)
+void TMessageInstruction::setCommentDsec(const string& CommentDsec)
 {
-    p_Comment1 = Comment1;
+    p_CommentDsec = CommentDsec;
 }
 
-void TMessageInstruction::setComment2(const string& Comment2)
+void TMessageInstruction::setCommentDmin(const string& CommentDmin)
 {
-    p_Comment2 = Comment2;
+    p_CommentDmin = CommentDmin;
 }
 
-void TMessageInstruction::setComment3(const string& Comment3)
+void TMessageInstruction::setCommentDend(const string& CommentDend)
 {
-    p_Comment3 = Comment3;
+    p_CommentDend = CommentDend;
 }
 
 //PUBLIC PROPERTIES IN TEXT FORMAT:
@@ -80,15 +80,25 @@ AnsiString TMessageInstruction::getText(void) const
 {
     return getIdText()+AnsiString(": ")+Instruction.getText();
 }
+AnsiString TMessageInstruction::getTextForComment(void) const
+{
+    return AnsiString("rp")+getIdText()+AnsiString(", ")+Instruction.getTextForComment();
+}
 
 void TMessageInstruction::setText(const AnsiString &S)
 {
     try {
+        //read the message instruction from the first position
         int i = 1;
         Read(this, S, i);
-        StrTravelToEnd(S, i);
+
+        //search unexpected text
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text translating string to message instruction");
+
     } catch(Exception& E) {
-        E.Message.Insert(1, "setting message instruction in text format: ");
+        E.Message.Insert(1, "translating string to message instruction: ");
         throw;
     }
 }
@@ -251,7 +261,7 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
     try {
         //tampon variables
         int RPId1, RPId2;
-        double p_1, p___3;
+        double r1, r2;
 
         strTravelSeparatorsIfAny(str, i);
         strTravelLabel("rp", str, i);
@@ -259,7 +269,7 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
         strTravelSeparators(str, i);
         strTravelLabel("r1", str, i);
         strTravelSeparators(str, i);
-        strReadFloat(p_1, str, i);
+        strReadFloat(r1, str, i);
         strTravelSeparators(str, i);
         strTravelLabel("rp", str, i);
         strReadInt(RPId2, str, i);
@@ -270,7 +280,7 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
         strTravelSeparators(str, i);
         strTravelLabel("r2",str, i);
         strTravelSeparators(str, i);
-        strReadFloat(p___3, str, i);
+        strReadFloat(r2, str, i);
 
         if(RPId1 < 0)
             throw EImproperArgument("RP identifier should be nonnegative");
@@ -280,8 +290,8 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
         //set the tampon variables
         MI->Instruction.setName("MM");
         MI->Instruction.Args.setCount(2);
-        MI->Instruction.Args[0] = p_1;
-        MI->Instruction.Args[1] = p___3;
+        MI->Instruction.Args[0] = r1;
+        MI->Instruction.Args[1] = -r2;
         MI->setId(RPId1);
 
     } catch(Exception& E) {
@@ -294,12 +304,12 @@ void  TMessageInstruction::readInterface(TMessageInstruction *MI,
 
 //build a MI by default
 TMessageInstruction::TMessageInstruction(void) :
-    p_Id(0), p_Comment1(""), p_Comment2(""), p_Comment3(""), Instruction()
+    p_Id(0), p_CommentDsec(""), p_CommentDmin(""), p_CommentDend(""), Instruction()
 {
 }
 //build a MI with the indicated values
 TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
-    p_Comment1(""), p_Comment2(""), p_Comment3(""), Instruction()
+    p_CommentDsec(""), p_CommentDmin(""), p_CommentDend(""), Instruction()
 {
     try {
         setId(Id);
@@ -311,7 +321,7 @@ TMessageInstruction::TMessageInstruction(int Id, AnsiString InstructionText) :
 }
 //clone a MI
 TMessageInstruction::TMessageInstruction(TMessageInstruction *MI) :
-    p_Id(), p_Comment1(), p_Comment2(), p_Comment3(""), Instruction()
+    p_Id(), p_CommentDsec(), p_CommentDmin(), p_CommentDend(""), Instruction()
 {
     try {
         Copy(MI);
@@ -331,9 +341,9 @@ void TMessageInstruction::Copy(const TMessageInstruction *MI)
     //copia las propiedades
     p_Id = MI->p_Id;
     Instruction = MI->Instruction;
-    p_Comment1 = MI->p_Comment1;
-    p_Comment2 = MI->p_Comment2;
-    p_Comment3 = MI->p_Comment3;
+    p_CommentDsec = MI->p_CommentDsec;
+    p_CommentDmin = MI->p_CommentDmin;
+    p_CommentDend = MI->p_CommentDend;
 }
 //assign the properties of a MI
 TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &MI)
@@ -341,9 +351,9 @@ TMessageInstruction& TMessageInstruction::operator=(const TMessageInstruction &M
     //copia las propiedades
     p_Id = MI.p_Id;
     Instruction = MI.Instruction;
-    p_Comment1 = MI.p_Comment1;
-    p_Comment2 = MI.p_Comment2;
-    p_Comment3 = MI.p_Comment3;
+    p_CommentDsec = MI.p_CommentDsec;
+    p_CommentDmin = MI.p_CommentDmin;
+    p_CommentDend = MI.p_CommentDend;
 
     //devuelve una referencia a este mensaje para poder concatenar asignaciones
     return *this;
@@ -358,13 +368,13 @@ bool TMessageInstruction::operator!=(const TMessageInstruction& MI) const
     if(Instruction != MI.Instruction)
         return true;
 
-    if(getComment1() != MI.getComment1())
+    if(getCommentDsec() != MI.getCommentDsec())
         return true;
 
-    if(getComment2() != MI.getComment2())
+    if(getCommentDmin() != MI.getCommentDmin())
         return true;
 
-    if(getComment3() != MI.getComment3())
+    if(getCommentDend() != MI.getCommentDend())
         return true;
 
     return false;

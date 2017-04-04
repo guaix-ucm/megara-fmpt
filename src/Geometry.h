@@ -119,45 +119,54 @@ int intersectionCircumCircum(TDoublePoint &P1, TDoublePoint &P2,
 //---------------------------------------------------------------------------
 //INTERSECCIÓN ENTRE PARTES DE FIGURAS:
 
-//determina si hay intersección entre los segmentos (Pa, Pb), (Qa, Qb)
-//si los segmentos se intersecan calcula el punto de intersección P
-//si los segmentos no se intersecan devuelve falso
-bool intersectionSegmentSegment(TDoublePoint &P,
-    TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Qa, TDoublePoint Qb);
-//determina si hay intersección entre el segmento (Pa, Pb) y
-//el círculo (Pc, R)
+//Los arcos (pa, pb, pc, r) son de circunferencia en sentido levógiro
+//desde el vértice pa al vértice pb con centro en pc y radio r.
+
+//determina si hay intersección entre el segmento (pa1, pb1)
+//y el segmento (pa2, pb2)
+//si hay intersección devuelve el punto de intersección p
 //si no hay intersección devuelve falso
-bool intersectionSegmentCircle(TDoublePoint Pa, TDoublePoint Pb,
-                               TDoublePoint Pc, double R);
-//determina si hay intersección entre el segmento (Pa, Pb) y
-//el arco de circunferencia (Pc, R, Pfin, Pini) en sentido levógiro
+bool intersectionSegmentSegment(TDoublePoint& p,
+        TDoublePoint pa1, TDoublePoint pb1,
+        TDoublePoint pa2, TDoublePoint pb2);
+
+//determina si hay intersección entre el segmento (pa1, pb1)
+//y el círculo (pc2, r2)
 //si no hay intersección devuelve falso
-bool intersectionSegmentArc(TDoublePoint Pa, TDoublePoint Pb,
-    TDoublePoint Pfin, TDoublePoint Pini, TDoublePoint Pc, double R);
-//determina si hay intersección entre el arco (Pfin, Pini, Pc, R) y
-//el segmento (Pa, Pb) en sentido levógiro
+bool intersectionSegmentCircle(TDoublePoint pa1, TDoublePoint pb1,
+                               TDoublePoint pc2, double r2);
+//determina si hay intersección entre el segmento (pa1, pb1)
+//y el arco (P2a, pb2, pc2, r2)
 //si no hay intersección devuelve falso
-bool intersectionArcSegment(TDoublePoint Pfin, TDoublePoint Pini,
-    TDoublePoint Pc, double R, TDoublePoint Pa, TDoublePoint Pb);
+bool intersectionSegmentArc(
+        TDoublePoint pa1, TDoublePoint pb1,
+        TDoublePoint pa2, TDoublePoint pb2, TDoublePoint pc2, double r2);
+
+//determina si hay intersección entre el arco (pa1, pb1, pc1, r1)
+//y el segmento (pa2, pb2)
+//si no hay intersección devuelve falso
+bool intersectionArcSegment(
+        TDoublePoint pa1, TDoublePoint pb1, TDoublePoint pc1, double r1,
+        TDoublePoint pa2, TDoublePoint pb2);
 
 //determina si hay intersección entre
-//el círculo (Pc1, R1) y el círculo (Pc2, R2)
-bool intersectionCircleCircle(TDoublePoint Pc1, double R1,
-                              TDoublePoint Pc2, double R2);
+//el círculo (pc1, r1) y el círculo (pc2, r2)
+//si no hay intersección devuelve falso
+bool intersectionCircleCircle(TDoublePoint pc1, double r1,
+                              TDoublePoint pc2, double r2);
 
-//determina si hay intersección entre
-//el arco de circunferencia (Pa, Pb, Pc, R1)
-//la circunferencia (Qa, R2)
+//determina si hay intersección entre el arco (pa1, pb1, pc1, r1)
+//y la circunferencia (pc2, r2)
 bool intersectionArcCircunference(
-        TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R1,
-        TDoublePoint Qc, double R2);
-//determina si hay intersección entre
-//el arco de circunferencia (Pc1, R1, Pfin1, Pini1) en sentido levógiro y
-//el arco de circunferencia (Pc2, R2, Pfin2, Pini2) en sentido levógiro
+    TDoublePoint pa1, TDoublePoint pb1, TDoublePoint pc1, double r1,
+    TDoublePoint pc2, double r2);
+
+//determina si hay intersección entre el arco pa1, pb1, pc1, r1)
+//y el arco (pa2, pb2, pc2, r2)
 //si no hay intersección devuelve falso
 bool intersectionArcArc(
-        TDoublePoint Pfin1, TDoublePoint Pini1, TDoublePoint Pc1, double R1,
-        TDoublePoint Pfin2, TDoublePoint Pini2, TDoublePoint Pc2, double R2);
+    TDoublePoint pa1, TDoublePoint pb1, TDoublePoint pc1, double r1,
+    TDoublePoint pa2, TDoublePoint pb2, TDoublePoint pc2, double r2);
 
 /*//---------------------------------------------------------------------------
 //INTERSECCIÓN ENTRE CIRCUNFERENCIA Y LA FRONTERA DE FIGURAS:

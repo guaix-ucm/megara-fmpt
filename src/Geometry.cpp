@@ -393,109 +393,114 @@ int intersectionCircumCircum(TDoublePoint &P1, TDoublePoint &P2,
 //---------------------------------------------------------------------------
 //INTERSECCIÓN ENTRE PARTES DE FIGURAS:
 
-//determina si hay intersección entre los segmentos (Pa, Pb), (Qa, Qb)
-//si los segmentos se intersecan calcula el punto de intersección P
-//si los segmentos no se intersecan devuelve falso
-bool intersectionSegmentSegment(TDoublePoint &P,
-                                TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Qa, TDoublePoint Qb)
+//determina si hay intersección entre el segmento (pa1, pb1)
+//y el segmento (pa2, pb2)
+//si hay intersección devuelve el punto de intersección p
+//si no hay intersección devuelve falso
+bool intersectionSegmentSegment(TDoublePoint& p,
+        TDoublePoint pa1, TDoublePoint pb1,
+        TDoublePoint pa2, TDoublePoint pb2)
 {
-    double denom = Det(Pa-Pb, Qa-Qb);
+    double denom = Det(pa1-pb1, pa2-pb2);
 
     if(denom == 0) //si el determinante es cero
         return false; //indica que las rectas son paralelas
     else { //si el determinante es distinto de cero
         //calcula los coeficientes (a1, b1)
-        double a1 = -Det(Pb-Qb, Qa-Qb)/denom;
-        double b1 = Det(Qb-Pb, Pa-Pb)/denom;
+        double a1 = -Det(pb1-pb2, pa2-pb2)/denom;
+        double b1 = Det(pb2-pb1, pa1-pb1)/denom;
 
-        if(b1<=0 || 1<=b1 || a1<=0 || 1<=a1) //si los segmentos no se cortan
+        if(b1<=0 || 1<=b1 || a1<=0 || 1<=a1)
             return false; //indica que no se intersecan
 
         else { //si los segmentos se cortan
-            P = a1*Pa + (1-a1)*Pb; //calcula el punto
+            p = a1*pa1 + (1-a1)*pb1; //calcula el punto
             return true; //indica que se intersecan en un punto
         }
     }
 }
 
-//determina si hay intersección entre el segmento (Pa, Pb) y
-//el círculo (Pc, R)
+//determina si hay intersección entre el segmento (pa1, pb1)
+//y el círculo (pc2, r2)
 //si no hay intersección devuelve falso
-bool intersectionSegmentCircle(TDoublePoint Pa, TDoublePoint Pb,
-                               TDoublePoint Pc, double R)
+bool intersectionSegmentCircle(TDoublePoint pa1, TDoublePoint pb1,
+                               TDoublePoint pc2, double r2)
 {
     //si alguno de los puntos está a una distancia R de Pc, o menor
-    if(distanceSegmentPoint(Pa, Pb, Pc) <= R)
+    if(distanceSegmentPoint(pa1, pb1, pc2) <= r2)
         return true; //indica que hay intersección
 
     return false; //indica que no hay intersección
 }
 
-//determina si hay intersección entre el segmento (Pa, Pb) y
-//el arco de circunferencia (Pc, R, Pfin, Pini) en sentido levógiro
+//determina si hay intersección entre el segmento (pa1, pb1)
+//y el arco (P2a, pb2, pc2, r2)
 //si no hay intersección devuelve falso
-bool intersectionSegmentArc(TDoublePoint Pa, TDoublePoint Pb,
-                            TDoublePoint Pfin, TDoublePoint Pini, TDoublePoint Pc, double R)
+bool intersectionSegmentArc(
+        TDoublePoint pa1, TDoublePoint pb1,
+        TDoublePoint pa2, TDoublePoint pb2, TDoublePoint pc2, double r2)
 {
     //comprueba las precondiciones
-    if(Pa == Pb)
-        throw EImproperArgument("Pa should be unequal Pb");
-    if(R <= 0)
-        throw EImproperArgument("R should be upper zero");
-    if(Pfin == Pc)
-        throw EImproperArgument("Pfin should be unequal Pc");
-    if(Pini == Pc)
-        throw EImproperArgument("Pini should be unequal Pc");
+    if(pa1 == pb1)
+        throw EImproperArgument("pa1 should be unequal pb1");
+    if(r2 <= 0)
+        throw EImproperArgument("r2 should be upper zero");
+    if(pa2 == pc2)
+        throw EImproperArgument("pa2 should be unequal pc2");
+    if(pb2 == pc2)
+        throw EImproperArgument("pb2 should be unequal pc2");
 
     //calcula los puntos de intersección
-    TDoublePoint P1, P2;
-    bool intersection = intersectionLineCircum(P1, P2, Pa, Pb, Pc, R);
+    TDoublePoint p1, p2;
+    bool intersection = intersectionLineCircum(p1, p2, pa1, pb1, pc2, r2);
 
     if(!intersection) //si no llegan a tocarse
         return false; //indica que no hay intersección
 
-    //determina si el punto P1 está en el segmento y en el arco
-    if(pointIsInOpenStrip(P1, Pa, Pb) && pointIsInOpenAngle(P1, Pfin, Pini, Pc))
+    //determina si el punto p1 está en el segmento y en el arco
+    if(pointIsInOpenStrip(p1, pa1, pb1) && pointIsInOpenAngle(p1, pa2, pb2, pc2))
         return true;
 
-    //determina si el punto P2 está en el segmento y en el arco
-    if(pointIsInOpenStrip(P2, Pa, Pb) && pointIsInOpenAngle(P2, Pfin, Pini, Pc))
+    //determina si el punto p2 está en el segmento y en el arco
+    if(pointIsInOpenStrip(p2, pa1, pb1) && pointIsInOpenAngle(p2, pa2, pb2, pc2))
         return true;
 
     return false; //indica que no hay intersección
 }
-//determina si hay intersección entre el arco (Pfin, Pini, Pc, R) y
-//el segmento (Pa, Pb) en sentido levógiro
+
+//determina si hay intersección entre el arco (pa1, pb1, pc1, r1)
+//y el segmento (pa2, pb2)
 //si no hay intersección devuelve falso
-bool intersectionArcSegment(TDoublePoint Pfin, TDoublePoint Pini,
-                            TDoublePoint Pc, double R, TDoublePoint Pa, TDoublePoint Pb)
+bool intersectionArcSegment(
+        TDoublePoint pa1, TDoublePoint pb1, TDoublePoint pc1, double r1,
+        TDoublePoint pa2, TDoublePoint pb2)
 {
-    return intersectionSegmentArc(Pa, Pb, Pfin, Pini, Pc, R);
+    return intersectionSegmentArc(pa2, pb2, pa1, pb1, pc1, r1);
 }
 
 //determina si hay intersección entre
-//el círculo (Pc1, R1) y el círculo (Pc2, R2)
-bool intersectionCircleCircle(TDoublePoint Pc1, double R1,
-                              TDoublePoint Pc2, double R2)
+//el círculo (pc1, r1) y el círculo (pc2, r2)
+//si no hay intersección devuelve falso
+bool intersectionCircleCircle(TDoublePoint pc1, double r1,
+                              TDoublePoint pc2, double r2)
 {
     //si la distancia entre los centros es
     //menor o igual a la suma de los radios
-    if(Mod(Pc2 - Pc1) <= R1+R2)
+    if(Mod(pc2 - pc1) <= r1+r2)
         return true; //indica que si hay intersección
 
     return false; //indica que no hay intersección
 }
 
-//determina si hay intersección entre
-//el arco de circunferencia (Pa, Pb, Pc, R1)
-//la circunferencia (Qc, R2)
+//determina si hay intersección entre el arco (pa1, pb1, pc1, r1)
+//y la circunferencia (pc2, r2)
 bool intersectionArcCircunference(
-        TDoublePoint Pa, TDoublePoint Pb, TDoublePoint Pc, double R1,
-        TDoublePoint Qc, double R2)
+    TDoublePoint pa1, TDoublePoint pb1, TDoublePoint pc1, double r1,
+    TDoublePoint pc2, double r2)
 {
     //calcula los puntos de intersección entre las dos circunferencias
-    TDoublePoint P1, P2;
-    int relpos = intersectionCircumCircum(P1, P2, Pc, R1, Qc, R2);
+    TDoublePoint p1, p2;
+    int relpos = intersectionCircumCircum(p1, p2, pc1, r1, pc2, r2);
 
     if(relpos < 4) //si no llegan ni a atocarse
         return false; //indica que no hay intersección
@@ -506,27 +511,27 @@ bool intersectionArcCircunference(
     //      6: secantes
 
     //si el punto P1 está en el arco
-    if(pointIsInOpenAngle(P1, Pa, Pb, Pc))
+    if(pointIsInOpenAngle(p1, pa1, pb1, pc1))
         return true; //indica que si hay intersección
 
-    if(relpos >= 6) //si son secantes, P2 será distinto de P1
-        //si el punto P2 está en el arco
-        if(pointIsInOpenAngle(P2, Pa, Pb, Pc))
+    if(relpos >= 6) //si son secantes, P2 será distinto de p1
+        //si el punto p2 está en el arco
+        if(pointIsInOpenAngle(p2, pa1, pb1, pc1))
             return true; //indica que si hay intersección
 
     return false; //indica que no hay intersección
 }
-//determina si hay intersección entre
-//el arco de circunferencia (Pc1, R1, Pfin1, Pini1) en sentido levógiro y
-//el arco de circunferencia (Pc2, R2, Pfin2, Pini2) en sentido levógiro
+
+//determina si hay intersección entre el arco pa1, pb1, pc1, r1)
+//y el arco (pa2, pb2, pc2, r2)
 //si no hay intersección devuelve falso
 bool intersectionArcArc(
-        TDoublePoint Pfin1, TDoublePoint Pini1, TDoublePoint Pc1, double R1,
-        TDoublePoint Pfin2, TDoublePoint Pini2, TDoublePoint Pc2, double R2)
+    TDoublePoint pa1, TDoublePoint pb1, TDoublePoint pc1, double r1,
+    TDoublePoint pa2, TDoublePoint pb2, TDoublePoint pc2, double r2)
 {
     //calcula los puntos de intersección entre las dos circunferencias
-    TDoublePoint P1, P2;
-    int relpos = intersectionCircumCircum(P1, P2, Pc1, R1, Pc2, R2);
+    TDoublePoint p1, p2;
+    int relpos = intersectionCircumCircum(p1, p2, pc1, r1, pc2, r2);
 
     if(relpos < 4) //si no llegan ni a atocarse
         return false; //indica que no hay intersección
@@ -536,15 +541,13 @@ bool intersectionArcArc(
     //      5: tangentes exteriormente
     //      6: secantes
 
-    //si el punto P1 está en los dos arcos
-    if(pointIsInOpenAngle(P1, Pfin1, Pini1, Pc1) &&
-            pointIsInOpenAngle(P1, Pfin2, Pini2, Pc2))
+    //si el punto p1 está en los dos arcos
+    if(pointIsInOpenAngle(p1, pa1, pb1, pc1) && pointIsInOpenAngle(p1, pa2, pb2, pc2))
         return true; //indica que si hay intersección
 
-    if(relpos >= 6) //si son secantes, P2 será distinto de P1
-        //si el punto P2 está en los dos arcos
-        if(pointIsInOpenAngle(P2, Pfin1, Pini1, Pc1) &&
-                pointIsInOpenAngle(P2, Pfin2, Pini2, Pc2))
+    if(relpos >= 6) //si son secantes, p2 será distinto de p1
+        //si el punto p2 está en los dos arcos
+        if(pointIsInOpenAngle(p2, pa1, pb1, pc1) && pointIsInOpenAngle(p2, pa2, pb2, pc2))
             return true; //indica que si hay intersección
 
     return false; //indica que no hay intersección

@@ -1074,7 +1074,7 @@ void TComposedMotionFunction::setInstanceText(const AnsiString& S)
             throw EImproperArgument("string S should contain the instance value only");
 
         //asigna la variable tampón
-        Copy(CMF);
+        Clone(CMF);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "setting instance to CMF in text format: ");
@@ -1174,7 +1174,7 @@ void  TComposedMotionFunction::ReadInstance(TComposedMotionFunction *CMF,
         t_CMF.setId2(aux_i);
 
         //clona la variable tampón
-        CMF->Copy(t_CMF);
+        CMF->Clone(t_CMF);
     }
     catch(Exception& E) {
         E.Message.Insert(1, "reading instance of the CMF: ");
@@ -1218,23 +1218,22 @@ TComposedMotionFunction::TComposedMotionFunction(void) :
     p_MF1 = NULL;
     p_MF2 = NULL;
 
-    //This values will be overwritten wirh the loaded instance values.
+    //This values will be overwritten with the loaded instance values.
 }
 
-//copia todas las propiedades de una función de movimiento compuesta
-void TComposedMotionFunction::Copy(const TComposedMotionFunction *CMF)
+//clona todas las propiedades de una función de movimiento compuesta
+void TComposedMotionFunction::Clone(const TComposedMotionFunction *CMF)
 {
-    //debe apuntar un objeto construido
     if(CMF == NULL)
-        throw EImproperArgument("pointer CMF should not be null");
+        throw EImproperArgument("pointer CMF should point to built composed motion function");
 
-    //COPIA TODAS LAS PROPIEDADES:
+    //CLONA TODAS LAS PROPIEDADES:
 
-    //copia las funciones
-    p_SF1->Copy(CMF->p_SF1);
-    p_SF2->Copy(CMF->p_SF2);
-    p_RF1->Copy(CMF->p_RF1);
-    p_RF2->Copy(CMF->p_RF2);
+    //clona las funciones
+    p_SF1->Clone(CMF->p_SF1);
+    p_SF2->Clone(CMF->p_SF2);
+    p_RF1->Clone(CMF->p_RF1);
+    p_RF2->Clone(CMF->p_RF2);
 
     //copia los selectores
     p_MFM = CMF->p_MFM;
@@ -1268,13 +1267,13 @@ void TComposedMotionFunction::Copy(const TComposedMotionFunction *CMF)
     //copia la etiqueta de la función
     p_Label = CMF->p_Label;
 }
-void TComposedMotionFunction::Copy(const TComposedMotionFunction& CMF)
+void TComposedMotionFunction::Clone(const TComposedMotionFunction& CMF)
 {
     //copia las funciones
-    p_SF1->Copy(CMF.p_SF1);
-    p_SF2->Copy(CMF.p_SF2);
-    p_RF1->Copy(CMF.p_RF1);
-    p_RF2->Copy(CMF.p_RF2);
+    p_SF1->Clone(CMF.p_SF1);
+    p_SF2->Clone(CMF.p_SF2);
+    p_RF1->Clone(CMF.p_RF1);
+    p_RF2->Clone(CMF.p_RF2);
 
     //copia los selectores
     p_MFM = CMF.p_MFM;
@@ -1316,45 +1315,14 @@ TComposedMotionFunction::TComposedMotionFunction(const TComposedMotionFunction *
     if(CMF == NULL)
         throw EImproperArgument("pointer CMF should not be null");
 
-    //COPIA TODAS LAS PROPIEDADES:
+    //construye las funciones
+    p_SF1 = new TSquareFunction(1);
+    p_SF2 = new TSquareFunction(1);
+    p_RF1 = new TRampFunction(1, 1);
+    p_RF2 = new TRampFunction(1, 1);
 
-    //clona las funciones
-    p_SF1 = new TSquareFunction(CMF->p_SF1);
-    p_SF2 = new TSquareFunction(CMF->p_SF2);
-    p_RF1 = new TRampFunction(CMF->p_RF1);
-    p_RF2 = new TRampFunction(CMF->p_RF2);
-
-    //copia los selectores
-    p_MFM = CMF->p_MFM;
-    p_SSM = CMF->p_SSM;
-    p_RSM = CMF->p_RSM;
-
-    //copia los instantes de inicio de desplazamiento
-    p_tsta1 = CMF->p_tsta1;
-    p_tsta2 = CMF->p_tsta2;
-
-    //copia los identificadores de las microcontroladoras
-    p_Id1 = CMF->p_Id1;
-    p_Id2 = CMF->p_Id2;
-
-    //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF->p_MF1 == CMF->p_SF1)
-        p_MF1 = p_SF1;
-    else if(CMF->p_MF1 == CMF->p_RF1)
-        p_MF1 = p_RF1;
-    else //solo podrá tener NULL, pero para no arastrar posibles errores
-        p_MF1 = CMF->p_MF1; //se copia el valor literalmente
-
-    //apunta a las mismas funciones homónimas que el objeto a clonar
-    if(CMF->p_MF2 == CMF->p_SF2)
-        p_MF2 = p_SF2;
-    else if(CMF->p_MF2 == CMF->p_RF2)
-        p_MF2 = p_RF2;
-    else //solo podrá tener NULL, pero para no arastrar posibles errores
-        p_MF2 = CMF->p_MF2; //se copia el valor literalmente
-
-    //copia la etiqueta de la función
-    p_Label = CMF->p_Label;
+    //clona todas las propiedades
+    Clone(CMF);
 }
 
 //destruye una función de movimiento compuesta

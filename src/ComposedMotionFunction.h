@@ -357,9 +357,9 @@ public:
     //construye una función de movimiento compuesta
     TComposedMotionFunction(void);
 
-    //copia todas las propiedades de una función de movimiento compuesta
-    void Copy(const TComposedMotionFunction*);
-    void Copy(const TComposedMotionFunction&);
+    //clona todas las propiedades de una función de movimiento compuesta
+    void Clone(const TComposedMotionFunction*);
+    void Clone(const TComposedMotionFunction&);
 
     //contruye un clon de una función de movimiento compuesta
     TComposedMotionFunction(const TComposedMotionFunction*);

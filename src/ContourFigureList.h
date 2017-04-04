@@ -49,83 +49,97 @@ namespace Models {
 //clase lista de figuras de contorno
 class TContourFigureList : public TItemsList<TContourFigure*> {
 public:
-        //-------------------------------------------------------------------
-        //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
+    //-------------------------------------------------------------------
+    //MÉTODOS DE CONSTRUCCIÓN, COPIA Y CLONACIÓN:
 
-        //construye una lista de figuras
-        TContourFigureList(int Capacity=8);
+    //construye una lista de figuras
+    TContourFigureList(int Capacity=8);
 
-        //ADVERTENCIA:
-        //al derivar TContourFigureList de TItemsList<TContourFigure*>
-        //los objetos a los que apuntan sus punteros deberán ser destruidos
-        //manualmente antes de destruir el último puntero que los apunte.
+    //ADVERTENCIA:
+    //al derivar TContourFigureList de TItemsList<TContourFigure*>
+    //los objetos a los que apuntan sus punteros deberán ser destruidos
+    //manualmente antes de destruir el último puntero que los apunte.
 
-        //copia una lista de figuras
-        void Copy(const TContourFigureList&);
-        TContourFigureList& operator=(const TContourFigureList&);
+    //copia una lista de figuras
+    void Copy(const TContourFigureList&);
+    TContourFigureList& operator=(const TContourFigureList&);
 
-        //WARNING: Copy must be written wit upcase
-        //for mask the inherited method Copy.
+    //WARNING: Copy must be written wit upcase
+    //for mask the inherited method Copy.
 
-        //construye un clon de una lista de figuras
-        TContourFigureList(const TContourFigureList &Contour);
+    //clona una lista de figuras
+    void Clone(const TContourFigureList&);
 
-        //determina si una CFL es distinta
-        bool operator!=(const TContourFigureList&) const;
+    //construye un clon de una lista de figuras
+    TContourFigureList(const TContourFigureList &Contour);
 
-        //MÉTODOS DE CARACTERIZACIÓN:
+    //determina si una CFL es distinta
+    bool operator!=(const TContourFigureList&) const;
 
-        //determina si todos los punteros de la lista son nulos
-        bool areAllNULL(void) const;
+    //MÉTODOS DE CARACTERIZACIÓN:
 
-        //determina si la lista de figuras constituye un contorno ordenado
-        //comprobando que:
-        //- La lista contiene al menos dos figuras.
-        //- Cada figura se encuentra engarzada con la siguiente.
-        //- Ningún vértice siguiente coincide con el vértice inicial
-        //  de otra figura previa, excepto el de la última figura,
-        //  que coincide con el inicial de la primera figura.
-        //- Ninguna figura se interseca con las demás.
-        bool isAContourSorted(void) const;
+    //determina si todos los punteros de la lista son nulos
+    bool areAllNULL(void) const;
+    //determina si todas las figuras de la lista son segmentos y archos
+    bool notAllFiguresAreEitherSegmentsOrArcs(void) const;
 
-        //ADVERTENCIA: por ahora IsAContourSorted está comprobando solamente
-        //que:
-        //- La lista contiene al menos dos figuras.
-        //- Cada figura se encuentra engarzada con la siguiente.
+    //Determina si la lista de figuras constituye un contorno ordenado
+    //comprobando que:
+    //- La lista contiene al menos dos figuras.
+    //- Cada figura se encuentra engarzada con la siguiente.
+    //- Ningún vértice siguiente coincide con el vértice inicial
+    //  de otra figura previa, excepto el de la última figura,
+    //  que coincide con el inicial de la primera figura.
+    //- Ninguna figura se interseca con las demás.
+    //Determina además el estado de inversión de las figuras que
+    //se encuentren interconectadas desde la primera.
+    bool isAContourSorted(void) const;
 
-        //MÉTODOS DE CÁLCULO DE DISTANCIAS CON EL CONTORNO:
+    //ADVERTENCIA: por ahora IsAContourSorted está comprobando solamente
+    //que:
+    //- La lista contiene al menos dos figuras.
+    //- Cada figura se encuentra engarzada con la siguiente.
 
-        //determina la distancia mínima de un punto a este contorno
-        double distanceMin(TDoublePoint P) const;
-        //determina la distancia máxima de un punto a este contorno
-        double distanceMax(TDoublePoint P) const;
-        //determina la distancia mínima de un contorno a este contorno
-        double distanceMin(const TContourFigureList&) const;
+    //determina el estado de inversión de todas las figuras de la lista
+    //tomando como punto inicial el Pa de la primera figura
+    void determineInverted(void);
 
-        //MÉTODOS DE DETERMINACIÓN DE INTERSECCIÓN:
+    //MÉTODOS DE CÁLCULO DE DISTANCIAS CON EL CONTORNO:
 
-        //determina si la distancia de una lista de figuras
-        //a esta lista de figuras es inferior
-        //al margen perimetral de seguridad SPM.
-        bool collides(const TContourFigureList &C, double SPM) const;
+    //determina la distancia mínima de un punto a este contorno
+    double distanceMin(TDoublePoint P) const;
+    //determina la distancia máxima de un punto a este contorno
+    double distanceMax(TDoublePoint P) const;
+    //determina la distancia mínima de un contorno a este contorno
+    double distanceMin(const TContourFigureList&) const;
 
-        //Se advierte que la función que determina el estado de colisión
-        //puede tener un tiempo de procesado medio ligeramente inferior
-        //a la de determinación de la distancia, por que la colisión se
-        //detecta a mayor distancia que la distancia igual a cero.
+    //MÉTODOS DE DETERMINACIÓN DE INTERSECCIÓN:
 
-        //determina si un punto está en el interior del contorno
-        bool isInner(TDoublePoint P) const;
+    //determina si la distancia de una lista de figuras
+    //a esta lista de figuras es inferior
+    //al margen perimetral de seguridad SPM.
+    bool collides(const TContourFigureList &C, double SPM) const;
 
-        //MÉTODOS DE TRANSFORMACIONES GEOMÉTRICAS:
+    //Se advierte que la función que determina el estado de colisión
+    //puede tener un tiempo de procesado medio ligeramente inferior
+    //a la de determinación de la distancia, por que la colisión se
+    //detecta a mayor distancia que la distancia igual a cero.
 
-        //obtiene la lista de figuras rotada y trasladada.
-        //si el número de figuras de la lista no coincide:
-        //      lanza EImproperArgument
-        //si alguna figuradelalista no es del mimo tipo
-        //      lanza EImproperArgument
-        void getRotatedAndTranslated(TContourFigureList &Contour,
-                double theta, TDoublePoint V) const;
+    //determina si un punto está en el interior del contorno
+    bool isInner(TDoublePoint P) const;
+
+    //MÉTODOS DE TRANSFORMACIONES GEOMÉTRICAS:
+
+    //obtiene la lista de figuras rotada y trasladada.
+    //si el número de figuras de la lista no coincide:
+    //      lanza EImproperArgument
+    //si alguna figuradelalista no es del mimo tipo
+    //      lanza EImproperArgument
+    void getRotatedAndTranslated(TContourFigureList &Contour,
+                                 double theta, TDoublePoint V) const;
+
+    //obtiene el contorno del perímetro de seguridad externo
+    void getSecurityContour(TContourFigureList& contour, double SPM) const;
 };
 
 //--------------------------------------------------------------------------

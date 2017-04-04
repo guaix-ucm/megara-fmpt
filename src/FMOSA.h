@@ -17,15 +17,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FMOSATable.h
-//Content: FMOSA table
+//File: FMOSA.h
+//Content: structure FMOSA
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-#ifndef FMOSATable_H
-#define FMOSATable_H
+#ifndef FMOSA_H
+#define FMOSA_H
 
-#include "MotionProgramValidator.h"
 #include "AllocationList.h"
 #include "FiberMOSModel.h"
 #include "MotionProgram.h"
@@ -113,15 +112,15 @@ public:
 };
 
 //---------------------------------------------------------------------------
-//class TFMOSATable:
+//class TFMOSA:
 
-class TFMOSATable : public TPointersList<TObservingSource> {
+class TFMOSA : public TPointersList<TObservingSource> {
     //read the OB section in tampon variables
     void readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
                     const string& str);
 
 public:
-    //last valid setted FMOSA table in text format including comments
+    //last valid setted FMOSA in text format including comments
     //default value: ""
     string str_original;
 
@@ -131,25 +130,43 @@ public:
     double Dec; //the declination of the block
     double Pos; //
 
-    //set a FMOSA table in text format
+    //set a FMOSA in text format
     void setTableText(unsigned int& Bid, const string& str);
 
-    //get the FMOSA table in text format
+    //get the FMOSA in text format
     void getTableText(string& str) const;
 
-    //get the Pids of the allocations which accomplish:
-    //  there_is_Bid && Enabled
-    //  and Pid is not found in the FMM
-    void searchMissingPids(TVector<int>& Pids, TAllocationList& AL);
+    //get the Pids of the OSs which accomplish:
+    //  there_is_Bid
+    //  Pid is not found in the FMM
+    void searchMissingPids(TVector<int>& Pids,
+                           const TRoboticPositionerList2 *RPL);
+
+    //get the Pids of the OSs which accomplish:
+    //  there_is_Bid
+    //  Enabled don't match with Disbaled in the FMM
+    //If there are missing Pids:
+    //  throw EImproperCall
+    void searchDontMatchEnabled(TVector<int>& Pids,
+                                const TRoboticPositionerList2 *RPL);
 
     //get the allocations which accomplish: there_is_Bid && Enabled
+    //If not meet the pre-conditions for get the allocations:
+    //  throw EImproperCall
     void getAllocations(TAllocationList& AL);
 
-    //build a FMOSA table by default
-    TFMOSATable(void);
+    //WARNING! For call method getAllocations, shall meet pre-conditions:
+    //  there aren't missing Pids;
+    //  there aren't don't match Enabled.
+    //Ohterwise will be throwed exception EImproperCall.
+    //Allocations to not operative (although enabled) RPs, can be got,
+    //but motion programs can will be generated only by force.
 
-    //clone a FMOSA table
-    void Clone(TFMOSATable&);
+    //build a FMOSA by default
+    TFMOSA(void);
+
+    //clone a FMOSA
+    void Clone(TFMOSA&);
 };
 
 //---------------------------------------------------------------------------
@@ -158,4 +175,4 @@ public:
 
 //---------------------------------------------------------------------------
 
-#endif // FMOSATable_H
+#endif // FMOSA_H

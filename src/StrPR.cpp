@@ -27,6 +27,9 @@
 #include "StrPR.h"
 
 #include <stdio.h> //printf, scanf, sprintf, sscanf
+#include <iostream> //ostringstream
+#include <iomanip> //put_time
+#include <ctime> //strftime
 
 //---------------------------------------------------------------------------
 
@@ -614,7 +617,7 @@ void StrReadToEnd(AnsiString &SubS, const AnsiString &S, int &i)
         }
 }                */
 
-//atraviesa la subcadena desde la posición indicada hasta el final
+/*//atraviesa la subcadena desde la posición indicada hasta el final
 //i quedará indicando a la posúltima posición
 void StrTravelToEnd(const AnsiString &S, int &i)
 {
@@ -657,7 +660,7 @@ void StrTravelToEnd(const AnsiString &S, int &i)
         }
     } while(status < 1);
 }
-
+*/
 //recorre una cadena desde la posición indicada
 //hasta que encuentra un caracter no separador
 void StrTravelSeparatorsIfAny(const AnsiString &S, int &i)
@@ -1850,17 +1853,19 @@ TDoublePoint StrToDPoint(const AnsiString &S)
     TDoublePoint P;
 
     try {
+        //lee un punto a a partir de la primera posición
         int i = 1;
-
-        //lee un punto a aprtir de i
         StrReadDPoint(&P, S, i);
 
-        //atraviesa la cadena hasta el final
-        StrTravelToEnd(S, i);
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text translating string to double point");
 
         return P; //devuelve el valor leído
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "translating stirng to double point");
         throw;
     }
 }
@@ -2061,17 +2066,19 @@ TDoubleRect StrToDRect(const AnsiString &S)
     TDoubleRect R;
 
     try {
+        //lee un punto a a partir de la primera posición
         int i = 1;
-
-        //lee un punto a aprtir de i
         StrReadDRect(&R, S, i);
 
-        //atraviesa la cadena hasta el final
-        StrTravelToEnd(S, i);
+        //busca texto inesperado
+        StrTravelSeparatorsIfAny(S, i);
+        if(i <= S.Length())
+            throw EImproperArgument("unexpected text translating string to double rect");
 
         return R; //devuelve el valor leído
-
-    } catch(...) {
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "translating stirng to double rect");
         throw;
     }
 }
@@ -2355,7 +2362,26 @@ void ReadVector (TStringList *SL, const AnsiString &S, char c1, char c2)
 }              */
 
 //---------------------------------------------------------------------------
-//Funciones para fecha-hora
+//FUNCTIONS FOR DATE-TIME:
+
+//translate from time_t to string in format en_EN
+string strfromtime_t(time_t t, string format)
+{
+    tm lt = *localtime(&t);
+
+    char buffer[32];
+    strftime(buffer, 32, format.c_str(), &lt);
+
+    return string(buffer);
+
+    //Other way:
+    //  ostringstream ss;
+    //  ss.imbue(std::locale("en_EN.utf8"));
+    //  ss << put_time(&lt, "%c");
+    //  string datetime_str = string(ss.str().c_str());
+    //  return datetime_str;
+}
+
 /*#
 //lee la fecha-hora en una cadena de texto a partir de la posición indicada
 //en el formato "dd/mm/yyyy hh:mm:ss" en formato de 24h sin AM/PM

@@ -377,6 +377,31 @@ void TFunction::setTableText(const AnsiString &S)
     }
 }
 
+//CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
+
+AnsiString TFunction::getAllText(void) const
+{
+    string str = "R/W:";
+    str += "\r\n    Label = \"" + Label.str + "\"";
+    str += "\r\n    Periodic = " + BoolToStr(p_Periodic).str;
+    str += "\r\n    T = " + floattostr(p_T);
+    str += "\r\n    Count = " + inttostr(getCount());
+    str += "\r\n    XAddress: " + IntToHex(intptr_t(&p_X)).str;
+    str += "\r\n    YAddress: " + IntToHex(intptr_t(&p_Y)).str;
+
+    str += "\r\n    XFirst = " + floattostr(getXFirst());
+    str += "\r\n    XLast = " + floattostr(getXLast());
+    str += "\r\n    YFirst = " + floattostr(getYFirst());
+    str += "\r\n    YLast = " + floattostr(getYLast());
+
+    str += "\r\nR:";
+    str += "\r\n    YMin = " + floattostr(getYMin());
+    str += "\r\n    YMax = " + floattostr(getYMax());
+    str += "\r\n    YAve = " + floattostr(getYAve());
+
+    return AnsiString(str);
+}
+
 //---------------------------------------------------------------------------
 //MÉTODOS ESTÁTICOS:
 
@@ -461,15 +486,12 @@ void  TFunction::ReadTable(TFunction *F, const AnsiString &S,
 
 //constructor de funciones aperiódicas
 TFunction::TFunction(int Capacity) :
-    /*p_Periodic(false), p_T(0),*/
+    p_Periodic(false), p_T(0),
     p_Count(0), p_X(1), p_Y(1)
 {
     //comprueba las precondiciones
     if(Capacity < 1)
         throw EImproperArgument("Capacity should be upper zero");
-
-    p_T = 0;
-    p_Periodic = false;
 
     p_X.setCapacity(Capacity);
     p_Y.setCapacity(Capacity);
@@ -477,15 +499,14 @@ TFunction::TFunction(int Capacity) :
 
 //Constructor de funciones T-periódicas
 TFunction::TFunction(double T, int Capacity) :
-    /*p_Periodic(true), p_T(T),*/
+    p_Periodic(true),
     p_Count(0), p_X(1), p_Y(1)
 {
     //El periodo debe ser positivo
-    if(Capacity<1 || T<=0)
+    if(Capacity < 1 || T <= 0)
         throw EImproperArgument("Capacity should be upper zero");
 
     p_T = T;
-    p_Periodic = true;
 
     p_X.setCapacity(Capacity);
     p_Y.setCapacity(Capacity);
@@ -499,22 +520,22 @@ void TFunction::Copy(const TFunction *F)
         throw EImproperArgument("pointer F should point to built function");
 
     //copia las propiedades
+    Label = F->Label;
     p_Periodic = F->p_Periodic;
     p_T = F->p_T;
     p_Count = F->p_Count;
     p_X = F->p_X;
     p_Y = F->p_Y;
-    Label = F->Label;
 }
 void TFunction::Copy(const TFunction& F)
 {
     //copia las propiedades
+    Label = F.Label;
     p_Periodic = F.p_Periodic;
     p_T = F.p_T;
     p_Count = F.p_Count;
     p_X = F.p_X;
     p_Y = F.p_Y;
-    Label = F.Label;
 }
 
 //clona una función
@@ -525,22 +546,22 @@ void TFunction::Clone(const TFunction *F)
         throw EImproperArgument("pointer F should point to built function");
 
     //copia las propiedades
+    Label = F->Label;
     p_Periodic = F->p_Periodic;
     p_T = F->p_T;
     p_Count = F->p_Count;
     p_X.Clone(F->p_X);
     p_Y.Clone(F->p_Y);
-    Label = F->Label;
 }
 void TFunction::Clone(const TFunction &F)
 {
     //copia las propiedades
+    Label = F.Label;
     p_Periodic = F.p_Periodic;
     p_T = F.p_T;
     p_Count = F.p_Count;
     p_X.Clone(F.p_X);
     p_Y.Clone(F.p_Y);
-    Label = F.Label;
 }
 
 //construye un clon de una función
@@ -689,19 +710,6 @@ void TFunction::Zeros(int n)
 
 //--------------------------------------------------------------------------
 
-/*TFunction& TFunction::operator=(TFunction &F)
-{
-    p_Periodic = F.p_Periodic;
-    p_T = F.p_T;
-    p_Count = F.p_Count;
-    p_X = F.p_X;
-    p_Y = F.p_Y;
-
-    //no vacia los vectores porque podrían asignarse a sí mismos
-
-    return *this;
-}
-  */
 TFunction& TFunction::operator=(const TFunction &F)
 {
     p_Periodic = F.p_Periodic;

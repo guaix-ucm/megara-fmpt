@@ -119,7 +119,7 @@ public:
 
     //COPIADO:
 
-    //copia todas las propiedades del array incluidos sus elementos
+    //clona todas las propiedades del array incluidos sus elementos
     void Clone(const TSlideArray &);
     //equipara el número de elementos reservados del array y los copia
     void Copy(const TSlideArray&);
@@ -462,7 +462,7 @@ template <class T> void TSlideArray<T>::Insert(int i, const T &item)
 //--------------------------------------------------------------------------
 //COPIADO:
 
-//copia todas las propiedades del array incluidos sus elementos
+//clona todas las propiedades del array incluidos sus elementos
 template <class T> void TSlideArray<T>::Clone(const TSlideArray& SA)
 {
     //cambia la longitud del array
