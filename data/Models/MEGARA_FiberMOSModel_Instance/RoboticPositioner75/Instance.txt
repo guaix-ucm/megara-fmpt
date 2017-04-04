@@ -1,4 +1,4 @@
-#Instance properties of the RP (Robotic Positioner):
+# Instance properties of the RP (Robotic Positioner):
 
 ActuatorInstance:              # Instance properties of the RP.Actuator (sizing, orientation and others):
     L01 = 5.8025                   # distance between P0 and P1 (in mm)
@@ -12,14 +12,13 @@ ActuatorInstance:              # Instance properties of the RP.Actuator (sizing,
         L13 = 5.8025                   # distance between P1 and P3 (in mm)
         theta__O3 = 0                  # orientation of S3 respect S2 (in rad)
         R3 = 0.75                      # radio of representative circle of the microlens (in mm)
-        thetaO3 = -3.14159265358979    # orientation of S3 respect S0 (in rad)
         theta___3min = -0.043633231    # position angle’s lower limit of axis 1-3 respect S3 (in rad)
         theta___3max = 3.185225885     # position angle’s upper limit of axis 1-3 respect S3 (in rad)
         theta___3 = 0                  # position angle of axis 1-3 respect S3 (in rad)
     
     SPMmin = 0.005                 # SPM minimum: is the SPM due to the minimum jump during generation (in mm)
     SPMsim = 0.00893643794946      # SPM of simulation: is the maximum deviation in the radial trajectory (in mm)
-    PAkd = Pre                     # position angles knowledge degree [Pre | Apr | Unk]
+    PAkd = Pre                     # position angles knowledge degree [Pre | App | Unk]
 
 CMFInstance:                   # Instance properties of the RP.CMF:
     SF1.vmaxabs = 3                # absolute maximum velocity of rot 1 when MFT = mftSquare (in step/ms)
@@ -39,7 +38,7 @@ Tolerances:                    # Tolerances of the RP:
     Ep = 0.1                       # error margin in P0 position (in mm)
     Tstop = 0                      # margin time from last position stored in memory, to stopping rotors (in ms)
     Tshiff = 1                     # margin time to shift of all rotors of RPs in Fiber MOS (in ms)
-    SPMadd = 0.06520941            # SPM additional: is a component of SPM added once (in mm)
+    SPMadd = 0.32                  # SPM additional: is a component of SPM added once (in mm)
 
 Status:                        # Qualitative status of the RP:
     Disabled = False               # disabling status [False | True]

@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -126,7 +126,7 @@ void TestCilinder::test_()
             C2->setF(F);
             C2->setQuantify_(false);
             C2->Quantify_s.Clone(Quantify_s);
-            C2->copyCilinder(C1);
+            C2->cloneCilinder(C1);
             if(C2->getL01() != C1->getL01()) {
                 CPPUNIT_ASSERT(false);
                 return;

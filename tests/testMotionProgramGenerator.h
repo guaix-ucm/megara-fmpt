@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -35,9 +35,9 @@ class TestMotionProgramGenerator : public CppUnit::TestFixture
 
     //add test methods
     CPPUNIT_TEST(test_generatePairPPDP);
-    CPPUNIT_TEST(test_generateParkingProgram);
-    CPPUNIT_TEST(test_generatePairPPDP_online);
-    CPPUNIT_TEST(test_generateParkingProgram_online);
+    CPPUNIT_TEST(test_generateParkProg);
+    //CPPUNIT_TEST(test_generatePairPPDP_online);
+    //CPPUNIT_TEST(test_generateParkProg_online);
 
     //finish the process
     CPPUNIT_TEST_SUITE_END();
@@ -50,9 +50,9 @@ public:
 
     //test methods
     void test_generatePairPPDP();
-    void test_generateParkingProgram();
+    void test_generateParkProg();
     void test_generatePairPPDP_online();
-    void test_generateParkingProgram_online();
+    void test_generateParkProg_online();
 };
 
 #endif // TEST_MotionProgramGenerator_H

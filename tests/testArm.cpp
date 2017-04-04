@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -149,7 +149,6 @@ void TestArm::test_()
     S += "\r\nL13 = 5.8025";
     S += "\r\ntheta__O3 = 0";
     S += "\r\nR3 = 0.75";
-    S += "\r\nthetaO3 = -3.14159265358979";
     S += "\r\ntheta___3min = -0.043633231";
     S += "\r\ntheta___3max = 3.185225885";
     S += "\r\ntheta___3 = 0";
@@ -166,7 +165,6 @@ void TestArm::test_()
             A2.getL13() != 5.8025 ||
             A2.gettheta__O3() != 0 ||
             A2.getR3() != 0.75 ||
-            A2.getthetaO3() != -3.14159265358979 ||
             A2.gettheta___3min() != -0.043633231 ||
             A2.gettheta___3max() != 3.185225885 ||
             A2.gettheta___3() != 0 ||

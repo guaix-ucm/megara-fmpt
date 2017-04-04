@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)

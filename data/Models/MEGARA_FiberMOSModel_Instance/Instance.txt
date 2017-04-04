@@ -1,4 +1,4 @@
-#Instance properties of the FMM (Fiber MOS Model):
+# Instance properties of the FMM (Fiber MOS Model):
 
 Tolerances:                    # Tolerances of the Fiber MOS:
     PAem = 0                       # orientation error margin of the system S0 (in rad)

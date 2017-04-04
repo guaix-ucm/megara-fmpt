@@ -1,5 +1,5 @@
 
-extraconf = Manuals Models Samples Measures
+extraconf = Manuals Models Samples
 
 EXTRA_DIST = $(extraconf)
 

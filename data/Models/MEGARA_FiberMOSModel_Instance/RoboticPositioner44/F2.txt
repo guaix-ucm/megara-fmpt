@@ -1,7 +1,7 @@
-#The compression-function of the quantifier of rot 2 of the RP in step/rad.
-#Must be defined in the rot 2 domain [theta___3min, theta___3max]:
-#    theta___3: position of rot 2 (in rad)
-#    p___3: position of rot 2 (in step)
+# The compression-function of the quantifier of rot 2 of the RP in step/rad.
+# Must be defined in the rot 2 domain [theta___3min, theta___3max]:
+#     theta___3: position of rot 2 (in rad)
+#     p___3: position of rot 2 (in step)
 
 -6.28318530717959   -30720
 0                   0

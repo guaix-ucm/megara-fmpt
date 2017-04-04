@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 Isaac Morales Durán. All rights reserved.
+// Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.
 // Institute of Astrophysics of Andalusia, IAA-CSIC
 //
 // This file is part of FMPT (Fiber MOS Positioning Tools)
@@ -73,7 +73,7 @@ void TestActuator::test_()
     TActuator A(1, P0);
     A.setQuantify_(false);
     A.getArm()->setQuantify___(false);
-    A.setPositionPPARadians(M_PI/2, M_PI);
+    A.setAnglesRadians(M_PI/2, M_PI);
 
     //obtiene la posición numérica del punto P3
     double x3, y3;
