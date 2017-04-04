@@ -5,5 +5,5 @@ compiler:
  - gcc
 
 # before build script, run autoreconf
-before_script: ./autogen.sh
+before_script: mkdir -p m4 && ./autogen.sh
 script: ./configure --disable-shared && make && make check
