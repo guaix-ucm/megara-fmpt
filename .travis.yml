@@ -4,6 +4,10 @@ compiler:
  - clang
  - gcc
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libcppunit-dev
+
 # before build script, run autoreconf
 before_script: mkdir -p m4 && ./autogen.sh
 script: ./configure --disable-shared && make && make check
