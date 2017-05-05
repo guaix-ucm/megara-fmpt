@@ -107,6 +107,8 @@ and then 'make', 'make install' as usual.
 Developers
 ----------
 
+* Build Status: <a href="https://travis-ci.org/guaix-ucm/megara-fmpt"><img src="https://secure.travis-ci.org/guaix-ucm/megara-fmpt.png?branch=master"/></a>
+
 * Doxygen Documentation: <a href="https://codedocs.xyz/guaix-ucm/megara-fmpt/"><img src="https://codedocs.xyz/guaix-ucm/megara-fmpt.svg"/></a>
 
 
