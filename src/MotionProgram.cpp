@@ -136,7 +136,7 @@ bool TMotionProgram::thereIsSomeCommentDsec(void) const
     return false;
 }
 //get the non empty coments of the motion program
-string TMotionProgram::getCommentsDsecInterfaceText(void) const
+string TMotionProgram::getCommentsDsecMCStext(void) const
 {
     string str;
 
@@ -204,7 +204,7 @@ void TMotionProgram::excludeRP(int Id)
 //Preconditions:
 //  All PPAs of the SPL must be referred to different RPs.
 //  All RPs included in the MP, must be in included in the SPL.
-void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned int Bid,
+void TMotionProgram::getMCStext(string& str, const string& label, unsigned int Bid,
     const TPairPositionAnglesList& SPL) const
 {
     //CHECK THE PRECONDITIONS:
@@ -260,19 +260,19 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 throw EImpossibleError("lateral effect");
             TPairPositionAngles *PPA = APL.GetPointer(k);
 
-            //print the corresponding instruction in the interface format
+            //print the corresponding instruction in the MCS format
             if(MI->Instruction.getName() == "M1") {
                 //print the final position of the rotors
                 double r1_final_position = MI->Instruction.Args[0];
                 double r2_final_position = PPA->p___3;
 
-                //print the instruction in the interface format
+                //print the instruction in the MCS format
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
                 str += " "+floattostr(-r2_final_position);
 
-                //print the instruction in the interface format
+                //print the instruction in the MCS format
                 //inserting zeros on the left:
                 //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
                 //str += " "+floattostr(r1_final_position);
@@ -287,13 +287,13 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 double r1_final_position = PPA->p_1;
                 double r2_final_position = MI->Instruction.Args[0];
 
-                //print the instruction in the interface format
+                //print the instruction in the MCS format
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
                 str += " "+floattostr(-r2_final_position);
 
-                //print the instruction in the interface format
+                //print the instruction in the MCS format
                 //inserting zeros on the left:
                 //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
                 //str += " "+floattostr(r1_final_position);
@@ -308,13 +308,13 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
                 double r1_final_position = MI->Instruction.Args[0];
                 double r2_final_position = MI->Instruction.Args[1];
 
-                //print the instruction in the interface format
+                //print the instruction in the MCS format
                 str += "\r\n\trp"+MI->getIdText().str+" r1";
                 str += " "+floattostr(r1_final_position);
                 str += "\r\n\trp"+MI->getIdText().str+" r2";
                 str += " "+floattostr(-r2_final_position);
 
-                //print the instruction in the interface format
+                //print the instruction in the MCS format
                 //inserting zeros on the left:
                 //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
                 //str += " "+floattostr(r1_final_position);
@@ -336,8 +336,132 @@ void TMotionProgram::getInterfaceText(string& str, const string& label, unsigned
     str += "\r\n}";
 }
 
-//Set a motion progam in the interface format of the MCS.
-void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const string& str)
+//get the motion program in format JSON
+Json::Value TMotionProgram::getJSON(const TPairPositionAnglesList& SPL) const
+{
+    //CHECK THE PRECONDITIONS:
+
+    if(SPL.notAllAreReferredToDifferentRPs())
+        throw EImproperArgument("all PPAs of the SPL must be referred to different RPs");
+
+    TVector<int> Ids;
+    getAllIncludedIds(Ids);
+    if(SPL.notAllIdsAreFound(Ids))
+        throw EImproperArgument("all RPs included in the MP, must be in included in the SPL");
+
+    //PRINT THE MOTION PROGRAM:
+
+    Json::Value MP_json; //initialize the output
+
+    //actualize the actual position list
+    TPairPositionAnglesList APL = SPL;
+
+    //for each list of message of instructions of the motion program
+    //  print a group
+    for(int i=0; i<getCount(); i++) {
+        //points the indicated message list to facilitate its access
+        const TMessageList *ML = Items[i];
+
+        //PRINT THE GROUP CORRESPONDING TO THE INDICATED MESSAGE LIST:
+
+        //print the label of the indicated group and their start delimiter
+        Json::Value ML_json;
+
+        //print the label of the indicated group and their start delimiter
+        //inserting zeros on the left:
+        //str += "\r\n\tgroup_"+strInsertChar(IntToStr(i+1), 2).str+" {";
+
+        //for each MI of the list, prints the corresponding instruction in the str, and actualice the APL
+        for(int j=0; j<ML->getCount(); j++) {
+            //point the indicated MI to facilitate its access
+            const TMessageInstruction *MI = ML->GetPointer(j);
+
+            //search and point the corresponding PPA
+            int id = MI->getId();
+            int k = APL.searchId(id);
+            if(k >= APL.getCount())
+                throw EImpossibleError("lateral effect");
+            TPairPositionAngles *PPA = APL.GetPointer(k);
+
+            Json::Value MI_json;
+
+            //print the corresponding instruction in the MCS format
+            if(MI->Instruction.getName() == "M1") {
+                //print the final position of the rotors
+                double r1_final_position = MI->Instruction.Args[0];
+                double r2_final_position = PPA->p___3;
+
+                //print the instruction in the MCS format
+                MI_json["rp"] = MI->getId();
+                MI_json["r1"] = round(r1_final_position);
+                MI_json["r2"] = round(-r2_final_position);
+
+                //print the instruction in the MCS format
+                //inserting zeros on the left:
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                //str += " "+floattostr(r1_final_position);
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                //str += " "+floattostr(r2_final_position);
+
+                //actualice the actual position
+                PPA->p_1 = r1_final_position;
+
+            } else if(MI->Instruction.getName() == "M2") {
+                //print the final position of the rotors
+                double r1_final_position = PPA->p_1;
+                double r2_final_position = MI->Instruction.Args[0];
+
+                //print the instruction in the MCS format
+                MI_json["rp"] = MI->getId();
+                MI_json["r1"] = round(r1_final_position);
+                MI_json["r2"] = round(-r2_final_position);
+
+                //print the instruction in the MCS format
+                //inserting zeros on the left:
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                //str += " "+floattostr(r1_final_position);
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                //str += " "+floattostr(r2_final_position);
+
+                //actualice the actual position
+                PPA->p___3 = r2_final_position;
+
+            } else if(MI->Instruction.getName() == "MM") {
+                //print the final position of the rotors
+                double r1_final_position = MI->Instruction.Args[0];
+                double r2_final_position = MI->Instruction.Args[1];
+
+                //print the instruction in the MCS format
+                MI_json["rp"] = MI->getId();
+                MI_json["r1"] = round(r1_final_position);
+                MI_json["r2"] = round(-r2_final_position);
+
+                //print the instruction in the MCS format
+                //inserting zeros on the left:
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r1";
+                //str += " "+floattostr(r1_final_position);
+                //str += "\r\n\trp"+strInsertChar(MI->getIdText(), 2).str+" r2";
+                //str += " "+floattostr(r2_final_position);
+
+                //actualice the actual position
+                PPA->p_1 = r1_final_position;
+                PPA->p___3 = r2_final_position;
+
+            } else
+                throw EImpossibleError("lateral effect");
+
+            ML_json.append(MI_json);
+        }
+
+        //print the end delimiter of the indicated group
+        MP_json.append(ML_json);
+    }
+    //print the end delimiter of motion program
+    return MP_json;
+}
+
+//Set a motion progam in the MCS format of the MCS.
+void TMotionProgram::setMCStext(string& label, unsigned int& Bid, const string& str)
 {
     //initialize the index to the first position of the string
     unsigned int i = 0;
@@ -484,7 +608,7 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
                     MI = new TMessageInstruction();
                     ML->Add(MI);
                     --i;
-                    TMessageInstruction::readInterface(MI, str, i);
+                    TMessageInstruction::readMCS(MI, str, i);
                 } else
                     status = 3;
             }
@@ -507,11 +631,11 @@ void TMotionProgram::setInterfaceText(string& label, unsigned int& Bid, const st
     Bid = (unsigned int)t_Bid;
 }
 
-//Get MP-Dmins in the interface format of the MCS.
+//Get MP-Dmins in the MCS format of the MCS.
 //Inputs:
 //  label: string labeling all the MP-Dmin.
 //  Bid: univoque identifier of the CB.
-void TMotionProgram::getDminInterfaceText(string& str, const string& label,
+void TMotionProgram::getDminMCStext(string& str, const string& label,
                                            unsigned int Bid) const
 {
     //CHECK THE PRECONDITIONS:
@@ -558,7 +682,7 @@ void TMotionProgram::getDminInterfaceText(string& str, const string& label,
             //point the indicated MI to facilitate its access
             const TMessageInstruction *MI = ML->GetPointer(j);
 
-            //print the corresponding instruction in the interface format
+            //print the corresponding instruction in the MCS format
             if(MI->Instruction.getName() == "M1") {
                 //print the comment with the Dmin
                 str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDmin();
@@ -581,11 +705,11 @@ void TMotionProgram::getDminInterfaceText(string& str, const string& label,
     //print the end delimiter of motion program
     str += "\r\n}";
 }
-//Get MP-Dends in the interface format of the MCS.
+//Get MP-Dends in the MCS format of the MCS.
 //Inputs:
 //  label: string labeling all the MP-Dend.
 //  Bid: univoque identifier of the CB.
-void TMotionProgram::getDendInterfaceText(string& str, const string& label,
+void TMotionProgram::getDendMCStext(string& str, const string& label,
                                            unsigned int Bid) const
 {
     //CHECK THE PRECONDITIONS:
@@ -632,7 +756,7 @@ void TMotionProgram::getDendInterfaceText(string& str, const string& label,
             //point the indicated MI to facilitate its access
             const TMessageInstruction *MI = ML->GetPointer(j);
 
-            //print the corresponding instruction in the interface format
+            //print the corresponding instruction in the MCS format
             if(MI->Instruction.getName() == "M1") {
                 //print the comment with the Dend
                 str += "\r\n\trp"+MI->getIdText().str+": "+MI->getCommentDend();

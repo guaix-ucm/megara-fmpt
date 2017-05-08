@@ -25,6 +25,11 @@
 #include "OutputsPairPPDP.h"
 #include "Strings.h"
 
+#include <uuid/uuid.h>
+
+//For install:
+//  sudo apt-get install uuid-dev
+
 //---------------------------------------------------------------------------
 
 using namespace Strings;
@@ -36,8 +41,215 @@ namespace Positioning {
 //class OutputsPairPPDP:
 //---------------------------------------------------------------------------
 
+//PRIVATE:
+
+//functions for add data to a JSON object
+void OutputsPairPPDP::addUUID(Json::Value &object) const
+{
+    //get the uuid
+    uuid_t uuid;
+    uuid_generate(uuid);
+    //unparse the uuid to string
+    char uuid_c_str[37];
+    uuid_unparse(uuid, uuid_c_str);
+    object["uuid"] = string(uuid_c_str);
+}
+Json::Value OutputsPairPPDP::getComments(void) const
+{
+    //build a json array
+    Json::Value object;
+
+    string str = "# Pair (PP, DP) outputs generated ";
+    if(FMOSA_filename.length() > 0)
+        str += "from FMOSA " + FMOSA_filename;
+    else
+        str += "online (not from FMOSA)";
+    object.append(str);
+
+    str = "# Generated with FMPT version "+FMPT_version;
+    object.append(str);
+    str = "# Date of generation: "+datetime;
+    object.append(str);
+
+    if(EnabledNotOperative.getCount() > 0) {
+        str = "# WARNING! This pair (PP, DP) has been generated with enabled-not-operative RPs:";
+        object.append(str);
+        str = "# Enabled-not-operative RP ids: " + EnabledNotOperative.getText().str;
+        object.append(str);
+
+        //get the list of dangerous RPs
+        TRoboticPositionerList Dangerous;
+        EnabledNotOperative.getDangerous(Dangerous);
+
+        str = "# Dangerous RPs are enabled-not-operative RPs with fault type dyynamic or unknowledge";
+        object.append(str);
+        if(Dangerous.getCount() > 0) {
+            str = "# ERROR! This pair (PP, DP) has been generated with dangerous RPs:";
+            object.append(str);
+            str = "# Dangerous RP ids: " + Dangerous.getText().str;
+            object.append(str);
+        }
+        else {
+            str = "# This pair (PP, DP) has been generated without dangerous RPs.";
+            object.append(str);
+        }
+    }
+    else {
+        str = "# This pair (PP, DP) has been generated without enabled-not-operative RPs.";
+        object.append(str);
+    }
+
+    if(Collided.getCount() > 0 || Obstructed.getCount() > 0) {
+        if(Collided.getCount() > 0) {
+            str = "# WARNING! the FMOSA contains collided items (either EAs or RPs):";
+            object.append(str);
+            str = "# Collided items: " + collided_str;
+            object.append(str);
+            str = "# Collided RP ids: " + Collided.getText().str;
+            object.append(str);
+        }
+        if(Obstructed.getCount() > 0) {
+            str = "# WARNING! the FMOSA contains obstructed RPs:";
+            object.append(str);
+            str = "# Obstructed RP ids: " + Obstructed.getText().str;
+            object.append(str);
+        }
+        str = "# The initial positions of the collided or obstructed RPs match with their observing positions.";
+        object.append(str);
+    }
+    else {
+        str = "# The pair (PP, DP) has been generated without neither collided nor obstructed RPs.";
+        object.append(str);
+    }
+
+    str = "# A pair (PP, DP) is suitable to be executed when it is valid (avoid collisions) and there aren't";
+    object.append(str);
+    str = "# dangerous RPs in the Fiber MOS (enabled-not-operative RPs with fault type dynamic or unknowledge),";
+    object.append(str);
+    str = "# and there aren't neither collided nor obstructed RPs.";
+    object.append(str);
+    if(suitable()) {
+        str = "# According the actual status of the FMPT, this pair (PP, DP) is suitable to be executed.";
+        object.append(str);
+    }
+    else {
+        str = "# According the actual status of the FMPT, this pair (PP, DP) is not suitable to be executed.";
+        object.append(str);
+    }
+
+    return object;
+}
+Json::Value OutputsPairPPDP::getPos(void) const
+{
+    //build a json object
+    Json::Value object;
+
+    //add comment about name
+    Json::Value comments;
+    comments.append("# PP (Positioning Program)");
+
+    //add comment about validity
+    string str;
+    if(PPvalid) {
+        str = "# This PP avoids collisions when it is executed starting from the initial positions (check out IPL).";
+    } else {
+        str = "# ERROR! This PP produces a collision when it is executed starting from the initial positions (check out IPL).";
+    }
+    comments.append(str);
+
+    //add comment about approximations
+    if(PP.thereIsSomeCommentDsec()) {
+        str = "# WARNING! This PP contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
+        comments.append(str);
+        str = PP.getCommentsDsecMCStext();
+        comments.append(str);
+    } else {
+        str = "# All radial movements of this PP keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
+        comments.append(str);
+    }
+
+    //add the coments
+    object["comments"] = comments;
+    //add the Bid
+    object["Bid"] = Bid;
+    //add the PP
+    object["PP"] = PP.getJSON(IPL);
+
+    return object;
+}
+Json::Value OutputsPairPPDP::getDepos(void) const
+{
+    //build a json object
+    Json::Value object;
+
+    //add comment about name
+    Json::Value comments;
+    comments.append("# DP (Depositioning Program)");
+
+    //add comment about validity
+    string str;
+    if(DPvalid) {
+        str = "# This DP avoids collisions when it is executed starting from the observing positions (check out OPL).";
+    } else {
+        str = "# ERROR! This DP produces a collision when it is executed starting from the observing positions (check out OPL).";
+    }
+    comments.append(str);
+
+    //add comment about approximations
+    if(DP.thereIsSomeCommentDsec()) {
+        str = "# WARNING! This DP contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
+        comments.append(str);
+        str = DP.getCommentsDsecMCStext();
+        comments.append(str);
+    } else {
+        str = "# All radial movements of this DP keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
+        comments.append(str);
+    }
+
+    //add the coments
+    object["comments"] = comments;
+    //add the Bid
+    object["Bid"] = Bid;
+    //add the DP
+    object["DP"] = DP.getJSON(OPL);
+
+    return object;
+}
+
+//PUBLIC:
+
+//get the warning for not suitable outputs
+string OutputsPairPPDP::getWarningNotSuitable(void) const
+{
+    string str = "WARNING! This file outputs has been saved by force, because:";
+    str += " has been generated with dangerous RPs in the FMM Instance,";
+    str += " or has been generated with collided RPs in the FMOSA,";
+    str += " or has been generated with obstructed RPs in the FMOSA,";
+    str += " or the generated pair (PP, DP) is not valid.";
+    str += " Dangerous RPs are enabled-not-operative RPs with fault type dynamic or unknowledge.";
+    str += " A pair (PP, DP) is not valid when has been detected a collision during the validation process.";
+
+    //get the list of Dangerous RPs
+    TRoboticPositionerList Dangerous;
+    EnabledNotOperative.getDangerous(Dangerous);
+
+    if(Dangerous.getCount() > 0)
+        str += " This pair (PP, DP) has been generated with dangerous RPs.";
+    else
+        str += " This pair (PP, DP) has been generated without dangerous RPs.";
+
+    if(PPvalid && DPvalid)
+        str += " According the FMPT, the pair (PP, DP) included in this file is valid, but you must disable all dangerous RPs before generate the pair (PP, DP), and delete allocations to all collided and obstructed RPs in the file type FMOSA.";
+    else
+        str += " According the FMPT, pair (P, DP) included in this file is not valid.";
+
+    str += " This text has been added uncommented for difficult the execution of the parking program contained in this file.";
+
+    return str;
+}
+
 //get the comments about outputs
-string OutputsPairPPDP::getComments(void) const
+string OutputsPairPPDP::getCommentsText(void) const
 {
     locale l;
     if(l.name() != "C")
@@ -48,32 +260,61 @@ string OutputsPairPPDP::getComments(void) const
         str += "from FMOSA " + FMOSA_filename;
     else
         str += "online (not from FMOSA)";
+
     str += "\r\n# Generated with FMPT version "+FMPT_version;
     str += "\r\n# Date of generation: "+datetime;
-    str += "\r\n# When FMOSA contains either collided or obstructed RPs, the generated pair (PP, DP) is not valid.";
-    if(Collided.getCount() > 0 || Obstructed.getCount() > 0 || EnabledNotOperative.getCount() > 0) {
-        if(Obstructed.getCount() > 0) {
-            str += "\r\n# WARNING! This pair (PP, DP) is not valid, because the FMOSA contains enabled-not-operative RPs:";
-            str += "\r\n# Enabled-not-operative RP ids: " + EnabledNotOperative.getText().str;
+
+    if(EnabledNotOperative.getCount() > 0) {
+        str += "\r\n# WARNING! This pair (PP, DP) has been generated with enabled-not-operative RPs:";
+        str += "\r\n# Enabled-not-operative RP ids: " + EnabledNotOperative.getText().str;
+
+        //get the list of dangerous RPs
+        TRoboticPositionerList Dangerous;
+        EnabledNotOperative.getDangerous(Dangerous);
+
+        str += "\r\n# Dangerous RPs are enabled-not-operative RPs with fault type dyynamic or unknowledge";
+        if(Dangerous.getCount() > 0) {
+            str += "\r\n# ERROR! This pair (PP, DP) has been generated with dangerous RPs:";
+            str += "\r\n# Dangerous RP ids: " + Dangerous.getText().str;
         }
+        else {
+            str += "\r\n# This pair (PP, DP) has been generated without dangerous RPs.";
+        }
+    }
+    else {
+        str += "\r\n# This pair (PP, DP) has been generated without enabled-not-operative RPs.";
+    }
+
+    if(Collided.getCount() > 0 || Obstructed.getCount() > 0) {
         if(Collided.getCount() > 0) {
-            str += "\r\n# WARNING! This pair (PP, DP) is not valid, because the FMOSA contains collided items (either EAs or RPs):";
+            str += "\r\n# WARNING! the FMOSA contains collided items (either EAs or RPs):";
             str += "\r\n# Collided items: " + collided_str;
             str += "\r\n# Collided RP ids: " + Collided.getText().str;
         }
         if(Obstructed.getCount() > 0) {
-            str += "\r\n# WARNING! This pair (PP, DP) is not valid, because the FMOSA contains obstructed RPs:";
+            str += "\r\n# WARNING! the FMOSA contains obstructed RPs:";
             str += "\r\n# Obstructed RP ids: " + Obstructed.getText().str;
         }
-        str += "\r\n# The initial positions of the collided and obstructed RPs match with their observing position.";
+        str += "\r\n# The initial positions of the collided or obstructed RPs match with their observing positions.";
     }
-    else
-        str += "\r\n# This pair (PP, DP) has been generated without enabled-not-operative RPs and without neither collided nor obstructed RPs.";
+    else {
+        str += "\r\n# The pair (PP, DP) has been generated without neither collided nor obstructed RPs.";
+    }
+
+    str += "\r\n# A pair (PP, DP) is suitable to be executed when it is valid (avoid collisions) and there aren't";
+    str += "\r\n# dangerous RPs in the Fiber MOS (enabled-not-operative RPs with fault type dynamic or unknowledge),";
+    str += "\r\n# and there aren't neither collided nor obstructed RPs.";
+    if(suitable()) {
+        str += "\r\n# According the actual status of the FMPT, this pair (PP, DP) is suitable to be executed.";
+    }
+    else {
+        str += "\r\n# According the actual status of the FMPT, this pair (PP, DP) is not suitable to be executed.";
+    }
 
     return str;
 }
 
-//get outputs in text format with:
+//get outputs in format MCS with:
 //  comments
 //  the pair (PP, DP)
 //  the FMOSA
@@ -84,8 +325,15 @@ void OutputsPairPPDP::getText(string& str, bool includeFMOSA) const
     if(l.name() != "C")
         throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
 
+    if(suitable())
+        str = "";
+    else {
+        str = getWarningNotSuitable();
+        str += "\r\n\r\n";
+    }
+
     //print the coments about outputs
-    str = getComments();
+    str += getCommentsText();
 
     str += "\r\n";
     str += "\r\n# Positioning program";
@@ -96,13 +344,13 @@ void OutputsPairPPDP::getText(string& str, bool includeFMOSA) const
     }
     if(PP.thereIsSomeCommentDsec()) {
         str += "\r\n# WARNING! This PP contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
-        str += "\r\n"+PP.getCommentsDsecInterfaceText();
+        str += "\r\n"+PP.getCommentsDsecMCStext();
     } else {
         str += "\r\n# All radial movements of this PP keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
     }
     str += "\r\n@@SPP@@";
     string aux;
-    PP.getInterfaceText(aux, "pos", Bid, IPL);
+    PP.getMCStext(aux, "pos", Bid, IPL);
     str += "\r\n"+aux;
     str += "\r\n@@EPP@@";
 
@@ -115,12 +363,12 @@ void OutputsPairPPDP::getText(string& str, bool includeFMOSA) const
     }
     if(DP.thereIsSomeCommentDsec()) {
         str += "\r\n# WARNING! This DP contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
-        str += "\r\n"+DP.getCommentsDsecInterfaceText();
+        str += "\r\n"+DP.getCommentsDsecMCStext();
     } else {
         str += "\r\n# All radial movements of this DP keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
     }
     str += "\r\n@@SDP@@";
-    DP.getInterfaceText(aux, "depos", Bid, OPL);
+    DP.getMCStext(aux, "depos", Bid, OPL);
     str += "\r\n"+aux;
     str += "\r\n@@EDP@@";
 
@@ -129,6 +377,62 @@ void OutputsPairPPDP::getText(string& str, bool includeFMOSA) const
         FMOSA.getTableText(aux);
         str += "\r\n"+aux;
     }
+}
+
+//get outputs in format JSON with:
+//  comments
+//  the pair (PP, DP)
+//  the FMOSA
+string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
+{
+    locale l;
+    if(l.name() != "C")
+        throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
+    //build the JSON object and parse the schema
+    //  json_object *root;
+    //  root = json_tokener_parse(schema.c_str());
+
+    //check the result of the parsing
+    //  if(root == NULL)
+    //      throw EImproperFileLoadedValue("failed so parse JSON");
+
+    //set value for token "instrument"
+    //  json_object *val;
+    //  //val = json_object_object_get(root, "instrument");
+    //  val = json_object_array_get_idx(root, 0);
+    //  if(val == NULL || json_object_get_type(val) != json_type_string)
+    //      throw EImpossibleError("lateral effect");
+    //  json_object_object_add(val, "instrument", json_object_new_string("MEGARA"));
+    //  json_object_array_put_idx(root, 0, val);
+
+    //build a json object
+    Json::Value root;
+
+    //add (instrument, uuid, tittle)
+    root["instrument"] = "MEGARA";
+    addUUID(root);
+    root["tittle"] = "Tittle from FMAT";
+
+    //add the coments
+    root["comments"] = getComments();
+
+    //add (pos, depos, FMOSA)
+    root["pos"] = getPos();
+    root["depos"] = getDepos();
+    if(includeFMOSA)
+        root["FMOSA"] = FMOSA.getJSON();
+
+    string str;
+    if(suitable())
+        str = "";
+    else {
+        str = getWarningNotSuitable();
+        str += "\r\n\r\n";
+    }
+    Json::StyledWriter writer;
+    str += writer.write(root);
+    return str;
 }
 
 //get other outputs in text format with:
@@ -141,7 +445,7 @@ void OutputsPairPPDP::getOtherText(string& str) const
         throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
 
     //print the coments about outputs
-    str = getComments();
+    str = getCommentsText();
 
     str += "\r\n";
     str += "\r\n# Positioning program";
@@ -152,7 +456,7 @@ void OutputsPairPPDP::getOtherText(string& str) const
     }
     if(PP.thereIsSomeCommentDsec()) {
         str += "\r\n# WARNING! This PP contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
-        str += "\r\n"+PP.getCommentsDsecInterfaceText();
+        str += "\r\n"+PP.getCommentsDsecMCStext();
     } else {
         str += "\r\n# All radial movements of this PP keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
     }
@@ -166,7 +470,7 @@ void OutputsPairPPDP::getOtherText(string& str) const
     }
     if(DP.thereIsSomeCommentDsec()) {
         str += "\r\n# WARNING! This DP contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
-        str += "\r\n"+DP.getCommentsDsecInterfaceText();
+        str += "\r\n"+DP.getCommentsDsecMCStext();
     } else {
         str += "\r\n# All radial movements of this DP keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
     }
@@ -248,7 +552,7 @@ void OutputsPairPPDP::setText(const string& str, bool includeFMOSA)
         TMotionProgram t_PP;
         string labelPP;
         unsigned int BidPP;
-        t_PP.setInterfaceText(labelPP, BidPP, str);
+        t_PP.setMCStext(labelPP, BidPP, str);
 
         //-----------------------------------------------------------------------
         //SEGREGATE THE DP AND CONVERT IT TO STRUCTURE:
@@ -303,7 +607,7 @@ void OutputsPairPPDP::setText(const string& str, bool includeFMOSA)
         TMotionProgram t_DP;
         string labelDP;
         unsigned int BidDP;
-        t_DP.setInterfaceText(labelDP, BidDP, str);
+        t_DP.setMCStext(labelDP, BidDP, str);
 
         if(includeFMOSA) {
             //-----------------------------------------------------------------------
@@ -416,6 +720,24 @@ void OutputsPairPPDP::Clear(void)
     OPL.Clear();
     DP.Clear();
     FMOSA.Clear();
+}
+
+//determine if the outputs is suitable to be executed:
+//  the pair (PP, DP) is valid
+//  and there aren't dangerous RPs
+//  and there aren't collided RPs
+//  and there aren't obstructed RPs
+bool OutputsPairPPDP::suitable(void) const
+{
+    if(PPvalid != true || DPvalid != true)
+        return false;
+
+    if(EnabledNotOperative.searchFaultDynOrUnk() < EnabledNotOperative.getCount())
+        return false;
+
+    if(Collided.getCount() > 0 || Obstructed.getCount() > 0)
+        return false;
+    return true;
 }
 
 //---------------------------------------------------------------------------

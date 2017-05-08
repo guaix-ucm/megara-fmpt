@@ -107,8 +107,8 @@ libfmpt_la_SOURCES = \
 	AllocationList.h \
 	MotionProgramValidator.h \
 	MotionProgramGenerator.h \
-	OutputsPairPPDP.h \
-	OutputsParkProg.h
+	OutputsParkProg.h \
+	OutputsPairPPDP.h
 
 ## Version info is in current : revision : age form
 ## A library supports interfaces from current downto current - age
@@ -172,16 +172,17 @@ pkginclude_HEADERS = \
 	AllocationList.h \
 	MotionProgramValidator.h \
 	MotionProgramGenerator.h \
-	OutputsPairPPDP.h \
-	OutputsParkProg.h
+	OutputsParkProg.h \
+	OutputsPairPPDP.h
 
 bin_PROGRAMS = fmpt_saa
 
 fmpt_saa_SOURCES = \
 	main.cpp
 
-fmpt_saa_LDADD = libfmpt.la
+fmpt_saa_LDADD = libfmpt.la -luuid $(JSON_LIBS)
+
 fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
 
-AM_CPPFLAGS = -I$(top_srcdir) -DDATADIR=\"$(pkgdatadir)\"
+AM_CPPFLAGS = -I$(top_srcdir) -DDATADIR=\"$(pkgdatadir)\" $(JSON_CFLAGS)
 

@@ -347,8 +347,13 @@ public:
     void searchDisabledQuantificators(TVector<int> &indices);
 
     //busca el primer posicionador de la lista
-    //que tenga un fallo dinámico
-    int searchFaultDynamic(void);
+    //que tenga un fallo de tipo dinámico o desconocido
+    int searchFaultDynOrUnk(void) const;
+    //obtiene la lista de posicionadores habilitados no operativos
+    void getEnabledNotOperative(TRoboticPositionerList1&) const;
+    //obtiene la lista de posicionadores habilitados no operativos
+    //con tipo de fallo dinámico o desconocido
+    void getDangerous(TRoboticPositionerList1&) const;
 
     //------------------------------------------------------------------
     //ASSIMILATION METHODS:
@@ -434,6 +439,15 @@ public:
     void getPositionsCorners1(TItemsList<TDoublePoint>& Corners1) const;
     //get the corner 2 list in cartesian coordinates respect S0
     void getPositionsCorners2(TItemsList<TDoublePoint>& Corners2) const;
+
+    //Procedimiento para obtener (Id, x3, y3, theta3) por cada RP:
+    //  for(int i=0; i<RPL.getCount(); i++) {
+    //      TRoboticPositioner *RP = RPL[i];
+    //      int Id = RP->getActuator()->getId();
+    //      double x3 = RP->getActuator()->getArm()->getP3().x;
+    //      double y3 = RP->getActuator()->getArm()->getP3().y;
+    //      double theta3 = RP->getActuator()->getArm()->gettheta3();
+    //  }
 
     //------------------------------------------------------------------
     //METHODS FOR JOINTLY ALLOCATION:

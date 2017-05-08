@@ -872,16 +872,37 @@ void TRoboticPositionerList1::searchDisabledQuantificators(TVector<int> &indices
 }
 
 //busca el primer posicionador de la lista
-//que tenga un fallo dinámico
-int TRoboticPositionerList1::searchFaultDynamic(void)
+//que tenga un fallo de tipo dinámico o desconocido
+int TRoboticPositionerList1::searchFaultDynOrUnk(void) const
 {
     int i;
     for(i=0; i<getCount(); i++) {
         TRoboticPositioner *RP = Items[i];
-        if(RP->FaultType == ftDyn)
+        if(RP->FaultType == ftDyn || RP->FaultType == ftUnk)
             return i;
     }
     return i;
+}
+//obtiene la lista de posicionadores habilitados no operativos
+void TRoboticPositionerList1::getEnabledNotOperative(TRoboticPositionerList1& EnabledNotOperative) const
+{
+    EnabledNotOperative.Clear();
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(!RP->Disabled && !RP->getOperative())
+            EnabledNotOperative.Add(RP);
+    }
+}
+//obtiene la lista de posicionadores habilitados no operativos
+//con tipo de fallo dinámico o desconocido
+void TRoboticPositionerList1::getDangerous(TRoboticPositionerList1& Dangerous) const
+{
+    Dangerous.Clear();
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        if(!RP->Disabled && !RP->getOperative() && (RP->FaultType == ftDyn || RP->FaultType == ftUnk))
+            Dangerous.Add(RP);
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -1899,7 +1920,7 @@ void TRoboticPositionerList1::getCollisionClusterList(TPointersList<TItemsList<T
         //apunta el RP indicado para facilitar su acceso
         TRoboticPositioner *RP = Items[i];
 
-        //busca los PRs adyacentes que colisionan
+        //busca los RPs adyacentes que colisionan
         RP->getActuator()->searchCollindingPendingAdjacent(Collindings);
 
         //si ha encontrado alguna nueva colisión

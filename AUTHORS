@@ -5,6 +5,11 @@ Primary authors:
 
  * Isaac Morales <isaac@iaa.es>
 
-Secundary authors:
+Notable contributions:
 
- * José Enrique Ruíz (Graphical Interface) <jer@iaa.es>
+ * Jorge Iglesias Paramo <jiglesia@iaa.es>
+   Has performed multiple test for validate and calibrate the FMPT.
+ * África Castillo Morales <acasmor@fis.ucm.es>
+   Has controbuted suggesting movements in three phases of disjoint subsets of RPs.
+ * José Enrique Ruíz <jer@iaa.es>
+   Has controbuted ilustrating the use of QImageList for show animations.

@@ -53,8 +53,8 @@ main_testFileMethods_SOURCES = main_testFileMethods.cpp testFileMethods.h testFi
 main_testFMOSA_SOURCES = main_testFMOSA.cpp testFMOSA.h testFMOSA.cpp
 main_testOutputsPairPPDP_SOURCES = main_testOutputsPairPPDP.cpp testOutputsPairPPDP.h testOutputsPairPPDP.cpp
 
-AM_CPPFLAGS = -I$(top_srcdir) -I$(CPPUNIT_CFLAGS)
-LDADD = $(top_builddir)/src/libfmpt.la $(CPPUNIT_LIBS)
+AM_CPPFLAGS = -I$(top_srcdir) -I$(CPPUNIT_CFLAGS) $(JSON_CFLAGS)
+LDADD = $(top_builddir)/src/libfmpt.la $(CPPUNIT_LIBS) -luuid $(JSON_LIBS)
 else
 TESTS = no_tests.sh
 XFAIL_TESTS = no_tests.sh

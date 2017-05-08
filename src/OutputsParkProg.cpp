@@ -25,6 +25,14 @@
 #include "OutputsParkProg.h"
 #include "Strings.h"
 
+#include <uuid/uuid.h>
+//#include <json/json_object.h>
+//#include <json/json_tokener.h>
+
+//For install in Ubuntu/Debian:
+//  sudo apt-get install uuid-dev
+//  sudo apt-get install libjson0-dev
+
 //---------------------------------------------------------------------------
 
 using namespace Strings;
@@ -36,8 +44,173 @@ namespace Positioning {
 //class ParkProg:
 //---------------------------------------------------------------------------
 
-//get the comments about ParkProg
-string OutputsParkProg::getComments(void) const
+//PRIVATE:
+
+//functions for add data to a JSON object
+void OutputsParkProg::addUUID(Json::Value &object) const
+{
+    //get the uuid
+    uuid_t uuid;
+    uuid_generate(uuid);
+    //unparse the uuid to string
+    char uuid_c_str[37];
+    uuid_unparse(uuid, uuid_c_str);
+    object["uuid"] = string(uuid_c_str);
+}
+Json::Value OutputsParkProg::getComments(void) const
+{
+    //build a json array
+    Json::Value object;
+
+    string str = "# Parkig program outputs generated ";
+    if(FMOSA_filename.length() > 0)
+        str += "from FMOSA " + FMOSA_filename;
+    else
+        str += "online (not from FMOSA)";
+    object.append(str);
+
+    str = "# Generated with FMPT version "+FMPT_version;
+    object.append(str);
+    str = "# Date of generation: "+datetime;
+    object.append(str);
+
+    if(EnabledNotOperative.getCount() > 0) {
+        str = "# WARNING! This parking program has been generated with enabled-not-operative RPs:";
+        object.append(str);
+        str = "# Enabled-not-operative RP ids: " + EnabledNotOperative.getText().str;
+        object.append(str);
+
+        //get the list of dangerous RPs
+        TRoboticPositionerList Dangerous;
+        EnabledNotOperative.getDangerous(Dangerous);
+
+        str = "# Dangerous RPs are enabled-not-operative RPs with fault type dyynamic or unknowledge";
+        object.append(str);
+        if(Dangerous.getCount() > 0) {
+            str = "# ERROR! This parking program has been generated with dangerous RPs:";
+            object.append(str);
+            str = "# Dangerous RP ids: " + Dangerous.getText().str;
+            object.append(str);
+        }
+        else {
+            str = "# This parking program has been generated without dangerous RPs.";
+            object.append(str);
+        }
+    }
+    else {
+        str = "# This parking program has been generated without enabled-not-operative RPs.";
+        object.append(str);
+    }
+
+    if(Collided.getCount() > 0 || Obstructed.getCount() > 0) {
+        if(Collided.getCount() > 0) {
+            str = "# WARNING! the FMOSA contains collided items (either EAs or RPs):";
+            object.append(str);
+            str = "# Collided items: " + collided_str;
+            object.append(str);
+            str = "# Collided RP ids: " + Collided.getText().str;
+            object.append(str);
+        }
+        if(Obstructed.getCount() > 0) {
+            str = "# WARNING! the FMOSA contains obstructed RPs:";
+            object.append(str);
+            str = "# Obstructed RP ids: " + Obstructed.getText().str;
+            object.append(str);
+        }
+        str = "# The final positions of the collided or obstructed RPs match with their starting positions.";
+        object.append(str);
+    }
+    else {
+        str = "# The parking program has been generated without neither collided nor obstructed RPs.";
+        object.append(str);
+    }
+
+    str = "# A parking program is suitable to be executed when it is valid (avoid collisions) and there aren't";
+    object.append(str);
+    str = "# dangerous RPs in the Fiber MOS (enabled-not-operative RPs with fault type dynamic or unknowledge).";
+    object.append(str);
+    if(suitable()) {
+        str = "# According the actual status of the FMPT, this parking program is suitable to be executed.";
+        object.append(str);
+    }
+    else {
+        str = "# According the actual status of the FMPT, this parking program is not suitable to be executed.";
+        object.append(str);
+    }
+
+    return object;
+}
+Json::Value OutputsParkProg::getParking(void) const
+{
+    //build a json object
+    Json::Value object;
+
+    //add comment about name
+    Json::Value comments;
+    comments.append("# ParkProg (Parking Program)");
+
+    //add comment about validity
+    string str;
+    if(ParkProgValid) {
+        str = "# This parking program avoids collisions when it is executed starting from the starting positions (check out SPL).";
+    } else {
+        str = "# ERROR! This parking program produces a collision when it is executed starting from the starting positions (check out SPL).";
+    }
+    comments.append(str);
+
+    //add comment about approximations
+    if(ParkProg.thereIsSomeCommentDsec()) {
+        str = "# WARNING! This parking program contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
+        comments.append(str);
+        str = ParkProg.getCommentsDsecMCStext();
+        comments.append(str);
+    } else {
+        str = "# All radial movements of this parking program keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
+        comments.append(str);
+    }
+
+    //add the coments
+    object["comments"] = comments;
+    //add the Bid
+    object["Bid"] = Bid;
+    //add the parking program
+    object["ParkProg"] = ParkProg.getJSON(SPL);
+
+    return object;
+}
+
+//PUBLIC:
+
+//get the warning for not suitable outputs
+string OutputsParkProg::getWarningNotSuitable(void) const
+{
+    string str = "WARNING! This file outputs has been saved by force, because either:";
+    str += " has been generated with dangerous RPs in the FMM Instance,";
+    str += " or the generated parking program is not valid.";
+    str += " Dangerous RPs are enabled-not-operative RPs with fault type dynamic or unknowledge.";
+    str += " A parking program is not valid when has been detected a collision during the validation process.";
+
+    //get the list of Dangerous RPs
+    TRoboticPositionerList Dangerous;
+    EnabledNotOperative.getDangerous(Dangerous);
+
+    if(Dangerous.getCount() > 0)
+        str += " This parking program has been generated with dangerous RPs.";
+    else
+        str += " This parking program has been generated without dangerous RPs.";
+
+    if(ParkProgValid)
+        str += " According the FMPT, the parking program included in this file is valid, but you must disable all dangerous RPs before generate the parking program.";
+    else
+        str += " According the FMPT, parking program included in this file is not valid.";
+
+    str += " This text has been added uncommented for difficult the execution of the parking program contained in this file.";
+
+    return str;
+}
+
+//get the comments about ParkProg in text format
+string OutputsParkProg::getCommentsText(void) const
 {
     locale l;
     if(l.name() != "C")
@@ -50,12 +223,29 @@ string OutputsParkProg::getComments(void) const
         str += "online (not from FMOSA)";
     str += "\r\n# Generated with FMPT version "+FMPT_version;
     str += "\r\n# Date of generation: "+datetime;
-    str += "\r\n# When FMOSA contains either collided or obstructed RPs, the generated parking program is valid.";
-    if(Collided.getCount() > 0 || Obstructed.getCount() > 0 || EnabledNotOperative.getCount() > 0) {
-        if(Obstructed.getCount() > 0) {
-            str += "\r\n# WARNING! This pair (PP, DP) not valid, because the FMOSA contains enabled-not-operative RPs:";
-            str += "\r\n# Enabled-not-operative RP ids: " + EnabledNotOperative.getText().str;
+
+    if(EnabledNotOperative.getCount() > 0) {
+        str += "\r\n# WARNING! This parking program has been generated with enabled-not-operative RPs:";
+        str += "\r\n# Enabled-not-operative RP ids: " + EnabledNotOperative.getText().str;
+
+        //get the list of dangerous RPs
+        TRoboticPositionerList Dangerous;
+        EnabledNotOperative.getDangerous(Dangerous);
+
+        str += "\r\n# Dangerous RPs are enabled-not-operative RPs with fault type dyynamic or unknowledge";
+        if(Dangerous.getCount() > 0) {
+            str += "\r\n# ERROR! This parking program has been generated with dangerous RPs:";
+            str += "\r\n# Dangerous RP ids: " + Dangerous.getText().str;
         }
+        else {
+            str += "\r\n# This parking program has been generated without dangerous RPs.";
+        }
+    }
+    else {
+        str += "\r\n# This parking program has been generated without enabled-not-operative RPs.";
+    }
+
+    if(Collided.getCount() > 0 || Obstructed.getCount() > 0) {
         if(Collided.getCount() > 0) {
             str += "\r\n# WARNING! the FMOSA contains collided items (either EAs or RPs):";
             str += "\r\n# Collided items: " + collided_str;
@@ -65,26 +255,42 @@ string OutputsParkProg::getComments(void) const
             str += "\r\n# WARNING! the FMOSA contains obstructed RPs:";
             str += "\r\n# Obstructed RP ids: " + Obstructed.getText().str;
         }
-        str += "\r\n# The starting positions of the collided and obstructed RPs match with their final positions.";
+        str += "\r\n# The final positions of the collided or obstructed RPs match with their starting positions.";
     }
-    else
-        str += "\r\n# This parking program has been generated without enabled-not-operative RPs and without neither collided nor obstructed RPs.";
+    else {
+        str += "\r\n# The parking program has been generated without neither collided nor obstructed RPs.";
+    }
+
+    str += "\r\n# A parking program is suitable to be executed when it is valid (avoid collisions) and there aren't";
+    str += "\r\n# dangerous RPs in the Fiber MOS (enabled-not-operative RPs with fault type dynamic or unknowledge).";
+    if(suitable()) {
+        str += "\r\n# According the actual status of the FMPT, this parking program is suitable to be executed.";
+    }
+    else {
+        str += "\r\n# According the actual status of the FMPT, this parking program is not suitable to be executed.";
+    }
 
     return str;
 }
 
-//get ParkProg in text format with:
+//get outputs in format MCS with:
 //  comments
 //  the parking program
 void OutputsParkProg::getText(string& str) const
-
 {
     locale l;
     if(l.name() != "C")
         throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
 
+    if(suitable())
+        str = "";
+    else {
+        str = getWarningNotSuitable();
+        str += "\r\n\r\n";
+    }
+
     //print the coments about ParkProg
-    str = getComments();
+    str += getCommentsText();
 
     str += "\r\n";
     str += "\r\n# Parking program";
@@ -95,15 +301,67 @@ void OutputsParkProg::getText(string& str) const
     }
     if(ParkProg.thereIsSomeCommentDsec()) {
         str += "\r\n# WARNING! This parking program contains instructions that produce radial movements which produce approximations closer than "+floattostr(DsecMax)+" mm:";
-        str += "\r\n"+ParkProg.getCommentsDsecInterfaceText();
+        str += "\r\n"+ParkProg.getCommentsDsecMCStext();
     } else {
         str += "\r\n# All radial movements of this parking program keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
     }
     str += "\r\n@@SParkProg@@";
     string aux;
-    ParkProg.getInterfaceText(aux, "depos", Bid, SPL);
+    ParkProg.getMCStext(aux, "depos", Bid, SPL);
     str += "\r\n"+aux;
     str += "\r\n@@EParkProg@@";
+}
+
+//get outputs in format JSON with:
+//  comments
+//  the parking program
+string OutputsParkProg::getJSONtext(void) const
+{
+    locale l;
+    if(l.name() != "C")
+        throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
+    //build the JSON object and parse the schema
+    //  json_object *root;
+    //  root = json_tokener_parse(schema.c_str());
+
+    //check the result of the parsing
+    //  if(root == NULL)
+    //      throw EImproperFileLoadedValue("failed so parse JSON");
+
+    //set value for token "instrument"
+    //  json_object *val;
+    //  //val = json_object_object_get(root, "instrument");
+    //  val = json_object_array_get_idx(root, 0);
+    //  if(val == NULL || json_object_get_type(val) != json_type_string)
+    //      throw EImpossibleError("lateral effect");
+    //  json_object_object_add(val, "instrument", json_object_new_string("MEGARA"));
+    //  json_object_array_put_idx(root, 0, val);
+
+    //build a json object
+    Json::Value root;
+
+    //add (instrument, uuid, tittle)
+    root["instrument"] = "MEGARA";
+    addUUID(root);
+    root["tittle"] = "Tittle from FMAT";
+
+    //add the coments
+    root["comments"] = getComments();
+
+    //add the parking program with comments
+    root["depos"] = getParking();
+
+    string str;
+    if(suitable())
+        str = "";
+    else {
+        str = getWarningNotSuitable();
+        str += "\r\n\r\n";
+    }
+    Json::StyledWriter writer;
+    str += writer.write(root);
+    return str;
 }
 
 //get other outputs in text format with:
@@ -116,7 +374,7 @@ void OutputsParkProg::getOtherText(string& str) const
         throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
 
     //print the coments about ParkProg
-    str = getComments();
+    str = getCommentsText();
 
     str += "\r\n";
     str += "\r\n# Parking program";
@@ -127,7 +385,7 @@ void OutputsParkProg::getOtherText(string& str) const
     }
     if(ParkProg.thereIsSomeCommentDsec()) {
         str += "\r\n# WARNING! This parking program contains instructions that produce radial movements which produce approximations closer than DsecMax:";
-        str += "\r\n"+ParkProg.getCommentsDsecInterfaceText();
+        str += "\r\n"+ParkProg.getCommentsDsecMCStext();
     } else {
         str += "\r\n# All radial movements of this parking program keep a security distance upper or equal to "+floattostr(DsecMax)+" mm.";
     }
@@ -140,7 +398,7 @@ void OutputsParkProg::getOtherText(string& str) const
     str += "\r\nCollided (including EAs): "+collided_str;
 }
 
-//set the ParkProg in text format
+//set the outputs in text format
 void OutputsParkProg::setText(const string& str)
 {
     try {
@@ -216,7 +474,7 @@ void OutputsParkProg::setText(const string& str)
         TMotionProgram t_ParkProg;
         string labelParkProg;
         unsigned int BidParkProg;
-        t_ParkProg.setInterfaceText(labelParkProg, BidParkProg, str);
+        t_ParkProg.setMCStext(labelParkProg, BidParkProg, str);
 
         //discard the label
         i++;
@@ -278,6 +536,20 @@ void OutputsParkProg::Clear(void)
     SPL.Clear();
     ParkProg.Clear();
     FPL.Clear();
+}
+
+//determine if the outputs is suitable to be executed:
+//  the motion program is valid
+//  and there aren't dangerous RPs
+bool OutputsParkProg::suitable(void) const
+{
+    if(ParkProgValid != true)
+        return false;
+
+    if(EnabledNotOperative.searchFaultDynOrUnk() < EnabledNotOperative.getCount())
+        return false;
+
+    return true;
 }
 
 //---------------------------------------------------------------------------

@@ -65,7 +65,7 @@ void TMotionProgramGenerator::segregateRPsInDisjointSets(
     for(int i=0; i<Outsiders.getCount(); i++) {
         TRoboticPositioner *RP = Outsiders[i];
         if(!RP->getOperative())
-            throw EImproperArgument("all RPs in the list Outsiders shall be operatives");
+            throw EImproperArgument("all RPs in the list Outsiders shall be operative");
         if(RP->getActuator()->ArmIsInSafeArea())
             throw EImproperArgument("all RPs in the list Outsiders shall be in insecurity positions");
     }
@@ -1384,13 +1384,13 @@ void TMotionProgramGenerator::generateRecoveryProgram(
         TRoboticPositioner *RP = Outsiders[i];
         int j = getFiberMOSModel()->RPL.Search(RP);
         if(j >= getFiberMOSModel()->RPL.getCount())
-            throw EImproperArgument("all RPs of the list Outsiders, shall be in the Fiber MOS Model");
+            throw EImproperArgument("all RPs of the list Outsiders shall be in the Fiber MOS Model");
         if(!RP->getOperative())
-            throw EImproperArgument("all RPs in the list Outsiders, shall be operatives");
+            throw EImproperArgument("all RPs in the list Outsiders shall be operative");
         if(RP->getActuator()->ArmIsInSafeArea())
-            throw EImproperArgument("all RPs in the list Outsiders, shall be in insecurity positions");
+            throw EImproperArgument("all RPs in the list Outsiders shall be in insecurity positions");
         if(RP->getActuator()->getQuantify_()!=true || RP->getActuator()->getArm()->getQuantify___()!=true)
-            throw EImproperArgument("all RPs in the list Outsiders, shall have enabled the quantifiers of their rotors");
+            throw EImproperArgument("all RPs in the list Outsiders shall have enabled the quantifiers of their rotors");
     }
 
     //MAKE ACTIONS:
@@ -1614,7 +1614,7 @@ bool TMotionProgramGenerator::generateDepositioningProgram(
     for(int i=0; i<Outsiders.getCount(); i++) {
         TRoboticPositioner *RP = Outsiders[i];
         if(Abs(RP->wmaxabs2()/RP->wmaxabs1() - 2) > 0.1)
-            throw EImproperCall("all RPs in the list Outsiders, shall be setted in order to the rotor 2 velocity is approximately double than rotor 1 velocity");
+            throw EImproperCall("all RPs in the list Outsiders shall have velocity of rotor 2 approximately double than rotor 1");
     }
 
     //configure the Fiber MOS Model for generate a DP
@@ -1849,7 +1849,7 @@ void TMotionProgramGenerator::generatePairPPDP(bool& PPvalid, bool& DPvalid,
 //  Outsiders: list of operative RPs in unsecurity positions which
 //      we want recover the security positions.
 //Outputs:
-//  generateDepositioningProgram: indicates if the generated DP is valid.
+//  generateDepositioningProgram: indicates if the generated ParkProg is valid.
 //  Collided: list of RPs collided in insecurity position.
 //  Obstructed: list of RPs obstructed in insecurity position.
 //  ParkProg: the generated parking program.
@@ -2544,8 +2544,8 @@ bool generateParkProg_online(OutputsParkProg& outputs,
         }
     }
 
-    //check that there aren't enabled-not-operative with fault type dynamic
-    if(EnabledNotOperative.getCount() > 0 && EnabledNotOperative.searchFaultDynamic() < EnabledNotOperative.getCount())
+    //check that there aren't enabled-not-operative with fault type dynamic or unknowledge
+    if(EnabledNotOperative.searchFaultDynOrUnk() < EnabledNotOperative.getCount())
         return false;
 
     //captures the starting positions of the RPs in a PPA list
@@ -2571,30 +2571,31 @@ bool generateParkProg_online(OutputsParkProg& outputs,
 
     //Now are fulfilled the preconditions for the function TMotionProgramGenerator::generateParkProg:
     //  All RPs of the Fiber MOS Model:
-    //      shall be in their observing positions.
+    //    - shall be in their starting positions.
     //  All RPs of the list Outsiders:
-    //      shall be in the Fiber MOS Model.
-    //      shall be operatives.
-    //      shall be in insecurity positions.
-    //      shall have enabled the quantifiers.
-    //      shall have a velocity of rotor 2 approximately double than rotor 1.
+    //    - shall be in the Fiber MOS Model.
+    //    - shall be operatives.
+    //    - shall be in insecurity positions.
+    //    - shall have enabled the quantifiers.
 
-    //generates a parking program for the operative RPs in unsecurity positions
-    //and determines the RPs in collision status or obstructed in insecure positions
+    //generates a parking program and determines the collided and obstructed RPs in insecurity positions
     TRoboticPositionerList Collided;
     TRoboticPositionerList Obstructed;
     TMotionProgram ParkProg;
     bool ParkProgValid = MPG.generateParkProg(Collided, Obstructed, ParkProg, Outsiders);
 
     //Now are fulfilled the postconditions:
-    //  All RPs of the Fiber MOS Model:
-    //      will be configured for validate a PP. (Purpose = pValPP).
-    //      will have disabled the quantifiers.
-    //  All RPs included in the generated parking program:
-    //      if the parking program is valid:
-    //          will be in their final positions.
-    //      if the parking program is not valid:
-    //          will be in the first position where the collision was detected.
+    //  All RPs of the FMM:
+    //    - will be configured for validate a parking program.
+    //  When the generated recovery program isn't valid:
+    //      All RPs of the FMM:
+    //        - will have disabled the quantifiers of their rotors;
+    //        - will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated recovery program is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //        - will have enabled the quantifiers of their rotors;
+    //        - will be in their final positions.
 
     //check that the generated parking program is valid
     if(!ParkProgValid)
@@ -2643,8 +2644,12 @@ bool generateParkProg_online(OutputsParkProg& outputs,
     outputs.ParkProg = ParkProg;
     outputs.FPL = FPL;
 
-    //indicates that conditions for approbation are met
-    return true;
+    //indicates if the outputs is suitable to be executed
+    return outputs.suitable();
+
+    //Note that when outputs is not suitable to be executed,
+    //the outputs is generated with a initial uncommented note,
+    //for difficult their execution.
 }
 
 //Generate a pair (PP, DP) online
@@ -2738,8 +2743,8 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
         }
     }
 
-    //check that there aren't enabled-not-operative with fault type dynamic
-    if(EnabledNotOperative.getCount() > 0 && EnabledNotOperative.searchFaultDynamic() < EnabledNotOperative.getCount())
+    //check that there aren't enabled-not-operative with fault type dynamic or unknowledge
+    if(EnabledNotOperative.searchFaultDynOrUnk() < EnabledNotOperative.getCount())
         return false;
 
     //captures the observing positions of the RPs in a PPA list
@@ -2765,16 +2770,15 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 
     //Now are fulfilled the preconditions for the function TMotionProgramGenerator::generatePairPPDP:
     //  All RPs of the Fiber MOS Model:
-    //      shall be in their observing positions.
+    //    - shall be in their observing positions.
     //  All RPs of the list Outsiders:
-    //      shall be in the Fiber MOS Model.
-    //      shall be operatives.
-    //      shall be in insecurity positions.
-    //      shall have enabled the quantifiers.
-    //      shall have a velocity of rotor 2 approximately double than rotor 1.
+    //    - shall be in the Fiber MOS Model.
+    //    - shall be operatives.
+    //    - shall be in insecurity positions.
+    //    - shall have enabled the quantifiers.
+    //    - shall have velocity of rotor 2 approximately double than rotor 1.
 
-    //generates a pair (PP, DP) for the operative RPs in unsecurity positions
-    //and determines the RPs in collision status or obstructed in insecure positions
+    //generates a pair (PP, DP) and determines the collided and obstructed RPs in insecurity positions
     bool PPvalid = false;
     bool DPvalid = false;
     TRoboticPositionerList Collided;
@@ -2785,13 +2789,17 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 
     //Now are fulfilled the postconditions:
     //  All RPs of the Fiber MOS Model:
-    //      will be configured for validate a PP. (Purpose = pValPP).
-    //      will have disabled the quantifiers.
-    //  All RPs included in the generated pair (PP, DP):
-    //      if the pair (PP, DP) is valid:
-    //          will be in their final positions.
-    //      if the pair (PP, DP) is not valid:
-    //          will be in the first position where the collision was detected.
+    //    - will be configured for validate a PP. (Purpose = pValPP).
+    //    - will have disabled the quantifiers.
+    //  When the generated pair (PP, DP) isn't valid:
+    //      All RPs of the FMM:
+    //        - will have disabled the quantifiers of their rotors;
+    //        - will be in the first position where the collision was detected
+    //              during the validation process.
+    //  When the generated pair (PP, DP) is valid (even the trivial case):
+    //      All RPs of the FMM:
+    //        - will have enabled the quantifiers of their rotors;
+    //        - will be in their initial positions.
 
     //check that the generated pair (PP, DP) is valid
     if(!PPvalid || !DPvalid)
@@ -2843,16 +2851,12 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
     outputs.DP = DP;
     outputs.FMOSA.Clear(); //here there isn't FMOSA
 
-    //cheack that there anren't neither collided nor obstructed RPs
-    if(Collided.getCount() > 0 || Obstructed.getCount() > 0)
-        return false;
+    //indicates if the outputs is suitable to be executed
+    return outputs.suitable();
 
-    //Note that when there are either collided or obstructed RPs,
+    //Note that when outputs is not suitable to be executed,
     //the outputs is generated with a initial uncommented note,
     //for difficult their execution.
-
-    //indicates that conditions for approbation are met
-    return true;
 }
 
 //############################################################################

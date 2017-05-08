@@ -29,6 +29,8 @@
 #include "PointersList.h"
 #include "PairPositionAngles.h"
 
+#include <jsoncpp/json/json.h>
+
 //---------------------------------------------------------------------------
 
 using namespace Lists;
@@ -83,7 +85,7 @@ public:
     //of the the motion program
     bool thereIsSomeCommentDsec(void) const;
     //get the non empty coments of the motion program
-    string getCommentsDsecInterfaceText(void) const;
+    string getCommentsDsecMCStext(void) const;
 
     //builds a motion program
     TMotionProgram(int Capacity=7) :
@@ -109,8 +111,11 @@ public:
     //Preconditions:
     //  All PPAs of the SPL must be referred to different RPs.
     //  All RPs included in the MP, must be in included in the SPL.
-    void getInterfaceText(string& str, const string& label, unsigned int Bid,
+    void getMCStext(string& str, const string& label, unsigned int Bid,
                           const TPairPositionAnglesList& SPL) const;
+
+    //get the motion program in format JSON
+    Json::Value getJSON(const TPairPositionAnglesList& SPL) const;
 
     //Values for label:
     //  "obs depos" for depositioning programs
@@ -125,22 +130,22 @@ public:
     //- can be manipulated without the FMM;
     //- not necessary coincide with the propietary format of the RPs.
 
-    //Set a motion progam in the interface format of the MCS.
-    void setInterfaceText(string& label, unsigned int& Bid,
+    //Set a motion progam in the MCS format
+    void setMCStext(string& label, unsigned int& Bid,
                           const string& str);
 
-    //Get MP-Dmins in the interface format of the MCS.
+    //Get MP-Dmins in the MCS format.
     //Inputs:
     //  label: string labeling all the MP-Dmin.
     //  Bid: univoque identifier of the CB.
-    void getDminInterfaceText(string& str, const string& label,
+    void getDminMCStext(string& str, const string& label,
                                unsigned int Bid) const;
 
-    //Get MP-Dends in the interface format of the MCS.
+    //Get MP-Dends in the MCS format.
     //Inputs:
     //  label: string labeling all the MP-Dend.
     //  Bid: univoque identifier of the CB.
-    void getDendInterfaceText(string& str, const string& label,
+    void getDendMCStext(string& str, const string& label,
                                unsigned int Bid) const;
 };
 

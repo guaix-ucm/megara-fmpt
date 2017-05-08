@@ -90,6 +90,9 @@ public:
 
     //build an AnsiString by default
     AnsiString(void);
+    //build an AnsiString from an AnsiString
+    AnsiString(const AnsiString&);
+
     //build an AnsiString from a char
     AnsiString(const char);
     //build an AnsiString from a c string
@@ -112,7 +115,7 @@ public:
     AnsiString& operator+=(const AnsiString&);
     //concatenate a char to this AnsiString
     AnsiString& operator+=(const char&);
-    //copy an AnsiString
+    //copy an AnsiStringStrTrim(Strings[i])
     AnsiString& operator=(const AnsiString&);
     //copy a string
     AnsiString& operator=(const string& str);
@@ -249,7 +252,7 @@ AnsiString  BoolToStr(bool B, bool UseBoolStrs = false);
 
 //build a directory path
 int mkpath(const string& dir);
-//force the erase of a directory and all theri content
+//force the erase of a directory and all their content
 int rmpath(string& path);
 
 //get the path of the current directory
@@ -261,6 +264,13 @@ void ForceDirectories(const AnsiString&);
 void splitpath(string& parent_path, string& filename, const string& path);
 //determine if a path correspond to a existing file
 bool isfile(const string& path);
+
+//extract the filename without extension
+string stem(string path);
+
+//similar to:
+//#include <boost/filesystem.hpp>
+//boost::filesystem::path::stem
 
 //---------------------------------------------------------------------------
 //class TStrings: an array of AnsiStrings
@@ -285,6 +295,13 @@ public:
 
     //contruye una lista de cadenas por defecto
     TStrings(void);
+    //libera la memoria dinámica
+    ~TStrings();
+    //clona una lista de cadenas
+    void Clone(const TStrings&);
+    //copia una lista de cadenas
+    void Copy(const TStrings&);
+    TStrings& operator=(const TStrings&);
 
     //accede a la cadena de texto indicada
     AnsiString& operator[](int i);

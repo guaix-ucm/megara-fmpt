@@ -249,7 +249,7 @@ void  TMessageInstruction::Read(TMessageInstruction *MI,
 
 //read an instruction from a text string
 //in the MCS format
-void  TMessageInstruction::readInterface(TMessageInstruction *MI,
+void  TMessageInstruction::readMCS(TMessageInstruction *MI,
                                          const string& str, unsigned int &i)
 {
     //check the preconditions

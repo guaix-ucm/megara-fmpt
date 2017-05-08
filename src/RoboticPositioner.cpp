@@ -630,7 +630,7 @@ void TRoboticPositioner::setInstanceText(const AnsiString &S)
         //busca texto inesperado
         StrTravelSeparatorsIfAny(S, i);
         if(i <= S.Length())
-            throw EImproperArgument("unexpected additional text");
+            throw EImproperArgument("unexpected text setting robotic positioner instance");
 
         //asigna la variable tampón
         clone(RP);

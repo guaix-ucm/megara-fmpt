@@ -29,6 +29,14 @@
 #include "RoboticPositionerList3.h"
 #include "FMOSA.h"
 
+//#include <jsoncpp/json/json.h>
+//#include <json/json_object.h>
+//#include <json/json_tokener.h>
+
+//For install in Ubuntu/Debian:
+//  sudo apt-get install uuid-dev
+//  sudo apt-get install libjson0-dev
+
 //---------------------------------------------------------------------------
 
 //namespace for positioning
@@ -40,6 +48,13 @@ namespace Positioning {
 
 class OutputsPairPPDP
 {
+private:
+    //functions for add data to a JSON object
+    void addUUID(Json::Value &object) const;
+    Json::Value getComments(void) const;
+    Json::Value getPos(void) const;
+    Json::Value getDepos(void) const;
+
 public:
     //properties for built comments about file outputs
     string FMOSA_filename; //name of file type FMOSA of procedence
@@ -63,14 +78,22 @@ public:
     TMotionProgram DP; //depositioning program
     TFMOSA FMOSA; //FMOSA of file type FMOSA
 
-    //get the comments about outputs
-    string getComments(void) const;
+    //get the warning for not suitable outputs
+    string getWarningNotSuitable(void) const;
 
-    //get outputs in text format with:
+    //get the comments about outputs
+    string getCommentsText(void) const;
+    //get outputs in format MCS with:
     //  comments
     //  the pair (PP, DP)
     //  the FMOSA
     void getText(string& str, bool includeFMOSA=true) const;
+
+    //get outputs in format JSON with:
+    //  comments
+    //  the pair (PP, DP)
+    //  the FMOSA
+    string getJSONtext(bool includeFMOSA=true) const;
 
     //get other outputs in text format with:
     //  comments
@@ -85,6 +108,16 @@ public:
 
     //reset all properties to values by default
     void Clear(void);
+
+    //DEFINITION:
+    //  Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
+
+    //determine if the outputs is suitable to be executed:
+    //  the pair (PP, DP) is valid
+    //  and there aren't dangerous RPs
+    //  and there aren't collided RPs
+    //  and there aren't obstructed RPs
+    bool suitable(void) const;
 };
 
 //---------------------------------------------------------------------------

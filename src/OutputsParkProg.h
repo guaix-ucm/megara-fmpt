@@ -29,6 +29,8 @@
 #include "RoboticPositionerList3.h"
 #include "FMOSA.h"
 
+//#include <jsoncpp/json/json.h>
+
 //---------------------------------------------------------------------------
 
 //namespace for positioning
@@ -40,12 +42,18 @@ namespace Positioning {
 
 class OutputsParkProg
 {
+private:
+    //functions for add data to a JSON object
+    void addUUID(Json::Value &object) const;
+    Json::Value getComments(void) const;
+    Json::Value getParking(void) const;
+
 public:
     //properties for built comments about file ParkProg
     string FMOSA_filename; //name of file type FMOSA of procedence
     string FMPT_version; //version of the FMPT with which was generated
     string datetime; //date-time of generation
-    TRoboticPositionerList EnabledNotOperative; //list of pointer to enabled not operative RPs
+    TRoboticPositionerList EnabledNotOperative; //list of pointer to enabled-not-operative RPs
     string collided_str; //list of lists of items (both EAs and RPs) in colliding status
     TRoboticPositionerList Collided; //list of pointers to RPs in colliding status
     TRoboticPositionerList Obstructed; //list of pointer to RPs in obstructed status
@@ -60,20 +68,27 @@ public:
     //properties for built the executable data
     TMotionProgram ParkProg; //the parking program
 
-    //get the comments about ParkProg
-    string getComments(void) const;
+    //get the warning for not suitable outputs
+    string getWarningNotSuitable(void) const;
 
-    //get ParkProg in text format with:
+    //get the comments about ParkProg in text format
+    string getCommentsText(void) const;
+    //get outputs in format MCS with:
     //  comments
     //  the parking program
     void getText(string& str) const;
+
+    //get outputs in format JSON with:
+    //  comments
+    //  the parking program
+    string getJSONtext(void) const;
 
     //get other outputs in text format with:
     //  comments
     //  other properties in format assigns
     void getOtherText(string& str) const;
 
-    //set the ParkProg in text format
+    //set the outputs in text format
     void setText(const string& str);
 
     //build an estructure of type ParkProg
@@ -81,6 +96,14 @@ public:
 
     //reset all properties to values by default
     void Clear(void);
+
+    //DEFINITION:
+    //  Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
+
+    //determine if the outputs is suitable to be executed:
+    //  the motion program is valid
+    //  and there aren't dangerous RPs
+    bool suitable(void) const;
 };
 
 //---------------------------------------------------------------------------

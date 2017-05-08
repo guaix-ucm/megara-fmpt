@@ -26,6 +26,11 @@
 #include "Strings.h"
 #include "StrPR.h"
 
+//#include <algorithm> //to_lower
+//#include <locale>         // std::locale, std::tolower
+
+#include <algorithm> //transform
+
 using namespace Strings;
 
 //---------------------------------------------------------------------------
@@ -46,11 +51,11 @@ AnsiString TObservingSource::getRowText(void) const
         str += ' ';
 
     str += "|"+floattostr_fixed(RA, 6);
-    while(str.length() < 30)
+    while(str.length() < 31)
         str += ' ';
 
     str += "|"+floattostr_fixed(Dec, 6);
-    while(str.length() < 40)
+    while(str.length() < 42)
         str += ' ';
 
 
@@ -59,11 +64,11 @@ AnsiString TObservingSource::getRowText(void) const
         str += floattostr_fixed(Mag, 2);
     else
         str += "     ";
-    while(str.length() < 46)
+    while(str.length() < 48)
         str += ' ';
 
     str += "|"+pointTypeToStr(Type);
-    while(str.length() < 63)
+    while(str.length() < 65)
         str += ' ';
 
     str += "|";
@@ -71,7 +76,7 @@ AnsiString TObservingSource::getRowText(void) const
         str += uinttostr(Pr);
     else
         str += "  ";
-    while(str.length() < 66)
+    while(str.length() < 68)
         str += ' ';
 
     str += "|";
@@ -79,32 +84,71 @@ AnsiString TObservingSource::getRowText(void) const
         str += uinttostr(Bid);
     else
         str += "   ";
-    while(str.length() < 70)
+    while(str.length() < 72)
         str += ' ';
 
 
     str += "|"+uinttostr(Pid);
-    while(str.length() < 74)
+    while(str.length() < 76)
         str += ' ';
 
     str += "|"+floattostr_fixed(X, 6);
-    while(str.length() < 85)
+    while(str.length() < 87)
         str += ' ';
 
     str += "|"+floattostr_fixed(Y, 6);
-    while(str.length() < 96)
-        str += ' ';
-
-    str += "|"+inttostr(int(Enabled));
     while(str.length() < 98)
         str += ' ';
 
+    str += "|"+floattostr_fixed(Angle, 4);
+    while(str.length() < 109)
+        str += ' ';
+
+    str += "|"+inttostr(int(Enabled));
+    while(str.length() < 111)
+        str += ' ';
+
     str += "|"+Comment;
-    while(str.length() < 119)
+    while(str.length() < 132)
         str += ' ';
 
     AnsiString S(str);
     return S;
+}
+
+//get the structure in JSON format
+Json::Value TObservingSource::getJSON(void) const
+{
+    Json::Value OS_JSON;
+    OS_JSON["Name"] = Name;
+    OS_JSON["RA"] = RA;
+    OS_JSON["Dec"] = Dec;
+
+    if(there_is_Mag)
+        OS_JSON["Mag"] = Mag;
+    else
+        OS_JSON["Mag"] = 0;
+
+    OS_JSON["Type"] = pointTypeToStr(Type);
+
+    if(there_is_Pr)
+        OS_JSON["Pr"] = Pr;
+    else
+        OS_JSON["Pr"] = 0;
+
+    if(there_is_Bid)
+        OS_JSON["Bid"] = Bid;
+    else
+        OS_JSON["Bid"] = 0;
+
+    OS_JSON["Pid"] = Pid;
+    OS_JSON["X"] = X;
+    OS_JSON["Y"] = Y;
+    OS_JSON["Angle"] = Angle;
+    OS_JSON["Enabled"] = Enabled;
+    OS_JSON["Comment"] = Comment;
+
+    return OS_JSON;
 }
 
 //set the structure in text format
@@ -116,8 +160,8 @@ void TObservingSource::setText(const string& str)
         StrSplit(Strings, str, '|');
 
         //check the number of fields
-        if(Strings.getCount() != 12)
-            throw EImproperArgument("should have 12 fields separated by '|': \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Enabled> | <Comment>\"");
+        if(Strings.getCount() != 13)
+            throw EImproperArgument("should have 12 fields separated by '|': \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Angle(deg)> | <Enabled> | <Comment>\"");
 
         //translate the values and assign to a tampon variable
         TObservingSource OS;
@@ -220,7 +264,13 @@ void TObservingSource::setText(const string& str)
             throw;
         }
         try {
-            OS.Enabled = strToBool(Strings[10].str);
+            OS.Angle = strToFloat(Strings[10].str);
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading Angle: ");
+            throw;
+        }
+        try {
+            OS.Enabled = strToBool(Strings[11].str);
         } catch(Exception& E) {
             E.Message.Insert(1, "reading Enabled: ");
             throw;
@@ -247,7 +297,7 @@ void TObservingSource::setText(const string& str)
 
         //trims Comment property
         try {
-            OS.Comment = StrTrim(Strings[11]).str;
+            OS.Comment = StrTrim(Strings[12]).str;
         } catch(Exception& E) {
             E.Message.Insert(1, "reading Comment: ");
             throw;
@@ -283,7 +333,7 @@ void  TObservingSource::printRow(AnsiString &S, const TObservingSource *OS)
 
 //build a structure by default
 TObservingSource::TObservingSource() : RA(0), Dec(0), Mag(0), Type(ptUNKNOWN), Pr(0), Bid(0), Pid(0),
-    X(0), Y(0), Enabled(false), //notAllocated(true), allocateInAll(false),
+    X(0), Y(0), Angle(0), Enabled(false), //notAllocated(true), allocateInAll(false),
     there_is_Mag(false), there_is_Pr(false), there_is_Bid(false)//,
     //there_is_notAllocated(false), there_is_allocateInAll(false)
 {
@@ -304,6 +354,7 @@ TObservingSource& TObservingSource::operator=(const TObservingSource& OS)
     Pid = OS.Pid;
     X = OS.X;
     Y = OS.Y;
+    Angle = OS.Angle;
     Enabled = OS.Enabled;
     //notAllocated = OS.notAllocated;
     //allocateInAll = OS.allocateInAll;
@@ -341,6 +392,7 @@ bool TObservingSource::operator!=(const TObservingSource& OS)
             Pid != OS.Pid ||
             X != OS.X ||
             Y != OS.Y ||
+            Angle != OS.Angle ||
             Enabled != OS.Enabled ||
             //notAllocated != OS.notAllocated ||
             //allocateInAll != OS.allocateInAll ||
@@ -432,9 +484,40 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
 
         //--------------------------------------------------------------
 
-        //discard the coments and empty lines
-        while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i].str).Length()<=0))
+        //discard the empty lines and read the comments
+        TFMOSA t_FMOSA;
+        while(i<Strings.getCount() && (strFirstNonseparatorChar(Strings[i].str)=='#' || StrTrim(Strings[i].str).Length()<=0)) {
+            if(strFirstNonseparatorChar(Strings[i].str)=='#')
+                t_FMOSA.comments.Add(StrTrim(Strings[i]));
             i++;
+        }
+
+        //delete the header of the OB
+        try {
+            string str = t_FMOSA.comments[t_FMOSA.comments.getCount() - 1].str;
+            transform(str.begin(), str.end(), str.begin(), (int (*)(int))tolower);
+            unsigned int i = 0;
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("#", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("id", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("|", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("ra", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("|", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("dec", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("|", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("pos", str, i);
+            t_FMOSA.comments.setCount(t_FMOSA.comments.getCount() - 1);
+        }
+        catch(...) {
+            //do nothing
+        }
 
         //check if there are more lines
         if(i >= Strings.getCount())
@@ -457,10 +540,7 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
 
         //read the OB section in tampon variables
         int t_Id;
-        double t_Ra;
-        double t_Dec;
-        double t_Pos;
-        readOBText(t_Id, t_Ra, t_Dec, t_Pos, Strings[i].str);
+        readOBText(t_Id, t_FMOSA.Ra, t_FMOSA.Dec, t_FMOSA.Pos, Strings[i].str);
 
         //contabilize the readed line
         i++;
@@ -507,14 +587,13 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
 
         //check if there are more lines
         if(i >= Strings.getCount())
-            throw EImproperArgument("OS parameters not found: \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Enabled> | <Comment>\"");
+            throw EImproperArgument("OS parameters not found: \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | | <Angle(deg)> | <Enabled> | <Comment>\"");
 
         //read all lines (using a tampon variable) until the close label @@EOS@
-        TFMOSA t_FMOSAT;
         try {
             while(i<Strings.getCount() && StrTrim(Strings[i])!=AnsiString("@@EOS@@")) {
                 TObservingSource *OS = new TObservingSource();
-                t_FMOSAT.Add(OS);
+                t_FMOSA.Add(OS);
                 OS->setText(Strings[i].str);
 
                 //check the precondition
@@ -556,11 +635,13 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
         //--------------------------------------------------------------
 
         //set the tampons variables
-        Id = (unsigned int)t_Id;
-        Ra = t_Ra;
-        Dec = t_Dec;
-        Pos = t_Pos;
-        *this = t_FMOSAT;
+        t_FMOSA.Id = (unsigned int)t_Id;
+        *this = t_FMOSA;
+
+        //REMEMBER: not define the operator= may produce erased of attributes. E.i:
+        //  *this = t_FMOSA;
+        //When TFMOSA::operator= is not defined, is called the function TPointersList<>::operator=,
+        //but properties of the FMOSA also will be assigned.
 
         //set the last valid setted string
         str_original = str;
@@ -580,7 +661,7 @@ void TFMOSA::getTableText(string& str) const
     if(str_original.length() > 0)
         str = str_original;
     else {
-        str = "#Id     |Ra        |Dec       |Pos";
+        str = "# Id| Ra\t | Dec\t      | Pos";
         str += "\r\n@@SOB@@";
         string aux = inttostr(Id);
         while(aux.length() < 7)
@@ -588,11 +669,42 @@ void TFMOSA::getTableText(string& str) const
         str += "\r\n"+aux+" |"+floattostr_fixed(Ra, 6)+" |"+floattostr_fixed(Dec, 6)+" |"+floattostr_fixed(Pos, 6);
         str += "\r\n@@EOB@@";
 
-        str += "\r\n#Name               |RA       |Dec      |Mag  |Type            |Pr|Bid|Pid|X(mm)     |Y(mm)     |Enabled|Comment";
+        str += "\r\n#      Name         |    RA   |    Dec  | Mag |     Type       |Pr|Bid|Pid| X(mm)  | Y(mm)  | Angle(deg) | Enabled| Comment";
         str += "\r\n@@SOS@@";
         str += "\r\n"+getColumnText().str;
         str += "\r\n@@EOS@@";
     }
+}
+
+//get the FMOSA in format JSON
+Json::Value TFMOSA::getJSON(void) const
+{
+    //build the FMOSA in format JSON
+    Json::Value FMOSA_JSON;
+
+    //bild the comments in format JSON
+    Json::Value comments_JSON;
+    for(int i=0; i<comments.getCount(); i++)
+        comments_JSON.append(comments[i].str);
+    FMOSA_JSON["comments"] = comments_JSON;
+
+    //build the OB in format JSON
+    Json::Value OB_JSON;
+    OB_JSON["Id"] = Id;
+    OB_JSON["RA"] = Ra;
+    OB_JSON["Dec"] = Dec;
+    OB_JSON["Pos"] = Pos;
+    FMOSA_JSON["OB"] = OB_JSON;
+
+    //build the OS in ofmrat JSON
+    Json::Value OS_JSON;
+    for(int i=0; i<getCount(); i++) {
+        const TObservingSource *OS = Items[i];
+        OS_JSON.append(OS->getJSON());
+    }
+    FMOSA_JSON["OS"] = OS_JSON;
+
+    return FMOSA_JSON;
 }
 
 //get the Pids of the OSs which accomplish:
@@ -703,33 +815,57 @@ void TFMOSA::getAllocations(TAllocationList& AL)
 
 //build a FMOSA by default
 TFMOSA::TFMOSA(void) : TPointersList<TObservingSource>(),
-    str_original(""),
+    str_original(""), comments(),
     Id(0), Ra(0), Dec(0), Pos(0)
 {
     Print = TObservingSource::printRow;
 }
 
 //clone a FMOSA
-void TFMOSA::Clone(TFMOSA& FMOSAT)
+void TFMOSA::Clone(TFMOSA& FMOSA)
 {
     //clone the original setted string
-    str_original = FMOSAT.str_original;
+    str_original = FMOSA.str_original;
+
+    //clone the comments
+    comments.Clone(FMOSA.comments);
 
     //clone OB properties
-    Id = FMOSAT.Id;
-    Ra = FMOSAT.Ra;
-    Dec = FMOSAT.Dec;
-    Pos = FMOSAT.Pos;
+    Id = FMOSA.Id;
+    Ra = FMOSA.Ra;
+    Dec = FMOSA.Dec;
+    Pos = FMOSA.Pos;
 
     //clone OSs
-    Items.Clone(FMOSAT.Items);
+    Items.Clone(FMOSA.Items);
 
     //point the same external functions
-    Compare = FMOSAT.Compare;
-    Evaluate = FMOSAT.Evaluate;
-    Assign = FMOSAT.Assign;
-    Print = FMOSAT.Print;
-    Read = FMOSAT.Read;
+    Compare = FMOSA.Compare;
+    Evaluate = FMOSA.Evaluate;
+    Assign = FMOSA.Assign;
+    Print = FMOSA.Print;
+    Read = FMOSA.Read;
+}
+
+//copy a FMOSA
+TFMOSA& TFMOSA::operator=(const TFMOSA& FMOSA)
+{
+    //copy the original setted string
+    str_original = FMOSA.str_original;
+
+    //copy the comments
+    comments = FMOSA.comments;
+
+    //copy OB properties
+    Id = FMOSA.Id;
+    Ra = FMOSA.Ra;
+    Dec = FMOSA.Dec;
+    Pos = FMOSA.Pos;
+
+    //copy OSs
+    Items.Copy(FMOSA.Items);
+
+    return *this;
 }
 
 //---------------------------------------------------------------------------

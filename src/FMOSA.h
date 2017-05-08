@@ -30,6 +30,8 @@
 #include "MotionProgram.h"
 #include "PointersList.h"
 
+//#include <jsoncpp/json/json.h>
+
 //---------------------------------------------------------------------------
 
 //namespace for models
@@ -55,6 +57,7 @@ public:
     //Projection point properties:
     double X;           //abcise (0)
     double Y;           //ordinate (0)
+    double Angle;       //angle of the microlens (0)
     bool Enabled;       //indicates if the point is allocated to the RP (false)
 
     //Allocation properties:
@@ -88,6 +91,9 @@ public:
 
     //get the structure in text format
     AnsiString getRowText(void) const;
+
+    //get the structure in JSON format
+    Json::Value getJSON(void) const;
 
     //set the structure in text format
     void setText(const string& str);
@@ -124,6 +130,9 @@ public:
     //default value: ""
     string str_original;
 
+    //comments before the OB
+    TStrings comments;
+
     //OB properties
     unsigned int Id;     //the block identification
     double Ra;  //the rect ascension of the block
@@ -135,6 +144,9 @@ public:
 
     //get the FMOSA in text format
     void getTableText(string& str) const;
+
+    //get the FMOSA in format JSON
+    Json::Value getJSON(void) const;
 
     //get the Pids of the OSs which accomplish:
     //  there_is_Bid
@@ -167,6 +179,9 @@ public:
 
     //clone a FMOSA
     void Clone(TFMOSA&);
+
+    //copy a FMOSA
+    TFMOSA& operator=(const TFMOSA&);
 };
 
 //---------------------------------------------------------------------------

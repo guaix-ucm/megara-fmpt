@@ -118,7 +118,7 @@ public:
 
         //read an instruction from a text string
         //in the MCS format
-        static void  readInterface(TMessageInstruction *MI,
+        static void  readMCS(TMessageInstruction *MI,
                                    const string& str, unsigned int &i);
 
         //PUBLIC METHODS:

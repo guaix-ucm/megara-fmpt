@@ -1,4 +1,4 @@
-#Instance properties of the RP (Robotic Positioner):
+# Instance properties of the RP (Robotic Positioner):
 
 ActuatorInstance:              # Instance properties of the RP.Actuator (sizing, orientation and others):
     L01 = 5.8025                   # distance between P0 and P1 (in mm)

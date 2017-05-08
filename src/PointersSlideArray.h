@@ -707,24 +707,16 @@ template <class T> void TPointersSlideArray<T>::Clone(const TPointersSlideArray 
 //copia los elementos de una array deslizante
 template <class T> void TPointersSlideArray<T>::Copy(const TPointersSlideArray &SA)
 {
-    T *item;
-
     //equipara el número de elementos reservados
-    //        Count = SA.Count;
-    if(getCount() < SA.Count)
-        DelLast(SA.getCount() - getCount());
+    if(getCount() < SA.getCount())
+        NewLast(SA.getCount() - getCount());
     else if(getCount() > SA.getCount())
-        NewLast(getCount() - SA.getCount());
+        DelLast(getCount() - SA.getCount());
 
-    //por cada elemento de la ventana de reserva
-    for(int i=0; i<getCount(); i++) {
-        /*                //clona el objeto apuntado
-                item = new T(SA[i]);
-                //apunta el clon
-                Set(i, item);*/
+    //copia los elementos
+    for(int i=0; i<getCount(); i++)
         //copia el objeto indicado
         *Get(i) = *(SA.Get(i));
-    }
 }
 
 //---------------------------------------------------------------------------

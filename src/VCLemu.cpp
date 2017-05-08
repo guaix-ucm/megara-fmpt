@@ -110,6 +110,12 @@ unsigned int random(unsigned int max) {
 AnsiString::AnsiString(void) : str()
 {
 }
+//build an AnsiString from an AnsiString
+AnsiString::AnsiString(const AnsiString& S)
+{
+    str = S.str;
+}
+
 //build an AnsiString from a char
 AnsiString::AnsiString(const char c) : str()
 {
@@ -532,7 +538,7 @@ int mkpath(const string& path)
     //cuando la subpath contenedora ya está construida
     return mkdir(dir);*/
 }
-//force the erase of a directory and all theri content
+//force the erase of a directory and all their content
 int rmpath(string& path)
 {
     //lee los atributos de la entrada
@@ -687,6 +693,17 @@ bool isfile(const string& path)
     return false;
 }
 
+//extract the filename without extension
+string stem(string path)
+{
+    string dir, filename;
+    splitpath(dir, filename, path);
+    int i = filename.rfind('.');
+    if(i >= 0)
+        return filename.substr(0, i);
+    return filename;
+}
+
 //---------------------------------------------------------------------------
 //TStrings
 
@@ -766,6 +783,49 @@ TStrings::TStrings(void) : Capacity(8), Count(0)
 {
     //reserva punteros para las Capacity cadenas
     Items = new AnsiString*[Capacity];
+}
+//libera la memoria dinámica
+TStrings::~TStrings()
+{
+    //libera cada AnsiString que ha sido reservado mediante new
+    for(int i=0; i<Count; i++)
+        delete Items[i];
+}
+//clona una lista de cadenas
+void TStrings::Clone(const TStrings& Strings)
+{
+    //libera todas las cadenas
+    for(int i=0; i<Count; i++)
+        delete Items[i];
+    //actualiza el número de elementos
+    Capacity = Strings.getCapacity();
+    Count = Strings.getCount();
+    //reserva punteros para las Capacity cadenas
+    Items = new AnsiString*[Capacity];
+    //clona cada cadena
+    for(int i=0; i<Count; i++)
+        Items[i] = new AnsiString(Strings[i]);
+}
+//copia una lista de cadenas
+void TStrings::Copy(const TStrings& Strings)
+{
+    //match the number of strings
+    setCount(Strings.getCount());
+
+    //copy the strings;
+    for(int i=0; i<Count; i++)
+        *(Items[i]) = Strings[i];
+}
+TStrings& TStrings::operator=(const TStrings& Strings)
+{
+    //match the number of strings
+    setCount(Strings.getCount());
+
+    //copy the strings;
+    for(int i=0; i<Count; i++)
+        *(Items[i]) = Strings[i];
+
+    return *this;
 }
 
 //accede a la cadena de texto idnicada
