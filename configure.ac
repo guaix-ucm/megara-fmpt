@@ -1,5 +1,5 @@
 
-AC_INIT([megara-fmpt],[4.6.0])
+AC_INIT([megara-fmpt],[4.7.0])
 AM_INIT_AUTOMAKE([foreign dist-xz])
 LT_INIT
 
@@ -10,7 +10,12 @@ PKG_CHECK_MODULES([CPPUNIT], [cppunit], [testen=1], [testen=0]
    AC_MSG_WARN([Cppunit is needed by the tests. Checking is disabled]))
 
 # check for JSON
-PKG_CHECK_MODULES([JSON], [jsoncpp])
+PKG_CHECK_MODULES([JSON], [jsoncpp], , 
+   AC_MSG_ERROR([JSONCPP is needed. Install package "libjsoncpp-dev".]))
+
+# check for UUID
+PKG_CHECK_MODULES([UUID], [uuid], ,
+   AC_MSG_ERROR([UUID is needed. Install package "uuid-dev".]))
 
 # enable the tests
 AM_CONDITIONAL([TESTS_ENABLED], [test x$testen = x1])

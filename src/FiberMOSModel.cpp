@@ -207,43 +207,54 @@ void TFiberMOSModel::getCollidedText(string& str)
         TItemsList<TRoboticPositioner*> CA_RPs;
         RP->getActuator()->searchCollindingAdjacent(CA_RPs);
 
-        //search the RP in the CSL
+        //Each set {RP, CA_EAs, CA_RPs}:
+        //  - can be merged with a set of items of the CSL,
+        //  - or can be added in a new set.
+
+        //SEARCH THE FIRST SET OF THE CSL WHERE IS AN ITEM (EA OR RP):
+
         int j, k;
         bool found = CSL.findRP(j, k, RP->getActuator()->getId());
 
-        //if not has found the RP
+        if(!found) {
+            for(int l=0; l<CA_EAs.getCount(); l++) {
+                TExclusionArea *CA_EA = CA_EAs[l];
+                found = CSL.findEA(j, k, CA_EA->getId());
+            }
+        }
+
+        if(!found) {
+            for(int l=0; l<CA_RPs.getCount(); l++) {
+                TRoboticPositioner *CA_RP = CA_RPs[l];
+                found = CSL.findRP(j, k, CA_RP->getActuator()->getId());
+            }
+        }
+
+        //ADD A NEW SET, IF ANY:
+
         if(!found) {
             j = CSL.getCount();
-            //add a new colliding set
             CSL.setCount(CSL.getCount() + 1);
-            //add the RP to the new set
-            CSL.Get(j).RPids.Add(RP->getActuator()->getId());
         }
 
-        //anotate all colliding adjacent EAs
+        //ADD ALL ITEMS OF THE SET j:
+
+        int m, n;
+        found = CSL.findRP(m, n, RP->getActuator()->getId());
+        if(!found)
+            CSL.Get(j).RPids.Add(RP->getActuator()->getId());
+
         for(int l=0; l<CA_EAs.getCount(); l++) {
             TExclusionArea *CA_EA = CA_EAs[l];
-
-            //search the CA_EA in the CSL
-            int m, n;
             found = CSL.findEA(m, n, CA_EA->getId());
-
-            //if not has found the CA_EA
             if(!found)
-                //add the CA_EA to the same set (that the central RP)
                 CSL.Get(j).EAids.Add(CA_EA->getId());
         }
-        //anotate all colliding adjacent RPs
+
         for(int l=0; l<CA_RPs.getCount(); l++) {
             TRoboticPositioner *CA_RP = CA_RPs[l];
-
-            //search the CA_RP in the CSL
-            int m, n;
             found = CSL.findRP(m, n, CA_RP->getActuator()->getId());
-
-            //if not has found the CA_RP
             if(!found)
-                //add the CA_RP to the same set (that the central RP)
                 CSL.Get(j).RPids.Add(CA_RP->getActuator()->getId());
         }
     }
@@ -259,11 +270,13 @@ void TFiberMOSModel::getCollidedText(string& str)
     str = "{";
     for(int i=0; i<CSL.getCount(); i++) {
         str += "{";
+        CSL.Get(i).EAids.SortInc();
         for(int j=0; j<CSL.Get(i).EAids.getCount(); j++) {
             str += "EA";
             str += inttostr(CSL.Get(i).EAids[j]);
             str += ", ";
         }
+        CSL.Get(i).RPids.SortInc();
         for(int j=0; j<CSL.Get(i).RPids.getCount(); j++) {
             str += "RP";
             str += inttostr(CSL.Get(i).RPids[j]);

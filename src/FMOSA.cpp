@@ -26,9 +26,6 @@
 #include "Strings.h"
 #include "StrPR.h"
 
-//#include <algorithm> //to_lower
-//#include <locale>         // std::locale, std::tolower
-
 #include <algorithm> //transform
 
 using namespace Strings;
@@ -161,7 +158,7 @@ void TObservingSource::setText(const string& str)
 
         //check the number of fields
         if(Strings.getCount() != 13)
-            throw EImproperArgument("should have 12 fields separated by '|': \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Angle(deg)> | <Enabled> | <Comment>\"");
+            throw EImproperArgument("should have 13 fields separated by '|': \"<Name> | <RA> | <Dec> | <Mag> | <Type> | <Pr> | <Bid> | <Pid> | <X(mm)> | <Y(mm)> | <Angle(deg)> | <Enabled> | <Comment>\"");
 
         //translate the values and assign to a tampon variable
         TObservingSource OS;

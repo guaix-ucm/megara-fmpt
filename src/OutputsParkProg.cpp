@@ -17,8 +17,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: ParkingProgram.cpp
-//Content: structure for contains a generated parking program (PP, DP)
+//File: OutputsParkProg.cpp
+//Content: structure for contains all outputs data about a generated parking program (PP, DP)
 //Author: Isaac Morales Durán
 //---------------------------------------------------------------------------
 

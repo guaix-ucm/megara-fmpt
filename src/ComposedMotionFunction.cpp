@@ -555,7 +555,7 @@ TRampSynchronismMode StrToRampSynchronismMode(const AnsiString& S)
 //TComposedMotionFunction
 //##########################################################################
 
-///---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 //PROPIEDADES DE CONFIGURACIÓN:
 
 void TComposedMotionFunction::setMFM(TMotionFunctionMode MFM)

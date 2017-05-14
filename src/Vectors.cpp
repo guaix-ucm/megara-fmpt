@@ -557,7 +557,7 @@ double Det(TDoublePoint v1, TDoublePoint v2)
     return v1.x*v2.y - v1.y*v2.x;
 }
 
-///obtiene el modulo de un punto dado en coordenadas cartesianas rectangulares
+//obtiene el modulo de un punto dado en coordenadas cartesianas rectangulares
 double Mod(double x, double y)
 {
     return sqrt(x*x + y*y);
