@@ -57,42 +57,45 @@ private:
 
 public:
     //properties for built comments about file outputs
-    string FMOSA_filename; //name of file type FMOSA of procedence
-    string FMPT_version; //version of the FMPT with which was generated
-    string datetime; //date-time of generation
-    TRoboticPositionerList EnabledNotOperative; //list of pointer to enabled not operative RPs
-    string collided_str; //list of lists of colliding items (both EAs and RPs)
-    TRoboticPositionerList Collided; //list of pointers to colliding RPs
-    TRoboticPositionerList Obstructed; //list of pointer to obstructed RPs
+    string FMOSA_filename; //!<name of file type FMOSA of procedence
+    string FMPT_version; //!<version of the FMPT with which was generated
+    string datetime; //!<date-time of generation
+    TRoboticPositionerList EnabledNotOperative; //!<list of pointer to enabled not operative RPs
+    string collided_str; //!<list of lists of colliding items (both EAs and RPs)
+    TRoboticPositionerList Collided; //!<list of pointers to colliding RPs
+    TRoboticPositionerList Obstructed; //!<list of pointer to obstructed RPs
 
     //properties for built comments about each MP
-    bool PPvalid; //validity of the PP
-    bool DPvalid; //validity of the DP
-    double DsecMax; //maximun value of Dsec (security distance during radial movements)
+    bool PPvalid; //!<validity of the PP
+    bool DPvalid; //!<validity of the DP
+    double DsecMax; //!<maximun value of Dsec (security distance during radial movements)
 
     //properties for built the executable data
-    unsigned int Bid; //block identifier
-    TPairPositionAnglesList IPL; //initial position list
-    TMotionProgram PP; //positioning program
-    TPairPositionAnglesList OPL; //observing position list
-    TMotionProgram DP; //depositioning program
-    TFMOSA FMOSA; //FMOSA of file type FMOSA
+    unsigned int Bid; //!<block identifier
+    TPairPositionAnglesList IPL; //!<initial position list
+    TMotionProgram PP; //!<positioning program
+    TPairPositionAnglesList OPL; //!<observing position list
+    TMotionProgram DP; //!<depositioning program
+    TFMOSA FMOSA; //!<FMOSA of file type FMOSA
 
-    //get the warning for not suitable outputs
+    //!get the warning for not suitable outputs
     string getWarningNotSuitable(void) const;
 
-    //get the comments about outputs
+    //!get the comments about outputs
     string getCommentsText(void) const;
-    //get outputs in format MCS with:
-    //  comments
-    //  the pair (PP, DP)
-    //  the FMOSA
+
+    /** get outputs in format MCS with:
+    //  - comments
+    //  - the pair (PP, DP)
+    //  - the FMOSA
+    */
     void getText(string& str, bool includeFMOSA=true) const;
 
-    //get outputs in format JSON with:
-    //  comments
-    //  the pair (PP, DP)
-    //  the FMOSA
+    /** get outputs in format JSON with:
+    //  - comments
+    //  - the pair (PP, DP)
+    //  - the FMOSA
+    */
     string getJSONtext(bool includeFMOSA=true) const;
 
     //get other outputs in text format with:
@@ -103,10 +106,10 @@ public:
     //set the outputs in text format
     void setText(const string& str, bool includeFMOSA=true);
 
-    //build an estructure of class OutputsPairPPDP
+    //!build an estructure of class OutputsPairPPDP
     OutputsPairPPDP();
 
-    //reset all properties to values by default
+    //!reset all properties to values by default
     void Clear(void);
 
     //DEFINITION:

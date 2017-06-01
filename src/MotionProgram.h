@@ -29,7 +29,7 @@
 #include "PointersList.h"
 #include "PairPositionAngles.h"
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 //---------------------------------------------------------------------------
 
@@ -78,73 +78,90 @@ public:
 //TMotionProgram:
 //---------------------------------------------------------------------------
 
-//class motion program
+/*! class motion program */
+/** Values for label:
+ * "obs depos" for depositioning programs
+ * "obs pos" for positioning programs
+ * SPL shall be:
+ *  IPL if the MP is a PP
+ * OPL if the MP is a DP
+
+ * A MP, must...
+ * - can exist without be executable by the FMM;
+ * - can be manipulated without the FMM;
+ * - not necessary coincide with the propietary format of the RPs.
+ */
 class TMotionProgram : public TPointersList<TMessageList> {
 public:
-    //determines if there is some coment Dsec in any instruction
-    //of the the motion program
+    /**
+     * Determines if there is some coment Dsec in any instruction
+     * of the the motion program
+     */
     bool thereIsSomeCommentDsec(void) const;
-    //get the non empty coments of the motion program
+    //! Get the non empty coments of the motion program
     string getCommentsDsecMCStext(void) const;
 
-    //builds a motion program
+    //! Builds a motion program
     TMotionProgram(int Capacity=7) :
         TPointersList<TMessageList>(Capacity,
                                     NULL, NULL, NULL,
                                     TMessageList::PrintMessageList,
                                     TMessageList::ReadMessageList) {;}
 
-    //determines if a MP is different to this MP
+    //! Determines if a MP is different to this MP
     bool operator!=(const TMotionProgram&) const;
 
-    //get the list of RP identifiers includes in a MP
+    //! Get the list of RP identifiers included in a MP
     void getAllIncludedIds(TVector<int>& Ids) const;
 
-    //exclude the MIs addressed to a determined RP
+    //! Exclude the MIs addressed to a determined RP
     void excludeRP(int Id);
 
-    //Get a motion progam in the format of the MCS.
-    //Inputs:
-    //  label: type of MP ["pos", "depos"].
-    //  Bid: identifier of the CB.
-    //  SPL: starting position list for all RPs of the Fiber MOS.
-    //Preconditions:
-    //  All PPAs of the SPL must be referred to different RPs.
-    //  All RPs included in the MP, must be in included in the SPL.
+    /** 
+     * Get a motion program in the format of the MCS.
+     * @param label type of MP ["pos", "depos"].
+     * @param Bid identifier of the CB.
+     * @param SPL starting position list for all RPs of the Fiber MOS.
+     *
+     *  \pre All PPAs of the SPL must be referred to different RPs.
+     *  \pre All RPs included in the MP, must be in included in the SPL.
+     */
     void getMCStext(string& str, const string& label, unsigned int Bid,
                           const TPairPositionAnglesList& SPL) const;
 
-    //get the motion program in format JSON
+    //! get the motion program in format JSON
     Json::Value getJSON(const TPairPositionAnglesList& SPL) const;
 
-    //Values for label:
-    //  "obs depos" for depositioning programs
-    //  "obs pos" for positioning programs
+    /** Values for label:
+     * "obs depos" for depositioning programs
+     * "obs pos" for positioning programs
+     * SPL shall be:
+     *  IPL if the MP is a PP
+     * OPL if the MP is a DP
 
-    //SPL shall be:
-    //  IPL if the MP is a PP
-    //  OPL if the MP is a DP
+     * A MP, must...
+     * - can exist without be executable by the FMM;
+     * - can be manipulated without the FMM;
+     * - not necessary coincide with the propietary format of the RPs.
+     */
 
-    //A MP, must...
-    //- can exist without be executable by the FMM;
-    //- can be manipulated without the FMM;
-    //- not necessary coincide with the propietary format of the RPs.
-
-    //Set a motion progam in the MCS format
+    //! Set a motion progam in the MCS format
     void setMCStext(string& label, unsigned int& Bid,
                           const string& str);
 
-    //Get MP-Dmins in the MCS format.
-    //Inputs:
-    //  label: string labeling all the MP-Dmin.
-    //  Bid: univoque identifier of the CB.
+    //! Get MP-Dmins in the MCS format.
+    /**
+     * \param label string labeling all the MP-Dmin.
+     * \param  Bid univoque identifier of the CB.
+     */
     void getDminMCStext(string& str, const string& label,
                                unsigned int Bid) const;
 
-    //Get MP-Dends in the MCS format.
-    //Inputs:
-    //  label: string labeling all the MP-Dend.
-    //  Bid: univoque identifier of the CB.
+    //! Get MP-Dends in the MCS format.
+    /**
+     * \param label string labeling all the MP-Dend.
+     * \param  Bid univoque identifier of the CB.
+     */
     void getDendMCStext(string& str, const string& label,
                                unsigned int Bid) const;
 };

@@ -39,13 +39,14 @@ using namespace MotionFunctions;
 namespace Models {
 
 //---------------------------------------------------------------------------
-//TControlMode
+//!TControlMode
 
-//Functioning mode of the controller:
-//      cmSinc: programmed gestures will be inmediately executed;
-//      cmAsinc: programmed gestures will be excuted when the accordant
-//      instruction is received.
-enum TControlMode {cmSinc, cmAsinc};
+
+/// Functioning mode of the controller:
+enum TControlMode {
+    cmSinc, ///<programmed gestures will be inmediately executed
+    cmAsinc ///<programmed gestures will be excuted when the accordant instruction is received
+};
 
 void  StrPrintControlMode(AnsiString& S,
         TControlMode cm);
@@ -54,14 +55,13 @@ void  StrReadControlMode(TControlMode& cm,
 AnsiString ControlModeToStr(TControlMode cm);
 TControlMode StrToControlMode(const AnsiString& S);
 
-//---------------------------------------------------------------------------
-//TFaultType
 
-//Fault type of the RP
-//      ftUnk: unknown;
-//      ftSta: static;
-//      ftDyn: dynamic;
-enum TFaultType {ftUnk, ftSta, ftDyn};
+/// Fault type of the RP
+enum TFaultType {
+     ftUnk,  ///< unknown
+     ftSta,  ///< static
+     ftDyn   ///< dynamic
+};
 
 void  StrPrintFaultType(AnsiString& S,
         TFaultType ft);
@@ -73,6 +73,8 @@ TFaultType StrToFaultType(const AnsiString& S);
 //---------------------------------------------------------------------------
 //TRoboticPositioner
 
+/**
+ *
 //Class TRoboticPositioner; description:
 //
 //Un objeto de la clase TRoboticPositioner contiene un actuador y
@@ -99,15 +101,15 @@ TFaultType StrToFaultType(const AnsiString& S);
 //cada parámetro por separado para simplificar el tratamiento.
 
 //Lista de gestos fundamentales:
-//    None, //no gira ningún rotor
-//    M1, //gira el cilindro hasta p_1
-//    M2, //gira el brazo hasta p___3
-//    MM, //gira el brazo y el cilindro hasta (p_1, p___3),
+//    - None, no gira ningún rotor
+//    - M1, gira el cilindro hasta p_1
+//    - M2, gira el brazo hasta p___3
+//    - MM, gira el brazo y el cilindro hasta (p_1, p___3),
 
 //Lista de gestos que requieren un cálculo previo:
-//    turnCilinderTotheta_1, //gira el cilindro hasta theta_1
-//    turnCilinderTotheta_2, //gira el cilindro hasta theta_2
-//    turnCilinderTotheta_3, //gira el cilindro hasta theta_3
+//    - turnCilinderTotheta_1, //gira el cilindro hasta theta_1
+//    - turnCilinderTotheta_2, //gira el cilindro hasta theta_2
+//    - turnCilinderTotheta_3, //gira el cilindro hasta theta_3
 //
 //    turnArmTotheta_2, //gira el brazo hasta theta_2
 //    turnArmTotheta_3, //gira el brazo hasta theta_3
@@ -127,14 +129,13 @@ TFaultType StrToFaultType(const AnsiString& S);
 //    goDirectlyToCartesianP_3, //va directamente a (x_3, y_3)
 //    goDirectlyToCartesianP3, //va directamente a (x3, y3)
 
-//ADVERTENCIA: noconviene intergar las propiedades de TActuator en la clase
-//TRoboticPositioner. De este odo se obtienen algunas ventajas:
-//- Las propiedades de inicialización de TActuator pueden ser filtradas
-//  antes de cotnstruir el actuador.
-//- El método Copy de TActuator no tiene que ser redefinido, manteniendose
+// \warning no conviene integrar las propiedades de TActuator en la clase
+//TRoboticPositioner. De este modo se obtienen algunas ventajas:
+// - Las propiedades de inicialización de TActuator pueden ser filtradas
+//   antes de cotnstruir el actuador.
+// - El método Copy de TActuator no tiene que ser redefinido, manteniendose
 //  la encapsulación de las propiedades del actuador.
-
-//class robotic positioner
+*/
 class TRoboticPositioner {
 protected:
         //MECHANICAL PROPERTIES:
@@ -180,7 +181,8 @@ public:
         //MECHANICAL PROPERTIES:
 
         //actuator of the RP
-        TActuator *getActuator(void) const {return p_Actuator;}
+        const TActuator *getActuator(void) const {return p_Actuator;}
+        TActuator *getActuator(void) {return p_Actuator;}
 
         //CONTROL PROPERTIES:
 

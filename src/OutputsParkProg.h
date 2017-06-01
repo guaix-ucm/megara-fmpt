@@ -59,14 +59,14 @@ public:
     TRoboticPositionerList Obstructed; //list of pointer to RPs in obstructed status
 
     //properties for built comments about each MP
-    unsigned int Bid; //block identifier
-    TPairPositionAnglesList SPL; //starting position list
-    bool ParkProgValid; //validity of the ParkProg
-    TPairPositionAnglesList FPL; //final position list
-    double DsecMax; //maximun value of Dsec (security distance during radial movements)
+    unsigned int Bid; ///<block identifier
+    TPairPositionAnglesList SPL; ///<starting position list
+    bool ParkProgValid; ///<validity of the ParkProg
+    TPairPositionAnglesList FPL; ///<final position list
+    double DsecMax; ///<maximun value of Dsec (security distance during radial movements)
 
     //properties for built the executable data
-    TMotionProgram ParkProg; //the parking program
+    TMotionProgram ParkProg; ///<the parking program
 
     //get the warning for not suitable outputs
     string getWarningNotSuitable(void) const;
@@ -91,10 +91,10 @@ public:
     //set the outputs in text format
     void setText(const string& str);
 
-    //build an estructure of type ParkProg
+    //!build an structure of type ParkProg
     OutputsParkProg();
 
-    //reset all properties to values by default
+    //! reset all properties to values by default
     void Clear(void);
 
     //DEFINITION:
