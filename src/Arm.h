@@ -110,50 +110,54 @@ protected:
     //PROPIEDADES DE PLANTILLA
     //DE LECTURA/ESCRITURA:
 
-    double p_L12;
-    TDoublePoint p_P____2;
+    double L12;
+    TDoublePoint P__2;
 
-    double p_L13;
-    double p_theta____3;
-    TDoublePoint p_P____3;
+    double L13;
+    double theta__3;
+    TDoublePoint P__3;
 
-    double p_R3;
+    double R3;
 
-    TContourFigureList p_Contour____;
+    TContourFigureList Contour____;
 
     //PROPIEDADES DE PLANTILLA
     //DE SOLO LECTURA:
 
-    double p_L1V;
-    TDoublePoint p_V____;
+//    TDoublePoint P____2;
+//    TDoublePoint P____1;
+//    TContourFigureList Contour__;
+
+    double L1V;
+    TDoublePoint V__;
 
     //-------------------------------------------------------------------
     //PROPIEDADES DE ORIENTACIÓN EN RADIANES
     //DE LECTURA/ESCRITURA:
 
-    double p_thetaO3;
+    double thetaO3;
 
-    double p_theta___3min;
-    double p_theta___3max;
-    double p_theta___3;
+    double theta___3min;
+    double theta___3max;
+    double theta___3;
 
     //-------------------------------------------------------------------
     //PROPIEDADES DE CUANTIFICACIÓN
     //DE LECTURA/ESCRITURA:
 
-    TFunction p_F;
+    TFunction F;
 
-    bool p_Quantify___;
+    bool Quantify___;
 
     //PROPIEDADES DE CUANTIFICACIÓN
     //DE SOLO LECTURA:
 
-    TFunction p_G;
+    TFunction G;
 
-    double p_SB2;
-    double p_rbs;
+    double SB2;
+    double rbs;
 
-    TQuantificator p_Q;
+    TQuantificator Q;
 
     //-------------------------------------------------------------------
     //PROPIEDADES DE ORIENTACIÓN EN PASOS
@@ -163,28 +167,30 @@ protected:
     //PROPIEDADES DE LOCALIZACIÓN
     //DE LECTURA/ESCRITURA:
 
-    TDoublePoint p_P1;
+    TDoublePoint P1;
 
-    double p_SPM;
+    double SPM;
 
     //PROPIEDADES DE LOCALIZACIÓN
     //DE SOLO LECTURA:
 
-    TDoublePoint p_P2;
-    TDoublePoint p_P3;
-    TDoublePoint p_V;
+    TDoublePoint P2;
+    TDoublePoint P3;
+    TDoublePoint V;
 
-    TContourFigureList p_Contour;
+    TContourFigureList Contour;
 
     //------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
 
     //Apartir de:
-    //  {L12, L13, theta____3}
+    //  {L12, L13, theta__3}
     //  {Contour____}
     //Determina:
-    //  {P____2, P____3}
-    //  {V____, L1V}
+    //  {P____2, P____1}
+    //  {P__2, P__3}
+    //  {Contour__}
+    //  {V__, L1V}
     void processateTemplate(void);
 
     //A partir de:
@@ -203,8 +209,8 @@ protected:
     //  La función F(theta___3) debe estar definida en M_2PI.
 
     //a partir de:
-    //  {P____2, P____3}
-    //  {Contour____, V____}
+    //  {P__2, P__3}
+    //  {Contour__, V__}
     //  {P1, theta2}
     //Determina:
     //  {P2, P3}
@@ -226,56 +232,58 @@ public:
     //  SB2,
     //  Contour____
 
-    //posición del rotor 2 en S4
-    //valor contante: (0, 0)
-    const TDoublePoint P____1;
+    //Definiciones:
+    //  P1: posición del rotor del brazo
+    //  P2: punto de referencia del cabezal del brazo
+    //  P3: punto central de la microlentilla
 
-    //distancia desde rotor del brazo hasta
-    //el punto de referencia del cabezal de la plantilla
     //distancia de P1 a P2
     //debe ser mayor que cero
     //valor por defecto: MEGARA_L mm
-    double getL12(void) const {return p_L12;}
+    double getL12(void) const {return L12;}
     void setL12(double);
-    //punto de referencia del cabezal de la plantilla en S4
+    //P2 en S2
+    //P__2.x debe ser distinto de cero
+    //P__2.y debe ser igual a cero
     //valor por defecto: {L12, 0}
-    TDoublePoint getP____2(void) const {return p_P____2;}
-    void setP____2(const TDoublePoint&);
+    TDoublePoint getP__2(void) const {return P__2;}
+    void setP__2(const TDoublePoint&);
 
     //El valor por defecto de L12 se va a usar como
     //valor por defecto para L01.
 
-    //coordenada radial de P3 en S4
+    //distancia de P1 a P3
+    //coordenada radial de P3 en S2
     //debe ser no negativa
     //valor por defecto: MEGARA_L mm
-    double getL13(void) const {return p_L13;}
+    double getL13(void) const {return L13;}
     void setL13(double);
-    //coordenada angular de P3 en S4
+    //coordenada angular de P3 en S2
     //puede ser cualquier valor
     //pero es recomendable que esté en (-M_PI, M_PI]
     //valor por defecto: 0 rad
-    double gettheta____3(void) const {return p_theta____3;}
-    void settheta____3(double);
+    double gettheta__3(void) const {return theta__3;}
+    void settheta__3(double);
     //orientación del origen de coordenadas de S3 en S2
-    //es igual que theta____3
+    //es igual que theta__3
     //valor por defecto: 0 rad
-    double gettheta__O3(void) const {return p_theta____3;}
+    double gettheta__O3(void) const {return theta__3;}
     void settheta__O3(double);
-    //centro de la lente de la plantilla en S4
-    TDoublePoint getP____3(void) const {return p_P____3;}
-    void setP____3(const TDoublePoint&);
+    //P3 en S2
+    TDoublePoint getP__3(void) const {return P__3;}
+    void setP__3(const TDoublePoint&);
 
     //radio de la lente del brazo
     //debe ser mayor que cero
     //valor por defecto: 0.75 mm
-    double getR3(void) const {return p_R3;}
+    double getR3(void) const {return R3;}
     void setR3(double);
 
     //plantilla del contorno del brazo en S4
     //valor por defecto: MEGARA_Contour____Text
     const TContourFigureList &getContour____(void) const {
-        return (const TContourFigureList&)p_Contour____;}
-    void setContour____(const TContourFigureList &_Contour____);
+        return (const TContourFigureList&)Contour____;}
+    void setContour____(const TContourFigureList&);
 
     //ADVERTENCIA: la escritura de Contour____.Text conviene hacerla
     //a tavés de la propiedad Contour____.Text, con un valor previamente
@@ -304,13 +312,27 @@ public:
     //PROPIEDADES DE PLANTILLA
     //DE SOLO LECTURA:
 
+    TDoublePoint P____2;
+    TDoublePoint P____1;
+    TContourFigureList Contour__;
+
+    //P2 en S4
+    TDoublePoint getP____2(void) const {return P____2;}
+    //P1 en S4
+    TDoublePoint getP____1(void) const {return P____1;}
+
+    //plantilla del contorno del brazo en S2
+    //valor por defecto: MEGARA_Contour__Text
+    const TContourFigureList &getContour__(void) const {
+        return (const TContourFigureList&)Contour__;}
+
     //radio máximo de la circunferencia descrita por
     //el ápice del brazo al girar (en mm)
-    double getL1V(void) const {return p_L1V;}
+    double getL1V(void) const {return L1V;}
     //vértice del cabezal de la plantilla en S4
-    TDoublePoint getV____(void) const {return p_V____;}
+    TDoublePoint getV__(void) const {return V__;}
 
-    //V____ se refiere al punto de intersección
+    //V__ se refiere al punto de intersección
     //entre la envolvente del brazo al girar
     //y el eje de simetría longitudinal del brazo.
 
@@ -394,22 +416,22 @@ public:
     //donde:
     //  thetaO2: lo indica el usuario en el constructor
     //      y su valor por defecto es M_PI/2
-    //  theta__O3: es igual a theta____3
+    //  theta__O3: es igual a theta__3
     //      y su valor por defecto es 0
-    double getthetaO3(void) const {return p_thetaO3;}
+    double getthetaO3(void) const {return thetaO3;}
     void setthetaO3(double);
 
     //límite inferior del intervalo de giro de P3 en S3
     //debe estar en el dominio de definición de F(theta___3)
     //no debe ser mayor que theta___3max
     //valor por defecto: MEGARA_theta___3min rad
-    double gettheta___3min(void) const {return p_theta___3min;}
+    double gettheta___3min(void) const {return theta___3min;}
     void settheta___3min(double);
     //límite superior del intervalo de giro de P3 en S3
     //debe estar en el dominio de definición de F(theta___3)
     //no debe ser menor que theta___3min
     //valor por defecto: MEGARA_theta___3max rad
-    double gettheta___3max(void) const {return p_theta___3max;}
+    double gettheta___3max(void) const {return theta___3max;}
     void settheta___3max(double);
     //ángulo de orientación de P3 en S3
     //debe estar en el dominio de definición de F(theta___3)
@@ -419,7 +441,7 @@ public:
     //  else
     //      p_theta___3 = theta___3;
     //valor por defecto: 0 rad
-    double gettheta___3(void) const {return p_theta___3;}
+    double gettheta___3(void) const {return theta___3;}
     void settheta___3(double);
     //ángulo de orientación de P3 en S0
     //theta3 debe estar en su dominio
@@ -533,8 +555,8 @@ public:
     //  {(M_2PI, MEGARA_SB2),
     //  (0, 0),
     //  (M_2PI, MEGARA_SB2)}
-    const TFunction& getF(void) const {return (const TFunction&)p_F;}
-    void setF(const TFunction &_F);
+    const TFunction& getF(void) const {return (const TFunction&)F;}
+    void setF(const TFunction&);
 
     //Nótese que no se imponen las siguientes restricciones:
     //  La función F(theta___3) debe estar definida en 0.
@@ -552,7 +574,7 @@ public:
     //interruptor de cuantificación de p___3
     //indica si deben cuantificarse los valores asignados a p___3
     //valor por defecto: true
-    bool getQuantify___(void) const {return p_Quantify___;}
+    bool getQuantify___(void) const {return Quantify___;}
     void setQuantify___(bool);
 
     //Cuando Quantify___ es activado theta___3 es situado en la posición
@@ -579,23 +601,23 @@ public:
 
     //función de transformación de pasos a radianes
     //es la inversa de F
-    const TFunction& getG(void) const {return (const TFunction&)p_G;}
+    const TFunction& getG(void) const {return (const TFunction&)G;}
 
     //número de pasos de una vuelta completa del eje 2 (SB: Steps Back)
     //es un número real ya que a la salida de la reductora
     //el número de pasos puede ser fraccionario
     //aunque convendría que fuera par ya que solo va a girar media vuelta
     //valor por defecto: F(M_2PI) = SB2SIDE steps
-    double getSB2(void) const {return p_SB2;}
+    double getSB2(void) const {return SB2;}
     //radianes por paso medio en el intervalo [0, M_2PI]
     //  rbs = M_2PI/SB2;
     //valor por defecto: M_2PI/SB2SIDE rad
-    double getrbs(void) const {return p_rbs;}
+    double getrbs(void) const {return rbs;}
 
     //función de cuantificación lineal de p___3
     //valor por defecto: (1, [p___3min, p___3max])
     const TQuantificator& getQ(void) const {
-        return (const TQuantificator&)p_Q;}
+        return (const TQuantificator&)Q;}
 
     //NOTA: la constricción al dominio de p___3 se realiza en la función
     //de cuantificación Q, cuyo dominio imagen es [Q.Qmin, Q.Qmax].
@@ -678,13 +700,13 @@ public:
     //DE LECTURA/ESCRITURA:
 
     //posición del eje de rotación del brazo en S0
-    TDoublePoint getP1(void) const {return p_P1;}
+    TDoublePoint getP1(void) const {return P1;}
     void setP1(TDoublePoint);
 
     //margen perimentral de seguridad
     //debe ser mayor que cero
     //valor por defecto: MEGARA_SPMgenPairPPDP_p mm
-    double getSPM(void) const {return p_SPM;}
+    double getSPM(void) const {return SPM;}
     void setSPM(double);
 
     //The SPM will be selected according (PAkd, Purpose):
@@ -714,35 +736,34 @@ public:
     //DE SOLO LECTURA:
 
     //centro teórico de la lente de la fibra en S0
-    const TDoublePoint getP2(void) const {return p_P2;}
+    const TDoublePoint getP2(void) const {return P2;}
     //centro de la lente del brazo en S0
-    const TDoublePoint getP3(void) const {return p_P3;}
+    const TDoublePoint getP3(void) const {return P3;}
     //vértice longitudinal del brazo en S0
-    const TDoublePoint getV(void) const {return p_V;}
+    const TDoublePoint getV(void) const {return V;}
 
     //contorno del brazo correspondiente a la plantilla
     //ubicada y orientada en S0
     const TContourFigureList &getContour(void) const {
-        return (const TContourFigureList&)p_Contour;}
+        return (const TContourFigureList&)Contour;}
 
     //------------------------------------------------------------------
     //PROPIEDADES DE PLANTILLA
     //DE LECTURA/ESCRITURA EN FORMATO TEXTO
 
-    AnsiString getP____1Text(void) const;
     AnsiString getL12Text(void) const;
     void setL12Text(const AnsiString&);
-    AnsiString getP____2Text(void) const;
-    void setP____2Text(AnsiString&);
+    AnsiString getP__2Text(void) const;
+    void setP__2Text(AnsiString&);
 
     AnsiString getL13Text(void) const;
     void setL13Text(const AnsiString&);
-    AnsiString gettheta____3Text(void) const;
-    void settheta____3Text(const AnsiString&);
+    AnsiString gettheta__3Text(void) const;
+    void settheta__3Text(const AnsiString&);
     AnsiString gettheta__O3Text(void) const;
     void settheta__O3Text(const AnsiString&);
-    AnsiString getP____3Text(void) const;
-    void setP____3Text(AnsiString&);
+    AnsiString getP__3Text(void) const;
+    void setP__3Text(AnsiString&);
 
     AnsiString getR3Text(void) const;
     void setR3Text(const AnsiString&);
@@ -757,8 +778,14 @@ public:
     //PROPIEDADES DE PLANTILLA
     //DE SOLO LECTURA EN FORMATO TEXTO
 
+    AnsiString getP____2Text(void) const;
+    AnsiString getP____1Text(void) const;
+
+    //dirección en memoria de la propiedad compuesta Contour__
+    AnsiString getContour__AddressText(void) const;
+
     AnsiString getL1VText(void) const;
-    AnsiString getV____Text(void) const;
+    AnsiString getV__Text(void) const;
 
     //------------------------------------------------------------------
     //PROPIEDADES DE ORIENTACIÓN EN RADIANES
@@ -897,7 +924,7 @@ public:
     //MÉTODOS ESTÁTICOS:
 
     //lee una instancia de brazo en una cadena
-    static void  readInstance(TArm *A, const AnsiString& S, int &i);
+    static void  readInstance(TArm *A, const AnsiString& S, int& i);
 
     //Propiedades de la instancia:
     //  L12
@@ -964,7 +991,7 @@ public:
     //asigna conjuntamente las propiedades de plantilla
     //si no espeficifa argumentos se asignan valores por defecto
     void setTemplate(double L12=MEGARA_L, double L13=MEGARA_L,
-                     double theta____3=0, double R3=0.75);
+                     double theta__3=0, double R3=0.75);
     //asigna conjuntamente las propiedades de orientación en radianes
     void setOrientationRadians(double theta___3min, double theta___3max,
                                double theta___3);

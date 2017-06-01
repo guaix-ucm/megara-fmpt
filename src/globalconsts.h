@@ -1,7 +1,7 @@
 #ifndef GLOBALCONSTS_H
 #define GLOBALCONSTS_H
 
-#define FMPT_VERSION string("4.6.0")
+#define FMPT_VERSION string("4.8.0")
 
 //#define QMAKE //define using qmake
 

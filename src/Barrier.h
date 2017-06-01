@@ -49,16 +49,16 @@ class TArm;
 class TBarrier {
     //PROPIEDADES DE DEFINICION:
 
-    TContourFigureList p_Contour_;
+    TContourFigureList Contour_;
 
-    double p_r_max;
+    double r_max;
 
-    TDoublePoint p_P0;
-    double p_thetaO1;
+    TDoublePoint P0;
+    double thetaO1;
 
-    TContourFigureList p_Contour;
+    TContourFigureList Contour;
 
-    double p_SPM;
+    double SPM;
 
     //-------------------------------------------------------------------
     //MÉTODOS DE ASIMILACIÓN:
@@ -83,30 +83,30 @@ public:
     //contorno de la barrera en S1
     //valor por defecto: MEGARA_Contour_Text (asignado mediante setContour_Text)
     const TContourFigureList &getContour_(void) const {
-        return (const TContourFigureList&)p_Contour_;}
-    void setContour_(const TContourFigureList &_Contour_);
+        return (const TContourFigureList&)Contour_;}
+    void setContour_(const TContourFigureList&);
 
     //distancia entre el origen de coordenadas de S1
     //y el punto más alejado de Contour_
-    double getr_max(void) const {return p_r_max;}
+    double getr_max(void) const {return r_max;}
 
     //punto origen de S1 en S0 y de referencia de la barrera
     //valor por defecto: {0, 0} {mm, mm}
-    TDoublePoint getP0(void) const {return p_P0;}
+    TDoublePoint getP0(void) const {return P0;}
     void setP0(TDoublePoint);
     //orientación de S1 en S0
     //valor por defecto: 0 rad
-    double getthetaO1(void) const {return p_thetaO1;}
+    double getthetaO1(void) const {return thetaO1;}
     void setthetaO1(double);
 
     //contorno de la barrera en S0
     //valor por defecto: MEGARA_Contour_Text (asignado mediante setContour_Text)
     const TContourFigureList &getContour(void) const {
-        return (const TContourFigureList&)p_Contour;}
+        return (const TContourFigureList&)Contour;}
     //margen perimetral de seguridad de la barrera
     //puede ser igual a cero
     //valor por defecto: MEGARA_Eo*r_max + MEGARA_Ep mm
-    double getSPM(void) const {return p_SPM;}
+    double getSPM(void) const {return SPM;}
     void setSPM(double);
 
     //ADVERTENCIA: SPM es un valor que debe ser actualizado a paritr de
@@ -119,7 +119,7 @@ public:
     //PROPIEDADES EN FORMATO TEXTO:
 
     AnsiString getContour_AddressText(void) const {
-        return IntToHex(intptr_t(&p_Contour_));}
+        return IntToHex(intptr_t(&Contour_));}
     void setContour_Text(const AnsiString&);
     void setContour_ColumnText(const AnsiString&);
 
@@ -131,7 +131,7 @@ public:
     void setthetaO1Text(const AnsiString&);
 
     AnsiString getContourAddressText(void) const {
-        return IntToHex(intptr_t(&p_Contour));}
+        return IntToHex(intptr_t(&Contour));}
     AnsiString getSPMText(void) const;
     void setSPMText(const AnsiString&);
 

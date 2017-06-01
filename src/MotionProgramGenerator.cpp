@@ -2446,59 +2446,25 @@ bool generatePairPPDP_online(TMotionProgram& PP, TMotionProgram& DP,
 }
 *****************************************************************************/
 
-//############################################################################
-//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH 2017)
-//OUTPUTS IN STRUCTURE FORMAT:
+//----------------------------------------------------------------------------
+//FMM AND OUTPUTS IN STRUCTURE FORMAT:
 
 //Generate a parking program online
 //Inputs:
-//  FMMI_dir: dir of the FMM Instance
+//  FMM: the Fiber MOS Model
 //  p_1s: the rotor 1 starting positions of all RPs of the FMM.
 //  p___3s: the rotor 2 starting positions of all RPs of the FMM.
 //  RPids: the identifiers of the RPs of the FMM to be disabled.
 //Outputs:
 //  outputs: structure OutputsParkProg.
 //  generateParkProg_online:
-//    - true: the generated parking program has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      but could have either collided or obstructed RPs.
-//    - false: either the generated parking program has not passed
-//      the validation process, so it is not safe that it not produces
-//      a dynamic collission, or there are enabled-not-operative RPs
-//      with dynamic fault.
+//    - true: the generated parking program is suitable to be executed.
+//    - false: the generated parking program is not suitable to be executed.
 bool generateParkProg_online(OutputsParkProg& outputs,
-        const string& FMMI_dir,
+        TFiberMOSModel& FMM,
         const vector<double>& p_1s, const vector<double>& p___3s,
         const vector<int>& RPids, const unsigned int Bid)
 {
-    //-------------------------------------------------------------------
-    //CHECK PRECONDITIONS:
-
-    locale l;
-    if(l.name() != "C")
-        throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
-
-    //-----------------------------------------------------------------------
-    //LOAD THE FIBER MOS MODEL INSTANCE:
-
-    //load the FMM Instance from a dir
-    TFiberMOSModel FMM;
-    try {
-        readInstanceFromDir(FMM, FMMI_dir);
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "loading instance: ");
-        throw;
-    }
-
-    //make a rutinary cheack
-    if(FMM.RPL.Compare != TRoboticPositioner::compareIds)
-        throw EImpossibleError("improper initialization value of TRoboticPositionerList::Compare");
-
-    //short the RPs according their identifiers
-    FMM.RPL.SortInc();
-
     //-------------------------------------------------------------------
     //CHECK PRECONDITIONS:
 
@@ -2529,6 +2495,14 @@ bool generateParkProg_online(OutputsParkProg& outputs,
 
     //build a motion program generator attached to the FMM
     TMotionProgramGenerator MPG(&FMM);
+
+    //set the disabling status
+    FMM.RPL.setAllDisabled(false);
+    for(int i=0; i<RPids.size(); i++) {
+        int j = FMM.RPL.searchId(RPids[i]);
+        TRoboticPositioner *RP = FMM.RPL[j];
+        RP->Disabled = true;
+    }
 
     //move the enabled RPs to their observing positions
     //and segregate the enabled-not-operative RPs
@@ -2608,17 +2582,6 @@ bool generateParkProg_online(OutputsParkProg& outputs,
     //-------------------------------------------------------------------
     //RETURN THE OUTPUTS:
 
-    //save the FMM Instance in the same dir from was loaded
-    try {
-        writeInstanceToDir(FMMI_dir, FMM);
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "writing instance: ");
-        throw;
-    }
-
-    //Only FMM Instance's changed files will be written.
-
     //make a rutinary check
     if(SPL.getCount() != FMM.RPL.getCount())
         throw EImpossibleError("lateral effect");
@@ -2654,50 +2617,20 @@ bool generateParkProg_online(OutputsParkProg& outputs,
 
 //Generate a pair (PP, DP) online
 //Inputs:
-//  FMMI_dir: dir of the FMM Instance
+//  FMM: the Fiber MOS Model
 //  p_1s: the rotor 1 observing positions of all RPs of the FMM.
 //  p___3s: the rotor 2 observing positions of all RPs of the FMM.
 //  RPids: the identifiers of the RPs of the FMM to be disabled.
 //Outputs:
 //  outputs: structure OutputsPairPPDP (without FMOSA).
 //  generatePairPPDP_online:
-//    - true: the generated pair (PP, DP) has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      and there aren't neither collided nor obstructed RPs.
-//    - false: some of above conditions are not meet.
+//    - true: the generated pair (PP, DP) is suitable to be executed.
+//    - false: the generated pair (PP, DP) is not suitable to be executed.
 bool generatePairPPDP_online(OutputsPairPPDP& outputs,
-        const string& FMMI_dir,
+        TFiberMOSModel& FMM,
         const vector<double>& p_1s, const vector<double>& p___3s,
         const vector<int>& RPids, const unsigned int Bid)
 {
-    //-------------------------------------------------------------------
-    //CHECK PRECONDITIONS:
-
-    locale l;
-    if(l.name() != "C")
-        throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
-
-    //-----------------------------------------------------------------------
-    //LOAD THE FIBER MOS MODEL INSTANCE:
-
-    //load the FMM Instance from a dir
-    TFiberMOSModel FMM;
-    try {
-        readInstanceFromDir(FMM, FMMI_dir);
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "loading instance: ");
-        throw;
-    }
-
-    //make a rutinary cheack
-    if(FMM.RPL.Compare != TRoboticPositioner::compareIds)
-        throw EImpossibleError("improper initialization value of TRoboticPositionerList::Compare");
-
-    //short the RPs according their identifiers
-    FMM.RPL.SortInc();
-
     //-------------------------------------------------------------------
     //CHECK PRECONDITIONS:
 
@@ -2728,6 +2661,14 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 
     //build a motion program generator attached to the FMM
     TMotionProgramGenerator MPG(&FMM);
+
+    //set the disabling status
+    FMM.RPL.setAllDisabled(false);
+    for(int i=0; i<RPids.size(); i++) {
+        int j = FMM.RPL.searchId(RPids[i]);
+        TRoboticPositioner *RP = FMM.RPL[j];
+        RP->Disabled = true;
+    }
 
     //move the enabled RPs to their observing positions
     //and segregate the enabled-not-operative RPs
@@ -2812,17 +2753,6 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
     //-------------------------------------------------------------------
     //RETURN THE OUTPUTS:
 
-    //save the FMM Instance in the same dir from was loaded
-    try {
-        writeInstanceToDir(FMMI_dir, FMM);
-    }
-    catch(Exception& E) {
-        E.Message.Insert(1, "writing instance: ");
-        throw;
-    }
-
-    //Only FMM Instance's changed files will be written.
-
     //make a rutinary check
     if(OPL.getCount() != FMM.RPL.getCount())
         throw EImpossibleError("lateral effect");
@@ -2853,15 +2783,153 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 
     //indicates if the outputs is suitable to be executed
     return outputs.suitable();
-
-    //Note that when outputs is not suitable to be executed,
-    //the outputs is generated with a initial uncommented note,
-    //for difficult their execution.
 }
 
-//############################################################################
-//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH 2017)
-//OUTPUTS IN STRING FORMAT:
+//----------------------------------------------------------------------------
+//FMM IN STRING FORMAT AND OUTPUTS IN STRUCTURE FORMAT:
+
+//Generate a parking program online
+//Inputs:
+//  FMMI_dir: dir of the FMM Instance
+//  p_1s: the rotor 1 starting positions of all RPs of the FMM.
+//  p___3s: the rotor 2 starting positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  outputs: structure OutputsParkProg.
+//  generateParkProg_online:
+//    - true: the generated parking program is suitable to be executed.
+//    - false: the generated parking program is not suitable to be executed.
+bool generateParkProg_online(OutputsParkProg& outputs,
+        const string& FMMI_dir,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid)
+{
+    //-------------------------------------------------------------------
+    //CHECK PRECONDITIONS:
+
+    locale l;
+    if(l.name() != "C")
+        throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
+    //-----------------------------------------------------------------------
+    //LOAD THE FIBER MOS MODEL INSTANCE:
+
+    //load the FMM Instance from a dir
+    TFiberMOSModel FMM;
+    try {
+        readInstanceFromDir(FMM, FMMI_dir);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "loading instance: ");
+        throw;
+    }
+
+    //make a rutinary cheack
+    if(FMM.RPL.Compare != TRoboticPositioner::compareIds)
+        throw EImpossibleError("improper initialization value of TRoboticPositionerList::Compare");
+
+    //short the RPs according their identifiers
+    FMM.RPL.SortInc();
+
+    //-----------------------------------------------------------------------
+    //GENERATE THE PARKING PROGRAM:
+
+    bool suitable = generateParkProg_online(outputs, FMM,
+                                            p_1s, p___3s, RPids, Bid);
+
+    //-----------------------------------------------------------------------
+    //SAVE THE FMM INSTANCE, IF ANY:
+
+    if(suitable) {
+        //save the FMM Instance in the same dir from was loaded
+        try {
+            writeInstanceToDir(FMMI_dir, FMM);
+        }
+        catch(Exception& E) {
+            E.Message.Insert(1, "writing instance: ");
+            throw;
+        }
+
+        //Only FMM Instance's changed files will be written.
+    }
+
+    return suitable;
+}
+
+//Generate a pair (PP, DP) online
+//Inputs:
+//  FMMI_dir: dir of the FMM Instance
+//  p_1s: the rotor 1 observing positions of all RPs of the FMM.
+//  p___3s: the rotor 2 observing positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  outputs: structure OutputsPairPPDP (without FMOSA).
+//  generatePairPPDP_online:
+//    - true: the generated pair (PP, DP) is suitable to be executed.
+//    - false: the generated pair (PP, DP) is not suitable to be executed.
+bool generatePairPPDP_online(OutputsPairPPDP& outputs,
+        const string& FMMI_dir,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid)
+{
+    //-------------------------------------------------------------------
+    //CHECK PRECONDITIONS:
+
+    locale l;
+    if(l.name() != "C")
+        throw EImproperCall("improper locale information (call to setlocale(LC_ALL, \"C\") for set or retrieve locale)");
+
+    //-----------------------------------------------------------------------
+    //LOAD THE FIBER MOS MODEL INSTANCE:
+
+    //load the FMM Instance from a dir
+    TFiberMOSModel FMM;
+    try {
+        readInstanceFromDir(FMM, FMMI_dir);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "loading instance: ");
+        throw;
+    }
+
+    //make a rutinary cheack
+    if(FMM.RPL.Compare != TRoboticPositioner::compareIds)
+        throw EImpossibleError("improper initialization value of TRoboticPositionerList::Compare");
+
+    //short the RPs according their identifiers
+    FMM.RPL.SortInc();
+
+    //-----------------------------------------------------------------------
+    //GENERATE THE PARKING PROGRAM:
+
+    bool suitable = generatePairPPDP_online(outputs, FMM,
+                                            p_1s, p___3s, RPids, Bid);
+
+    //-----------------------------------------------------------------------
+    //SAVE THE FMM INSTANCE, IF ANY:
+
+    if(suitable) {
+        //Note that when outputs is not suitable to be executed,
+        //the outputs is generated with a initial uncommented note,
+        //for difficult their execution.
+
+        //save the FMM Instance in the same dir from was loaded
+        try {
+            writeInstanceToDir(FMMI_dir, FMM);
+        }
+        catch(Exception& E) {
+            E.Message.Insert(1, "writing instance: ");
+            throw;
+        }
+
+        //Only FMM Instance's changed files will be written.
+    }
+
+    return suitable;
+}
+
+//----------------------------------------------------------------------------
+//FMM AND OUTPUTS IN STRING FORMAT:
 
 //Generate a parking program online
 //Inputs:
@@ -2873,14 +2941,8 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 //Outputs:
 //  outputs_str: structure OutputsParkProg in format string.
 //  generateParkProg_online:
-//    - true: the generated parking program has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      but could have either collided or obstructed RPs.
-//    - false: either the generated parking program has not passed
-//      the validation process, so it is not safe that it not produces
-//      a dynamic collission, or there are enabled-not-operative RPs
-//      with dynamic fault.
+//    - true: the generated parking program is suitable to be executed.
+//    - false: the generated parking program is not suitable to be executed.
 bool generateParkProg_online(string& outputs_str,
         const string& FMMI_dir,
         const vector<double>& p_1s, const vector<double>& p___3s,
@@ -2908,11 +2970,8 @@ bool generateParkProg_online(string& outputs_str,
 //Outputs:
 //  outputs_str: structure OutputsPairPPDP in format string (without FMOSA).
 //  generatePairPPDP_online:
-//    - true: the generated pair (PP, DP) has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      and there aren't neither collided nor obstructed RPs.
-//    - false: some of above conditions are not meet.
+//    - true: the generated pair (PP, DP) is suitable to be executed.
+//    - false: the generated pair (PP, DP) is not suitable to be executed.
 bool generatePairPPDP_online(string& outputs_str,
         const string& FMMI_dir,
         const vector<double>& p_1s, const vector<double>& p___3s,

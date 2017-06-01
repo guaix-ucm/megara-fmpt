@@ -356,6 +356,12 @@ public:
     void getDangerous(TRoboticPositionerList1&) const;
 
     //------------------------------------------------------------------
+    //METHODS FOR JOINTLY SETTINGS:
+
+    //set value to all disabling swithches
+    void setAllDisabled(bool);
+
+    //------------------------------------------------------------------
     //ASSIMILATION METHODS:
 
     //A partir de:

@@ -905,6 +905,18 @@ void TRoboticPositionerList1::getDangerous(TRoboticPositionerList1& Dangerous) c
     }
 }
 
+//------------------------------------------------------------------
+//METHODS FOR JOINTLY SETTINGS:
+
+//set value to all disabling swithches
+void TRoboticPositionerList1::setAllDisabled(bool Disabled)
+{
+    for(int i=0; i<getCount(); i++) {
+        TRoboticPositioner *RP = Items[i];
+        RP->Disabled = Disabled;
+    }
+}
+
 //--------------------------------------------------------------------------
 //MÉTODOS DE ASIMILACIÓN:
 

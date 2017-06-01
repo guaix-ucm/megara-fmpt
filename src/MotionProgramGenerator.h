@@ -789,10 +789,66 @@ bool generatePairPPDP_online(TMotionProgram& PP, TMotionProgram& DP,
 *****************************************************************************/
 
 //############################################################################
-//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH 2017)
-//OUTPUTS IN STRUCTURE FORMAT:
+//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH-MAY 2017)
+
+//----------------------------------------------------------------------------
+//DEEFINITIONS:
+
+//A parking program is suitable to be executed when:
+//1. The generated parking program has passed the validation
+//   process, so it is safe that it not produces a dynamic collission.
+//2. The FMM not contains enabled-not-operative RPs with dynamic fault.
+//Note that could have either collided or obstructed RPs.
+
+//A pair (PP, DP) is suitable to be executed when:
+//1. The generated parking program has passed the validation
+//   process, so it is safe that it not produces a dynamic collission.
+//2. The FMM not contains enabled-not-operative RPs with dynamic fault.
+//3. The FMM not contains neither collided nor obstructed RPs.
+
+//----------------------------------------------------------------------------
+//PREDECLARATIONS:
 
 class OutputsParkProg;
+class OutputsPairPPDP;
+
+//----------------------------------------------------------------------------
+//FMM AND OUTPUTS IN STRUCTURE FORMAT:
+
+//Generate a parking program online
+//Inputs:
+//  FMM: the Fiber MOS Model
+//  p_1s: the rotor 1 starting positions of all RPs of the FMM.
+//  p___3s: the rotor 2 starting positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  outputs: structure OutputsParkProg.
+//  generateParkProg_online:
+//    - true: the generated parking program is suitable to be executed.
+//    - false: the generated parking program is not suitable to be executed.
+bool generateParkProg_online(OutputsParkProg& outputs,
+        TFiberMOSModel& FMM,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid);
+
+//Generate a pair (PP, DP) online
+//Inputs:
+//  FMM: the Fiber MOS Model
+//  p_1s: the rotor 1 observing positions of all RPs of the FMM.
+//  p___3s: the rotor 2 observing positions of all RPs of the FMM.
+//  RPids: the identifiers of the RPs of the FMM to be disabled.
+//Outputs:
+//  outputs: structure OutputsPairPPDP (without FMOSA).
+//  generatePairPPDP_online:
+//    - true: the generated pair (PP, DP) is suitable to be executed.
+//    - false: the generated pair (PP, DP) is not suitable to be executed.
+bool generatePairPPDP_online(OutputsPairPPDP& outputs,
+        TFiberMOSModel& FMM,
+        const vector<double>& p_1s, const vector<double>& p___3s,
+        const vector<int>& RPids, const unsigned int Bid);
+
+//----------------------------------------------------------------------------
+//FMM IN STRING FORMAT AND OUTPUTS IN STRUCTURE FORMAT:
 
 //Generate a parking program online
 //Inputs:
@@ -803,20 +859,12 @@ class OutputsParkProg;
 //Outputs:
 //  outputs: structure OutputsParkProg.
 //  generateParkProg_online:
-//    - true: the generated parking program has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      but could have either collided or obstructed RPs.
-//    - false: either the generated parking program has not passed
-//      the validation process, so it is not safe that it not produces
-//      a dynamic collission, or there are enabled-not-operative RPs
-//      with dynamic fault.
+//    - true: the generated parking program is suitable to be executed.
+//    - false: the generated parking program is not suitable to be executed.
 bool generateParkProg_online(OutputsParkProg& outputs,
         const string& FMMI_dir,
         const vector<double>& p_1s, const vector<double>& p___3s,
         const vector<int>& RPids, const unsigned int Bid);
-
-class OutputsPairPPDP;
 
 //Generate a pair (PP, DP) online
 //Inputs:
@@ -827,19 +875,15 @@ class OutputsPairPPDP;
 //Outputs:
 //  outputs: structure OutputsPairPPDP (without FMOSA).
 //  generatePairPPDP_online:
-//    - true: the generated pair (PP, DP) has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      and there aren't neither collided nor obstructed RPs.
-//    - false: some of above conditions are not meet.
+//    - true: the generated pair (PP, DP) is suitable to be executed.
+//    - false: the generated pair (PP, DP) is not suitable to be executed.
 bool generatePairPPDP_online(OutputsPairPPDP& outputs,
         const string& FMMI_dir,
         const vector<double>& p_1s, const vector<double>& p___3s,
         const vector<int>& RPids, const unsigned int Bid);
 
-//############################################################################
-//FUNCTIONS TO BE USED ONLINE BY MCS (MARCH 2017)
-//OUTPUTS IN STRING FORMAT:
+//----------------------------------------------------------------------------
+//FMM AND OUTPUTS IN STRING FORMAT:
 
 //Generate a parking program online
 //Inputs:
@@ -851,14 +895,8 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 //Outputs:
 //  outputs_str: structure OutputsParkProg in format string.
 //  generateParkProg_online:
-//    - true: the generated parking program has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      but could have either collided or obstructed RPs.
-//    - false: either the generated parking program has not passed
-//      the validation process, so it is not safe that it not produces
-//      a dynamic collission, or there are enabled-not-operative RPs
-//      with dynamic fault.
+//    - true: the generated parking program is suitable to be executed.
+//    - false: the generated parking program is not suitable to be executed.
 bool generateParkProg_online(string& outputs_str,
         const string& FMMI_dir,
         const vector<double>& p_1s, const vector<double>& p___3s,
@@ -874,17 +912,14 @@ bool generateParkProg_online(string& outputs_str,
 //Outputs:
 //  outputs_str: structure OutputsPairPPDP in format string (without FMOSA).
 //  generatePairPPDP_online:
-//    - true: the generated pair (PP, DP) has passed the validation
-//      process, so it is safe that it not produces a dynamic collission.
-//      moreover there aren't enabled-not-operative RPs with dynamic fault,
-//      and there aren't neither collided nor obstructed RPs.
-//    - false: some of above conditions are not meet.
+//    - true: the generated pair (PP, DP) is suitable to be executed.
+//    - false: the generated pair (PP, DP) is not suitable to be executed.
 bool generatePairPPDP_online(string& outputs_str,
         const string& FMMI_dir,
         const vector<double>& p_1s, const vector<double>& p___3s,
         const vector<int>& RPids, const unsigned int Bid);
 
-//############################################################################
+//----------------------------------------------------------------------------
 //Precondition and their exceptions:
 //  EImproperCall       locale information shall be set to minimal C locale
 //      (you can make this calling "setlocale(LC_ALL, "C");")
@@ -905,9 +940,8 @@ bool generatePairPPDP_online(string& outputs_str,
 //Posconditions:
 //  The stored FMM Instance can be changed.
 //So maybe you need administrator provileges for execute these functions.
-//############################################################################
 
-//############################################################################
+//----------------------------------------------------------------------------
 //WARNING!
 //
 //In function generateParkProg_online:
@@ -946,9 +980,8 @@ bool generatePairPPDP_online(string& outputs_str,
 //                       const TFiberMOSModel *FMM);
 //
 //For use this functions maybe you need include 'MotionProgramValidator.h'.
-//############################################################################
 
-//---------------------------------------------------------------------------
+//############################################################################
 
 } //namespace Positioning
 

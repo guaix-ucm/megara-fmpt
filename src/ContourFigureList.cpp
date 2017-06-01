@@ -614,7 +614,7 @@ void TContourFigureList::getRotatedAndTranslated(TContourFigureList &Contour,
     if(Contour.getCount() != getCount())
         throw EImpossibleError("number figures of thelist should be equal");
 
-    //el tipo de figuras dela lista debe coincidir
+    //el tipo de figuras de la lista debe coincidir
     for(int i=0; i<Contour.getCount(); i++)
         if(typeid(Contour[i]) != typeid(Items[i]))
             throw EImpossibleError("types figures in thelist should match");

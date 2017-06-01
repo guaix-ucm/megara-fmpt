@@ -42,47 +42,47 @@ namespace Models {
 
 //PROPIEDADES DE DEFINICION:
 
-void TBarrier::setContour_(const TContourFigureList& Contour_)
+void TBarrier::setContour_(const TContourFigureList& t_Contour_)
 {
     //libera las figuras de la plantilla previa
-    Destroy((TContourFigureList&)getContour_());
-    Destroy((TContourFigureList&)getContour());
+    Destroy(Contour);
+    Destroy(Contour_);
 
     //asigna la plantilla
-    p_Contour_.Copy(Contour_);
+    Contour_.Copy(t_Contour_);
 
     //asimila r_max
     calculater_max();
 
     //copia la plantilla
-    p_Contour.Copy(getContour_());
+    Contour.Copy(Contour_);
 
     //calcula la imagen de la plantilla
     calculateImage();
 }
 
-void TBarrier::setP0(TDoublePoint P0)
+void TBarrier::setP0(TDoublePoint t_P0)
 {
-    p_P0 = P0;
+    P0 = t_P0;
 
     calculateImage();
 }
-void TBarrier::setthetaO1(double thetaO1)
+void TBarrier::setthetaO1(double t_thetaO1)
 {
-    p_thetaO1 = thetaO1;
+    thetaO1 = t_thetaO1;
 
     calculateImage();
 }
 
-void TBarrier::setSPM(double SPM)
+void TBarrier::setSPM(double t_SPM)
 {
     //comprueba las precondiciones
-    if(SPM < 0)
+    if(t_SPM < 0)
         throw EImproperArgument("security perimetral margin SPM should be upper zero");
 
     //Nósete que SPM puede ser igual a cero.
 
-    p_SPM = SPM; //asigna el nuevo valor
+    SPM = t_SPM; //asigna el nuevo valor
 }
 
 //PROPIEDADES EN FORMATO TEXTO:
@@ -91,16 +91,18 @@ void TBarrier::setContour_Text(const AnsiString& S)
 {
     try {
         //construye un contorno tampón
-        TContourFigureList Contour_;
+        TContourFigureList t_Contour_;
         //asigna el nuevo valor al contorno tampón
-        Contour_.setText(S);
+        t_Contour_.setText(S);
         //intenta asignar el contorno tampón
-        setContour_(Contour_);
+        setContour_(t_Contour_);
 
         //La asignación de la cadena de texto a la variable tampón
         //comprobará si se cumplen las precondiciones.
         //La asignación de la variable tampón a la propiedad de la clase,
         //producirá la asimilación de todas las propiedades.
+
+        Destroy(t_Contour_);
 
     } catch(Exception& E) {
         E.Message.Insert(1, "setting Contour_ in text format: ");
@@ -111,16 +113,18 @@ void TBarrier::setContour_ColumnText(const AnsiString &S)
 {
     try {
         //construye un contorno tampón
-        TContourFigureList Contour_;
+        TContourFigureList t_Contour_;
         //asigna el nuevo valor al clon
-        Contour_.setColumnText(S);
+        t_Contour_.setColumnText(S);
         //intenta asignar la nueva plantilla
-        setContour_(Contour_);
+        setContour_(t_Contour_);
 
         //La asignación de la cadena de texto a la variable tampón
         //comprobará si se cumplen las precondiciones.
         //La asignación de la variable tampón a la propiedad de la clase,
         //producirá la asimilación de todas las propiedades.
+
+        Destroy(t_Contour_);
 
     } catch(Exception& E) {
         E.Message.Insert(1, "setting Contour_ in column text format: ");
@@ -199,12 +203,12 @@ AnsiString TBarrier::getAllText(void) const
 //    {r_max}
 void TBarrier::calculater_max(void)
 {
-    //si no hay contorno
-    if(getContour_().getCount() < 1)
-        p_r_max = 0; //la distancia es cero
-    else //si hay contorno
+    //si hay contorno
+    if(Contour_.getCount() > 0)
         //determina la distancia máxima del contorno al origen de S1
-        p_r_max = getContour_().distanceMax(TDoublePoint(0, 0));
+        r_max = Contour_.distanceMax(TDoublePoint(0, 0));
+    else //si no hay contorno
+        r_max = 0; //la distancia es cero
 }
 
 //a partir de:
@@ -215,17 +219,17 @@ void TBarrier::calculater_max(void)
 void TBarrier::calculateImage(void)
 {
     //determina el contorno del brazo (rotado y trasladado):
-    getContour_().getRotatedAndTranslated(p_Contour, getthetaO1(), getP0());
+    Contour_.getRotatedAndTranslated(Contour, thetaO1, P0);
 }
 
 //---------------------------------------------------------------------------
 //MÉTODOS PÚBLICOS:
 
 //contruye una barrera
-TBarrier::TBarrier(TDoublePoint P0, double thetaO1) :
-    p_Contour_(),
-    p_P0(P0), p_thetaO1(thetaO1),
-    p_Contour()
+TBarrier::TBarrier(TDoublePoint t_P0, double t_thetaO1) :
+    Contour_(),
+    P0(t_P0), thetaO1(t_thetaO1),
+    Contour()
 {
     //set the default value to the contour
     setContour_Text(MEGARA_Contour_Text);
@@ -244,7 +248,7 @@ TBarrier::TBarrier(TDoublePoint P0, double thetaO1) :
     calculateImage();
 
     //initialize the SPM component
-    p_SPM = MEGARA_Eo*getr_max() + MEGARA_Ep;
+    SPM = MEGARA_Eo*r_max + MEGARA_Ep;
 }
 
 //clona una barrera
@@ -254,12 +258,12 @@ void TBarrier::clone(const TBarrier *B)
     if(B == NULL)
         throw EImproperArgument("pointer B should point to built barrier");
 
-    p_Contour_.Clone(B->getContour_());
-    p_r_max = B->getr_max();
-    p_P0 = B->getP0();
-    p_thetaO1 = B->getthetaO1();
-    p_Contour.Clone(B->getContour());
-    p_SPM = B->getSPM();
+    Contour_.Clone(B->getContour_());
+    r_max = B->getr_max();
+    P0 = B->getP0();
+    thetaO1 = B->getthetaO1();
+    Contour.Clone(B->getContour());
+    SPM = B->getSPM();
 }
 
 //contruye un clon de una barrera
@@ -274,29 +278,29 @@ TBarrier::TBarrier(const TBarrier *B)
 //libera la memoria dinámica
 TBarrier::~TBarrier()
 {
-    Destroy(p_Contour);
-    Destroy(p_Contour_);
+    Destroy(Contour);
+    Destroy(Contour_);
 }
 
 //determina si tiene todos los valores por defecto
 //de una barrera de un EA
 bool TBarrier::dontHasAllDefaultValuesEA(void) const
 {
-    if(getContour_().getCount() != 16)
+    if(Contour_.getCount() != 16)
         return true;
-    if(getContour_().getText().str != MEGARA_LIFU_Contour_Text)
+    if(Contour_.getText().str != MEGARA_LIFU_Contour_Text)
         return true;
-    if(getr_max() != 24.687552112224221)
+    if(r_max != 24.687552112224221)
         return true;
-    if(getP0() != TDoublePoint(0, 0))
+    if(P0 != TDoublePoint(0, 0))
         return true;
-    if(getthetaO1() != 0)
+    if(thetaO1 != 0)
         return true;
-    if(getContour().getCount() != getContour_().getCount())
+    if(Contour.getCount() != Contour_.getCount())
         return true;
-    if(getContour().getText().str != MEGARA_LIFU_Contour_Text)
+    if(Contour.getText().str != MEGARA_LIFU_Contour_Text)
         return true;
-    if(getSPM() != 0.12154396266401415)
+    if(SPM != 0.12154396266401415)
         return true;
     return false;
 }
@@ -304,21 +308,21 @@ bool TBarrier::dontHasAllDefaultValuesEA(void) const
 //de una barrera de un actuador de un RP
 bool TBarrier::dontHasAllDefaultValuesActuator(void) const
 {
-    if(getContour_().getCount() != 2)
+    if(Contour_.getCount() != 2)
         return true;
-    if(getContour_().getText().str != MEGARA_Contour_Text)
+    if(Contour_.getText().str != MEGARA_Contour_Text)
         return true;
-    if(getr_max() != 13.955)
+    if(r_max != 13.955)
         return true;
-    if(getP0() != TDoublePoint(0, 0))
+    if(P0 != TDoublePoint(0, 0))
         return true;
-    if(getthetaO1() != 0)
+    if(thetaO1 != 0)
         return true;
-    if(getContour().getCount() != getContour_().getCount())
+    if(Contour.getCount() != Contour_.getCount())
         return true;
-    if(getContour().getText().str != MEGARA_Contour_Text)
+    if(Contour.getText().str != MEGARA_Contour_Text)
         return true;
-    if(getSPM() != 0.11217804007500001)
+    if(SPM != 0.11217804007500001)
         return true;
     return false;
 }
@@ -326,22 +330,22 @@ bool TBarrier::dontHasAllDefaultValuesActuator(void) const
 //determina si una barrera es distinta
 bool TBarrier::operator!=(const TBarrier& B) const
 {
-    if(getContour_() != B.getContour_())
+    if(Contour_ != B.getContour_())
         return true;
 
-    if(getr_max() != B.getr_max())
+    if(r_max != B.getr_max())
         return true;
 
-    if(getP0() != B.getP0())
+    if(P0 != B.getP0())
         return true;
 
-    if(getthetaO1() != B.getthetaO1())
+    if(thetaO1 != B.getthetaO1())
         return true;
 
-    if(getContour() != B.getContour())
+    if(Contour != B.getContour())
         return true;
 
-    if(getSPM() != B.getSPM())
+    if(SPM != B.getSPM())
         return true;
 
     return false;
@@ -349,11 +353,11 @@ bool TBarrier::operator!=(const TBarrier& B) const
 
 //establece la posición y orientación
 //del origen de coordenadas simultaneamente
-void TBarrier::set(TDoublePoint P0, double thetaO1)
+void TBarrier::set(TDoublePoint t_P0, double t_thetaO1)
 {
     //asigna los nuevos valores
-    p_thetaO1 = thetaO1;
-    p_P0 = P0;
+    thetaO1 = t_thetaO1;
+    P0 = t_P0;
 
     //asimila las propiedades de posición y orientación
     calculateImage();
@@ -362,7 +366,7 @@ void TBarrier::set(TDoublePoint P0, double thetaO1)
 //obtiene el contorno del perímetro de seguridad de la barrera
 void TBarrier::getSecurityContour(TContourFigureList& securityContour)
 {
-    getContour().getSecurityContour(securityContour, getSPM());
+    getContour().getSecurityContour(securityContour, SPM);
 }
 
 //-------------------------------------------------------------------
@@ -384,8 +388,8 @@ double TBarrier::distanceMin(const TBarrier *Barrier) const
     //Pero con este código las distancias mínimas calculadas resultan más confusas.
 
     //calcula la distancia mínima en cada sentido
-    double distanceMin1 = getContour().distanceMin(Barrier->getContour());
-    double distanceMin2 = Barrier->getContour().distanceMin(getContour());
+    double distanceMin1 = Contour.distanceMin(Barrier->getContour());
+    double distanceMin2 = Barrier->getContour().distanceMin(Contour);
 
     //devuelve la distancia mínima
     return min(distanceMin1, distanceMin2);
@@ -406,8 +410,8 @@ double TBarrier::distanceMin(const TArm *Arm) const
     //Pero con este código las distancias mínimas calculadas resultan más confusas.
 
     //calcula la distancia mínima en cada sentido
-    double distanceMin1 = getContour().distanceMin(Arm->getContour());
-    double distanceMin2 = Arm->getContour().distanceMin(getContour());
+    double distanceMin1 = Contour.distanceMin(Arm->getContour());
+    double distanceMin2 = Arm->getContour().distanceMin(Contour);
 
     //devuelve la distancia mínima
     return min(distanceMin1, distanceMin2);
@@ -424,16 +428,16 @@ bool TBarrier::collides(const TBarrier *Barrier) const
         throw EImproperArgument("pointer Barrier should point to built barrier");
 
     //calcula la suma de SPMs
-    double SPM = Barrier->getSPM() + getSPM();
+    double t_SPM = Barrier->getSPM() + SPM;
 
     //si la distancia entre los ejes es al menos la distancia mínima para que no haya colisión
-    if(Mod(Barrier->getP0() - getP0()) > Barrier->getr_max() + getr_max() + SPM + ERR_NUM)
+    if(Mod(Barrier->getP0() - P0) > Barrier->getr_max() + r_max + t_SPM + ERR_NUM)
         return false; //indica que no hay colisión
 
     //determina si hay colisión entre los contornos (en ambos sentidos)
-    if(getContour().collides(Barrier->getContour(), SPM))
+    if(Contour.collides(Barrier->getContour(), t_SPM))
         return true;
-    if(Barrier->getContour().collides(getContour(), SPM))
+    if(Barrier->getContour().collides(Contour, t_SPM))
         return true;
 
     //indica que no ha encontrado colisión en ningún sentido
@@ -447,16 +451,16 @@ bool TBarrier::collides(const TArm *Arm) const
         throw EImproperArgument("pointer Arm should point to built arm");
 
     //calcula la suma de SPMs
-    double SPM = Arm->getSPM() + getSPM();
+    double t_SPM = Arm->getSPM() + getSPM();
 
     //si la distancia entre los ejes es al menos la distancia mínima para que no haya colisión
-    if(Mod(Arm->getP2() - getP0()) > Arm->getL1V() + getr_max() + SPM + ERR_NUM)
+    if(Mod(Arm->getP2() - P0) > Arm->getL1V() + r_max + t_SPM + ERR_NUM)
         return false; //indica que no hay colisión
 
     //determina si hay colisión entre los contornos (en ambos sentidos)
-    if(getContour().collides(Arm->getContour(), SPM))
+    if(Contour.collides(Arm->getContour(), t_SPM))
         return true;
-    if(Arm->getContour().collides(getContour(), SPM))
+    if(Arm->getContour().collides(Contour, t_SPM))
         return true;
 
     //indica que no ha encontrado colisión en ningún sentido
@@ -467,11 +471,11 @@ bool TBarrier::collides(const TArm *Arm) const
 bool TBarrier::covers(TDoublePoint P) const
 {
     //si el punto está fuera del alcance de la barrera
-    if(Mod(P - getP0()) > getr_max())
+    if(Mod(P - P0) > r_max)
         return false; //indica que el punto está fuera de la barrera
 
     //determina si el punto indicado está en el interior del contorno
-    bool isInner = getContour().isInner(P);
+    bool isInner = Contour.isInner(P);
 
     return isInner; //devuelve el resultado
 }

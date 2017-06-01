@@ -32,6 +32,7 @@
 #include <limits> //std::numeric_limits
 
 #include "../src/Arm.h"
+#include "../src/FiberMOSModelConstants.h"
 
 //using namespace Lists;
 using namespace Models;
@@ -56,7 +57,7 @@ void TestArm::test_()
     for(int i=0; i<10; i++) {
         try {
             //construye un brazo
-            TArm *A = new TArm(TDoublePoint(5.8025, 0));
+            TArm *A = new TArm(TDoublePoint(MEGARA_L, 0));
 
             //comrpueba que le punto P3 está donde debe estar
             if(Mod(A->getP3() - TDoublePoint(0, 0)) > ERR_NUM) {
@@ -89,14 +90,17 @@ void TestArm::test_()
         return;
     }
     if(A1.getL12() != A2.getL12() ||
-            A1.getP____2() != A2.getP____2() ||
+            A1.getP__2() != A2.getP__2() ||
             A1.getL13() != A2.getL13() ||
-            A1.gettheta____3() != A2.gettheta____3() ||
-            A1.getP____3() != A2.getP____3() ||
+            A1.gettheta__3() != A2.gettheta__3() ||
+            A1.getP__3() != A2.getP__3() ||
             A1.getR3() != A2.getR3() ||
             A1.getContour____() != A2.getContour____() ||
+            A1.getP____2() != A2.getP____2() ||
+            A1.getP____1() != A2.getP____1() ||
+            A1.getContour__() != A2.getContour__() ||
             A1.getL1V() != A2.getL1V() ||
-            A1.getV____() != A2.getV____() ||
+            A1.getV__() != A2.getV__() ||
             A1.getF() != A2.getF() ||
             A1.getQuantify___() != A2.getQuantify___() ||
             //A1.Quantify___s != A2.Quantify___s || //no puede ser comparado directamente
@@ -173,7 +177,6 @@ void TestArm::test_()
         return;
     }
 
-
     /*    //-------------------------------------------------------------------
     //MÉTODOS DE TRANSFORMACIÓN ENTRE SISTEMAS DE COORDENADAS:
 
@@ -215,7 +218,7 @@ void TestArm::test_()
     //asigna conjuntamente las propiedades de plantilla
     //si no espeficifa argumentos se asignan valores por defecto
     void setTemplate(double L12=MEGARA_L, double L13=MEGARA_L,
-                     double theta____3=0, double R3=0.75);
+                     double theta__3=0, double R3=0.75);
     //asigna conjuntamente las propiedades de orientación en radianes
     void setOrientationRadians(double thetaO3,
                                double theta___3min, double theta___3max,

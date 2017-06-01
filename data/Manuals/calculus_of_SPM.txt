@@ -58,7 +58,7 @@ Definitions:
             (PAam, Pem).
 
 Parameters got from '/MEGARA_FiberMOSModel/RoboticPositioner<Id>/Instance.txt':
-    SB1 = 194953.8462              # number of steps by lap of rotor 1 (in steps)
+    SB1 = 194086.302               # number of steps by lap of rotor 1 (in steps)
     SB2 = 30720                    # number of steps by lap of rotor 2
     SPMmin = 0.005                 # SPM minimum: is the SPM due to the minimum jump during generation (in mm)
     SPMsim = 0.072                 # SPM of simulation: is the maximum deviation in the radial trayectory (in mm)

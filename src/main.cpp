@@ -200,7 +200,7 @@ string help_generateParkProg_offline(void)
     str += "\r\n    outputs: force save file outputs in formats MCS and JSON, even if there are dangerous RPs.";
     str += "\r\n    other-outputs: the same comments of the file outputs in the old format other-outputs.";
     str += "\r\n";
-    str += "\r\n    WARNING! rotor 2 position angle (r2) has sign minus. r2 is exclusive of format MCS:";
+    str += "\r\n    WARNING! rotor 2 position angle (r2) has sign minus. r2 is exclusive of formats MCS and JSON:";
     str += "\r\n        Files MCS and outputs, contain (r1, r2).";
     str += "\r\n        Files SPL, FPL and FMPT, contain (p_1, p___3), not (r1, r2).";
     str += "\r\n";
@@ -275,7 +275,7 @@ string help_generatePairPPDP_offline(void)
     str += "\r\n    and even if there are either enabled-not-operative or collided or obstructed RPs.";
     str += "\r\n    other-outputs: the same comments of the file outputs in the old format other-outputs.";
     str += "\r\n";
-    str += "\r\n    WARNING! rotor 2 position angle (r2) has sign minus. r2 is exclusive of format MCS:";
+    str += "\r\n    WARNING! rotor 2 position angle (r2) has sign minus. r2 is exclusive of formats MCS and JSON:";
     str += "\r\n        Files PP-MCS, DP-MCS, MCS and outputs, contain (r1, r2).";
     str += "\r\n        Files OPL, OPL-S0, OPL-S1, IPL, PP-FMPT and DP-FMPT, contain (p_1, p___3), not (r1, r2).";
     str += "\r\n";
@@ -3328,7 +3328,7 @@ int main(int argc, char *argv[])
 
 #ifdef QMAKE //if debugging using qmake
     //Get the arguments for a command
-    getArguments(argc, argv, "generatePairPPDP_offline");
+    getArguments(argc, argv, "valuesSPM_RP");
 
     //Comands:
     //  "valuesSPM_EA"

@@ -130,7 +130,7 @@ void TestBarrier::test_()
         return;
     }
 
-    //calculate the minimun distance with an arm
+/*    //calculate the minimun distance with an arm
     x0 = 5.807111 + 2.35 + 0.195723055049871;
     TArm A(TDoublePoint(x0, 0));
     D = B1.distanceMin(&A);
@@ -171,7 +171,7 @@ void TestBarrier::test_()
         CPPUNIT_ASSERT(false);
         return;
     }
-
+*/
     //----------------------------------------------------
 
     CPPUNIT_ASSERT(true);
