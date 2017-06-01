@@ -55,7 +55,7 @@ void TestPositionerCenter::test_()
         //LOAD SETTINGS FROM FILES:
 
         //load the positioner center table from a file
-        string path = "../../../data/Models/positionerCenters_theoretical_92RPs.txt";
+        string path = "../data/Models/positionerCenters_theoretical_92RPs.txt";
         //string path = "../megarafmpt/data/Models/positionerCenters_theoretical_92RPs.txt"; //Qt only
         string str;
         strReadFromFile(str, path);
