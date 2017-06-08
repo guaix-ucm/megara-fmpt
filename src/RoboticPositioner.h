@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: RoboticPositioner.h
-//Content: robotic positioner (RP) model
-//Author: Isaac Morales Durán
+///@file RoboticPositioner.h
+///@brief robotic positioner (RP) model
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONER_H
@@ -55,6 +55,8 @@ void  StrReadControlMode(TControlMode& cm,
 AnsiString ControlModeToStr(TControlMode cm);
 TControlMode StrToControlMode(const AnsiString& S);
 
+//---------------------------------------------------------------------------
+//!TFaultType
 
 /// Fault type of the RP
 enum TFaultType {

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Constants.cpp
-//Content: general constants of the program
-//Author: Isaac Morales Durán
+///@file Constants.cpp
+///@brief general constants of the program
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Constants.h"

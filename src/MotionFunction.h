@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: MotionFunction.h
-//Content: motion function
-//Author: Isaac Morales Durán
+///@file MotionFunction.h
+///@brief motion function
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONFUNCTION_H

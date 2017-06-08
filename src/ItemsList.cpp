@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: ItemsList.cpp
-//Content: template for item list
-//Author: Isaac Morales Durán
+///@file ItemsList.cpp
+///@brief template for item list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "ItemsList.h"

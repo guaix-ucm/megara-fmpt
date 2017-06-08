@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Vectors.cpp
-//Content: classes and functions for vectors
-//Author: Isaac Morales Durán
+///@file Vectors.cpp
+///@brief classes and functions for vectors
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Constants.h" //M_2PI

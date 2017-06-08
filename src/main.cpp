@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: main.cpp
-//Content: main program of the FMPT SAA
-//Author: Isaac Morales Durán
+///@file main.cpp
+///@brief main program of the FMPT SAA
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 //includes for generic
@@ -40,6 +40,7 @@
 #include <clocale> //setlocale, LC_ALL
 #include <iostream> //std::cout, ios::fixed
 #include <stdio.h> //getchar
+#include <config.h> //PACKAGE_VERSION
 
 //#include "tests/testFileMethods_copia.h"
 
@@ -413,7 +414,7 @@ string aboutOf(void)
     str = "Copyright (c) 2012-2017 Isaac Morales Durán. All rights reserved.\r\n";
     str += "Institute of Astrophysics of Andalusia, IAA-CSIC. isaac@iaa.es.\r\n";
     str += "\r\n";
-    str += "This application is the FMPT SAA "+FMPT_VERSION+".\r\n";
+    str += "This application is the FMPT SAA "+string(PACKAGE_VERSION)+".\r\n";
     str += "(Fiber MOS Positioning Tools Stand Alone Application).\r\n";
     str += "\r\n";
     str += "FMPT is free software: you can redistribute it and/or modify\r\n";
@@ -1202,7 +1203,7 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         //properties for built comments about file outputs
         OutputsParkProg outputs;
         outputs.FMOSA_filename = filename;
-        outputs.FMPT_version = FMPT_VERSION;
+        outputs.FMPT_version = string(PACKAGE_VERSION);
         outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
@@ -1955,7 +1956,7 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
 
         //properties for built comments about file outputs
         outputs.FMOSA_filename = filename;
-        outputs.FMPT_version = FMPT_VERSION;
+        outputs.FMPT_version = string(PACKAGE_VERSION);
         outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
@@ -2600,7 +2601,7 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
 
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
-                outputs.FMPT_version = FMPT_VERSION;
+                outputs.FMPT_version = string(PACKAGE_VERSION);
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 //outputs.collided_str = collided_str;
                 //outputs.Collided = Collided;
@@ -2918,7 +2919,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_d
 
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
-                outputs.FMPT_version = FMPT_VERSION;
+                outputs.FMPT_version = string(PACKAGE_VERSION);
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 outputs.collided_str = ""; //outputs.collided_str not set above
                 outputs.Collided.Clear(); //outputs.Collided not set above
@@ -3477,7 +3478,7 @@ int main(int argc, char *argv[])
 
     try {
         //indicates that the program is running
-        append("FMPT SAA "+FMPT_VERSION+" is running...", log_path.c_str());
+        append("FMPT SAA "+string(PACKAGE_VERSION)+" is running...", log_path.c_str());
 
         //print the arguments with you have called the program
         append("\r\nArguments with you have called the program:", log_path.c_str());

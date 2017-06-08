@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FiberConnectionModel.h
-//Content: fiber connection model
-//Author: Isaac Morales Durán
+///@file FiberConnectionModel.h
+///@brief fiber connection model
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FIBERCONNECTIONMODEL_H

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: PointersList.cpp
-//Content: template for pointer list
-//Author: Isaac Morales Durán
+///@file PointersList.cpp
+///@brief template for pointer list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "PointersList.h"

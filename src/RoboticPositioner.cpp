@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: RoboticPositioner.cpp
-//Content: robotic positioner (RP) model
-//Author: Isaac Morales Durán
+///@file RoboticPositioner.cpp
+///@brief robotic positioner (RP) model
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "RoboticPositioner.h"

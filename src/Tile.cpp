@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Tile.cpp
-//Content: tile list
-//Author: Isaac Morales Durán
+///@file Tile.cpp
+///@brief tile list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Tile.h"

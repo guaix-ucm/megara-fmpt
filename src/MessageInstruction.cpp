@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: MessageInstruction.cpp
-//Content: message of instruction
-//Author: Isaac Morales Durán
+///@file MessageInstruction.cpp
+///@brief message of instruction
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MessageInstruction.h"

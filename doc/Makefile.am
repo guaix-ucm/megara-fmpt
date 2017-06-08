@@ -1,5 +1,5 @@
 
-extraconf = Models Samples
+extraconf = html latex Manuals
 
 EXTRA_DIST = $(extraconf)
 

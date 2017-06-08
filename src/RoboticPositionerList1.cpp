@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: RoboticPositionerList1.cpp
-//Content: RP list with sizing properties
-//Author: Isaac Morales Durán
+///@file RoboticPositionerList1.cpp
+///@brief RP list with sizing properties
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "RoboticPositionerList1.h"

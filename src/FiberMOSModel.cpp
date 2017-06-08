@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FiberMOSModel.cpp
-//Content: Fiber MOS model
-//Author: Isaac Morales Durán
+///@file FiberMOSModel.cpp
+///@brief Fiber MOS model
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FiberMOSModel.h"

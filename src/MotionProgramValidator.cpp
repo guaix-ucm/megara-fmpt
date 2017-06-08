@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: MotionProgramValidator.cpp
-//Content: motion program validator
-//Author: Isaac Morales Durán
+///@file MotionProgramValidator.cpp
+///@brief motion program validator
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MotionProgramValidator.h"

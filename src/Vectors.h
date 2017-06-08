@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Vectors.h
-//Content: classes and functions for vectors
-//Author: Isaac Morales Durán
+///@file Vectors.h
+///@brief classes and functions for vectors
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef VECTORS_H

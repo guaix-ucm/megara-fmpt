@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: StrPR.h
-//Content: functions for print and read text strings
-//Author: Isaac Morales Durán
+///@file StrPR.h
+///@brief functions for print and read text strings
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef STRPR_H

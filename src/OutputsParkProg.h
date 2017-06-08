@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: OutputsParkProg.h
-//Content: structure for contains all outputs data about a generated parking program (PP, DP)
-//Author: Isaac Morales Durán
+///@file OutputsParkProg.h
+///@brief structure for contains all outputs data about a generated parking program ParkProg
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef OUTPUTSPARKPROG_H
@@ -50,13 +50,13 @@ private:
 
 public:
     //properties for built comments about file ParkProg
-    string FMOSA_filename; //name of file type FMOSA of procedence
-    string FMPT_version; //version of the FMPT with which was generated
-    string datetime; //date-time of generation
-    TRoboticPositionerList EnabledNotOperative; //list of pointer to enabled-not-operative RPs
-    string collided_str; //list of lists of items (both EAs and RPs) in colliding status
-    TRoboticPositionerList Collided; //list of pointers to RPs in colliding status
-    TRoboticPositionerList Obstructed; //list of pointer to RPs in obstructed status
+    string FMOSA_filename; ///<name of file type FMOSA of procedence
+    string FMPT_version; ///<version of the FMPT with which was generated
+    string datetime; ///<date-time of generation
+    TRoboticPositionerList EnabledNotOperative; ///<list of pointer to enabled-not-operative RPs
+    string collided_str; ///<list of lists of items (both EAs and RPs) in colliding status
+    TRoboticPositionerList Collided; ///<list of pointers to RPs in colliding status
+    TRoboticPositionerList Obstructed; ///<list of pointer to RPs in obstructed status
 
     //properties for built comments about each MP
     unsigned int Bid; ///<block identifier
@@ -65,44 +65,43 @@ public:
     TPairPositionAnglesList FPL; ///<final position list
     double DsecMax; ///<maximun value of Dsec (security distance during radial movements)
 
-    //properties for built the executable data
+    ///properties for built the executable data
     TMotionProgram ParkProg; ///<the parking program
 
-    //get the warning for not suitable outputs
+    ///get the warning for not suitable outputs
     string getWarningNotSuitable(void) const;
 
-    //get the comments about ParkProg in text format
+    ///get the comments about ParkProg in text format
     string getCommentsText(void) const;
-    //get outputs in format MCS with:
-    //  comments
-    //  the parking program
+    ///@brief get outputs in format MCS with:
+    /// - comments
+    /// - the parking program
     void getText(string& str) const;
 
-    //get outputs in format JSON with:
-    //  comments
-    //  the parking program
+    ///@brief get outputs in format JSON with:
+    /// - comments
+    /// - the parking program
     string getJSONtext(void) const;
 
-    //get other outputs in text format with:
-    //  comments
-    //  other properties in format assigns
+    ///@brief get other outputs in text format with:
+    /// - comments
+    /// - other properties in format assigns
     void getOtherText(string& str) const;
 
-    //set the outputs in text format
+    ///set the outputs in text format
     void setText(const string& str);
 
-    //!build an structure of type ParkProg
+    ///build an structure of type ParkProg
     OutputsParkProg();
 
-    //! reset all properties to values by default
+    ///reset all properties to values by default
     void Clear(void);
 
-    //DEFINITION:
-    //  Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
-
-    //determine if the outputs is suitable to be executed:
-    //  the motion program is valid
-    //  and there aren't dangerous RPs
+    ///@brief determine if the outputs is suitable to be executed:
+    /// - the motion program is valid
+    /// - and there aren't dangerous RPs
+    ///@brief
+    /// Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
     bool suitable(void) const;
 };
 

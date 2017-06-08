@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: SquareFunction.cpp
-//Content: square motion function without acceleration and deceleration ramps
-//Author: Isaac Morales Durán
+///@file SquareFunction.cpp
+///@brief square motion function without acceleration and deceleration ramps
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "SquareFunction.h"

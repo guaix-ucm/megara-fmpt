@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FigureList.h
-//Content: contour figure list
-//Author: Isaac Morales Durán
+///@file FigureList.h
+///@brief contour figure list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef CONTOURFIGURELIST_H

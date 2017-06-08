@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: AllocationList.h
-//Content: allocation list
-//Author: Isaac Morales Durán
+///@file AllocationList.h
+///@brief allocation list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TALLOCATIONLIST_H

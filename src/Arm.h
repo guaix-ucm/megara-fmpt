@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Arm.h
-//Content: arm model of an actuator of a RP
-//Author: Isaac Morales Durán
+///@file Arm.h
+///@brief arm model of an actuator of a RP
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ARM_H

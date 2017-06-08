@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: MotionProgramValidator.h
-//Content: motion program validator
-//Author: Isaac Morales Durán
+///@file MotionProgramValidator.h
+///@brief motion program validator
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONPROGRAMVALIDATOR_H
@@ -39,18 +39,16 @@ namespace Positioning {
 
 //---------------------------------------------------------------------------
 
-//Get the list of RPs included in a MP.
-//Precondition:
-//  All message of instruction in the MP shall be addressed
-//  to an existent RP of the Fiber MOS Model.
+/// @brief Get the list of RPs included in a MP.
+/// @pre All message of instruction in the MP shall be addressed
+/// to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMP(TRoboticPositionerList& RPL,
                         const TMotionProgram& MP,
                         const TFiberMOSModel *FMM);
 
-//Get the list of RPs included in a pair of MPs.
-//Precondition:
-//  All message of instruction in the MPs shall be addressed
-//  to an existent RP of the Fiber MOS Model.
+/// @brief Get the list of RPs included in a pair of MPs.
+/// @pre All message of instruction in the MPs shall be addressed
+/// to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
                      const TMotionProgram& MP1, const TMotionProgram& MP2,
                      const TFiberMOSModel *FMM);
@@ -59,7 +57,7 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
 //TMotionProgramValidator:
 //###########################################################################
 
-//class validator of motion programs
+/// @class class validator of motion programs
 class TMotionProgramValidator {
 protected:
     //EXTERN-ATTACHED OBJECTS:
@@ -107,14 +105,14 @@ protected:
 public:
     //EXTERN-ATTACHED OBJECTS:
 
-    //extern attached Fiber MOS Model
+    /// extern attached Fiber MOS Model
     TFiberMOSModel *getFiberMOSModel(void) const {
         return p_FiberMOSModel;}
 
     //BUILDING AND DESTROYING METHODS:
 
-    //built a validator of motion programs
-    //attached to an extern Fiber MOS Model
+    /// @brief built a validator of motion programs
+    /// attached to an extern Fiber MOS Model
     TMotionProgramValidator(TFiberMOSModel *FiberMOSModel);
 
     //METHODS TO VALIDATE MOTION PROGRAMS:

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Allocation.h
-//Content: RP to projection point allocation
-//Author: Isaac Morales Durán
+///@file Allocation.h
+///@brief RP to projection point allocation
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TALLOCATION_H

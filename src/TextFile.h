@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TextFile.h
-//Content: classes and functions for generic text file
-//Author: Isaac Morales Durán
+///@file TextFile.h
+///@brief classes and functions for generic text file
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TEXTFILE_H

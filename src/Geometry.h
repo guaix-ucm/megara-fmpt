@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Geometry.h
-//Content: geometric functions
-//Author: Isaac Morales Durán
+///@file Geometry.h
+///@brief geometric functions
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef GEOMETRY_H

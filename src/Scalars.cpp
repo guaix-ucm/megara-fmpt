@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Scalars.cpp
-//Content: scalar functions
-//Author: Isaac Morales Durán
+///@file Scalars.cpp
+///@brief scalar functions
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Constants.h"

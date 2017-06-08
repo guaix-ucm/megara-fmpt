@@ -29,6 +29,7 @@ AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_FILES([Makefile
                  Doxyfile
                  data/Makefile
+                 doc/Makefile
                  tests/Makefile
                  src/Makefile])
 

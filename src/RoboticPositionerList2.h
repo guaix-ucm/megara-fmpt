@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: RoboticPositionerList2.h
-//Content: RP list with hash table
-//Author: Isaac Morales Durán
+///@file RoboticPositionerList2.h
+///@brief RP list with hash table
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONERLIST2_H

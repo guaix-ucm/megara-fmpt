@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Vector.cpp
-//Content: template for vector of numerical types
-//Author: Isaac Morales Durán
+///@file Vector.cpp
+///@brief template for vector of numerical types
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Vector.h"

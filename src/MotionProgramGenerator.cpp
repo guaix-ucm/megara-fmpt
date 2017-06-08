@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: MotionProgramGenerator.cpp
-//Content: motion program generator
-//Author: Isaac Morales Durán
+///@file MotionProgramGenerator.cpp
+///@brief motion program generator
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "globalconsts.h"
@@ -32,6 +32,7 @@
 #include "adjacentitem.h"
 
 #include <algorithm> //std::min, std::max
+#include <config.h> //PACKAGE_VERSION
 
 //---------------------------------------------------------------------------
 
@@ -515,6 +516,10 @@ bool TMotionProgramGenerator::motionProgramsAreIncongruent(TRoboticPositioner* &
 //      instruction for retract the arm,
 //      and the second message list shall contains a single message
 //      instruction for abate the arm.
+//Inputs:
+//  (MPturn, MPretraction): the pair of MPs to validate
+//  motionProgramsAreIncongruent: flag indicating if
+//      the pair avoid collisions
 bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPturn,
                                                      const TMotionProgram& MPretraction) const
 {
@@ -2592,7 +2597,7 @@ bool generateParkProg_online(OutputsParkProg& outputs,
 
     //properties for built comments about file outputs
     outputs.FMOSA_filename = ""; //here there isn't FMOSA_filename
-    outputs.FMPT_version = FMPT_VERSION;
+    outputs.FMPT_version = string(PACKAGE_VERSION);
     outputs.datetime = strfromtime_t(time(NULL));
     outputs.EnabledNotOperative = EnabledNotOperative;
     outputs.collided_str = collided_str;
@@ -2763,7 +2768,7 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 
     //properties for built comments about file outputs
     outputs.FMOSA_filename = ""; //here there isn't FMOSA_filename
-    outputs.FMPT_version = FMPT_VERSION;
+    outputs.FMPT_version = string(PACKAGE_VERSION);
     outputs.datetime = strfromtime_t(time(NULL));
     outputs.EnabledNotOperative = EnabledNotOperative;
     outputs.collided_str = collided_str;

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: PositioningProgram.h
-//Content: positioning program
-//Author: Isaac Morales Durán
+///@file PositioningProgram.h
+///@brief positioning program
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONPROGRAM_H
@@ -29,7 +29,7 @@
 #include "PointersList.h"
 #include "PairPositionAngles.h"
 
-#include <json/json.h>
+#include <jsoncpp/json/json.h>
 
 //---------------------------------------------------------------------------
 

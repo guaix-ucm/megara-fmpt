@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FileMethods.h
-//Content: file functions for read and write instances of models
-//Author: Isaac Morales Durán
+///@file FileMethods.h
+///@brief file functions for read and write instances of models
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FILEMETHODS_H

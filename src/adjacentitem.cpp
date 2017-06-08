@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: adjacentitem.cpp
-//Content: class of adjacent items EAs and RPs
-//Author: Isaac Morales Durán
+///@file adjacentitem.cpp
+///@brief class of adjacent items EAs and RPs
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "adjacentitem.h"

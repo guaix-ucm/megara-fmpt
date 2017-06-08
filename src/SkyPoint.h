@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: SkyPoint.h
-//Content: sky point list
-//Author: Isaac Morales Durán
+///@file SkyPoint.h
+///@brief sky point list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef SKYPOINT_H

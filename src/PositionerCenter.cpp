@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: PositionersCenters.cpp
-//Content: positioner center list
-//Author: Isaac Morales Durán
+///@file PositionersCenters.cpp
+///@brief positioner center list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "PositionerCenter.h"

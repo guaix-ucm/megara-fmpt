@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FMOSA.cpp
-//Content: structure FMOSA
-//Author: Isaac Morales Durán
+///@file FMOSA.cpp
+///@brief structure FMOSA
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FMOSA.h"
@@ -768,6 +768,13 @@ void TFMOSA::searchDontMatchEnabled(TVector<int>& Pids,
 }
 
 //get the allocations which accomplish: there_is_Bid && Enabled
+//Preconditions:
+//  there aren't missing Pids;
+//  there aren't don't match Enabled.
+//Exceptions:
+//  EImproperCall: If not meet the pre-conditions
+//Allocations to not operative (although enabled) RPs, can be got,
+//but them motion programs can will be generated only by force.
 void TFMOSA::getAllocations(TAllocationList& AL)
 {
     //check the preconditions

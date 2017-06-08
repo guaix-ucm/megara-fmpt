@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: TelescopeProjectionModel.cpp
-//Content: telescope projection model
-//Author: Isaac Morales Durán
+///@file TelescopeProjectionModel.cpp
+///@brief telescope projection model
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "TelescopeProjectionModel.h"

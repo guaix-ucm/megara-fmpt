@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Function.cpp
-//Content: contonuous function of continuous time defined in sample points
-//Author: Isaac Morales Durán
+///@file Function.cpp
+///@brief contonuous function of continuous time defined in sample points
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Function.h"

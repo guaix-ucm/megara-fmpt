@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: ExclusionArea.h
-//Content: exclusion area (EA) model
-//Author: Isaac Morales Durán
+///@file ExclusionArea.h
+///@brief exclusion area (EA) model
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef EXCLUSIONAREA_H

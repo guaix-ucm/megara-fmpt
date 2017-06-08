@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: ExclusionAreaList.cpp
-//Content: EA list
-//Author: Isaac Morales Durán
+///@file ExclusionAreaList.cpp
+///@brief EA list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "ExclusionAreaList.h"

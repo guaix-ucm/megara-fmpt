@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: RoboticPositionerList1.h
-//Content: RP list with sizing properties
-//Author: Isaac Morales Durán
+///@file RoboticPositionerList1.h
+///@brief RP list with sizing properties
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONERLIST1_H

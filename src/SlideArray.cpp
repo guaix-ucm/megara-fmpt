@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: SlideArray.cpp
-//Content: template for slide array
-//Author: Isaac Morales Durán
+///@file SlideArray.cpp
+///@brief template for slide array
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "SlideArray.h"

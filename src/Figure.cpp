@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Figure.cpp
-//Content: geometric figures
-//Author: Isaac Morales Durán
+///@file Figure.cpp
+///@brief geometric figures
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Figure.h"

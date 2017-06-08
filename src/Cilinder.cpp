@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Cilinder.cpp
-//Content: cilinder model of an actuator of a RP
-//Author: Isaac Morales Durán
+///@file Cilinder.cpp
+///@brief cilinder model of an actuator of a RP
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Cilinder.h"

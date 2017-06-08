@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Quantificator.cpp
-//Content: quantifier operator
-//Author: Isaac Morales Durán
+///@file Quantificator.cpp
+///@brief quantifier operator
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Quantificator.h"

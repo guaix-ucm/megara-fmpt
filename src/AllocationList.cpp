@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: AllocationList.cpp
-//Content: allocation list
-//Author: Isaac Morales Durán
+///@file AllocationList.cpp
+///@brief allocation list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "AllocationList.h"

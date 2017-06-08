@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: PointersSlideArray.h
-//Content: template for pointers slide array
-//Author: Isaac Morales Durán
+///@file PointersSlideArray.h
+///@brief template for pointers slide array
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef POINTERSSLIDEARRAY_H

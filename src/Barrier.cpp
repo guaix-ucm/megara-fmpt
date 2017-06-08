@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: Barrier.cpp
-//Content: barrier model of an EA or a RP-Actuator
-//Author: Isaac Morales Durán
+///@file Barrier.cpp
+///@brief barrier model of an EA or a RP-Actuator
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Barrier.h"

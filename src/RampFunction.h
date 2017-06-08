@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: RampFunction.h
-//Content: ramp motion function with acceleration and deceleration ramps
-//Author: Isaac Morales Durán
+///@file RampFunction.h
+///@brief ramp motion function with acceleration and deceleration ramps
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef RAMPFUNCTION_H

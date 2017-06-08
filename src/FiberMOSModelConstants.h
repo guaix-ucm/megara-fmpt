@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FiberMOSModelConstants.h
-//Content: constants for build a Fiber MOS model by default
-//Author: Isaac Morales Durán
+///@file FiberMOSModelConstants.h
+///@brief constants for build a Fiber MOS model by default
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FIBERMOSMODELCONSTANTS_H

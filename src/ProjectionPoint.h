@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: ProjectionPoint.h
-//Content:  projection point list
-//Author: Isaac Morales Durán
+///@file ProjectionPoint.h
+///@brief  projection point list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef PROJECTIONPOINT_H

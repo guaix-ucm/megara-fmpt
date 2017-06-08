@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: PositionersCenters.h
-//Content: positioner center list
-//Author: Isaac Morales Durán
+///@file PositionersCenters.h
+///@brief positioner center list
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef POSITIONERCENTER_H

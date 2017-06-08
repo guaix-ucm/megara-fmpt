@@ -1,8 +1,6 @@
 #ifndef GLOBALCONSTS_H
 #define GLOBALCONSTS_H
 
-#define FMPT_VERSION string("4.8.0")
-
 //#define QMAKE //define using qmake
 
 //For debugging using qmake, uncomment "#define QMAKE"

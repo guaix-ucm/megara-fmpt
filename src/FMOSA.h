@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: FMOSA.h
-//Content: structure FMOSA
-//Author: Isaac Morales Durán
+///@file FMOSA.h
+///@brief structure FMOSA
+///@author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FMOSA_H
@@ -43,29 +43,29 @@ namespace Models {
 class TObservingSource {
 public:
     //SP properties:
-    string Name;        //name ("")                 (can be empty)
-    double RA;          //rect ascension (0)
-    double Dec;         //declination (0)
-    double Mag;         //magnitude (0)             (can be empty)
-    TPointType Type;    //type (ptUNKNOWN)
+    string Name;        ///< name ("")                 (can be empty)
+    double RA;          ///< rect ascension (0)
+    double Dec;         ///< declination (0)
+    double Mag;         ///< magnitude (0)             (can be empty)
+    TPointType Type;    ///< type (ptUNKNOWN)
 
     //Allocation properties
-    unsigned int Pr;    //allocation priority (0)   (can be empty)
-    unsigned int Bid;   //Id of the CB (0)          (can be empty)
-    unsigned int Pid;   //Id of the RP (0)
+    unsigned int Pr;    ///< allocation priority (0)   (can be empty)
+    unsigned int Bid;   ///< Id of the CB (0)          (can be empty)
+    unsigned int Pid;   ///< Id of the RP (0)
 
     //Projection point properties:
-    double X;           //abcise (0)
-    double Y;           //ordinate (0)
-    double Angle;       //angle of the microlens (0)
-    bool Enabled;       //indicates if the point is allocated to the RP (false)
+    double X;           ///< abcise (0)
+    double Y;           ///< ordinate (0)
+    double Angle;       ///< angle of the microlens (0)
+    bool Enabled;       ///< indicates if the point is allocated to the RP (false)
 
     //Allocation properties:
     //bool notAllocated;  //indicates if the point is not allocated in other CB
     //                    //(true)    (could be empty)
     //bool allocateInAll; //indicates if the point must be allocated in all CBs
     //                    //(false)   (could be empty)
-    string Comment;     //coment ("")               (can be empty)
+    string Comment;     ///< coment ("")               (can be empty)
 
     //Used to generate a pair (PP, DP):
     //  Type, [Bid], Pid, X, Y, Enabled
@@ -81,39 +81,39 @@ public:
 
     //flags indicating fields which can be empty (except Name and Comment):
     //default value: false
-    bool there_is_Mag;
-    bool there_is_Pr;
-    bool there_is_Bid;
+    bool there_is_Mag;  ///< field Mag is not empty
+    bool there_is_Pr;   ///< field Pr is not empty
+    bool there_is_Bid;  ///< field Bid is not empty
     //bool there_is_notAllocated;
     //bool there_is_allocateInAll;
 
     //SETS OF PROPERTIES IN TEXT FORMAT:
 
-    //get the structure in text format
+    /// get the structure in text format
     AnsiString getRowText(void) const;
 
-    //get the structure in JSON format
+    /// get the structure in JSON format
     Json::Value getJSON(void) const;
 
-    //set the structure in text format
+    /// set the structure in text format
     void setText(const string& str);
 
-    //print the properties of an OS in a string
-    //in row format
+    /// @brief print the properties of an OS in a string
+    /// in row format
     static void  printRow(AnsiString &S, const TObservingSource *OS);
 
     //PUBLIC METHODS:
 
-    //build a structure by default
+    /// build a structure by default
     TObservingSource(void);
 
-    //copy all properties of an object of the same type
+    /// copy all properties of an object of the same type
     TObservingSource& operator=(const TObservingSource&);
 
-    //build a clon
+    /// build a clon
     TObservingSource(TObservingSource *OS);
 
-    //compare all properties of an object of the same type
+    /// compare all properties of an object of the same type
     bool operator!=(const TObservingSource&);
 };
 
@@ -121,66 +121,62 @@ public:
 //class TFMOSA:
 
 class TFMOSA : public TPointersList<TObservingSource> {
-    //read the OB section in tampon variables
+    /// read the OB section in tampon variables
     void readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
                     const string& str);
 
 public:
-    //last valid setted FMOSA in text format including comments
-    //default value: ""
+    /// last valid setted FMOSA in text format including comments
+    /// - default value: ""
     string str_original;
 
-    //comments before the OB
+    /// comments before the OB
     TStrings comments;
 
     //OB properties
-    unsigned int Id;     //the block identification
-    double Ra;  //the rect ascension of the block
-    double Dec; //the declination of the block
-    double Pos; //
+    unsigned int Id;    ///< the block identification
+    double Ra;          ///< the rect ascension of the block
+    double Dec;         ///< the declination of the block
+    double Pos;         ///< position angle
 
-    //set a FMOSA in text format
+    /// set a FMOSA in text format
     void setTableText(unsigned int& Bid, const string& str);
 
-    //get the FMOSA in text format
+    /// get the FMOSA in text format
     void getTableText(string& str) const;
 
-    //get the FMOSA in format JSON
+    /// get the FMOSA in format JSON
     Json::Value getJSON(void) const;
 
-    //get the Pids of the OSs which accomplish:
-    //  there_is_Bid
-    //  Pid is not found in the FMM
+    /// @brief get the Pids of the OSs which accomplish:
+    /// - there_is_Bid
+    /// - Pid is not found in the FMM
     void searchMissingPids(TVector<int>& Pids,
                            const TRoboticPositionerList2 *RPL);
 
-    //get the Pids of the OSs which accomplish:
-    //  there_is_Bid
-    //  Enabled don't match with Disbaled in the FMM
-    //If there are missing Pids:
-    //  throw EImproperCall
+    /// @brief get the Pids of the OSs which accomplish:
+    /// - there_is_Bid
+    /// - Enabled don't match with Disbaled in the FMM
+    /// @brief If there are missing Pids:
+    /// - throw EImproperCall
     void searchDontMatchEnabled(TVector<int>& Pids,
                                 const TRoboticPositionerList2 *RPL);
 
-    //get the allocations which accomplish: there_is_Bid && Enabled
-    //If not meet the pre-conditions for get the allocations:
-    //  throw EImproperCall
+    /// @brief get the allocations which accomplish: there_is_Bid && Enabled
+    /// @pre there aren't missing Pids;
+    /// @pre there aren't don't match Enabled.
+    /// @exception EImproperCall: If not meet the pre-conditions
+    /// @brief Allocations to not operative (although enabled) RPs, can be got,
+    /// but them motion programs can will be generated only by force.
     void getAllocations(TAllocationList& AL);
 
-    //WARNING! For call method getAllocations, shall meet pre-conditions:
-    //  there aren't missing Pids;
-    //  there aren't don't match Enabled.
-    //Ohterwise will be throwed exception EImproperCall.
-    //Allocations to not operative (although enabled) RPs, can be got,
-    //but motion programs can will be generated only by force.
-
-    //build a FMOSA by default
+    /// build a FMOSA by default
     TFMOSA(void);
 
-    //clone a FMOSA
+    /// clone a FMOSA
     void Clone(TFMOSA&);
 
-    //copy a FMOSA
+    /// copy a FMOSA
     TFMOSA& operator=(const TFMOSA&);
 };
 
