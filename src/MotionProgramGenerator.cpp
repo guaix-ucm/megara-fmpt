@@ -580,12 +580,12 @@ bool TMotionProgramGenerator::motionProgramsAreValid(const TMotionProgram& MPtur
 //  dt1max: maximun displacement of the rotor 1 for search the solution
 //      in rad. Recomended value (M_PI/2).
 //Outputs:
-//  searchSolutionInNegativeSense: indicates if the solution is valid.
 //  p_1new: last position where solution has been searched.
 //  RP->MPturn: the generated MP for turn the rotor 1 of the RP,
 //      to be executed in first place.
 //  RP->MPretraction: the generated MP for radial retraction,
 //      to be executed in second place.
+//  searchSolutionInNegativeSense: indicates if the solution is valid.
 //Preconditions:
 //  All RPs of the Fiber MOS Model:
 //      shall be configurated for MP generation.
@@ -731,12 +731,12 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
 //  dt1max: maximun displacement of the rotor 1 for search the solution
 //      in rad. Recomended value (M_PI/2).
 //Outputs:
-//  searchSolutionInPositiveSense: indicates if the solution is valid.
 //  p_1new: last position where solution has been searched.
 //  RP->MPturn: the generated MP for turn the rotor 1 of the RP,
 //      to be executed in first place.
 //  RP->MPretraction: the generated MP for radial retraction,
 //      to be executed in second place.
+//  searchSolutionInPositiveSense: indicates if the solution is valid.
 //Preconditions:
 //  All RPs of the Fiber MOS Model:
 //      shall be configurated for MP generation.
