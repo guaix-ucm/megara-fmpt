@@ -55,7 +55,7 @@ namespace Positioning {
 //  DisjointSets: list of disjoint sets.
 //Preconditions:
 //  All RPs in the list Outsiders:
-//      shall be operatives;
+//      shall be operatives.
 //      shall be in insecurity positions.
 void TMotionProgramGenerator::segregateRPsInDisjointSets(
         TPointersList<TRoboticPositionerList>& DisjointSets,
@@ -677,7 +677,8 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
         //if the MP is invalid,  perform the binary search of the p_1new (with the single adjacent)
         else {
             //restablish the initial status of the FMM
-            ///            getFiberMOSModel()->RPL.restoreAndPopQuantifys(); <----------it is not necesary
+            //getFiberMOSModel()->RPL.restoreAndPopQuantifys();
+            //it is not necesary
 
             //perform the binary search of the p_1new (with the single adjacent)
             do {
@@ -701,7 +702,8 @@ bool TMotionProgramGenerator::searchSolutionInNegativeSense(double& p_1new, TRob
 
                 else {
                     //restablish the initial status of the FMM
-                    ///                    getFiberMOSModel()->RPL.restoreAndPopQuantifys(); <----------it is not necesary
+                    //getFiberMOSModel()->RPL.restoreAndPopQuantifys();
+                    //it is not necesary
 
                     //displace the upper limit
                     p_1upper = p_1new;
@@ -828,7 +830,8 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
         //if the MP is invalid,  perform the binary search of the p_1new (with the single adjacent)
         else {
             //restablish the initial status of the FMM
-            ///            getFiberMOSModel()->RPL.restoreAndPopQuantifys(); <----------it is not necesary
+            //getFiberMOSModel()->RPL.restoreAndPopQuantifys();
+            //it is not necesary
 
             //perform the binary search of the p_1new (with the single adjacent)
             do {
@@ -852,7 +855,8 @@ bool TMotionProgramGenerator::searchSolutionInPositiveSense(double& p_1new, TRob
 
                 else {
                     //restablish the initial status of the FMM
-                    ///                    getFiberMOSModel()->RPL.restoreAndPopQuantifys(); <----------it is not necesary
+                    //getFiberMOSModel()->RPL.restoreAndPopQuantifys();
+                    //it is not necesary
 
                     //displace the lower limit
                     p_1lower = p_1new;
@@ -929,7 +933,7 @@ bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
 
     //search a solution in negative sense
     double p_1new;
-    bool valid = searchSolutionInNegativeSense(p_1new, RP, getdt1Max());
+    bool valid = searchSolutionInNegativeSense(p_1new, RP, dt1Max);
 
     //The funtion searchSolutionInNegativeSense not change the status of the RP.
 
@@ -943,7 +947,7 @@ bool TMotionProgramGenerator::searchSolution(TRoboticPositioner *RP)
     //if not has found a solution
     else {
         //search a solution in positive sense
-        valid = searchSolutionInPositiveSense(p_1new, RP, getdt1Max());
+        valid = searchSolutionInPositiveSense(p_1new, RP, dt1Max);
 
         //The funtion searchSolutionInPositiveSense not change the status of the RP.
 
@@ -1320,23 +1324,23 @@ void TMotionProgramGenerator::addMessageListToGoToTheOrigins(TMotionProgram& DP,
 //maximun displacement of the rotor 1 for search the solution
 //must be nonnegative
 //default value: M_PI/2 rad
-void TMotionProgramGenerator::setdt1Max(double dt1Max)
+void TMotionProgramGenerator::setdt1Max(double t_dt1Max)
 {
-    if(dt1Max < 0)
+    if(t_dt1Max < 0)
         throw EImproperArgument("maximun displacement of the rotor 1 for search thesolution (dt1Max) should be nonnegative");
 
-    p_dt1Max = dt1Max;
+    dt1Max = t_dt1Max;
 }
 
 //---------------------------------------------------------------------------
 //BUILDING AND DESTROYING METHODS:
 
 //build a motion program generator
-//attached to a robotic positioner list
-TMotionProgramGenerator::TMotionProgramGenerator(TFiberMOSModel *_FiberMOSModel) :
-    TMotionProgramValidator(_FiberMOSModel),
-    TAllocationList(&(_FiberMOSModel->RPL)),
-    p_dt1Max(M_PI/2),
+//attached to a Fiber MOS Model
+TMotionProgramGenerator::TMotionProgramGenerator(TFiberMOSModel *t_FiberMOSModel) :
+    TMotionProgramValidator(t_FiberMOSModel),
+    TAllocationList(&(t_FiberMOSModel->RPL)),
+    dt1Max(M_PI/2),
     NRmin(3), NBmin(1), PrMax(0)
 {
 }
@@ -1365,9 +1369,9 @@ TMotionProgramGenerator::~TMotionProgramGenerator(void)
 //    - shall be configurated for MP generation.
 //      (Purpose == pGenPairPPDP || Purpose == pGenParPro).
 //  All RPs of the list Outsiders:
-//    - shall be in the Fiber MOS Model;
-//    - shall be operatives;
-//    - shall be in insecurity positions;
+//    - shall be in the Fiber MOS Model.
+//    - shall be operatives.
+//    - shall be in insecurity positions.
 //    - shall have enabled the quantifiers of their rotors.
 //Postconditions:
 //  All RPs of the Fiber MOS Model:
@@ -1604,12 +1608,12 @@ void TMotionProgramGenerator::generateRecoveryProgram(
 //    - will be configured for validate a DP. (Purpose == pValDP).
 //  When the generated depositioning program isn't valid:
 //      All RPs of the FMM:
-//        - will have disabled the quantifiers of their rotors;
+//        - will have disabled the quantifiers of their rotors.
 //        - will be in the first position where the collision was detected
 //              during the validation process.
 //  When the generated depositioning program is valid (even the trivial case):
 //      All RPs of the FMM:
-//        - will have enabled the quantifiers of their rotors;
+//        - will have enabled the quantifiers of their rotors.
 //        - will be in their final positions.
 bool TMotionProgramGenerator::generateDepositioningProgram(
         TRoboticPositionerList& Collided, TRoboticPositionerList& Obstructed,

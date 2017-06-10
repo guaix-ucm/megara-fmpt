@@ -40,15 +40,15 @@ namespace Positioning {
 //---------------------------------------------------------------------------
 
 /// @brief Get the list of RPs included in a MP.
-/// @pre All message of instruction in the MP shall be addressed
-/// to an existent RP of the Fiber MOS Model.
+/// @pre All message of instruction in the MP:
+/// - shall be addressed to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMP(TRoboticPositionerList& RPL,
                         const TMotionProgram& MP,
                         const TFiberMOSModel *FMM);
 
 /// @brief Get the list of RPs included in a pair of MPs.
-/// @pre All message of instruction in the MPs shall be addressed
-/// to an existent RP of the Fiber MOS Model.
+/// @pre All message of instruction in the MPs:
+/// - shall be addressed to an existent RP of the Fiber MOS Model.
 void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
                      const TMotionProgram& MP1, const TMotionProgram& MP2,
                      const TFiberMOSModel *FMM);
@@ -57,14 +57,16 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
 //TMotionProgramValidator:
 //###########################################################################
 
-/// @class class validator of motion programs
+/// @brief A Motion Program Validator (MPV) provide functions for validate
+/// MPs (Motion Programs). Validation process use the Variable Jump Method.
+/// The process consume a bit of the Security Perimetral Margin (SPM) for
+/// determine apodictically thet the MP avoid collissions.
 class TMotionProgramValidator {
 protected:
     //EXTERN-ATTACHED OBJECTS:
 
-    TFiberMOSModel *p_FiberMOSModel;
+    TFiberMOSModel *FiberMOSModel;
 
-protected:
     //DEFINITION: minimun free distance between two barriers (Dmin)
     //is the distance between the barriers less the SPM of each:
     //  Dmin = Barrier1->Contour.DistanceMin(Barrier2->Contour) -
@@ -75,76 +77,70 @@ protected:
     //is displacement time during which there is garantee
     //that cannot collide.
 
-    //calculates the time free of collission of a RP and an EA
+    /// Calculates the time free of collission of a RP and an EA.
     double calculateTf(TRoboticPositioner *RP,
                        const TExclusionArea *EAA) const;
-    //calculates the time free of collission of two RPs
+    /// Calculates the time free of collission of two RPs.
     double calculateTf(TRoboticPositioner *RP,
                        const TRoboticPositioner *RPA) const;
-    //calculates the minimun step time of a pair (RP, EA)
+    /// Calculates the minimun step time of a pair (RP, EA).
     double calculateTmin(const TRoboticPositioner *RP,
                          const TExclusionArea *EAA) const;
-    //calculates the minimun step time of two RPs
+    /// Calculates the minimun step time of two RPs.
     double calculateTmin(const TRoboticPositioner *RP,
                          const TRoboticPositioner *RPA) const;
 
-    //calculates the minimun time free of collission of
-    //a RP with their adjacents
+    /// @brief Calculates the minimun time free of collission of
+    /// a RP with their adjacents.
     double calculateTfmin(TRoboticPositioner *RP) const;
-    //calculates the minimun step time of
-    //a RP with their adjacents
+    /// @brief Calculates the minimun step time of
+    /// a RP with their adjacents.
     double calculateTminmin(const TRoboticPositioner *RP) const;
 
-    //calculates the minimun time free of collission of
-    //the RPs of a list
+    /// @brief Calculates the minimun time free of collission of
+    /// the RPs of a list.
     double calculateTfmin(const TRoboticPositionerList& RPL) const;
-    //calculates the minimun step time of
-    //the RPs of a list
+    /// @brief Calculates the minimun step time of
+    /// the RPs of a list.
     double calculateTminmin(const TRoboticPositionerList& RPL) const;
 
 public:
     //EXTERN-ATTACHED OBJECTS:
 
-    /// extern attached Fiber MOS Model
+    /// Get extern attached Fiber MOS Model.
     TFiberMOSModel *getFiberMOSModel(void) const {
-        return p_FiberMOSModel;}
+        return FiberMOSModel;}
 
     //BUILDING AND DESTROYING METHODS:
 
-    /// @brief built a validator of motion programs
-    /// attached to an extern Fiber MOS Model
+    /// @brief Built a validator of motion programs
+    /// attached to an extern Fiber MOS Model.
     TMotionProgramValidator(TFiberMOSModel *FiberMOSModel);
 
     //METHODS TO VALIDATE MOTION PROGRAMS:
 
-    //Determines if the execution of a motion program, starting from
-    //given initial positions, avoid collisions.
-    //Preconditions:
-    //  All RPs included in the MP:
-    //      must be enabled the quantifiers of their rotors.
-    //  All RPs of the FMM:
-    //      shall be in their initial positions;
-    //      must have the aadecuate SPM.
-    //Postconditions:
-    //  If the MP produces a collision, all RPs of the FMM:
-    //      will have disabled the quantifiers of their rotors.
-    //      will be in the firstposition where collission was detected.
-    //  If the MP avoid collisions, all RPs of the FMM:
-    //      will have the quantifiers of their rotors in their initial status,
-    //      will be in their final positions.
-    //Inputs:
-    //  MP: motion program to be validated
-    //Outputs:
-    //  validateMotionProgram: flag indicating if the motion program
-    //      avoid collisions.
-    //Notes:
-    //- The validation process of a MP consume a component of the SPM, even
-    //  when the process is successfully passed. So if a MP pass the validation
-    //  process with a value of SPM, the validation shall be make with
-    //  the value of SPM inmediately lower.
-    //- The validation method of a MP will be used during the generation process
-    //  with the individual MP of each RP, and at the end of the process for
-    //  validate the generated recovery program.
+    /// @brief Determines if the execution of a motion program, starting from
+    /// given initial positions, avoid collisions.
+    /// @param[in] MP: motion program to be validated
+    /// @return true: if the motion program avoid collisions.
+    /// @pre All RPs included in the MP:
+    /// - must be enabled the quantifiers of their rotors.
+    /// @pre All RPs of the FMM:
+    /// - shall be in their initial positions;
+    /// - must have the aadecuate SPM.
+    /// @post If the MP produces a collision, all RPs of the FMM:
+    /// - will have disabled the quantifiers of their rotors.
+    /// - will be in the firstposition where collission was detected.
+    /// @post If the MP avoid collisions, all RPs of the FMM:
+    /// - will have the quantifiers of their rotors in their initial status,
+    /// - will be in their final positions.
+    /// @note The validation process of a MP consume a component of the SPM, even
+    /// when the process is successfully passed. So if a MP pass the validation
+    /// process with a value of SPM, the validation shall be make with
+    /// the value of SPM inmediately lower.
+    /// @note The validation method of a MP will be used during the generation process
+    /// with the individual MP of each RP, and at the end of the process for
+    /// validate the generated recovery program.
     bool validateMotionProgram(TMotionProgram &MP) const;
 
     //Validation of a MP can end of two ways:
@@ -153,15 +149,11 @@ public:
     //- If the MP produce a dynamic collisions, being all RPs
     //  in the firs position where collision has been detected.
 
-    //Validate a pair (PP, DP) in a limited way.
-    //Inputs:
-    //- (PP, DP):the pair to validate.
-    //Outputs:
-    //- checkPairPPDP: flag indicating if all RPs includes in the pair
-    //  are operatives.
-    //Preconditions:
-    //- The status of the Fiber MOS Model must correspond to the status of
-    //  the real Fiber MOS.
+    /// @brief Validate a pair (PP, DP) in a limited way.
+    /// @param[in] (PP, DP):the pair to validate.
+    /// @return true: if all RPs includes in the pair are operatives.
+    /// @pre The status of the Fiber MOS Model must correspond to the status of
+    /// the real Fiber MOS.
     bool checkPairPPDP(const TMotionProgram &PP,
                          const TMotionProgram &DP) const;
 

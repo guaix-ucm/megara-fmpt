@@ -523,14 +523,14 @@ double TMotionProgramValidator::calculateTminmin(const TRoboticPositionerList& R
 
 //built a validator of motion programs
 //attached to an extern Fiber MOS Model
-TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *FiberMOSModel)
+TMotionProgramValidator::TMotionProgramValidator(TFiberMOSModel *t_FiberMOSModel)
 {
     //el puntero FiberMOSModel debería apuntar a una lista de posicioandores de fibra construida
-    if(FiberMOSModel == NULL)
+    if(t_FiberMOSModel == NULL)
         throw EImproperArgument("pointer FiberMOSModel should point to built Fiber MOS Model");
 
     //apunta los objetos externos
-    p_FiberMOSModel = FiberMOSModel;
+    FiberMOSModel = t_FiberMOSModel;
 }
 
 //---------------------------------------------------------------------------
@@ -571,7 +571,7 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
 
     //get the list of RPs included in the MP
     TRoboticPositionerList RPL;
-    getRPsIncludedInMP(RPL, MP, getFiberMOSModel());
+    getRPsIncludedInMP(RPL, MP, FiberMOSModel);
 
     for(int i=0; i<RPL.getCount();  i++) {
         TRoboticPositioner *RP = RPL[i];
@@ -582,9 +582,9 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
     //CONFIGURES ALL RPs OF THE Fiber MOS Model:
 
     //stack the initial status of the quantifiers of the rotors
-    getFiberMOSModel()->RPL.pushQuantifys();
+    FiberMOSModel->RPL.pushQuantifys();
     //disable the quantifiers
-    getFiberMOSModel()->RPL.setQuantifys(false, false);
+    FiberMOSModel->RPL.setQuantifys(false, false);
 
     //SOLVE THE TRIVIAL CASE:
 
@@ -603,15 +603,15 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
         TMessageList *ML = MP.GetPointer(i);
 
         //program the gesture
-        getFiberMOSModel()->RPL.clearInstructions();
+        FiberMOSModel->RPL.clearInstructions();
         for(int j=0; j<ML->getCount(); j++) {
             const TMessageInstruction *MI = ML->GetPointer(j);
-            getFiberMOSModel()->RPL.setInstruction(MI->getId(), MI->Instruction);
+            FiberMOSModel->RPL.setInstruction(MI->getId(), MI->Instruction);
         }
 
         //reset the parameter Dmin of all RPs of the FMM
-        for(int i=0; i<getFiberMOSModel()->RPL.getCount(); i++) {
-            TRoboticPositioner *RP = getFiberMOSModel()->RPL[i];
+        for(int i=0; i<FiberMOSModel->RPL.getCount(); i++) {
+            TRoboticPositioner *RP = FiberMOSModel->RPL[i];
             //RP->Dmin = DBL_MAX;
             //RP->Dend = DBL_MAX;
             RP->getActuator()->AdjacentEAs.setAllDmins(DBL_MAX);
@@ -635,13 +635,13 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
         double Tfmin; //minimun free time
 
         //get the time of displacement
-        double Tdis = getFiberMOSModel()->RPL.getTdis();
+        double Tdis = FiberMOSModel->RPL.getTdis();
         //initialize the simulation time
         double t = 0;
         //while has not reached the end
         while(t < Tdis) {
             //move the rotors of the RPs to time t
-            getFiberMOSModel()->RPL.move(t);
+            FiberMOSModel->RPL.move(t);
 
             //calculates the minimun free time of the RPL
             Tfmin = calculateTfmin(RPL);
@@ -685,7 +685,7 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
         } //while(t < Tdis);
 
         //move the rotors of the RPs to final positions
-        getFiberMOSModel()->RPL.moveFin();
+        FiberMOSModel->RPL.moveFin();
 
         //calculates the minimun free time
         Tfmin = calculateTfmin(RPL);
@@ -718,7 +718,7 @@ bool TMotionProgramValidator::validateMotionProgram(TMotionProgram &MP) const
     }
 
     //restore and discard the initial status of the quantifiers of the rotors
-    getFiberMOSModel()->RPL.restoreAndPopQuantifys();
+    FiberMOSModel->RPL.restoreAndPopQuantifys();
 
     //indicates that motion program avoid dynamic collision
     return true;
@@ -739,7 +739,7 @@ bool TMotionProgramValidator::checkPairPPDP(const TMotionProgram &PP,
     try {
         //gets the list of RPs in the pair (PP, DP)
         TRoboticPositionerList RPL;
-        getRPsIncludedInMPs(RPL, PP, DP, getFiberMOSModel());
+        getRPsIncludedInMPs(RPL, PP, DP, FiberMOSModel);
 
         //check if all RPs included are enabled
         for(int i=0; i<RPL.getCount(); i++) {
