@@ -58,7 +58,8 @@ void getRPsIncludedInMPs(TRoboticPositionerList& RPL,
 //###########################################################################
 
 /// @brief A Motion Program Validator (MPV) provide functions for validate
-/// MPs (Motion Programs). Validation process use the Variable Jump Method.
+/// MPs (Motion Programs).
+/// @brief Validation process use the Variable Jumping Method.
 /// The process consume a bit of the Security Perimetral Margin (SPM) for
 /// determine apodictically thet the MP avoid collissions.
 class TMotionProgramValidator {

@@ -40,6 +40,11 @@ namespace Positioning {
 //OutputsParkProg:
 //---------------------------------------------------------------------------
 
+/// @brief Encapsulates the properties related to a parking program.
+/// @brief This calss contains all properties necessaries for:
+/// - execute the parking program,
+/// - determine if the parking program is suitable to be executed,
+/// - and generate the file outputs.
 class OutputsParkProg
 {
 private:
@@ -65,41 +70,41 @@ public:
     TPairPositionAnglesList FPL; ///<final position list
     double DsecMax; ///<maximun value of Dsec (security distance during radial movements)
 
-    ///properties for built the executable data
+    //properties for built the executable data
     TMotionProgram ParkProg; ///<the parking program
 
-    ///get the warning for not suitable outputs
+    /// Get the warning for not suitable outputs.
     string getWarningNotSuitable(void) const;
 
-    ///get the comments about ParkProg in text format
+    /// Get the comments about ParkProg in text format.
     string getCommentsText(void) const;
-    /// @brief get outputs in format MCS with:
-    /// - comments
-    /// - the parking program
+    /// @brief Get outputs in format MCS with:
+    /// - comments.
+    /// - the parking program.
     void getText(string& str) const;
 
-    /// @brief get outputs in format JSON with:
-    /// - comments
-    /// - the parking program
+    /// @brief Get outputs in format JSON with:
+    /// - comments.
+    /// - the parking program.
     string getJSONtext(void) const;
 
-    /// @brief get other outputs in text format with:
-    /// - comments
-    /// - other properties in format assigns
+    /// @brief Get other outputs in text format with:
+    /// - comments.
+    /// - other properties in format assigns.
     void getOtherText(string& str) const;
 
-    ///set the outputs in text format
+    /// Set the outputs in text format.
     void setText(const string& str);
 
-    ///build an structure of type ParkProg
+    /// Build an structure of type OutputsParkProg.
     OutputsParkProg();
 
-    ///reset all properties to values by default
+    /// Reset all properties to values by default.
     void Clear(void);
 
-    /// @brief determine if the outputs is suitable to be executed:
-    /// - the motion program is valid
-    /// - and there aren't dangerous RPs
+    /// @brief Determine if the outputs is suitable to be executed:
+    /// - the motion program is valid,
+    /// - and there aren't dangerous RPs.
     /// @brief
     /// Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
     bool suitable(void) const;

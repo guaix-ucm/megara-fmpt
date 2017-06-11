@@ -91,7 +91,7 @@ TFaultType StrToFaultType(const AnsiString& S);
 //Nótese que no es necesario cambiar las propiedades del gesto de manera
 //independiente.
 //
-//Durante la ejecución del porgrama las instrucciones deben ser traducidas
+//Durante la ejecución del programa las instrucciones deben ser traducidas
 //a cadenas de bytes que deberán ser entramadas para su envío, de modo que
 //conviene poder programar los gestos a partir de dichas cadenas.
 //

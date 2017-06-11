@@ -46,6 +46,11 @@ namespace Positioning {
 //OutputsPairPPDP:
 //---------------------------------------------------------------------------
 
+/// @brief Encapsulates the properties related to a pair (PP, DP).
+/// @brief This calss contains all properties necessaries for:
+/// - execute the pair (PP, DP),
+/// - determine if the pair (PP, DP) is suitable to be executed,
+/// - and generate the file outputs.
 class OutputsPairPPDP
 {
 private:
@@ -78,43 +83,43 @@ public:
     TMotionProgram DP; ///<depositioning program
     TFMOSA FMOSA; ///<FMOSA of file type FMOSA
 
-    ///get the warning for not suitable outputs
+    /// Get the warning for not suitable outputs.
     string getWarningNotSuitable(void) const;
 
-    ///get the comments about outputs
+    /// Get the comments about outputs.
     string getCommentsText(void) const;
 
-    /// @brief get outputs in format MCS with:
-    /// - comments
-    /// - the pair (PP, DP)
-    /// - the FMOSA
+    /// @brief Get outputs in format MCS with:
+    /// - comments.
+    /// - the pair (PP, DP).
+    /// - the FMOSA.
     void getText(string& str, bool includeFMOSA=true) const;
 
-    /// @brief get outputs in format JSON with:
-    /// - comments
-    /// - the pair (PP, DP)
-    /// - the FMOSA
+    /// @brief Get outputs in format JSON with:
+    /// - comments.
+    /// - the pair (PP, DP).
+    /// - the FMOSA.
     string getJSONtext(bool includeFMOSA=true) const;
 
-    /// @brief get other outputs in text format with:
-    /// - comments
-    /// - other properties in format assigns
+    /// @brief Get other outputs in text format with:
+    /// - comments.
+    /// - other properties in format assigns.
     void getOtherText(string& str) const;
 
-    ///set the outputs in text format
+    /// Set the outputs in text format.
     void setText(const string& str, bool includeFMOSA=true);
 
-    ///build an estructure of class OutputsPairPPDP
+    /// Build an estructure of class OutputsPairPPDP.
     OutputsPairPPDP();
 
-    ///reset all properties to values by default
+    /// Reset all properties to values by default.
     void Clear(void);
 
-    /// @brief determine if the outputs is suitable to be executed:
-    /// - the pair (PP, DP) is valid
-    /// - and there aren't dangerous RPs
-    /// - and there aren't collided RPs
-    /// - and there aren't obstructed RPs
+    /// @brief Determine if the outputs is suitable to be executed:
+    /// - the pair (PP, DP) is valid,
+    /// - and there aren't dangerous RPs,
+    /// - and there aren't collided RPs,
+    /// - and there aren't obstructed RPs.
     /// @brief
     /// Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
     bool suitable(void) const;

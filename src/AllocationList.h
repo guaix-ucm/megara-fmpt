@@ -39,7 +39,7 @@ namespace Positioning {
 //TAllocationList
 //---------------------------------------------------------------------------
 
-/// @brief An Allocation List (AL) allow lump together a set of allocations
+/// @brief An allocation list allow encapsulate a set of allocations
 /// (of RPs to projection points), necesaries for generate a parking program
 /// or a pair (PP, DP).
 /// @brief For this, the allocation list provide a set of functions
