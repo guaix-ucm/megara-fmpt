@@ -75,7 +75,7 @@ AnsiString TAllocation::getText(void) const
 {
     AnsiString S;
 
-    S = IntToStr(getRP()->getActuator()->getId())+AnsiString(": ")+getPPText();
+    S = RP->getActuator()->getIdText()+AnsiString(": ")+getPPText();
 
     return S;
 }
@@ -83,7 +83,7 @@ AnsiString TAllocation::getRowText(void) const
 {
     AnsiString S;
 
-    S = getRP()->getActuator()->getIdText()+AnsiString("\t")+getPPRowText();
+    S = RP->getActuator()->getIdText()+AnsiString("\t")+getPPRowText();
 
     return S;
 }
@@ -200,34 +200,34 @@ void  TAllocation::PrintRow(AnsiString &S, TAllocation *A)
 //build an allocation attached a RP
 //if the RP already has an attached allocation
 //  throw an exception EImproperArgument
-TAllocation::TAllocation(TRoboticPositioner *RP, double x, double y)
+TAllocation::TAllocation(TRoboticPositioner *t_RP, double x, double y)
 {
     //check the preconditions
-    if(RP == NULL)
+    if(t_RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
     for(int i=0; i<Builts.getCount(); i++)
-        if(RP == Builts[i]->getRP())
+        if(t_RP == Builts[i]->getRP())
             throw EImproperArgument("robotic positioner RP should not be allocated to an previously built allocation");
 
     //assigns the inicialization values
-    p_RP = RP;
+    RP = t_RP;
     PP.x = x;
     PP.y = y;
 
     //appoints the new allocation in the built allocation list
     Builts.Add(this);
 }
-TAllocation::TAllocation(TRoboticPositioner *RP, TDoublePoint t_PP)
+TAllocation::TAllocation(TRoboticPositioner *t_RP, TDoublePoint t_PP)
 {
     //check the preconditions
-    if(RP == NULL)
+    if(t_RP == NULL)
         throw EImproperArgument("pointer RP should point to built robotic positioner");
     for(int i=0; i<Builts.getCount(); i++)
-        if(RP == Builts[i]->getRP())
+        if(t_RP == Builts[i]->getRP())
             throw EImproperArgument("robotic positioner RP should not be allocated to an previously built allocation");
 
     //assigns the inicialization values
-    p_RP = RP;
+    RP = t_RP;
     PP = t_PP;
 
     //appoints the new allocation in the built allocation list
@@ -263,7 +263,7 @@ TAllocation::~TAllocation()
 //of the point P3 of the attached RP
 bool TAllocation::IsOutDomainP3(void)
 {
-    if(getRP()->getActuator()->pointIsOutDomainP3(PP))
+    if(RP->getActuator()->pointIsOutDomainP3(PP))
         return true;
 
     return false;
@@ -275,10 +275,10 @@ bool TAllocation::IsInSafeAreaP3(void)
     //determina si el punto objetivo está en el dominio del posicionador
     //adscrito y calcula las posiciones angulares de los ejes
     double theta_1, theta___3;
-    bool isindomain = getRP()->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
+    bool isindomain = RP->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
     //si no está en el dominio o no está dentro del área de seguridad
-    if(!isindomain || getRP()->getActuator()->theta___3IsOutSafeArea(theta___3))
+    if(!isindomain || RP->getActuator()->theta___3IsOutSafeArea(theta___3))
         return false; //indica que no está en el área de seguridad
 
     //indica que está en el área de seguridad
@@ -292,7 +292,7 @@ bool TAllocation::IsInSafeAreaP3(void)
 //in the domain of the point P3 of its attached RP
 void TAllocation::RandomizePP(void)
 {
-    PP = getRP()->getActuator()->randomP3();
+    PP = RP->getActuator()->randomP3();
 }
 
 //assign the target point to the point P3 of its attached RP
@@ -304,7 +304,7 @@ double TAllocation::MoveToPP(void)
     //determines if the projection point is in the domain of the attached RP
     //and calculates the position angles of the rotors
     double theta_1, theta___3;
-    bool isindomain = getRP()->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
+    bool isindomain = RP->getActuator()->anglesToGoP3(theta_1, theta___3, PP.x, PP.y);
 
     //check the precondition
     if(!isindomain)
@@ -313,10 +313,10 @@ double TAllocation::MoveToPP(void)
     //determines the stable position more closer to the projection point
     //and determines the distance from the stable position to the projection point
     double p_1nsp, p___3nsp;
-    double d = getRP()->getActuator()->getNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
+    double d = RP->getActuator()->getNearestStablePosition(p_1nsp, p___3nsp, theta_1, theta___3);
 
     //assign the positions to the rotors
-    getRP()->getActuator()->setAnglesSteps(p_1nsp, p___3nsp);
+    RP->getActuator()->setAnglesSteps(p_1nsp, p___3nsp);
 
     //returns the distance from the target point to the projection point
     return d;

@@ -39,11 +39,15 @@ namespace Positioning {
 //TAllocation:
 //---------------------------------------------------------------------------
 
-//class RP to projection point allocation
+/// @brief An allocation is a pair (projection point, RP),
+/// where the point P3 of the RP shall be positioned in the projection point.
+/// @brief An allocation provide methods for randomize the RP,
+/// check the belonging to the domain of the RP, and move the RP so that
+/// their point P3 is in the nearest stable point to the projection point.
 class TAllocation {
         //STATIC PROPERTIES:
 
-        //list of pointers to built allocations
+        /// List of pointers to built allocations.
         static TItemsList<TAllocation*> Builts;
 
         //Allows to control the construction of a single allocation by RP,
@@ -51,16 +55,16 @@ class TAllocation {
 
         //DYNAMIC PROPERTIES:
 
-        TRoboticPositioner *p_RP;
+        TRoboticPositioner *RP;
 
 public:
         //DYNAMIC PROPERTIES:
 
-        //pointer to the allocated RP
-        TRoboticPositioner *getRP(void) const {return p_RP;}
+        /// Get the pointer to the allocated RP.
+        TRoboticPositioner *getRP(void) const {return RP;}
 
-        //projection point allocated to the RP,
-        //where shall be positioned the point P3 of the attached RP
+        /// @brief Projection point allocated to the RP,
+        /// where shall be positioned the point P3 of the attached RP
         TProjectionPoint PP;
 
         //The target point is the more close stable point to
@@ -68,72 +72,87 @@ public:
 
         //PROPERTIES IN TEXT FORMAT:
 
-        //PP in text format
+        /// Get the PP in text format.
         AnsiString getPPText(void) const;
+        /// Set the PP in text format.
         void setPPText(const AnsiString&);
+        /// Get the PP in row text format.
         AnsiString getPPRowText(void) const;
 
         //SETS OF PROPERTIES IN TEXT FORMAT:
 
-        //allocation in text format
+        /// Get the allocation in text format.
         AnsiString getText(void) const;
+        /// Set the allocation in text format.
         AnsiString getRowText(void) const;
 
         //------------------------------------------------------------------
         //STATIC METHODS:
 
-        //compare the identifiers of the RPs attached to two allocations
+        /// @brief Compare the identifiers of the RPs attached to two allocations.
+        /// @return -1: if Id of TPA1 < Id of TPA2
+        /// @return 1: if Id of TPA1 > Id of TPA2
+        /// @return 0: if Id of TPA1 == Id of TPA2
         static int  CompareIds(TAllocation *TPA1, TAllocation *TPA2);
-        //this method shall be pointed in a pointer list
-        //to allow the functioning of shorting and comparing methods
 
-        //get the labels of the properties
-        //in row text format
+        //Method TAllocation::CompareIds shall be pointed in a pointer list
+        //to allow the functioning of shorting and comparing methods.
+
+        /// @brief Get the labels of the properties
+        /// in row text format.
         static AnsiString GetIdPPLabelsRow(void);
 
-        //travel the labels of the properties
-        //in a text string from the position i
+        /// @brief Travel the labels of the properties
+        /// in a text string from the position i.
         static void  TravelLabels(const AnsiString& S, int& i);
 
-        //read the values of the properties
-        //in a text string from the position i
+        /// @brief Read the values of the properties
+        /// in a text string from the position i.
         static void  ReadSeparated(int& Id, double& x, double& y,
                                    const AnsiString& S, int& i);
 
-        //print the properties of an allocation in a string
-        //in row format
+        /// @brief Print the properties of an allocation in a string
+        /// in row format.
         static void  PrintRow(AnsiString &S, TAllocation *A);
 
         //BUILDING AND DESTROYING METHODS:
 
-        //build an allocation attached a RP
-        //if the RP already has an attached allocation
-        //  throw an exception EImproperArgument
+        /// @brief Build an allocation attached a RP.
+        /// @param[in] (x, y) the projection point.
+        /// @brief
+        /// @exception EImproperArgument if the RP has already
+        /// an attached allocation.
         TAllocation(TRoboticPositioner  *RP, double x, double y);
+
+        /// @brief Build an allocation attached a RP.
+        /// @param[in] PP the projection point.
+        /// @brief
+        /// @exception EImproperArgument if the RP has already
+        /// an attached allocation.
         TAllocation(TRoboticPositioner  *RP, TDoublePoint PP);
 
-        //destroy a TAllocation
-        //if thereisn't a built allocation
-        //  throw an exception EImproperCall
+        /// @brief Destroy an allocation.
+        /// @brief
+        /// @exception EImproperCall if thereisn't a built allocation.
         ~TAllocation();
 
         //CHECKING METHODS:
 
-        //determines if the target point is out of the domain
-        //of the point P3 of the attached RP
+        /// @brief Determines if the target point is out of the domain
+        /// of the point P3 of the attached RP.
         bool IsOutDomainP3(void);
-        //determines if the target point is in the secure area
-        //of the point P3 of the attached RP
+        /// @brief Determines if the target point is in the secure area
+        /// of the point P3 of the attached RP.
         bool IsInSafeAreaP3(void);
 
         //MOTION METHODS:
 
-        //assign the point P3o of the attacheed RP to the point PP
-        void SetP3o(void) {PP = getRP()->getActuator()->getP3o();}
-        //assign the point P3 of the attacheed RP to the point PP
-        void SetP3(void) {PP = getRP()->getActuator()->getArm()->getP3();}
-        //randomize the point PP with uniform distribution
-        //in the domain of the point P3 of its attached RP
+        /// Assign the point P3o of the attacheed RP to the point PP.
+        void SetP3o(void) {PP = RP->getActuator()->getP3o();}
+        /// Assign the point P3 of the attacheed RP to the point PP.
+        void SetP3(void) {PP = RP->getActuator()->getArm()->getP3();}
+        /// @brief Randomize the point PP with uniform distribution
+        /// in the domain of the point P3 of its attached RP.
         void RandomizePP(void);
 
         //There are three ways to randomize a point in the domain of a RP:
@@ -147,17 +166,17 @@ public:
         //    thepoint is inthedomain of the RP.
         //Themethod Ramize, implement the las way.
 
-        //assign the target point to the point P3 of its attached RP
-        //and return the distance from the target point to the projection point
-        //if the the projection point isn't on the domain of its attached RP:
-        //  throw an exception EImpropercall
+        /// @brief Assign the target point to the point P3 of its attached RP
+        /// and return the distance from the target point to the projection point
+        /// @brief Method MoveToPP will move the rotors of the RP to the
+        /// positions corresponding to the P3 is positioned in the PP.
+        /// When the quantification of the rotors is enabled, will be quantified
+        /// first the rotor 1, and after the rotor 2, in any case, uncheking
+        /// which is the neares stable point.
+        /// @brief
+        /// @exception EImpropercall if the the projection point
+        /// isn't in the domain of its attached RP.
         double MoveToPP(void);
-
-        //NOTE: method MoveToPP will move the rotors of the RP to the
-        //positions corresponding to the P3 is positioned on the PP.
-        //When the quantification of the rotors is enabled, will be quantified
-        //first the rotor 1, and after the rotor 2, in any case, uncheking
-        //which is the neares stable point.
 };
 
 //---------------------------------------------------------------------------
