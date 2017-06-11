@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Barrier.h
-///@brief barrier model of an EA or a RP-Actuator
-///@author Isaac Morales Durán
+/// @file Barrier.h
+/// @brief barrier model of an EA or a RP-Actuator
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef BARRIER_H

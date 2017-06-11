@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Tile.h
-///@brief tile list
-///@author Isaac Morales Durán
+/// @file Tile.h
+/// @brief tile list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TILE_H

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file AllocationList.h
-///@brief allocation list
-///@author Isaac Morales Durán
+/// @file AllocationList.h
+/// @brief allocation list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TALLOCATIONLIST_H
@@ -39,51 +39,57 @@ namespace Positioning {
 //TAllocationList
 //---------------------------------------------------------------------------
 
-//class allocation list
+/// @brief An Allocation List (AL) allow lump together a set of allocations
+/// (of RPs to projection points), necesaries for generate a parking program
+/// or a pair (PP, DP).
+/// @brief For this, the allocation list provide a set of functions
+/// for simplify the addition of allocations, and determine if the
+/// allocation list meet the preconditions for generate motion programs.
+
 class TAllocationList : public TItemsList<TAllocation*> {
 protected:
-        TRoboticPositionerList *p_RoboticPositionerList;
+        TRoboticPositionerList *RoboticPositionerList;
 
 public:
-        //extern-attached RP list
+        /// Get the extern-attached RP list.
         TRoboticPositionerList *getRoboticPositionerList(void) const {
-            return p_RoboticPositionerList;}
+            return RoboticPositionerList;}
 
         //PROPERTIES IN TEXT FORMAT:
 
-        //allocation list in text format
+        /// Get the allocation list in text format.
         AnsiString getAllocationsText(void);
+        /// Set the allocation list in text format.
         void setAllocationsText(AnsiString&);
 
         //BUILDING AND DESTROYING METHODS:
 
-        //build a allocation list, attached to a RP list
-        TAllocationList(TRoboticPositionerList *_RoboticPositionerList);
+        /// Build a allocation list, attached to a RP list.
+        TAllocationList(TRoboticPositionerList *RoboticPositionerList);
 
-        //destroy the TAllocation and destroy the list
+        /// Destroy the allocations and destroy the list.
         ~TAllocationList();
 
         //SEARCHING METHODS:
 
-        //search the allocation attached to a RP
+        /// Search the allocation attached to a RP.
         int searchAllocation(const TRoboticPositioner *RP) const;
-        //search the allocation attached to an identified RP
+        /// Search the allocation attached to an identified RP.
         int searchAllocation(int Id) const;
 
         //LISTED ITEMS:
 
-        //añade una asignación para el posicionador indicado de la lista
+        /// Add an allocation for the indexed RP of the attached list.
         void AddAllocation(int i);
-        //borra la asignación indicada de la lista
+        /// Delete the indexed allocation of the list.
         void DeleteAllocation(int i);
 
         //ALL ITEMS:
 
-        //añade asignaciones con la posición del punto P3
-        //de todos los posicionadores de la lista
+        /// @brief Add an allocation with the point P3
+        /// of all RPs of the attached list.
         void AddP3(void);
-        //destruye las asignaciones
-        //de todos los posicionadores de la lista
+        /// @brief Destroy all allocation of the list.
         void Delete_(void);
 
         //El método:
@@ -91,27 +97,24 @@ public:
         //Parece enmascarado por el método:
         //  void Delete(void);
 
-        //asigna el punto P3o a los puntos objetivo
-        //de todos los posicionadores de la lista
+        /// Assign the point P3o to all allocation of the list.
         void SetP3o(void);
-        //asigna el punto P3 a los puntos objetivo
-        //de todos los posicionadores de la lista
+        /// Assign the point P3 to all allocation of the list.
         void SetP3(void);
 
-        //randomiza los puntos objetivo con distribución uniforme
-        //en el dominio del punto P3 de sus posicionadores adscrito
-        //de todos los posicionadores de la lista
+        /// @brief Randomize the projection point of all allocation of the list
+        /// with uniform distribution in the P3-point domain of the attached RP.
         void Randomize(void);
-        //randomiza los puntos objetivo con distribución uniforme
-        //en el dominio del punto P3 de sus posicionadores adscritos
-        //de todos los posicionadores de la lista
+        /// @brief Randomize the projection point of all allocation of the list
+        /// with uniform distribution in the P3-point domain of the attached RP,
+        /// avoiding collissions.
         void RandomizeWithoutCollision(void);
 
-        //asigna los puntos objetivo
-        //al punto P3 de sus posicionadores adscritos
-        //si algún punto objetivo no está en el dominio de
-        //su posicionador adscrito lanza EImproperCall
-        //de todos los posicionadores de la lista
+        /// @brief For all allocations of the list, set the projection point
+        /// to the P3 of the attached RP.
+        /// @brief
+        /// @exception EImproperCall if there is some projection point
+        /// out of the P3-domain of their allocated RP.
         void MoveToTargetP3(void);
 
         //NOTA: cunado un punto es asignado al punto P3 de un posicionador
@@ -123,61 +126,58 @@ public:
         //Los siguientes métodos deben ser invocados antes de
         //desplazar los posicionadores a sus puntos objetivo:
 
-        //busca los puntos objetivo adscritos a posicionadores repetidos
+        /// Search the allocations with repeated RPs.
         void SearchRepeatedRPs(TVector<int> &indices);
 
-        //busca los puntos objetivo adscritos a posicionadores ausentes
-        //en la lista de posicionadores RoboticPositionerList
+        /// Search the allocations with RPs missing in the attached RP list.
         void SearchMissingRPs(TVector<int> &indices);
 
         //El método SearchMissigRPs es necesario
         //porque la lista de posicionadores adscrita (RoboticPositionerList)
         //puede ser manipulada.
 
-        //busca los puntos objetivo que están fuera del dominio
-        //de sus posicionadores adscritos
+        /// @brief Search the allocations with projection points
+        /// out of the P3-domain of their attached RP.
         void SearchOutDomineTAllocations(TVector<int> &indices);
 
-        //Determina la invalidez de una lista de asignaciones
-        //para ser programada.
-        //Valores de retorno:
-        //  0: lista de asignaciones válida;
-        //  1: puntos objetivo adscritos a posicionadores ausentes;
-        //  2: puntos objetivo fuera del dominio de sus posicionadores adscritos.
+        /// @brief Determine if the allocation list has any defect
+        /// for generate motion programs:
+        /// @return 0: the allocation list is valid.
+        /// @return 1: projection points attached to missing RPs.
+        /// @return 2: projection points out of the P3-domain of their attached RPs.
         int Invalid(TVector<int> &indices);
 
         //SEGREGATION:
 
-        //segrega los posicionadores de las asignaciones en dos listas:
-        //  internos: con el brazo dentro del área de seguridad;
-        //  externos: con el brazo fuera del área de seguridad;
-        //si algún punto objetivo está fuera del dominio de
-        //su posicionador adscrito:
-        //      lanza EImproperCall
+        /// @brief Segregate the RPs of the allocations in two lists:
+        /// - Inners: with the arm in the security position.
+        /// - Outsiders: with the arm out of the security position.
+        /// @brief
+        /// @exception EImproperCall if there is some projection point
+        /// out of the P3-domain of their allocated RP.
         void SegregateInOut(TRoboticPositionerList &Inners,
                 TRoboticPositionerList &Outsiders);
 
         //STACKING AND RETRIEVAL OF POSITIONS:
 
-        //apila las posiciones de los posicionadores adscritos
+        /// Push the position angles of the allocated RPs.
         void PushPositions(void);
-        //restaura las posiciones de los posicionadores adscritos
+        /// Restore the position angles of the allocated RPs.
         void RestorePositions(void);
-        //desempila las posiciones de los posicionadores adscritos
+        /// Pop the position angles of the allocated RPs.
         void PopPositions(void);
-        //restaura y desempila las posiciones de los posicionadores adscritos
+        /// Restore and pop the position angles of the allocated RPs.
         void RestoreAndPopPositions(void);
 
         //COLlISION:
 
-        //levanta las banderas indicadoras de determinación de colisión
-        //pendiente de todos los posicionadores adscritos a las asignaciones
+        /// Set to up the Pending flag of the RPs of all allocations.
         void EnablePendingCollisionDetermineTAllocations(void);
 
         //El siguiente método debe invocarse una vez desplazados
         //los posicionadores a sus puntos objetivo:
 
-        //busca las asignaciones que colisionan con otras asignaciones
+        /// Search the allocations whose RPs are in colliding status.
         void SearchCollindingTAllocations(TVector<int> &indices);
 
         //ADVERTENCIA: cuando la cuantificación de alguno de los ejes
@@ -189,9 +189,9 @@ public:
 
         //COUNT OF ALLOCATION TYPES:
 
-        //count the number of reference sources in the allocation list
+        /// Count the number of reference sources in the allocation list.
         unsigned int countNR(void) const;
-        //count the number of blanks in the allocation list
+        /// Count the number of blanks in the allocation list.
         unsigned int countNB(void) const;
 
         //------------------------------------------------------------------

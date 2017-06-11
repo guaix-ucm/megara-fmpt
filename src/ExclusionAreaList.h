@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file ExclusionAreaList.h
-///@brief EA list
-///@author Isaac Morales Durán
+/// @file ExclusionAreaList.h
+/// @brief EA list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef EXCLUSIONAREALIST_H

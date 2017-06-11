@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file MotionProgramGenerator.cpp
-///@brief motion program generator
-///@author Isaac Morales Durán
+/// @file MotionProgramGenerator.cpp
+/// @brief motion program generator
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "globalconsts.h"

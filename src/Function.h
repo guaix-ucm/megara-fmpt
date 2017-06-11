@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Function.h
-///@brief contonuous function of continuous time defined in sample points
-///@author Isaac Morales Durán
+/// @file Function.h
+/// @brief contonuous function of continuous time defined in sample points
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FUNCTION_H

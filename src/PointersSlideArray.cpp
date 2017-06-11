@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file PointersSlideArray.cpp
-///@brief template for pointers slide array
-///@author Isaac Morales Durán
+/// @file PointersSlideArray.cpp
+/// @brief template for pointers slide array
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "PointersSlideArray.h"

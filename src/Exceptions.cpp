@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Exceptions.h
-///@brief classes of exceptions
-///@author Isaac Morales Durán
+/// @file Exceptions.h
+/// @brief classes of exceptions
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Exceptions.h"

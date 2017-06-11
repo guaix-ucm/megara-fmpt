@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Geometry.cpp
-///@brief geometric functions
-///@author Isaac Morales Durán
+/// @file Geometry.cpp
+/// @brief geometric functions
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 

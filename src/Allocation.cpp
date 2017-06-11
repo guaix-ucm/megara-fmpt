@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Allocation.cpp
-///@brief RP to projection point allocation
-///@author Isaac Morales Durán
+/// @file Allocation.cpp
+/// @brief RP to projection point allocation
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Allocation.h"

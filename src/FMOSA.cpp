@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file FMOSA.cpp
-///@brief structure FMOSA
-///@author Isaac Morales Durán
+/// @file FMOSA.cpp
+/// @brief structure FMOSA
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FMOSA.h"

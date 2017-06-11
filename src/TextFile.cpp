@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file TextFile.cpp
-///@brief classes and functions for generic text file
-///@author Isaac Morales Durán
+/// @file TextFile.cpp
+/// @brief classes and functions for generic text file
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "TextFile.h"

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file MotionProgramValidator.h
-///@brief motion program validator
-///@author Isaac Morales Durán
+/// @file MotionProgramValidator.h
+/// @brief motion program validator
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONPROGRAMVALIDATOR_H

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file PointersList.h
-///@brief template for pointer list
-///@author Isaac Morales Durán
+/// @file PointersList.h
+/// @brief template for pointer list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef POINTERSLIST_H

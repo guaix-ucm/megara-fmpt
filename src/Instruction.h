@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Instruction.h
-///@brief instruction of a RP
-///@author Isaac Morales Durán
+/// @file Instruction.h
+/// @brief instruction of a RP
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef INSTRUCTION_H

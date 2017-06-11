@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file AllocationList.cpp
-///@brief allocation list
-///@author Isaac Morales Durán
+/// @file AllocationList.cpp
+/// @brief allocation list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "AllocationList.h"
@@ -104,12 +104,12 @@ void TAllocationList::setAllocationsText(AnsiString &S)
                     double x, y;
                     TAllocation::ReadSeparated(Id, x, y, S, i);
                     //busca el RP en la RPL de la TPL
-                    int j = getRoboticPositionerList()->searchId(Id);
+                    int j = RoboticPositionerList->searchId(Id);
                     //comprueba que ha encontrado el RP
-                    if(j >= getRoboticPositionerList()->getCount())
+                    if(j >= RoboticPositionerList->getCount())
                         throw EImproperFileLoadedValue("RP "+inttostr(Id)+"not found");
                     //apunta el RP encontrado
-                    TRoboticPositioner *RP = getRoboticPositionerList()->Get(j);
+                    TRoboticPositioner *RP = RoboticPositionerList->Get(j);
                     //contruye el elemento adscrito al RP encontrado
                     TAllocation *Item = new TAllocation(RP, x, y);
 
@@ -162,7 +162,6 @@ void TAllocationList::setAllocationsText(AnsiString &S)
 //construye una lista de puntos objetivo
 //adscrita a una lista de RPs
 TAllocationList::TAllocationList(TRoboticPositionerList *RPL) :
-    //        TAllocations(1000, TAllocation::CompareIds)
     TItemsList<TAllocation*>(1000, TAllocation::CompareIds)
 {
     //el puntero RoboticPositionerList debería apuntar a una lista de RPs contruida
@@ -170,7 +169,7 @@ TAllocationList::TAllocationList(TRoboticPositionerList *RPL) :
         throw EImproperArgument("pointer RoboticPositionerList should point to built RP list");
 
     //apunta el objeto externo
-    p_RoboticPositionerList = RPL;
+    RoboticPositionerList = RPL;
 
     Print = TAllocation::PrintRow;
 }
@@ -214,17 +213,17 @@ int TAllocationList::searchAllocation(int Id) const
 void TAllocationList::AddAllocation(int i)
 {
     //comprueba las precondiciones
-    if(i<0 || getRoboticPositionerList()->getCount()<=i)
+    if(i<0 || RoboticPositionerList->getCount()<=i)
         throw EImproperArgument("index i should indicate a position in the list ListFibeRPositioners");
 
     //apunta el posicionador indicado para facilitar su acceso
-    TRoboticPositioner *RP = getRoboticPositionerList()->Get(i);
+    TRoboticPositioner *RP = RoboticPositionerList->Get(i);
 
     //busca la asignación adscrita al posicionador
     i = searchAllocation(RP);
 
     //comprueba que el posicionador no tenga una asignación adscrita
-    if(i > getRoboticPositionerList()->getCount())
+    if(i > RoboticPositionerList->getCount())
         throw EImproperArgument("indexed positioner i already have assigned a allocation");
 
     //contruye y añade una asignación adscrita al posicionador
@@ -255,9 +254,9 @@ void TAllocationList::AddP3(void)
     int j;
 
     //paracadaposicionadordelalistadeposicionadores
-    for(int i=0;i<getRoboticPositionerList()->getCount(); i++){
+    for(int i=0;i<RoboticPositionerList->getCount(); i++){
         //apunta el posicionador indicado para facilitar su acceso
-        RP = getRoboticPositionerList()->Get(i);
+        RP = RoboticPositionerList->Get(i);
 
         //busca el posicionador en la lista de puntos objetivo
         j = searchAllocation(RP->getActuator()->getId());
@@ -349,7 +348,7 @@ void TAllocationList::RandomizeWithoutCollision(void)
     bool collision;
 
     //levanta las baderas de colisión de todos los posicionadores
-    getRoboticPositionerList()->enableAllPending();
+    RoboticPositionerList->enableAllPending();
 
     //ADVERTENCIA: no basta con levantar las banderas de colisión de
     //los posicionadores adscritos  los puntos objetivo de la lista
@@ -457,10 +456,10 @@ void TAllocationList::SearchMissingRPs(TVector<int> &indices)
         TAllocation *A = Items[i];
 
         //search the attached RP in the RPL
-        int j = getRoboticPositionerList()->search(A->getRP());
+        int j = RoboticPositionerList->search(A->getRP());
 
         //if the RP isn't in the RPL
-        if(j >= getRoboticPositionerList()->getCount())
+        if(j >= RoboticPositionerList->getCount())
             indices.Add(i); //add it to the missing list
     }
 }
@@ -690,7 +689,7 @@ void TAllocationList::SearchCollindingTAllocations(TVector<int> &indices)
     indices.Clear();
 
     //levanta las baderas de colisión de todos los posicionadores
-    getRoboticPositionerList()->enableAllPending();
+    RoboticPositionerList->enableAllPending();
 
     //ADVERTENCIA: no basta con levantar las banderas de colisión de
     //los posicionadores adscritos  los puntos objetivo de la lista

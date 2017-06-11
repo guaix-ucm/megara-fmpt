@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file ComposedMotionFunction.cpp
-///@brief composed motion funtion (CMF) model of a RP
-///@author Isaac Morales Durán
+/// @file ComposedMotionFunction.cpp
+/// @brief composed motion funtion (CMF) model of a RP
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include <stdint.h>

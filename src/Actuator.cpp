@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Actuator.cpp
-///@brief actuator model of a RP
-///@author Isaac Morales Durán
+/// @file Actuator.cpp
+/// @brief actuator model of a RP
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Actuator.h"

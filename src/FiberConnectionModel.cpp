@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file FiberConnectionModel.cpp
-///@brief fiber connection model
-///@author Isaac Morales Durán
+/// @file FiberConnectionModel.cpp
+/// @brief fiber connection model
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FiberConnectionModel.h"

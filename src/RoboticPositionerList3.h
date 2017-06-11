@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file RoboticPositionerList3.h
-///@brief RP list with programming and execution functions
-///@author Isaac Morales Durán
+/// @file RoboticPositionerList3.h
+/// @brief RP list with programming and execution functions
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ROBOTICPOSITIONERLIST3_H

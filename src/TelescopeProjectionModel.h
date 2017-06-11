@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file TelescopeProjectionModel.h
-///@brief telescope projection model
-///@author Isaac Morales Durán
+/// @file TelescopeProjectionModel.h
+/// @brief telescope projection model
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef TELESCOPEPROJECTIONMODEL_H

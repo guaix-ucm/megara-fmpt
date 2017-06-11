@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file OutputsParkProg.h
-///@brief structure for contains all outputs data about a generated parking program ParkProg
-///@author Isaac Morales Durán
+/// @file OutputsParkProg.h
+/// @brief structure for contains all outputs data about a generated parking program ParkProg
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef OUTPUTSPARKPROG_H
@@ -73,17 +73,17 @@ public:
 
     ///get the comments about ParkProg in text format
     string getCommentsText(void) const;
-    ///@brief get outputs in format MCS with:
+    /// @brief get outputs in format MCS with:
     /// - comments
     /// - the parking program
     void getText(string& str) const;
 
-    ///@brief get outputs in format JSON with:
+    /// @brief get outputs in format JSON with:
     /// - comments
     /// - the parking program
     string getJSONtext(void) const;
 
-    ///@brief get other outputs in text format with:
+    /// @brief get other outputs in text format with:
     /// - comments
     /// - other properties in format assigns
     void getOtherText(string& str) const;
@@ -97,10 +97,10 @@ public:
     ///reset all properties to values by default
     void Clear(void);
 
-    ///@brief determine if the outputs is suitable to be executed:
+    /// @brief determine if the outputs is suitable to be executed:
     /// - the motion program is valid
     /// - and there aren't dangerous RPs
-    ///@brief
+    /// @brief
     /// Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
     bool suitable(void) const;
 };

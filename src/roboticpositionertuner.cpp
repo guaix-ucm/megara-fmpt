@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file RoboticPositionerTuner.cpp
-///@brief class tuner of RPs
-///@author Isaac Morales Durán
+/// @file RoboticPositionerTuner.cpp
+/// @brief class tuner of RPs
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "roboticpositionertuner.h"

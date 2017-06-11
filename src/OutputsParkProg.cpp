@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file OutputsParkProg.cpp
-///@brief structure for contains all outputs data about a generated parking program ParkProg
-///@author Isaac Morales Durán
+/// @file OutputsParkProg.cpp
+/// @brief structure for contains all outputs data about a generated parking program ParkProg
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "OutputsParkProg.h"

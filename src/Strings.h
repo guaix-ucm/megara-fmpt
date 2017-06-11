@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Strings.h
-///@brief functions for text strings
-///@author Isaac Morales Durán
+/// @file Strings.h
+/// @brief functions for text strings
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef STRINGS_H

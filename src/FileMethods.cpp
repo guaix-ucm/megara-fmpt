@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file FileMethods.cpp
-///@brief file functions for read and write instances of models
-///@author Isaac Morales Durán
+/// @file FileMethods.cpp
+/// @brief file functions for read and write instances of models
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "FileMethods.h"

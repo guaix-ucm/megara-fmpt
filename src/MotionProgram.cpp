@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file PositioningProgram.cpp
-///@brief positioning program
-///@author Isaac Morales Durán
+/// @file PositioningProgram.cpp
+/// @brief positioning program
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "MotionProgram.h"

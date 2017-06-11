@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file SkyPoint.cpp
-///@brief sky point list
-///@author Isaac Morales Durán
+/// @file SkyPoint.cpp
+/// @brief sky point list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "SkyPoint.h"

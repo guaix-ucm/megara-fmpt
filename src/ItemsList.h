@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file ItemsList.h
-///@brief template for item list
-///@author Isaac Morales Durán
+/// @file ItemsList.h
+/// @brief template for item list
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef ITEMSLIST_H

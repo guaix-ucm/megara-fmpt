@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file OutputsPairPPDP.h
-///@brief structure for contains all outputs data about a generated pair (PP, DP)
-///@author Isaac Morales Durán
+/// @file OutputsPairPPDP.h
+/// @brief structure for contains all outputs data about a generated pair (PP, DP)
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef OUTPUTSPAIRPPDP_H
@@ -84,19 +84,19 @@ public:
     ///get the comments about outputs
     string getCommentsText(void) const;
 
-    ///@brief get outputs in format MCS with:
+    /// @brief get outputs in format MCS with:
     /// - comments
     /// - the pair (PP, DP)
     /// - the FMOSA
     void getText(string& str, bool includeFMOSA=true) const;
 
-    ///@brief get outputs in format JSON with:
+    /// @brief get outputs in format JSON with:
     /// - comments
     /// - the pair (PP, DP)
     /// - the FMOSA
     string getJSONtext(bool includeFMOSA=true) const;
 
-    ///@brief get other outputs in text format with:
+    /// @brief get other outputs in text format with:
     /// - comments
     /// - other properties in format assigns
     void getOtherText(string& str) const;
@@ -110,12 +110,12 @@ public:
     ///reset all properties to values by default
     void Clear(void);
 
-    ///@brief determine if the outputs is suitable to be executed:
+    /// @brief determine if the outputs is suitable to be executed:
     /// - the pair (PP, DP) is valid
     /// - and there aren't dangerous RPs
     /// - and there aren't collided RPs
     /// - and there aren't obstructed RPs
-    ///@brief
+    /// @brief
     /// Dangerous RP: enabled-not-operative RP with fault type dynamic or unknowledge.
     bool suitable(void) const;
 };

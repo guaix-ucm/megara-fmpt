@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file VCLemu.h
-///@brief emulation of some function and classes of VCL
-///@author Isaac Morales Durán
+/// @file VCLemu.h
+/// @brief emulation of some function and classes of VCL
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef VCLEMU_H

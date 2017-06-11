@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Constants.h
-///@brief general constants of the program
-///@author Isaac Morales Durán
+/// @file Constants.h
+/// @brief general constants of the program
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef CONSTANTS_H

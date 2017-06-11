@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file ExclusionArea.cpp
-///@brief exclusion area (EA) model
-///@author Isaac Morales Durán
+/// @file ExclusionArea.cpp
+/// @brief exclusion area (EA) model
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 //#include <values.h>

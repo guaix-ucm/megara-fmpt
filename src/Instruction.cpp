@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Instruction.cpp
-///@brief instruction of a RP
-///@author Isaac Morales Durán
+/// @file Instruction.cpp
+/// @brief instruction of a RP
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #include "Instruction.h"

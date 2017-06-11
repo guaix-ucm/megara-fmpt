@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file main.cpp
-///@brief main program of the FMPT SAA
-///@author Isaac Morales Durán
+/// @file main.cpp
+/// @brief main program of the FMPT SAA
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 //includes for generic

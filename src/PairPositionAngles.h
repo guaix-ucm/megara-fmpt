@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file PairPositionAngles.h
-///@brief pair of projection angles
-///@author Isaac Morales Durán
+/// @file PairPositionAngles.h
+/// @brief pair of projection angles
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef PAIRPOSITIONANGLES_H

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file MotionProgramGenerator.h
-///@brief motion program generator
-///@author Isaac Morales Durán
+/// @file MotionProgramGenerator.h
+/// @brief motion program generator
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef MOTIONPROGRAMGENERATOR_H

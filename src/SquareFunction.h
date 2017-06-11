@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file SquareFunction.h
-///@brief square motion function without acceleration and deceleration ramps
-///@author Isaac Morales Durán
+/// @file SquareFunction.h
+/// @brief square motion function without acceleration and deceleration ramps
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef SQUAREFUNCTION_H

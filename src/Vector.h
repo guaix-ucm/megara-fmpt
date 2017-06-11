@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Vector.h
-///@brief template for vector of numerical types
-///@author Isaac Morales Durán
+/// @file Vector.h
+/// @brief template for vector of numerical types
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef VECTOR_H

@@ -17,9 +17,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-///@file Figure.h
-///@brief geometric figures
-///@author Isaac Morales Durán
+/// @file Figure.h
+/// @brief geometric figures
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
 #ifndef FIGURE_H
