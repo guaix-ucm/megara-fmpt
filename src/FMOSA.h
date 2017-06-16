@@ -126,7 +126,7 @@ class TFMOSA : public TPointersList<TObservingSource> {
                     const string& str);
 
 public:
-    /// last valid setted FMOSA in text format including comments
+    /// @brief last valid setted FMOSA in text format including comments
     /// - default value: ""
     string str_original;
 
