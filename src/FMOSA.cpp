@@ -691,7 +691,7 @@ Json::Value TFMOSA::getJSON(void) const
     OB_JSON["RA"] = Ra;
     OB_JSON["Dec"] = Dec;
     OB_JSON["Pos"] = Pos;
-    FMOSA_JSON["OB"] = OB_JSON;
+    FMOSA_JSON["pointing"] = OB_JSON;
 
     //build the OS in ofmrat JSON
     Json::Value OS_JSON;
@@ -699,7 +699,7 @@ Json::Value TFMOSA::getJSON(void) const
         const TObservingSource *OS = Items[i];
         OS_JSON.append(OS->getJSON());
     }
-    FMOSA_JSON["OS"] = OS_JSON;
+    FMOSA_JSON["targets"] = OS_JSON;
 
     return FMOSA_JSON;
 }

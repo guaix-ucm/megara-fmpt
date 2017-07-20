@@ -2507,7 +2507,7 @@ bool generateParkProg_online(OutputsParkProg& outputs,
 
     //set the disabling status
     FMM.RPL.setAllDisabled(false);
-    for(int i=0; i<RPids.size(); i++) {
+    for(unsigned int i=0; i<RPids.size(); i++) {
         int j = FMM.RPL.searchId(RPids[i]);
         TRoboticPositioner *RP = FMM.RPL[j];
         RP->Disabled = true;
@@ -2673,7 +2673,7 @@ bool generatePairPPDP_online(OutputsPairPPDP& outputs,
 
     //set the disabling status
     FMM.RPL.setAllDisabled(false);
-    for(int i=0; i<RPids.size(); i++) {
+    for(unsigned int i=0; i<RPids.size(); i++) {
         int j = FMM.RPL.searchId(RPids[i]);
         TRoboticPositioner *RP = FMM.RPL[j];
         RP->Disabled = true;

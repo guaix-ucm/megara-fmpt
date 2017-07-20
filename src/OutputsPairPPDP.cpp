@@ -173,7 +173,7 @@ Json::Value OutputsPairPPDP::getPos(void) const
     //add the Bid
     object["Bid"] = Bid;
     //add the PP
-    object["PP"] = PP.getJSON(IPL);
+    object["program"] = PP.getJSON(IPL);
 
     return object;
 }
@@ -211,7 +211,7 @@ Json::Value OutputsPairPPDP::getDepos(void) const
     //add the Bid
     object["Bid"] = Bid;
     //add the DP
-    object["DP"] = DP.getJSON(OPL);
+    object["program"] = DP.getJSON(OPL);
 
     return object;
 }
@@ -412,16 +412,27 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     //add (instrument, uuid, tittle)
     root["instrument"] = "MEGARA";
     addUUID(root);
-    root["tittle"] = "Tittle from FMAT";
+    root["tittle"] = "Position MB2 HII 1";
+    root["description"] = "";
+    root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
+
+    //build a json object for robot
+    Json::Value robot;
 
     //add the coments
-    root["comments"] = getComments();
+    robot["comments"] = getComments();
 
+    //build a json object for secuences
+    Json::Value sequences;
     //add (pos, depos, FMOSA)
-    root["pos"] = getPos();
-    root["depos"] = getDepos();
+    sequences["positioning"] = getPos();
+    sequences["depositioning"] = getDepos();
+
+    robot["sequences"] = sequences;
+    root["robot"] = robot;
+
     if(includeFMOSA)
-        root["FMOSA"] = FMOSA.getJSON();
+        root["assignments"] = FMOSA.getJSON();
 
     string str;
     if(suitable())
