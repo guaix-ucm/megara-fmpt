@@ -416,6 +416,12 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     root["description"] = "";
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
 
+    //add (PPvalid, DPvalid, Collided, Obstructed)
+    root["PPvalid"] = BoolToStr(PPvalid,true).str;
+    root["DPvalid"] = BoolToStr(DPvalid,true).str;
+    root["Collided"] = Collided.getText().str;
+    root["Obstructed"] = Obstructed.getText().str;
+
     //build a json object for robot
     Json::Value robot;
 
