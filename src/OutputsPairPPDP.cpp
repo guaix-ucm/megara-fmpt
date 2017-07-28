@@ -421,6 +421,7 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     root["DPvalid"] = BoolToStr(DPvalid,true).str;
     root["Collided"] = Collided.getText().str;
     root["Obstructed"] = Obstructed.getText().str;
+    root["Collided (including EAs)"] = collided_str;
 
     //build a json object for robot
     Json::Value robot;
