@@ -660,18 +660,19 @@ string TFMOSA::getFMAT_version(void) const
 
     for(int i=0; i<comments.getCount(); i++) {
         //divide the actual string in words
+        Words.Clear();
         StrDivideInWords(&Words, comments[i]);
 
         //search word "FMAT"
         int j = 0;
-        while(j < Words.getCount() && strTrim(Words[j].str) != "FMAT")
+        while(j < Words.getCount() && Words[j].str.find("FMAT", 0) == string::npos)
             j++;
 
         //index to the next word
         j++;
 
         //if the word is "version"
-        if(j < Words.getCount() && strTrim(Words[j].str) == "version") {
+        if(j < Words.getCount() && Words[j].str.find("version", 0) != string::npos) {
             //index to the next word
             j++;
 

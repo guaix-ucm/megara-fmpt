@@ -3198,7 +3198,7 @@ void getArguments(int& argc, char* argv[], const string& command)
         argc = 4;
 //        string *arg2 = new string("/home/user/MEGARA/ejemplos/ejemplo_22-02-2017/megara_2p0e5_000917.txt");
 //        string *arg2 = new string("/home/user/posible BUG 10-05-2017/megara_2p0e5_000007_without_26_68_86.txt");
-        string *arg2 = new string("/home/user/ejemplo/megara-cb0.txt");
+        string *arg2 = new string("/home/user/ejemplo2/megara-cb0.txt");
         argv[2] = (char*)arg2->c_str();
         //-----------------------------
         string *arg3 = new string("all");
