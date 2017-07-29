@@ -1957,6 +1957,7 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
         //properties for built comments about file outputs
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
+        outputs.FMAT_version = outputs.FMOSA.getFMAT_version();
         outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
@@ -2602,6 +2603,7 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
+                outputs.FMAT_version = "";
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 //outputs.collided_str = collided_str;
                 //outputs.Collided = Collided;
@@ -2920,6 +2922,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_d
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
+                outputs.FMAT_version = "";
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 outputs.collided_str = ""; //outputs.collided_str not set above
                 outputs.Collided.Clear(); //outputs.Collided not set above
@@ -3194,7 +3197,8 @@ void getArguments(int& argc, char* argv[], const string& command)
     else if(command == "generatePairPPDP_offline") {
         argc = 4;
 //        string *arg2 = new string("/home/user/MEGARA/ejemplos/ejemplo_22-02-2017/megara_2p0e5_000917.txt");
-        string *arg2 = new string("/home/user/posible BUG 10-05-2017/megara_2p0e5_000007_without_26_68_86.txt");
+//        string *arg2 = new string("/home/user/posible BUG 10-05-2017/megara_2p0e5_000007_without_26_68_86.txt");
+        string *arg2 = new string("/home/user/ejemplo/megara-cb0.txt");
         argv[2] = (char*)arg2->c_str();
         //-----------------------------
         string *arg3 = new string("all");
@@ -3329,7 +3333,7 @@ int main(int argc, char *argv[])
 
 #ifdef QMAKE //if debugging using qmake
     //Get the arguments for a command
-    getArguments(argc, argv, "valuesSPM_RP");
+    getArguments(argc, argv, "generatePairPPDP_offline");
 
     //Comands:
     //  "valuesSPM_EA"

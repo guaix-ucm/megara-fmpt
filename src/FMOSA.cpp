@@ -652,6 +652,38 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
     }
 }
 
+/// get from the comments the word after the words "FMAT" and "version"
+/// if not found return empty string
+string TFMOSA::getFMAT_version(void) const
+{
+    TStrings Words;
+
+    for(int i=0; i<comments.getCount(); i++) {
+        //divide the actual string in words
+        StrDivideInWords(&Words, comments[i]);
+
+        //search word "FMAT"
+        int j = 0;
+        while(j < Words.getCount() && strTrim(Words[j].str) != "FMAT")
+            j++;
+
+        //index to the next word
+        j++;
+
+        //if the word is "version"
+        if(j < Words.getCount() && strTrim(Words[j].str) == "version") {
+            //index to the next word
+            j++;
+
+            //return the word if any
+            if(j < Words.getCount())
+                return Words[j].str;
+        }
+    }
+    //return the empty word
+    return "";
+}
+
 //get the FMOSA in text format
 void TFMOSA::getTableText(string& str) const
 {
