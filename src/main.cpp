@@ -1957,7 +1957,6 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
         //properties for built comments about file outputs
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
-        outputs.FMAT_version = outputs.FMOSA.getFMAT_version();
         outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
@@ -2603,7 +2602,6 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
-                outputs.FMAT_version = "";
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 //outputs.collided_str = collided_str;
                 //outputs.Collided = Collided;
@@ -2922,7 +2920,6 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_d
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
-                outputs.FMAT_version = "";
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 outputs.collided_str = ""; //outputs.collided_str not set above
                 outputs.Collided.Clear(); //outputs.Collided not set above

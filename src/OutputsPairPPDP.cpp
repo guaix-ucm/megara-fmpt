@@ -412,8 +412,8 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     //add (instrument, uuid, title)
     root["instrument"] = "MEGARA";
     addUUID(root);
-    root["title"] = "Position MB2 HII 1";
-    root["description"] = "";
+    root["title"] = FMOSA.getTitle();
+    root["description"] = FMOSA.getDescription();
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
 
     //add (PPvalid, DPvalid, Collided, Obstructed)
@@ -424,7 +424,7 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     root["Collided (including EAs)"] = collided_str;
 
     //add (FMAT_version, FMOSA_filename, date_of_generation)
-    root["FMAT_version"] = FMAT_version;
+    root["FMAT_version"] = FMOSA.getFMAT_version();
     root["FMAT_filename"] = FMOSA_filename;
     root["date_of_generation"] = datetime;
 
@@ -712,7 +712,6 @@ OutputsPairPPDP::OutputsPairPPDP() :
     //properties for built comments about file outputs
     FMOSA_filename(""),
     FMPT_version(""),
-    FMAT_version(""),
     datetime(""),
     EnabledNotOperative(),
     collided_str(""),
@@ -730,7 +729,6 @@ void OutputsPairPPDP::Clear(void)
 {
     FMOSA_filename = "";
     FMPT_version = "";
-    FMAT_version = "";
     datetime = "";
     EnabledNotOperative.Clear();
     collided_str = "";

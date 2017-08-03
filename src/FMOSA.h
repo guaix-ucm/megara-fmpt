@@ -142,6 +142,14 @@ public:
     /// set a FMOSA in text format
     void setTableText(unsigned int& Bid, const string& str);
 
+    /// get from the comments the word after the word "Title"
+    /// if not found return empty string
+    string getTitle(void) const;
+
+    /// get from the comments the words after the word "Description"
+    /// if not found return empty string
+    string getDescription(void) const;
+
     /// get from the comments the word after the words "FMAT" and "version"
     /// if not found return empty string
     string getFMAT_version(void) const;

@@ -652,6 +652,74 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
     }
 }
 
+/// get from the comments the word after the word "Title"
+/// if not found return empty string
+string TFMOSA::getTitle(void) const
+{
+    TStrings Words;
+
+    for(int i=0; i<comments.getCount(); i++) {
+        //divide the actual string in words
+        Words.Clear();
+        StrDivideInWords(&Words, comments[i]);
+
+        //search word "Title"
+        int j = 0;
+        while(j < Words.getCount() && Words[j].str.find("Title", 0) == string::npos)
+            j++;
+
+        //if has found the word
+        if(j < Words.getCount()) {
+            //index to the next word
+            j++;
+
+            //return the word if any
+            if(j < Words.getCount())
+                return Words[j].str;
+        }
+    }
+    //return the empty word
+    return "";
+}
+
+/// get from the comments the words after the word "Description"
+/// if not found return empty string
+string TFMOSA::getDescription(void) const
+{
+    TStrings Words;
+
+    for(int i=0; i<comments.getCount(); i++) {
+        //divide the actual string in words
+        Words.Clear();
+        StrDivideInWords(&Words, comments[i]);
+
+        //search word "Description"
+        int j = 0;
+        while(j < Words.getCount() && Words[j].str.find("Description", 0) == string::npos)
+            j++;
+
+        //if has found the word
+        if(j < Words.getCount()) {
+            //index to the next word
+            j++;
+
+            //return the word if any
+            if(j < Words.getCount()) {
+                string description = Words[j].str;
+                j++;
+                while(j < Words.getCount()) {
+                    description += " ";
+                    description += Words[j].str;
+                    j++;
+                }
+                return description;
+            }
+        }
+    }
+    //return the empty word
+    return "";
+}
+
 /// get from the comments the word after the words "FMAT" and "version"
 /// if not found return empty string
 string TFMOSA::getFMAT_version(void) const
