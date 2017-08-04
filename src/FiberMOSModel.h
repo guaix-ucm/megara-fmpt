@@ -76,6 +76,10 @@ public:
         //------------------------------------------------------------------
         //CONJUNTOS DE PROPIEDADES EN FORMATO TEXTO:
 
+        //versión del Fiber MOS Model
+        //default value: ""
+        string Version;
+
         //conjunto de propiedades de instancia
         //en formato asignaciones
         AnsiString getInstanceText(void) const;

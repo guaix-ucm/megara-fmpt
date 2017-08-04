@@ -1,15 +1,15 @@
 # Instance properties of the RP (Robotic Positioner):
 
 ActuatorInstance:              # Instance properties of the RP.Actuator (sizing, orientation and others):
-    L01 = 5.8025                   # distance between P0 and P1 (in mm)
+    L01 = 5.8580000                   # distance between P0 and P1 (in mm)
     theta_1min = -0.043633231      # position angle’s lower limit of the axis 0-1 respect S1 (in rad)
     theta_1max = 6.326818538       # position angle’s upper limit of the axis 0-1 respect S1 (in rad)
     theta_1 = 0                    # position angle of axis 0-1 respect S1 (in rad)
-    theta_O3o = 3.14159265358979   # orientation of S3 respect S1 when theta_1 = 0 (in rad)
+    theta_O3o = 3.1415927   # orientation of S3 respect S1 when theta_1 = 0 (in rad)
     
     ArmInstance:                   # Instance properties of the RP.Actuator.Arm (sizing, orientation and quantification):
-        L12 = 5.8025                   # distance between P1 and P2 (in mm)
-        L13 = 5.8025                   # distance between P1 and P3 (in mm)
+        L12 = 5.7910000                   # distance between P1 and P2 (in mm)
+        L13 = 5.7910000                   # distance between P1 and P3 (in mm)
         theta__O3 = 0                  # orientation of S3 respect S2 (in rad)
         R3 = 0.75                      # radio of representative circle of the microlens (in mm)
         theta___3min = -0.043633231    # position angle’s lower limit of axis 1-3 respect S3 (in rad)
@@ -38,7 +38,7 @@ Tolerances:                    # Tolerances of the RP:
     Ep = 0.1                       # error margin in P0 position (in mm)
     Tstop = 0                      # margin time from last position stored in memory, to stopping rotors (in ms)
     Tshiff = 1                     # margin time to shift of all rotors of RPs in Fiber MOS (in ms)
-    SPMadd = 0.32                  # SPM additional: is a component of SPM added once (in mm)
+    SPMadd = 0.31516829              # SPM additional: is a component of SPM added once (in mm)
 
 Status:                        # Qualitative status of the RP:
     Disabled = False               # disabling status [False | True]

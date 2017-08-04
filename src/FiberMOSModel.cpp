@@ -38,6 +38,8 @@ AnsiString TFiberMOSModel::getInstanceText(void) const
     string str = "# Instance properties of the FMM (Fiber MOS Model):";
 
     str += "\r\n\r\n";
+    str = "Version = " + Version;
+    str += "\r\n";
     str += RPL.getInstanceText().str;
 
     return AnsiString(str);
@@ -73,13 +75,39 @@ void TFiberMOSModel::setInstanceText(const AnsiString& S)
 void  TFiberMOSModel::readInstance(TFiberMOSModel *FMM,
                                    const AnsiString &S, int &i)
 {
-    //el puntero FMM debe apuntar a un Fiber MOS Model construído
+    //comprueba las precondiciones
     if(FMM == NULL)
         throw EImproperArgument("pointer FMM should point to built Fiber MOS Model");
+    if(i<1 || S.Length()+1<i)
+        throw EImproperArgument("index i should indicate a position in the string S");
 
-    //lee la instancia en la lista de RPs
-    TRoboticPositionerList1 *RPL = &FMM->RPL;
-    TRoboticPositionerList1::readInstance(RPL, S, i);
+    //NOTA: no se exige que la cadena de texto S sea imprimible,
+    //de modo que cuando se quiera imprimir uno de sus caracteres,
+    //si no es imprimible saldrá el caracter por defecto.
+
+    try {
+        //lee la propiedad Version
+        AnsiString t_Version;
+        StrTravelSeparatorsIfAny(S, i);
+        StrTravelLabel("Version", S, i);
+        StrTravelSeparatorsIfAny(S, i);
+        StrTravelLabel("=", S, i);
+        StrTravelSeparatorsIfAny(S, i);
+        StrReadStringBetweenChars(t_Version, S, i);
+
+        //lee la instancia de la lista de RPs
+        TRoboticPositionerList RPL(&FMM->RPL);
+        TRoboticPositionerList1 *aux = &RPL;
+        TRoboticPositionerList1::readInstance(aux, S, i);
+
+        //asigna las variables tampón
+        FMM->Version = t_Version.str;
+        FMM->RPL.Clone(&RPL);
+    }
+    catch(Exception& E) {
+        E.Message.Insert(1, "reading instance of FMM: ");
+        throw;
+    }
 }
 
 //MÉTODOS DE CONSTRUCCIÓN, COPIA, CLONACIÓN Y DESTRUCCIÓN:
@@ -88,7 +116,9 @@ void  TFiberMOSModel::readInstance(TFiberMOSModel *FMM,
 TFiberMOSModel::TFiberMOSModel(void) :
     //contruye las listas de objetos
     EAL(),
-    RPL()
+    RPL(),
+    //inicializa las demás rpopiedades
+    Version("")
 {
 }
 
@@ -102,6 +132,8 @@ void TFiberMOSModel::Clone(const TFiberMOSModel *FMM)
     //clona las listas de objetos
     EAL.Clone(&FMM->EAL);
     RPL.Clone(&FMM->RPL);
+    //clona las demás propiedades
+    Version = FMM->Version;
 }
 
 //construye un clon de un Fiber MOS Model
