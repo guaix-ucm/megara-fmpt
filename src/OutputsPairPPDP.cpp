@@ -66,7 +66,7 @@ Json::Value OutputsPairPPDP::getComments(void) const
         str += "online (not from FMOSA)";
     object.append(str);
 
-    str = "# Generated with FMPT version "+FMPT_version;
+    str = "# Generated with FMPT version "+FMPT_version+" and FMM Instance version "+FMM_Instance_version;
     object.append(str);
     str = "# Date of generation: "+datetime;
     object.append(str);
@@ -261,7 +261,7 @@ string OutputsPairPPDP::getCommentsText(void) const
     else
         str += "online (not from FMOSA)";
 
-    str += "\r\n# Generated with FMPT version "+FMPT_version;
+    str += "\r\n# Generated with FMPT version "+FMPT_version+" and FMM Instance version "+FMM_Instance_version;
     str += "\r\n# Date of generation: "+datetime;
 
     if(EnabledNotOperative.getCount() > 0) {
@@ -406,6 +406,8 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     //  json_object_object_add(val, "instrument", json_object_new_string("MEGARA"));
     //  json_object_array_put_idx(root, 0, val);
 
+    //--------------------
+
     //build a json object
     Json::Value root;
 
@@ -413,8 +415,19 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     root["instrument"] = "MEGARA";
     addUUID(root);
     root["title"] = FMOSA.getTitle();
+
+    //add (description, @schema)
     root["description"] = FMOSA.getDescription();
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
+
+    //add (FMPT_version, FMM_Instance_version)
+    root["FMPT_version"] = FMPT_version;
+    root["FMM_Instance_version"] = FMM_Instance_version;
+
+    //add (FMAT_version, FMOSA_filename, date_of_generation)
+    root["FMAT_version"] = FMOSA.getFMAT_version();
+    root["FMAT_filename"] = FMOSA_filename;
+    root["date_of_generation"] = datetime;
 
     //add (PPvalid, DPvalid, Collided, Obstructed)
     root["PPvalid"] = BoolToStr(PPvalid,true).str;
@@ -423,10 +436,7 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     root["Obstructed"] = Obstructed.getText().str;
     root["Collided (including EAs)"] = collided_str;
 
-    //add (FMAT_version, FMOSA_filename, date_of_generation)
-    root["FMAT_version"] = FMOSA.getFMAT_version();
-    root["FMAT_filename"] = FMOSA_filename;
-    root["date_of_generation"] = datetime;
+    //--------------------
 
     //build a json object for robot
     Json::Value robot;
@@ -436,15 +446,29 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
 
     //build a json object for secuences
     Json::Value sequences;
-    //add (pos, depos, FMOSA)
+
+    //add (positioning, depositioning)
     sequences["positioning"] = getPos();
     sequences["depositioning"] = getDepos();
 
     robot["sequences"] = sequences;
     root["robot"] = robot;
 
+    //In sustitution of:
+    //  //add the coments
+    //  root["comments"] = getComments();
+    //  //add the positioning program with comments
+    //  root["depos"] = getPos();
+    //  //add the depositioning program with comments
+    //  root["depos"] = getDepos();
+
+    //--------------------
+
+    //add the (assignments) if any
     if(includeFMOSA)
         root["assignments"] = FMOSA.getJSON();
+
+    //--------------------
 
     string str;
     if(suitable())
@@ -712,6 +736,7 @@ OutputsPairPPDP::OutputsPairPPDP() :
     //properties for built comments about file outputs
     FMOSA_filename(""),
     FMPT_version(""),
+    FMM_Instance_version(""),
     datetime(""),
     EnabledNotOperative(),
     collided_str(""),
@@ -729,6 +754,7 @@ void OutputsPairPPDP::Clear(void)
 {
     FMOSA_filename = "";
     FMPT_version = "";
+    FMM_Instance_version = "";
     datetime = "";
     EnabledNotOperative.Clear();
     collided_str = "";
