@@ -289,7 +289,7 @@ void TAllocationList::SetP3o(void)
 {
     //todos los posicionadores adscritos deben estar en la lista
     TVector<int> indices;
-    SearchMissingRPs(indices);
+    searchMissingRPs(indices);
     if(indices.getCount() > 0)
         throw EImproperCall("there are missing RPs in the allocation assignations list");
 
@@ -317,7 +317,7 @@ void TAllocationList::Randomize(void)
     //todos los posicionadores de fibra adscritos a
     //los puntos objetivo deben estar en la lista
     TVector<int> indices;
-    SearchMissingRPs(indices);
+    searchMissingRPs(indices);
     if(indices.getCount() > 0)
         throw EImproperCall("there are missing RPs in the assignaments list");
 
@@ -334,7 +334,7 @@ void TAllocationList::RandomizeWithoutCollision(void)
 {
     //comprueba las precondiciones
     TVector<int> indices;
-    SearchMissingRPs(indices);
+    searchMissingRPs(indices);
     if(indices.getCount() > 0)
         throw EImproperCall("all RPs should be in the FMM");
 
@@ -404,7 +404,7 @@ void TAllocationList::MoveToTargetP3(void)
     try {
     //comprueba las precondiciones
     TVector<int> indices;
-    SearchOutDomineTAllocations(indices);
+    searchOutDomineTAllocations(indices);
     if(indices.getCount() > 0) {
         //obtiene el vector de identificadores
         TVector<int> Ids;
@@ -426,58 +426,102 @@ void TAllocationList::MoveToTargetP3(void)
     }
 }
 
+/// @brief Get the Final Position List from a Initial Position List.
+/// @exception EImproperCall if the allocation list is invalid.
+/// @exception EImproperArgument if the IPL is invalid.
+void TAllocationList::getFinalPositionList(TPairPositionAnglesList& FPL,
+                                           TPairPositionAnglesList& IPL)
+{
+    //check the validity of the allocation list
+    TVector<int> indices;
+    int result = invalid(indices);
+    if(result != 0) {
+        TVector<int> Ids;
+        for(int i=0; i<indices.getCount(); i++)
+            Ids.Add(Items[indices[i]]->getRP()->getActuator()->getId());
+
+        switch(result) {
+        case 1: throw EImproperCall("allocation with missing RPs: " + Ids.getText().str); break;
+        case 2: throw EImproperCall("allocation with out domain RPs: " + Ids.getText().str); break;
+        default: throw EImpossibleError("lateral eefect");
+        }
+    }
+
+    //check for length of the IPL
+    if(IPL.getCount() != RoboticPositionerList->getCount())
+        throw EImproperArgument(" IPL invalid because shoudl hase a pair position angles for each RP");
+
+    //check for validity of the IPL
+    result = RoboticPositionerList->invalid(indices, IPL);
+    if(result != 0) {
+        TVector<int> Ids;
+        for(int i=0; i<indices.getCount(); i++)
+            Ids.Add(Items[indices[i]]->getRP()->getActuator()->getId());
+
+        switch(result) {
+        case 1: throw EImproperCall("IPL with repeated RPs: " + Ids.getText().str); break;
+        case 2: throw EImproperCall("IPL with missing RPs: " + Ids.getText().str); break;
+        case 3: throw EImproperCall("IPL with out domain RPs: " + Ids.getText().str); break;
+        default: throw EImpossibleError("lateral eefect");
+        }
+    }
+
+    //save the actual status
+    RoboticPositionerList->pushPositions();
+    RoboticPositionerList->pushQuantifys();
+
+    //set the IPL
+    RoboticPositionerList->setPositions(IPL);
+
+    //move the RPs to the more closer stable position
+    //to their allocated positions
+    MoveToTargetP3();
+
+    //get the FPL
+    FPL.Clear();
+    RoboticPositionerList->getPositions(FPL);
+
+    //restore the initial setting
+    RoboticPositionerList->restoreAndPopQuantifys();
+    RoboticPositionerList->restoreAndPopPositions();
+}
+
 //---------------------------------------------------------------------------
 //VALIDATION:
 
 //busca los puntos objetivo adscritos a posicionadores repetidos
-void TAllocationList::SearchRepeatedRPs(TVector<int> &indices)
+void TAllocationList::searchRepeatedRPs(TVector<int> &indices)
 {
-    //inicializa la ista de índices
     indices.Clear();
 
-    //por cada punto objetivo de la lista
     for(int i=0; i<getCount(); i++)
-        //por cada punto objetivo posterior de la lista
         for(int j=i+1; j<getCount(); j++)
-            //si el posicionador adscrito es el mismo
             if(Items[i]->getRP() == Items[j]->getRP())
-                indices.Add(j); //añade el índice al punto objetivo
+                indices.Add(j);
 }
 
 //busca los puntos objetivo adscritos a posicionadores ausentes
 //en la lista de posicionadores RoboticPositionerList
-void TAllocationList::SearchMissingRPs(TVector<int> &indices)
+void TAllocationList::searchMissingRPs(TVector<int> &indices)
 {
-    //initialize the output
     indices.Clear();
 
-    //search the missing RPs
     for(int i=0; i<getCount(); i++) {
         TAllocation *A = Items[i];
-
-        //search the attached RP in the RPL
         int j = RoboticPositionerList->search(A->getRP());
-
-        //if the RP isn't in the RPL
         if(j >= RoboticPositionerList->getCount())
-            indices.Add(i); //add it to the missing list
+            indices.Add(i);
     }
 }
 
 //busca los puntos objetivo que están fuera del dominio
 //de sus posicionadores adscritos
-void TAllocationList::SearchOutDomineTAllocations(TVector<int> &indices)
+void TAllocationList::searchOutDomineTAllocations(TVector<int> &indices)
 {
-    //reinicial el vector de índices en congruencia
-    //con la situación de partida
     indices.Clear();
 
-    //por cada asignación de la lista
     for(int i=0; i<getCount(); i++) {
-        //apunta la asignación indicada para facilitar su acceso
         TAllocation *A = Items[i];
-
-        //apunta el posicionador asignado para facilitar su acceso
         TRoboticPositioner *RP = A->getRP();
 
         //traduce el punto a coordenadas angulares de los ejes
@@ -485,9 +529,7 @@ void TAllocationList::SearchOutDomineTAllocations(TVector<int> &indices)
         double theta_1, theta___3;
         bool isindomine = RP->getActuator()->anglesToGoP3(theta_1, theta___3, A->PP.x, A->PP.y);
 
-        //si el punto objetivo está fuera del dominio del posicionador
         if(!isindomine)
-            //añade el índice a la lista
             indices.Add(i);
     }
 }
@@ -498,19 +540,19 @@ void TAllocationList::SearchOutDomineTAllocations(TVector<int> &indices)
 //  0: lista de asignaciones válida;
 //  1: puntos objetivo adscritos a posicionadores ausentes;
 //  2: puntos objetivo fuera del dominio de sus posicionadores adscritos.
-int TAllocationList::Invalid(TVector<int> &indices)
+int TAllocationList::invalid(TVector<int> &indices)
 {
     //se supone que ninguno de los posicionadores adscritos
     //está repetido, y que la congruencia de repetición
     //se logra controlando las adiciones
 
     //busca posicionadores adscritos ausentes
-    SearchMissingRPs(indices);
+    searchMissingRPs(indices);
     if(indices.getCount() > 0) //si ha encontrado algún posicionador ausente
         return 1; //indica que ha encontrado posicionadores ausentes
 
     //busca punto objetivo fuera del dominio de su posicionadores adscritos
-    SearchOutDomineTAllocations(indices);
+    searchOutDomineTAllocations(indices);
     if(indices.getCount() > 0) //si ha encontrado algún punto fuera del dominio
         return 2; //indica que ha encontrado puntos fuera del dominio
 
@@ -535,7 +577,7 @@ void TAllocationList::SegregateInOut(TRoboticPositionerList &Inners,
     //busca los puntos objetivo que están fuera del dominio
     //de sus posicionadores adscritos
     TVector<int> indices;
-    SearchOutDomineTAllocations(indices);
+    searchOutDomineTAllocations(indices);
     //Si ha encontrado algún punto objetivo
     if(indices.getCount() > 0) //si ha encontrado algún punto fuera del dominio
         throw EImproperCall(AnsiString("there are allocations out of domain his atached RP ")+indices.getText());

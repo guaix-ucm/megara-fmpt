@@ -46,7 +46,7 @@ namespace MotionFunctions {
 //      theta_1fin;
 //      r_2fin, theta_2fin;
 //      r_3fin, theta_3fin;
-//Cunado en el gesto interviene un único rotor, es posible ajustar
+//Cuando en el gesto interviene un único rotor, es posible ajustar
 //el intervalo temporal de desplazamiento de la función, así como
 //el resto de parámetros libres de la función,
 //y cuando en el gesto intervienen los dos rotores, es posible sincronizar

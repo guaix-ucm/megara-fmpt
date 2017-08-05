@@ -27,11 +27,13 @@
 #include "Scalars.h"
 #include "VCLemu.h"
 #include "TextFile.h"
+#include "Vector.h"
 
 //---------------------------------------------------------------------------
 
 using namespace Strings;
 using namespace Mathematics;
+using namespace Lists;
 
 //namespace for models
 namespace Models {
@@ -1323,6 +1325,81 @@ void TRoboticPositionerList1::setTolerance(double PAem,double Pem)
 
     //asimila (PAem, Pem)
     calculateSPMcomponents();
+}
+
+//------------------------------------------------------------------
+//METHODS FOR VALIDATION:
+
+/// Search the allocations with repeated RPs.
+void TRoboticPositionerList1::searchRepeatedRPs(TVector<int> &indices,
+                                                const TPairPositionAnglesList& PPAL)
+{
+    indices.Clear();
+
+    for(int i=0; i<PPAL.getCount(); i++)
+        for(int j=i+1; j<PPAL.getCount(); j++)
+            if(PPAL[i].getId() == PPAL[j].getId())
+                indices.Add(j);
+}
+
+/// Search the allocations with RPs missing.
+void TRoboticPositionerList1::searchMissingRPs(TVector<int>& indices,
+                                               const TPairPositionAnglesList& PPAL)
+{
+    indices.Clear();
+
+    for(int i=0; i<PPAL.getCount(); i++) {
+        int j = searchId(PPAL[i].getId());
+        if(j >= getCount())
+            indices.Add(i);
+    }
+}
+
+/// @brief Search PPAs with position out of domain of their rotors.
+void TRoboticPositionerList1::searchOutDomineTAllocations(TVector<int>& indices,
+                                                          const TPairPositionAnglesList& PPAL)
+{
+    TVector<int> indices_;
+    searchMissingRPs(indices_, PPAL);
+    if(indices_.getCount() > 0)
+        throw EImproperCall("missing RPs in the PPA list");
+
+    indices.Clear();
+
+    for(int i=0; i<PPAL.getCount(); i++) {
+        TPairPositionAngles PPA = PPAL[i];
+        int j = searchId(PPA.getId());
+        TRoboticPositioner *RP = Items[j];
+
+        if(RP->getActuator()->isInDomainp_1(PPA.p_1) || RP->getActuator()->getArm()->isntInDomainp___3(PPA.p___3))
+            indices.Add(i);
+    }
+}
+
+/// @brief determine if an PPA list has any defect to for be allocated:
+/// @return 0: the PPA list is valid.
+/// @return 1: repeated RPs.
+/// @return 2: missing RPs.
+/// @return 3: position angle out domain of their rotor of their RPs.
+int TRoboticPositionerList1::invalid(TVector<int>& indices,
+                                      const TPairPositionAnglesList& PPAL)
+{
+    //check for repeated RPs
+    searchRepeatedRPs(indices, PPAL);
+    if(indices.getCount() > 0)
+        return 1;
+
+    //check for missing RPs
+    searchMissingRPs(indices, PPAL);
+    if(indices.getCount() > 0)
+        return 2;
+
+    //check for out domain position angles
+    searchOutDomineTAllocations(indices, PPAL);
+    if(indices.getCount() > 0)
+        return 3;
+
+    return 0; //indicate all check passed
 }
 
 //--------------------------------------------------------------------------

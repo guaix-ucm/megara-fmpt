@@ -466,6 +466,28 @@ public:
     void setTolerance(double PAem,double Pem);
 
     //------------------------------------------------------------------
+    //METHODS FOR VALIDATION:
+
+    /// Search the allocations with repeated RPs.
+    void searchRepeatedRPs(TVector<int>& indices,
+                           const TPairPositionAnglesList& PPAL);
+
+    /// Search the allocations with RPs missing.
+    void searchMissingRPs(TVector<int>& indices,
+                          const TPairPositionAnglesList& PPAL);
+
+    /// @brief Search PPAs with position out of domain of their rotors.
+    void searchOutDomineTAllocations(TVector<int>& indices,
+                                     const TPairPositionAnglesList& PPAL);
+
+    /// @brief determine if an PPA list has any defect to for be allocated:
+    /// @return 0: the PPA list is valid.
+    /// @return 1: repeated RPs.
+    /// @return 2: missing RPs.
+    /// @return 3: position angle out domain of their rotor of their RPs.
+    int invalid(TVector<int>& indices, const TPairPositionAnglesList& PPAL);
+
+    //------------------------------------------------------------------
     //METHODS FOR JOINTLY DOMAIN:
 
     //determina el intervalo cartesiano que contiene

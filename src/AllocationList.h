@@ -117,9 +117,15 @@ public:
         /// out of the P3-domain of their allocated RP.
         void MoveToTargetP3(void);
 
-        //NOTA: cunado un punto es asignado al punto P3 de un posicionador
-        //cuya cuantificación está activada, el posicionador se moverá
-        //a la posición estable máspróxima.
+        //NOTA: cuando un punto es asignado al punto P3 de un posicionador
+        //cuya cuantificación está activada, cada rotor se moverá a
+        //la posición estable más próxima.
+
+        /// @brief Get the Final Position List from a Initial Position List.
+        /// @exception EImproperCall if the allocation list is invalid.
+        /// @exception EImproperArgument if the IPL is invalid.
+        void getFinalPositionList(TPairPositionAnglesList& FPL,
+                                  TPairPositionAnglesList& IPL);
 
         //VALIDATION:
 
@@ -127,10 +133,10 @@ public:
         //desplazar los posicionadores a sus puntos objetivo:
 
         /// Search the allocations with repeated RPs.
-        void SearchRepeatedRPs(TVector<int> &indices);
+        void searchRepeatedRPs(TVector<int> &indices);
 
         /// Search the allocations with RPs missing in the attached RP list.
-        void SearchMissingRPs(TVector<int> &indices);
+        void searchMissingRPs(TVector<int> &indices);
 
         //El método SearchMissigRPs es necesario
         //porque la lista de posicionadores adscrita (RoboticPositionerList)
@@ -138,14 +144,14 @@ public:
 
         /// @brief Search the allocations with projection points
         /// out of the P3-domain of their attached RP.
-        void SearchOutDomineTAllocations(TVector<int> &indices);
+        void searchOutDomineTAllocations(TVector<int> &indices);
 
         /// @brief Determine if the allocation list has any defect
         /// for generate motion programs:
         /// @return 0: the allocation list is valid.
         /// @return 1: projection points attached to missing RPs.
         /// @return 2: projection points out of the P3-domain of their attached RPs.
-        int Invalid(TVector<int> &indices);
+        int invalid(TVector<int> &indices);
 
         //SEGREGATION:
 
