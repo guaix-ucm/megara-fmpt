@@ -64,7 +64,7 @@ public:
     //properties for built comments about file outputs
     string FMOSA_filename; ///<name of file type FMOSA of procedence
     string FMPT_version; ///<version of the FMPT with which was generated
-    string FMM_Instance_version; ///<version of the Fiber MOS Model Instance with which was generated
+    string Instance_version; ///<version of the Fiber MOS Model Instance with which was generated
     string datetime; ///<date-time of generation
     TRoboticPositionerList EnabledNotOperative; ///<list of pointer to enabled not operative RPs
     string collided_str; ///<list of lists of colliding items (both EAs and RPs)

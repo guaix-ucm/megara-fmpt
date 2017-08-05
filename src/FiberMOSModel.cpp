@@ -38,8 +38,8 @@ AnsiString TFiberMOSModel::getInstanceText(void) const
     string str = "# Instance properties of the FMM (Fiber MOS Model):";
 
     str += "\r\n\r\n";
-    str = "Version = " + Version;
-    str += "\r\n";
+    str += "Instance_version = \"" + Instance_version + "\"    # Version of the Fiber MOS Model Instance";
+    str += "\r\n\r\n";
     str += RPL.getInstanceText().str;
 
     return AnsiString(str);
@@ -86,14 +86,14 @@ void  TFiberMOSModel::readInstance(TFiberMOSModel *FMM,
     //si no es imprimible saldrá el caracter por defecto.
 
     try {
-        //lee la propiedad Version
-        AnsiString t_Version;
+        //lee la propiedad Instance_version
+        AnsiString t_Instance_version;
         StrTravelSeparatorsIfAny(S, i);
-        StrTravelLabel("Version", S, i);
+        StrTravelLabel("Instance_version", S, i);
         StrTravelSeparatorsIfAny(S, i);
         StrTravelLabel("=", S, i);
         StrTravelSeparatorsIfAny(S, i);
-        StrReadStringBetweenChars(t_Version, S, i);
+        StrReadStringBetweenChars(t_Instance_version, S, i);
 
         //lee la instancia de la lista de RPs
         TRoboticPositionerList RPL(&FMM->RPL);
@@ -101,7 +101,7 @@ void  TFiberMOSModel::readInstance(TFiberMOSModel *FMM,
         TRoboticPositionerList1::readInstance(aux, S, i);
 
         //asigna las variables tampón
-        FMM->Version = t_Version.str;
+        FMM->Instance_version = t_Instance_version.str;
         FMM->RPL.Clone(&RPL);
     }
     catch(Exception& E) {
@@ -118,7 +118,7 @@ TFiberMOSModel::TFiberMOSModel(void) :
     EAL(),
     RPL(),
     //inicializa las demás rpopiedades
-    Version("")
+    Instance_version("")
 {
 }
 
@@ -133,7 +133,7 @@ void TFiberMOSModel::Clone(const TFiberMOSModel *FMM)
     EAL.Clone(&FMM->EAL);
     RPL.Clone(&FMM->RPL);
     //clona las demás propiedades
-    Version = FMM->Version;
+    Instance_version = FMM->Instance_version;
 }
 
 //construye un clon de un Fiber MOS Model

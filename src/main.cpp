@@ -91,9 +91,9 @@ string help(void)
     str += "\r\n$ fmpt_saa help_generateParkProg_offline";
     str += "\r\n    Print the help for function generateParkProg_offline.";
     str += "\r\n";
-    str += "\r\n$ fmpt_saa help_others";
-    str += "\r\n    Print the help about other commands of the FMPT.";
-    str += "\r\n";
+//    str += "\r\n$ fmpt_saa help_others";
+//    str += "\r\n    Print the help about other commands of the FMPT.";
+//    str += "\r\n";
     str += "\r\n$ fmpt_saa aboutOf";
     str += "\r\n    Print the legend about of...";
     str += "\r\n";
@@ -104,11 +104,11 @@ string help(void)
     str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
     str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
     str += "\r\n    This command generates the files:";
-    str += "\r\n        ParkProg_outputs_from_<filename>: the parking program in format MCS,";
-    str += "\r\n            comments about the collided RPs, if any,";
-    str += "\r\n            comments about the obstructed RPs, if any,";
-    str += "\r\n            comments about the validity of the generated MP,";
-    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n        ParkProg_outputs_from_<filename>.json: the parking program in format JSON,";
+    str += "\r\n            data about the collided RPs, if any,";
+    str += "\r\n            data about the obstructed RPs, if any,";
+    str += "\r\n            data about the validity of the generated MP,";
+    str += "\r\n            and data about the RPs whose radial motion is more close to 1 mm.";
     str += "\r\n        Where <filename> is the name of the input file.";
     str += "\r\n";
     str += "\r\n$ fmpt_saa generatePairPPDP_offline <FMOSA_path>";
@@ -118,11 +118,11 @@ string help(void)
     str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
     str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
     str += "\r\n    This command generates the file:";
-    str += "\r\n        PairPPDP_outputs_from_<filename>: the pair (PP, DP) in format MCS,";
-    str += "\r\n            comments about the collided RPs, if any,";
-    str += "\r\n            comments about the obstructed RPs, if any,";
-    str += "\r\n            comments about the validity of the generated MPs,";
-    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n        PairPPDP_outputs_from_<filename>.json: the pair (PP, DP) in format JSON,";
+    str += "\r\n            data about the collided RPs, if any,";
+    str += "\r\n            data about the obstructed RPs, if any,";
+    str += "\r\n            data about the validity of the generated MPs,";
+    str += "\r\n            and data about the RPs whose radial motion is more close to 1 mm.";
     str += "\r\n            the content of the input file type FMOSA,";
     str += "\r\n        Where <filename> is the name of the input file.";
     str += "\r\n";
@@ -154,12 +154,12 @@ string help_generateParkProg_offline(void)
 {
     string str;
 
-    str = "$ fmpt_saa generateParkProg_offline <FMOSA_path> [all]";
-    str += "\r\n    [SPL] [FPL]";
-    str += "\r\n    [DispCorners1] [DispCorners2]";
-    str += "\r\n    [Dmin] [Dend]";
-    str += "\r\n    [FMPT] [MCS]";
-    str += "\r\n    [outputs] [other-outputs]";
+    str = "$ fmpt_saa generateParkProg_offline <FMOSA_path>";// [all]";
+//    str += "\r\n    [SPL] [FPL]";
+//    str += "\r\n    [DispCorners1] [DispCorners2]";
+//    str += "\r\n    [Dmin] [Dend]";
+//    str += "\r\n    [FMPT] [MCS]";
+//    str += "\r\n    [outputs] [other-outputs]";
     str += "\r\n";
     str += "\r\n    Generate a valid parking program offline.";
     str += "\r\n    The generated parking program will be saved, even if there are either collided or obstructed RPs.";
@@ -167,13 +167,13 @@ string help_generateParkProg_offline(void)
     str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
     str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
     str += "\r\n    This command generates the files:";
-    str += "\r\n        ParkProg_outputs_from_<filename>: the parking program in format MCS,";
-    str += "\r\n            comments about the collided RPs, if any,";
-    str += "\r\n            comments about the obstructed RPs, if any,";
-    str += "\r\n            comments about the validity of the generated MP,";
-    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n        ParkProg_outputs_from_<filename>.json: the parking program in format JSON,";
+    str += "\r\n            data about the collided RPs, if any,";
+    str += "\r\n            data about the obstructed RPs, if any,";
+    str += "\r\n            data about the validity of the generated MP,";
+    str += "\r\n            and data about the RPs whose radial motion is more close to 1 mm.";
     str += "\r\n        Where <filename> is the name of the input file.";
-    str += "\r\n";
+/*    str += "\r\n";
     str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
     str += "\r\n    whose name is composed as follow:";
     str += "\r\n        \"ParkProg_\" + <argument> + \"_from_\" + <filename>";
@@ -210,7 +210,7 @@ string help_generateParkProg_offline(void)
     str += "\r\n    ad-hoc old format (called format MCS), is requested for other functions which";
     str += "\r\n    require a file tye outputs how input.";
     str += "\r\n    Besides FMAT generates file type FMOSA using their own ad-hoc format (not JSON format).";
-
+*/
     return str;
 }
 
@@ -219,12 +219,12 @@ string help_generatePairPPDP_offline(void)
 {
     string str;
 
-    str = "$ fmpt_saa generatePairPPDP_offline <FMOSA_path> [all]";
-    str += "\r\n    [OPL] [OPL-S0] [OPL-S1] [IPL]";
-    str += "\r\n    [DispCorners1] [DispCorners2]";
-    str += "\r\n    [PP-Dmin] [PP-Dend] [DP-Dmin] [DP-Dend]";
-    str += "\r\n    [PP-FMPT] [DP-FMPT] [PP-MCS] [DP-MCS]";
-    str += "\r\n    [MCS] [outputs] [other-outputs]";
+    str = "$ fmpt_saa generatePairPPDP_offline <FMOSA_path>";// [all]";
+//    str += "\r\n    [OPL] [OPL-S0] [OPL-S1] [IPL]";
+//    str += "\r\n    [DispCorners1] [DispCorners2]";
+//    str += "\r\n    [PP-Dmin] [PP-Dend] [DP-Dmin] [DP-Dend]";
+//    str += "\r\n    [PP-FMPT] [DP-FMPT] [PP-MCS] [DP-MCS]";
+//    str += "\r\n    [MCS] [outputs] [other-outputs]";
     str += "\r\n";
     str += "\r\n    Generate a valid pair (PP, DP) offline.";
     str += "\r\n    If there are either collided or obstructed RPs, the generated pair (PP, DP) will not be saved.";
@@ -232,14 +232,14 @@ string help_generatePairPPDP_offline(void)
     str += "\r\n    is garanteed to be valid, beause they pass a validation process considered unerring.";
     str += "\r\n    <FMOSA_path>: absolute or relative path to the input file type FMOSA.";
     str += "\r\n    This command generates the file:";
-    str += "\r\n        PairPPDP_outputs_from_<filename>: the pair (PP, DP) in format MCS,";
-    str += "\r\n            comments about the collided RPs, if any,";
-    str += "\r\n            comments about the obstructed RPs, if any,";
-    str += "\r\n            comments about the validity of the generated MPs,";
-    str += "\r\n            and comments about the RPs whose radial motion is more close to 1 mm.";
+    str += "\r\n        PairPPDP_outputs_from_<filename>.json: the pair (PP, DP) in format JSON,";
+    str += "\r\n            data about the collided RPs, if any,";
+    str += "\r\n            data about the obstructed RPs, if any,";
+    str += "\r\n            data about the validity of the generated MPs,";
+    str += "\r\n            and data about the RPs whose radial motion is more close to 1 mm.";
     str += "\r\n            the content of the input file type FMOSA,";
     str += "\r\n        Where <filename> is the name of the input file.";
-    str += "\r\n";
+/*    str += "\r\n";
     str += "\r\n    This function has several optional arguments, each of witch allow save a data in a file,";
     str += "\r\n    whose name is composed as follow:";
     str += "\r\n        \"PairPPDP_\" + <argument> + \"_from_\" + <filename>";
@@ -285,7 +285,7 @@ string help_generatePairPPDP_offline(void)
     str += "\r\n    ad-hoc old format (called format MCS), is requested for other functions which";
     str += "\r\n    require a file tye outputs how input.";
     str += "\r\n    Besides FMAT generates file type FMOSA using their own ad-hoc format (not JSON format).";
-
+*/
     return str;
 }
 
@@ -373,7 +373,7 @@ string help_others(void)
     str += "\r\n                                                p_1s, p___3s, RPids, Bid)";
     str += "\r\n";
     str += "\r\n$ fmpt_saa checkPairPPDP <PP_path> <DP_path> [RPids]";
-    str += "\r\n    <PP_path>: absolute or relative path to file containing the PP in teh format of the MCS.";
+    str += "\r\n    <PP_path>: absolute or relative path to file containing the PP in the format of the MCS.";
     str += "\r\n    <DP_path>: absolute or relative path to file containing the DP in format MCS.";
     str += "\r\n    [RPids]: optional identifier list of RPs to be disabled.";
     str += "\r\n    Determine if all RPs included in the pair (PP, DP), are enabled.";
@@ -1204,7 +1204,7 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         OutputsParkProg outputs;
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
-        outputs.FMM_Instance_version = FMM.Version;
+        outputs.Instance_version = FMM.Instance_version;
         outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
@@ -1357,12 +1357,12 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         //save file outputs, if any
         bool suitable = outputs.suitable();
         if(suitable) {
-            //save outputs
+/*            //save outputs
             outputs.getText(str);
             output_path = output_dir+"/ParkProg_outputs_from_"+filename;
             strWriteToFile(output_path, str);
             append("Outputs in format MCS saved in file '"+output_path+"'.", log_path.c_str());
-
+*/
             //save outputs in format JSON
             str = outputs.getJSONtext();
             output_path = output_dir + "/ParkProg_outputs_from_" + stem(filename) + ".json";
@@ -1376,12 +1376,12 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
                 append("WARNING! Forced saving file outputs despite it is not suitable to be executed.", log_path.c_str());
                 append("Files outputs generated by force contain an initial uncommented text for dificult their execution.", log_path.c_str());
 
-                //save outputs
+/*                //save outputs
                 outputs.getText(str);
                 output_path = output_dir+"/ParkProg_outputs_from_"+filename;
                 strWriteToFile(output_path, str);
                 append("Outputs in format MCS saved in file '"+output_path+"'.", log_path.c_str());
-
+*/
                 //save outputs in format JSON
                 str = outputs.getJSONtext();
                 output_path = output_dir + "/ParkProg_outputs_from_" + stem(filename) + ".json";
@@ -1958,7 +1958,7 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
         //properties for built comments about file outputs
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
-        outputs.FMM_Instance_version = FMM.Version;
+        outputs.Instance_version = FMM.Instance_version;
         outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
@@ -2177,12 +2177,12 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
         //save file outputs, if any
         bool suitable = outputs.suitable();
         if(suitable) {
-            //save outputs in format MCS
+/*            //save outputs in format MCS
             outputs.getText(str);
             output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
             strWriteToFile(output_path, str);
             append("Outputs in format MCS, and FMOSA, saved in file '"+output_path+"'.", log_path.c_str());
-
+*/
             //save outputs in format JSON
             str = outputs.getJSONtext();
             output_path = output_dir + "/PairPPDP_outputs_from_" + stem(filename) + ".json";
@@ -2196,12 +2196,12 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
                 append("WARNING! Forced saving file outputs despite it is not suitable to be executed.", log_path.c_str());
                 append("Files outputs generated by force contain an initial uncommented text for dificult their execution.", log_path.c_str());
 
-                //save outputs in format MCS
+/*                //save outputs in format MCS
                 outputs.getText(str);
                 output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
                 strWriteToFile(output_path, str);
                 append("Outputs in format MCS saved in file '"+output_path+"'.", log_path.c_str());
-
+*/
                 //save outputs in format JSON
                 str = outputs.getJSONtext();
                 output_path = output_dir + "/PairPPDP_outputs_from_" + stem(filename) + ".json";
@@ -2604,7 +2604,7 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
-                outputs.FMM_Instance_version = FMM.Version;
+                outputs.Instance_version = FMM.Instance_version;
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 //outputs.collided_str = collided_str;
                 //outputs.Collided = Collided;
@@ -2620,11 +2620,11 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
                 outputs.DP = DP;
                 outputs.FMOSA.Clear(); //there isn't a FMOSA for set
 
-                //save outputs in format MCS
-                outputs.getText(str, Bid, OPL, IPL, true);
-                output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
-                strWriteToFile(output_path, str);
-                append("Pair (PP, DP) in format MCS, saved in file '"+output_path+"'.", log_path.c_str());
+                //  //save outputs in format MCS
+                //  outputs.getText(str, Bid, OPL, IPL, true);
+                //  output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
+                //  strWriteToFile(output_path, str);
+                //  append("Pair (PP, DP) in format MCS, saved in file '"+output_path+"'.", log_path.c_str());
 
                 //save outputs in format JSON
                 str = outputs.getJSONtext();
@@ -2923,7 +2923,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_d
                 //properties for built comments about file outputs
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
-                outputs.FMM_Instance_version = FMM.Version;
+                outputs.Instance_version = FMM.Instance_version;
                 outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
                 outputs.collided_str = ""; //outputs.collided_str not set above
                 outputs.Collided.Clear(); //outputs.Collided not set above
@@ -2939,11 +2939,11 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_d
                 //outputs.DP set avove
                 //outputs.FMOSA set above
 
-                //save outputs in format MCS
-                outputs.getText(str, true);
-                output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
-                strWriteToFile(output_path, str);
-                append("Pair (PP, DP) in format MCS saved in file '"+output_path+"'.", log_path.c_str());
+                //  //save outputs in format MCS
+                //  outputs.getText(str, true);
+                //  output_path = output_dir+"/PairPPDP_outputs_from_"+filename;
+                //  strWriteToFile(output_path, str);
+                //  append("Pair (PP, DP) in format MCS saved in file '"+output_path+"'.", log_path.c_str());
 
                 //save outputs in format JSON
                 str = outputs.getJSONtext();

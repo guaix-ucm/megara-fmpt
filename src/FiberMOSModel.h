@@ -78,7 +78,7 @@ public:
 
         //versión del Fiber MOS Model
         //default value: ""
-        string Version;
+        string Instance_version;
 
         //conjunto de propiedades de instancia
         //en formato asignaciones

@@ -247,6 +247,12 @@ void StrPaint(TCanvas *Canvas, const AnsiString &S,
 
 //---------------------------------------------------------------------------
 
+//get the version of the package
+string getPACKAGE_VERSION(void);
+
+//The package version is the second string puted into the file 'configure.ac':
+//    AC_INIT([megara-fmpt],[4.8.0])
+
 } //namespace Strings
 
 //---------------------------------------------------------------------------

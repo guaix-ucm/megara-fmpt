@@ -350,7 +350,7 @@ public:
     //getting:
     //  p_1min = F(theta_1min)
     //setting:
-    //  p_tehta_1min = G(p_1min)
+    //  p_theta_1min = G(p_1min)
     //default value: F(MEGARA_theta_1min) steps
     double getp_1min(void) const; void setp_1min(double);
     //upper limit for p_1
@@ -358,7 +358,7 @@ public:
     //getting:
     //  p_1max = F(theta_1max)
     //setting:
-    //  p_tehta_1max = G(p_1max)
+    //  p_theta_1max = G(p_1max)
     double getp_1max(void) const; void setp_1max(double);
 
     //angular position of P1 in S1 in steps

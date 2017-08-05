@@ -26,6 +26,8 @@
 #include "Exceptions.h"
 #include "Scalars.h"
 
+#include <config.h> //PACKAGE_VERSION
+
 //---------------------------------------------------------------------------
 
 using namespace Mathematics;
@@ -1345,6 +1347,11 @@ void StrPaint(TCanvas *Canvas, const AnsiString &S,
 */
 
 //---------------------------------------------------------------------------
+
+//get the version of the package
+string getPACKAGE_VERSION(void) {
+    return string(PACKAGE_VERSION);
+}
 
 } //namespace Strings
 

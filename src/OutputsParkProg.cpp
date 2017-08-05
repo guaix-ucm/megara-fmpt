@@ -69,7 +69,7 @@ Json::Value OutputsParkProg::getComments(void) const
         str += "online (not from FMOSA)";
     object.append(str);
 
-    str = "# Generated with FMPT version "+FMPT_version+" and FMM Instance version "+FMM_Instance_version;
+    str = "# Generated with FMPT version "+FMPT_version+" and FMM Instance version "+Instance_version;
     object.append(str);
     str = "# Date of generation: "+datetime;
     object.append(str);
@@ -221,7 +221,7 @@ string OutputsParkProg::getCommentsText(void) const
         str += "from FMOSA " + FMOSA_filename;
     else
         str += "online (not from FMOSA)";
-    str += "\r\n# Generated with FMPT version "+FMPT_version+" and FMM Instance version "+FMM_Instance_version;
+    str += "\r\n# Generated with FMPT version "+FMPT_version+" and FMM Instance version "+Instance_version;
     str += "\r\n# Date of generation: "+datetime;
 
     if(EnabledNotOperative.getCount() > 0) {
@@ -352,9 +352,9 @@ string OutputsParkProg::getJSONtext(void) const
     root["description"] = "not generated from FMOSA";
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
 
-    //add (FMPT_version, FMM_Instance_version)
+    //add (FMPT_version, Instance_version)
     root["FMPT_version"] = FMPT_version;
-    root["FMM_Instance_version"] = FMM_Instance_version;
+    root["Instance_version"] = Instance_version;
 
     //add (FMAT_version, FMOSA_filename, date_of_generation)
     root["FMAT_version"] = "not generated from FMOSA";
@@ -548,7 +548,7 @@ OutputsParkProg::OutputsParkProg() :
     //inicializa las properties for built comments about file ParkProg
     FMOSA_filename(""),
     FMPT_version(""),
-    FMM_Instance_version(""),
+    Instance_version(""),
     datetime(""),
     EnabledNotOperative(),
     collided_str(""),
@@ -566,7 +566,7 @@ void OutputsParkProg::Clear(void)
 {
     FMOSA_filename = "";
     FMPT_version = "";
-    FMM_Instance_version = "";
+    Instance_version = "";
     datetime = "";
     EnabledNotOperative.Clear();
     collided_str = "";

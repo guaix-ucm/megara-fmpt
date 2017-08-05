@@ -277,7 +277,7 @@ void TestAllocationList::test_()
 
     //busca los puntos objetivo adscritos a posicionadores repetidos
     TVector<int> indices;
-    AL.SearchRepeatedRPs(indices);
+    AL.searchRepeatedRPs(indices);
     if(indices.getCount() > 0) {
         CPPUNIT_ASSERT(false);
         return;
@@ -301,7 +301,7 @@ void TestAllocationList::test_()
     //en la lista de posicionadores RoboticPositionerList
     RPL.deleteIfFind(&RP2);
     indices.Clear();
-    AL.SearchMissingRPs(indices);
+    AL.searchMissingRPs(indices);
     if(indices.getCount() != 1 || indices[0] != 0) {
         CPPUNIT_ASSERT(false);
         return;
@@ -315,7 +315,7 @@ void TestAllocationList::test_()
     //de sus posicionadores adscritos
     AL[0]->PP = TDoublePoint(0, 0);
     indices.Clear();
-    AL.SearchOutDomineTAllocations(indices);
+    AL.searchOutDomineTAllocations(indices);
     if(indices.getCount() != 1 || indices[0] != 0) {
         CPPUNIT_ASSERT(false);
         return;
@@ -330,21 +330,21 @@ void TestAllocationList::test_()
     //      2: puntos objetivo indicados fuera del dominio de
     //         sus posicionadores adscritos.
     indices.Clear();
-    int result = AL.Invalid(indices);
+    int result = AL.invalid(indices);
     if(result != 1 || indices.getCount() != 1 || indices[0] != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
     RPL.Insert(0, &RP2);
     indices.Clear();
-    result = AL.Invalid(indices);
+    result = AL.invalid(indices);
     if(result != 2 || indices.getCount() != 1 || indices[0] != 0) {
         CPPUNIT_ASSERT(false);
         return;
     }
     AL[0]->PP = TDoublePoint(-51.296480, 82.217116);
     indices.Clear();
-    result = AL.Invalid(indices);
+    result = AL.invalid(indices);
     if(result != 0 || indices.getCount() != 0) {
         CPPUNIT_ASSERT(false);
         return;
