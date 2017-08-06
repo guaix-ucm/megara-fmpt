@@ -49,12 +49,12 @@ class TestFileMethods: public CppUnit::TestFixture
 
     //add test methods
     CPPUNIT_TEST(test_readInstanceFromDir_RP);
-    CPPUNIT_TEST(test_writeInstanceToDir_EAL);
-    CPPUNIT_TEST(test_readInstanceFromDir_EAL);
-    CPPUNIT_TEST(test_writeInstanceToDir_RPL);
-    CPPUNIT_TEST(test_readInstanceFromDir_RPL);
-    CPPUNIT_TEST(test_writeInstanceToDir_FMM);
-    CPPUNIT_TEST(test_readInstanceFromDir_FMM);
+//    CPPUNIT_TEST(test_writeInstanceToDir_EAL);
+//    CPPUNIT_TEST(test_readInstanceFromDir_EAL);
+//    CPPUNIT_TEST(test_writeInstanceToDir_RPL);
+//    CPPUNIT_TEST(test_readInstanceFromDir_RPL);
+//    CPPUNIT_TEST(test_writeInstanceToDir_FMM);
+//    CPPUNIT_TEST(test_readInstanceFromDir_FMM);
 
     //Although they can be added several tweets, running make distcheck
     //all test of each class will be counted as single one.

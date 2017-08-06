@@ -3000,12 +3000,6 @@ bool generatePairPPDP_online(string& outputs_str,
 
 //---------------------------------------------------------------------------
 
-//get the version of the package
-string getPACKAGE_VERSION(void)
-{
-    return string(PACKAGE_VERSION);
-}
-
 } //namespace Positioning
 
 //---------------------------------------------------------------------------
