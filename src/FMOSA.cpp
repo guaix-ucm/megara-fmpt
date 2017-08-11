@@ -117,33 +117,34 @@ AnsiString TObservingSource::getRowText(void) const
 Json::Value TObservingSource::getJSON(void) const
 {
     Json::Value OS_JSON;
-    OS_JSON["Name"] = Name;
+    OS_JSON["coordinate_x"] = X;
+    OS_JSON["coordinate_y"] = Y;
+    OS_JSON["position_angle"] = Angle;
     OS_JSON["RA"] = RA;
     OS_JSON["Dec"] = Dec;
-
-    if(there_is_Mag)
-        OS_JSON["Mag"] = Mag;
-    else
-        OS_JSON["Mag"] = 0;
-
-    OS_JSON["Type"] = pointTypeToStr(Type);
+    OS_JSON["enabled"] = Enabled;
+    OS_JSON["name"] = Name;
 
     if(there_is_Pr)
-        OS_JSON["Pr"] = Pr;
+        OS_JSON["priority"] = Pr;
     else
-        OS_JSON["Pr"] = 0;
+        OS_JSON["priority"] = 0;
 
-    if(there_is_Bid)
-        OS_JSON["Bid"] = Bid;
+    OS_JSON["rpid"] = Pid;
+    OS_JSON["type"] = pointTypeToStr(Type);
+
+    if(there_is_Mag)
+        OS_JSON["magnitude"] = Mag;
     else
-        OS_JSON["Bid"] = 0;
+        OS_JSON["magnitude"] = 0;
 
-    OS_JSON["Pid"] = Pid;
-    OS_JSON["X"] = X;
-    OS_JSON["Y"] = Y;
-    OS_JSON["Angle"] = Angle;
-    OS_JSON["Enabled"] = Enabled;
-    OS_JSON["Comment"] = Comment;
+    OS_JSON["comment"] = Comment;
+
+    //Note that Bid has been missed:
+    //  if(there_is_Bid)
+    //      OS_JSON["Bid"] = Bid;
+    //  else
+    //      OS_JSON["Bid"] = 0;
 
     return OS_JSON;
 }
@@ -780,19 +781,27 @@ Json::Value TFMOSA::getJSON(void) const
     //build the FMOSA in format JSON
     Json::Value FMOSA_JSON;
 
-    //bild the comments in format JSON
-    Json::Value comments_JSON;
-    for(int i=0; i<comments.getCount(); i++)
-        comments_JSON.append(comments[i].str);
-    FMOSA_JSON["comments"] = comments_JSON;
+    //  //bild the comments in format JSON
+    //  Json::Value comments_JSON;
+    //  for(int i=0; i<comments.getCount(); i++)
+    //      comments_JSON.append(comments[i].str);
+    //  FMOSA_JSON["comments"] = comments_JSON;
 
+    FMOSA_JSON["title"] = getTitle();
+    FMOSA_JSON["description"] = getDescription();
+    FMOSA_JSON["fmat_version"] = getFMAT_version();
+/*    FMOSA_JSON["fmat_properties"] = 1;
+    FMOSA_JSON["creation_date"] = getCreationDate();
+    FMOSA_JSON["bid"] = getBid();
+    FMOSA_JSON["nblocks"] = getNBlocks();
+*/
     //build the OB in format JSON
     Json::Value OB_JSON;
-    OB_JSON["Id"] = Id;
+    //OB_JSON["Id"] = Id;
     OB_JSON["RA"] = Ra;
     OB_JSON["Dec"] = Dec;
-    OB_JSON["Pos"] = Pos;
-    FMOSA_JSON["pointing"] = OB_JSON;
+    OB_JSON["position_angle"] = Pos;
+    FMOSA_JSON["coordinates"] = OB_JSON;
 
     //build the OS in ofmrat JSON
     Json::Value OS_JSON;

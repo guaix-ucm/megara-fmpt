@@ -1,6 +1,6 @@
 # Instance properties of the FMM (Fiber MOS Model):
 
-Instance_version = "04/08/2017"    # Version of the Fiber MOS Model Instance
+Instance_version = "1"         # Version of the Fiber MOS Model Instance
 
 Tolerances:                    # Tolerances of the Fiber MOS:
     PAem = 0                       # orientation error margin of the system S0 (in rad)

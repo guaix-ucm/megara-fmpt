@@ -168,10 +168,14 @@ Json::Value OutputsPairPPDP::getPos(void) const
         comments.append(str);
     }
 
-    //add the coments
-    object["comments"] = comments;
-    //add the Bid
-    object["Bid"] = Bid;
+    //  //add the coments
+    //  object["comments"] = comments;
+    //  //add the Bid
+    //  object["Bid"] = Bid;
+
+    //add the PPvalid
+    object["valid"] = PPvalid;
+
     //add the PP
     object["program"] = PP.getJSON(IPL);
 
@@ -206,10 +210,14 @@ Json::Value OutputsPairPPDP::getDepos(void) const
         comments.append(str);
     }
 
-    //add the coments
-    object["comments"] = comments;
-    //add the Bid
-    object["Bid"] = Bid;
+    //  //add the coments
+    //  object["comments"] = comments;
+    //  //add the Bid
+    //  object["Bid"] = Bid;
+
+    //add the DPvalid
+    object["valid"] = DPvalid;
+
     //add the DP
     object["program"] = DP.getJSON(OPL);
 
@@ -411,43 +419,43 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     //build a json object
     Json::Value root;
 
-    //add (instrument, uuid, title)
+    //add general section
     root["instrument"] = "MEGARA";
+    root["title"] = "IC1613_s36s64s81";
+    root["description"] = "Pair (PP, DP) in format JSON.";
     addUUID(root);
-    root["title"] = FMOSA.getTitle();
-
-    //add (description, @schema)
-    root["description"] = FMOSA.getDescription();
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
 
-    //add (FMPT_version, Instance_version)
-    root["FMPT_version"] = FMPT_version;
-    root["Instance_version"] = Instance_version;
-
-    //add (FMAT_version, FMOSA_filename, date_of_generation)
-    root["FMAT_version"] = FMOSA.getFMAT_version();
-    root["FMAT_filename"] = FMOSA_filename;
-    root["date_of_generation"] = datetime;
-
-    //add (PPvalid, DPvalid, Collided, Obstructed)
-    root["PPvalid"] = BoolToStr(PPvalid,true).str;
-    root["DPvalid"] = BoolToStr(DPvalid,true).str;
-    root["Collided"] = Collided.getText().str;
-    root["Obstructed"] = Obstructed.getText().str;
-    root["Collided (including EAs)"] = collided_str;
-
-    //--------------------
+    //------------------------
+    //ADD ROBOT SECTION:
 
     //build a json object for robot
     Json::Value robot;
 
-    //add the coments
-    robot["comments"] = getComments();
+    //  //add the coments
+    //  robot["comments"] = getComments();
+
+    robot["fmpt_version"] = FMPT_version;
+    robot["fmpt_instance_version"] = Instance_version;
+    robot["creation_date"] = datetime;
+    robot["fmat_filename"] = FMOSA_filename;
 
     //build a json object for secuences
     Json::Value sequences;
 
-    //add (positioning, depositioning)
+    sequences["type"] = "PPDP";
+    sequences["valid"] = PPvalid && DPvalid;
+
+    Json::Value rps_collided(Json::arrayValue);
+    for(int i=0; i<Collided.getCount(); i++)
+        rps_collided.append(Json::Value(Collided[i]->getActuator()->getId()));
+    sequences["rps_collided"] = rps_collided;
+
+    Json::Value rps_obstructed(Json::arrayValue);
+    for(int i=0; i<Obstructed.getCount(); i++)
+        rps_obstructed.append(Json::Value(Obstructed[i]->getActuator()->getId()));
+    sequences["rps_obstructed"] = rps_obstructed;
+
     sequences["positioning"] = getPos();
     sequences["depositioning"] = getDepos();
 
@@ -462,13 +470,14 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     //  //add the depositioning program with comments
     //  root["depos"] = getDepos();
 
-    //--------------------
+    //------------------------
+    //ADD ASSIGNATION SECTION:
 
-    //add the (assignments) if any
+    //add the (assignations) if any
     if(includeFMOSA)
-        root["assignments"] = FMOSA.getJSON();
+        root["assignations"] = FMOSA.getJSON();
 
-    //--------------------
+    //------------------------
 
     string str;
     if(suitable())

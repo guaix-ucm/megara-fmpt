@@ -38,7 +38,7 @@ AnsiString TFiberMOSModel::getInstanceText(void) const
     string str = "# Instance properties of the FMM (Fiber MOS Model):";
 
     str += "\r\n\r\n";
-    str += "Instance_version = \"" + Instance_version + "\"    # Version of the Fiber MOS Model Instance";
+    str += commentedLine("Instance_version = \""+Instance_version+"\"", "Version of the Fiber MOS Model Instance");
     str += "\r\n\r\n";
     str += RPL.getInstanceText().str;
 
