@@ -409,6 +409,155 @@ bool TObservingSource::operator!=(const TObservingSource& OS)
 //---------------------------------------------------------------------------
 //class TFMOSA:
 
+// get from the comments the value after "Total number of blocks"
+// if not found return empty string
+int TFMOSA::getTotal_number_of_blocks(void) const
+{
+    //trye read the string after label "Total number of blocks"
+    for(int i=0; i<comments.getCount(); i++) {
+        string line = comments[i].str;
+        try {
+            unsigned int j = 0;
+            strTravelLabel("#", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            strTravelLabel("Total number of blocks", line, j);
+            strTravelLabel(":", line, j);
+            strTravelSeparatorsIfAny(line, j);
+
+            int n;
+            strReadInt(n, line, j);
+
+            return n;
+        } catch(...) {
+            //do nothing
+        }
+    }
+    //return the default value
+    return 0;
+}
+
+// get from the comments the value after "Title"
+// if not found return empty string
+string TFMOSA::getTitle(void) const
+{
+    //trye read the string after label "Tittle"
+    for(int i=0; i<comments.getCount(); i++) {
+        string line = comments[i].str;
+        try {
+            unsigned int j = 0;
+            strTravelLabel("#", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            strTravelLabel("Title", line, j);
+            strTravelLabel(":", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            string aux = line.substr(j, line.length()-1);
+            return aux;
+        } catch(...) {
+            //do nothing
+        }
+    }
+    //return the empty string
+    return "";
+}
+
+// get from the comments the value after "Description"
+// if not found return empty string
+string TFMOSA::getDescription(void) const
+{
+    //trye read the string after label "Description"
+    for(int i=0; i<comments.getCount(); i++) {
+        string line = comments[i].str;
+        try {
+            unsigned int j = 0;
+            strTravelLabel("#", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            strTravelLabel("Description", line, j);
+            strTravelLabel(":", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            string aux = line.substr(j, line.length()-1);
+            return aux;
+        } catch(...) {
+            //do nothing
+        }
+    }
+    //return the empty string
+    return "";
+}
+
+// get from the comments the value after "Generated with FMAT version"
+// if not found return empty string
+string TFMOSA::getGenerated_with_FMAT_version(void) const
+{
+    //trye read the string after label "Generated with FMAT version"
+    for(int i=0; i<comments.getCount(); i++) {
+        string line = comments[i].str;
+        try {
+            unsigned int j = 0;
+            strTravelLabel("#", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            strTravelLabel("Generated with FMAT version", line, j);
+            strTravelLabel(":", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            string aux = line.substr(j, line.length()-1);
+            return aux;
+        } catch(...) {
+            //do nothing
+        }
+    }
+    //return the empty string
+    return "";
+}
+
+// get from the comments the value after "Properties file version"
+// if not found return empty string
+int TFMOSA::getProperties_file_version(void) const
+{
+    //trye read the string after label "Properties file version"
+    for(int i=0; i<comments.getCount(); i++) {
+        string line = comments[i].str;
+        try {
+            unsigned int j = 0;
+            strTravelLabel("#", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            strTravelLabel("Properties file version", line, j);
+            strTravelLabel(":", line, j);
+            strTravelSeparatorsIfAny(line, j);
+
+            int n;
+            strReadInt(n, line, j);
+
+            return n;
+        } catch(...) {
+            //do nothing
+        }
+    }
+    //return the default value
+    return 0;
+}
+
+// get from the comments the value after "Date of generation"
+// if not found return empty string
+string TFMOSA::getDate_of_generation(void) const
+{
+    //trye read the string after label "Date of generation"
+    for(int i=0; i<comments.getCount(); i++) {
+        string line = comments[i].str;
+        try {
+            unsigned int j = 0;
+            strTravelLabel("#", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            strTravelLabel("Date of generation", line, j);
+            strTravelSeparatorsIfAny(line, j);
+            string aux = line.substr(j, line.length()-1);
+            return aux;
+        } catch(...) {
+            //do nothing
+        }
+    }
+    //return the empty string
+    return "";
+}
+
 //read the OB section in tampon variables
 void TFMOSA::readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
                              const string& str)
@@ -653,107 +802,6 @@ void TFMOSA::setTableText(unsigned int& Bid, const string& str)
     }
 }
 
-/// get from the comments the word after the word "Title"
-/// if not found return empty string
-string TFMOSA::getTitle(void) const
-{
-    TStrings Words;
-
-    for(int i=0; i<comments.getCount(); i++) {
-        //divide the actual string in words
-        Words.Clear();
-        StrDivideInWords(&Words, comments[i]);
-
-        //search word "Title"
-        int j = 0;
-        while(j < Words.getCount() && Words[j].str.find("Title", 0) == string::npos)
-            j++;
-
-        //if has found the word
-        if(j < Words.getCount()) {
-            //index to the next word
-            j++;
-
-            //return the word if any
-            if(j < Words.getCount())
-                return Words[j].str;
-        }
-    }
-    //return the empty word
-    return "";
-}
-
-/// get from the comments the words after the word "Description"
-/// if not found return empty string
-string TFMOSA::getDescription(void) const
-{
-    TStrings Words;
-
-    for(int i=0; i<comments.getCount(); i++) {
-        //divide the actual string in words
-        Words.Clear();
-        StrDivideInWords(&Words, comments[i]);
-
-        //search word "Description"
-        int j = 0;
-        while(j < Words.getCount() && Words[j].str.find("Description", 0) == string::npos)
-            j++;
-
-        //if has found the word
-        if(j < Words.getCount()) {
-            //index to the next word
-            j++;
-
-            //return the word if any
-            if(j < Words.getCount()) {
-                string description = Words[j].str;
-                j++;
-                while(j < Words.getCount()) {
-                    description += " ";
-                    description += Words[j].str;
-                    j++;
-                }
-                return description;
-            }
-        }
-    }
-    //return the empty word
-    return "";
-}
-
-/// get from the comments the word after the words "FMAT" and "version"
-/// if not found return empty string
-string TFMOSA::getFMAT_version(void) const
-{
-    TStrings Words;
-
-    for(int i=0; i<comments.getCount(); i++) {
-        //divide the actual string in words
-        Words.Clear();
-        StrDivideInWords(&Words, comments[i]);
-
-        //search word "FMAT"
-        int j = 0;
-        while(j < Words.getCount() && Words[j].str.find("FMAT", 0) == string::npos)
-            j++;
-
-        //index to the next word
-        j++;
-
-        //if the word is "version"
-        if(j < Words.getCount() && Words[j].str.find("version", 0) != string::npos) {
-            //index to the next word
-            j++;
-
-            //return the word if any
-            if(j < Words.getCount())
-                return Words[j].str;
-        }
-    }
-    //return the empty word
-    return "";
-}
-
 //get the FMOSA in text format
 void TFMOSA::getTableText(string& str) const
 {
@@ -787,14 +835,14 @@ Json::Value TFMOSA::getJSON(void) const
     //      comments_JSON.append(comments[i].str);
     //  FMOSA_JSON["comments"] = comments_JSON;
 
+    FMOSA_JSON["nblocks"] = getTotal_number_of_blocks();
     FMOSA_JSON["title"] = getTitle();
     FMOSA_JSON["description"] = getDescription();
-    FMOSA_JSON["fmat_version"] = getFMAT_version();
-/*    FMOSA_JSON["fmat_properties"] = 1;
-    FMOSA_JSON["creation_date"] = getCreationDate();
-    FMOSA_JSON["bid"] = getBid();
-    FMOSA_JSON["nblocks"] = getNBlocks();
-*/
+    FMOSA_JSON["fmat_version"] = getGenerated_with_FMAT_version();
+    FMOSA_JSON["fmat_properties"] = getProperties_file_version();
+    FMOSA_JSON["creation_date"] = getDate_of_generation();
+    FMOSA_JSON["bid"] = Id;
+
     //build the OB in format JSON
     Json::Value OB_JSON;
     //OB_JSON["Id"] = Id;

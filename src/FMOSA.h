@@ -121,6 +121,25 @@ public:
 //class TFMOSA:
 
 class TFMOSA : public TPointersList<TObservingSource> {
+    /// @brief get from the comments the value after "Total number of blocks"
+    /// if not found return empty string
+    int getTotal_number_of_blocks(void) const;
+    /// @brief get from the comments the value after "Title"
+    /// if not found return empty string
+    string getTitle(void) const;
+    /// @brief get from the comments the value after "Description"
+    /// if not found return empty string
+    string getDescription(void) const;
+    /// @brief get from the comments the value after "Generated with FMAT version"
+    /// if not found return empty string
+    string getGenerated_with_FMAT_version(void) const;
+    /// @brief get from the comments the value after "Properties file version"
+    /// if not found return empty string
+    int getProperties_file_version(void) const;
+    /// @brief get from the comments the value after "Date of generation"
+    /// if not found return empty string
+    string getDate_of_generation(void) const;
+
     /// read the OB section in tampon variables
     void readOBText(int& _Id, double& _Ra, double& _Dec, double& _Pos,
                     const string& str);
@@ -141,18 +160,6 @@ public:
 
     /// set a FMOSA in text format
     void setTableText(unsigned int& Bid, const string& str);
-
-    /// get from the comments the word after the word "Title"
-    /// if not found return empty string
-    string getTitle(void) const;
-
-    /// get from the comments the words after the word "Description"
-    /// if not found return empty string
-    string getDescription(void) const;
-
-    /// get from the comments the word after the words "FMAT" and "version"
-    /// if not found return empty string
-    string getFMAT_version(void) const;
 
     /// get the FMOSA in text format
     void getTableText(string& str) const;
