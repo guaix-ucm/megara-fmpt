@@ -94,7 +94,7 @@ public:
     /// - comments.
     /// - the pair (PP, DP).
     /// - the FMOSA.
-    void getText(string& str, bool includeFMOSA=true) const;
+    void getMEGtext(string& str, bool includeFMOSA=true) const;
 
     /// @brief Get outputs in format JSON with:
     /// - comments.

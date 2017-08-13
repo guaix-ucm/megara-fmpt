@@ -54,35 +54,35 @@ private:
     Json::Value getParking(void) const;
 
 public:
-    //properties for built comments about file ParkProg
+    //properties for built comments about file outputs
     string FMOSA_filename; ///<name of file type FMOSA of procedence
     string FMPT_version; ///<version of the FMPT with which was generated
     string Instance_version; ///<version of the Fiber MOS Model Instance with which was generated
     string datetime; ///<date-time of generation
     TRoboticPositionerList EnabledNotOperative; ///<list of pointer to enabled-not-operative RPs
-    string collided_str; ///<list of lists of items (both EAs and RPs) in colliding status
-    TRoboticPositionerList Collided; ///<list of pointers to RPs in colliding status
-    TRoboticPositionerList Obstructed; ///<list of pointer to RPs in obstructed status
+    string collided_str; ///<list of lists of colliding items (both EAs and RPs)
+    TRoboticPositionerList Collided; ///<list of pointers to colliding RPs
+    TRoboticPositionerList Obstructed; ///<list of pointer to obstructed RPs
 
     //properties for built comments about each MP
-    unsigned int Bid; ///<block identifier
-    TPairPositionAnglesList SPL; ///<starting position list
     bool ParkProgValid; ///<validity of the ParkProg
-    TPairPositionAnglesList FPL; ///<final position list
     double DsecMax; ///<maximun value of Dsec (security distance during radial movements)
 
     //properties for built the executable data
-    TMotionProgram ParkProg; ///<the parking program
+    unsigned int Bid; ///<block identifier
+    TPairPositionAnglesList SPL; ///<starting position list
+    TPairPositionAnglesList FPL; ///<final position list
+    TMotionProgram ParkProg; ///<parking program
 
     /// Get the warning for not suitable outputs.
     string getWarningNotSuitable(void) const;
 
-    /// Get the comments about ParkProg in text format.
+    /// Get the comments about outputs in text format.
     string getCommentsText(void) const;
-    /// @brief Get outputs in format MCS with:
+    /// @brief Get outputs in format MEG with:
     /// - comments.
     /// - the parking program.
-    void getText(string& str) const;
+    void getMEGtext(string& str) const;
 
     /// @brief Get outputs in format JSON with:
     /// - comments.

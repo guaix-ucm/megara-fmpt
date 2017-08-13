@@ -322,11 +322,11 @@ string OutputsPairPPDP::getCommentsText(void) const
     return str;
 }
 
-//get outputs in format MCS with:
+//get outputs in format MEG with:
 //  comments
 //  the pair (PP, DP)
 //  the FMOSA
-void OutputsPairPPDP::getText(string& str, bool includeFMOSA) const
+void OutputsPairPPDP::getMEGtext(string& str, bool includeFMOSA) const
 
 {
     locale l;

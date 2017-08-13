@@ -169,12 +169,13 @@ Json::Value OutputsParkProg::getParking(void) const
         comments.append(str);
     }
 
-    //add the coments
-    object["comments"] = comments;
-    //add the Bid
-    object["Bid"] = Bid;
+    //  //add the coments
+    //  object["comments"] = comments;
+    //  //add the Bid
+    //  object["Bid"] = Bid;
+
     //add the parking program
-    object["ParkProg"] = ParkProg.getJSON(SPL);
+    object["program"] = ParkProg.getJSON(SPL);
 
     return object;
 }
@@ -209,7 +210,7 @@ string OutputsParkProg::getWarningNotSuitable(void) const
     return str;
 }
 
-//get the comments about ParkProg in text format
+//get the comments about outputs in text format
 string OutputsParkProg::getCommentsText(void) const
 {
     locale l;
@@ -273,10 +274,10 @@ string OutputsParkProg::getCommentsText(void) const
     return str;
 }
 
-//get outputs in format MCS with:
+//get outputs in format MEG with:
 //  comments
 //  the parking program
-void OutputsParkProg::getText(string& str) const
+void OutputsParkProg::getMEGtext(string& str) const
 {
     locale l;
     if(l.name() != "C")
@@ -343,42 +344,43 @@ string OutputsParkProg::getJSONtext(void) const
     //build a json object
     Json::Value root;
 
-    //add (instrument, uuid, title)
+    //add general section
     root["instrument"] = "MEGARA";
+    root["title"] = "IC1613_s36s64s81";
+    root["description"] = "Parking Program in format JSON.";
     addUUID(root);
-    root["title"] = "not generated from FMOSA";
-
-    //add (description, @schema)
-    root["description"] = "not generated from FMOSA";
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
 
-    //add (FMPT_version, Instance_version)
-    root["FMPT_version"] = FMPT_version;
-    root["Instance_version"] = Instance_version;
-
-    //add (FMAT_version, FMOSA_filename, date_of_generation)
-    root["FMAT_version"] = "not generated from FMOSA";
-    root["FMAT_filename"] = FMOSA_filename;
-    root["date_of_generation"] = datetime;
-
-    //add (PPvalid, DPvalid, Collided, Obstructed)
-    root["ParkProgValid"] = BoolToStr(ParkProgValid,true).str;
-    root["Collided"] = Collided.getText().str;
-    root["Obstructed"] = Obstructed.getText().str;
-    root["Collided (including EAs)"] = collided_str;
-
-    //--------------------
+    //------------------------
+    //ADD ROBOT SECTION:
 
     //build a json object for robot
     Json::Value robot;
 
-    //add the coments
-    robot["comments"] = getComments();
+    //  //add the coments
+    //  robot["comments"] = getComments();
+
+    robot["fmpt_version"] = FMPT_version;
+    robot["fmpt_instance_version"] = Instance_version;
+    robot["creation_date"] = datetime;
+    robot["fmat_filename"] = FMOSA_filename;
 
     //build a json object for secuences
     Json::Value sequences;
 
-    //add (depositioning)
+    sequences["type"] = "DP";
+    sequences["valid"] = ParkProgValid;
+
+    Json::Value rps_collided(Json::arrayValue);
+    for(int i=0; i<Collided.getCount(); i++)
+        rps_collided.append(Json::Value(Collided[i]->getActuator()->getId()));
+    sequences["rps_collided"] = rps_collided;
+
+    Json::Value rps_obstructed(Json::arrayValue);
+    for(int i=0; i<Obstructed.getCount(); i++)
+        rps_obstructed.append(Json::Value(Obstructed[i]->getActuator()->getId()));
+    sequences["rps_obstructed"] = rps_obstructed;
+
     sequences["depositioning"] = getParking();
 
     robot["sequences"] = sequences;
@@ -390,7 +392,7 @@ string OutputsParkProg::getJSONtext(void) const
     //  //add the parking program with comments
     //  root["depos"] = getParking();
 
-    //--------------------
+    //------------------------
 
     string str;
     if(suitable())
