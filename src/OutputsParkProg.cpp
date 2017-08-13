@@ -371,9 +371,9 @@ string OutputsParkProg::getJSONtext(void) const
     sequences["type"] = "DP";
     sequences["valid"] = ParkProgValid;
 
-    //if the EA0 is collided, add 0 to rps_collided
+    //if the EA1 is collided, add 0 to rps_collided
     Json::Value rps_collided(Json::arrayValue);
-    int i = collided_str.find("EA0", 0);
+    int i = collided_str.find("EA1", 0);
     if(i < string::npos)
         rps_collided.append(Json::Value(0));
 
