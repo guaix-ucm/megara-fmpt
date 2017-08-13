@@ -371,11 +371,18 @@ string OutputsParkProg::getJSONtext(void) const
     sequences["type"] = "DP";
     sequences["valid"] = ParkProgValid;
 
+    //if the EA0 is collided, add 0 to rps_collided
     Json::Value rps_collided(Json::arrayValue);
+    int i = collided_str.find("EA0", 0);
+    if(i < string::npos)
+        rps_collided.append(Json::Value(0));
+
+    //add the identifiers of the collided RPs to rps_collided
     for(int i=0; i<Collided.getCount(); i++)
         rps_collided.append(Json::Value(Collided[i]->getActuator()->getId()));
     sequences["rps_collided"] = rps_collided;
 
+    //add the identifiers of the obstructed RPs to rps_obstructed
     Json::Value rps_obstructed(Json::arrayValue);
     for(int i=0; i<Obstructed.getCount(); i++)
         rps_obstructed.append(Json::Value(Obstructed[i]->getActuator()->getId()));

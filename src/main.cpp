@@ -1205,7 +1205,7 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
         outputs.Instance_version = FMM.Instance_version;
-        outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
+        outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%SZ");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
         outputs.Collided = Collided;
@@ -1961,7 +1961,7 @@ bool generatePairPPDP_offline(TFiberMOSModel& FMM, const string& input_path, con
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
         outputs.Instance_version = FMM.Instance_version;
-        outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
+        outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%SZ");
         outputs.EnabledNotOperative = EnabledNotOperative;
         outputs.collided_str = collided_str;
         outputs.Collided = Collided;
@@ -2611,7 +2611,7 @@ void test_generatePairPPDP_online(TFiberMOSModel& FMM, string& log_path)
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
                 outputs.Instance_version = FMM.Instance_version;
-                outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
+                outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%SZ");
                 //outputs.collided_str = collided_str;
                 //outputs.Collided = Collided;
                 //outputs.Obstructed = Obstructed;
@@ -2930,7 +2930,7 @@ void validatePairPPDP(TFiberMOSModel& FMM, string& outputs_path, string output_d
                 outputs.FMOSA_filename = filename;
                 outputs.FMPT_version = string(PACKAGE_VERSION);
                 outputs.Instance_version = FMM.Instance_version;
-                outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%S");
+                outputs.datetime = strfromtime_t(time(NULL), "%Y-%m-%dT%H:%M:%SZ");
                 outputs.collided_str = ""; //outputs.collided_str not set above
                 outputs.Collided.Clear(); //outputs.Collided not set above
                 outputs.Obstructed.Clear(); //outputs.Obstructed not set above
