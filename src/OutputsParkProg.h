@@ -73,6 +73,7 @@ public:
     TPairPositionAnglesList SPL; ///<starting position list
     TPairPositionAnglesList FPL; ///<final position list
     TMotionProgram ParkProg; ///<parking program
+    TFMOSA FMOSA; ///<FMOSA of file type FMOSA
 
     /// Get the warning for not suitable outputs.
     string getWarningNotSuitable(void) const;

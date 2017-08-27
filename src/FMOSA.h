@@ -124,12 +124,17 @@ class TFMOSA : public TPointersList<TObservingSource> {
     /// @brief get from the comments the value after "Total number of blocks"
     /// if not found return empty string
     int getTotal_number_of_blocks(void) const;
+
+public: //for get title and description from general section
     /// @brief get from the comments the value after "Title"
     /// if not found return empty string
     string getTitle(void) const;
+
     /// @brief get from the comments the value after "Description"
     /// if not found return empty string
     string getDescription(void) const;
+
+private:
     /// @brief get from the comments the value after "Generated with FMAT version"
     /// if not found return empty string
     string getGenerated_with_FMAT_version(void) const;

@@ -1079,16 +1079,21 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         }
 
         //load the FMOSA from the file input_path
-        TFMOSA FMOSA;
-        unsigned int Bid;
         string str;
-        strReadFromFileWithComments(str, input_path);
-        FMOSA.setTableText(Bid, str);
+        OutputsParkProg outputs;
+        unsigned int Bid;
+        try {
+            strReadFromFileWithComments(str, input_path);
+            outputs.FMOSA.setTableText(Bid, str);
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading FMOSA file: ");
+            throw;
+        }
         append("FMOSA loaded from file '"+input_path+"'.", log_path.c_str());
 
         //get the allocation from the FMOSA
         TMotionProgramGenerator MPG(&FMM);
-        FMOSA.getAllocations(MPG);
+        outputs.FMOSA.getAllocations(MPG);
         append("Allocations got from the FMOSA to MPG.", log_path.c_str());
 
         //split the path of the file containing the FMOSA
@@ -1201,7 +1206,6 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         //SET VALUES IN THE STRUCTURE OUTPUTS:
 
         //properties for built comments about file outputs
-        OutputsParkProg outputs;
         outputs.FMOSA_filename = filename;
         outputs.FMPT_version = string(PACKAGE_VERSION);
         outputs.Instance_version = FMM.Instance_version;
@@ -1218,6 +1222,7 @@ bool generateParkProg_offline(TFiberMOSModel& FMM, const string& input_path, con
         outputs.SPL = SPL;
         outputs.ParkProg = ParkProg;
         outputs.FPL = FPL;
+        //FMOSA has been set above
 
         //PRINT THE COMMENTS ABOUT OUTPUTS:
 

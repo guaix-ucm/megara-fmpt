@@ -421,10 +421,11 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
 
     //add general section
     root["instrument"] = "MEGARA";
-    root["title"] = "IC1613_s36s64s81";
-    root["description"] = "Pair (PP, DP) in format JSON.";
+    root["title"] = FMOSA.getTitle();
+    root["description"] = FMOSA.getDescription();
     addUUID(root);
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
+    root["@version"] = 1;
 
     //------------------------
     //ADD ROBOT SECTION:
@@ -482,7 +483,7 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
 
     //add the (assignations) if any
     if(includeFMOSA)
-        root["assignations"] = FMOSA.getJSON();
+        root["assignments"] = FMOSA.getJSON();
 
     //------------------------
 

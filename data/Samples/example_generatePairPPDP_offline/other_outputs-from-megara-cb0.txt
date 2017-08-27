@@ -1,4 +1,0 @@
-DPvalid: True
-PPvalid: True
-Collided: {34}
-Obstructed: {}

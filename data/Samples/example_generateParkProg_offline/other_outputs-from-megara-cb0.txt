@@ -1,4 +1,0 @@
-
-gParkingProgramValid: True
-Collided: {34}
-Obstructed: {}

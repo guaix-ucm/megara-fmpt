@@ -449,7 +449,7 @@ void TAllocationList::getFinalPositionList(TPairPositionAnglesList& FPL,
 
     //check for length of the IPL
     if(IPL.getCount() != RoboticPositionerList->getCount())
-        throw EImproperArgument(" IPL invalid because shoudl hase a pair position angles for each RP");
+        throw EImproperArgument("IPL invalid because should has a pair position angles for each RP");
 
     //check for validity of the IPL
     result = RoboticPositionerList->invalid(indices, IPL);
@@ -462,7 +462,7 @@ void TAllocationList::getFinalPositionList(TPairPositionAnglesList& FPL,
         case 1: throw EImproperCall("IPL with repeated RPs: " + Ids.getText().str); break;
         case 2: throw EImproperCall("IPL with missing RPs: " + Ids.getText().str); break;
         case 3: throw EImproperCall("IPL with out domain RPs: " + Ids.getText().str); break;
-        default: throw EImpossibleError("lateral eefect");
+        default: throw EImpossibleError("lateral efect");
         }
     }
 
@@ -478,7 +478,6 @@ void TAllocationList::getFinalPositionList(TPairPositionAnglesList& FPL,
     MoveToTargetP3();
 
     //get the FPL
-    FPL.Clear();
     RoboticPositionerList->getPositions(FPL);
 
     //restore the initial setting

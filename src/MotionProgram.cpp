@@ -392,9 +392,9 @@ Json::Value TMotionProgram::getJSON(const TPairPositionAnglesList& SPL) const
                 double r2_final_position = PPA->p___3;
 
                 //print the instruction in the MCS format
-                MI_json["rp"] = MI->getId();
-                MI_json["r1"] = round(r1_final_position);
-                MI_json["r2"] = round(-r2_final_position);
+                MI_json["rpid"] = MI->getId();
+                MI_json["r1"] = (int)round(r1_final_position);
+                MI_json["r2"] = (int)round(-r2_final_position);
 
                 //print the instruction in the MCS format
                 //inserting zeros on the left:
@@ -412,9 +412,9 @@ Json::Value TMotionProgram::getJSON(const TPairPositionAnglesList& SPL) const
                 double r2_final_position = MI->Instruction.Args[0];
 
                 //print the instruction in the MCS format
-                MI_json["rp"] = MI->getId();
-                MI_json["r1"] = round(r1_final_position);
-                MI_json["r2"] = round(-r2_final_position);
+                MI_json["rpid"] = MI->getId();
+                MI_json["r1"] = (int)round(r1_final_position);
+                MI_json["r2"] = (int)round(-r2_final_position);
 
                 //print the instruction in the MCS format
                 //inserting zeros on the left:
@@ -432,9 +432,9 @@ Json::Value TMotionProgram::getJSON(const TPairPositionAnglesList& SPL) const
                 double r2_final_position = MI->Instruction.Args[1];
 
                 //print the instruction in the MCS format
-                MI_json["rp"] = MI->getId();
-                MI_json["r1"] = round(r1_final_position);
-                MI_json["r2"] = round(-r2_final_position);
+                MI_json["rpid"] = MI->getId();
+                MI_json["r1"] = (int)round(r1_final_position);
+                MI_json["r2"] = (int)round(-r2_final_position);
 
                 //print the instruction in the MCS format
                 //inserting zeros on the left:

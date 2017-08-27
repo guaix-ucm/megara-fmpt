@@ -346,10 +346,11 @@ string OutputsParkProg::getJSONtext(void) const
 
     //add general section
     root["instrument"] = "MEGARA";
-    root["title"] = "IC1613_s36s64s81";
-    root["description"] = "Parking Program in format JSON.";
+    root["title"] = FMOSA.getTitle();
+    root["description"] = FMOSA.getDescription();
     addUUID(root);
     root["@schema"] = "http://guaix.fis.ucm.es/megara/robot-schema.json";
+    root["@version"] = 1;
 
     //------------------------
     //ADD ROBOT SECTION:
@@ -566,7 +567,7 @@ OutputsParkProg::OutputsParkProg() :
     //properties for built comments about each MP
     Bid(0), SPL(), ParkProgValid(false), FPL(), DsecMax(0),
     //properties for built the executable data
-    ParkProg()
+    ParkProg(), FMOSA()
 {
 }
 

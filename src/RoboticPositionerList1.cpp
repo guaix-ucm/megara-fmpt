@@ -1371,7 +1371,7 @@ void TRoboticPositionerList1::searchOutDomineTAllocations(TVector<int>& indices,
         int j = searchId(PPA.getId());
         TRoboticPositioner *RP = Items[j];
 
-        if(RP->getActuator()->isInDomainp_1(PPA.p_1) || RP->getActuator()->getArm()->isntInDomainp___3(PPA.p___3))
+        if(RP->getActuator()->isntInDomainp_1(PPA.p_1) || RP->getActuator()->getArm()->isntInDomainp___3(PPA.p___3))
             indices.Add(i);
     }
 }

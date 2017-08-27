@@ -88,8 +88,8 @@ SOURCES += \
     src/FMOSA.cpp \
     src/OutputsParkProg.cpp \
     src/OutputsPairPPDP.cpp \
+    src/main_online.cpp
     #---------------------------------------------------------
-    src/main.cpp
 
 HEADERS += \
     src/VCLemu.h \
