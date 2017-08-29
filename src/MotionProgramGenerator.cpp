@@ -1901,7 +1901,7 @@ bool TMotionProgramGenerator::generateParkProg(
     //WARNING: here all RPs retracted must be in security positions,
     //to allow add a message list to go to the origins.
 
-    //Here all RPs included in the DP, are in security position, out the origin.
+    //Here all RPs included in the recovery program, are in security position, out the origin.
 
     //if the parking program is valid
     if(valid) {
@@ -1910,7 +1910,7 @@ bool TMotionProgramGenerator::generateParkProg(
 
         //segregate the operative inners RPs out of the origin and sorts it
         TRoboticPositionerList Inners;
-        Outsiders.segregateOperativeInnersOutTheOrigins(Inners);
+        getFiberMOSModel()->RPL.segregateOperativeInnersOutTheOrigins(Inners);
         Inners.SortInc();
 
         //Sort the RPs isn't really necessary, but is recomendable because produce a more legible output.
