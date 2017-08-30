@@ -49,8 +49,8 @@ TestMotionProgramValidator::TestMotionProgramValidator(void) :
 void TestMotionProgramValidator::setUp() {
     try {
         //load a PP from a sample file
-        string path_PP = "./example_generatePairPPDP_offline/PairPPDP_PP-FMPT_from_megara-cb0.txt";
-        //string path_PP = "../megarafmpt/tests/example_generatePairPPDP_offline/PairPPDP_PP-FMPT_from_megara-cb0.txt"; //Qt only
+        string path_PP = "../data/DataForTests/PairPPDP_PP-FMPT_from_megara-cb0.txt";
+        //string path_PP = "../megarafmpt/tests/PairPPDP_PP-FMPT_from_megara-cb0.txt"; //Qt only
         string str;
         strReadFromFile(str, path_PP);
         TMotionProgram PP;
@@ -63,8 +63,8 @@ void TestMotionProgramValidator::setUp() {
 
     try {
         //load a DP from a sample file
-        string path_DP = "./example_generatePairPPDP_offline/PairPPDP_DP-FMPT_from_megara-cb0.txt";
-        //string path_DP = "../megarafmpt/tests/example_generatePairPPDP_offline/PairPPDP_DP-FMPT_from_megara-cb0.txt"; //Qt only
+        string path_DP = "../data/DataForTests/PairPPDP_DP-FMPT_from_megara-cb0.txt";
+        //string path_DP = "../megarafmpt/tests/PairPPDP_DP-FMPT_from_megara-cb0.txt"; //Qt only
         string str;
         strReadFromFile(str, path_DP);
         TMotionProgram DP;

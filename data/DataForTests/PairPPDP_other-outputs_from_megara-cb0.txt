@@ -1,0 +1,23 @@
+# Pair (PP, DP) outputs generated from FMOSA megara-cb0.txt
+# Generated with FMPT version 4.8.0 and FMM Instance version 1
+# Date of generation: 2017-08-23T21:00:04Z
+# This pair (PP, DP) has been generated without enabled-not-operative RPs.
+# The pair (PP, DP) has been generated without neither collided nor obstructed RPs.
+# A pair (PP, DP) is suitable to be executed when it is valid (avoid collisions) and there aren't
+# dangerous RPs in the Fiber MOS (enabled-not-operative RPs with fault type dynamic or unknowledge),
+# and there aren't neither collided nor obstructed RPs.
+# According the actual status of the FMPT, this pair (PP, DP) is suitable to be executed.
+
+# Positioning program
+# This PP avoids collisions when it is executed starting from the initial positions.
+# All radial movements of this PP keep a security distance upper or equal to 1 mm.
+
+# Depositioning program
+# This DP avoids collisions when it is executed starting from the observing positions.
+# All radial movements of this DP keep a security distance upper or equal to 1 mm.
+
+PPvalid: True
+DPvalid: True
+Collided: {}
+Obstructed: {}
+Collided (including EAs): {}

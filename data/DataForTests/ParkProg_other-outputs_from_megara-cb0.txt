@@ -1,0 +1,17 @@
+# Parkig program outputs generated from FMOSA megara-cb0.txt
+# Generated with FMPT version 4.8.0 and FMM Instance version 1
+# Date of generation: 2017-08-23T20:58:25Z
+# This parking program has been generated without enabled-not-operative RPs.
+# The parking program has been generated without neither collided nor obstructed RPs.
+# A parking program is suitable to be executed when it is valid (avoid collisions) and there aren't
+# dangerous RPs in the Fiber MOS (enabled-not-operative RPs with fault type dynamic or unknowledge).
+# According the actual status of the FMPT, this parking program is suitable to be executed.
+
+# Parking program
+# This parking program avoids collisions when it is executed starting from the starting positions.
+# All radial movements of this parking program keep a security distance upper or equal to 1 mm.
+
+ParkProgValid: True
+Collided: {}
+Obstructed: {}
+Collided (including EAs): {}
