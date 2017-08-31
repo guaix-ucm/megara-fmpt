@@ -42,8 +42,6 @@
 #include <stdio.h> //getchar
 #include <config.h> //PACKAGE_VERSION
 
-//#include "tests/testFileMethods_copia.h"
-
 using namespace Strings;
 using namespace Models;
 using namespace Positioning;
@@ -107,8 +105,8 @@ int main(int argc, char *argv[])
 
         //get (RPids_actual, p_1s_actual, p___3s_actual)
         vector<int> RPids_actual;               //the correspondig identifiers of the RPs.
-        vector<double> p_1s_actual;             //the rotor 1 starting positions of all RPs of the FMM.
-        vector<double> p___3s_actual;           //the rotor 2 starting positions of all RPs of the FMM.
+        vector<double> p_1s_actual;             //the rotor 1 initial positions of all RPs of the FMM.
+        vector<double> p___3s_actual;           //the rotor 2 initial positions of all RPs of the FMM.
         readInput(RPids_actual, p_1s_actual, p___3s_actual, input_path);
 
         //get RPids_disabled_actual
@@ -145,7 +143,7 @@ int main(int argc, char *argv[])
         std::cout << "FMM Instance loaded from: '" << input_path << "'" << std::endl;
 
         //-------------------------------------------------------
-        //Get SPL (Starting Position List) from (RPids_actual, p_1s_actual, p___3s_actual).
+        //Get IPL (Initial Position List) from (RPids_actual, p_1s_actual, p___3s_actual).
 
         //In parking program:
         //  SPL: satrting position list
@@ -156,19 +154,19 @@ int main(int argc, char *argv[])
         //  OPL: observing position list
         //  CPL: collided position list
 
-        TPairPositionAnglesList SPL;
+        TPairPositionAnglesList IPL;
         for(int i=0; i<FMM.RPL.getCount(); i++)
         {
             TPairPositionAngles *PPA = new TPairPositionAngles(RPids_actual[i]);
             PPA->p_1 = p_1s_actual[i];
             PPA->p___3 = p___3s_actual[i];
-            SPL.Add(PPA);
+            IPL.Add(PPA);
         }
 
-        std::cout << "SPL (Starting Position List) got from (RPids_actual, p_1s_actual, p___3s_actual)." << std::endl;
+        std::cout << "IPL (Initial Position List) got from (RPids_actual, p_1s_actual, p___3s_actual)." << std::endl;
 
         //-------------------------------------------------------
-        //Get the OPL from file type FMOSA.
+        //Get the OPL from file type FMOSA and the IPL.
 
         input_path = "/usr/local/share/megara-fmpt/Samples/megara-cb0.meg";
         //input_path = "/home/user/MEGARA/megara-fmpt/data/Samples/megara-cb0.meg";
@@ -195,13 +193,13 @@ int main(int argc, char *argv[])
 
         //get the Observing Position List
         TPairPositionAnglesList OPL;
-        AL.getFinalPositionList(OPL, SPL);
+        AL.getFinalPositionList(OPL, IPL);
 
         //For the point P3 of the RPs go to the more closer stable point to the allocated point (X, Y),
         //this method perform a simmulation of the FMM, determining the angular positions of the rotors (in steps).
         //This method restablish the status of the FMM recovering their initial positions.
 
-        std::cout << "Got Bid from the FMOSA." << std::endl;
+        std::cout << "Got Bid from the FMOSA and the IPL." << std::endl;
 
         //-------------------------------------------------------
         //Get (p_1s_observing, p___3s_observing) from the OPL
@@ -216,11 +214,11 @@ int main(int argc, char *argv[])
         }
 
         //-------------------------------------------------------
-        //Set the SPL in the FMM.
+        //Set the IPL in the FMM.
 
-        FMM.RPL.setPositions(SPL);
+        FMM.RPL.setPositions(IPL);
 
-        std::cout << "SPL setted in the FMM." << std::endl;
+        std::cout << "IPL setted in the FMM." << std::endl;
 
         //-------------------------------------------------------
         //Call the function generatePairPPDP_online:
