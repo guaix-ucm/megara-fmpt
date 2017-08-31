@@ -95,13 +95,13 @@ public:
     /// - comments.
     /// - the pair (PP, DP).
     /// - the FMOSA.
-    void getMEGtext(string& str, bool includeFMOSA=true) const;
+    void getTextMEG(string& str, bool includeFMOSA=true) const;
 
     /// @brief Get outputs in format JSON with:
     /// - comments.
     /// - the pair (PP, DP).
     /// - the FMOSA.
-    string getJSONtext(bool includeFMOSA=true) const;
+    void getTextJSON(string& str, bool includeFMOSA=true) const;
 
     /// @brief Get other outputs in text format with:
     /// - comments.

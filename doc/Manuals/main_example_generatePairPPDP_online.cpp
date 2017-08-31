@@ -17,62 +17,32 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //---------------------------------------------------------------------------
-//File: main_example_generatePairPPDP_online.cpp
-//Content: program for ilustrate the use of the online generation function
-//Author: Isaac Morales Durán
+/// @file main_example_generatePairPPDP_online.cpp
+/// @brief program for generate online a pair (PP, DP)
+/// @author Isaac Morales Durán
 //---------------------------------------------------------------------------
 
-//###########################################################################
-//This file contains an example to ilustrate the use of the FMPT library
-//for generate a pair (PP, DP) using the online function.
-//If you want compile and execute this example perform the following actions:
-//
-//    1. Decompress the release 'megara-fmpt-3.9.3.tar.gz (or xz)
-//
-//    2. Move this file to 'megara-fmpt-3.9.3/src'.
-//
-//    3. Edit the file 'megara-fmpt-3.9.3/src/Makefile.am', and change:
-//           bin_PROGRAMS = fmpt_saa
-//           fmpt_saa_SOURCES = main.cpp
-//           fmpt_saa_LDADD = libfmtp.la
-//           fmpt_saa_CPPFLAGS = $(AM_CPPFLAGS)
-//       By:
-//           bin_PROGRAMS = fmpt_example_generatePairPPDP_online
-//           fmpt_example_generatePairPPDP_online_SOURCES = main_example_generatePairPPDP_online.cpp
-//           fmpt_example_generatePairPPDP_online_LDADD = libfmtp.la
-//           fmpt_example_generatePairPPDP_online_CPPFLAGS = $(AM_CPPFLAGS)
-//
-//    4. Install and execute the example in a separated directory:
-//           $ make build
-//           $ cd build
-//           $ ../megara-fmpt-3.9.3/configure (or the corresponding path)
-//           $ sudo make install
-//
-//    Then the executable will be written in '/usr/local/bin' (or similar).
-//    If you have installed previously the FMPT SAA, the directory will look:
-//        fmpt_saa
-//        fmpt_example_generatePairPPDP_online
-//
-//    If you don't have installed the FMPT SAA previously, maybe you need
-//    execute $ sudo ldcondig for assimilate the FMPT library in the system.
-//
-//    Now you may execute the example with the comand:
-//        $ fmpt_example_generatePairPPDP_online.
-//    The output files will be written in the directory where you execute it.
-//###########################################################################
+//includes for generic
+#include "globalconsts.h"
+#include "Strings.h"
+#include "TextFile.h"
+#include "Geometry.h" //distanceSegmentPoint
+#include "TextFile.h"
+//includes for calculus
+#include "MotionProgramGenerator.h"
+#include "FMOSA.h"
+#include "PositionerCenter.h"
+#include "OutputsPairPPDP.h" //Outputs
+#include "OutputsParkProg.h" //ParkProg
+#include "FileMethods.h"
+#include "roboticpositionertuner.h"
 
-#include "../megarafmpt/src/FileMethods.h"
-#include "../megarafmpt/src/MotionProgramGenerator.h"
-#include "../megarafmpt/src/FMOSATable.h"
-#include "../megarafmpt/src/PositionerCenter.h"
-#include "../megarafmpt/src/Strings.h"
-#include "../megarafmpt/src/TextFile.h"
-#include "../megarafmpt/src/Geometry.h" //distanceSegmentPoint
-#include "../megarafmpt/src/Outputs.h" //Outputs
+#include <clocale> //setlocale, LC_ALL
+#include <iostream> //std::cout, ios::fixed
+#include <stdio.h> //getchar
+#include <config.h> //PACKAGE_VERSION
 
-#include <QCoreApplication> //Qt only
-#include <locale.h> //setlocale, LC_NUMERIC
-#include <iostream> //std::cout
+//#include "tests/testFileMethods_copia.h"
 
 using namespace Strings;
 using namespace Models;
@@ -81,542 +51,270 @@ using namespace Positioning;
 //---------------------------------------------------------------------------
 //GENERAL FUNCTIONS:
 
-//print a text line in the standard output and in the log file
-void append(const string& str, const char *log_filename)
+void readInput(vector<int>& RPids, vector<double>& p_1s, vector<double>& p___3s,
+               const string& input_path)
 {
-    string str_aux = str;
-    str_aux += "\r\n";
+    //load the content of the input file in a string
+    string str;
+    strReadFromFileWithComments(str, input_path);
 
-    std::cout << str_aux;
+    int RPid;
+    double p_1;
+    double p___3;
 
-    char mode[] = "a";
-    TTextFile TF(log_filename, mode);
-    TF.Print(str_aux.c_str());
-    TF.Close();
-}
+    unsigned int i = 0;
 
-//split a path
-void splitpath(string& parent_path, string& filename, const string& path)
-{
-    int i = path.length() - 1;
-    while(i>=0 && path[i] != '/')
-        i--;
+    //get the values (RPid, p_1, p___3) from the string
+    do {
+        i = (unsigned int)str.find("inserted in fmpt", i);
+        if(i != (unsigned int)string::npos) {
+            strTravelLabel("inserted in fmpt", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("rp=", str, i);
+            strReadInt(RPid, str, i);
+            strTravelLabel(",", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("r1=", str, i);
+            strReadFloat(p_1, str, i);
+            strTravelLabel(",", str, i);
+            strTravelSeparatorsIfAny(str, i);
+            strTravelLabel("r2=", str, i);
+            strReadFloat(p___3, str, i);
 
-    parent_path.clear();
-    if(i >= 0)
-        parent_path = path.substr(0, i);
+            RPids.push_back(RPid);
+            p_1s.push_back(p_1);
+            p___3s.push_back(p___3);
+        }
+    } while(i != (unsigned int)string::npos);
 
-    filename.clear();
-    int aux = path.length() - 1;
-    if(i < aux) {
-        int count = aux - i;
-        filename = path.substr(i+1, count);
+    //complete with the RPs that aren't for work
+    for(int i=93; i<=100; i++) {
+        RPids.push_back(i);
+        p_1s.push_back(0);
+        p___3s.push_back(0);
     }
 }
 
 //main function
 int main(int argc, char *argv[])
 {
-    //-----------------------------------------------------------------------
-    //BUILD THE PATH FOR THE INSTANCE OF THE Fiber MOS Model:
-
-    //###################################################################
-    //Using autotools over Linux:
-    //-------------------------------------------------------------------
-    //
-    //Selecting '/home/User/MEGARA' how working directory, before compilation:
-    //  sources shall be in:    '/home/User/MEGARA/megarafmpt/src'
-    //  data shall be in:       '/home/User/MEGARA/megarafmpt/data'
-    //
-    //When compilation has been make in the same directory named megarafmpt:
-    //  sources will be in:     '/home/User/MEGARA/megarafmpt/src'
-    //  data will be in:        '/home/User/MEGARA/megarafmpt/data'
-    //
-    //When compilation has been make in an appart directory named build:
-    //  sources will be in:     '/home/User/MEGARA/build/src'
-    //  data will be in:        '/home/User/MEGARA/build/data'
-    //
-    //When the installation has been make:
-    //  executable will be in:  'prefix/bin'
-    //  data will be in:        'prefix/share/megara-fmpt'
-    //Where prefix is probably '/usr/local'.
-    //
-    //Then the program fmpt_saa compiled with autotools, shall be search the data in the following paths:
-    //  The Fiber MOS Model Instance:
-    //      option 1, when program is installed:    DATADIR+"/Models/MEGARA_FiberMOSModel_Instance"
-    //      option 2, when program is compiled:     getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
-    //  The input data:
-    //      path(argv[2])
-    //
-    //DATADIR is a macro which can be used when the program is compiled using autotools.
-    //DATADIR will be probably: "/urs/local/share/megara-fmpt"
-    //
-    //When the program is compiled using Qt Creator over Linux:
-    //-------------------------------------------------------------------
-    //
-    //The Qt project and the main.cpp file will be in:
-    //  '/home/User/MEGARA/FMPT_SAA-CLI'
-    //The object code and the executable will be in:
-    //  '/home/User/MEGARA/build-FMPT_SAA-CLI-Desktop-Debug'
-    //The other source files and data files will be in the same repository for autotools,
-    //whose relative path from the executable is:
-    //  for source files:   '../megarafmpt/src'
-    //  for data files:     '../megarafmpt/data'
-    //
-    //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
-    //  The Fiber MOS Model Instance:
-    //      when program is released:  getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
-    //      when program is debugging: getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance"
-    //  The input data:
-    //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
-    //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
-    //
-    //Using Qt over Windows:
-    //-------------------------------------------------------------------
-    //
-    //Selecting 'D:\User\MEGARA' how working directory:
-    //The Qt project and the main.cpp file will be in:
-    //  'D:\User\MEGARA\FMPT_SAA-CLI'
-    //The object code and the executable will be in:
-    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Debug'
-    //  'D:\User\MEGARA\build-FMPT_SAA-CLI-Desktop_Qt_5_4_0_GCC_64bit-Release'
-    //
-    //Then the program fmpt_saa compiled with Qt, shall be search the data in the following paths:
-    //  The Fiber MOS Model Instance:
-    //      when program is released:  getCurrentDir()+"\..\megarafmpt\data\Models\MEGARA_FiberMOSModel_Instance"
-    //      when program is debugging: getCurrentDir()+"\..\megarafmpt\data\Models\MEGARA_FiberMOSModel_Instance"
-    //  The input data:
-    //      for applyPositionerCenterTable: path = getCurrentDir()+"/../megarafmpt/data/Models/positionersCenters.txt";
-    //      for applyRP:                    path = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_RP_Instance";
-    //      for generate MPs:               path = getCurrentDir()+"/../megarafmpt/data/Samples/megara-cb6.txt";
-    //
-    //###################################################################
-
-    //-----------------------------------------------------------------------
-    //BUILD A QCoreApplication (QT ONLY):
-
-    //get the actual directory in argv[0]
-    QCoreApplication a(argc, argv);
-
-    //-----------------------------------------------------------------------
-
-    //initalize the log file
-    string log_filename; //the log filename
     try {
-        log_filename = "example_generateGeneratePairPPDP_online.log";
-        char mode[] = "w";
-        TTextFile TF(log_filename.c_str(), mode);
-        TF.Close();
-    }
-    catch(Exception &E) {
-        //indicates that has happened an exception
-        //and show the message of the exception
-        cout << "ERROR: "+E.Message.str << endl;
-        return 1;
-    }
-    catch(...) {
-        //indicates that has happened an unknown exception
-        cout << "ERROR: unknown exception" << endl;
-        return 2;
-    }
+        //-------------------------------------------------------
+        //Get inputs (RPids_actual, p_1s_actual, p___3s_actual) and RPids_disabled_actual.
 
-    try {
-        //-------------------------------------------------------------------
-        //CONFIGURATE THE SYSTEM:
+        string input_path = "/usr/local/share/megara-fmpt/DataForTests/RP_actual_positions.txt";
+        //string input_path = "/home/user/MEGARA/megara-fmpt/data/DataForTests/RP_actual_positions.txt";
 
-        //REMEMBER: exceptions in runtime can be due to that
-        //the system is not configurated.
+        //get (RPids_actual, p_1s_actual, p___3s_actual)
+        vector<int> RPids_actual;               //the correspondig identifiers of the RPs.
+        vector<double> p_1s_actual;             //the rotor 1 starting positions of all RPs of the FMM.
+        vector<double> p___3s_actual;           //the rotor 2 starting positions of all RPs of the FMM.
+        readInput(RPids_actual, p_1s_actual, p___3s_actual, input_path);
 
-        //configurates the decimal separator
-        setlocale(LC_NUMERIC, "C");
+        //get RPids_disabled_actual
+        vector<int> RPids_disabled_actual;      //the identifiers of the RPs of the FMM to be disabled.
+        RPids_disabled_actual.push_back(64);    //for example here is disabled RP64
 
-        //-----------------------------------------------------------------------
-        //LOAD THE FIBER MOS MODEL INSTANCE FROM A DIR:
+        //In MCS you get this inputs directly from the real Fiber MOS.
+        //When you get from the MCS the input data for RPs that aren't for work,
+        //maybe you can get the their (RPid_actual, p_1_actual, p___3_actual) directly from the real Fiber MOS.
 
-        //indicates that the program is running
-        append("FMPT example generatePairPPDP_online is running...", log_filename.c_str());
+        std::cout << "Got inputs (RPids_actual, p_1s_actual, p___3s_actual) and RPids_disabled_actual." << std::endl;
 
-        //built the paths where search the Fiber MOS Model
-        //string dir_FMM1 = DATADIR;
-        //dir_FMM1 += "/Models/MEGARA_FiberMOSModel_Instance";
-        //string dir_FMM2 = getCurrentDir()+"/../data/Models/MEGARA_FiberMOSModel_Instance";
+        //-------------------------------------------------------
+        //Load the FMM Instance.
 
-        //Qt only:
-        string dir_FMM1 = getCurrentDir()+"/../megarafmpt/data/Models/MEGARA_FiberMOSModel_Instance";
-        string dir_FMM2 = dir_FMM1;
+        input_path = "/usr/local/share/megara-fmpt/Models/MEGARA_FiberMOSModel_Instance";
 
-        //load the instance of the Fiber MOS Model from a dir
-        TFiberMOSModel FMM;
-        string dir_FMM;
+        //In MCS you load the FMM Instance from:
+        //  input_path = "/work/megara/share/megara-fmpt/Models/MEGARA_FiberMOSModel_Instance"
 
+        TFiberMOSModel FMM;     //the Fiber MOS Model
         try {
-            append("\r\nLoading FMM instance from: '"+dir_FMM1+"'.", log_filename.c_str());
-            readInstanceFromDir(FMM, dir_FMM1);
-            dir_FMM = dir_FMM1;
+            readInstanceFromDir(FMM, input_path);
+        } catch(Exception& E) {
+            E.Message.Insert(1, "reading FMM Instance: ");
+            throw;
         }
-        catch(Exception& E) {
-            append("FMM instance can't be loaded: "+E.Message.str, log_filename.c_str());
-            try {
-                append("Loading FMM instance from: '"+dir_FMM2+"'.", log_filename.c_str());
-                readInstanceFromDir(FMM, dir_FMM2);
-                dir_FMM = dir_FMM2;
-            }
-            catch(Exception& E) {
-                E.Message.Insert(1, "loading instance: ");
-                throw;
-            }
+
+        //The FMM Instance shall correspont to the status of the real Fiber MOS,
+        //although could have some diferences:
+        //  - have enabled the RPs recentlly disabled in the real Fiber MOS
+        //  - have the (p_1, p___3) in diferent positions that the real Fiber MOS.
+
+        std::cout << "FMM Instance loaded from: '" << input_path << "'" << std::endl;
+
+        //-------------------------------------------------------
+        //Get SPL (Starting Position List) from (RPids_actual, p_1s_actual, p___3s_actual).
+
+        //In parking program:
+        //  SPL: satrting position list
+        //  FPL: final position list
+        //  CPL: collided position list
+        //In pair (PP, DP):
+        //  IPL: initial position list
+        //  OPL: observing position list
+        //  CPL: collided position list
+
+        TPairPositionAnglesList SPL;
+        for(int i=0; i<FMM.RPL.getCount(); i++)
+        {
+            TPairPositionAngles *PPA = new TPairPositionAngles(RPids_actual[i]);
+            PPA->p_1 = p_1s_actual[i];
+            PPA->p___3 = p___3s_actual[i];
+            SPL.Add(PPA);
         }
-        append("FMM instance loaded.", log_filename.c_str());
 
-        //-------------------------------------------------------------------
-        //DECLARE AND BUILD ALL VARIABLES:
+        std::cout << "SPL (Starting Position List) got from (RPids_actual, p_1s_actual, p___3s_actual)." << std::endl;
 
-        //make the folder to put the outputs
-        string output_dir = "example_generatePairPPDP_online";
-        ForceDirectories(AnsiString(output_dir));
+        //-------------------------------------------------------
+        //Get the OPL from file type FMOSA.
 
-        //print the tittle
-        unsigned int Bid = 0; //block identifier
-        append("\r\nOnline generation example of a pair (PP, DP) for a CB"+inttostr(Bid)+":", log_filename.c_str());
-        append("=======================================================", log_filename.c_str());
+        input_path = "/usr/local/share/megara-fmpt/Samples/megara-cb0.meg";
+        //input_path = "/home/user/MEGARA/megara-fmpt/data/Samples/megara-cb0.meg";
 
-        //build the filename of reference (including the Bid)
-        string filename = "example-"+inttostr(Bid)+".txt";
-
-        //the filename will be used to attach the outputs with the input.
-
-        //###################################################################
-        //There are two ways to get a set of allocations:
-        // 1. Load the allocations from a FMOSA file and transfer it to the MPG.
-        // 2. Randomize the allocations without collisions.
-
-        //-------------------------------------------------------------------
-        //WAY 1: GETTING A SET OF ALLOCATIONS LOADING IT FROM A FMOSA FILE:
-
-        //load the Outputs structure from a file
-        string input_path = "/usr/local/share/megara-fmpt/Samples/megara-cb0.txt";
-        Outputs outputs;
-        string str; //string to be written to file each time
+        //load the FMOSA from the file input_path
+        string str;
+        OutputsPairPPDP outputs;
+        unsigned int Bid; //the block identifier
         try {
-            strReadFromFile(str, input_path);
-            outputs.FMOSAT.setTableText(Bid, str);
-
+            strReadFromFileWithComments(str, input_path);
+            outputs.FMOSA.setTableText(Bid, str);
         } catch(Exception& E) {
             E.Message.Insert(1, "reading FMOSA file: ");
             throw;
         }
-        append("FMOSA table loaded from '"+input_path+"'.", log_filename.c_str());
+        std::cout << "FMOSA loaded from file '"+input_path+"'." << std::endl;
 
-        //get the allocation from the FMOSA table
-        TMotionProgramGenerator MPG(&FMM);
-        outputs.FMOSAT.getAllocations(MPG);
-        append("Allocations got from the FMOSA table to MPG.", log_filename.c_str());
+        //In the MCS you get the OPL also from the file type FMOSA, but it is possible it was already in memory.
 
-        //save the allocation list
-        str = TAllocation::GetIdPPLabelsRow().str;
-        str += "\r\n"+MPG.getColumnText().str;
-        string output_filename = output_dir+"/AL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Allocation list saved in '"+output_filename+"'.", log_filename.c_str());
+        //get the allocations from the FMOSA
+        TAllocationList AL(&FMM.RPL);
+        outputs.FMOSA.getAllocations(AL);
+        std::cout << "Allocations got from the FMOSA to MPG." << std::endl;
 
-        //###################################################################
-
-        //-------------------------------------------------------------------
-        //TEST THE FUNCTION FOR GENERATE PAIRS (PP, DP) ONLINE:
-
-        //move the RPs to the more closer stable point to the projection points
-        MPG.MoveToTargetP3();
-        append("RPs moved to observing positions.", log_filename.c_str());
-
-        //A PPA list shall be stored how a table (Id, p_1, p___3).
-
-        //captures the observing positions of the RPs in a PPA list
+        //get the Observing Position List
         TPairPositionAnglesList OPL;
-        FMM.RPL.getPositions(OPL);
-        str = TActuator::getPositionPPALabelsRow().str;
-        str += "\r\n"+OPL.getColumnText().str;
-        ForceDirectories(AnsiString(output_dir));
-        output_filename = output_dir+"/OPL-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Observing position list saved in '"+output_filename+"'.", log_filename.c_str());
+        AL.getFinalPositionList(OPL, SPL);
 
-        //Other whay to obtain the observing position list directly in text format:
-        //  FMM.RPL.getPositionsPPATableText()
+        //For the point P3 of the RPs go to the more closer stable point to the allocated point (X, Y),
+        //this method perform a simmulation of the FMM, determining the angular positions of the rotors (in steps).
+        //This method restablish the status of the FMM recovering their initial positions.
 
-        //copy the position angles in the input parameters
-        vector<double> p_1s, p___3s;
-        for(int i=0; i<FMM.RPL.getCount(); i++) {
-            TRoboticPositioner *RP = FMM.RPL[i];
-            p_1s.push_back(RP->getActuator()->getp_1());
-            p___3s.push_back(RP->getActuator()->getArm()->getp___3());
-        }
-        append("Input parameters extracted from the FMM. (p_1s, p___3s).", log_filename.c_str());
+        std::cout << "Got Bid from the FMOSA." << std::endl;
 
-        //move the RPs to their origin positions
-        FMM.RPL.moveToOrigins();
-        append("RPs moved to origins.", log_filename.c_str());
+        //-------------------------------------------------------
+        //Get (p_1s_observing, p___3s_observing) from the OPL
 
-        //Move the FMM to the origins is convenient because this function is
-        //for test the generating function, but it is not really necessary.
+        vector<double> p_1s_observing;
+        vector<double> p___3s_observing;
 
-        //determine the RPs to be disabled
-        vector<int> Ids;
-        //TBD
-        append("List of Ids of RPs to be disabled must match with the real Fiber MOS.", log_filename.c_str());
-
-        //When you re-use the Ids, you need to do:
-        //  Ids.clear();
-        //before determine the RPs to be disabled.
-
-        //The RPs that shall be disabled depend of the status of the RPs
-        //of the real Fiber MOS.
-
-        //call the function to test
-        TMotionProgram PP, DP;
-        append("Calling function generatePairPPDP_online...", log_filename.c_str());
-        append("----------------------------------------------------------------", log_filename.c_str());
-        append("PairPPDPvalid = generatePairPPDP_online(PP, DP,", log_filename.c_str());
-        append("                                        FMM, p_1s, p___3s, Ids);", log_filename.c_str());
-        bool PairPPDPvalid = generatePairPPDP_online(PP, DP,
-                                                     FMM, p_1s, p___3s, Ids);
-        append("----------------------------------------------------------------", log_filename.c_str());
-        append("Returned from function generatePairPPDP_online.", log_filename.c_str());
-
-        //When you re-use the MPs, you need to do:
-        //  PP.clear();
-        //  DP.clear();
-        //before call the generation function.
-
-        //WARNING: function generatePairPPDP_online not return the lists Collided and Obstructed.
-        //So it is possible that the function return true, but there are RPs collided or obstructed.
-        //in these case, these RPs will not be included in the pair (PP, DP).
-        //Inputs and outputs parameters of the function generatePairPPDP_online,
-        //was stablished by request of the programmer of the MCS, who was warned about this circunstance.
-
-        //determine the list of RPs included in the pair (PP, DP)
-        //and the list of Ids excluded from the pair (PP, DP)
-        TRoboticPositionerList Included;
-        getRPsIncludedInMPs(Included, PP, DP, &FMM);
-        TVector<int> Excluded;
-        for(int i=0; i<FMM.RPL.getCount(); i++) {
-            TRoboticPositioner *RP = FMM.RPL[i];
-            int j = Included.Search(RP);
-            if(j >= Included.getCount())
-                Excluded.Add(RP->getActuator()->getId());
+        for(int i=0; i<OPL.getCount(); i++) {
+            TPairPositionAngles *PPA = OPL.GetPointer(i);
+            p_1s_observing.push_back(PPA->p_1);
+            p___3s_observing.push_back(PPA->p___3);
         }
 
-        //THE DISABLED RPs WILL STAY DISABLED IN THE FMM.
+        //-------------------------------------------------------
+        //Set the SPL in the FMM.
 
-        //restore de enabling status of all RPs
-        for(unsigned int i=0; i<Ids.size(); i++) {
-            int Id = Ids[i];
-            int j = FMM.RPL.searchId(Id);
-            if(j >= FMM.RPL.getCount())
-                throw EImpossibleError("lateral effect");
-            FMM.RPL[j]->Disabled = false;
-        }
+        FMM.RPL.setPositions(SPL);
 
-        //Here are re-enabled the RPs for ilustrate the modo to do this,
-        //but in MCS, RPs not should be re-enabled. Instead of that,
-        //the new status of the RPs should be indicated in the FMM instance,
-        //(writing Disabled = true), because the instance will be re-loaded
-        //in case of fault of power supply.
+        std::cout << "SPL setted in the FMM." << std::endl;
 
-        //---------------------------------------------------------------
-        //SAVE THE OUTPUTS AND PRINT THE CORRESPONDING MESSAGES:
+        //-------------------------------------------------------
+        //Call the function generatePairPPDP_online:
 
-        //You need to know that the generated MPs are in the format of the FMPT.
-        //So you may access to the information from each MI of each generated MP,
-        //and you may translate each MP to the format of the MCS.
-        //Due to the format of the MCS requires the coordinates even the rotors
-        //that aren't moved, the translation need the list of initial positions
-        //(the IPL for the PP, and the OPL for the DP).
+        bool pairPPDPSuitable;      //true: if the generated pair (PP, DP) is suitable to be executed.
 
-        //if pair (PP, DP) was successfully generated
-        if(PairPPDPvalid) {
-            //indicates the result of the generation
-            append("Generated pair (PP, DP) is valid.", log_filename.c_str());
+        //A pair (PP, DP) is suitable to be executed when avoid collissions,
+        //and there aren't collided or obstructed RPs (in the initial status).
 
-            //access to each message instruction of the PP
-            for(int i=0; i<PP.getCount(); i++) {
-                TMessageList *ML = PP.GetPointer(i);
-                for(int j=0; j<ML->getCount(); j++) {
-                    //point the indicated message instruction
-                    TMessageInstruction *MI = ML->GetPointer(j);
+        std::cout << "Calling function generatePairPPDP_online(outputs, FMM, p_1s_observing, p___3s_observing, RPids_disabled_actual, Bid)..." << std::endl;
 
-                    //get the information from the message instruction
-                    int Id = MI->getId();
-                    TInstruction I = MI->Instruction;
-                    string name = I.getName().str;                    
-                    if(name == "M1") { //if the instruction move the rotor 1
-                        double p_1 = I.Args[0];
-                        //here is possible use the properties (Id, p_1) of the MI (i, j)
-                    }                    
-                    else if(name == "M2") { //if the instruction move the rotor 2
-                        double p___3 = I.Args[0];
-                        //here is possible use the properties (Id, p___3) of the MI (i, j)
-                    }                    
-                    else if(name == "MM") { //if the instruction move both rotors
-                        double p_1 = I.Args[0];
-                        double p___3 = I.Args[1];
-                        //here is possible use the properties (Id, p_1, p___3) of the MI (i, j)
-                    }
-                    else
-                        throw EImpossibleError("lateral effect");
+        //Generate the pair (PP, DP) online.
+        pairPPDPSuitable = generatePairPPDP_online(outputs, FMM, p_1s_observing, p___3s_observing, RPids_disabled_actual, Bid);
+
+        std::cout << "Returned from function generatePairPPDP_online." << std::endl;
+        std::cout << "PairPPDPSuitable: " << BoolToStr(pairPPDPSuitable, true).str << std::endl;
+
+        //-------------------------------------------------------
+        //Use the output data for program the real Fiber MOS:
+
+        //Definitions:
+        //  outputs.PP:                   the motion program containing the instructions
+        //  outputs.PP.getcount():        number of gestures to be exxecuted
+        //  outputs.PP[i].getCount():     number of message-of-instructions in the gesture i
+        //  outputs.PP[i][j].Instruction: the instructions contained in the message (i, j)
+        //  Instruction.getName():              name of the instruction
+        //  Instruction.Args.getCount():        argument's number of the instruction
+        //  Instruction.Args[k]:                the argument k of the instruction
+
+        //Note that Instruction.Args constains coordinates p_1 and p___3 in doubles.
+        //For get r1 and r2, you need invert the sign of p___3.
+
+        TMotionProgram *PP = &outputs.PP;
+
+        std::cout << std::endl;
+        std::cout << "Accessing to the PP (Positioning Program):" << std::endl;
+
+        for(int i=0; i<PP->getCount(); i++) {
+            TMessageList *ML = PP->GetPointer(i);
+
+            std::cout << StrIndent("Message list ").str << inttostr(i) << ":" << std::endl;
+
+            for(int j=0; j<ML->getCount(); j++) {
+                TMessageInstruction *MI = ML->GetPointer(j);
+                int RPid = MI->getId();
+                TInstruction *Instruction = &MI->Instruction;
+
+                std::cout << StrIndent(StrIndent("Message instruction ")).str << inttostr(j) << ":";
+                std::cout << " rpid: " << RPid << ";";
+
+                if(Instruction->getName().str == "M1") {
+                    std::cout << " r1: " << inttostr((int)Instruction->Args[0]) << ";";
+                    std::cout << " r2: " << "the actual" << ";";
+                } else if(Instruction->getName().str == "M2") {
+                    std::cout << " r1: " << "the actual" << ";";
+                    std::cout << " r2: " << inttostr((int)-Instruction->Args[0]) << ";"; //here you invert the sign of p___3 for get r2
+                } else if(Instruction->getName() == "MM") {
+                    std::cout << " r1: " << inttostr((int)Instruction->Args[0]) << ";";
+                    std::cout << " r2: " << inttostr((int)-Instruction->Args[1]) << ";"; //here you invert the sign of p___3 for get r2
                 }
+
+                std::cout << std::endl;
+
             }
-
-            //access to each message instruction of the DP
-            for(int i=0; i<DP.getCount(); i++) {
-                TMessageList *ML = DP.GetPointer(i);
-                for(int j=0; j<ML->getCount(); j++) {
-                    //point the indicated message instruction
-                    TMessageInstruction *MI = ML->GetPointer(j);
-
-                    //get the information from the message instruction
-                    int Id = MI->getId();
-                    TInstruction I = MI->Instruction;
-                    string name = I.getName().str;                    
-                    if(name == "M1") { //if the instruction move the rotor 1
-                        double p_1 = I.Args[0];
-                        //here is possible use the properties (Id, p_1) of the MI (i, j)
-                    }                    
-                    else if(name == "M2") { //if the instruction move the rotor 2
-                        double p___3 = I.Args[0];
-                        //here is possible use the properties (Id, p___3) of the MI (i, j)
-                    }                    
-                    else if(name == "MM") { //if the instruction move both rotors
-                        double p_1 = I.Args[0];
-                        double p___3 = I.Args[1];
-                        //here is possible use the properties (Id, p_1, p___3) of the MI (i, j)
-                    }
-                    else
-                        throw EImpossibleError("lateral effect");
-                }
-            }
-
-            //save the PP in the format of the FMPT
-            str = PP.getText().str;
-            output_filename = output_dir+"/PP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Positioning program in the format of the FMPT saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //save the DP in the format of the FMPT
-            str = DP.getText().str;
-            output_filename = output_dir+"/DP-FMPT-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program in the format of the FMPT saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //Given that here the generated pair (PP, DP) is valid,
-            //all operative outsider RPs which aren't obstructed, should be:
-            //- in the origin positions.
-            //Because function TMotionProgramGenerator::generatePairPPDP,
-            //test first the DP and after the PP, but at the end
-            //move all RPs to their initial positions.
-
-            //captures the initial positions of the RPs in a PPA list
-            TPairPositionAnglesList IPL;
-            FMM.RPL.getPositions(IPL);
-            string str = TActuator::getPositionPPALabelsRow().str;
-            str += "\r\n"+IPL.getColumnText().str;
-            string output_filename = output_dir+"/IPL-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Initial position list saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //Other whay to obtain the initial position table directly in text format:
-            //  FMM.RPL.getPositionsPPATableText()
-
-            //translates the positioning program to the format of the MCS
-            //and save it in a file
-            PP.getInterfaceText(str, "pos", Bid, IPL, true);
-            append("Positiong program translated to the format of the MCS.", log_filename.c_str());
-            output_filename = output_dir+"/PP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Positioning program in the format of the MCS saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //translates the depositioning program to the format of the MCS
-            //and save it in a file
-            DP.getInterfaceText(str, "depos", Bid, OPL, true);
-            append("Depositiong program translated to the the format of the MCS.", log_filename.c_str());
-            output_filename = output_dir+"/DP-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Depositioning program in the format of the MCS saved in '"+output_filename+"'.", log_filename.c_str());
-
-            //###############################################################
-            //WAY 1: GETTING A SET OF ALLOCATIONS LOADING THEM FROM A FMOSA FILE:
-
-            //If you use the way 2, you must comment this instructions,
-            //because the outputs file only can be obtained when the allocations
-            //has been loaded from a FMOSA file, because it contains
-            //the FMOSA table in addition to the pair(PP, DP).
-
-            //get the outputs file
-            outputs.PP = PP;
-            outputs.DP = DP;
-            outputs.getOutputsText(str, Bid, OPL, IPL, true);
-            output_filename = output_dir+"/outputs-from-"+filename;
-            strWriteToFile(output_filename, str);
-            append("Pair (PP, DP) saved in '"+output_filename+"'.", log_filename.c_str());
-            //###############################################################
-        }
-        else {
-            //Given that here the generated pair (PP, DP) is invalid,
-            //all operative outsider RPs which aren't obstructed, should be:
-            //- in the first position where the collision was detected.
-            //During the test of DP or the test of PP.
-
-            //print the result of generation of the PP
-            append("Generated pair (PP, DP) is not valid, because either PP nor DP is invalid.", log_filename.c_str());
         }
 
-        //Below alll instruction about Obstructed or Collided has been comented:
-        //
-        //if(Obstructed.getCount() > 0)
-        //    append("There are obstructed RPs: "+Obstructed.getText().str, log_filename.c_str());
-        //
-        //if(Collided.getCount() > 0)
-        //    append("There are collided RPs: "+Collided.getText().str, log_filename.c_str());
+        //-------------------------------------------------------
+        //Use the output data for get the outputs file:
 
-        //print the other outputs in the corresponding file
-        str = "PairPPDPvalid: "+BoolToStr(PairPPDPvalid, true).str;
-        //str += "\r\nCollided: "+Collided.getText().str;                         //not returned by the function online
-        //str += "\r\nObstructed: "+Obstructed.getText().str;                     //not returned by the function online
-        str += "\r\nExcluded: "+Excluded.getText().str;
-        if(DP.thereIsSomeComment1())
-            str += "\r\nDP comments:\r\n"+DP.getComment1sColumnText();
-        if(PP.thereIsSomeComment1())
-            str += "\r\nPP comments:\r\n"+PP.getComment1sColumnText();
-        output_filename = output_dir+"/other-outputs-from-"+filename;
-        strWriteToFile(output_filename, str);
-        append("Other outputs saved in '"+output_filename+"'.", log_filename.c_str());
+        string outputs_str_MEG;
+        outputs.getTextMEG(outputs_str_MEG);
+        string outputs_str_JSON;
+        outputs.getTextJSON(outputs_str_JSON);
 
-        //END OF SAVE THE OUTPUTS
+        std::cout << std::endl;
+        std::cout << "Printing the pair (PP, DP):";
+        std::cout << " (outputs_str_meg, outputs_str_json) got from structure outputs." << std::endl;
 
-        //Note that not collided and not obstructed should be part of the stop condition,
-        //but they are discarted in the function of generation online.
+        //Now you can use outputs_str_meg or outputs_str_json.
 
-        //indicates that the generating example has finished
-        append("\r\nFinished online generation of a pair (PP, DP) for CB"+inttostr(Bid)+"!", log_filename.c_str());
-        append("PairPPDPvalid: "+BoolToStr(PairPPDPvalid, true).str, log_filename.c_str());
-        //append("Collided: "+Collided.gettText().str, log_filename.c_str());     //not returned by the function online
-        //append("Obstructed: "+Obstructed.gettText().str, log_filename.c_str()); //not returned by the function online
-        append("Excluded: "+Excluded.getText().str, log_filename.c_str());
     }
     catch(Exception &E) {
         //indicates that has happened an exception
         //and show the message of the exception
-        append("ERROR: "+E.Message.str, log_filename.c_str());
+        std::cout << "ERROR: " << E.Message.str << std::endl;
         return 1;
     }
     catch(...) {
         //indicates that has happened an unknown exception
-        append("ERROR: unknown exception", log_filename.c_str());
+        std::cout << "ERROR: unknown exception" << std::endl;
         return 2;
     }
 
-    //-----------------------------------------------------------------------
-
     //indicates that the program has been executed without error
-    return a.exec();
+    return 0;
 }
+

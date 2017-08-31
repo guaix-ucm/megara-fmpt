@@ -326,7 +326,7 @@ string OutputsPairPPDP::getCommentsText(void) const
 //  comments
 //  the pair (PP, DP)
 //  the FMOSA
-void OutputsPairPPDP::getMEGtext(string& str, bool includeFMOSA) const
+void OutputsPairPPDP::getTextMEG(string& str, bool includeFMOSA) const
 
 {
     locale l;
@@ -391,7 +391,7 @@ void OutputsPairPPDP::getMEGtext(string& str, bool includeFMOSA) const
 //  comments
 //  the pair (PP, DP)
 //  the FMOSA
-string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
+void OutputsPairPPDP::getTextJSON(string& str, bool includeFMOSA) const
 {
     locale l;
     if(l.name() != "C")
@@ -449,8 +449,8 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
 
     //if the EA1 is collided, add 0 to rps_collided
     Json::Value rps_collided(Json::arrayValue);
-    int i = collided_str.find("EA1", 0);
-    if(i < string::npos)
+    string::size_type pos = collided_str.find("EA1", 0);
+    if(pos != string::npos)
         rps_collided.append(Json::Value(0));
 
     //add the identifiers of the collided RPs to rps_collided
@@ -487,7 +487,6 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
 
     //------------------------
 
-    string str;
     if(suitable())
         str = "";
     else {
@@ -496,7 +495,6 @@ string OutputsPairPPDP::getJSONtext(bool includeFMOSA) const
     }
     Json::StyledWriter writer;
     str += writer.write(root);
-    return str;
 }
 
 //get other outputs in text format with:

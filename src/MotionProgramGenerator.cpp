@@ -2963,7 +2963,7 @@ bool generateParkProg_online(string& outputs_str,
                                          FMMI_dir, p_1s, p___3s, RPids, Bid);
 
     //print the structure outputs
-    outputs.getMEGtext(outputs_str);
+    outputs.getTextMEG(outputs_str);
 
     //indicates that conditions for approbation are met
     return valid;
@@ -2992,7 +2992,7 @@ bool generatePairPPDP_online(string& outputs_str,
                                          FMMI_dir, p_1s, p___3s, RPids, Bid);
 
     //print the structure outputs without FMOSA
-    outputs.getMEGtext(outputs_str, false);
+    outputs.getTextMEG(outputs_str, false);
 
     //indicates that conditions for approbation are met
     return valid;

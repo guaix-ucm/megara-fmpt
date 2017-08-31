@@ -277,7 +277,7 @@ string OutputsParkProg::getCommentsText(void) const
 //get outputs in format MEG with:
 //  comments
 //  the parking program
-void OutputsParkProg::getMEGtext(string& str) const
+void OutputsParkProg::getTextMEG(string& str) const
 {
     locale l;
     if(l.name() != "C")
@@ -316,7 +316,7 @@ void OutputsParkProg::getMEGtext(string& str) const
 //get outputs in format JSON with:
 //  comments
 //  the parking program
-string OutputsParkProg::getJSONtext(void) const
+void OutputsParkProg::getTextJSON(string& str) const
 {
     locale l;
     if(l.name() != "C")
@@ -374,8 +374,8 @@ string OutputsParkProg::getJSONtext(void) const
 
     //if the EA1 is collided, add 0 to rps_collided
     Json::Value rps_collided(Json::arrayValue);
-    int i = collided_str.find("EA1", 0);
-    if(i < string::npos)
+    string::size_type pos = collided_str.find("EA1", 0);
+    if(pos != string::npos)
         rps_collided.append(Json::Value(0));
 
     //add the identifiers of the collided RPs to rps_collided
@@ -402,7 +402,6 @@ string OutputsParkProg::getJSONtext(void) const
 
     //------------------------
 
-    string str;
     if(suitable())
         str = "";
     else {
@@ -411,7 +410,6 @@ string OutputsParkProg::getJSONtext(void) const
     }
     Json::StyledWriter writer;
     str += writer.write(root);
-    return str;
 }
 
 //get other outputs in text format with:
@@ -565,7 +563,10 @@ OutputsParkProg::OutputsParkProg() :
     Collided(),
     Obstructed(),
     //properties for built comments about each MP
-    Bid(0), SPL(), ParkProgValid(false), FPL(), DsecMax(0),
+    ParkProgValid(false),
+    DsecMax(0),
+    //properties for built comments about each MP
+    Bid(0), SPL(), FPL(),
     //properties for built the executable data
     ParkProg(), FMOSA()
 {
@@ -586,8 +587,8 @@ void OutputsParkProg::Clear(void)
     DsecMax = 0;
     Bid = 0;
     SPL.Clear();
-    ParkProg.Clear();
     FPL.Clear();
+    ParkProg.Clear();
 }
 
 //determine if the outputs is suitable to be executed:

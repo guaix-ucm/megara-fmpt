@@ -84,12 +84,12 @@ public:
     /// @brief Get outputs in format MEG with:
     /// - comments.
     /// - the parking program.
-    void getMEGtext(string& str) const;
+    void getTextMEG(string& str) const;
 
     /// @brief Get outputs in format JSON with:
     /// - comments.
     /// - the parking program.
-    string getJSONtext(void) const;
+    void getTextJSON(string& str) const;
 
     /// @brief Get other outputs in text format with:
     /// - comments.
